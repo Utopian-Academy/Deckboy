@@ -1399,6 +1399,7 @@
     }
     // Dependency prompts sit above the settings modal so the operator sees
     // them right where the toggle they just clicked lives.
+    renderRenderDialog();
     renderDependencyPrompt();
     // Popups rendered last (on top)
     renderContextMenu();

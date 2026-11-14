@@ -3269,3 +3269,1212 @@ whole picture	hele billedet
 FX CHOICE: choice must be A or B	FX CHOICE: valget skal være A eller B
 FX CHOICE: no effect at that index	FX CHOICE: ingen effekt ved det indeks
 FX LFO: slot is A-D for the parameters, E for the amount, F and G for the fifth and sixth (or 0-6)	FX LFO: slot er A-D til parametrene, E til mængden, F og G til den femte og sjette (eller 0-6)
+(choose cue)	(vælg cue)
+(missing)	(mangler)
+(no slots)	(ingen pladser)
+(set media file)	(vælg mediefil)
+(set url)	(angiv URL)
+A number	Et tal
+A number, or blank for none	Et tal, eller tomt for ingen
+across the grain	på tværs af kornet
+additive	additiv
+alternating	skiftevis
+amber	ravgul
+angle	vinkel
+Art-Net Destination	Art-Net-destination
+ASIO is off	ASIO er slået fra
+ATEM Input	ATEM-indgang
+Attach Lower Third	Tilknyt Lower Third
+Attach PIP Overlay	Tilknyt PIP-lag
+Attack	Anslag
+attack	anslag
+Audio bitrate	Lydbitrate
+Audio reactivity	Lydreaktivitet
+band curve	båndkurve
+Bands	Bånd
+bands	bånd
+base layer	grundlag
+black point	sortpunkt
+bleed	udflydning
+Blobs	Klumper
+block glitch	blokfejl
+block size	blokstørrelse
+blocks	blokke
+blur	sløring
+BOTH	BEGGE
+bright	lys
+Browser Ready	Browser klar
+Brush opacity	Penselopacitet
+Brush size	Penselstørrelse
+buzzer	summer
+by brightness	efter lysstyrke
+cancelled	annulleret
+Canvas Height	Lærredshøjde
+Canvas View	Lærredsvisning
+Canvas Width	Lærredsbredde
+catch	indfangning
+caustics	kaustik
+Centre X	Centrum X
+Centre Y	Centrum Y
+channel skew	kanalforskydning
+channel spread	kanalspredning
+character	tegn
+chop	hakning
+CLASSIC	KLASSISK
+CLOCK	UR
+coherence	kohærens
+colour bleed	farveudflydning
+colour drift	farvedrift
+colour lag	farveforsinkelse
+colour replace	farveerstatning
+columns	kolonner
+Control change	Kontrolændring
+convergence	konvergens
+copies	kopier
+corrupt	ødelæg
+corruption	forvrængning
+coupling	kobling
+crystallise	krystallisér
+Cue Notes	Cue-noter
+curl detail	hvirveldetalje
+curves	kurver
+Custom Glyphs	Egne glyffer
+Custom Output Raster	Eget udgangsraster
+cut bright	fjern lyst
+cut dark	fjern mørkt
+cut reset	nulstil ved klip
+cutoff	grænsefrekvens
+cuts	snit
+damage	skade
+damping	dæmpning
+dark	mørk
+darkness	mørke
+deck age	afspilleralder
+Density	Tæthed
+depth	dybde
+depth split	dybdeopdeling
+Destination Address	Destinationsadresse
+Destination UDP port	UDP-destinationsport
+Detail	Detalje
+diamond	rombe
+display native	skærmens oprindelige
+Display none	Ingen skærm
+distance	afstand
+DMX Channels	DMX-kanaler
+dots move	prikbevægelse
+Draw colour	Tegnefarve
+drip	dryp
+drips	dryp
+drive	overstyring
+dye advect	farvetransport
+edge ignite	kantglød
+edges	kanter
+empty	tom
+empty expression	tomt udtryk
+extended	udvidet
+EXTREME	EKSTREM
+facet light	facetlys
+falloff	aftagning
+falsecolour	falske farver
+feed rate	tilførselshastighed
+feedback bloom	feedbackblomstring
+Feedback zoom	Feedbackzoom
+ferrofluid	ferrovæske
+field of view	synsfelt
+flash length	blinkvarighed
+flash to	blinkfarve
+flicker	flimmer
+Flipbook rate	Bladretempo
+floor	bund
+Flow	Strømning
+flow	strømning
+focus	fokus
+fold point	foldpunkt
+frames	billeder
+Frequency	Frekvens
+frequency	frekvens
+gap	mellemrum
+gather	saml
+glow	glød
+glyph set	glyfsæt
+grain	korn
+grain flow	kornstrøm
+grain size	kornstørrelse
+green split	grøn opdeling
+Grey	Grå
+grid	gitter
+growl	knurren
+growth	vækst
+head wear	hovedslid
+heat	varme
+Height	Højde
+Height (px)	Højde (px)
+highlight roll	højlysrulning
+horizontal	vandret
+hue turn	farvetonedrejning
+ice	is
+ink	blæk
+interference	interferens
+irregularity	uregelmæssighed
+jump	spring
+kaleido	kalejdo
+kaleidoscope	kalejdoskop
+Key Color	Nøglefarve
+knee	knæ
+knife angle	knivvinkel
+leak	lækage
+let go	slip
+lift	løft
+light	lys
+light angle	lysvinkel
+lightspeed	lyshastighed
+line colour	linjefarve
+line glow	linjeglød
+Lower Third - subtitle	Lower Third - undertitel
+Lower Third - title	Lower Third - titel
+Lower Third Subtext	Lower Third undertekst
+Lower Third Title	Lower Third titel
+luma displace	lumaforskydning
+luma key	lumanøgle
+Mask opacity	Maskeopacitet
+Mask rotation	Maskerrotation
+Mask scale	Maskeskala
+Mask X	Maske X
+Mask Y	Maske Y
+material	materiale
+Melt	Smeltning
+melt	smeltning
+memory	hukommelse
+midtones	mellemtoner
+mosaic	mosaik
+motion mosh	bevægelsesmosh
+motion puppet	bevægelsesdukke
+motion trails	bevægelsesspor
+music & sparkle	musik og glimmer
+night eyes	natteøjne
+no colour	ingen farve
+noise	støj
+not connected	ikke tilsluttet
+not on this output	ikke på denne udgang
+nothing drawn	intet tegnet
+off-axis	uden for aksen
+offline	frakoblet
+orbit speed	omløbshastighed
+Out time	Udgangstid
+Output Alpha	Udgangsalfa
+Output Canvas	Udgangslærred
+Output Delay	Udgangsforsinkelse
+output fault	udgangsfejl
+Output name	Udgangsnavn
+Output Refresh	Udgangsopdatering
+overflow	overløb
+own playlist	egen afspilningsliste
+parallax	parallakse
+Payload	Nyttedata
+Percent 0-100	Procent 0-100
+phone	telefon
+Phrases	Fraser
+pinch	knib
+pink noise	lyserød støj
+pitch	tonehøjde
+pivot	omdrejningspunkt
+Pixel density	Pixeltæthed
+pixel sort	pixelsortering
+polar warp	polær forvrængning
+posterise	posterisér
+Practice show	Øveshow
+PREVIOUS	FORRIGE
+Program change	Programskift
+Prompter script	Promptertekst
+pythagorean	pythagoræisk
+QUALITY	KVALITET
+radial zoom	radialzoom
+ramp	rampe
+range	område
+ratio	forhold
+Raw bytes	Rå bytes
+Raw MIDI Bytes	Rå MIDI-bytes
+reach	rækkevidde
+reaction bloom	reaktionsblomstring
+recordings	optagelser
+recovering	gendanner
+refresh	opdatér
+Release	Udklingning
+release	udklingning
+relight	genbelys
+Rename cue	Omdøb cue
+Rename fixture	Omdøb armatur
+Renumber Cues	Omnummerér cues
+repeat width	gentagelsesbredde
+Replay hold	Gentagelseshold
+resonance	resonans
+Retrigger	Genudløs
+reverse	omvendt
+rgb split	RGB-opdeling
+Rim	Kant
+rings	ringe
+ripple	krusning
+rising	stigende
+rod bias	stavvægtning
+room	rum
+rot	råd
+round	rund
+sag	spændingsfald
+saw	savtak
+scanlines	skannelinjer
+scope	signalmåler
+SCOPES	SIGNALMÅLERE
+second mode	anden tilstand
+see through	gennemsigtighed
+seed density	frøtæthed
+self	selv
+settle	fald til ro
+shadow lift	skyggeløft
+shake	rystelse
+shard size	skårstørrelse
+sharpen	skarphed
+sheen	skær
+sideways	sidelæns
+slit scan	spalteskanning
+slit width	spaltebredde
+Smear	Udsmøring
+smear	udsmøring
+softness	blødhed
+solarise	solarisér
+Source Ready	Kilde klar
+spike count	antal spidser
+spike length	spidslængde
+spin	drejning
+spinning	roterende
+spring	fjeder
+sprite sheet	spriteark
+Sprite spin	Spritedrejning
+square	firkant
+SRT latency	SRT-latens
+SRT passphrase	SRT-adgangssætning
+SRT stream ID	SRT-strøm-ID
+ST 2110 Destination	ST 2110-destination
+ST 2110 network interface	ST 2110-netværksinterface
+ST 2110 Port	ST 2110-port
+Step length	Trinlængde
+steps	trin
+stiffness	stivhed
+sting	stik
+stream restart needed	strøm skal genstartes
+Stream URL	Strøm-URL
+stream write failed	strømskrivning mislykkedes
+strength	styrke
+strobe	stroboskop
+stroke	strøg
+SUBTLE	DISKRET
+sway	svajen
+sweep speed	sweephastighed
+swell speed	svulmehastighed
+Switcher IP address	Billedmixers IP-adresse
+symbols	symboler
+system default	systemstandard
+system output	systemudgang
+tape	bånd
+tape age	båndalder
+target cue is gone	mål-cue er væk
+targets nothing	intet mål
+tear width	rivebredde
+temporal dither	tidsdithering
+test signal	testsignal
+text to send	tekst til afsendelse
+threshold	tærskel
+throw	kast
+tile size	flisestørrelse
+tilt	hældning
+time	tid
+time cube	tidskube
+Timer Message	Timerbesked
+tint	toning
+tint colour	toningsfarve
+tracking	sporing
+trail	spor
+transparent	gennemsigtig
+triangle	trekant
+triple beep	tredobbelt bip
+Turn	Drejning
+turn	drejning
+Twist	Vridning
+twist	vridning
+unavailable	utilgængelig
+unbalanced )	uparret )
+Universe (0-63999)	Univers (0-63999)
+URL or local page path	URL eller lokal sidesti
+vapor	damp
+vector	vektor
+vertical	lodret
+vertical bias	lodret vægtning
+Video bitrate	Videobitrate
+Video dip fade	Video-dip-fade
+vignette	vignet
+wash out	udvaskning
+wave height	bølgehøjde
+wavefront	bølgefront
+way	retning
+wedges	kiler
+What it runs	Hvad det kører
+Which cue	Hvilket cue
+white	hvid
+white noise	hvid støj
+white point	hvidpunkt
+window hidden	vindue skjult
+window minimized	vindue minimeret
+wire	tråd
+wrong display	forkert skærm
+X,Y offset in pixels	X,Y-forskydning i pixels
+Zoom	Forstørrelse
+zoom	forstørrelse
+% of the picture's height, 0.1 to 20 (supports + - * / and ())	% af billedhøjden, 0.1 til 20 (understøtter + - * / og ())
+%, 1 to 100 (supports + - * / and ())	%, 1 til 100 (understøtter + - * / og ())
+-3 to 3: 0 holds, negative runs backwards (supports + - * / and ())	-3 til 3: 0 holder, negativ afspiller baglæns (understøtter + - * / og ())
+0 classic, 1 fire, 2 ice, 3 neon, 4 mono (supports + - * / and ())	0 klassisk, 1 ild, 2 is, 3 neon, 4 mono (understøtter + - * / og ())
+0 rainbow + grey, 1 rainbow, 2 theme, 3 mono (supports + - * / and ())	0 regnbue + grå, 1 regnbue, 2 tema, 3 mono (understøtter + - * / og ())
+0 zone, 1 twin, 2 flow, 3 saddle, 4 ripple, 5 shear (supports + - * / and ())	0 zone, 1 tvilling, 2 strøm, 3 saddel, 4 krusning, 5 forskydning (understøtter + - * / og ())
+0-1 (supports + - * / and ())	0-1 (understøtter + - * / og ())
+0-100% (supports + - * / and ())	0-100% (understøtter + - * / og ())
+0-100%, left to right (supports + - * / and ())	0-100%, venstre mod højre (understøtter + - * / og ())
+0-100%, top to bottom (supports + - * / and ())	0-100%, oppefra og ned (understøtter + - * / og ())
+0-100%: 0 holds the field still (supports + - * / and ())	0-100%: 0 holder feltet stille (understøtter + - * / og ())
+0-100%: 50 is 1x, 0 a quarter, 100 four times (supports + - * / and ())	0-100%: 50 er 1x, 0 en fjerdedel, 100 firedobbelt (understøtter + - * / og ())
+0-100%: how far the field bends (supports + - * / and ())	0-100%: hvor meget feltet bøjer (understøtter + - * / og ())
+0-100%: the share of each band drawn as grey stripes (supports + - * / and ())	0-100%: andel af hvert bånd tegnet som grå striber (understøtter + - * / og ())
+Across, % of the width, -100 to 100 (supports + - * / and ())	Vandret, % af bredden, -100 til 100 (understøtter + - * / og ())
+Amount 0-100% (supports + - * / and ())	Mængde 0-100% (understøtter + - * / og ())
+Birth, drift and fade rate, 0.1-3 (supports + - * / and ())	Fødsels-, drift- og udtoningshastighed, 0.1-3 (understøtter + - * / og ())
+Block displacement and channel tearing, 0-1 (supports + - * / and ())	Blokforskydning og kanalrivning, 0-1 (understøtter + - * / og ())
+Colour steps, 2-8 (supports + - * / and ())	Farvetrin, 2-8 (understøtter + - * / og ())
+dBFS, -60 to 0 (-18 is EBU alignment) (supports + - * / and ())	dBFS, -60 til 0 (-18 er EBU-justeringsniveau) (understøtter + - * / og ())
+Degrees -180..180 (supports + - * / and ())	Grader -180..180 (understøtter + - * / og ())
+Degrees per second, -720 to 720 (supports + - * / and ())	Grader pr. sekund, -720 til 720 (understøtter + - * / og ())
+Degrees round the colour wheel, 0-360 (supports + - * / and ())	Grader på farvehjulet, 0-360 (understøtter + - * / og ())
+Degrees, -360 to 360 (supports + - * / and ())	Grader, -360 til 360 (understøtter + - * / og ())
+Degrees, 0-360 (supports + - * / and ())	Grader, 0-360 (understøtter + - * / og ())
+Down, % of the height, -100 to 100 (supports + - * / and ())	Nedad, % af højden, -100 til 100 (understøtter + - * / og ())
+Edge out (+) or in (-), % of the height, -25 to 25 (supports + - * / and ())	Kant ud (+) eller ind (-), % af højden, -25 til 25 (understøtter + - * / og ())
+Edge softness, % of the height, 0 to 25 (supports + - * / and ())	Kantblødhed, % af højden, 0 til 25 (understøtter + - * / og ())
+FDS hardware gain range, 0-63 (supports + - * / and ())	FDS-hardwareforstærkning, 0-63 (understøtter + - * / og ())
+Feature size, 0.1-8 (supports + - * / and ())	Detaljestørrelse, 0.1-8 (understøtter + - * / og ())
+Frames a second, 1 to 60 (supports + - * / and ())	Billeder pr. sekund, 1 til 60 (understøtter + - * / og ())
+Hertz, 20-20000 (supports + - * / and ())	Hertz, 20-20000 (understøtter + - * / og ())
+Horizontal cells, 64-960 (supports + - * / and ())	Vandrette celler, 64-960 (understøtter + - * / og ())
+Fields per frame, 0-4 (1 = one field per rendered frame) (supports + - * / and ())	Felter pr. billede, 0-4 (1 = ét felt pr. gengivet billede) (understøtter + - * / og ())
+How big a blob grows, 0-1 (supports + - * / and ())	Hvor stor en klump bliver, 0-1 (understøtter + - * / og ())
+How hard it cuts, %, 0 to 100 (supports + - * / and ())	Hvor hårdt det skærer, %, 0 til 100 (understøtter + - * / og ())
+How hard the audio drives it, 0-1 (supports + - * / and ())	Hvor kraftigt lyden driver det, 0-1 (understøtter + - * / og ())
+How many are alive at once, 3-48 (supports + - * / and ())	Hvor mange der lever samtidig, 3-48 (understøtter + - * / og ())
+How much of each frame feeds the next, 0-0.95 (supports + - * / and ())	Hvor meget af hvert billede føder det næste, 0-0.95 (understøtter + - * / og ())
+How readily neighbours merge, 0 (never) to 1 (supports + - * / and ())	Hvor let naboer smelter sammen, 0 (aldrig) til 1 (understøtter + - * / og ())
+Internal resolution, 1 (chunky) to 5 (fine) (supports + - * / and ())	Intern opløsning, 1 (grov) til 5 (fin) (understøtter + - * / og ())
+Master oscillator rate, 0.01-8 (supports + - * / and ())	Hovedoscillatorhastighed, 0.01-8 (understøtter + - * / og ())
+Modulator as a ratio of the note, 0.05-16 (supports + - * / and ())	Modulator som forhold til tonen, 0.05-16 (understøtter + - * / og ())
+One LED tile's height in pixels, 8-8192 (supports + - * / and ())	Højden på én LED-flise i pixels, 8-8192 (understøtter + - * / og ())
+One LED tile's width in pixels, 8-8192 (supports + - * / and ())	Bredden på én LED-flise i pixels, 8-8192 (understøtter + - * / og ())
+Palette turn, 0-1 (supports + - * / and ())	Paletdrejning, 0-1 (understøtter + - * / og ())
+Per-frame zoom of the feedback path, 0.90-1.15 (supports + - * / and ())	Feedbackzoom pr. billede, 0.90-1.15 (understøtter + - * / og ())
+Pitch in hertz, 20-8000 (supports + - * / and ())	Tonehøjde i hertz, 20-8000 (understøtter + - * / og ())
+Pixel sort amount, 0-1 (supports + - * / and ())	Mængde pixelsortering, 0-1 (understøtter + - * / og ())
+Pixels (supports + - * / and ())	Pixels (understøtter + - * / og ())
+Pixels, 64-2160 (supports + - * / and ())	Pixels, 64-2160 (understøtter + - * / og ())
+Pixels, 64-3840 (supports + - * / and ())	Pixels, 64-3840 (understøtter + - * / og ())
+Scale of the whole graphic, 0.5-2 (supports + - * / and ())	Skala for hele grafikken, 0.5-2 (understøtter + - * / og ())
+Scanlines, bloom and gun misalignment, 0-1 (supports + - * / and ())	Skannelinjer, glød og fejljustering af kanoner, 0-1 (understøtter + - * / og ())
+Seconds before it leaves by itself; 0 waits for OUT (supports + - * / and ())	Sekunder før det forlader selv; 0 venter på OUT (understøtter + - * / og ())
+Seconds between retriggers, 0-8 (supports + - * / and ())	Sekunder mellem genudløsninger, 0-8 (understøtter + - * / og ())
+Seconds the finished drawing stays, 0 to 60 (supports + - * / and ())	Sekunder den færdige tegning bliver, 0 til 60 (understøtter + - * / og ())
+Seconds the in move takes, 0-5 (supports + - * / and ())	Sekunder til indbevægelsen, 0-5 (understøtter + - * / og ())
+Seconds the out move takes, 0-5 (supports + - * / and ())	Sekunder til udbevægelsen, 0-5 (understøtter + - * / og ())
+Seconds, 0-4 (supports + - * / and ())	Sekunder, 0-4 (understøtter + - * / og ())
+Seconds, 0-8 (supports + - * / and ())	Sekunder, 0-8 (understøtter + - * / og ())
+Size, %, 5 to 400 (supports + - * / and ())	Størrelse, %, 5 til 400 (understøtter + - * / og ())
+Space under it, as a fraction of the frame, 0-0.8 (supports + - * / and ())	Plads nedenunder som brøkdel af billedet, 0-0.8 (understøtter + - * / og ())
+Spiral size, 0.25-4 (supports + - * / and ())	Spiralstørrelse, 0.25-4 (understøtter + - * / og ())
+Spiral strength, 0-4 (supports + - * / and ())	Spiralstyrke, 0-4 (understøtter + - * / og ())
+Thickness of the glowing edge, 0-1 (supports + - * / and ())	Tykkelse på den glødende kant, 0-1 (understøtter + - * / og ())
+Turbulence, 0 still to 3 boiling (supports + - * / and ())	Turbulens, 0 stille til 3 kogende (understøtter + - * / og ())
+Turns the rim's colours round the wheel, 0-1 (supports + - * / and ())	Drejer kantens farver rundt på farvehjulet, 0-1 (understøtter + - * / og ())
+Where the eye sits, 0 left to 1 right (supports + - * / and ())	Øjets position, 0 venstre til 1 højre (understøtter + - * / og ())
+Where the eye sits, 0 top to 1 bottom (supports + - * / and ())	Øjets position, 0 øverst til 1 nederst (understøtter + - * / og ())
+Add Browser Cue	Tilføj browser-cue
+Add NDI Source Cue	Tilføj NDI-kilde-cue
+Add Stream Cue	Tilføj strøm-cue
+ASCII 95 (density)	ASCII 95 (tæthed)
+ASCII 95 (raw)	ASCII 95 (rå)
+auto (59.94 Hz)	automatisk (59.94 Hz)
+azimuth	azimut
+bits	bit
+bohlen-pierce	Bohlen-Pierce
+chladni	Chladni
+Companion/OSC Port	Companion/OSC-port
+control 1	kontrol 1
+control 2	kontrol 2
+control 3	kontrol 3
+control 4	kontrol 4
+Cue Goto	Gå til cue
+Cue name (blank restores the file name)	Cue-navn (tomt gendanner filnavnet)
+Default Cue Fade	Standard cue-fade
+Default Non-Movie Duration	Standardvarighed uden video
+Devamp	Forlad løkke
+doppler	Doppler
+e.g. /cue/1/start	f.eks. /cue/1/start
+e.g. 12.5	f.eks. 12.5
+e.g. 192.168.1.50	f.eks. 192.168.1.50
+e.g. 1=255, 10-14=64	f.eks. 1=255, 10-14=64
+e.g. 20:0 or client name	f.eks. 20:0 eller klientnavn
+e.g. 90 3C 7F	f.eks. 90 3C 7F
+export as .png or .svg	eksportér som .png eller .svg
+Find Cue	Find cue
+Find+Take Cue	Find+TAKE cue
+Fire at a time of day	Udløs på klokkeslæt
+Fire at incoming timecode	Udløs ved indgående tidskode
+Fire on a MIDI note	Udløs med MIDI-tone
+Fire on an OSC address	Udløs med OSC-adresse
+Fireside	Pejs
+First channel (1-512)	Første kanal (1-512)
+Fixture address	Armaturadresse
+Fixture name	Armaturnavn
+Fixture universe	Armaturunivers
+flow (follows the picture)	strøm (følger billedet)
+GOTO Cue	Gå til cue
+hh:mm:ss or seconds	hh:mm:ss eller sekunder
+In time	Indgangstid
+Its name, number or id	Navn, nummer eller id
+Key sender source name	Kildens navn for nøglesender
+Keyframe interval	Nøglebilledinterval
+Legacy Cue Link	Ældre cue-link
+Lissajous (L/R phase)	Lissajous (L/R-fase)
+Live Browser	Live-browser
+Live Source	Live-kilde
+Media	Medier
+milliseconds (40..2000)	millisekunder (40..2000)
+Milliseconds 0-5000	Millisekunder 0-5000
+Mod depth	Modulationsdybde
+Mod ratio	Modulationsforhold
+moire	moiré
+MSC Cue Number	MSC-cuenummer
+Name visible to receivers	Navn vist til modtagere
+NDI Key Name	NDI-nøglenavn
+NDI Name	NDI-navn
+NDI Source Name	NDI-kildenavn
+NMC Port	NMC-port
+NMC Source	NMC-kilde
+NMC Target	NMC-mål
+NMOS Interface Name	NMOS-interfacenavn
+NMOS Node Port	NMOS-nodeport
+NMOS Registry	NMOS-register
+Note	Tone
+Note off	Tone fra
+Note on	Tone til
+OSC Address	OSC-adresse
+OSC Feedback Mirror Rate	OSC-feedbackspejlfrekvens
+OSC Query HTTP Port	OSC-Query-HTTP-port
+PIP Target Cue	PIP-mål-cue
+Playlist Start TC	Start-TC for afspilningsliste
+Playlist Timebase	Tidsbase for afspilningsliste
+pulse 25%	puls 25%
+Save Warp Preset	Gem forvrængningspreset
+Seconds (0-30)	Sekunder (0-30)
+Sender source name	Senderens kildenavn
+Spout Sender Name	Spout-sendernavn
+TSL Tally	TSL-tally
+UDP port for transport sync	UDP-port til transportsynk
+vMix HTTP Port	vMix-HTTP-port
+vMix TCP Port	vMix-TCP-port
+Web Monitor Connections	Webmonitorforbindelser
+Web Monitor PIN	Webmonitor-PIN
+Web Monitor Port	Webmonitorport
+could not reach github	kunne ikke nå GitHub
+could not read the PDF	kunne ikke læse PDF
+could not start ffmpeg	kunne ikke starte ffmpeg
+could not start the PDF renderer	kunne ikke starte PDF-rendereren
+could not write the export script	kunne ikke skrive eksportscriptet
+couldn't open explorer	kunne ikke åbne Stifinder
+couldn't open file manager	kunne ikke åbne filhåndteringen
+couldn't open finder	kunne ikke åbne Finder
+driver refused to start	driveren nægtede at starte
+driver reports no output channels	driveren melder ingen udgangskanaler
+driver would not create output buffers	driveren kunne ikke oprette udgangsbuffere
+driver would not report a buffer size	driveren oplyser ingen bufferstørrelse
+driver would not report channel info	driveren oplyser ingen kanalinfo
+ffmpeg made no file	ffmpeg oprettede ingen fil
+ffmpeg stopped taking frames	ffmpeg holdt op med at modtage billeder
+it could not be started	kunne ikke startes
+LibreOffice could not be run	kunne ikke køre LibreOffice
+LibreOffice produced no PDF	LibreOffice oprettede ingen PDF
+libX11 is not installed	libX11 er ikke installeret
+lost the session bus	mistede sessionsbussen
+macOS could not read the PDF	macOS kunne ikke læse PDF
+no ASIO in this build	ingen ASIO i denne version
+no driver named	ingen driver med navnet
+no mask made	ingen maske oprettet
+no pages could be rendered	ingen sider kunne gengives
+no release found	ingen version fundet
+no X display to read	ingen X-skærm at læse
+not while a cue is playing	ikke mens et cue afspilles
+only a background in it	indeholder kun en baggrund
+opened in explorer	åbnet i Stifinder
+opened in file manager	åbnet i filhåndteringen
+pdftoppm produced no pages	pdftoppm oprettede ingen sider
+PowerPoint could not export this file	PowerPoint kunne ikke eksportere denne fil
+release has no build for this platform	versionen har ingen udgave til denne platform
+revealed in finder	vist i Finder
+runtime unavailable	runtime utilgængelig
+size out of range	størrelse uden for interval
+still reading the last folder -- one at a time	læser stadig sidste mappe -- én ad gangen
+the document has no pages	dokumentet har ingen sider
+the file is empty	filen er tom
+the header is truncated	headeren er afkortet
+the show plays through ASIO	showet afspilles via ASIO
+the time division is not readable	tidsinddelingen kan ikke læses
+this build has no X11 support	denne version understøtter ikke X11
+the NDI runtime is not installed	NDI-runtime er ikke installeret
+the PDF renderer produced no pages	PDF-rendereren oprettede ingen sider
+the screen could not be read there	skærmen kunne ikke læses der
+the desktop portal did not answer	skrivebordsportalen svarede ikke
+the file has no playable events	filen har ingen hændelser at afspille
+Apple keeps the Keynote format secret on purpose, a malicious lock-in tactic, so only Apple's own software can read it properly. Best route: open it in Keynote on iCloud.com (free, in any browser), choose Download a Copy > PDF, and import that PDF	Apple holder med vilje Keynote-formatet hemmeligt, en ondsindet taktik til at låse brugerne fast, så kun Apples egen software kan læse det korrekt. Bedste vej: åbn det i Keynote på iCloud.com (gratis, i enhver browser), vælg Hent en kopi > PDF, og importér den PDF
+cannot read the file: if it lives in OneDrive or iCloud, open it once so it downloads, then import it	kan ikke læse filen: hvis den ligger i OneDrive eller iCloud, så åbn den én gang, så den hentes, og importér den derefter
+this file is only in OneDrive, and OneDrive is not running. Start OneDrive, or copy the file to this computer, then import it again	denne fil ligger kun i OneDrive, og OneDrive kører ikke. Start OneDrive, eller kopiér filen til denne computer, og importér den igen
+this presentation needs a password to open. Remove the password in PowerPoint (File > Info > Protect Presentation) or export it as a PDF, then import that	denne præsentation kræver en adgangskode. Fjern den i PowerPoint (Filer > Oplysninger > Beskyt præsentation), eller eksportér som PDF, og importér den
+couldn't decode still image — unsupported format or corrupt file	kunne ikke afkode stillbilledet — formatet understøttes ikke, eller filen er beskadiget
+the file is empty (0 bytes): it may not have finished copying or saving	filen er tom (0 bytes): kopiering eller lagring er måske ikke færdig
+couldn't open a browser -- please report at github.com/Utopian-Academy/Deckboy/issues	kunne ikke åbne en browser -- meld det på github.com/Utopian-Academy/Deckboy/issues
+a name for this step	et navn til dette trin
+a playlist that is gone	en afspilningsliste der er væk
+a target cannot target another target	et mål kan ikke pege på et andet mål
+an ASIO stream is already open	en ASIO-strøm er allerede åben
+another app is holding the pointer	en anden app fastholder markøren
+channel count must be at least 1	kanalantallet skal være mindst 1
+built without ASIO support	bygget uden ASIO-understøttelse
+built without NDI SDK headers	bygget uden NDI-SDK-headere
+comma outside a function call	komma uden for et funktionskald
+escaped to windowed	skiftede til vinduestilstand
+fullscreen dropped	fuldskærm afsluttet
+web audio encoder cannot keep up	weblydkoderen kan ikke følge med
+the caption model has not been downloaded yet	undertekstmodellen er endnu ikke hentet
+AUDIOALSO: expected ADD <name>, REMOVE <name> or CLEAR	AUDIOALSO: forventer ADD <name>, REMOVE <name> eller CLEAR
+BROWSER KEY: expected Enter|Tab|Backspace|Escape	BROWSER KEY: forventer Enter|Tab|Backspace|Escape
+BUGSWAT: expected START, SHOWME, SKIP, PLAY, EXIT or STATUS	BUGSWAT: forventer START, SHOWME, SKIP, PLAY, EXIT eller STATUS
+CAPTIONS LIVE: expected ON, OFF, STATUS or TEXT	CAPTIONS LIVE: forventer ON, OFF, STATUS eller TEXT
+CAPTIONS SOURCE: expected INPUT, DECK <n> or OUTPUT <n>	CAPTIONS SOURCE: forventer INPUT, DECK <n> eller OUTPUT <n>
+DMXCUE FIXTURE: expected <name> <level%>|LEAVE [<colour>]	DMXCUE FIXTURE: forventer <name> <level%>|LEAVE [<colour>]
+DMXCUE LFO: expected <name> LEVEL|COLOUR ON|OFF [<rate Hz>] [<depth %>]	DMXCUE LFO: forventer <name> LEVEL|COLOUR ON|OFF [<rate Hz>] [<depth %>]
+DMXCUE: expected NEW, SET, FADE, UNIVERSE, HOST, PORT, FIRE or BLACKOUT	DMXCUE: forventer NEW, SET, FADE, UNIVERSE, HOST, PORT, FIRE eller BLACKOUT
+ENDACTION: expected INHERIT, STOP, LOOP, HOLD or NEXT	ENDACTION: forventer INHERIT, STOP, LOOP, HOLD eller NEXT
+FADE CURVE: expected linear, ease-in, ease-out or s-curve	FADE CURVE: forventer linear, ease-in, ease-out eller s-curve
+FADE WHAT: expected opacity, volume, dimmer, brightness, contrast, saturation, hue, effect, audiofx or speed	FADE WHAT: forventer opacity, volume, dimmer, brightness, contrast, saturation, hue, effect, audiofx eller speed
+FIXTURE ADD: expected <name> dimmer|rgb|rgbw|rgba|drgb|dcct <universe> [<address>]	FIXTURE ADD: forventer <name> dimmer|rgb|rgbw|rgba|drgb|dcct <universe> [<address>]
+LOWERSTYLE: expected none, fade, rise, slide, wipe or NEXT	LOWERSTYLE: forventer none, fade, rise, slide, wipe eller NEXT
+MASK ASSIGN: expected <id|NONE> CUE | LAYER <output> <playlist> | OUTPUT <n> | MATTE <n>	MASK ASSIGN: forventer <id|NONE> CUE | LAYER <output> <playlist> | OUTPUT <n> | MATTE <n>
+MASK ASSIGN: expected CUE, LAYER, OUTPUT or MATTE	MASK ASSIGN: forventer CUE, LAYER, OUTPUT eller MATTE
+MASK EXPORT: expected <id> <file.png|file.svg> [WxH]	MASK EXPORT: forventer <id> <file.png|file.svg> [WxH]
+MASK LFO: expected <id> <param> ON|OFF [rate Hz] [depth %]	MASK LFO: forventer <id> <param> ON|OFF [rate Hz] [depth %]
+MATRIX SET: expected <source 1-2> <dest> <0-100>	MATRIX SET: forventer <source 1-2> <dest> <0-100>
+MATRIX: expected SET <src> <dest> <0-100>, SEED or CLEAR	MATRIX: forventer SET <src> <dest> <0-100>, SEED eller CLEAR
+MESH: expected on|off|toggle|height|tilt|yaw|spin|grid	MESH: forventer on|off|toggle|height|tilt|yaw|spin|grid
+MIC: expected ADD, LIST, INPUT, CHANNEL or GAIN	MIC: forventer ADD, LIST, INPUT, CHANNEL eller GAIN
+MIDICUE KIND: expected note-on, note-off, cc, program, msc-go, msc-stop, msc-resume or raw	MIDICUE KIND: forventer note-on, note-off, cc, program, msc-go, msc-stop, msc-resume eller raw
+MIDICUE: expected NEW, PORTS, PORT, KIND, CH, D1, D2, DEVICE, CUENUM, LIST, RAW or SEND	MIDICUE: forventer NEW, PORTS, PORT, KIND, CH, D1, D2, DEVICE, CUENUM, LIST, RAW eller SEND
+MULTIVIEW LAYOUT: expected GRID, BIG, BIGTOP or TWOTOP	MULTIVIEW LAYOUT: forventer GRID, BIG, BIGTOP eller TWOTOP
+MULTIVIEW WINDOW: expected PROGRAMME, DECK<n>, OUTPUT<n>, NEXT, CLOCK or EMPTY	MULTIVIEW WINDOW: forventer PROGRAMME, DECK<n>, OUTPUT<n>, NEXT, CLOCK eller EMPTY
+NETCUE: expected NEW, PROTO, HOST, PORT, ADDRESS, PAYLOAD or SEND	NETCUE: forventer NEW, PROTO, HOST, PORT, ADDRESS, PAYLOAD eller SEND
+OUTPUT HDR: expected ON, OFF, AUTO, SIGNAL PQ|HLG, WHITE <nits> or STATUS	OUTPUT HDR: forventer ON, OFF, AUTO, SIGNAL PQ|HLG, WHITE <nits> eller STATUS
+OUTPUTFX ADD: expected hpf, lpf, tilt, comp or width	OUTPUTFX ADD: forventer hpf, lpf, tilt, comp eller width
+OUTPUTFX: expected ADD, SET, REMOVE, BYPASS, CLEAR or DEVICE	OUTPUTFX: forventer ADD, SET, REMOVE, BYPASS, CLEAR eller DEVICE
+OUTPUTS ADD: expected <name> CH <n> or CH <n>-<n+1>	OUTPUTS ADD: forventer <name> CH <n> eller CH <n>-<n+1>
+PATCH: expected <deck> <output> <dB> or OFF	PATCH: forventer <deck> <output> <dB> eller OFF
+presenter colour: expected BG|INK|ACCENT #rrggbb	presenter colour: forventer BG|INK|ACCENT #rrggbb
+PRESET: expected LIST, SAVE, RECALL, UPDATE, SCOPE, RENAME or DELETE	PRESET: forventer LIST, SAVE, RECALL, UPDATE, SCOPE, RENAME eller DELETE
+rectc: expected <hh:mm:ss:ff|timeofday> [df|ndf|auto]	rectc: forventer <hh:mm:ss:ff|timeofday> [df|ndf|auto]
+SCOPES BIG: expected waveform, parade, vector, diamond, histogram, falsecolour, sound or off	SCOPES BIG: forventer waveform, parade, vector, diamond, histogram, falsecolour, sound eller off
+SCOPES: expected PROGRAM, SCOPES, BOTH, TOGGLE, BIG, FREEZE, MATRIX, SOURCE, STATS or SOUND	SCOPES: forventer PROGRAM, SCOPES, BOTH, TOGGLE, BIG, FREEZE, MATRIX, SOURCE, STATS eller SOUND
+SECTION: expected playback|metadata|geometry|key|audio|effects|timer|tone|synth	SECTION: forventer playback|metadata|geometry|key|audio|effects|timer|tone|synth
+STING: expected ON, PITCH, LENGTH, SWEEP or BODY	STING: forventer ON, PITCH, LENGTH, SWEEP eller BODY
+TARGET VERB: expected start|stop|pause|resume|load|arm|disarm	TARGET VERB: forventer start|stop|pause|resume|load|arm|disarm
+TEXTCUE ANIM: expected none, fade, typewriter, scroll, crawl, pulse or wobble	TEXTCUE ANIM: forventer none, fade, typewriter, scroll, crawl, pulse eller wobble
+TEXTCUE: expected NEW, BODY, ANIM, SIZE, SPEED, ALIGN, CARD, LOWERNEW, LOWER, TITLE, SUB, LOOK, BAR, ACCENT, SCALE, WIGGLE, IN, OUTMOVE or OUT	TEXTCUE: forventer NEW, BODY, ANIM, SIZE, SPEED, ALIGN, CARD, LOWERNEW, LOWER, TITLE, SUB, LOOK, BAR, ACCENT, SCALE, WIGGLE, IN, OUTMOVE eller OUT
+TRACKER: expected GO, BACK, PLAY, STOP, STEP <n>, ADD, SET <step> <deck> <cue|STOP|FADE|VOLUME|OPACITY>, MUTE|SOLO <deck>, JUMP <step> <row>, SECTION <step> <name>, VIEW, LOOP or CLICKER	TRACKER: forventer GO, BACK, PLAY, STOP, STEP <n>, ADD, SET <step> <deck> <cue|STOP|FADE|VOLUME|OPACITY>, MUTE|SOLO <deck>, JUMP <step> <row>, SECTION <step> <name>, VIEW, LOOP eller CLICKER
+TUTORIAL: expected START, SHOWME, SKIP, EXIT, STATUS or SCREENS	TUTORIAL: forventer START, SHOWME, SKIP, EXIT, STATUS eller SCREENS
+UPDATE: expected check|download|install|status	UPDATE: forventer check|download|install|status
+VJ: expected ON|OFF|TOGGLE|MIX <0-1>|BLEND <mode>|TAP|BPM <n>|CLOCK <on|off>|QUANTISE <on|off>|DECKS <a> <b>|STATUS	VJ: forventer ON|OFF|TOGGLE|MIX <0-1>|BLEND <mode>|TAP|BPM <n>|CLOCK <on|off>|QUANTISE <on|off>|DECKS <a> <b>|STATUS
+0-127; 127 is all-call	0-127; 127 kalder alle
+0-127; the domain the facility's clock runs on	0-127; domænet for anlæggets ur
+10-79 characters, or empty for none	10-79 tegn, eller tomt for ingen
+8+ characters; letters and symbols are allowed	8+ tegn; bogstaver og symboler er tilladt
+8+ characters; other machines send AUTH <passphrase> first. Empty = off	8+ tegn; andre maskiner sender først AUTH <passphrase>. Tomt = fra
+A command line, or blank for nothing	En kommandolinje, eller tomt for intet
+an IPv4 address, or 255.255.255.255 to broadcast	en IPv4-adresse eller 255.255.255.255 til broadcast
+add an output to scope it	tilføj en udgang for at måle den
+cancelled: the waiting cue is no longer in the playlist	annulleret: det ventende cue er ikke længere på listen
+downloading the caption model, then listening...	henter undertekstmodellen, lytter bagefter...
+drag the panels to arrange the presenter screen	træk panelerne for at indrette præsentationsskærmen
+encoder destination: _converted beside the show	koderens destination: _converted ved siden af showet
+fetching the speech model - captions start when it arrives	henter talemodellen - undertekster starter, når den er klar
+four effects at most on one device: remove one first	højst fire effekter pr. enhed: fjern én først
+Leave empty to follow the live cue notes	Lad stå tomt for at følge noter fra det aktive cue
+Lower Third added - put its playlist on a layer	Lower Third tilføjet - læg dets liste på et lag
+no masks yet: make one in a cue's MASK section	ingen masker endnu: opret én i et cues MASK-afsnit
+the playing step was removed - sequence stopped	det afspillede trin blev fjernet - sekvens stoppet
+this cue has no known end to resolve into	dette cue har ingen kendt slutning til beregningen
+the background alpha belongs to a Lower Third	baggrundsalfa hører til et Lower Third
+Where the filter sits.	Hvor filteret ligger.
+Which way it drips.	Hvilken vej det drypper.
+A dark line between the tiles, like grout or an LED wall.	En mørk linje mellem fliserne, som fuger eller en LED-væg.
+A slow rocking of the viewpoint, which is what makes the depth read without glasses.	En langsom vuggen af synspunktet, som gør dybden synlig uden briller.
+A slow sag in the supply, pulling the filter up and down like a dying battery.	Et langsomt spændingsfald, der trækker filteret op og ned som et døende batteri.
+A worn or dirty head: softer, with noise that streaks along the lines.	Et slidt eller snavset hoved: blødere, med støjstriber langs linjerne.
+Above halfway, a hard cut in the picture resets the loop to clean.	Over midten nulstiller et hårdt billedklip løkken til ren.
+Above halfway, the repeated piece plays backwards.	Over midten afspilles det gentagne stykke baglæns.
+Darkens the boundaries where crystals meet.	Gør grænserne mørkere, hvor krystaller mødes.
+Fine sensor noise at the bottom, chunky film at the top.	Fin sensorstøj nederst, grove filmkorn øverst.
+From an even blur to a streak along the angle, like movement.	Fra jævn sløring til en stribe langs vinklen, som bevægelse.
+Grain size: one pixel at the left, big blocky grains at the right.	Kornstørrelse: én pixel til venstre, store kantede korn til højre.
+Grows or shrinks the echo each pass. Centre holds still.	Forstørrer eller formindsker ekkoet hver gang. Midten holder det stille.
+How big each tile is.	Hvor stor hver flise er.
+How big the crystals grow before they meet.	Hvor store krystallerne vokser, før de mødes.
+How big the room is. Small is a booth, large is a hall.	Hvor stort rummet er. Lille er en kabine, stort er en sal.
+How closely spaced the rings are.	Hvor tæt ringene ligger.
+How far a band can slide.	Hvor langt et bånd kan glide.
+How far each shard slides from where it belongs.	Hvor langt hvert skår glider fra sin plads.
+How far each stroke is dragged along the grain.	Hvor langt hvert strøg trækkes langs kornet.
+How far the glow spreads.	Hvor langt gløden breder sig.
+How fast the surface moves.	Hvor hurtigt overfladen bevæger sig.
+How fast they travel outward.	Hvor hurtigt de bevæger sig udad.
+How hard the short hits.	Hvor hårdt kortslutningen rammer.
+How often it skips.	Hvor tit det springer.
+How many shades survive the quantise.	Hvor mange nuancer der overlever kvantiseringen.
+How many spikes the field breaks into.	Hvor mange spidser feltet deler sig i.
+How many torn bands per frame.	Hvor mange revne bånd pr. billede.
+How much each shard turns on its own centre.	Hvor meget hvert skår drejer om sit eget centrum.
+How much the edges are lifted.	Hvor meget kanterne løftes.
+How strongly the outlines are drawn.	Hvor kraftigt omridsene tegnes.
+How strongly the water bends the picture.	Hvor kraftigt vandet bøjer billedet.
+BROWSER CLICK: this browser backend cannot drive the page	BROWSER CLICK: denne browserbackend kan ikke styre siden
+BROWSER SCROLL: this browser backend cannot drive the page	BROWSER SCROLL: denne browserbackend kan ikke styre siden
+BROWSER SCROLLBAR: this browser backend cannot drive the page	BROWSER SCROLLBAR: denne browserbackend kan ikke styre siden
+BROWSER INTERACT: this browser backend has no hands-on mode	BROWSER INTERACT: denne browserbackend har ingen interaktiv tilstand
+BROWSER TYPE: this browser backend cannot type	BROWSER TYPE: denne browserbackend kan ikke indtaste tekst
+browser connections at once, 1-64 (default 8)	samtidige browserforbindelser, 1-64 (standard 8)
+could not create an OpenGL context for Spout receive	kunne ikke oprette OpenGL-kontekst til Spout-modtagelse
+could not create the offscreen window Spout receive needs	kunne ikke oprette det usynlige vindue, Spout-modtagelse kræver
+could not get a device context for Spout receive	kunne ikke hente enhedskontekst til Spout-modtagelse
+no OpenGL pixel format available for Spout receive	intet OpenGL-pixelformat tilgængeligt til Spout-modtagelse
+the installed NDI runtime is missing entry points this needs	den installerede NDI-runtime mangler nødvendige indgangspunkter
+the NDI runtime declined to start on this machine	NDI-runtime nægtede at starte på denne maskine
+driver would not load (in use by another application?)	driveren kunne ikke indlæses (bruges den af en anden app?)
+DECKLINK: no DeckLink driver on this computer (Blackmagic Desktop Video)	DECKLINK: ingen DeckLink-driver på denne computer (Blackmagic Desktop Video)
+update: could not start the install helper	opdatering: kunne ikke starte installationshjælperen
+update: could not start the installer	opdatering: kunne ikke starte installationsprogrammet
+update: could not write the install helper	opdatering: kunne ikke skrive installationshjælperen
+update: not running from an AppImage	opdatering: kører ikke fra en AppImage
+update: cannot find this app bundle to replace	opdatering: kan ikke finde apppakken, der skal erstattes
+Takes out everything brighter than this as well. Left takes out nothing.	Fjerner også alt, der er lysere. Til venstre fjernes intet.
+Takes out everything darker than this, so what lies beneath shows through. Left takes out nothing.	Fjerner alt, der er mørkere, så det nedenunder ses. Til venstre fjernes intet.
+The bright net the waves focus onto the picture.	Det lyse net, bølgerne fokuserer på billedet.
+The brightness that decides black from white.	Lysstyrken, der skiller sort fra hvidt.
+The colour to change, round the wheel from red.	Farven, der ændres, rundt på hjulet fra rød.
+The head drifting off the track: a band of noise rolls through the picture.	Hovedet driver ud af sporet: et støjbånd ruller gennem billedet.
+The level it starts working at. Lower catches more of the performance.	Niveauet, hvor det begynder at virke. Lavere fanger mere af optrædenen.
+Turns the echo each pass, which winds the melt into a spiral.	Drejer ekkoet hver gang og snor smeltningen til en spiral.
+Softens the fold so it ramps instead of creasing.	Blødgør folden til en rampe i stedet for en skarp kant.
+Sorts the runs the other way, so they pour from light to dark.	Sorterer forløbene modsat, så de flyder fra lyst til mørkt.
+Rounds the tiles off, all the way to dots.	Afrunder fliserne helt til prikker.
+Pushes the rings in or out of the centre.	Skubber ringene ind mod eller væk fra centrum.
+Lifts the dark tones without moving pure black.	Løfter mørke toner uden at flytte rent sort.
+How far it smears: up to a few percent of the picture.	Hvor langt det smører: op til nogle få procent af billedet.
+How far out the darkening starts.	Hvor langt ude formørkningen starter.
+How fast the light walks around it. Zero holds it still.	Hvor hurtigt lyset bevæger sig rundt. Nul holder det stille.
+How quickly the loop relaxes when nothing feeds it.	Hvor hurtigt løkken falder til ro, når intet føder den.
+How gently the change fades out at the edges of the band.	Hvor blødt ændringen toner ud ved båndets kanter.
+How gradually the key cuts in. Hard at the left.	Hvor gradvist nøglen sætter ind. Hårdt til venstre.
+How hard it is driven into its own limits.	Hvor hårdt det presses mod sine egne grænser.
+just	ren
+meantone	middeltone
+MONO L	MONO V
+MONO R	MONO H
+pixels (of the output raster)	pixels (i udgangsrasteret)
+LOAD NEXT	INDLÆS NÆSTE
+NEXT	NÆSTE
+ASCII HOLD: seconds, 0-60 (0 mutes the phrases)	ASCII HOLD: sekunder, 0-60 (0 slår fraserne fra)
+AUDIOALSO ADD: seven extra destinations is the limit	AUDIOALSO ADD: højst syv ekstra destinationer
+AUDIOALSO ADD: that is already this deck's main device -- it would play twice	AUDIOALSO ADD: det er allerede deckets hovedenhed -- lyden ville blive afspillet dobbelt
+AUDIOFX: expected OFF, BYPASS, or amount and parameters as percentages	AUDIOFX: forventede OFF, BYPASS eller styrke og parametre i procent
+BROWSER SCROLL: expected pixels (negative is up)	BROWSER SCROLL: forventede pixels (negativ er op)
+CHIP ENV: expected <attack> <release> in seconds	CHIP ENV: forventede <attack> <release> i sekunder
+DMXCUE LEVELS: nothing has been sent on that universe	DMXCUE LEVELS: intet er sendt på det univers
+DMXCUE SET: expected channel=level pairs, e.g. 1=255,10-14=64	DMXCUE SET: forventede kanal=niveau-par, f.eks. 1=255,10-14=64
+LOWERANIM: this cue is not a Lower Third	LOWERANIM: dette cue er ikke en Lower Third
+LOWERSTYLE: this cue is not a Lower Third	LOWERSTYLE: dette cue er ikke en Lower Third
+MASTER DECK: expected a deck number and a cue number	MASTER DECK: forventede et decknummer og et cuenummer
+MIC INPUT: expected SETTINGS, TEST or a device name (MIC LIST)	MIC INPUT: forventede SETTINGS, TEST eller et enhedsnavn (MIC LIST)
+MIC: select a mic cue first (MIC ADD makes one)	MIC: vælg først et mikrofoncue (MIC ADD opretter et)
+MIDIFILE: expected PORT, or no argument to report it	MIDIFILE: forventede PORT, eller intet argument for at vise den
+MIDIFILE: the selected cue is not a midi file cue	MIDIFILE: det valgte cue er ikke et MIDI-filcue
+MIDIIN OSC: an address, and optionally a number	MIDIIN OSC: en adresse og eventuelt et tal
+MIDIMAP: that command is only accepted from this computer	MIDIMAP: den kommando accepteres kun fra denne computer
+MONITOR DECK: expected a playlist number or FOLLOW	MONITOR DECK: forventede et afspilningslistenummer eller FOLLOW
+MONITOR ROOM: expected a playlist and ON or OFF	MONITOR ROOM: forventede en afspilningsliste og ON eller OFF
+MOTION ZONE ADD: the zone must fit inside the picture	MOTION ZONE ADD: zonen skal være inden for billedet
+MULTIVIEW WINDOW REMOVE: expected a window number	MULTIVIEW WINDOW REMOVE: forventede et vinduesnummer
+NETCUE ADDRESS: an OSC address must start with /	NETCUE ADDRESS: en OSC-adresse skal begynde med /
+NETCUE ADDRESS: expected an OSC path starting with /	NETCUE ADDRESS: forventede en OSC-sti, der begynder med /
+NMOS: discovery needs the remote network allowed	NMOS: registrering kræver adgang til fjernnetværket
+NMOS: searching for a registry (mDNS)	NMOS: søger efter et register (mDNS)
+OUTPROBE: that output has no compositor (is it on?)	OUTPROBE: den udgang har ingen compositor (er den tændt?)
+OUTPUT AOI: expected a size like 256x256, or FULL	OUTPUT AOI: forventede en størrelse som 256x256 eller FULL
+OUTPUT HDR WHITE: expected 80..500 nits (203 is BT.2408)	OUTPUT HDR WHITE: forventede 80..500 nit (203 er BT.2408)
+OUTPUTFX ADD: four effects at most on one device	OUTPUTFX ADD: højst fire effekter på én enhed
+OUTPUTFX SET: expected an effect number and 0-100	OUTPUTFX SET: forventede et effektnummer og 0-100
+PATCH: a level is dB from -48 to +6, or OFF	PATCH: niveauet er dB fra -48 til +6 eller OFF
+PRELOAD: expected a position in seconds, OFF or STATUS	PRELOAD: forventede en position i sekunder, OFF eller STATUS
+SCRIPTCUE: the selected cue is not a script cue	SCRIPTCUE: det valgte cue er ikke et scriptcue
+SOURCE CAMERA: name the device	SOURCE CAMERA: angiv enhedens navn
+STREAM ADD: expected a URL, e.g. srt://host:port	STREAM ADD: forventede en URL, f.eks. srt://host:port
+SUBTITLE CONVERT: destination must be .srt or .vtt	SUBTITLE CONVERT: destinationen skal være .srt eller .vtt
+TARGET CUE: expected a deck number and a cue number	TARGET CUE: forventede et decknummer og et cuenummer
+TEXTCUE SIZE: expected 1-100 (percent of the raster)	TEXTCUE SIZE: forventede 1-100 (procent af rasteret)
+TRACKER SET: a step cannot act on its own playlist	TRACKER SET: et trin kan ikke styre sin egen afspilningsliste
+TRACKER: there are no steps (TRACKER ADD makes one)	TRACKER: der er ingen trin (TRACKER ADD opretter et)
+TUTORIAL SCREENS: expected a count, MIRRORED or REAL	TUTORIAL SCREENS: forventede et antal, MIRRORED eller REAL
+VIDEO OUTPUT LAYER: expected a layer number (1 is the base)	VIDEO OUTPUT LAYER: forventede et lagnummer (1 er bunden)
+WARP AT: open the editor (WARP EDIT) and select a point first	WARP AT: åbn editoren (WARP EDIT), og vælg først et punkt
+WEBMONITOR QR: needs the monitor on and shared on the network	WEBMONITOR QR: monitoren skal være tændt og delt på netværket
+WEBMONITOR SOURCE: could not create the web output	WEBMONITOR SOURCE: kunne ikke oprette webudgangen
+Hz or AUTO (e.g. 60 or 59.94)	Hz eller AUTO (f.eks. 60 eller 59.94)
+IPv4 addresses or a.b.c.d/bits, comma separated; empty = only this computer	IPv4-adresser eller a.b.c.d/bits, kommasepareret; tomt = kun denne computer
+kbps (32-512; 160 is a sane default)	kbps (32-512; 160 er en fornuftig standard)
+milliseconds (20-8000; ~4x your RTT)	millisekunder (20-8000; ~4x din RTT)
+Multicast group (e.g. 239.20.10.1)	Multicastgruppe (f.eks. 239.20.10.1)
+NDI source name (e.g. LAPTOP (source 1))	NDI-kildenavn (f.eks. LAPTOP (kilde 1))
+NIC address or name; empty = the default route	NIC-adresse eller -navn; tomt = standardrute
+NIC name reported in interface_bindings (e.g. eth0)	NIC-navn fra interface_bindings (f.eks. eth0)
+offset in percent of the picture	forskydning i procent af billedet
+Only accept transport from this sender (blank = anyone)	Acceptér kun transport fra denne afsender (tomt = alle)
+Output height in px - math ok: 1080x2, 2160/2, 540+30	Udgangshøjde i px - regning tilladt: 1080x2, 2160/2, 540+30
+Output width in px - math ok: 1920x2, 3840/2, 960+64	Udgangsbredde i px - regning tilladt: 1920x2, 3840/2, 960+64
+Paste the key from your platform	Indsæt nøglen fra din platform
+paste your stream key here	indsæt din streamnøgle her
+Port the Node + Connection API serve on	Port for Node + Connection API
+position on the output raster, in pixels	position i udgangsrasteret, i pixels
+Prefix (optional). Example: Q	Præfiks (valgfrit). Eksempel: Q
+Prefix and optional start (example: Q 100)	Præfiks og valgfri start (eksempel: Q 100)
+Registry URL (e.g. http://192.168.1.50:8010) - blank for mDNS	Register-URL (f.eks. http://192.168.1.50:8010) - tomt for mDNS
+Routing hint for the receiver	Routingtip til modtageren
+seconds (1-10; most platforms want 2)	sekunder (1-10; de fleste platforme kræver 2)
+Seconds for new image/pattern/browser/Lower Third cues (0 = hold)	Sekunder for nye billede-/testbillede-/browser-/Lower Third-cues (0 = hold)
+Seconds for new-cue fade in/out defaults	Standardsekunder for ind-/udtoning af nye cues
+seconds this step holds before PLAY moves on	sekunder dette trin venter, før PLAY går videre
+SMPTE hh:mm:ss:ff or seconds (blank = 00:00:00:00)	SMPTE hh:mm:ss:ff eller sekunder (tomt = 00:00:00:00)
+Stream URL (srt://, rtmp://, rtsp://, udp://, or an http HLS .m3u8)	Stream-URL (srt://, rtmp://, rtsp://, udp:// eller http HLS .m3u8)
+Target IP (or 255.255.255.255 to broadcast)	Mål-IP (eller 255.255.255.255 for broadcast)
+Where to send transport (blank = broadcast)	Hvor transport sendes hen (tomt = broadcast)
+Which switcher input Deckboy is (0 = not set)	Mixerindgang for Deckboy (0 = ikke angivet)
+WIDTHxHEIGHT (e.g. 2560x1080)	BREDDExHØJDE (f.eks. 2560x1080)
+WIDTHxHEIGHT (e.g. 5760x2160)	BREDDExHØJDE (f.eks. 5760x2160)
+port number (default 5510)	portnummer (standard 5510)
+port number (default 5511)	portnummer (standard 5511)
+port number (default 6454)	portnummer (standard 6454)
+port number (default 8090)	portnummer (standard 8090)
+port number (vMix uses 8088)	portnummer (vMix bruger 8088)
+port number (vMix uses 8099)	portnummer (vMix bruger 8099)
+brightness moves the playhead (needs CPU frames)	lysstyrken flytter afspilningshovedet (kræver CPU-billeder)
+can't move the active cue -- take another cue on this deck first	kan ikke flytte det aktive cue -- afvikl først et andet cue på dette deck
+centred and full-frame - moves when the picture does	centreret og i fuldt billede - bevæger sig med billedet
+CHIP DUTY: this cue is an FDS synth, which has no duty	CHIP DUTY: dette cue er en FDS-synth uden pulsbredde
+CHIP NOISE: this cue is an FDS synth, which has no noise	CHIP NOISE: dette cue er en FDS-synth uden støj
+CHIP VOICE: this cue is an FDS synth, which has no voice	CHIP VOICE: dette cue er en FDS-synth uden stemmevalg
+Chladni listens: the figure follows the pitch of the sound	Chladni lytter: figuren følger tonehøjden
+click anywhere on any screen to take its colour. Esc cancels	klik hvor som helst på en skærm for at hente farven. Esc annullerer
+click program or preview monitor to sample key color	klik på PROGRAM- eller previewmonitoren for at vælge keyfarven
+DATAMOSH on - preparing (long clip, watch Encoder tab)	DATAMOSH slået til - forbereder (langt klip, se fanen Encoder)
+EDIT is off - press EDIT to type into the tracker	EDIT er slået fra - tryk EDIT for at skrive i trackeren
+ENDACTION: only video and audio cues have an end action	ENDACTION: kun video- og lydcues har en sluthandling
+Enter playlist SMPTE FPS: 24 / 25 / 29.97 / 30	Angiv afspilningslistens SMPTE FPS: 24 / 25 / 29.97 / 30
+expected one expression, three for colour, or four with alpha	forventede ét udtryk, tre for farve eller fire med alfa
+FADE TO: a speed from 0.25 to 4 (0.5 is half speed, an octave down)	FADE TO: hastighed fra 0.25 til 4 (0.5 er halv hastighed, en oktav ned)
+follows this cue's own brightness (needs CPU frames)	følger dette cues lysstyrke (kræver CPU-billeder)
+format 2 files are a set of independent patterns, not a performance	format 2-filer er uafhængige mønstre, ikke en fremførelse
+full-frame and no picture - bends when the picture shrinks	fuldt billede uden billede - bøjer, når billedet krymper
+FX ADD: datamosh needs a file-backed video cue	FX ADD: datamosh kræver et filbaseret videocue
+live captions are not installed here (deckboy-listen was not found)	liveundertekster er ikke installeret (deckboy-listen blev ikke fundet)
+mic live on the default speakers - watch for feedback	mikrofon live på standardhøjttalerne - pas på feedback
+no filled shapes in it (paths, rectangles, circles, ellipses or polygons)	indeholder ingen udfyldte former (stier, rektangler, cirkler, ellipser eller polygoner)
+no picture - shorts run on a timer instead of on cuts	intet billede - kortslutninger følger en timer i stedet for klip
+no picture on this cue - nothing decides where the playhead is	intet billede i dette cue - intet bestemmer afspilningspositionen
+no picture on this cue - nothing to close the loop through	intet billede i dette cue - intet at lukke sløjfen igennem
+no picture on this cue - nothing to follow	intet billede i dette cue - intet at følge
+no video clock on this cue - nothing to lock to	intet videour i dette cue - intet at låse til
+normalize all: no file-backed audio in this deck	normalisér alt: ingen filbaseret lyd i dette deck
+not a MIDI file (no MThd header)	ikke en MIDI-fil (ingen MThd-header)
+nothing to mask here: select a cue, or change MASK ON	intet at maskere: vælg et cue, eller ændr MASK ON
+only a MIDI note or an OSC address can take a cue	kun en MIDI-node eller OSC-adresse kan afvikle et cue
+over 16 MB: not a drawing to make a mask from	over 16 MB: ikke en tegning at lave en maske af
+paired phones removed: they need the QR code or the passphrase again	parrede telefoner fjernet: de skal bruge QR-koden eller adgangssætningen igen
+that key drives the desk - use F1-F10, F12 or the number pad	den tast styrer pulten - brug F1-F10, F12 eller det numeriske tastatur
+How abruptly it arrives. Low is a soft cloud, high is a hard porthole.	Hvor brat det kommer. Lavt giver en blød sky, højt et skarpt koøje.
+How big the shards are. Small is frosted glass, large is a dropped plate.	Skårenes størrelse. Småt giver matteret glas, stort en tabt tallerken.
+How bright a pixel has to be before it lifts at all, so only the highlights spike.	Hvor lys en pixel skal være for at løfte sig, så kun højlys danner spidser.
+How dark the dark lines go. All the way up is black between lines.	Hvor mørke de mørke linjer bliver. Helt oppe er der sort mellem linjerne.
+How deep the picture is treated as being. The brightness becomes height and is lit from the side.	Hvor dybt billedet opfattes. Lysstyrke bliver til højde og belyses fra siden.
+How faint a gradient still registers. High turns the quietest shading into visible structure.	Hvor svag en gradient stadig registreres. Højt gør den svageste skygge til synlig struktur.
+How far away. Distance dulls the top and softens the difference between the ears.	Hvor langt væk. Afstand dæmper diskanten og mindsker forskellen mellem ørerne.
+How far back each skip jumps, from a stutter to half a second.	Hvor langt hvert spring går tilbage, fra stammen til et halvt sekund.
+How far the bright parts pull away from the surface.	Hvor langt de lyse dele løfter sig fra overfladen.
+How far the burn spreads off the edge, and how hot its colour runs.	Hvor langt ilden breder sig fra kanten, og hvor varm farven er.
+How far the sound throws each line sideways.	Hvor langt lyden kaster hver linje sidelæns.
+How far the top comes down as the end approaches. This is not a fade: the level is left alone.	Hvor meget diskanten falder mod slutningen. Det er ikke en udtoning: niveauet er uændret.
+How far the two eyes disagree. Brightness is read as nearness.	Hvor meget de to øjne er uenige. Lysstyrke læses som nærhed.
+How fast it closes. Slow enough not to chop the ends off words.	Hvor hurtigt det lukker. Langsomt nok til ikke at klippe ordenes endelser.
+How fast the drips run. At the left the picture only sags.	Hvor hurtigt dråberne løber. Til venstre synker billedet kun sammen.
+How fast the sand travels to the still lines.	Hvor hurtigt sandet bevæger sig til de stille linjer.
+How fast the wave travels. Faster spreads further in the same time and interferes more.	Bølgens hastighed. Hurtigere når længere på samme tid og giver mere interferens.
+How fast what has dripped hardens away. At the left the drips stay until the cue changes.	Hvor hurtigt det dryppede størkner væk. Til venstre bliver dråberne, indtil cuet skifter.
+How fine the water is. Long ocean swell at one end, rain on a puddle at the other.	Vandets finhed. Lange havdønninger i den ene ende, regn på en vandpyt i den anden.
+How hard it holds once it is working. Gentle at the bottom, a limiter at the top.	Hvor hårdt det holder, når det virker. Blidt nederst, en limiter øverst.
+How irregular the growth is. Low gives an even honeycomb, high gives long shards.	Hvor uregelmæssig væksten er. Lavt giver en jævn bikage, højt lange skår.
+How long a short stays closed, in VIDEO FRAMES.	Hvor længe en kortslutning forbliver lukket, i VIDEOBILLEDER.
+How long the reaction runs each frame. Short is a stain, long is an organism.	Hvor længe reaktionen kører pr. billede. Kort giver en plet, langt en organisme.
+How many places drip: a few big drips at the left, many thin ones at the right.	Antal dryppesteder: få store til venstre, mange tynde til højre.
+How many times a skip repeats before the sound catches up again.	Hvor mange gange et spring gentages, før lyden indhenter igen.
+How much of the picture glows: only the brightest at the left, nearly everything at the right.	Hvor meget af billedet gløder: kun det lyseste til venstre, næsten alt til højre.
+How much of the picture shows behind the lines. None at the left: lines on black.	Hvor meget billede der vises bag linjerne. Intet til venstre: linjer på sort.
+How much of the push goes downward rather than sideways.	Hvor meget af skubbet der går nedad frem for sidelæns.
+How much the flame gutters frame to frame.	Hvor meget flammen blafrer fra billede til billede.
+How wide a band of colours either side of it changes too.	Hvor bredt et farvebånd på begge sider der også ændres.
+How bright a pixel has to be to join a run. Lower catches more of the picture and the runs grow longer.	Hvor lys en pixel skal være for at indgå i en række. Lavere fanger mere af billedet og gør rækkerne længere.
+How far back the chain listens. The picture is played through a delay, so this is the distance the damage is dragged across.	Hvor langt kæden lytter tilbage. Billedet afspilles gennem en forsinkelse, så dette er afstanden, skaden trækkes over.
+How far the colour turns on each trip round the loop. This is the oil-slick: the trail walks through the spectrum instead of fading.	Hvor meget farven drejer pr. omløb. Det giver oliefilmen: sporet vandrer gennem spektret i stedet for at falme.
+How far the picture stands out. Bright parts come forward, dark parts stay back. At the left it is flat.	Hvor langt billedet træder frem. Lyse dele kommer frem, mørke bliver tilbage. Til venstre er det fladt.
+How far the picture swings the filter. The cue's own brightness opens and closes it, so a cut to black takes the top off the sound.	Hvor meget billedet styrer filteret. Cuets lysstyrke åbner og lukker det, så et klip til sort fjerner diskanten.
+How fast it settles away while held. At zero it holds indefinitely, which is what room tone under a held title wants.	Hvor hurtigt det falder til ro under hold. Ved nul holder det uendeligt, passende til rumlyd under en fastholdt titel.
+How fast the open slit crosses the picture. Slow smears a long moment across the frame.	Hvor hurtigt den åbne spalte krydser billedet. Langsomt smører et langt øjeblik ud over billedet.
+How hard the light gathers where the rays converge. This is the part that makes it read as water rather than as a wobble.	Hvor stærkt lyset samler sig, hvor strålerne mødes. Det får det til at ligne vand frem for vaklen.
+How hard the moving parts throw sand. More shake clears the plate faster and makes the lines thinner.	Hvor hårdt de bevægelige dele kaster sand. Mere rysten rydder pladen hurtigere og gør linjerne tyndere.
+How long a grain is, in VIDEO FRAMES. On a 23.976 clip one frame is 41.7ms, which is not a musical value and is exactly the point.	Kornets længde i VIDEOBILLEDER. Ved 23.976 varer et billede 41.7ms: ingen musikalsk værdi, og netop det er pointen.
+How long before the end it starts. The cue has to have a known length -- an open-ended one has no end to resolve into.	Hvor længe før slutningen det starter. Cuets længde skal være kendt -- et åbent cue har ingen slutning at falde til ro i.
+How long it is allowed to run. More steps means the ripples have crossed and reflected more times.	Hvor længe det må køre. Flere trin betyder, at bølgerne har krydset og reflekteret flere gange.
+How long the old waves linger when the note changes. Left: they die at once. Right: they slosh for a while.	Hvor længe gamle bølger bliver ved et nodeskift. Venstre: de dør straks. Højre: de skvulper et stykke tid.
+How much each facet catches the light, which is what makes them read as faceted rather than as flat blobs.	Hvor meget lys hver facet fanger, så de ligner facetter frem for flade klatter.
+How much of the bent picture goes round again. High is where it stops being an echo and starts eating itself.	Hvor meget af det bøjede billede der går rundt igen. Højt holder det op med at være et ekko og æder sig selv.
+How much room comes up under it, so the sound settles into the cut instead of being severed.	Hvor meget rumlyd der kommer op under, så lyden falder til ro i klippet i stedet for at blive kappet.
+How much the echo is distorted each pass. It compounds, so a little ripples and a lot melts the picture into itself.	Hvor meget ekkoet forvrænges pr. omgang. Det ophobes: lidt giver krusninger, meget smelter billedet ind i sig selv.
+How much the material draws in towards each drip, so it runs as a thin neck with a heavier head.	Hvor meget materialet trækkes mod hver dråbe, så det løber som en tynd hals med et tungere hoved.
+How often its settings are corrupted. Corrupted far enough it oscillates on its own -- loud, but it cannot run away.	Hvor tit indstillingerne beskadiges. Nok beskadiget svinger det af sig selv -- højt, men uden at løbe løbsk.
+How quickly the picture springs back to rest once the driver stops pushing it. Only does anything when memory is up.	Hvor hurtigt billedet springer tilbage til ro, når drivkraften stopper. Virker kun med hukommelsen skruet op.
+How quickly the room eats the top end. More damping is a softer, more furnished space.	Hvor hurtigt rummet æder diskanten. Mere dæmpning giver et blødere, mere møbleret rum.
+How readily an edge catches. Low sets the whole picture alight, high only the hardest lines.	Hvor let en kant fænger. Lavt antænder hele billedet, højt kun de skarpeste linjer.
+How small a cut sets it off. With no picture it runs on a timer instead, and this is how often.	Hvor lille et klip der udløser det. Uden billede bruger det en timer, og dette angiver hvor tit.
+How strongly the finished picture pushes the bend. Pair it with a picture effect whose LFO is set to Audio and the two drive each other.	Hvor stærkt det færdige billede driver bøjningen. Par det med en billedeffekt med LFO sat til Lyd, så driver de hinanden.
+How wide a view is being compressed. Narrow is a punch down the middle, wide folds the whole frame into the centre.	Hvor bredt et udsyn der komprimeres. Smalt slår gennem midten, bredt folder hele billedet ind mod centrum.
+0 flows ALONG the edges, so colour orbits the shapes. 1 flows across them, which bleeds the picture into itself.	0 flyder LANGS kanterne, så farven kredser om formerne. 1 flyder på tværs og får billedet til at bløde ind i sig selv.
+A command line, as a DASH button runs it. {value} is the knob's number, {note} the key.	En kommandolinje som en DASH-knap kører den. {value} er drejeknappens tal, {note} tangenten.
+a note number 0-127, LEARN to take the next note played, or empty for none	nodenummer 0-127, LEARN for næste spillede node, eller tomt for ingen
+a video cue's duration comes from its file; still duration applies to stills, patterns and browsers	et videocues varighed kommer fra filen; stillbilledvarighed gælder billeder, testbilleder og browsere
+An old deck: the picture wobbles, bends at the top of the frame and carries hum bars.	Et gammelt deck: billedet vakler, bøjer øverst og har brumstriber.
+An old tape loses bits of its oxide: dropouts flick white and repeat the line above, and the colour fizzes.	Et gammelt bånd mister oxid: udfald blinker hvidt og gentager linjen ovenover, mens farven syder.
+Below the middle narrows toward mono -- which is what a single PA cluster is. Above it widens.	Under midten indsnævres mod mono -- som én PA-klynge. Over midten udvides det.
+Blueshift toward the direction of travel and redshift at the rim. Zero leaves the colour alone and it reads as a lens instead.	Blåforskydning i bevægelsesretningen og rødforskydning ved kanten. Nul bevarer farven og ligner en linse.
+Bright: bright things drip over the dark, as text and logos do. Whole picture: everything is wax, and the picture itself runs down in its own colours.	Lyst: lyse ting drypper over mørke, som tekst og logoer. Hele billedet: alt er voks, og billedet løber ned i sine egne farver.
+Centre is a straight line. Up bends it into an S -- darker shadows, brighter highlights, more contrast. Down flattens it.	Midten er en ret linje. Op bøjer den til et S -- mørkere skygger, lysere højlys, mere kontrast. Ned flader den ud.
+Characters across. Fewer means bigger cells and less of the picture surviving, which is usually the point.	Tegn på tværs. Færre giver større celler og mindre bevaret billede, hvilket som regel er meningen.
+Characters to build the picture from, darkest first. Empty uses the chosen glyph set.	Tegn til at bygge billedet af, mørkeste først. Tomt bruger det valgte tegnsæt.
+Colour is recorded at a fraction of the detail: it smears sideways, lands late and its hue wanders.	Farve optages med en brøkdel af detaljerne: den smøres sidelæns, kommer sent og skifter farvetone.
+Copies of copies: none at the left, four at the right. Each one loses more.	Kopier af kopier: ingen til venstre, fire til højre. Hver mister mere.
+How much its SIZE becomes distance. Shrink the picture and the sound goes away from you: the top comes off, the image narrows, the level drops.	Hvor meget STØRRELSE bliver til afstand. Krymp billedet, så lyden fjerner sig: diskanten dæmpes, stereobilledet indsnævres, niveauet falder.
+How much of the driver's movement the picture KEEPS. At zero it follows the driver frame by frame, which is a twitch. Wind it up and the motion accumulates, so the driver sculpts the picture over time and it holds the pose -- which is what puppetry means.	Hvor meget af drivkraftens bevægelse billedet BEHOLDER. Ved nul følger det billede for billede og rykker. Skru op, så bevægelsen ophobes: drivkraften former billedet over tid, og det holder stillingen -- som dukketeater.
+How much of the picture's position on the output is used. A PIP on the left sounds on the left -- and it is a placement, not a pan: the far ear gets the delay and the head shadow too.	Hvor meget billedets position på udgangen bruges. Et PIP til venstre lyder til venstre -- placering, ikke panorering: det fjerne øre får også forsinkelse og hovedskygge.
+How much of the tail is kept going while the cue is held. Long enough to hide the splice in room tone, short enough not to smear a rhythm in it.	Hvor meget af halen der fortsætter under hold. Længe nok til at skjule samlingen i rumlyd, kort nok til ikke at udtvære rytmen.
+Lift or cut, 12dB either way. The centre is flat, so a band that has just been added does nothing until this is moved.	Hæv eller sænk, 12dB hver vej. Midten er neutral, så et nyt bånd virker først, når dette flyttes.
+Light on the drips, as on something wet: a gloss where it faces the light, darker where it curls away.	Lys på dråberne som på noget vådt: glans mod lyset, mørkere hvor det krummer væk.
+Line pitch in pixels, so this reads at 4K as well as at 720.	Linjeafstand i pixels, så det kan læses ved både 4K og 720.
+One knob for the whole balance: below the middle is darker, above it is brighter.	Én knap til hele balancen: under midten mørkere, over midten lysere.
+Pulls the bright tones down without moving pure white, so a hot highlight rolls off instead of clipping.	Sænker lyse toner uden at flytte rent hvidt, så stærke højlys ruller blødt af i stedet for at klippe.
+Rotates the reading, so straight lines wind into spirals rather than rings.	Drejer aflæsningen, så rette linjer snor sig til spiraler frem for ringe.
+Rows lose sync and repeat one character, the way a real text screen breaks up. At 0 the grid is clean.	Rækker mister synkronisering og gentager ét tegn som en fejlende tekstskærm. Ved 0 er gitteret rent.
+The brightness that stays put. Everything above it reaches one way and everything below it the other.	Lysstyrken der bliver stående. Alt over strækker sig én vej, alt under den anden.
+The character of the growth: low is waves, then labyrinth, coral, worms, and holes at the top.	Vækstens karakter: lavt er bølger, så labyrint, koral, orme og huller øverst.
+The colour it becomes. Shading and brightness stay as they were, so a red shirt turns blue and keeps its folds.	Farven det bliver til. Skygger og lysstyrke bevares, så en rød skjorte bliver blå med folderne intakte.
+The distance that sits ON the screen. Either side of it comes forward or falls behind.	Afstanden PÅ skærmen. På hver side kommer det frem eller falder bagud.
+The frequency it pivots around -- what counts as 'low' and 'high' for the tilt.	Frekvensen der vippes omkring -- hvad der tæller som 'lavt' og 'højt' for vipningen.
+The level below which the source is closed. Set it under the quietest thing you want to hear.	Niveauet hvorunder kilden lukkes. Sæt det under den svageste lyd, du vil høre.
+The plugin's first four automatable controls, in its own order. Everything else it has keeps whatever the plugin was left set to.	Pluginets første fire automatiserbare kontroller i dets egen rækkefølge. Resten beholder pluginets sidst valgte indstillinger.
+Tints the two directions apart, so light bending one way and the other are different colours instead of both being grey.	Farver de to retninger forskelligt, så lys bøjet hver sin vej får forskellige farver i stedet for begge at være grå.
+Turns the strokes across the grain instead of along it, which combs the picture apart rather than smoothing it.	Drejer strøgene på tværs af kornet i stedet for langs det, så billedet kæmmes fra hinanden frem for at glattes.
+Turns the whole arrangement, so the fold lines do not sit on the same part of the picture all night.	Drejer hele opstillingen, så foldelinjerne ikke ligger samme sted i billedet hele aftenen.
+Two is a mirror, twelve is a snowflake, and they are completely different pictures.	To er et spejl, tolv et snefnug: helt forskellige billeder.
+Where highlights fold back through black. Low folds most of the picture, high folds only the brightest.	Hvor højlys folder tilbage gennem sort. Lavt folder det meste af billedet, højt kun det lyseste.
+Where the band sits, 30Hz to 16kHz across the travel.	Båndets placering, fra 30Hz til 16kHz over vandringen.
+Where the fold sits: the middle at the left, toward the far edge to the right. Flips have no fold.	Foldens placering: midten til venstre, mod den fjerne kant til højre. Spejlinger har ingen fold.
+Where the light stands, in degrees around the frame.	Lysets placering i grader rundt om billedet.
+Where the source sits around the listener, all the way round. For headphones -- it is a timing and shading trick, not a pan.	Kildens placering hele vejen rundt om lytteren. Til hovedtelefoner -- et trick med timing og skygge, ikke panorering.
+Where the top ends, 200Hz to 20kHz. Pull it down to take the harshness off a bright source.	Hvor toppen slutter, 200Hz til 20kHz. Sænk for at fjerne skarpheden fra en lys kilde.
+Which channel the curve acts on: all three, then red, green or blue on its own -- the way a colourist warms or cools one end of the picture.	Kurvens kanal: alle tre, så rød, grøn eller blå alene -- som en colorist varmer eller køler den ene ende af billedets toner.
+Which way the knife edge lies. Only gradients ACROSS the edge show, so turning it swaps which features appear and which vanish.	Knivsæggens retning. Kun gradienter PÅ TVÆRS vises, så drejning bytter, hvilke træk der vises og forsvinder.
+Which way the streak runs: across at the left, upright in the middle, across again at the right.	Stribens retning: på tværs til venstre, lodret i midten, på tværs igen til højre.
+Widens the decision into a ramp, so edges keep their shape instead of jagging.	Udvider tærsklen til en rampe, så kanter bevarer formen uden takker.
+Zero is one noise value across all three channels, which reads as film. Higher gives each channel its own, which reads as video.	Nul giver samme støjværdi i alle tre kanaler og ligner film. Højere får hver kanal sin egen og ligner video.
+BLEND PAIR: expected <other output number> <overlap in pixels>	BLEND PAIR: forventede <other output number> <overlap in pixels>
+ASCII WOBBLEMODE: drift | flow (follows luma) | hue (follows colour); no argument cycles	ASCII WOBBLEMODE: drift | flow (følger luma) | hue (følger farve); uden argument skiftes der
+ASCII: the selected cue has no text mode (add the TEXT MODE effect, or select a video synth cue)	ASCII: det valgte cue har ingen teksttilstand (tilføj effekten TEXT MODE, eller vælg et videosynthcue)
+DASH SET: needs a command -- DASH SET <n> <label> | <command> [| <glyph>]	DASH SET: kræver en kommando -- DASH SET <n> <label> | <command> [| <glyph>]
+DRAW COLOUR: #rrggbb, #rrggbbaa, a name, or 1-8 for the palette	DRAW COLOUR: #rrggbb, #rrggbbaa, et navn eller 1-8 for paletten
+DRAW STROKE: each point is x,y or x,y,pressure, in percent	DRAW STROKE: hvert punkt er x,y eller x,y,pressure, i procent
+DRAW TOOL: brush, erase, line, box, oval or fill	DRAW TOOL: brush, erase, line, box, oval eller fill
+MASK SET: expected INVERT, X, Y, SCALE, ROTATION, FEATHER, GROW or OPACITY and a number	MASK SET: forventede INVERT, X, Y, SCALE, ROTATION, FEATHER, GROW eller OPACITY og et tal
+MASK SHAPE: expected a shape (MASK SHAPES lists them)	MASK SHAPE: forventede en form (MASK SHAPES viser dem)
+MULTIVIEW WINDOW <n>: expected a source, or SAFE/METER/LABEL ON|OFF	MULTIVIEW WINDOW <n>: forventede en kilde eller SAFE/METER/LABEL ON|OFF
+NEWSHOW: something is live or unsaved -- send NEWSHOW again within 2.5 s	NEWSHOW: noget er live eller ikke gemt -- send NEWSHOW igen inden 2.5 s
+NMOS: NOT registering - network is LOCAL ONLY (turn REMOTE ON to publish)	NMOS: registrerer IKKE - netværk KUN LOKALT (REMOTE ON for at publicere)
+SCOPES SOURCE: expected PROGRAMME or an output number, 1-	SCOPES SOURCE: forventede PROGRAMME eller et udgangsnummer, 1-
+SLICE <n>: CROP, PLACE, CORNER, EDGE, MASK, SOURCE, ROTATE, FLIP, OPACITY, LFO, ON, OFF, LINEAR, PERSPECTIVE or NAME	SLICE <n>: CROP, PLACE, CORNER, EDGE, MASK, SOURCE, ROTATE, FLIP, OPACITY, LFO, ON, OFF, LINEAR, PERSPECTIVE eller NAME
+SLICE CORNER: TL, TR, BR or BL, then dx dy in percent of the output	SLICE CORNER: TL, TR, BR eller BL, så dx dy i procent af udgangen
+SLICE EDGE: L, R, T or B, then 0-50 (% of the slice)	SLICE EDGE: L, R, T eller B, så 0-50 (% af udsnittet)
+SLICE GRID POINT: col row (from 1, on a grid that is on) then dx dy in percent	SLICE GRID POINT: col row (fra 1, på et aktivt gitter), så dx dy i procent
+SLICE GRID: <cols> <rows> (2-9), OFF, SMOOTH ON|OFF, or POINT col row dx dy	SLICE GRID: <cols> <rows> (2-9), OFF, SMOOTH ON|OFF eller POINT col row dx dy
+SLICE LFO: X, Y, ROTATION or OPACITY, then ON, OFF, SHAPE, RATE, DEPTH...	SLICE LFO: X, Y, ROTATION eller OPACITY, så ON, OFF, SHAPE, RATE, DEPTH...
+SLICE ROTATE: IN (the crop) or OUT (the placed picture), then degrees	SLICE ROTATE: IN (beskæringen) eller OUT (det placerede billede), så grader
+STING: select a tone cue first (TONECUE makes one)	STING: vælg først et tonecue (TONECUE opretter et)
+VIDEO OUTPUT ASSIGN: already on this output, or no such deck or output	VIDEO OUTPUT ASSIGN: allerede på denne udgang, eller deck/udgang findes ikke
+VIDEO OUTPUT LAYER: this deck is not on this output, or it is already at that layer	VIDEO OUTPUT LAYER: dette deck er ikke på denne udgang eller allerede på det lag
+VIDEO OUTPUT LAYERWARP MODE: linear or perspective	VIDEO OUTPUT LAYERWARP MODE: linear eller perspective
+VIDEO OUTPUT LAYERWARP: expected OFF, MODE, or eight numbers clockwise from the top left	VIDEO OUTPUT LAYERWARP: forventede OFF, MODE eller otte tal med uret fra øverst til venstre
+VIDEO OUTPUT UNASSIGN: this deck is not on this output, or it is the only thing on it	VIDEO OUTPUT UNASSIGN: dette deck er ikke på denne udgang eller er det eneste på den
+WARP SELECT: expected TL, TR, BR, BL or a grid <col> <row>	WARP SELECT: forventede TL, TR, BR, BL eller gitterpunkt <col> <row>
+WEBMONITOR PIN: network sharing and phone control require 8 or more characters	WEBMONITOR PIN: netværksdeling og telefonstyring kræver mindst 8 tegn
+WEBMONITOR SOURCE: PROGRAMME or the number of an output that shows a picture	WEBMONITOR SOURCE: PROGRAMME eller nummeret på en udgang med billede
+e.g. /stage/doors -- sent to Deckboy's OSC port; empty for none	f.eks. /stage/doors -- sendt til Deckboys OSC-port; tomt for ingen
+forget my defaults? only NEW changes, this show keeps its settings: press again	Glem mine standarder? Kun NEW ændres, dette show beholder sine indstillinger: tryk igen
+HH:MM or HH:MM:SS on this computer's clock; empty for none	HH:MM eller HH:MM:SS på denne computers ur; tomt for ingen
+HH:MM:SS:FF of the timecode Deckboy is chasing; empty for none	HH:MM:SS:FF for tidskoden Deckboy følger; tomt for ingen
+key+fill ON, but no key device set (DECKLINK KEYFILL ON <device>)	key+fill ON, men ingen keyenhed angivet (DECKLINK KEYFILL ON <device>)
+my defaults forgotten: NEW starts from factory settings, this show is unchanged	egne standarder glemt: NEW starter med fabriksindstillinger, dette show er uændret
+N=new  Enter/P=previous  O=open saved  E=examples  L=learn  1-	N=nyt  Enter/P=forrige  O=åbn gemt  E=eksempler  L=lær  1-
+ndi tally trigger on -- program tally takes the cue	NDI-tallyudløser til -- PROGRAM-tally afvikler cuet
+network sharing and phone control require an 8+ character passphrase	netværksdeling og telefonstyring kræver en adgangssætning på mindst 8 tegn
+notestep: this cue's notes have no builds (separate them with a line of ---)	notestep: dette cues noter har ingen trin (adskil dem med en linje med ---)
+opened github.com in your browser -- nothing is sent until you submit the report there	github.com åbnet i din browser -- intet sendes, før du indsender rapporten der
+output effects bypassed: no effect and no limit on this device	udgangseffekter omgået: ingen effekt og ingen grænse på denne enhed
+pair with a picture effect whose LFO is set to Audio	par med en billedeffekt med LFO sat til Lyd
+phone control requires an 8+ character passphrase	telefonstyring kræver en adgangssætning på mindst 8 tegn
+phones need THE NETWORK: set 'Who can see it' first	telefoner kræver NETVÆRKET: indstil først 'Hvem kan se det'
+programme sound is always included; use WEBMONITOR OFF to stop the monitor	PROGRAM-lyd er altid med; brug WEBMONITOR OFF for at stoppe monitoren
+save failed - retrying; still open, use SAVE AS if needed	kunne ikke gemme - prøver igen; stadig åbent, brug SAVE AS om nødvendigt
+saved as my defaults: NEW starts like this show, without the cues	gemt som mine standarder: NEW starter som dette show uden cues
+set an 8+ character Web Monitor passphrase first	angiv først en adgangssætning på mindst 8 tegn til webmonitoren
+sound scopes: integrated loudness and true peak start again	lydscopes: integreret loudness og true peak starter forfra
+splitnotes: that cue's notes have no parts (separate them with a line of ---)	splitnotes: dette cues noter har ingen dele (adskil dem med en linje med ---)
+the clicker now spends note builds before advancing	klikkeren gennemgår nu notetrin, før den går videre
+what the operator should be told when GO reaches here	hvad operatøren skal få at vide, når GO når hertil
+what the patch and the cues call it (FOH, SUB, PRESS FEED)	navnet i patch og cues (FOH, SUB, PRESS FEED)
+Flip across, upside down or both, or fold one half onto the other: right onto left, left onto right, bottom onto top, top onto bottom, or one corner into all four.	Spejl vandret, lodret eller begge, eller fold en halvdel over den anden: højre over venstre, venstre over højre, bund over top, top over bund eller ét hjørne i alle fire.
+Moves the direction of travel off the centre of frame, so the picture rushes past rather than straight at you.	Flytter bevægelsesretningen væk fra midten, så billedet suser forbi frem for lige imod dig.
+Original: the picture pulled onto the figure. Sand: the picture as grains that are thrown off the moving parts and pour into each new figure. Fluid: the picture under water on the plate, bent and lit by its standing waves.	Original: billedet trukket over figuren. Sand: billedkorn kastes fra bevægelige dele og strømmer ind i hver ny figur. Væske: billedet under vand på pladen, bøjet og belyst af stående bølger.
+PHONE LEVEL: removed -- a paired phone or the passphrase can do everything; BLACKOUT and RECORD are hold-to-fire on the phone	PHONE LEVEL: fjernet -- en parret telefon eller adgangssætningen giver fuld kontrol; hold BLACKOUT og RECORD inde på telefonen for at udløse
+presenter panel: expected <live|prev|next|notes> <x> <y> <w> <h> in percent	præsentationspanel: forventede <live|prev|next|notes> <x> <y> <w> <h> i procent
+presenter panel: the panel must fit on the screen (x+w and y+h no more than 100)	præsentationspanel: panelet skal passe på skærmen (x+w og y+h højst 100)
+select a Draw cue first (SOURCE > MADE BY DECKBOY > Draw)	vælg først et tegnecue (SOURCE > MADE BY DECKBOY > Draw)
+something mellow appeared in SOURCE > MADE BY DECKBOY	noget afslappet dukkede op i SOURCE > MADE BY DECKBOY
+Something near the deck: a phone's buzz, a light dimmer's herringbone, a radio's slow bars.	Noget nær decket: en telefons summen, en lysdæmpers sildeben, en radios langsomme striber.
+SOURCE WINDOW: name the window, e.g. title:Firefox (or "desktop")	SOURCE WINDOW: angiv vinduet, f.eks. title:Firefox (eller "desktop")
+Tape speed: SP is the best picture, LP and EP fit more on a tape and lose detail and colour.	Båndhastighed: SP giver det bedste billede; LP og EP får mere på båndet, men mister detaljer og farve.
+Words to surface in the field, separated by | . One shows at a time, moving on the hold clock.	Ord der dukker op i feltet, adskilt med | . Ét ad gangen, skiftende efter holduret.
+SYPHON / SPOUT TEXTURE SHARE	SYPHON / SPOUT TEKSTURDELING
+SYPHON TEXTURE SHARE	SYPHON TEKSTURDELING
+Keynote could not export this file (it may need permission to be automated: System Settings > Privacy & Security > Automation)	Keynote kunne ikke eksportere filen (kræver muligvis tilladelse til automatisering: Systemindstillinger > Anonymitet og sikkerhed > Automatisering)
+PowerPoint could not export this file (it may need permission to be automated: System Settings > Privacy & Security > Automation)	PowerPoint kunne ikke eksportere filen (kræver muligvis tilladelse til automatisering: Systemindstillinger > Anonymitet og sikkerhed > Automatisering)
+ASCII: use ON|OFF|TOGGLE | STATUS | INK | SET | SHUFFLE | PRESET [name|next|prev] | FONT | GLYPHS [chars] | CHAOS <0-1> | WOBBLE <0-1> | WOBBLEMODE [drift|flow|hue] | COLS <n> | GLITCH <a> <b> <c> [d] | PHRASES <a|b|c> | HOLD <seconds>	ASCII: brug ON|OFF|TOGGLE | STATUS | INK | SET | SHUFFLE | PRESET [name|next|prev] | FONT | GLYPHS [chars] | CHAOS <0-1> | WOBBLE <0-1> | WOBBLEMODE [drift|flow|hue] | COLS <n> | GLITCH <a> <b> <c> [d] | PHRASES <a|b|c> | HOLD <seconds>
+FX: use LIST | ADD <effect> [amount] | AMOUNT <n> <v> | PARAM <n> <A-F> <0-1> | CHOICE <n> <A|B> <name> | LFO <n> <A-G> ... | COPY | PASTE | CLEAR	FX: brug LIST | ADD <effect> [amount] | AMOUNT <n> <v> | PARAM <n> <A-F> <0-1> | CHOICE <n> <A|B> <name> | LFO <n> <A-G> ... | COPY | PASTE | CLEAR
+FX LFO wants <index> <slot> <on|off|shape> [value]	FX LFO kræver <index> <slot> <on|off|shape> [value]
+FX LFO: on, off, shape, rate, depth, zone, channel or cc	FX LFO: on, off, shape, rate, depth, zone, channel eller cc
+GEOLFO: x, y, width, height, rotation, cropleft, cropright, croptop or cropbottom	GEOLFO: x, y, width, height, rotation, cropleft, cropright, croptop eller cropbottom
+LFO: density, speed, warp, turn, centrex, centrey, grey or hue	LFO: density, speed, warp, turn, centrex, centrey, grey eller hue
+MIDIMAP: LIST, ADD, SET, REMOVE, CLEAR, RESET, LEARN, LEARNED, PRESET or FEEDBACK	MIDIMAP: LIST, ADD, SET, REMOVE, CLEAR, RESET, LEARN, LEARNED, PRESET eller FEEDBACK
+INPUTMONITOR: a row count, OPEN, CLOSE, CLEAR, PAUSE or RESUME	INPUTMONITOR: antal rækker, OPEN, CLOSE, CLEAR, PAUSE eller RESUME
+OUTPUT SPOUT: ON | OFF | TOGGLE | NAME <sender name>	OUTPUT SPOUT: ON | OFF | TOGGLE | NAME <sender name> (afsendernavn)
+WEBMONITOR: STATUS | ON | OFF | CONTROL ON|OFF | SHARE ON|OFF | SOURCE PROGRAMME|<output> | QR [ON|OFF] | PORT <n> | PIN <pin>|OFF (sound is included)	WEBMONITOR: STATUS | ON | OFF | CONTROL ON|OFF | SHARE ON|OFF | SOURCE PROGRAMME|<output> | QR [ON|OFF] | PORT <n> | PIN <pin>|OFF (lyd inkluderet)
+expected waveform|scope|lissajous|spectrum|level|cover	forventede waveform|scope|lissajous|spectrum|level|cover
+MIDIIN: NOTE <n> <vel>, NOTEOFF <n>, CC <c> <v>, PITCH <0-16383>, PRESSURE <v>, KEYPRESSURE <n> <v>, PROGRAM <n> or OSC <address> [<n>], then CH <1-16> if not channel 1	MIDIIN: NOTE <n> <vel>, NOTEOFF <n>, CC <c> <v>, PITCH <0-16383>, PRESSURE <v>, KEYPRESSURE <n> <v>, PROGRAM <n> eller OSC <address> [<n>], så CH <1-16> hvis ikke kanal 1
+warp grid: expected <n>, <cols> <rows>, off, smooth or straight	warp grid: forventede <n>, <cols> <rows>, off, smooth eller straight
+warp point: that is a corner -- move it with WARP <corner> dx dy	warp point: det er et hjørne -- flyt det med WARP <corner> dx dy
+label | command | glyph      (empty label|command removes it)	etiket | kommando | tegn      (tom label|command fjerner det)
+PIP: retired -- scale a second deck over this one instead	PIP: udgået -- skalér et andet deck oven på dette
+pip: retired -- scale a second deck over this one instead	pip: udgået -- skalér et andet deck oven på dette
+did not finish in 3 minutes. It may be waiting on a prompt it cannot show (Protected View, sign-in, a repair). Open the deck there once, or export it as a PDF and import that	ikke færdig efter 3 minutter. Venter måske på en usynlig dialog (Beskyttet visning, login, reparation). Åbn præsentationen der én gang, eller eksportér til PDF og importér den
+PowerPoint could not open the file (it gave up waiting for it). If it is in OneDrive, right-click it and choose Always keep on this device, then import it again	PowerPoint kunne ikke åbne filen (ventetiden udløb). Hvis den er i OneDrive, højreklik og vælg Behold altid på denne enhed, og importér igen
+a plugin overran the audio thread and was bypassed — take it out of the chain	et plugin overskred lydtrådens tid og blev omgået — fjern det fra kæden
+window capture fell back to screen grab — update ffmpeg for exact window capture	vinduesoptagelse faldt tilbage til skærmoptagelse — opdatér FFmpeg for præcis vinduesoptagelse
+DECODE --.-	AFKODNING --.-
+DECODE OFF	AFKODNING FRA
+OUTPUT --.-	UDGANG --.-
+STREAM ERR	STREAM FEJL
+STREAM OFF	STREAM FRA
+DECODE WARM	AFKOD. START
+OUTPUT WARM	UDGANG START
+STREAM WARM	STREAM START
+audioprint	lydaftryk
+AUTO	AUTOMATISK
+Iris	Blænde
+Lens	Linse
+fold	foldning
+Prism	Prisme
+Water	Vand
+Lasers	Lasere
+Pixels	Pixel
+out:--	ud:--
+Listens	Lytter
+Mirrors	Spejle
+Shimmer	Glimt
+purkinje	Purkinje
+FDS synth	FDS-synth
+lissajous	Lissajous
+ping-pong	pingpong
+(bypassed)	(forbigået)
+Second jet	Anden stråle
+%, 1 to 100	%, 1 til 100
+Panel angle	Panelvinkel
+Ripple size	Bølgestørrelse
+Panels, 0-12	Paneler, 0-12
+Seconds, 0-4	Sekunder, 0-4
+Seconds, 0-8	Sekunder, 0-8
+Top / bottom	Top / bund
+Amount 0-100%	Mængde 0-100%
+ALSA MIDI Port	ALSA MIDI-port
+Degrees, 0-360	Grader, 0-360
+ASIOInit failed	ASIOInit mislykkedes
+Pixels, 64-2160	Pixel, 64-2160
+Pixels, 64-3840	Pixel, 64-3840
+Colour steps, 2-8	Farvetrin, 2-8
+Degrees -180..180	Grader -180..180
+Palette turn, 0-1	Paletdrejning, 0-1
+Size, %, 5 to 400	Størrelse, %, 5 til 400
+Feature size, 0.1-8	Detaljestørrelse, 0.1-8
+Spiral size, 0.25-4	Spiralstørrelse, 0.25-4
+Degrees, -360 to 360	Grader, -360 til 360
+Spiral strength, 0-4	Spiralstyrke, 0-4
+0-100%, left to right	0-100%, venstre mod højre
+0-100%, top to bottom	0-100%, top mod bund
+0-100%: laser speckle	0-100%: laserpletter
+Pixel sort amount, 0-1	Pixelsorteringsmængde, 0-1
+Pitch in hertz, 20-8000	Tonehøjde i hertz, 20-8000
+Frames a second, 1 to 60	Billeder pr. sekund, 1 til 60
+Horizontal cells, 64-960	Vandrette celler, 64-960
+select a lumia cue first	vælg først et Lumia-cue
+0 tube, 1 mandala, 2 none	0 rør, 1 mandala, 2 ingen
+How big a blob grows, 0-1	Hvor stor en klat bliver, 0-1
+0-100%: overall brightness	0-100%: samlet lysstyrke
+FDS hardware gain range, 0-63	FDS-hardwareforstærkningsområde, 0-63
+How hard it cuts, %, 0 to 100	Hvor hårdt det skærer, %, 0 til 100
+{1} (supports + - * / and ())	{1} (understøtter + - * / og ())
+Master oscillator rate, 0.01-8	Hovedoscillatorens hastighed, 0.01-8
+Seconds the in move takes, 0-5	Indgående bevægelse i sekunder, 0-5
+0-100%: 0 holds the field still	0-100%: 0 holder feltet stille
+0-100%: how bright the water is	0-100%: vandets lysstyrke
+0-100%: how far the field bends	0-100%: hvor meget feltet bøjer
+0-100%: the whole picture turns	0-100%: hele billedet drejer
+Degrees per second, -720 to 720	Grader pr. sekund, -720 til 720
+Lumia (laser light and mirrors)	Lumia (laserlys og spejle)
+Seconds between retriggers, 0-8	Sekunder mellem genudløsninger, 0-8
+Seconds the out move takes, 0-5	Udgående bevægelse i sekunder, 0-5
+0-100%: how fast the water moves	0-100%: vandets hastighed
+0-100%: the halo round the lines	0-100%: glød omkring linjerne
+How many are alive at once, 3-48	Hvor mange der lever samtidig, 3-48
+Turbulence, 0 still to 3 boiling	Turbulens, 0 stille til 3 kogende
+Birth, drift and fade rate, 0.1-3	Hastighed for fødsel, drift og udtoning, 0.1-3
+How hard the audio drives it, 0-1	Hvor kraftigt lyden driver det, 0-1
+Scale of the whole graphic, 0.5-2	Skala for hele grafikken, 0.5-2
+0-100%: 0 broad, 100 fine and busy	0-100%: 0 bredt, 100 fint og tæt
+Down, % of the height, -100 to 100	Nedad, % af højden, -100 til 100
+Thickness of the glowing edge, 0-1	Tykkelse på den glødende kant, 0-1
+0-100%: how hard the lines are bent	0-100%: hvor meget linjerne bøjes
+0-100%: light lingers on the screen	0-100%: lyset bliver hængende på skærmen
+Across, % of the width, -100 to 100	På tværs, % af bredden, -100 til 100
+% of the picture's height, 0.1 to 20	% af billedets højde, 0.1 til 20
+0-100%: how far the colours fan apart	0-100%: hvor meget farverne spredes
+Degrees round the colour wheel, 0-360	Grader på farvehjulet, 0-360
+Where the eye sits, 0 left to 1 right	Øjets placering, 0 venstre til 1 højre
+Where the eye sits, 0 top to 1 bottom	Øjets placering, 0 top til 1 bund
+dBFS, -60 to 0 (-18 is EBU alignment)	dBFS, -60 til 0 (-18 er EBU-referenceniveau)
+0-100%: how bright the laser lines are	0-100%: laserlinjernes lysstyrke
+One LED tile's width in pixels, 8-8192	En LED-flises bredde i pixel, 8-8192
+0-100%: a second jet crossing the first	0-100%: en anden stråle krydser den første
+Edge softness, % of the height, 0 to 25	Kantblødhed, % af højden, 0 til 25
+One LED tile's height in pixels, 8-8192	En LED-flises højde i pixel, 8-8192
+0 classic, 1 fire, 2 ice, 3 neon, 4 mono	0 klassisk, 1 ild, 2 is, 3 neon, 4 mono
+Modulator as a ratio of the note, 0.05-16	Modulator som forhold til noden, 0.05-16
+Scanlines, bloom and gun misalignment, 0-1	Scanlinjer, glød og fejljustering af kanoner, 0-1
+0-100%: the round lens, barrel and dark rim	0-100%: rund linse, tøndeforvrængning og mørk kant
+Block displacement and channel tearing, 0-1	Blokforskydning og kanalrivning, 0-1
+Internal resolution, 1 (chunky) to 5 (fine)	Intern opløsning, 1 (grov) til 5 (fin)
+Seconds the finished drawing stays, 0 to 60	Sekunder den færdige tegning bliver, 0 til 60
+0 rainbow + grey, 1 rainbow, 2 theme, 3 mono	0 regnbue + grå, 1 regnbue, 2 tema, 3 mono
+How readily neighbours merge, 0 (never) to 1	Hvor let naboer smelter sammen, 0 (aldrig) til 1
+Turns the rim's colours round the wheel, 0-1	Drejer kantens farver rundt på farvehjulet, 0-1
+drag to turn round it · wheel to come closer	træk for at dreje rundt · hjul for at komme tættere på
+0-100%: 50 is 1x, 0 a quarter, 100 four times	0-100%: 50 er 1x, 0 en fjerdedel, 100 fire gange
+How much of each frame feeds the next, 0-0.95	Hvor meget af hvert billede der føder det næste, 0-0.95
+Per-frame zoom of the feedback path, 0.90-1.15	Zoom pr. billede i tilbagekoblingen, 0.90-1.15
+Space under it, as a fraction of the frame, 0-0.8	Plads nedenunder som andel af billedet, 0-0.8
+0 rgb, 1 rainbow, 2 floyd, 3 warm, 4 cool, 5 green	0 rgb, 1 regnbue, 2 floyd, 3 varm, 4 kold, 5 grøn
+Edge out (+) or in (-), % of the height, -25 to 25	Kant ud (+) eller ind (-), % af højden, -25 til 25
+SCREENS STAGE: STATUS, SET <what> <value> or APPLY	SCREENS STAGE: STATUS, SET <what> <value> eller APPLY
+0 zone, 1 twin, 2 flow, 3 saddle, 4 ripple, 5 shear	0 zone, 1 tvilling, 2 strøm, 3 saddel, 4 bølge, 5 forskydning
+Seconds before it leaves by itself; 0 waits for OUT	Sekunder før det forlader selv; 0 venter på OUT
+0-100%: how far each panel tilts from the one before	0-100%: hvert panels hældning i forhold til det forrige
+0-100%: the share of each band drawn as grey stripes	0-100%: andelen af hvert bånd tegnet som grå striber
+0 off, 1 on: the flow surges with the programme sound	0 fra, 1 til: strømmen pulserer med programmets lyd
+0 off, 1 on: the top mirrors the bottom round a dark seam	0 fra, 1 til: toppen spejler bunden omkring en mørk søm
+' (cues, position, look, effects, levels, routing, master)	' (cues, position, udseende, effekter, niveauer, routing, master)
+' -- try ADD, ON, OFF, ASSIGN, UNASSIGN, LAYER, HOST, TYPE, MIRROR or an output number	' -- prøv ADD, ON, OFF, ASSIGN, UNASSIGN, LAYER, HOST, TYPE, MIRROR eller et udgangsnummer
+BLEND ROW: expected <first output> <how many, 2 or more> <overlap in pixels>, with that many outputs	BLEND ROW: forventede <first output> <how many, 2 or more> <overlap in pixels>, med det antal udgange
+SCREENS STAGE SET: WIDTH|HEIGHT <m>, LUMENS, THROW, OVERLAP <%>, GAIN, COUNT, PIXELS <w> <h> or UNITS METRES|FEET	SCREENS STAGE SET: WIDTH|HEIGHT <m>, LUMENS, THROW, OVERLAP <%>, GAIN, COUNT, PIXELS <w> <h> eller UNITS METRES|FEET
+opacity	uigennemsigtighed
+Opacity	Uigennemsigtighed
+this build has no Ableton Link	denne version har ikke Ableton Link
+joined the Link session	tilsluttet Link-sessionen
+left the Link session	forlod Link-sessionen
+VJ LINK: this build has no Ableton Link	VJ LINK: denne version har ikke Ableton Link
+LINK: {1} peers	LINK: {1} deltagere
+TAKE waits for the beat: {1} s	TAKE venter på taktslaget: {1} s
+TAKE waits for the bar: {1} s	TAKE venter på takten: {1} s
+QUANTISE: 1 bar	QUANTISE: 1 takt
+QUANTISE: 2 bars	QUANTISE: 2 takter
+QUANTISE: 4 bars	QUANTISE: 4 takter
+QUANTISE: beat	QUANTISE: taktslag
+PAD MODE: HOLD or LATCH	PAD MODE: HOLD eller LATCH
+PAD ASSIGN: this cue does not have that control	PAD ASSIGN: dette cue har ikke den kontrol
+PAD SET: x and y are numbers from 0 to 1 (y = 1 is the top)	PAD SET: x og y er tal fra 0 til 1 (y = 1 er toppen)
+PAD ASSIGN: a control is OPACITY, FX<n>.AMOUNT, FX<n>.A to F, or NUM.<name> such as NUM.lumia.flow	PAD ASSIGN: en kontrol er OPACITY, FX<n>.AMOUNT, FX<n>.A til F eller NUM.<name> såsom NUM.lumia.flow
+PAD: expected PAD <deck> SET <x> <y> | RELEASE | MODE | ASSIGN | REMOVE | CHIP | LIST	PAD: forventede PAD <deck> SET <x> <y> | RELEASE | MODE | ASSIGN | REMOVE | CHIP | LIST
+PAD: expected PAD <deck> SET <x> <y> | RELEASE | MODE HOLD|LATCH | ASSIGN <slot> <x> <y> | REMOVE <slot> | CHIP <slot> ON|OFF | LIST	PAD: forventede PAD <deck> SET <x> <y> | RELEASE | MODE HOLD|LATCH | ASSIGN <slot> <x> <y> | REMOVE <slot> | CHIP <slot> ON|OFF | LIST
+VJ: expected ON|OFF|TOGGLE|MIX <0-1>|BLEND <mode>|TAP|BPM <n>|CLOCK <on|off>|QUANTISE <beat|1|2|4|off>|LINK <on|off|status>|DECKS <a> <b>|STATUS	VJ: forventede ON|OFF|TOGGLE|MIX <0-1>|BLEND <mode>|TAP|BPM <n>|CLOCK <on|off>|QUANTISE <beat|1|2|4|off>|LINK <on|off|status>|DECKS <a> <b>|STATUS
+VJ QUANTISE: beat | 1 | 2 | 4 | off  (1, 2, 4 are bars)	VJ QUANTISE: beat | 1 | 2 | 4 | off  (1, 2, 4 er takter)
+LFO: flow, water, ripple, jet, prism, split, focus, shimmer, mirrors, angle, spin, lens, glow, bright or trail	LFO: flow, water, ripple, jet, prism, split, focus, shimmer, mirrors, angle, spin, lens, glow, bright eller trail
+render cancelled	rendering annulleret
+RENDER TO FILE	RENDER TIL FIL
+From cue and to cue	Fra cue og til cue
+the output's ({1})	udgangens ({1})
+{1} frames, {2}, {3}x{4}	{1} billeder, {2}, {3}x{4}
+about {1} left	cirka {1} tilbage
+{1} frames in {2}	{1} billeder på {2}
+CANCEL RENDER	ANNULLER RENDER
+START RENDER	START RENDERING
+RENDER CANCEL: nothing is rendering	RENDER CANCEL: intet renderes
+RENDER START CUES: first-last, numbered from 1	RENDER START CUES: første-sidste, nummereret fra 1
+RENDER START: CUE, CUES a-b or OUTPUT	RENDER START: CUE, CUES a-b eller OUTPUT
+RENDER START: needs a size, a rate, a codec and a file	RENDER START: kræver størrelse, billedhastighed, codec og fil
+RENDER START: size is 1080P, 4K or OUTPUT; codec is PRORES, H264 or PNG	RENDER START: størrelse er 1080P, 4K eller OUTPUT; codec er PRORES, H264 eller PNG
+Render	Rendering
+RENDER TO FILE...	RENDER TIL FIL...
+PNG frames	PNG-billeder
+there is no playlist to render	der er ingen afspilningsliste at rendere
+the playlist has no cues	afspilningslisten har ingen cues
+the output's crossfader is not drawn by a render yet	udgangens crossfader medtages endnu ikke i en rendering
+the output's mask is not drawn by a render yet	udgangens maske medtages endnu ikke i en rendering
+the output's slices are not drawn by a render yet	udgangens udsnit medtages endnu ikke i en rendering
+there is no picture in that range	der er intet billede i det interval
+the source made no picture	kilden producerede intet billede
+a render is already running	en rendering kører allerede
+frame {1} of {2} \xC2\xB7 {3} frames/s	billede {1} af {2} \xC2\xB7 {3} billeder/s

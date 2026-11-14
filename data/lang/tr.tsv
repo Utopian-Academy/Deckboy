@@ -3242,3 +3242,1277 @@ whole picture	tüm görüntü
 FX CHOICE: choice must be A or B	FX CHOICE: seçim A veya B olmalı
 FX CHOICE: no effect at that index	FX CHOICE: bu dizinde efekt yok
 FX LFO: slot is A-D for the parameters, E for the amount, F and G for the fifth and sixth (or 0-6)	FX LFO: slot parametreler için A-D, miktar için E, beşinci ve altıncı için F ve G (veya 0-6)
+(choose cue)	(cue seçin)
+(missing)	(eksik)
+(no slots)	(yuva yok)
+(set media file)	(medya dosyası seçin)
+(set url)	(url girin)
+a name for this step	bu adımın adı
+A number	Bir sayı
+across the grain	dokuya dik
+Add Browser Cue	Tarayıcı cue’su ekle
+Add NDI Source Cue	NDI kaynak cue’su ekle
+Add Stream Cue	Akış cue’su ekle
+additive	toplamalı
+alternating	dönüşümlü
+amber	kehribar
+angle	açı
+Art-Net Destination	Art-Net hedefi
+ASCII 95 (density)	ASCII 95 (yoğunluk)
+ASCII 95 (raw)	ASCII 95 (ham)
+ASIO is off	ASIO kapalı
+ATEM Input	ATEM girişi
+Attach Lower Third	Lower Third ekle
+Attach PIP Overlay	PIP katmanı ekle
+Attack	Atak
+attack	atak
+Audio bitrate	Ses bit hızı
+Audio reactivity	Sese tepki
+audioprint	ses baskısı
+AUTO	OTOMATİK
+auto (59.94 Hz)	otomatik (59.94 Hz)
+azimuth	azimut
+band curve	bant eğrisi
+Bands	Bantlar
+bands	bantlar
+base layer	taban katmanı
+BITRATE	BİT HIZI
+bits	bitler
+black point	siyah nokta
+bleed	sızma
+Blobs	Lekeler
+block glitch	blok bozulması
+block size	blok boyutu
+blocks	bloklar
+blur	bulanıklık
+BOTH	İKİSİ
+bright	parlak
+Browser Ready	Tarayıcı hazır
+Brush opacity	Fırça opaklığı
+Brush size	Fırça boyutu
+buzzer	zil
+by brightness	parlaklığa göre
+cancelled	iptal edildi
+Canvas Height	Tuval yüksekliği
+Canvas View	Tuval görünümü
+Canvas Width	Tuval genişliği
+catch	yakalama
+caustics	kostik
+Centre X	Merkez X
+Centre Y	Merkez Y
+channel skew	kanal kayması
+channel spread	kanal yayılımı
+character	karakter
+chladni	Chladni desenleri
+chop	kesme
+CLASSIC	KLASİK
+CLOCK	SAAT
+coherence	tutarlılık
+colour bleed	renk sızması
+colour drift	renk sürüklenmesi
+colour lag	renk gecikmesi
+colour replace	renk değiştirme
+columns	sütunlar
+Companion/OSC Port	Companion/OSC portu
+control 1	kontrol 1
+control 2	kontrol 2
+control 3	kontrol 3
+control 4	kontrol 4
+Control change	Kontrol değişimi
+convergence	yakınsama
+copies	kopyalar
+corrupt	boz
+corruption	bozulma
+could not reach github	github’a ulaşılamadı
+could not read the PDF	PDF okunamadı
+could not start ffmpeg	ffmpeg başlatılamadı
+couldn't open explorer	explorer açılamadı
+couldn't open finder	finder açılamadı
+coupling	bağlaşım
+crystallise	kristalleştir
+Cue Goto	Cue’ya git
+Cue Notes	Cue notları
+curl detail	kıvrım ayrıntısı
+curves	eğriler
+Custom Glyphs	Özel glifler
+Custom Output Raster	Özel çıkış rasteri
+cut bright	parlağı kes
+cut dark	koyuyu kes
+cut reset	kesmede sıfırla
+cutoff	kesim
+cuts	kesimler
+cyan	camgöbeği
+damage	hasar
+damping	sönümleme
+dark	koyu
+darkness	karanlık
+databend	veri bükme
+datamosh	sıkıştırma bozma
+deck age	deck yaşı
+Default Cue Fade	Varsayılan cue geçişi
+Density	Yoğunluk
+depth	derinlik
+depth split	derinlik ayrımı
+Destination Address	Hedef adresi
+Destination UDP port	Hedef UDP portu
+Detail	Ayrıntı
+diamond	baklava
+display native	ekranın doğal değeri
+Display none	Ekran yok
+distance	uzaklık
+DMX Channels	DMX kanalları
+doppler	Doppler etkisi
+dots move	nokta hareketi
+Draw colour	Çizim rengi
+drift	sürüklenme
+drip	damlama
+drips	damlalar
+drive	sürme
+driver refused to start	sürücü başlamayı reddetti
+dye advect	boya taşınımı
+edges	kenarlar
+empty	boş
+empty expression	boş ifade
+escaped to windowed	pencere moduna geçildi
+export as .png or .svg	.png veya .svg olarak aktar
+extended	genişletilmiş
+EXTREME	AŞIRI
+facet light	yüzey ışığı
+falloff	azalma
+falsecolour	sahte renk
+feed rate	besleme hızı
+feedback bloom	geri besleme parlaması
+Feedback zoom	Geri besleme yakınlığı
+ferrofluid	ferro sıvı
+ffmpeg made no file	ffmpeg dosya oluşturmadı
+field of view	görüş alanı
+Find Cue	Cue bul
+Find+Take Cue	Cue bul+TAKE
+Fire at a time of day	Günün bir saatinde başlat
+Fire on a MIDI note	MIDI notasıyla başlat
+Fire on an OSC address	OSC adresiyle başlat
+Fireside	Ocak başı
+First channel (1-512)	İlk kanal (1-512)
+Fixture address	Armatür adresi
+Fixture name	Armatür adı
+Fixture universe	Armatür evreni
+flash length	flaş süresi
+flash to	flaş rengi
+flicker	titreme
+Flipbook rate	Çevirmeli kitap hızı
+floor	taban
+Flow	Akış
+flow	akış
+focus	odak
+fold	katlama
+fold point	katlama noktası
+frames	kareler
+Frequency	Frekans
+frequency	frekans
+fullscreen dropped	tam ekran düştü
+gap	boşluk
+gather	toplama
+Glitch	Bozulma
+glow	parlama
+glyph set	glif kümesi
+gong	gong sesi
+GOTO Cue	GOTO cue’su
+grain	gren
+grain flow	gren akışı
+grain size	gren boyutu
+green split	yeşil ayrımı
+Grey	Gri
+grid	ızgara
+growl	hırıltı
+growth	büyüme
+head wear	kafa aşınması
+heat	ısı
+Height	Yükseklik
+Height (px)	Yükseklik (px)
+hh:mm:ss or seconds	hh:mm:ss veya saniye
+highlight roll	parlak alan geçişi
+histogram	histogram grafiği
+horizontal	yatay
+How big each tile is.	Her karonun boyutu.
+How often it skips.	Ne sıklıkta atladığı.
+hue turn	ton döndürme
+ice	buz
+In time	Giriş süresi
+ink	mürekkep
+interference	parazit
+irregularity	düzensizlik
+it could not be started	başlatılamadı
+Its name, number or id	Adı, numarası veya id’si
+jump	atlama
+just	doğal akort
+kaleido	kaleydo
+kaleidoscope	kaleydoskop
+Key Color	Anahtar rengi
+Key sender source name	Anahtar gönderici kaynak adı
+Keyframe interval	Anahtar kare aralığı
+knee	diz
+knife angle	bıçak açısı
+leak	sızıntı
+Legacy Cue Link	Eski cue bağlantısı
+let go	bırakma
+libX11 is not installed	libX11 kurulu değil
+lift	kaldırma
+light	ışık
+light angle	ışık açısı
+lightspeed	ışık hızı
+line colour	çizgi rengi
+line glow	çizgi parlaması
+lissajous	Lissajous eğrisi
+Lissajous (L/R phase)	Lissajous (L/R fazı)
+Live Browser	Canlı tarayıcı
+Live Source	Canlı kaynak
+LOAD NEXT	SONRAKİNİ YÜKLE
+lost the session bus	oturum veri yolu kayboldu
+Lower Third - subtitle	Lower Third - alt başlık
+Lower Third - title	Lower Third - başlık
+Lower Third Subtext	Lower Third alt metni
+Lower Third Title	Lower Third başlığı
+luma displace	lüma kaydırma
+luma key	lüma anahtarı
+Mask opacity	Maske opaklığı
+Mask rotation	Maske döndürme
+Mask scale	Maske ölçeği
+Mask X	Maske X
+Mask Y	Maske Y
+material	malzeme
+meantone	orta ton
+Media	Ortam
+Melt	Erime
+melt	erime
+memory	bellek
+midtones	orta tonlar
+milliseconds (40..2000)	milisaniye (40..2000)
+Milliseconds 0-5000	Milisaniye 0-5000
+Mod depth	Mod derinliği
+Mod ratio	Mod oranı
+moire	hare
+mono	tek kanal
+MONO L	TEK KANAL L
+MONO R	TEK KANAL R
+mosaic	mozaik
+motion mosh	hareket bozma
+motion puppet	hareket kuklası
+motion trails	hareket izleri
+MSC Cue Number	MSC cue numarası
+music & sparkle	müzik ve ışıltı
+NDI Key Name	NDI anahtar adı
+NDI Name	NDI adı
+NDI Source Name	NDI kaynak adı
+NEXT	SONRAKİ
+night eyes	gece görüşü
+NMC Port	NMC portu
+NMC Source	NMC kaynağı
+NMC Target	NMC hedefi
+NMOS Interface Name	NMOS arayüz adı
+NMOS Node Port	NMOS düğüm portu
+NMOS Registry	NMOS sicili
+no ASIO in this build	bu derlemede ASIO yok
+no colour	renk yok
+no driver named	bu adlı sürücü yok
+no mask made	maske oluşturulmadı
+no release found	sürüm bulunamadı
+no X display to read	okunacak X ekranı yok
+noise	gürültü
+not connected	bağlı değil
+not on this output	bu çıkışta değil
+Note	Nota
+Note off	Nota kapalı
+Note on	Nota açık
+nothing drawn	hiçbir şey çizilmedi
+off-axis	eksen dışı
+offline	çevrimdışı
+only a background in it	içinde yalnızca arka plan var
+opened in explorer	explorer’da açıldı
+opened in file manager	dosya yöneticisinde açıldı
+orbit speed	yörünge hızı
+OSC Address	OSC adresi
+OSC Query HTTP Port	OSC Query HTTP portu
+Out time	Çıkış süresi
+Output Alpha	Çıkış alfası
+Output Canvas	Çıkış tuvali
+Output Delay	Çıkış gecikmesi
+output fault	çıkış hatası
+Output name	Çıkış adı
+Output Refresh	Çıkış yenilemesi
+overflow	taşma
+own playlist	kendi çalma listesi
+parade	kanal geçidi
+parallax	paralaks
+Payload	Yük
+Percent 0-100	Yüzde 0-100
+phone	telefon
+Phrases	İfadeler
+pinch	sıkıştırma
+ping-pong	pinpon
+pink noise	pembe gürültü
+PIP Target Cue	PIP hedef cue’su
+pitch	perde
+pivot	eksen noktası
+Pixel density	Piksel yoğunluğu
+pixel sort	piksel sıralama
+plasma	plazma
+Playlist Start TC	Çalma listesi başlangıç TC
+Playlist Timebase	Çalma listesi zaman tabanı
+Plugin	Eklenti
+polar warp	kutupsal bükme
+Portal	Geçit
+posterise	posterleştir
+Practice show	Alıştırma gösterisi
+PREVIOUS	ÖNCEKİ
+Program change	Program değişimi
+Prompter script	Prompter metni
+QUALITY	KALİTE
+radial zoom	radyal yakınlaşma
+radio	radyo
+radius	yarıçap
+ramp	rampa
+range	aralık
+ratio	oran
+Raw bytes	Ham baytlar
+Raw MIDI Bytes	Ham MIDI baytları
+reach	erişim
+reaction bloom	tepkime parlaması
+recordings	kayıtlar
+recovering	kurtarılıyor
+refresh	yenileme
+Release	Bırakma
+release	bırakma
+relief	kabartma
+relight	yeniden ışıklandır
+Rename cue	Cue’yu yeniden adlandır
+Rename fixture	Armatürü yeniden adlandır
+Renumber Cues	Cue’ları yeniden numarala
+repeat width	tekrar genişliği
+Replay hold	Tekrar tutma
+resonance	rezonans
+Retrigger	Yeniden tetikle
+revealed in finder	finder’da gösterildi
+reverse	ters
+rgb split	rgb ayrımı
+Rim	Kenar
+rings	halkalar
+ripple	dalgalanma
+rising	yükselen
+rod bias	çubuk ağırlığı
+room	oda
+rot	çürüme
+Rotation	Döndürme
+rotation	döndürme
+round	yuvarlak
+runtime unavailable	çalışma zamanı kullanılamıyor
+sag	gerilim düşmesi
+Save Warp Preset	Bükme önayarını kaydet
+saw	testere
+scanlines	tarama çizgileri
+schlieren	şliren
+scope	ölçüm
+SCOPES	ÖLÇÜMLER
+second mode	ikinci mod
+Seconds (0-30)	Saniye (0-30)
+see through	saydamlık
+seed density	tohum yoğunluğu
+self	kendi
+Sender source name	Gönderici kaynak adı
+settle	oturma
+shadow lift	gölge kaldırma
+shake	sarsıntı
+shard size	parça boyutu
+sharpen	keskinleştir
+sheen	parıltı
+sideways	yana
+size out of range	boyut aralık dışında
+slit scan	yarık tarama
+slit width	yarık genişliği
+Smear	Yayma
+smear	yayma
+softness	yumuşaklık
+solarise	solarize et
+Source Ready	Kaynak hazır
+spike count	sivri uç sayısı
+spike length	sivri uç uzunluğu
+spin	dönüş
+spinning	dönen
+Spout Sender Name	Spout gönderici adı
+spring	yay
+sprite sheet	sprite sayfası
+Sprite spin	Sprite dönüşü
+square	kare
+SRT latency	SRT gecikmesi
+SRT passphrase	SRT parolası
+SRT stream ID	SRT akış ID’si
+ST 2110 Destination	ST 2110 hedefi
+ST 2110 Port	ST 2110 portu
+Step length	Adım uzunluğu
+steps	adımlar
+stereogram	stereogram görüntüsü
+stiffness	sertlik
+sting	kısa efekt
+stream restart needed	akış yeniden başlatılmalı
+Stream URL	Akış URL’si
+stream write failed	akış yazımı başarısız
+strength	güç
+strobe	stroboskop
+stroke	fırça izi
+SUBTLE	HAFİF
+sway	salınma
+sweep	tarama
+sweep speed	tarama hızı
+swell speed	kabarma hızı
+Switcher IP address	Görüntü mikseri IP adresi
+symbols	semboller
+SYPHON TEXTURE SHARE	SYPHON DOKU PAYLAŞIMI
+system default	sistem varsayılanı
+system output	sistem çıkışı
+tape	bant
+tape age	bant yaşı
+target cue is gone	hedef cue artık yok
+targets nothing	hedef yok
+tear width	yırtılma genişliği
+temporal dither	zamansal titreşim
+test signal	test sinyali
+text to send	gönderilecek metin
+the file is empty	dosya boş
+the header is truncated	başlık kesilmiş
+threshold	eşik
+throw	atım
+tile size	karo boyutu
+tilt	eğim
+time	zaman
+time cube	zaman küpü
+Timer Message	Zamanlayıcı mesajı
+tint	renklendirme
+tint colour	renklendirme rengi
+tracking	izleme
+trail	iz
+transparent	saydam
+triangle	üçgen
+triple beep	üçlü bip
+TSL Tally	TSL yayın ışığı
+Turn	Döndür
+turn	döndür
+Twist	Burgu
+twist	burgu
+unavailable	kullanılamıyor
+unbalanced )	eşleşmeyen )
+Universe (0-63999)	Evren (0-63999)
+URL or local page path	URL veya yerel sayfa yolu
+vapor	buhar
+vector	vektör
+vertical	dikey
+vertical bias	dikey ağırlık
+vibrato	vibrato etkisi
+Video bitrate	Video bit hızı
+Video dip fade	Siyaha video geçişi
+vignette	vinyet
+vMix HTTP Port	vMix HTTP portu
+vMix TCP Port	vMix TCP portu
+wash out	soldurma
+wave height	dalga yüksekliği
+wavefront	dalga cephesi
+way	yön
+Web Monitor Connections	Web monitör bağlantıları
+Web Monitor PIN	Web monitör PIN’i
+Web Monitor Port	Web monitör portu
+wedges	kamalar
+What it runs	Çalıştırdığı
+Where the filter sits.	Filtrenin konumu.
+Which cue	Hangi cue
+Which way it drips.	Hangi yöne damladığı.
+white	beyaz
+white noise	beyaz gürültü
+white point	beyaz nokta
+window hidden	pencere gizli
+window minimized	pencere simge durumunda
+wire	tel
+wrong display	yanlış ekran
+X,Y offset in pixels	Piksel olarak X,Y kayması
+Zoom	Yakınlaştırma
+zoom	yakınlaştırma
+% of the picture's height, 0.1 to 20 (supports + - * / and ())	görüntü yüksekliğinin %’si, 0.1–20 (+ - * / ve () desteklenir)
+%, 1 to 100 (supports + - * / and ())	%, 1–100 (+ - * / ve () desteklenir)
+-3 to 3: 0 holds, negative runs backwards (supports + - * / and ())	-3–3: 0 tutar, negatif geriye oynatır (+ - * / ve () desteklenir)
+0 classic, 1 fire, 2 ice, 3 neon, 4 mono (supports + - * / and ())	0 klasik, 1 ateş, 2 buz, 3 neon, 4 tek renk (+ - * / ve () desteklenir)
+0 rainbow + grey, 1 rainbow, 2 theme, 3 mono (supports + - * / and ())	0 gökkuşağı + gri, 1 gökkuşağı, 2 tema, 3 tek renk (+ - * / ve () desteklenir)
+0 zone, 1 twin, 2 flow, 3 saddle, 4 ripple, 5 shear (supports + - * / and ())	0 bölge, 1 ikiz, 2 akış, 3 eyer, 4 dalga, 5 kesme (+ - * / ve () desteklenir)
+0-1 (supports + - * / and ())	0-1 (+ - * / ve () desteklenir)
+0-100% (supports + - * / and ())	0-100% (+ - * / ve () desteklenir)
+0-100%, left to right (supports + - * / and ())	0-100%, soldan sağa (+ - * / ve () desteklenir)
+0-100%, top to bottom (supports + - * / and ())	0-100%, yukarıdan aşağı (+ - * / ve () desteklenir)
+0-100%: 0 holds the field still (supports + - * / and ())	0-100%: 0 alanı sabit tutar (+ - * / ve () desteklenir)
+0-100%: 50 is 1x, 0 a quarter, 100 four times (supports + - * / and ())	0-100%: 50 1x, 0 çeyrek, 100 dört kat (+ - * / ve () desteklenir)
+0-100%: how far the field bends (supports + - * / and ())	0-100%: alanın bükülme miktarı (+ - * / ve () desteklenir)
+0-100%: the share of each band drawn as grey stripes (supports + - * / and ())	0-100%: her bandın gri çizgili payı (+ - * / ve () desteklenir)
+Across, % of the width, -100 to 100 (supports + - * / and ())	Yatay, genişliğin %’si, -100–100 (+ - * / ve () desteklenir)
+Amount 0-100% (supports + - * / and ())	Miktar 0-100% (+ - * / ve () desteklenir)
+Birth, drift and fade rate, 0.1-3 (supports + - * / and ())	Doğuş, sürüklenme ve solma hızı, 0.1-3 (+ - * / ve () desteklenir)
+Block displacement and channel tearing, 0-1 (supports + - * / and ())	Blok kayması ve kanal yırtılması, 0-1 (+ - * / ve () desteklenir)
+Colour steps, 2-8 (supports + - * / and ())	Renk adımları, 2-8 (+ - * / ve () desteklenir)
+dBFS, -60 to 0 (-18 is EBU alignment) (supports + - * / and ())	dBFS, -60–0 (-18 EBU hizalamasıdır) (+ - * / ve () desteklenir)
+Degrees -180..180 (supports + - * / and ())	Derece -180..180 (+ - * / ve () desteklenir)
+Degrees per second, -720 to 720 (supports + - * / and ())	Saniyede derece, -720–720 (+ - * / ve () desteklenir)
+Degrees round the colour wheel, 0-360 (supports + - * / and ())	Renk çemberinde derece, 0-360 (+ - * / ve () desteklenir)
+Degrees, -360 to 360 (supports + - * / and ())	Derece, -360–360 (+ - * / ve () desteklenir)
+Degrees, 0-360 (supports + - * / and ())	Derece, 0-360 (+ - * / ve () desteklenir)
+Down, % of the height, -100 to 100 (supports + - * / and ())	Aşağı, yüksekliğin %’si, -100–100 (+ - * / ve () desteklenir)
+Edge out (+) or in (-), % of the height, -25 to 25 (supports + - * / and ())	Kenar dışa (+) veya içe (-), yüksekliğin %’si, -25–25 (+ - * / ve () desteklenir)
+Edge softness, % of the height, 0 to 25 (supports + - * / and ())	Kenar yumuşaklığı, yüksekliğin %’si, 0–25 (+ - * / ve () desteklenir)
+FDS hardware gain range, 0-63 (supports + - * / and ())	FDS donanım kazancı, 0-63 (+ - * / ve () desteklenir)
+Feature size, 0.1-8 (supports + - * / and ())	Ayrıntı boyutu, 0.1-8 (+ - * / ve () desteklenir)
+Fields per frame, 0-4 (1 = one field per rendered frame) (supports + - * / and ())	Kare başına alan, 0-4 (1 = işlenen kare başına bir alan) (+ - * / ve () desteklenir)
+Frames a second, 1 to 60 (supports + - * / and ())	Saniyede kare, 1–60 (+ - * / ve () desteklenir)
+Hertz, 20-20000 (supports + - * / and ())	Hertz, 20-20000 (+ - * / ve () desteklenir)
+Horizontal cells, 64-960 (supports + - * / and ())	Yatay hücreler, 64-960 (+ - * / ve () desteklenir)
+How big a blob grows, 0-1 (supports + - * / and ())	Lekenin büyüme boyutu, 0-1 (+ - * / ve () desteklenir)
+How hard it cuts, %, 0 to 100 (supports + - * / and ())	Kesme sertliği, %, 0–100 (+ - * / ve () desteklenir)
+How hard the audio drives it, 0-1 (supports + - * / and ())	Sesin sürme gücü, 0-1 (+ - * / ve () desteklenir)
+How many are alive at once, 3-48 (supports + - * / and ())	Aynı anda canlı sayısı, 3-48 (+ - * / ve () desteklenir)
+How much of each frame feeds the next, 0-0.95 (supports + - * / and ())	Her karenin sonrakine aktarılan payı, 0-0.95 (+ - * / ve () desteklenir)
+How readily neighbours merge, 0 (never) to 1 (supports + - * / and ())	Komşuların birleşme eğilimi, 0 (asla)–1 (+ - * / ve () desteklenir)
+Internal resolution, 1 (chunky) to 5 (fine) (supports + - * / and ())	İç çözünürlük, 1 (kaba)–5 (ince) (+ - * / ve () desteklenir)
+Master oscillator rate, 0.01-8 (supports + - * / and ())	Ana osilatör hızı, 0.01-8 (+ - * / ve () desteklenir)
+Modulator as a ratio of the note, 0.05-16 (supports + - * / and ())	Notaya oranla modülatör, 0.05-16 (+ - * / ve () desteklenir)
+One LED tile's height in pixels, 8-8192 (supports + - * / and ())	Bir LED karosunun piksel yüksekliği, 8-8192 (+ - * / ve () desteklenir)
+One LED tile's width in pixels, 8-8192 (supports + - * / and ())	Bir LED karosunun piksel genişliği, 8-8192 (+ - * / ve () desteklenir)
+Palette turn, 0-1 (supports + - * / and ())	Palet dönüşü, 0-1 (+ - * / ve () desteklenir)
+Per-frame zoom of the feedback path, 0.90-1.15 (supports + - * / and ())	Geri besleme yolunun kare başına yakınlığı, 0.90-1.15 (+ - * / ve () desteklenir)
+Pitch in hertz, 20-8000 (supports + - * / and ())	Hertz cinsinden perde, 20-8000 (+ - * / ve () desteklenir)
+Pixel sort amount, 0-1 (supports + - * / and ())	Piksel sıralama miktarı, 0-1 (+ - * / ve () desteklenir)
+Pixels (supports + - * / and ())	Pikseller (+ - * / ve () desteklenir)
+Pixels, 64-2160 (supports + - * / and ())	Pikseller, 64-2160 (+ - * / ve () desteklenir)
+Pixels, 64-3840 (supports + - * / and ())	Pikseller, 64-3840 (+ - * / ve () desteklenir)
+Scale of the whole graphic, 0.5-2 (supports + - * / and ())	Tüm grafiğin ölçeği, 0.5-2 (+ - * / ve () desteklenir)
+Scanlines, bloom and gun misalignment, 0-1 (supports + - * / and ())	Tarama çizgileri, parlama ve ışın hizasızlığı, 0-1 (+ - * / ve () desteklenir)
+Seconds before it leaves by itself; 0 waits for OUT (supports + - * / and ())	Kendiliğinden çıkışa kadar saniye; 0 OUT bekler (+ - * / ve () desteklenir)
+Seconds between retriggers, 0-8 (supports + - * / and ())	Yeniden tetiklemeler arası saniye, 0-8 (+ - * / ve () desteklenir)
+Seconds the finished drawing stays, 0 to 60 (supports + - * / and ())	Bitmiş çizimin kalma süresi, 0–60 saniye (+ - * / ve () desteklenir)
+Seconds the in move takes, 0-5 (supports + - * / and ())	Giriş hareketi süresi, 0-5 saniye (+ - * / ve () desteklenir)
+Seconds the out move takes, 0-5 (supports + - * / and ())	Çıkış hareketi süresi, 0-5 saniye (+ - * / ve () desteklenir)
+Seconds, 0-4 (supports + - * / and ())	Saniye, 0-4 (+ - * / ve () desteklenir)
+Seconds, 0-8 (supports + - * / and ())	Saniye, 0-8 (+ - * / ve () desteklenir)
+Size, %, 5 to 400 (supports + - * / and ())	Boyut, %, 5–400 (+ - * / ve () desteklenir)
+Space under it, as a fraction of the frame, 0-0.8 (supports + - * / and ())	Alt boşluk, karenin oranı, 0-0.8 (+ - * / ve () desteklenir)
+Spiral size, 0.25-4 (supports + - * / and ())	Spiral boyutu, 0.25-4 (+ - * / ve () desteklenir)
+Spiral strength, 0-4 (supports + - * / and ())	Spiral gücü, 0-4 (+ - * / ve () desteklenir)
+Thickness of the glowing edge, 0-1 (supports + - * / and ())	Parlayan kenarın kalınlığı, 0-1 (+ - * / ve () desteklenir)
+Turbulence, 0 still to 3 boiling (supports + - * / and ())	Türbülans, 0 durgun–3 kaynar (+ - * / ve () desteklenir)
+Turns the rim's colours round the wheel, 0-1 (supports + - * / and ())	Kenar renklerini çemberde döndürür, 0-1 (+ - * / ve () desteklenir)
+Where the eye sits, 0 left to 1 right (supports + - * / and ())	Göz konumu, 0 sol–1 sağ (+ - * / ve () desteklenir)
+Where the eye sits, 0 top to 1 bottom (supports + - * / and ())	Göz konumu, 0 üst–1 alt (+ - * / ve () desteklenir)
+0-127; 127 is all-call	0-127; 127 tümünü çağırır
+0-127; the domain the facility's clock runs on	0-127; tesis saatinin etki alanı
+10-79 characters, or empty for none	10-79 karakter; yoksa boş bırakın
+8 zones already: click one to remove it first	Zaten 8 bölge var: önce birine tıklayıp kaldırın
+8+ characters; letters and symbols are allowed	8+ karakter; harf ve sembol kullanılabilir
+A command line, or blank for nothing	Komut satırı; işlem yoksa boş
+A number, or blank for none	Bir sayı; yoksa boş bırakın
+a playlist that is gone	artık olmayan çalma listesi
+a step cannot fire the playlist it lives on	adım kendi çalma listesini başlatamaz
+a target cannot target another target	hedef başka bir hedefi hedefleyemez
+add an output to scope it	ölçmek için çıkış ekleyin
+an ASIO stream is already open	bir ASIO akışı zaten açık
+an IPv4 address, or 255.255.255.255 to broadcast	IPv4 adresi veya genel yayın için 255.255.255.255
+another app is holding the pointer	başka uygulama işaretçiyi tutuyor
+AUDIOALSO ADD: seven extra destinations is the limit	AUDIOALSO ADD: en fazla yedi ek hedef
+AUDIOFX PLUGIN: this build has no plugin host	AUDIOFX PLUGIN: bu derlemede eklenti sunucusu yok
+brightness moves the playhead (needs CPU frames)	parlaklık oynatma kafasını taşır (CPU kareleri gerekir)
+browser connections at once, 1-64 (default 8)	eşzamanlı tarayıcı bağlantısı, 1-64 (varsayılan 8)
+built without ASIO support	ASIO desteği olmadan derlendi
+built without NDI SDK headers	NDI SDK başlıkları olmadan derlendi
+cancelled: the waiting cue is no longer in the playlist	iptal edildi: bekleyen cue artık çalma listesinde değil
+channel count must be at least 1	kanal sayısı en az 1 olmalı
+comma outside a function call	işlev çağrısı dışında virgül
+could not start the PDF renderer	PDF işleyicisi başlatılamadı
+could not write the export script	dışa aktarma betiği yazılamadı
+couldn't open file manager	dosya yöneticisi açılamadı
+Cue name (blank restores the file name)	Cue adı (boşsa dosya adı geri gelir)
+Default Non-Movie Duration	Video dışı varsayılan süre
+downloading the caption model, then listening...	altyazı modeli indiriliyor, sonra dinlenecek...
+driver reports no output channels	sürücü çıkış kanalı bildirmiyor
+driver would not create output buffers	sürücü çıkış arabelleklerini oluşturmadı
+driver would not load (in use by another application?)	sürücü yüklenmedi (başka uygulama mı kullanıyor?)
+driver would not report a buffer size	sürücü arabellek boyutu bildirmedi
+driver would not report channel info	sürücü kanal bilgisi bildirmedi
+ffmpeg stopped taking frames	ffmpeg kare almayı durdurdu
+Fire at incoming timecode	Gelen zaman koduyla başlat
+flow (follows the picture)	akış (görüntüyü izler)
+follows this cue's own brightness (needs CPU frames)	bu cue’nun parlaklığını izler (CPU kareleri gerekir)
+four effects at most on one device: remove one first	cihaz başına en fazla dört efekt: önce birini kaldırın
+Hz or AUTO (e.g. 60 or 59.94)	Hz veya AUTO (örn. 60 veya 59.94)
+kbps (32-512; 160 is a sane default)	kbps (32-512; 160 makul varsayılan)
+Leave empty to follow the live cue notes	Canlı cue notlarını izlemek için boş bırakın
+LibreOffice could not be run	LibreOffice çalıştırılamadı
+LibreOffice produced no PDF	LibreOffice PDF üretmedi
+milliseconds (20-8000; ~4x your RTT)	milisaniye (20-8000; RTT’nin ~4 katı)
+Multicast group (e.g. 239.20.10.1)	Çoklu yayın grubu (örn. 239.20.10.1)
+Name visible to receivers	Alıcıların göreceği ad
+NDI source name (e.g. LAPTOP (source 1))	NDI kaynak adı (örn. LAPTOP (source 1))
+NIC address or name; empty = the default route	NIC adresi veya adı; boş = varsayılan rota
+NIC name reported in interface_bindings (e.g. eth0)	interface_bindings içindeki NIC adı (örn. eth0)
+no pages could be rendered	hiçbir sayfa işlenemedi
+not a MIDI file (no MThd header)	MIDI dosyası değil (MThd başlığı yok)
+not while a cue is playing	cue oynarken olmaz
+offset in percent of the picture	görüntünün yüzdesi olarak kayma
+OSC Feedback Mirror Rate	OSC geri besleme yansıtma hızı
+paste your stream key here	yayın anahtarınızı buraya yapıştırın
+Paste the key from your platform	Platformunuzdaki anahtarı yapıştırın
+pdftoppm produced no pages	pdftoppm sayfa üretmedi
+pixels (of the output raster)	piksel (çıkış rasterinin)
+position on the output raster, in pixels	çıkış rasterindeki konum, piksel olarak
+PowerPoint could not export this file	PowerPoint bu dosyayı dışa aktaramadı
+Prefix (optional). Example: Q	Önek (isteğe bağlı). Örnek: Q
+Prefix and optional start (example: Q 100)	Önek ve isteğe bağlı başlangıç (örnek: Q 100)
+release has no build for this platform	sürümde bu platform için derleme yok
+Routing hint for the receiver	Alıcı için yönlendirme ipucu
+seconds (1-10; most platforms want 2)	saniye (1-10; çoğu platform 2 ister)
+Seconds for new-cue fade in/out defaults	Yeni cue giriş/çıkış varsayılanı, saniye
+seconds this step holds before PLAY moves on	PLAY ilerlemeden önce adımın beklediği saniye
+ST 2110 network interface	ST 2110 ağ arayüzü
+still reading the last folder -- one at a time	önceki klasör hâlâ okunuyor -- tek tek
+the background alpha belongs to a Lower Third	arka plan alfası bir Lower Third’e aittir
+the caption model has not been downloaded yet	altyazı modeli henüz indirilmedi
+the desktop portal did not answer	masaüstü portalı yanıt vermedi
+the document has no pages	belgede sayfa yok
+the file has no playable events	dosyada oynatılabilir olay yok
+the NDI runtime is not installed	NDI çalışma zamanı kurulu değil
+the PDF renderer produced no pages	PDF işleyicisi sayfa üretmedi
+the screen could not be read there	ekran orada okunamadı
+the show plays through ASIO	gösteri ASIO üzerinden çalıyor
+the time division is not readable	zaman bölümü okunamıyor
+this build has no X11 support	bu derlemede X11 desteği yok
+UDP port for transport sync	Taşıma senkronu için UDP portu
+web audio encoder cannot keep up	web ses kodlayıcısı yetişemiyor
+zones cleared: Motion reads the whole picture	bölgeler temizlendi: hareket tüm görüntüyü okur
+AUDIOALSO: expected ADD <name>, REMOVE <name> or CLEAR	AUDIOALSO: beklenen: ADD <name>, REMOVE <name> veya CLEAR
+BROWSER KEY: expected Enter|Tab|Backspace|Escape	BROWSER KEY: beklenen: Enter|Tab|Backspace|Escape
+BUGSWAT: expected START, SHOWME, SKIP, PLAY, EXIT or STATUS	BUGSWAT: beklenen: START, SHOWME, SKIP, PLAY, EXIT veya STATUS
+CAPTIONS LIVE: expected ON, OFF, STATUS or TEXT	CAPTIONS LIVE: beklenen: ON, OFF, STATUS veya TEXT
+CAPTIONS SOURCE: expected INPUT, DECK <n> or OUTPUT <n>	CAPTIONS SOURCE: beklenen: INPUT, DECK <n> veya OUTPUT <n>
+DMXCUE FIXTURE: expected <name> <level%>|LEAVE [<colour>]	DMXCUE FIXTURE: beklenen: <name> <level%>|LEAVE [<colour>]
+DMXCUE LFO: expected <name> LEVEL|COLOUR ON|OFF [<rate Hz>] [<depth %>]	DMXCUE LFO: beklenen: <name> LEVEL|COLOUR ON|OFF [<rate Hz>] [<depth %>]
+DMXCUE: expected NEW, SET, FADE, UNIVERSE, HOST, PORT, FIRE or BLACKOUT	DMXCUE: beklenen: NEW, SET, FADE, UNIVERSE, HOST, PORT, FIRE veya BLACKOUT
+ENDACTION: expected INHERIT, STOP, LOOP, HOLD or NEXT	ENDACTION: beklenen: INHERIT, STOP, LOOP, HOLD veya NEXT
+expected waveform|scope|lissajous|spectrum|level|cover	beklenen: waveform|scope|lissajous|spectrum|level|cover
+FADE CURVE: expected linear, ease-in, ease-out or s-curve	FADE CURVE: beklenen: linear, ease-in, ease-out veya s-curve
+FADE WHAT: expected opacity, volume, dimmer, brightness, contrast, saturation, hue, effect, audiofx or speed	FADE WHAT: beklenen: opacity, volume, dimmer, brightness, contrast, saturation, hue, effect, audiofx veya speed
+FIXTURE ADD: expected <name> dimmer|rgb|rgbw|rgba|drgb|dcct <universe> [<address>]	FIXTURE ADD: beklenen: <name> dimmer|rgb|rgbw|rgba|drgb|dcct <universe> [<address>]
+LOWERSTYLE: expected none, fade, rise, slide, wipe or NEXT	LOWERSTYLE: beklenen: none, fade, rise, slide, wipe veya NEXT
+MASK ASSIGN: expected <id|NONE> CUE | LAYER <output> <playlist> | OUTPUT <n> | MATTE <n>	MASK ASSIGN: beklenen: <id|NONE> CUE | LAYER <output> <playlist> | OUTPUT <n> | MATTE <n>
+MASK ASSIGN: expected CUE, LAYER, OUTPUT or MATTE	MASK ASSIGN: beklenen: CUE, LAYER, OUTPUT veya MATTE
+MASK EXPORT: expected <id> <file.png|file.svg> [WxH]	MASK EXPORT: beklenen: <id> <file.png|file.svg> [WxH]
+MASK LFO: expected <id> <param> ON|OFF [rate Hz] [depth %]	MASK LFO: beklenen: <id> <param> ON|OFF [rate Hz] [depth %]
+MATRIX SET: expected <source 1-2> <dest> <0-100>	MATRIX SET: beklenen: <source 1-2> <dest> <0-100>
+MATRIX: expected SET <src> <dest> <0-100>, SEED or CLEAR	MATRIX: beklenen: SET <src> <dest> <0-100>, SEED veya CLEAR
+MESH: expected on|off|toggle|height|tilt|yaw|spin|grid	MESH: beklenen: on|off|toggle|height|tilt|yaw|spin|grid
+MIC: expected ADD, LIST, INPUT, CHANNEL or GAIN	MIC: beklenen: ADD, LIST, INPUT, CHANNEL veya GAIN
+MIDICUE KIND: expected note-on, note-off, cc, program, msc-go, msc-stop, msc-resume or raw	MIDICUE KIND: beklenen: note-on, note-off, cc, program, msc-go, msc-stop, msc-resume veya raw
+MIDICUE: expected NEW, PORTS, PORT, KIND, CH, D1, D2, DEVICE, CUENUM, LIST, RAW or SEND	MIDICUE: beklenen: NEW, PORTS, PORT, KIND, CH, D1, D2, DEVICE, CUENUM, LIST, RAW veya SEND
+MULTIVIEW LAYOUT: expected GRID, BIG, BIGTOP or TWOTOP	MULTIVIEW LAYOUT: beklenen: GRID, BIG, BIGTOP veya TWOTOP
+MULTIVIEW WINDOW: expected PROGRAMME, DECK<n>, OUTPUT<n>, NEXT, CLOCK or EMPTY	MULTIVIEW WINDOW: beklenen: PROGRAMME, DECK<n>, OUTPUT<n>, NEXT, CLOCK veya EMPTY
+NETCUE: expected NEW, PROTO, HOST, PORT, ADDRESS, PAYLOAD or SEND	NETCUE: beklenen: NEW, PROTO, HOST, PORT, ADDRESS, PAYLOAD veya SEND
+OUTPROBE: expected <output> <x 0-1> <y 0-1>	OUTPROBE: beklenen: <output> <x 0-1> <y 0-1>
+OUTPUT HDR: expected ON, OFF, AUTO, SIGNAL PQ|HLG, WHITE <nits> or STATUS	OUTPUT HDR: beklenen: ON, OFF, AUTO, SIGNAL PQ|HLG, WHITE <nits> veya STATUS
+OUTPUTFX ADD: expected hpf, lpf, tilt, comp or width	OUTPUTFX ADD: beklenen: hpf, lpf, tilt, comp veya width
+OUTPUTFX: expected ADD, SET, REMOVE, BYPASS, CLEAR or DEVICE	OUTPUTFX: beklenen: ADD, SET, REMOVE, BYPASS, CLEAR veya DEVICE
+OUTPUTS ADD: expected <name> CH <n> or CH <n>-<n+1>	OUTPUTS ADD: beklenen: <name> CH <n> veya CH <n>-<n+1>
+PATCH: expected <deck> <output> <dB> or OFF	PATCH: beklenen: <deck> <output> <dB> veya OFF
+presenter colour: expected BG|INK|ACCENT #rrggbb	presenter colour: beklenen: BG|INK|ACCENT #rrggbb
+PRESET: expected LIST, SAVE, RECALL, UPDATE, SCOPE, RENAME or DELETE	PRESET: beklenen: LIST, SAVE, RECALL, UPDATE, SCOPE, RENAME veya DELETE
+rectc: expected <hh:mm:ss:ff|timeofday> [df|ndf|auto]	rectc: beklenen: <hh:mm:ss:ff|timeofday> [df|ndf|auto]
+SCALEMODE: expected fit|fill|stretch|unscaled	SCALEMODE: beklenen: fit|fill|stretch|unscaled
+SCOPES BIG: expected waveform, parade, vector, diamond, histogram, falsecolour, sound or off	SCOPES BIG: beklenen: waveform, parade, vector, diamond, histogram, falsecolour, sound veya off
+SCOPES: expected PROGRAM, SCOPES, BOTH, TOGGLE, BIG, FREEZE, MATRIX, SOURCE, STATS or SOUND	SCOPES: beklenen: PROGRAM, SCOPES, BOTH, TOGGLE, BIG, FREEZE, MATRIX, SOURCE, STATS veya SOUND
+SECTION: expected playback|metadata|geometry|key|audio|effects|timer|tone|synth	SECTION: beklenen: playback|metadata|geometry|key|audio|effects|timer|tone|synth
+STING: expected ON, PITCH, LENGTH, SWEEP or BODY	STING: beklenen: ON, PITCH, LENGTH, SWEEP veya BODY
+TARGET VERB: expected start|stop|pause|resume|load|arm|disarm	TARGET VERB: beklenen: start|stop|pause|resume|load|arm|disarm
+TEXTCUE ALIGN: expected left, centre or right	TEXTCUE ALIGN: beklenen: left, centre veya right
+TEXTCUE ANIM: expected none, fade, typewriter, scroll, crawl, pulse or wobble	TEXTCUE ANIM: beklenen: none, fade, typewriter, scroll, crawl, pulse veya wobble
+TEXTCUE: expected NEW, BODY, ANIM, SIZE, SPEED, ALIGN, CARD, LOWERNEW, LOWER, TITLE, SUB, LOOK, BAR, ACCENT, SCALE, WIGGLE, IN, OUTMOVE or OUT	TEXTCUE: beklenen: NEW, BODY, ANIM, SIZE, SPEED, ALIGN, CARD, LOWERNEW, LOWER, TITLE, SUB, LOOK, BAR, ACCENT, SCALE, WIGGLE, IN, OUTMOVE veya OUT
+TRACKER: expected GO, BACK, PLAY, STOP, STEP <n>, ADD, SET <step> <deck> <cue|STOP|FADE|VOLUME|OPACITY>, MUTE|SOLO <deck>, JUMP <step> <row>, SECTION <step> <name>, VIEW, LOOP or CLICKER	TRACKER: beklenen: GO, BACK, PLAY, STOP, STEP <n>, ADD, SET <step> <deck> <cue|STOP|FADE|VOLUME|OPACITY>, MUTE|SOLO <deck>, JUMP <step> <row>, SECTION <step> <name>, VIEW, LOOP veya CLICKER
+TUTORIAL: expected START, SHOWME, SKIP, EXIT, STATUS or SCREENS	TUTORIAL: beklenen: START, SHOWME, SKIP, EXIT, STATUS veya SCREENS
+UPDATE: expected check|download|install|status	UPDATE: beklenen: check|download|install|status
+VJ: expected ON|OFF|TOGGLE|MIX <0-1>|BLEND <mode>|TAP|BPM <n>|CLOCK <on|off>|QUANTISE <on|off>|DECKS <a> <b>|STATUS	VJ: beklenen: ON|OFF|TOGGLE|MIX <0-1>|BLEND <mode>|TAP|BPM <n>|CLOCK <on|off>|QUANTISE <on|off>|DECKS <a> <b>|STATUS
+How hard the short hits.	Kısa devrenin darbe gücü.
+How far a band can slide.	Bandın kayabileceği mesafe.
+How far the glow spreads.	Parlamanın yayılma mesafesi.
+How fast the surface moves.	Yüzeyin hareket hızı.
+How fast they travel outward.	Dışa doğru ilerleme hızları.
+How many torn bands per frame.	Kare başına yırtılan bant sayısı.
+How much the edges are lifted.	Kenarların yükseltilme miktarı.
+How closely spaced the rings are.	Halkaların birbirine yakınlığı.
+How far out the darkening starts.	Kararmanın dışa ne kadar uzakta başladığı.
+How strongly the outlines are drawn.	Dış çizgilerin çizim gücü.
+How many shades survive the quantise.	Nicemlemeden sonra kalan ton sayısı.
+How many spikes the field breaks into.	Alanın ayrıldığı sivri uç sayısı.
+How strongly the water bends the picture.	Suyun görüntüyü bükme gücü.
+Pushes the rings in or out of the centre.	Halkaları merkeze veya dışa iter.
+How hard it is driven into its own limits.	Kendi sınırlarına ne kadar sert sürüldüğü.
+Softens the fold so it ramps instead of creasing.	Katı izi yerine eğim oluşması için katlamayı yumuşatır.
+Above halfway, the repeated piece plays backwards.	Ortanın üstünde tekrarlanan parça geriye oynar.
+How quickly the loop relaxes when nothing feeds it.	Besleme yokken döngünün gevşeme hızı.
+How far the bright parts pull away from the surface.	Parlak kısımların yüzeyden uzaklaşma mesafesi.
+How big the room is. Small is a booth, large is a hall.	Odanın boyutu. Küçük kabin, büyük salondur.
+Apple keeps the Keynote format secret on purpose, a malicious lock-in tactic, so only Apple's own software can read it properly. Best route: open it in Keynote on iCloud.com (free, in any browser), choose Download a Copy > PDF, and import that PDF	Apple, yalnızca kendi yazılımı doğru okuyabilsin diye Keynote biçimini kasıtlı olarak gizli tutuyor; bu kötü niyetli bir bağımlı kılma taktiği. En iyi yol: iCloud.com’da Keynote ile açın (ücretsiz, her tarayıcıda), Bir Kopyasını İndir > PDF’yi seçin ve bu PDF’yi içe aktarın
+BROWSER CLICK: this browser backend cannot drive the page	BROWSER CLICK: bu tarayıcı arka ucu sayfayı yönetemiyor
+BROWSER SCROLL: this browser backend cannot drive the page	BROWSER SCROLL: bu tarayıcı arka ucu sayfayı yönetemiyor
+BROWSER SCROLLBAR: this browser backend cannot drive the page	BROWSER SCROLLBAR: bu tarayıcı arka ucu sayfayı yönetemiyor
+BROWSER TYPE: this browser backend cannot type	BROWSER TYPE: bu tarayıcı arka ucu yazamıyor
+BROWSER INTERACT: this browser backend has no hands-on mode	BROWSER INTERACT: bu tarayıcı arka ucunda etkileşim modu yok
+BROWSER SCROLL: expected pixels (negative is up)	BROWSER SCROLL: piksel beklenir (negatif yukarıdır)
+CHIP DUTY: this cue is an FDS synth, which has no duty	CHIP DUTY: bu cue bir FDS sentezleyici, görev döngüsü yok
+CHIP NOISE: this cue is an FDS synth, which has no noise	CHIP NOISE: bu cue bir FDS sentezleyici, gürültüsü yok
+CHIP VOICE: this cue is an FDS synth, which has no voice	CHIP VOICE: bu cue bir FDS sentezleyici, ses seçimi yok
+CHIP ENV: expected <attack> <release> in seconds	CHIP ENV: saniye olarak <attack> <release> beklenir
+SYNTH: the selected cue is not a video synth	SYNTH: seçili cue video sentezleyici değil
+TEXTCUE: the selected cue is not a text cue	TEXTCUE: seçili cue metin cue’su değil
+NETCUE: the selected cue is not a network cue	NETCUE: seçili cue ağ cue’su değil
+TCCUE: the selected cue is not a timecode cue	TCCUE: seçili cue zaman kodu cue’su değil
+SCRIPTCUE: the selected cue is not a script cue	SCRIPTCUE: seçili cue betik cue’su değil
+MIDIFILE: the selected cue is not a midi file cue	MIDIFILE: seçili cue midi dosyası cue’su değil
+LOWERANIM: this cue is not a Lower Third	LOWERANIM: bu cue bir Lower Third değil
+LOWERSTYLE: this cue is not a Lower Third	LOWERSTYLE: bu cue bir Lower Third değil
+MIC: select a mic cue first (MIC ADD makes one)	MIC: önce mikrofon cue’su seçin (MIC ADD oluşturur)
+STING: select a tone cue first (TONECUE makes one)	STING: önce ton cue’su seçin (TONECUE oluşturur)
+SUBTITLE CONVERT: the cue has no caption file	SUBTITLE CONVERT: cue’nun altyazı dosyası yok
+SUBTITLE CONVERT: destination must be .srt or .vtt	SUBTITLE CONVERT: hedef .srt veya .vtt olmalı
+How much the flame gutters frame to frame.	Alevin kareler arası titreşme miktarı.
+Rounds the tiles off, all the way to dots.	Karoları nokta olana kadar yuvarlar.
+Darkens the boundaries where crystals meet.	Kristallerin birleştiği sınırları karartır.
+How big the crystals grow before they meet.	Kristallerin birleşmeden önceki büyüklüğü.
+How far the sound throws each line sideways.	Sesin her satırı yana atma mesafesi.
+How much each shard turns on its own centre.	Her parçanın kendi merkezi etrafındaki dönüşü.
+The brightness that decides black from white.	Siyahı beyazdan ayıran parlaklık.
+How far each stroke is dragged along the grain.	Her fırça izinin doku boyunca sürüklenme mesafesi.
+How long a short stays closed, in VIDEO FRAMES.	Kısa devrenin kapalı kalma süresi, VİDEO KARESİ.
+The colour to change, round the wheel from red.	Kırmızıdan başlayarak çemberde değiştirilecek renk.
+How far each shard slides from where it belongs.	Her parçanın asıl yerinden kayma mesafesi.
+How gradually the key cuts in. Hard at the left.	Anahtarın kademeli giriş miktarı. Solda serttir.
+The bright net the waves focus onto the picture.	Dalgaların görüntüye odakladığı parlak ağ.
+How fast the sand travels to the still lines.	Kumun sabit çizgilere ilerleme hızı.
+AUDIOFX: expected OFF, BYPASS, or amount and parameters as percentages	AUDIOFX: OFF, BYPASS veya yüzde olarak miktar ve parametreler beklenir
+BLEND PAIR: expected <other output number> <overlap in pixels>	BLEND PAIR: <other output number> <overlap in pixels> beklenir
+expected one expression, three for colour, or four with alpha	bir ifade, renk için üç veya alfa ile dört beklenir
+MASK SET: expected INVERT, X, Y, SCALE, ROTATION, FEATHER, GROW or OPACITY and a number	MASK SET: INVERT, X, Y, SCALE, ROTATION, FEATHER, GROW veya OPACITY ve bir sayı beklenir
+MASK SHAPE: expected a shape (MASK SHAPES lists them)	MASK SHAPE: bir şekil beklenir (MASK SHAPES listeler)
+MASTER DECK: expected a deck number and a cue number	MASTER DECK: deck numarası ve cue numarası beklenir
+TARGET CUE: expected a deck number and a cue number	TARGET CUE: deck numarası ve cue numarası beklenir
+MONITOR DECK: expected a playlist number or FOLLOW	MONITOR DECK: çalma listesi numarası veya FOLLOW beklenir
+MONITOR ROOM: expected a playlist and ON or OFF	MONITOR ROOM: çalma listesi ve ON veya OFF beklenir
+MULTIVIEW WINDOW REMOVE: expected a window number	MULTIVIEW WINDOW REMOVE: pencere numarası beklenir
+MULTIVIEW WINDOW <n>: expected a source, or SAFE/METER/LABEL ON|OFF	MULTIVIEW WINDOW <n>: kaynak veya SAFE/METER/LABEL ON|OFF beklenir
+NETCUE ADDRESS: expected an OSC path starting with /	NETCUE ADDRESS: / ile başlayan OSC yolu beklenir
+OUTPUT AOI: expected a size like 256x256, or FULL	OUTPUT AOI: 256x256 gibi boyut veya FULL beklenir
+OUTPUTFX SET: expected an effect number and 0-100	OUTPUTFX SET: efekt numarası ve 0-100 beklenir
+OUTPUT HDR WHITE: expected 80..500 nits (203 is BT.2408)	OUTPUT HDR WHITE: 80..500 nit beklenir (203 BT.2408’dir)
+PORTS: expected an http port and a tcp port	PORTS: http portu ve tcp portu beklenir
+PRELOAD: expected a position in seconds, OFF or STATUS	PRELOAD: saniye olarak konum, OFF veya STATUS beklenir
+SCOPES SOURCE: expected PROGRAMME or an output number, 1-	SCOPES SOURCE: PROGRAMME veya çıkış numarası beklenir, 1-
+STREAM ADD: expected a URL, e.g. srt://host:port	STREAM ADD: URL beklenir, örn. srt://host:port
+TEXTCUE SIZE: expected 1-100 (percent of the raster)	TEXTCUE SIZE: 1-100 beklenir (raster yüzdesi)
+TUTORIAL SCREENS: expected a count, MIRRORED or REAL	TUTORIAL SCREENS: sayı, MIRRORED veya REAL beklenir
+VIDEO OUTPUT LAYER: expected a layer number (1 is the base)	VIDEO OUTPUT LAYER: katman numarası beklenir (1 tabandır)
+VIDEO OUTPUT LAYERWARP: expected OFF, MODE, or eight numbers clockwise from the top left	VIDEO OUTPUT LAYERWARP: OFF, MODE veya sol üstten saat yönünde sekiz sayı beklenir
+e.g. /cue/1/start	örn. /cue/1/start
+e.g. 12.5	örn. 12.5
+e.g. 192.168.1.50	örn. 192.168.1.50
+e.g. 1=255, 10-14=64	örn. 1=255, 10-14=64
+e.g. 90 3C 7F	örn. 90 3C 7F
+port number (default 5510)	port numarası (varsayılan 5510)
+port number (default 5511)	port numarası (varsayılan 5511)
+port number (default 6454)	port numarası (varsayılan 6454)
+port number (default 8090)	port numarası (varsayılan 8090)
+port number (vMix uses 8088)	port numarası (vMix 8088 kullanır)
+port number (vMix uses 8099)	port numarası (vMix 8099 kullanır)
+WIDTHxHEIGHT (e.g. 2560x1080)	GENİŞLİKxYÜKSEKLİK (örn. 2560x1080)
+WIDTHxHEIGHT (e.g. 5760x2160)	GENİŞLİKxYÜKSEKLİK (örn. 5760x2160)
+pulse 25%	darbe 25%
+edge ignite	kenar tutuşturma
+pythagorean	Pisagor akordu
+purkinje	Purkinje etkisi
+Ouroboros	Uroboros
+Devamp	Döngüden çık
+EDIT is off - press EDIT to type into the tracker	EDIT kapalı - tracker’a yazmak için EDIT’e basın
+encoder destination: _converted beside the show	kodlayıcı hedefi: gösterinin yanındaki _converted
+fetching the speech model - captions start when it arrives	konuşma modeli alınıyor - inince altyazılar başlar
+format 2 files are a set of independent patterns, not a performance	biçim 2 dosyaları bir icra değil, bağımsız kalıplardır
+Target IP (or 255.255.255.255 to broadcast)	Hedef IP (veya genel yayın için 255.255.255.255)
+the NDI runtime declined to start on this machine	NDI çalışma zamanı bu bilgisayarda başlamayı reddetti
+this cue has no known end to resolve into	bu cue’nun çözümlenecek bilinen sonu yok
+this output's renderer could not cut the mask	bu çıkışın işleyicisi maskeyi kesemedi
+update: cannot find this app bundle to replace	güncelleme: değiştirilecek uygulama paketi bulunamadı
+update: could not start the install helper	güncelleme: kurulum yardımcısı başlatılamadı
+update: could not start the installer	güncelleme: yükleyici başlatılamadı
+update: could not write the install helper	güncelleme: kurulum yardımcısı yazılamadı
+update: not running from an AppImage	güncelleme: AppImage üzerinden çalışmıyor
+what the operator should be told when GO reaches here	GO buraya geldiğinde operatöre söylenecek şey
+Where to send transport (blank = broadcast)	Taşıma hedefi (boş = genel yayın)
+Which switcher input Deckboy is (0 = not set)	Deckboy’un mikser girişi (0 = ayarlanmamış)
+drag the panels to arrange the presenter screen	sunucu ekranını düzenlemek için panelleri sürükleyin
+SOURCE CAMERA: name the device	SOURCE CAMERA: cihaz adını girin
+NETCUE ADDRESS: an OSC address must start with /	NETCUE ADDRESS: OSC adresi / ile başlamalı
+MATRIX SET: level is a percent from 0 to 100	MATRIX SET: seviye 0 ile 100 arası yüzdedir
+SLICE ADD: already 16 slices on this output	SLICE ADD: bu çıkışta zaten 16 dilim var
+TRACKER SET: a step cannot act on its own playlist	TRACKER SET: adım kendi çalma listesinde işlem yapamaz
+TRACKER: there are no steps (TRACKER ADD makes one)	TRACKER: adım yok (TRACKER ADD oluşturur)
+#rrggbb -- the colour of the presenter screen	#rrggbb -- sunucu ekranının rengi
+#rrggbb, or a name (red, teal...)	#rrggbb veya ad (red, teal...)
+8+ characters; other machines send AUTH <passphrase> first. Empty = off	8+ karakter; diğer bilgisayarlar önce AUTH <passphrase> gönderir. Boş = kapalı
+A command line, as a DASH button runs it. {value} is the knob's number, {note} the key.	DASH düğmesinin çalıştırdığı komut satırı. {value} düğmenin sayısı, {note} tuştur.
+A dark line between the tiles, like grout or an LED wall.	Karolar arasında derz veya LED duvarı gibi koyu çizgi.
+a note number 0-127, LEARN to take the next note played, or empty for none	nota numarası 0-127; sonraki çalınan nota için LEARN; yoksa boş
+a plugin overran the audio thread and was bypassed — take it out of the chain	eklenti ses iş parçacığının süresini aştı ve atlandı — zincirden çıkarın
+a video cue's duration comes from its file; still duration applies to stills, patterns and browsers	video cue süresi dosyadan gelir; sabit süre resim, desen ve tarayıcılara uygulanır
+Above halfway, a hard cut in the picture resets the loop to clean.	Ortanın üstünde görüntüdeki sert kesme döngüyü temizler.
+can't move the active cue -- take another cue on this deck first	etkin cue taşınamaz -- önce bu deck’te başka cue başlatın
+centred and full-frame - moves when the picture does	ortalanmış ve tam kare - görüntüyle birlikte hareket eder
+Chladni listens: the figure follows the pitch of the sound	Chladni dinler: şekil sesin perdesini izler
+click anywhere on any screen to take its colour. Esc cancels	rengi almak için herhangi bir ekranın herhangi yerine tıklayın. Esc iptal eder
+click program or preview monitor to sample key color	anahtar rengini almak için program veya önizleme monitörüne tıklayın
+Copies of copies: none at the left, four at the right. Each one loses more.	Kopyaların kopyası: solda yok, sağda dört. Her biri daha çok kaybeder.
+could not create an OpenGL context for Spout receive	Spout alımı için OpenGL bağlamı oluşturulamadı
+could not create the offscreen window Spout receive needs	Spout alımının gerektirdiği ekran dışı pencere oluşturulamadı
+could not get a device context for Spout receive	Spout alımı için cihaz bağlamı alınamadı
+couldn't decode still image — unsupported format or corrupt file	sabit görüntü çözülemedi — desteklenmeyen biçim veya bozuk dosya
+DECKLINK: no DeckLink driver on this computer (Blackmagic Desktop Video)	DECKLINK: bu bilgisayarda DeckLink sürücüsü yok (Blackmagic Desktop Video)
+DMXCUE LEVELS: nothing has been sent on that universe	DMXCUE LEVELS: bu evrene hiçbir şey gönderilmedi
+ENDACTION: only video and audio cues have an end action	ENDACTION: yalnız video ve ses cue’larının bitiş eylemi vardır
+FX ADD: datamosh needs a file-backed video cue	FX ADD: datamosh dosya tabanlı video cue’su gerektirir
+no video clock on this cue - nothing to lock to	bu cue’da video saati yok - kilitlenecek kaynak yok
+no picture on this cue - nothing to follow	bu cue’da görüntü yok - izlenecek bir şey yok
+no picture on this cue - nothing to close the loop through	bu cue’da görüntü yok - döngüyü kapatacak bir şey yok
+no picture on this cue - nothing decides where the playhead is	bu cue’da görüntü yok - oynatma konumunu belirleyecek bir şey yok
+no picture - shorts run on a timer instead of on cuts	görüntü yok - kısa devreler kesme yerine zamanlayıcıyla çalışır
+normalize all: no file-backed audio in this deck	tümünü normalleştir: bu deck’te dosya tabanlı ses yok
+normalize: selection has no file-backed audio	normalleştir: seçimde dosya tabanlı ses yok
+no masks yet: make one in a cue's MASK section	henüz maske yok: cue’nun MASK bölümünde oluşturun
+no filled shapes in it (paths, rectangles, circles, ellipses or polygons)	içinde dolgulu şekil yok (yol, dikdörtgen, daire, elips veya çokgen)
+no OpenGL pixel format available for Spout receive	Spout alımı için OpenGL piksel biçimi yok
+only a MIDI note or an OSC address can take a cue	yalnız MIDI notası veya OSC adresi cue başlatabilir
+phone control requires an 8+ character passphrase	telefon kontrolü 8+ karakterlik parola gerektirir
+network sharing and phone control require an 8+ character passphrase	ağ paylaşımı ve telefon kontrolü 8+ karakterlik parola gerektirir
+WEBMONITOR PIN: network sharing and phone control require 8 or more characters	WEBMONITOR PIN: ağ paylaşımı ve telefon kontrolü en az 8 karakter gerektirir
+set an 8+ character Web Monitor passphrase first	önce 8+ karakterlik Web monitör parolası ayarlayın
+WEBMONITOR QR: needs the monitor on and shared on the network	WEBMONITOR QR: monitör açık ve ağda paylaşılmış olmalı
+WEBMONITOR SOURCE: could not create the web output	WEBMONITOR SOURCE: web çıkışı oluşturulamadı
+WEBMONITOR SOURCE: PROGRAMME or the number of an output that shows a picture	WEBMONITOR SOURCE: PROGRAMME veya görüntü gösteren çıkış numarası
+OUTPROBE: that output has no compositor (is it on?)	OUTPROBE: bu çıkışın birleştiricisi yok (açık mı?)
+output recover failed: fullscreen unavailable	çıkış kurtarma başarısız: tam ekran kullanılamıyor
+OUTPUTFX ADD: four effects at most on one device	OUTPUTFX ADD: cihaz başına en fazla dört efekt
+over 16 MB: not a drawing to make a mask from	16 MB üstü: maske yapılacak bir çizim değil
+unsaved changes will be lost: press new again	kaydedilmemiş değişiklikler kaybolur: yeniye tekrar basın
+A worn or dirty head: softer, with noise that streaks along the lines.	Aşınmış veya kirli kafa: satırlar boyunca uzayan gürültüyle daha yumuşak görüntü.
+A slow rocking of the viewpoint, which is what makes the depth read without glasses.	Bakış açısının yavaş salınımı, derinliği gözlüksüz görünür kılar.
+A slow sag in the supply, pulling the filter up and down like a dying battery.	Beslemedeki yavaş düşüş, biten pil gibi filtreyi yukarı aşağı çeker.
+An old deck: the picture wobbles, bends at the top of the frame and carries hum bars.	Eski bir deck: görüntü sallanır, karenin üstünde bükülür ve uğultu bantları taşır.
+An old tape loses bits of its oxide: dropouts flick white and repeat the line above, and the colour fizzes.	Eski bant oksit parçalarını kaybeder: kayıplar beyaz parlar, üst satırı tekrarlar ve renk kaynar.
+Below the middle narrows toward mono -- which is what a single PA cluster is. Above it widens.	Ortanın altında tek PA kümesi gibi monoya daralır. Üstünde genişler.
+Centre is a straight line. Up bends it into an S -- darker shadows, brighter highlights, more contrast. Down flattens it.	Ortada düz çizgi. Yukarı S olur: koyu gölgeler, parlak ışıklar, fazla kontrast. Aşağı düzleştirir.
+Characters across. Fewer means bigger cells and less of the picture surviving, which is usually the point.	Yataydaki karakter sayısı. Azı daha büyük hücre ve daha az görüntü demektir; genelde amaç budur.
+Characters to build the picture from, darkest first. Empty uses the chosen glyph set.	Görüntüyü kuracak karakterler, en koyu önce. Boşsa seçili glif kümesi kullanılır.
+Fine sensor noise at the bottom, chunky film at the top.	Altta ince sensör gürültüsü, üstte iri film greni.
+From an even blur to a streak along the angle, like movement.	Eşit bulanıklıktan açı boyunca hareket izi gibi uzamaya.
+Grain size: one pixel at the left, big blocky grains at the right.	Gren boyutu: solda bir piksel, sağda büyük bloklu taneler.
+Grows or shrinks the echo each pass. Centre holds still.	Her geçişte yankıyı büyütür veya küçültür. Ortada sabittir.
+How abruptly it arrives. Low is a soft cloud, high is a hard porthole.	Geliş keskinliği. Düşükte yumuşak bulut, yüksekte sert lomboz.
+How big the shards are. Small is frosted glass, large is a dropped plate.	Parça boyutu. Küçük buzlu cam, büyük yere düşmüş tabak gibidir.
+ASCII: use ON|OFF|TOGGLE | STATUS | INK | SET | SHUFFLE | PRESET [name|next|prev] | FONT | GLYPHS [chars] | CHAOS <0-1> | WOBBLE <0-1> | WOBBLEMODE [drift|flow|hue] | COLS <n> | GLITCH <a> <b> <c> [d] | PHRASES <a|b|c> | HOLD <seconds>	ASCII: kullanın: ON|OFF|TOGGLE | STATUS | INK | SET | SHUFFLE | PRESET [name|next|prev] | FONT | GLYPHS [chars] | CHAOS <0-1> | WOBBLE <0-1> | WOBBLEMODE [drift|flow|hue] | COLS <n> | GLITCH <a> <b> <c> [d] | PHRASES <a|b|c> | HOLD <seconds>
+FX: use LIST | ADD <effect> [amount] | AMOUNT <n> <v> | PARAM <n> <A-F> <0-1> | CHOICE <n> <A|B> <name> | LFO <n> <A-G> ... | COPY | PASTE | CLEAR	FX: kullanın: LIST | ADD <effect> [amount] | AMOUNT <n> <v> | PARAM <n> <A-F> <0-1> | CHOICE <n> <A|B> <name> | LFO <n> <A-G> ... | COPY | PASTE | CLEAR
+FX LFO: on, off, shape, rate, depth, zone, channel or cc	FX LFO: on, off, shape, rate, depth, zone, channel veya cc
+GEOLFO: x, y, width, height, rotation, cropleft, cropright, croptop or cropbottom	GEOLFO: x, y, width, height, rotation, cropleft, cropright, croptop veya cropbottom
+LFO: density, speed, warp, turn, centrex, centrey, grey or hue	LFO: density, speed, warp, turn, centrex, centrey, grey veya hue
+MIDIMAP: LIST, ADD, SET, REMOVE, CLEAR, RESET, LEARN, LEARNED, PRESET or FEEDBACK	MIDIMAP: LIST, ADD, SET, REMOVE, CLEAR, RESET, LEARN, LEARNED, PRESET veya FEEDBACK
+SLICE <n>: CROP, PLACE, CORNER, EDGE, MASK, SOURCE, ROTATE, FLIP, OPACITY, LFO, ON, OFF, LINEAR, PERSPECTIVE or NAME	SLICE <n>: CROP, PLACE, CORNER, EDGE, MASK, SOURCE, ROTATE, FLIP, OPACITY, LFO, ON, OFF, LINEAR, PERSPECTIVE veya NAME
+VIDEO OUTPUT LAYERWARP MODE: linear or perspective	VIDEO OUTPUT LAYERWARP MODE: linear veya perspective
+DASH SET: needs a command -- DASH SET <n> <label> | <command> [| <glyph>]	DASH SET: komut gerekir -- DASH SET <n> <label> | <command> [| <glyph>]
+ASCII HOLD: seconds, 0-60 (0 mutes the phrases)	ASCII HOLD: saniye, 0-60 (0 ifadeleri susturur)
+atem tally on -- set which input Deckboy is	atem yayın ışığı açık -- Deckboy’un girişini ayarlayın
+AUDIOALSO ADD: that is already this deck's main device -- it would play twice	AUDIOALSO ADD: bu zaten deck’in ana cihazı -- iki kez çalardı
+DMXCUE SET: expected channel=level pairs, e.g. 1=255,10-14=64	DMXCUE SET: kanal=seviye çiftleri beklenir, örn. 1=255,10-14=64
+DRAW COLOUR: #rrggbb, #rrggbbaa, a name, or 1-8 for the palette	DRAW COLOUR: #rrggbb, #rrggbbaa, ad veya palet için 1-8
+DRAW SIZE: 0.1-20 (% of the picture's height)	DRAW SIZE: 0.1-20 (görüntü yüksekliğinin %’si)
+DRAW STROKE: each point is x,y or x,y,pressure, in percent	DRAW STROKE: her nokta yüzde olarak x,y veya x,y,basınç
+DRAW TOOL: brush, erase, line, box, oval or fill	DRAW TOOL: brush, erase, line, box, oval veya fill
+Enter playlist SMPTE FPS: 24 / 25 / 29.97 / 30	Çalma listesi SMPTE FPS değerini girin: 24 / 25 / 29.97 / 30
+FX LFO wants <index> <slot> <on|off|shape> [value]	FX LFO için <index> <slot> <on|off|shape> [value] gerekir
+group presets became master cues: use MASTER	grup önayarları ana cue oldu: MASTER kullanın
+HH:MM or HH:MM:SS on this computer's clock; empty for none	bu bilgisayarın saatinde HH:MM veya HH:MM:SS; yoksa boş
+HH:MM:SS:FF of the timecode Deckboy is chasing; empty for none	Deckboy’un izlediği zaman kodunun HH:MM:SS:FF değeri; yoksa boş
+live captions are not installed here (deckboy-listen was not found)	canlı altyazılar kurulu değil (deckboy-listen bulunamadı)
+Lower Third added - put its playlist on a layer	Lower Third eklendi - çalma listesini bir katmana yerleştirin
+macOS could not read the PDF	macOS PDF’yi okuyamadı
+make a step first: a section starts at a step	önce adım oluşturun: bölüm bir adımda başlar
+MASK PATH: a path needs at least three points	MASK PATH: yol en az üç nokta gerektirir
+MIC INPUT: expected SETTINGS, TEST or a device name (MIC LIST)	MIC INPUT: SETTINGS, TEST veya cihaz adı beklenir (MIC LIST)
+MIDIFILE: expected PORT, or no argument to report it	MIDIFILE: PORT beklenir; bildirmek için argümansız
+MIDIIN OSC: an address, and optionally a number	MIDIIN OSC: adres ve isteğe bağlı sayı
+MIDIMAP: that command is only accepted from this computer	MIDIMAP: bu komut yalnız bu bilgisayardan kabul edilir
+MOTION ZONE ADD: the zone must fit inside the picture	MOTION ZONE ADD: bölge görüntünün içine sığmalı
+motion on: the camera is read, never recorded	hareket açık: kamera okunur, asla kaydedilmez
+How far it smears: up to a few percent of the picture.	Yayılma mesafesi: görüntünün yüzde birkaçına kadar.
+How fast the light walks around it. Zero holds it still.	Işığın çevresindeki hareket hızı. Sıfır sabit tutar.
+How much of the push goes downward rather than sideways.	İtmenin yana değil aşağı giden payı.
+How gently the change fades out at the edges of the band.	Değişimin bant kenarlarında sönme yumuşaklığı.
+How wide a band of colours either side of it changes too.	İki yandaki değişecek renk bandının genişliği.
+How fast the drips run. At the left the picture only sags.	Damlaların akış hızı. Solda görüntü yalnız sarkar.
+Line pitch in pixels, so this reads at 4K as well as at 720.	Çizgi aralığı piksel olarak; 4K’da da 720’deki gibi görünür.
+How far back each skip jumps, from a stutter to half a second.	Her atlamanın geriye sıçraması, kekelemeden yarım saniyeye kadar.
+How far the two eyes disagree. Brightness is read as nearness.	İki göz arasındaki fark. Parlaklık yakınlık olarak okunur.
+How fast it closes. Slow enough not to chop the ends off words.	Kapanma hızı. Sözcük sonlarını kesmeyecek kadar yavaş.
+How many times a skip repeats before the sound catches up again.	Ses yeniden yetişmeden önce atlamanın tekrar sayısı.
+How dark the dark lines go. All the way up is black between lines.	Koyu çizgilerin karanlığı. En üstte çizgiler arası siyahtır.
+How fast the open slit crosses the picture. Slow smears a long moment across the frame.	Açık yarığın görüntüyü geçiş hızı. Yavaşken uzun bir an kareye yayılır.
+How fast the wave travels. Faster spreads further in the same time and interferes more.	Dalga hızı. Hızlıyken aynı sürede daha uzağa yayılır ve daha çok girişim yapar.
+How fine the water is. Long ocean swell at one end, rain on a puddle at the other.	Suyun inceliği. Bir uçta uzun okyanus dalgası, diğerinde su birikintisine yağmur.
+How irregular the growth is. Low gives an even honeycomb, high gives long shards.	Büyümenin düzensizliği. Düşükte düzgün petek, yüksekte uzun parçalar.
+How long the reaction runs each frame. Short is a stain, long is an organism.	Her karede tepkime süresi. Kısa leke, uzun organizma gibidir.
+How much of the picture shows behind the lines. None at the left: lines on black.	Çizgilerin arkasında görünen görüntü payı. Solda yok: siyah üstünde çizgiler.
+How much of the picture glows: only the brightest at the left, nearly everything at the right.	Görüntünün parlayan payı: solda yalnız en parlak, sağda neredeyse tümü.
+How many places drip: a few big drips at the left, many thin ones at the right.	Damlama noktası sayısı: solda birkaç büyük, sağda çok sayıda ince damla.
+0 flows ALONG the edges, so colour orbits the shapes. 1 flows across them, which bleeds the picture into itself.	0 kenarlar BOYUNCA akar; renk şekilleri dolaşır. 1 enine akar; görüntü kendi içine yayılır.
+ASCII WOBBLEMODE: drift | flow (follows luma) | hue (follows colour); no argument cycles	ASCII WOBBLEMODE: drift | flow (parlaklığı izler) | hue (rengi izler); bağımsız değişken yoksa sırayla değişir
+ASCII: the selected cue has no text mode (add the TEXT MODE effect, or select a video synth cue)	ASCII: seçili cue'da metin modu yok (TEXT MODE efekti ekleyin veya video sentezleyici cue'su seçin)
+Blueshift toward the direction of travel and redshift at the rim. Zero leaves the colour alone and it reads as a lens instead.	Hareket yönünde maviye, kenarda kırmızıya kaydırır. Sıfırda renk değişmez; mercek görünümü verir.
+Bright: bright things drip over the dark, as text and logos do. Whole picture: everything is wax, and the picture itself runs down in its own colours.	Parlak: yazı ve logo gibi açık alanlar koyuların üstüne damlar. Tüm görüntü: her şey mumdur; görüntü kendi renkleriyle aşağı akar.
+cannot read the file: if it lives in OneDrive or iCloud, open it once so it downloads, then import it	Dosya okunamıyor: OneDrive veya iCloud'daysa indirilmesi için bir kez açıp ardından içe aktarın
+Colour is recorded at a fraction of the detail: it smears sideways, lands late and its hue wanders.	Renk daha az ayrıntıyla kaydedilir: yana bulaşır, geç ulaşır ve tonu gezinir.
+couldn't open a browser -- please report at github.com/Utopian-Academy/Deckboy/issues	Tarayıcı açılamadı — github.com/Utopian-Academy/Deckboy/issues adresinde bildirin
+DASH SET: <n> <label> | <command> [| <glyph>]	DASH SET: <n> <etiket> | <komut> [| <simge>]
+DASH: LIST | <n> | SET <n> <label> | <command> | CLEAR <n>	DASH: LIST | <n> | SET <n> <etiket> | <komut> | CLEAR <n>
+DATAMOSH on - preparing (long clip, watch Encoder tab)	DATAMOSH açık — hazırlanıyor (uzun klip; Kodlayıcı sekmesine bakın)
+DECODE --.-	ÇÖZÜCÜ --.-
+DECODE OFF	ÇÖZÜCÜ KAPALI
+DECODE WARM	ÇÖZÜCÜ HAZIRLIK
+did not finish in 3 minutes. It may be waiting on a prompt it cannot show (Protected View, sign-in, a repair). Open the deck there once, or export it as a PDF and import that	3 dakikada bitmedi. Gösteremediği bir istemi bekliyor olabilir (Korumalı Görünüm, oturum açma, onarım). Sunuyu orada açın veya PDF olarak dışa aktarıp içe aktarın
+e.g. /stage/doors -- sent to Deckboy's OSC port; empty for none	örn. /stage/doors — Deckboy OSC portuna gönderilir; yoksa boş bırakın
+e.g. 20:0 or client name	örn. 20:0 veya istemci adı
+esc: control window - again to clear output	esc: kontrol penceresi — çıkışı temizlemek için tekrar
+FADE TO: a speed from 0.25 to 4 (0.5 is half speed, an octave down)	FADE TO: 0.25 ile 4 arası hız (0.5 yarı hız, bir oktav aşağı)
+Flip across, upside down or both, or fold one half onto the other: right onto left, left onto right, bottom onto top, top onto bottom, or one corner into all four.	Yatay, dikey veya her iki yönde çevirin; ya da sağ yarıyı sola, solu sağa, altı üste, üstü alta veya bir köşeyi dört köşeye katlayın.
+forget my defaults? only NEW changes, this show keeps its settings: press again	Varsayılanlarım unutulsun mu? Yalnızca NEW değişir, bu gösteri ayarlarını korur: tekrar basın
+full-frame and no picture - bends when the picture shrinks	tam kare ve görüntü yok — görüntü küçülünce büker
+How bright a pixel has to be before it lifts at all, so only the highlights spike.	Pikselin yükselmeye başladığı parlaklık; yalnızca parlak alanlar sivrilir.
+How bright a pixel has to be to join a run. Lower catches more of the picture and the runs grow longer.	Diziye katılma parlaklığı. Düşürmek daha çok görüntüyü yakalar ve dizileri uzatır.
+How deep the picture is treated as being. The brightness becomes height and is lit from the side.	Görüntü derinliği. Parlaklık yüksekliğe dönüşür ve yandan aydınlatılır.
+How faint a gradient still registers. High turns the quietest shading into visible structure.	En hafif gradyanı algılama eşiği. Yüksek değer en hafif gölgeyi görünür yapıya çevirir.
+How far away. Distance dulls the top and softens the difference between the ears.	Uzaklık. Mesafe tizleri köreltir ve kulaklar arasındaki farkı azaltır.
+How far back the chain listens. The picture is played through a delay, so this is the distance the damage is dragged across.	Zincirin ne kadar geriye baktığı. Görüntü gecikmeden geçirilir; bozulmanın sürüklendiği mesafedir.
+How far the burn spreads off the edge, and how hot its colour runs.	Yanığın kenardan yayılma mesafesi ve renginin sıcaklığı.
+How far the colour turns on each trip round the loop. This is the oil-slick: the trail walks through the spectrum instead of fading.	Her döngüde renk dönüşü. Yağ tabakası gibi: iz sönmek yerine tayf boyunca ilerler.
+How far the picture stands out. Bright parts come forward, dark parts stay back. At the left it is flat.	Görüntünün çıkıntısı. Açık alanlar öne, koyular geriye. Solda düzdür.
+How far the picture swings the filter. The cue's own brightness opens and closes it, so a cut to black takes the top off the sound.	Görüntünün filtreyi değiştirme miktarı. Cue parlaklığı filtreyi açıp kapatır; siyaha kesme tizleri alır.
+How far the top comes down as the end approaches. This is not a fade: the level is left alone.	Sona yaklaşırken tizlerin düşme miktarı. Ses seviyesi değişmez.
+How fast it settles away while held. At zero it holds indefinitely, which is what room tone under a held title wants.	Bekletilirken sönme hızı. Sıfırda süresiz sürer; bekletilen başlık altında ortam tonu için uygundur.
+How fast what has dripped hardens away. At the left the drips stay until the cue changes.	Damlaların donup kaybolma hızı. Solda, cue değişene kadar kalırlar.
+How hard it holds once it is working. Gentle at the bottom, a limiter at the top.	Devredeyken tutma gücü. Altta yumuşak, üstte sınırlayıcı.
+How hard the light gathers where the rays converge. This is the part that makes it read as water rather than as a wobble.	Işınların birleştiği yerde ışık yoğunluğu. Su görünümünü veren kısım budur.
+How hard the moving parts throw sand. More shake clears the plate faster and makes the lines thinner.	Hareketli parçaların kum fırlatma gücü. Daha çok sarsıntı levhayı daha hızlı temizler, çizgileri inceltir.
+How long a grain is, in VIDEO FRAMES. On a 23.976 clip one frame is 41.7ms, which is not a musical value and is exactly the point.	Tanecik uzunluğu, VİDEO KARESİ olarak. 23.976 klipte bir kare 41.7ms'dir; müzikal olmaması amaçlanır.
+How long before the end it starts. The cue has to have a known length -- an open-ended one has no end to resolve into.	Sondan ne kadar önce başlayacağı. Cue süresi bilinmelidir; açık uçlu cue'nun çözülecek sonu yoktur.
+How long it is allowed to run. More steps means the ripples have crossed and reflected more times.	Çalışma süresi. Daha çok adım, dalgaların daha çok kesişip yansımasıdır.
+How long the old waves linger when the note changes. Left: they die at once. Right: they slosh for a while.	Nota değişince eski dalgaların kalma süresi. Solda hemen söner, sağda bir süre çalkalanır.
+How much each facet catches the light, which is what makes them read as faceted rather than as flat blobs.	Her yüzün ışığı yakalama miktarı; düz lekeler yerine yüzeyli görünmelerini sağlar.
+How much its SIZE becomes distance. Shrink the picture and the sound goes away from you: the top comes off, the image narrows, the level drops.	BOYUTUN mesafeye etkisi. Görüntü küçülünce ses uzaklaşır: tizler azalır, stereo daralır, seviye düşer.
+How much of the bent picture goes round again. High is where it stops being an echo and starts eating itself.	Bükülen görüntünün döngüye dönme miktarı. Yüksekte yankı olmaktan çıkıp kendini yemeye başlar.
+How much of the driver's movement the picture KEEPS. At zero it follows the driver frame by frame, which is a twitch. Wind it up and the motion accumulates, so the driver sculpts the picture over time and it holds the pose -- which is what puppetry means.	Görüntünün sürücü hareketini TUTMA miktarı. Sıfırda kare kare izleyip seğirir. Artırınca hareket birikir; sürücü zamanla görüntüyü şekillendirir ve poz korunur, kuklacılık gibi.
+How much of the picture's position on the output is used. A PIP on the left sounds on the left -- and it is a placement, not a pan: the far ear gets the delay and the head shadow too.	Çıkıştaki görüntü konumunun etkisi. Soldaki PIP soldan duyulur; bu konumlandırmadır: uzak kulağa gecikme ve baş gölgesi de uygulanır.
+How much of the tail is kept going while the cue is held. Long enough to hide the splice in room tone, short enough not to smear a rhythm in it.	Cue bekletilirken kuyruğun sürme miktarı. Ortam tonundaki ek yerini saklayacak kadar uzun, ritmi bulandırmayacak kadar kısa.
+How much room comes up under it, so the sound settles into the cut instead of being severed.	Kesmede sesin kopmak yerine oturması için eklenen oda etkisi.
+How much the echo is distorted each pass. It compounds, so a little ripples and a lot melts the picture into itself.	Her geçişte yankı bozulması. Birikir; azı dalgalandırır, çoğu görüntüyü kendi içine eritir.
+How much the material draws in towards each drip, so it runs as a thin neck with a heavier head.	Malzemenin her damlaya çekilip ince boyun ve ağır baş oluşturma miktarı.
+How often its settings are corrupted. Corrupted far enough it oscillates on its own -- loud, but it cannot run away.	Ayarların bozulma sıklığı. Yeterince bozulursa kendi kendine salınır; yüksek sesli ama kontrolden çıkmaz.
+How quickly the picture springs back to rest once the driver stops pushing it. Only does anything when memory is up.	Sürücü durunca görüntünün dinlenme durumuna dönüş hızı. Yalnızca bellek artırıldığında etkilidir.
+How quickly the room eats the top end. More damping is a softer, more furnished space.	Odanın tizleri yutma hızı. Fazla sönüm, daha yumuşak ve döşeli mekândır.
+How readily an edge catches. Low sets the whole picture alight, high only the hardest lines.	Kenarın tutuşma kolaylığı. Düşükte tüm görüntü, yüksekte yalnızca keskin çizgiler yanar.
+How small a cut sets it off. With no picture it runs on a timer instead, and this is how often.	Tetikleyecek en küçük kesme. Görüntü yoksa zamanlayıcı kullanır; bu değer sıklığı belirler.
+How strongly the finished picture pushes the bend. Pair it with a picture effect whose LFO is set to Audio and the two drive each other.	Bitmiş görüntünün bükmeyi sürme gücü. LFO'su Audio olan görüntü efektiyle eşleyin; birbirlerini sürerler.
+How wide a view is being compressed. Narrow is a punch down the middle, wide folds the whole frame into the centre.	Sıkıştırılan görüş genişliği. Dar, ortadan bir yumruk; geniş, tüm kareyi merkeze katlar.
+INPUTMONITOR: a row count, OPEN, CLOSE, CLEAR, PAUSE or RESUME	INPUTMONITOR: satır sayısı, OPEN, CLOSE, CLEAR, PAUSE veya RESUME
+IPv4 addresses or a.b.c.d/bits, comma separated; empty = only this computer	IPv4 adresleri veya a.b.c.d/bits, virgülle ayrılmış; boş = yalnızca bu bilgisayar
+kbps (500-50000)	kb/sn (500-50000)
+key+fill ON, but no key device set (DECKLINK KEYFILL ON <device>)	key+fill ON, ancak key aygıtı ayarlı değil (DECKLINK KEYFILL ON <device>)
+Keynote could not export this file (it may need permission to be automated: System Settings > Privacy & Security > Automation)	Keynote dosyayı dışa aktaramadı (otomasyon izni gerekebilir: Sistem Ayarları > Gizlilik ve Güvenlik > Otomasyon)
+label | command | glyph      (empty label|command removes it)	etiket | komut | simge      (boş etiket|komut kaldırır)
+Lift or cut, 12dB either way. The centre is flat, so a band that has just been added does nothing until this is moved.	Her yönde 12dB artırma veya kesme. Orta nötrdür; yeni bant, bu hareket ettirilene kadar etkisizdir.
+Lifts the dark tones without moving pure black.	Saf siyahı değiştirmeden koyu tonları yükseltir.
+Light on the drips, as on something wet: a gloss where it faces the light, darker where it curls away.	Islak yüzey gibi damla ışığı: ışığa bakan yerde parlak, kıvrılıp uzaklaşan yerde koyu.
+mic live on the default speakers - watch for feedback	mikrofon varsayılan hoparlörlerde açık — geri beslemeye dikkat
+MIDIIN: NOTE <n> <vel>, NOTEOFF <n>, CC <c> <v>, PITCH <0-16383>, PRESSURE <v>, KEYPRESSURE <n> <v>, PROGRAM <n> or OSC <address> [<n>], then CH <1-16> if not channel 1	MIDIIN: NOTE <n> <vel>, NOTEOFF <n>, CC <c> <v>, PITCH <0-16383>, PRESSURE <v>, KEYPRESSURE <n> <v>, PROGRAM <n> veya OSC <address> [<n>], kanal 1 değilse ardından CH <1-16>
+Moves the direction of travel off the centre of frame, so the picture rushes past rather than straight at you.	Hareket yönünü kare merkezinden kaydırır; görüntü doğrudan size gelmek yerine yanınızdan geçer.
+my defaults forgotten: NEW starts from factory settings, this show is unchanged	Varsayılanlarım unutuldu: NEW fabrika ayarlarıyla başlar, bu gösteri değişmedi
+N=new  Enter/P=previous  O=open saved  E=examples  L=learn  1-	N=yeni  Enter/P=önceki  O=kayıtlıyı aç  E=örnekler  L=öğren  1-
+ndi tally trigger on -- program tally takes the cue	NDI tally tetikleyici açık — PROGRAM tally cue'yu yayına alır
+new show disarms all outputs: press new again	Yeni gösteri tüm çıkışları devreden çıkarır: yeniye tekrar basın
+NEWSHOW: something is live or unsaved -- send NEWSHOW again within 2.5 s	NEWSHOW: yayında veya kaydedilmemiş bir şey var — 2.5 s içinde NEWSHOW tekrar gönderin
+NMOS: discovery needs the remote network allowed	NMOS: keşif için uzak ağa izin verilmeli
+nmos: network is LOCAL ONLY - not registering	nmos: ağ YALNIZCA YEREL — kaydolmuyor
+NMOS: NOT registering - network is LOCAL ONLY (turn REMOTE ON to publish)	NMOS: kaydolmuyor — ağ YALNIZCA YEREL (yayımlamak için REMOTE ON)
+NMOS: searching for a registry (mDNS)	NMOS: kayıt sunucusu aranıyor (mDNS)
+notestep: this cue's notes have no builds (separate them with a line of ---)	notestep: bu cue'nun notlarında aşama yok (--- satırıyla ayırın)
+nothing to mask here: select a cue, or change MASK ON	Maskelenecek bir şey yok: cue seçin veya MASK ON kullanın
+on the dashboard - Ctrl+D or the DASH button	Panoda — Ctrl+D veya DASH düğmesi
+One knob for the whole balance: below the middle is darker, above it is brighter.	Tüm denge için tek düğme: ortanın altı koyu, üstü parlak.
+Only accept transport from this sender (blank = anyone)	Oynatma komutlarını yalnızca bu göndericiden kabul et (boş = herkes)
+opened github.com in your browser -- nothing is sent until you submit the report there	github.com tarayıcıda açıldı — orada raporu gönderene kadar hiçbir şey gönderilmez
+Original: the picture pulled onto the figure. Sand: the picture as grains that are thrown off the moving parts and pour into each new figure. Fluid: the picture under water on the plate, bent and lit by its standing waves.	Özgün: görüntü şekle gerilir. Kum: görüntü tanecikleri hareketli parçalardan fırlayıp yeni şekillere dökülür. Sıvı: levhada su altındaki görüntü, duran dalgalarla bükülüp aydınlatılır.
+OUTPUT --.-	ÇIKIŞ --.-
+output effects bypassed: no effect and no limit on this device	Çıkış efektleri atlandı: bu aygıtta efekt ve sınır yok
+Output height in px - math ok: 1080x2, 2160/2, 540+30	Çıkış yüksekliği, px — hesaplama olur: 1080x2, 2160/2, 540+30
+OUTPUT WARM	ÇIKIŞ HAZIRLIK
+Output width in px - math ok: 1920x2, 3840/2, 960+64	Çıkış genişliği, px — hesaplama olur: 1920x2, 3840/2, 960+64
+Page Down / Page Up step the focused playlist	Page Down / Page Up odaktaki çalma listesinde adım ilerletir
+pair with a picture effect whose LFO is set to Audio	LFO'su Audio olan görüntü efektiyle eşleyin
+paired phones removed: they need the QR code or the passphrase again	Eşlenen telefonlar kaldırıldı: yeniden QR kodu veya parola gerekli
+PATCH: a level is dB from -48 to +6, or OFF	PATCH: seviye -48 ile +6 dB veya OFF
+PHONE LEVEL: removed -- a paired phone or the passphrase can do everything; BLACKOUT and RECORD are hold-to-fire on the phone	PHONE LEVEL: kaldırıldı — eşlenmiş telefon veya parola her yetkiyi verir; telefonda BLACKOUT ve RECORD basılı tutarak çalışır
+phones need THE NETWORK: set 'Who can see it' first	Telefonlar AĞ ister: önce 'Kimler görebilir' ayarını yapın
+PIP: retired -- scale a second deck over this one instead	PIP: kaldırıldı — bunun üzerine ikinci bir deck'i ölçekleyin
+pip: retired -- scale a second deck over this one instead	pip: kaldırıldı — bunun üzerine ikinci bir deck'i ölçekleyin
+Port the Node + Connection API serve on	Node + Connection API portu
+PowerPoint could not export this file (it may need permission to be automated: System Settings > Privacy & Security > Automation)	PowerPoint dosyayı dışa aktaramadı (otomasyon izni gerekebilir: Sistem Ayarları > Gizlilik ve Güvenlik > Otomasyon)
+PowerPoint could not open the file (it gave up waiting for it). If it is in OneDrive, right-click it and choose Always keep on this device, then import it again	PowerPoint dosyayı açamadı (bekleme süresi doldu). OneDrive'daysa sağ tıklayıp 'Her zaman bu cihazda tut' seçin, sonra yeniden içe aktarın
+presenter panel: expected <live|prev|next|notes> <x> <y> <w> <h> in percent	sunucu paneli: <live|prev|next|notes> <x> <y> <w> <h> yüzde olarak bekleniyor
+presenter panel: the panel must fit on the screen (x+w and y+h no more than 100)	sunucu paneli: ekrana sığmalı (x+w ve y+h en fazla 100)
+preset: delivery | proxy | match | datamosh	önayar: delivery | proxy | match | datamosh
+programme sound is always included; use WEBMONITOR OFF to stop the monitor	Program sesi daima dahildir; monitörü durdurmak için WEBMONITOR OFF
+PROXY 720p	VEKİL 720p
+Pulls the bright tones down without moving pure white, so a hot highlight rolls off instead of clipping.	Saf beyazı değiştirmeden açık tonları düşürür; parlak alanlar kırpılmak yerine yumuşakça yuvarlanır.
+recordings remux to MP4 when the take stops	Kayıt durunca dosyalar MP4'e yeniden paketlenir
+Registry URL (e.g. http://192.168.1.50:8010) - blank for mDNS	Kayıt URL'si (örn. http://192.168.1.50:8010) — mDNS için boş
+Rotates the reading, so straight lines wind into spirals rather than rings.	Okuma yönünü döndürür; düz çizgiler halka yerine sarmala dönüşür.
+Rows lose sync and repeat one character, the way a real text screen breaks up. At 0 the grid is clean.	Satırlar eşzamanını kaybedip tek karakteri tekrarlar; gerçek metin ekranı arızası gibi. 0'da ızgara temizdir.
+save failed - retrying; still open, use SAVE AS if needed	Kaydedilemedi — yeniden deneniyor; hâlâ açık, gerekirse SAVE AS kullanın
+saved as my defaults: NEW starts like this show, without the cues	Varsayılanlarım kaydedildi: NEW bu gösteri gibi başlar, cue'lar olmadan
+Seconds for new image/pattern/browser/Lower Third cues (0 = hold)	Yeni görüntü/desen/tarayıcı/Lower Third cue'ları için saniye (0 = beklet)
+select a Draw cue first (SOURCE > MADE BY DECKBOY > Draw)	Önce Draw cue'su seçin (SOURCE > MADE BY DECKBOY > Draw)
+SLICE CORNER: TL, TR, BR or BL, then dx dy in percent of the output	SLICE CORNER: TL, TR, BR veya BL, ardından çıkış yüzdesiyle dx dy
+SLICE EDGE: L, R, T or B, then 0-50 (% of the slice)	SLICE EDGE: L, R, T veya B, ardından 0-50 (dilimin % değeri)
+SLICE GRID POINT: col row (from 1, on a grid that is on) then dx dy in percent	SLICE GRID POINT: col row (1'den, açık ızgarada), ardından yüzde olarak dx dy
+SLICE GRID: <cols> <rows> (2-9), OFF, SMOOTH ON|OFF, or POINT col row dx dy	SLICE GRID: <cols> <rows> (2-9), OFF, SMOOTH ON|OFF veya POINT col row dx dy
+SLICE LFO: X, Y, ROTATION or OPACITY, then ON, OFF, SHAPE, RATE, DEPTH...	SLICE LFO: X, Y, ROTATION veya OPACITY, ardından ON, OFF, SHAPE, RATE, DEPTH...
+SLICE ROTATE: IN (the crop) or OUT (the placed picture), then degrees	SLICE ROTATE: IN (kırpma) veya OUT (yerleştirilmiş görüntü), ardından derece
+SMPTE hh:mm:ss:ff or seconds (blank = 00:00:00:00)	SMPTE hh:mm:ss:ff veya saniye (boş = 00:00:00:00)
+something mellow appeared in SOURCE > MADE BY DECKBOY	SOURCE > MADE BY DECKBOY içinde yumuşak bir şey belirdi
+Something near the deck: a phone's buzz, a light dimmer's herringbone, a radio's slow bars.	Deck yakınındaki parazitler: telefon vızıltısı, dimmer balıksırtı, radyonun yavaş çizgileri.
+Sorts the runs the other way, so they pour from light to dark.	Dizileri ters sıralar; açıktan koyuya akarlar.
+sound scopes: integrated loudness and true peak start again	Ses ölçerleri: tümleşik gürlük ve gerçek tepe sıfırlandı
+SOURCE WINDOW: name the window, e.g. title:Firefox (or "desktop")	SOURCE WINDOW: pencere adını verin, örn. title:Firefox (veya "desktop")
+splitnotes: that cue's notes have no parts (separate them with a line of ---)	splitnotes: cue notlarında bölüm yok (--- satırıyla ayırın)
+STREAM --.-	AKIŞ --.-
+STREAM ERR	AKIŞ HATA
+STREAM OFF	AKIŞ KAPALI
+Stream URL (srt://, rtmp://, rtsp://, udp://, or an http HLS .m3u8)	Akış URL'si (srt://, rtmp://, rtsp://, udp:// veya http HLS .m3u8)
+STREAM WARM	AKIŞ HAZIRLIK
+SYPHON / SPOUT TEXTURE SHARE	SYPHON / SPOUT DOKU PAYLAŞIMI
+Takes out everything brighter than this as well. Left takes out nothing.	Bundan parlak her şeyi de kaldırır. Solda hiçbir şey kaldırılmaz.
+Takes out everything darker than this, so what lies beneath shows through. Left takes out nothing.	Bundan koyu her şeyi kaldırıp alttakini gösterir. Solda hiçbir şey kaldırılmaz.
+Tape speed: SP is the best picture, LP and EP fit more on a tape and lose detail and colour.	Bant hızı: SP en iyi görüntüdür; LP ve EP daha çok kayıt alır, ayrıntı ve renk kaybeder.
+that key drives the desk - use F1-F10, F12 or the number pad	Bu tuş masayı yönetir — F1-F10, F12 veya sayısal tuş takımını kullanın
+The brightness that stays put. Everything above it reaches one way and everything below it the other.	Sabit kalan parlaklık. Üstündekiler bir yana, altındakiler diğer yana uzanır.
+The character of the growth: low is waves, then labyrinth, coral, worms, and holes at the top.	Büyüme karakteri: altta dalga, sonra labirent, mercan, solucan ve en üstte delik.
+the clicker now spends note builds before advancing	Tıklayıcı artık ilerlemeden önce not aşamalarını tüketir
+The colour it becomes. Shading and brightness stay as they were, so a red shirt turns blue and keeps its folds.	Dönüşeceği renk. Gölge ve parlaklık korunur; kırmızı gömlek mavi olurken kıvrımları kalır.
+The distance that sits ON the screen. Either side of it comes forward or falls behind.	Ekran ÜZERİNDE duran mesafe. İki yanında öne gelir veya arkaya düşer.
+the file is empty (0 bytes): it may not have finished copying or saving	Dosya boş (0 bayt): kopyalama veya kaydetme bitmemiş olabilir
+The frequency it pivots around -- what counts as 'low' and 'high' for the tilt.	Eğimin dayanak frekansı; neyin 'bas' ve 'tiz' sayılacağını belirler.
+The head drifting off the track: a band of noise rolls through the picture.	Kafanın izden kayması: görüntüden bir gürültü bandı geçer.
+the installed NDI runtime is missing entry points this needs	Kurulu NDI çalışma zamanında gerekli giriş noktaları eksik
+The level below which the source is closed. Set it under the quietest thing you want to hear.	Kaynağın kapandığı eşik. Duymak istediğiniz en sessiz sesin altına ayarlayın.
+The level it starts working at. Lower catches more of the performance.	Çalışmaya başlama eşiği. Düşük değer performansın daha fazlasını yakalar.
+the playing step was removed - sequence stopped	Çalan adım kaldırıldı — dizi durdu
+The plugin's first four automatable controls, in its own order. Everything else it has keeps whatever the plugin was left set to.	Eklentinin kendi sırasıyla ilk dört otomasyon kontrolü. Diğerleri eklentide bırakılan ayarlarını korur.
+this file is only in OneDrive, and OneDrive is not running. Start OneDrive, or copy the file to this computer, then import it again	Dosya yalnızca OneDrive'da ve OneDrive çalışmıyor. OneDrive'ı başlatın veya dosyayı bu bilgisayara kopyalayıp yeniden içe aktarın
+this presentation needs a password to open. Remove the password in PowerPoint (File > Info > Protect Presentation) or export it as a PDF, then import that	Sunuyu açmak için parola gerekli. PowerPoint'te kaldırın (Dosya > Bilgi > Sunuyu Koru) veya PDF olarak dışa aktarıp içe aktarın
+Tints the two directions apart, so light bending one way and the other are different colours instead of both being grey.	İki yönü farklı renklendirir; farklı yöne bükülen ışıklar gri yerine farklı renkler alır.
+Turns the echo each pass, which winds the melt into a spiral.	Her geçişte yankıyı döndürüp erimeyi sarmala sarar.
+Turns the strokes across the grain instead of along it, which combs the picture apart rather than smoothing it.	Darbeleri doku boyunca değil enine çevirir; görüntüyü yumuşatmak yerine tarayarak ayırır.
+Turns the whole arrangement, so the fold lines do not sit on the same part of the picture all night.	Tüm düzeni çevirir; kat çizgileri bütün gece görüntünün aynı yerinde kalmaz.
+Two is a mirror, twelve is a snowflake, and they are completely different pictures.	İki aynadır, on iki kar tanesi; tamamen farklı görüntüler.
+VIDEO OUTPUT ASSIGN: already on this output, or no such deck or output	VIDEO OUTPUT ASSIGN: zaten bu çıkışta veya böyle deck ya da çıkış yok
+VIDEO OUTPUT LAYER: this deck is not on this output, or it is already at that layer	VIDEO OUTPUT LAYER: bu deck bu çıkışta değil veya zaten bu katmanda
+VIDEO OUTPUT UNASSIGN: this deck is not on this output, or it is the only thing on it	VIDEO OUTPUT UNASSIGN: bu deck bu çıkışta değil veya çıkıştaki tek öğe
+WARP AT: open the editor (WARP EDIT) and select a point first	WARP AT: önce düzenleyiciyi açıp (WARP EDIT) bir nokta seçin
+warp grid: expected <n>, <cols> <rows>, off, smooth or straight	warp grid: <n>, <cols> <rows>, off, smooth veya straight bekleniyor
+warp point: that is a corner -- move it with WARP <corner> dx dy	warp point: bu bir köşe — WARP <corner> dx dy ile taşıyın
+WARP SELECT: expected TL, TR, BR, BL or a grid <col> <row>	WARP SELECT: TL, TR, BR, BL veya ızgara <col> <row> bekleniyor
+WEBMONITOR: STATUS | ON | OFF | CONTROL ON|OFF | SHARE ON|OFF | SOURCE PROGRAMME|<output> | QR [ON|OFF] | PORT <n> | PIN <pin>|OFF (sound is included)	WEBMONITOR: STATUS | ON | OFF | CONTROL ON|OFF | SHARE ON|OFF | SOURCE PROGRAMME|<output> | QR [ON|OFF] | PORT <n> | PIN <pin>|OFF (ses dahildir)
+what the patch and the cues call it (FOH, SUB, PRESS FEED)	Yama ve cue'lardaki adı (FOH, SUB, PRESS FEED)
+Where highlights fold back through black. Low folds most of the picture, high folds only the brightest.	Parlak alanların siyahtan geri katlanma noktası. Düşükte görüntünün çoğu, yüksekte yalnızca en parlaklar katlanır.
+Where the band sits, 30Hz to 16kHz across the travel.	Bandın yeri; hareket boyunca 30Hz ile 16kHz arası.
+Where the fold sits: the middle at the left, toward the far edge to the right. Flips have no fold.	Kat yeri: solda orta, sağda uzak kenara doğru. Çevirmelerde kat yoktur.
+Where the light stands, in degrees around the frame.	Işığın kare etrafındaki yeri, derece olarak.
+Where the source sits around the listener, all the way round. For headphones -- it is a timing and shading trick, not a pan.	Kaynağın dinleyici çevresindeki konumu, tam tur. Kulaklık içindir; zamanlama ve gölgeleme kullanır.
+Where the top ends, 200Hz to 20kHz. Pull it down to take the harshness off a bright source.	Üst sınır, 200Hz ile 20kHz. Parlak kaynağın sertliğini almak için düşürün.
+Which channel the curve acts on: all three, then red, green or blue on its own -- the way a colourist warms or cools one end of the picture.	Eğrinin kanalı: üçü birden, sonra ayrı kırmızı, yeşil veya mavi; renk uzmanının görüntünün bir ucunu ısıtıp soğutması gibi.
+Which way the knife edge lies. Only gradients ACROSS the edge show, so turning it swaps which features appear and which vanish.	Bıçak kenarının yönü. Yalnızca kenara ENİNE gradyanlar görünür; döndürmek görünen ve kaybolan ayrıntıları değiştirir.
+Which way the streak runs: across at the left, upright in the middle, across again at the right.	İzin yönü: solda yatay, ortada dikey, sağda yine yatay.
+Widens the decision into a ramp, so edges keep their shape instead of jagging.	Eşiği yumuşak geçişe yayar; kenarlar tırtıklanmadan biçimini korur.
+window capture fell back to screen grab — update ffmpeg for exact window capture	Pencere yakalama ekran yakalamaya döndü — tam pencere yakalama için FFmpeg'i güncelleyin
+Words to surface in the field, separated by | . One shows at a time, moving on the hold clock.	Alanda belirecek sözcükler, | ile ayrılır. Bekletme saatine göre sırayla birer tane görünür.
+Zero is one noise value across all three channels, which reads as film. Higher gives each channel its own, which reads as video.	Sıfırda üç kanalda tek gürültü değeri vardır; film gibi. Yükseldikçe her kanal kendi gürültüsünü alır; video gibi.
+OUTPUT SPOUT: ON | OFF | TOGGLE | NAME <sender name>	OUTPUT SPOUT: ON | OFF | TOGGLE | NAME <G?NDER?C? ADI>
+STATUS | SHAPE <0-5> | PALETTE <0-3> | DENSITY|SPEED|WARP|CENTREX|CENTREY|GREY <0-100> | TURN|HUE <0-360> | LFO <control> <setting>	STATUS | SHAPE <0-5> | PALETTE <0-3> | DENSITY|SPEED|WARP|CENTREX|CENTREY|GREY <0-100> | TURN|HUE <0-360> | LFO <KONTROL> <AYAR>
+Lens	Mercek
+Prism	Prizma
+Water	Su
+Lasers	Lazerler
+Pixels	Piksel
+Listens	Dinler
+Mirrors	Aynalar
+Shimmer	Işıltı
+FDS synth	FDS sentez
+Terrarium	Teraryum
+(bypassed)	(atlandı)
+Second jet	İkinci jet
+%, 1 to 100	%, 1 ile 100
+Panel angle	Panel açısı
+Ripple size	Dalga boyutu
+Panels, 0-12	Panel, 0-12
+Seconds, 0-4	Saniye, 0-4
+Seconds, 0-8	Saniye, 0-8
+Top / bottom	Üst / alt
+Amount 0-100%	Miktar 0-100%
+ALSA MIDI Port	ALSA MIDI Portu
+Degrees, 0-360	Derece, 0-360
+Terrarium Pico	Teraryum Pico
+ASIOInit failed	ASIOInit başarısız
+Pixels, 64-2160	Piksel, 64-2160
+Pixels, 64-3840	Piksel, 64-3840
+Colour steps, 2-8	Renk adımları, 2-8
+Degrees -180..180	Derece -180..180
+Palette turn, 0-1	Palet dönüşü, 0-1
+Size, %, 5 to 400	Boyut, %, 5 ile 400
+Feature size, 0.1-8	Ayrıntı boyutu, 0.1-8
+Spiral size, 0.25-4	Spiral boyutu, 0.25-4
+Degrees, -360 to 360	Derece, -360 ile 360
+Spiral strength, 0-4	Spiral gücü, 0-4
+0-100%, left to right	0-100%, soldan sağa
+0-100%, top to bottom	0-100%, yukarıdan aşağıya
+0-100%: laser speckle	0-100%: lazer beneği
+Pixel sort amount, 0-1	Piksel sıralama miktarı, 0-1
+Pitch in hertz, 20-8000	Hertz cinsinden perde, 20-8000
+Frames a second, 1 to 60	Saniyede kare, 1 ile 60
+Horizontal cells, 64-960	Yatay hücreler, 64-960
+select a lumia cue first	önce bir Lumia cue seçin
+0 tube, 1 mandala, 2 none	0 tüp, 1 mandala, 2 yok
+How big a blob grows, 0-1	Lekenin büyüme boyutu, 0-1
+0-100%: overall brightness	0-100%: genel parlaklık
+FDS hardware gain range, 0-63	FDS donanım kazanç aralığı, 0-63
+How hard it cuts, %, 0 to 100	Kesme sertliği, %, 0 ile 100
+{1} (supports + - * / and ())	{1} (+ - * / ve () desteklenir)
+Master oscillator rate, 0.01-8	Ana osilatör hızı, 0.01-8
+Seconds the in move takes, 0-5	Giriş hareketi süresi, saniye, 0-5
+0-100%: 0 holds the field still	0-100%: 0 alanı sabit tutar
+0-100%: how bright the water is	0-100%: suyun parlaklığı
+0-100%: how far the field bends	0-100%: alanın bükülme miktarı
+0-100%: the whole picture turns	0-100%: tüm görüntü döner
+Degrees per second, -720 to 720	Saniyede derece, -720 ile 720
+Lumia (laser light and mirrors)	Lumia (lazer ışığı ve aynalar)
+Seconds between retriggers, 0-8	Yeniden tetiklemeler arası saniye, 0-8
+Seconds the out move takes, 0-5	Çıkış hareketi süresi, saniye, 0-5
+0-100%: how fast the water moves	0-100%: suyun hareket hızı
+0-100%: the halo round the lines	0-100%: çizgilerin etrafındaki hale
+How many are alive at once, 3-48	Aynı anda yaşayan sayısı, 3-48
+Turbulence, 0 still to 3 boiling	Türbülans, 0 durgun ile 3 kaynar
+Birth, drift and fade rate, 0.1-3	Doğuş, sürüklenme ve sönme hızı, 0.1-3
+How hard the audio drives it, 0-1	Sesin etkileme gücü, 0-1
+Scale of the whole graphic, 0.5-2	Tüm grafiğin ölçeği, 0.5-2
+0-100%: 0 broad, 100 fine and busy	0-100%: 0 geniş, 100 ince ve yoğun
+Down, % of the height, -100 to 100	Aşağı, yüksekliğin %'si, -100 ile 100
+Thickness of the glowing edge, 0-1	Parlayan kenarın kalınlığı, 0-1
+0-100%: how hard the lines are bent	0-100%: çizgilerin bükülme gücü
+0-100%: light lingers on the screen	0-100%: ışığın ekranda kalması
+Across, % of the width, -100 to 100	Yatay, genişliğin %'si, -100 ile 100
+% of the picture's height, 0.1 to 20	Görüntü yüksekliğinin %'si, 0.1 ile 20
+0-100%: how far the colours fan apart	0-100%: renklerin yelpaze gibi açılması
+Degrees round the colour wheel, 0-360	Renk çarkında derece, 0-360
+Where the eye sits, 0 left to 1 right	Göz konumu, 0 sol ile 1 sağ
+Where the eye sits, 0 top to 1 bottom	Göz konumu, 0 üst ile 1 alt
+dBFS, -60 to 0 (-18 is EBU alignment)	dBFS, -60 ile 0 (-18 EBU referans seviyesidir)
+0-100%: how bright the laser lines are	0-100%: lazer çizgilerinin parlaklığı
+One LED tile's width in pixels, 8-8192	Bir LED karonun piksel genişliği, 8-8192
+0-100%: a second jet crossing the first	0-100%: ilkini kesen ikinci jet
+Edge softness, % of the height, 0 to 25	Kenar yumuşaklığı, yüksekliğin %'si, 0 ile 25
+One LED tile's height in pixels, 8-8192	Bir LED karonun piksel yüksekliği, 8-8192
+0 classic, 1 fire, 2 ice, 3 neon, 4 mono	0 klasik, 1 ateş, 2 buz, 3 neon, 4 tek renk
+Modulator as a ratio of the note, 0.05-16	Notaya oranla modülatör, 0.05-16
+Scanlines, bloom and gun misalignment, 0-1	Tarama çizgileri, parlama ve ışın hizasızlığı, 0-1
+0-100%: the round lens, barrel and dark rim	0-100%: yuvarlak mercek, fıçı bozulması ve koyu kenar
+Block displacement and channel tearing, 0-1	Blok kayması ve kanal yırtılması, 0-1
+Internal resolution, 1 (chunky) to 5 (fine)	İç çözünürlük, 1 (kaba) ile 5 (ince)
+Seconds the finished drawing stays, 0 to 60	Biten çizimin kalacağı saniye, 0 ile 60
+0 rainbow + grey, 1 rainbow, 2 theme, 3 mono	0 gökkuşağı + gri, 1 gökkuşağı, 2 tema, 3 tek renk
+How readily neighbours merge, 0 (never) to 1	Komşuların birleşme kolaylığı, 0 (asla) ile 1
+Turns the rim's colours round the wheel, 0-1	Kenar renklerini çarkta döndürür, 0-1
+drag to turn round it · wheel to come closer	etrafında dönmek için sürükleyin · yaklaşmak için tekerlek
+0-100%: 50 is 1x, 0 a quarter, 100 four times	0-100%: 50 1x, 0 çeyrek, 100 dört kat
+How much of each frame feeds the next, 0-0.95	Her karenin sonrakine aktarım miktarı, 0-0.95
+Per-frame zoom of the feedback path, 0.90-1.15	Geri besleme yolunun kare başına yakınlaştırması, 0.90-1.15
+Space under it, as a fraction of the frame, 0-0.8	Altındaki boşluk, karenin kesri olarak, 0-0.8
+0 rgb, 1 rainbow, 2 floyd, 3 warm, 4 cool, 5 green	0 rgb, 1 gökkuşağı, 2 floyd, 3 sıcak, 4 soğuk, 5 yeşil
+Edge out (+) or in (-), % of the height, -25 to 25	Kenar dışa (+) veya içe (-), yüksekliğin %'si, -25 ile 25
+0 zone, 1 twin, 2 flow, 3 saddle, 4 ripple, 5 shear	0 bölge, 1 ikiz, 2 akış, 3 eyer, 4 dalga, 5 kayma
+Seconds before it leaves by itself; 0 waits for OUT	Kendiliğinden çıkışa kadar saniye; 0 OUT bekler
+0-100%: how far each panel tilts from the one before	0-100%: her panelin öncekine göre eğimi
+0-100%: the share of each band drawn as grey stripes	0-100%: her bandın gri çizgilerle çizilen payı
+0 off, 1 on: the flow surges with the programme sound	0 kapalı, 1 açık: akış PROGRAM sesiyle kabarır
+0 off, 1 on: the top mirrors the bottom round a dark seam	0 kapalı, 1 açık: üst, koyu bir birleşim çizgisinde altı yansıtır
+' (cues, position, look, effects, levels, routing, master)	' (cue, konum, görünüm, efektler, seviyeler, yönlendirme, ana)
+' -- try ADD, ON, OFF, ASSIGN, UNASSIGN, LAYER, HOST, TYPE, MIRROR or an output number	' -- ADD, ON, OFF, ASSIGN, UNASSIGN, LAYER, HOST, TYPE, MIRROR veya çıkış numarası deneyin
+BLEND ROW: expected <first output> <how many, 2 or more> <overlap in pixels>, with that many outputs	BLEND ROW: <ilk çıkış> <sayı, 2 veya daha fazla> <piksel cinsinden örtüşme> ve o kadar çıkış bekleniyor
+SCREENS STAGE: STATUS, SET <what> <value> or APPLY	SCREENS STAGE: STATUS, SET <parametre> <değer> veya APPLY
+SCREENS STAGE SET: WIDTH|HEIGHT <m>, LUMENS, THROW, OVERLAP <%>, GAIN, COUNT, PIXELS <w> <h> or UNITS METRES|FEET	SCREENS STAGE SET: WIDTH|HEIGHT <m>, LUMENS, THROW, OVERLAP <%>, GAIN, COUNT, PIXELS <w> <h> veya UNITS METRES|FEET
+LFO: flow, water, ripple, jet, prism, split, focus, shimmer, mirrors, angle, spin, lens, glow, bright or trail	LFO: flow, water, ripple, jet, prism, split, focus, shimmer, mirrors, angle, spin, lens, glow, bright veya trail
+STATUS | PALETTE <0-5 or name> | MODE <0-2 or name> | TOPBOTTOM|LISTENS ON|OFF | FLOW|WATER|RIPPLE|JET|PRISM|SPLIT|FOCUS|SHIMMER|ANGLE|SPIN|LENS|GLOW|BRIGHT|TRAIL <0-100> | MIRRORS <0-12> | LFO <control> <setting>	STATUS | PALETTE <0-5 veya ad> | MODE <0-2 veya ad> | TOPBOTTOM|LISTENS ON|OFF | FLOW|WATER|RIPPLE|JET|PRISM|SPLIT|FOCUS|SHIMMER|ANGLE|SPIN|LENS|GLOW|BRIGHT|TRAIL <0-100> | MIRRORS <0-12> | LFO <kontrol> <ayar>
+Opacity	Opaklık
+opacity	opaklık
+PAD MODE: HOLD or LATCH	PAD MODE: HOLD veya LATCH
+PAD ASSIGN: this cue does not have that control	PAD ASSIGN: bu cue bu kontrole sahip değil
+PAD SET: x and y are numbers from 0 to 1 (y = 1 is the top)	PAD SET: x ve y 0 ile 1 arasında sayılardır (y = 1 üsttür)
+PAD ASSIGN: a control is OPACITY, FX<n>.AMOUNT, FX<n>.A to F, or NUM.<name> such as NUM.lumia.flow	PAD ASSIGN: kontrol OPACITY, FX<n>.AMOUNT, FX<n>.A ile F arası veya NUM.lumia.flow gibi NUM.<name> olur
+PAD: expected PAD <deck> SET <x> <y> | RELEASE | MODE | ASSIGN | REMOVE | CHIP | LIST	PAD: beklenen PAD <deck> SET <x> <y> | RELEASE | MODE | ASSIGN | REMOVE | CHIP | LIST
+PAD: expected PAD <deck> SET <x> <y> | RELEASE | MODE HOLD|LATCH | ASSIGN <slot> <x> <y> | REMOVE <slot> | CHIP <slot> ON|OFF | LIST	PAD: beklenen PAD <deck> SET <x> <y> | RELEASE | MODE HOLD|LATCH | ASSIGN <slot> <x> <y> | REMOVE <slot> | CHIP <slot> ON|OFF | LIST
+QUANTISE: beat	KUANTİZE: vuruş
+QUANTISE: 1 bar	KUANTİZE: 1 ölçü
+QUANTISE: 2 bars	KUANTİZE: 2 ölçü
+QUANTISE: 4 bars	KUANTİZE: 4 ölçü
+LINK: {1} peers	LINK: {1} eş
+left the Link session	Link oturumundan ayrıldı
+joined the Link session	Link oturumuna katıldı
+TAKE waits for the bar: {1} s	TAKE ölçüyü bekliyor: {1} s
+TAKE waits for the beat: {1} s	TAKE vuruşu bekliyor: {1} s
+this build has no Ableton Link	bu derlemede Ableton Link yok
+VJ LINK: this build has no Ableton Link	VJ LINK: bu derlemede Ableton Link yok
+VJ QUANTISE: beat | 1 | 2 | 4 | off  (1, 2, 4 are bars)	VJ QUANTISE: beat | 1 | 2 | 4 | off  (1, 2, 4 ölçüdür)
+VJ: expected ON|OFF|TOGGLE|MIX <0-1>|BLEND <mode>|TAP|BPM <n>|CLOCK <on|off>|QUANTISE <beat|1|2|4|off>|LINK <on|off|status>|DECKS <a> <b>|STATUS	VJ: beklenen ON|OFF|TOGGLE|MIX <0-1>|BLEND <mode>|TAP|BPM <n>|CLOCK <on|off>|QUANTISE <beat|1|2|4|off>|LINK <on|off|status>|DECKS <a> <b>|STATUS
+Render	İşleme
+PNG frames	PNG kareleri
+START RENDER	İŞLEMEYİ BAŞLAT
+CANCEL RENDER	İŞLEMEYİ İPTAL ET
+RENDER TO FILE	DOSYAYA İŞLE
+RENDER TO FILE...	DOSYAYA İŞLE...
+about {1} left	yaklaşık {1} kaldı
+render cancelled	işleme iptal edildi
+{1} frames in {2}	{2} içinde {1} kare
+the output's ({1})	çıkışınki ({1})
+From cue and to cue	Başlangıç ve bitiş cue
+ProRes 4444 (alpha)	ProRes 4444 (alfa)
+the playlist has no cues	çalma listesinde cue yok
+{1} frames, {2}, {3}x{4}	{1} kare, {2}, {3}x{4}
+the source made no picture	kaynak görüntü üretmedi
+a render is already running	bir işleme zaten sürüyor
+there is no playlist to render	işlenecek çalma listesi yok
+there is no picture in that range	bu aralıkta görüntü yok
+RENDER CANCEL: nothing is rendering	RENDER CANCEL: işlenen bir şey yok
+RENDER START: CUE, CUES a-b or OUTPUT	RENDER START: CUE, CUES a-b veya OUTPUT
+RENDER START CUES: first-last, numbered from 1	RENDER START CUES: ilk-son, 1'den başlayarak
+the output's mask is not drawn by a render yet	işleme henüz çıkış maskesini çizmez
+the output's slices are not drawn by a render yet	işleme henüz çıkış dilimlerini çizmez
+the output's crossfader is not drawn by a render yet	işleme henüz çıkış çapraz geçişini çizmez
+RENDER START: needs a size, a rate, a codec and a file	RENDER START: boyut, hız, kodek ve dosya gerekli
+RENDER START: size is 1080P, 4K or OUTPUT; codec is PRORES, H264 or PNG	RENDER START: boyut 1080P, 4K veya OUTPUT; kodek PRORES, H264 veya PNG
+frame {1} of {2} \xC2\xB7 {3} frames/s	kare {1} / {2} \xC2\xB7 {3} kare/s
+out:--	çıkış:--

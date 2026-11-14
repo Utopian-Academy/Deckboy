@@ -1534,6 +1534,7 @@
     // Reads a file at a path the caller names.
     if (verb == "MASK" && parts.size() > 1 && toUpper(parts[1]) == "IMPORT") return true;
     if (verb == "DRAW" && parts.size() > 1 && toUpper(parts[1]) == "SAVE") return true;
+    if (verb == "RENDER" && parts.size() > 1 && toUpper(parts[1]) == "START") return true;
     // Test input into the Screens window, like CLICK into the desk.
     if (verb == "SCREENS" && parts.size() > 1 &&
         (toUpper(parts[1]) == "CLICK" || toUpper(parts[1]) == "HOVER" || toUpper(parts[1]) == "UP" ||
@@ -1616,7 +1617,8 @@
       out << "{\"index\":" << d + 1 << ",\"name\":\"" << escapeJson(deck.name)
           << "\",\"status\":\"" << escapeJson(transportStatusLabel(static_cast<int>(d)))
           << "\",\"selected\":" << deck.selectedIndex + 1 << ",\"active\":" << deck.activeIndex + 1
-          << ",\"standby\":" << deck.standbyIndex + 1;
+          << ",\"standby\":" << deck.standbyIndex + 1 << ',';
+      padStateJson(out, static_cast<int>(d));
       // Where the live cue is, for the now-playing panel.
       double elapsed = 0.0, length = 0.0;
       if (const MediaEngine* engine = mediaEngineForDeck(static_cast<int>(d)); engine && deck.activeIndex >= 0) {
@@ -1795,6 +1797,7 @@
   //   TRACKER GO|BACK|PLAY|STOP
   //   DECK n GO|STOP|NEXT|PREV|PLAY|PAUSE|RERACK|SKIP|SKIPBACK|TAKE
   //   DECK n TAKE|SELECT|STANDBY m | DECK n SEEK <seconds> | DECK n VOLUME <0-100>
+  //   PAD n SET x y | RELEASE | MODE HOLD|LATCH | ASSIGN slot X Y | REMOVE slot | CHIP slot ON|OFF | LIST
   //   BLACKOUT ON|OFF | OUTPUT TESTCARD ALL ON|OFF | RECORD ON|OFF | OUTPUT n ON|OFF
   static bool webRemoteCommandAllowed(const std::string& command, bool insideDash = false) {
     if (command.find_first_of("\r\n\0", 0, 3) != std::string::npos) return false;
@@ -1829,6 +1832,19 @@
       if (words[2] == "TAKE" || words[2] == "SELECT" || words[2] == "STANDBY") return number(words[3]);
       if (words[2] == "SEEK") return decimal(words[3]);
       if (words[2] == "VOLUME") return decimal(words[3]) && std::atof(words[3].c_str()) <= 100.0;
+      return false;
+    }
+    if (words.size() >= 3 && words[0] == "PAD" && number(words[1])) {
+      const auto word = [](const std::string& w) {
+        return !w.empty() && w.size() <= 40 && std::all_of(w.begin(), w.end(), [](unsigned char c) {
+          return std::isalnum(c) || c == '.' || c == '_'; });
+      };
+      if (words.size() == 3) return words[2] == "RELEASE" || words[2] == "LIST";
+      if (words.size() == 4) return (words[2] == "MODE" && (words[3] == "HOLD" || words[3] == "LATCH")) ||
+                                    (words[2] == "REMOVE" && number(words[3]));
+      if (words.size() == 5) return (words[2] == "SET" && decimal(words[3]) && decimal(words[4])) ||
+                                    (words[2] == "CHIP" && number(words[3]) && onOff(words[4]));
+      if (words.size() == 6) return words[2] == "ASSIGN" && number(words[3]) && word(words[4]) && word(words[5]);
       return false;
     }
     if (words.size() == 2 && words[0] == "BLACKOUT") return onOff(words[1]);
@@ -3236,12 +3252,12 @@ html,body{width:100%;height:100%;overflow:hidden}
     // without something saying so.
     if (upper == "HELP ALL" || upper == "HELP FULL" || upper == "?? ") {
       sendSnapshot(
-        "DECKBOY_0.01 every verb (398)\n"
+        "DECKBOY_0.01 every verb (400)\n"
         "ADDTIMER ALLGO ALLPAUSE ALLPLAY ALLSTOP ALLTAKE ANIM ANIMATION ARM AUDITION\n"
         "ARTNET ARTNETEVENT ARTNETPORT ART_NET_PORT ASCII ATEM ATEMEVENT\n"
         "ATEMTRIGGER AUDIO AUDIOCUE AUDIOENABLED AUDIOFX AUDIOGAIN AUDIOMONO\n"
         "AUDIONORM AUDIOOUTS AUDIOPAN AUDIOVIS AUDIOVISUAL AUTOADVANCE\n"
-        "MASK MOTION BUGSWAT LESSONS DRAW SLICE SLICES SCREENS CLICK HOVER PRESS KEY TYPE TESTTHROW TRUST COMPANIONPASS SCOPES MIDICLOCK OUTSNAP OUTPROBE UISNAP UIASSETS QUICK QUICKLIST DROPTEST\n"
+        "MASK MOTION BUGSWAT LESSONS RENDER DRAW SLICE SLICES SCREENS CLICK HOVER PRESS KEY TYPE TESTTHROW TRUST COMPANIONPASS SCOPES MIDICLOCK OUTSNAP OUTPROBE UISNAP UIASSETS QUICK QUICKLIST DROPTEST\n"
         "MESH MESH3D SEQ\n"
         "OFFSET OFFSETX OFFSETY ROTATION CROP CROPLEFT CROPRIGHT CROPTOP CROPBOTTOM\n"
         "AUTOID AUTONEXT AVJUMP BLACKOUT DEFAULTS NEWSHOW LIMITER OUTPUTFX OUTPUTS PATCH\n"
@@ -3269,7 +3285,7 @@ html,body{width:100%;height:100%;overflow:hidden}
         "OSC_QUERY_PORT OUT OUTPUTMODE OVERLAY PANIC PANICAUTORESTORE\n"
         "PANICFADE PANICPROFILE PANIC_FADE PANIC_PROFILE PANIC_RESTORE\n"
         "PATTERN PAUSE PAUSEATBEGIN PAUSEATEND PAUSEBEGIN PAUSEEND PHONE POSTWAIT PREWAIT\n"
-        "PAUSEALL PAUSESTART PENDING PING PIP PLAY PLAYLISTAUTOFADE PLAYLISTFADE PLAYLISTLOOP\n"
+        "PAD PAUSEALL PAUSESTART PENDING PING PIP PLAY PLAYLISTAUTOFADE PLAYLISTFADE PLAYLISTLOOP\n"
         "PLAYLISTOPACITY PRESET PREV PREVIOUS REC RECCODEC RESUMEALL RECFORMAT RECORD\n"
         "RECSEGMENT RECTC RENAME RENUMBER RERACK ROUTE SCALE SCALEMODE SCALEX SCALEY SCENE\n"
         "SCHEDULE SECTION SEEK SEEKPOS SELECT SELECTALL SELECTID SFX SHORTID SHUFFLE\n"
@@ -3314,6 +3330,8 @@ html,body{width:100%;height:100%;overflow:hidden}
         "draw:      DRAW [EDITOR ON|OFF] | TOOL brush|erase|line|box|oval|fill | COLOUR #rrggbb|name|1-8 | SIZE % | OPACITY %\n"
         "           DRAW STROKE x,y[,p] ... (%) | UNDO | CLEAR | FRAME ADD|DELETE|NEXT|PREV|n | ONION ON|OFF\n"
         "           DRAW PLAYBACK still|flipbook|replay | FPS n | HOLD s | SAVE STILL|ANIMATION [file] (local)\n"
+        "render:    RENDER START CUE|CUES a-b|OUTPUT 1080P|4K|OUTPUT 25|30|50|60 PRORES|H264|PNG <file> (local) | STATUS | CANCEL | DIALOG\n"
+        "           a file made frame by frame, not a recording: a slow machine takes longer, the file is still exact\n"
         "slices:    SLICE [ADD [name] | REMOVE n | CLEAR] on the focused output; SLICE n CROP x y w h | PLACE x y w h (%)\n"
         "           SLICE n CORNER TL|TR|BR|BL dx dy | EDGE L|R|T|B % | MASK id|NONE | ON|OFF | LINEAR|PERSPECTIVE | NAME text\n"
         "           SLICE n SOURCE PROGRAMME|DECK n | ROTATE IN|OUT deg | FLIP H|V ON|OFF | OPACITY % | LFO X|Y|ROTATION|OPACITY ...\n"
@@ -3414,6 +3432,8 @@ html,body{width:100%;height:100%;overflow:hidden}
         "        VIDEO BLEND ROW <first output> <count> <overlap px> - a row of projectors, left to right\n"
         "        offsets from each corner, as fractions of the layer; 0 0 0 0 0 0 0 0 is no pin\n"
         "        - which playlists composite onto the focused output, and in what order\n"
+        "pad:       PAD <deck> SET <x 0-1> <y 0-1> | RELEASE | MODE HOLD|LATCH | LIST - the phone's X/Y pad (y 1 is the top)\n"
+        "           PAD <deck> ASSIGN <slot> <X> <Y> | REMOVE <slot> | CHIP <slot> ON|OFF - a control is OPACITY, FX<n>.AMOUNT, FX<n>.A-F or NUM.<name>\n"
         "settings: GET [key] | SET <key> <value>   (GET alone lists all 86)\n"
         "dashboard: DASH LIST | DASH <n> | DASH SET <n> <label> | <cmd> [| <glyph>]\n"
         "           DASH CLEAR <n>   (a slot runs any command line above)\n"
@@ -3423,7 +3443,9 @@ html,body{width:100%;height:100%;overflow:hidden}
         "    blends: dissolve add screen multiply lighten darken subtract\n"
         "            undercut infiltrate ember   (no argument cycles)\n"
         "    VJ TAP | VJ BPM <n> | VJ CLOCK <on|off>  (follow an external MIDI clock)\n"
-        "    VJ QUANTISE <on|off> | VJ DECKS <a> <b> | VJ STATUS\n"
+        "    VJ QUANTISE <beat|1|2|4|off|on>  (a take waits for the next beat, or 1, 2 or 4 bars)\n"
+        "    VJ LINK <on|off|status>  (join the Ableton Link session: its tempo and its bars)\n"
+        "    VJ DECKS <a> <b> | VJ STATUS\n"
         "effects: FX LIST | FX ADD <effect> [amount] | FX AMOUNT <n> <0-1> | FX GET <n> | FX CLEAR\n"
         "         FX PARAM <n> <A-F> <0-1>   (each effect's own shaping controls)\n"
         "         FX CHOICE <n> <A|B> <name>   (a setting from a list: Melt direction, Tape speed...)\n"
@@ -5359,7 +5381,8 @@ html,body{width:100%;height:100%;overflow:hidden}
         } else {
           midiClockBpm_ = midiClockBpm_ * 0.7 + bpm * 0.3;
         }
-        if (project_.midiClockSlave) {
+        // Link wins when both are on: two clocks proposing tempos would argue.
+        if (project_.midiClockSlave && !project_.vjLinkEnabled) {
           setVjTempo(midiClockBpm_);
         }
         break;

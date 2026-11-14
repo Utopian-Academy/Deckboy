@@ -3245,3 +3245,1279 @@ whole picture	화면 전체
 FX CHOICE: choice must be A or B	FX CHOICE: 선택은 A 또는 B여야 합니다
 FX CHOICE: no effect at that index	FX CHOICE: 해당 색인에 이펙트 없음
 FX LFO: slot is A-D for the parameters, E for the amount, F and G for the fifth and sixth (or 0-6)	FX LFO: 슬롯은 파라미터는 A-D, 양은 E, 다섯 번째와 여섯 번째는 F와 G (또는 0-6)
+angle	각도
+attack	어택
+azimuth	방위각
+band curve	대역 곡선
+bands	대역
+base layer	기본 레이어
+bits	비트
+black point	블랙 포인트
+bleed	번짐
+block glitch	블록 글리치
+block size	블록 크기
+blocks	블록
+blur	블러
+bright	밝음
+buzzer	버저
+by brightness	밝기순
+catch	포착
+caustics	집광 무늬
+channel skew	채널 틀어짐
+channel spread	채널 확산
+character	문자
+chop	촙
+coherence	결맞음
+colour bleed	색 번짐
+colour drift	색 드리프트
+colour lag	색 지연
+colour replace	색 대체
+columns	열
+convergence	수렴
+copies	복사본
+corrupt	손상
+corruption	손상도
+coupling	결합
+crystallise	결정화
+curl detail	소용돌이 세부
+curves	곡선
+cut bright	밝은 영역 컷
+cut dark	어두운 영역 컷
+cut reset	컷 리셋
+cutoff	컷오프
+cuts	컷
+cyan	시안
+damage	손상
+damping	감쇠
+dark	어두움
+darkness	어두운 정도
+deck age	데크 노후도
+depth	깊이
+depth split	깊이 분리
+diamond	마름모
+distance	거리
+doppler	도플러
+dots move	점 이동
+drift	드리프트
+drip	흘러내림
+drips	물방울
+drive	드라이브
+dye advect	염료 이류
+edge ignite	가장자리 발화
+edges	가장자리
+empty	비어 있음
+extended	확장
+facet light	면 조명
+falloff	감쇠
+falsecolour	폴스 컬러
+feed rate	공급 속도
+feedback bloom	피드백 블룸
+ferrofluid	자성 유체
+field of view	시야각
+flash length	플래시 길이
+flash to	플래시 대상
+flicker	플리커
+floor	하한
+flow	흐름
+focus	초점
+fold	접기
+fold point	접힘 지점
+frames	프레임
+frequency	주파수
+gap	간격
+gather	모임
+glow	글로우
+glyph set	글리프 세트
+gong	공
+grain	그레인
+grain flow	그레인 흐름
+grain size	그레인 크기
+green split	녹색 분리
+grid	격자
+growl	으르렁거림
+growth	성장
+head wear	헤드 마모
+heat	열
+highlight roll	하이라이트 롤오프
+histogram	히스토그램
+horizontal	가로
+hue turn	색조 회전
+ice	얼음
+ink	잉크
+interference	간섭
+irregularity	불규칙도
+jump	점프
+kaleido	만화경
+kaleidoscope	만화경 효과
+knee	니
+knife angle	칼날 각도
+leak	누출
+let go	놓기
+lift	리프트
+light	빛
+light angle	조명 각도
+lightspeed	광속
+line colour	선 색상
+line glow	선 글로우
+lissajous	리사주
+luma displace	루마 변위
+luma key	루마 키
+material	재질
+melt	녹이기
+memory	메모리
+midtones	중간톤
+moire	모아레
+mono	모노
+mosaic	모자이크
+motion mosh	모션 모시
+motion puppet	모션 퍼펫
+motion trails	모션 잔상
+night eyes	야간 시야
+no colour	색 없음
+noise	노이즈
+not connected	연결 안 됨
+nothing drawn	그린 내용 없음
+off-axis	축외
+offline	오프라인
+orbit speed	공전 속도
+overflow	오버플로
+parade	퍼레이드
+parallax	시차
+phone	전화
+pinch	오므리기
+ping-pong	핑퐁
+pink noise	핑크 노이즈
+pitch	피치
+pivot	피벗
+pixel sort	픽셀 정렬
+plasma	플라스마
+polar warp	극좌표 왜곡
+posterise	포스터화
+radial zoom	방사형 줌
+radio	라디오
+radius	반경
+ramp	램프
+range	범위
+ratio	비율
+reach	도달 범위
+reaction bloom	반응 블룸
+recordings	녹화 파일
+recovering	복구 중
+refresh	새로 고침
+release	릴리스
+relief	양각
+relight	재조명
+repeat width	반복 폭
+resonance	공명
+reverse	반전
+rgb split	RGB 분리
+rings	고리
+ripple	잔물결
+rising	상승
+rod bias	간상세포 편향
+room	룸
+rot	부식
+rotation	회전
+round	둥글게
+sag	처짐
+saw	톱니파
+scanlines	주사선
+schlieren	슐리렌
+scope	스코프
+second mode	두 번째 모드
+see through	투과
+seed density	시드 밀도
+self	자체
+settle	안정화
+shadow lift	그림자 리프트
+shake	흔들림
+shard size	파편 크기
+sharpen	선명하게
+sheen	윤기
+sideways	옆으로
+slit scan	슬릿 스캔
+slit width	슬릿 폭
+smear	번짐 효과
+softness	부드러움
+solarise	솔라리제이션
+spike count	돌기 수
+spike length	돌기 길이
+spin	스핀
+spinning	회전 중
+spring	스프링
+sprite sheet	스프라이트 시트
+square	사각파
+steps	단계
+stereogram	스테레오그램
+stiffness	강성
+sting	스팅
+strength	강도
+strobe	스트로브
+stroke	획
+sway	흔들기
+sweep	스윕
+sweep speed	스윕 속도
+swell speed	너울 속도
+symbols	기호
+system default	시스템 기본값
+system output	시스템 출력
+tape	테이프
+tape age	테이프 노후도
+tear width	찢김 폭
+temporal dither	시간 디더
+test signal	테스트 신호
+text to send	보낼 텍스트
+threshold	임계값
+throw	투사량
+tile size	타일 크기
+tilt	틸트
+time	시간
+time cube	타임 큐브
+tint	틴트
+tint colour	틴트 색상
+tracking	트래킹
+trail	잔상
+transparent	투명
+triangle	삼각파
+triple beep	삼중 비프
+turn	돌리기
+twist	비틀기
+unavailable	사용 불가
+unbalanced )	짝이 없는 )
+vapor	증기
+vector	벡터
+vertical	세로
+vertical bias	수직 편향
+vibrato	비브라토
+vignette	비네트
+wash out	색 바램
+wave height	파고
+wavefront	파면
+way	방향
+wedges	쐐기
+white	흰색
+white noise	화이트 노이즈
+white point	화이트 포인트
+window hidden	창 숨김
+window minimized	창 최소화됨
+wire	와이어
+wrong display	잘못된 디스플레이
+zoom	줌
+(choose cue)	(큐 선택)
+(missing)	(없음)
+(no slots)	(슬롯 없음)
+(set media file)	(미디어 파일 설정)
+(set url)	(url 설정)
+A number	숫자
+across the grain	결 가로 방향
+additive	가산
+alternating	교대
+amber	호박색
+Audio bitrate	오디오 비트레이트
+Audio reactivity	오디오 반응
+Brush opacity	브러시 불투명도
+Brush size	브러시 크기
+cancelled	취소됨
+Canvas Height	캔버스 높이
+Canvas View	캔버스 보기
+Canvas Width	캔버스 너비
+Centre X	중심 X
+Centre Y	중심 Y
+Control change	컨트롤 체인지
+Cue Notes	큐 메모
+Custom Glyphs	사용자 글리프
+Density	밀도
+Detail	세부
+Draw colour	그리기 색상
+empty expression	빈 수식
+export as .png or .svg	.png 또는 .svg로 내보내기
+Fixture address	조명기 주소
+Fixture name	조명기 이름
+Fixture universe	조명기 유니버스
+Height	높이
+Height (px)	높이 (px)
+Key Color	키 색상
+Keyframe interval	키프레임 간격
+Live Browser	라이브 브라우저
+Live Source	라이브 소스
+Mask opacity	마스크 불투명도
+Mask rotation	마스크 회전
+Mask scale	마스크 배율
+Mask X	마스크 X
+Mask Y	마스크 Y
+Add Browser Cue	브라우저 큐 추가
+Add NDI Source Cue	NDI 소스 큐 추가
+Add Stream Cue	스트림 큐 추가
+Art-Net Destination	Art-Net 대상
+ASCII 95 (density)	ASCII 95 (밀도)
+ASCII 95 (raw)	ASCII 95 (원시)
+ASIO is off	ASIO 꺼짐
+ATEM Input	ATEM 입력
+Attach Lower Third	Lower Third 부착
+Attach PIP Overlay	PIP 오버레이 부착
+Attack	어택
+Bands	대역
+Blobs	덩어리
+BOTH	둘 다
+Browser Ready	브라우저 준비됨
+CLASSIC	클래식
+CLOCK	클록
+Companion/OSC Port	Companion/OSC 포트
+control 1	컨트롤 1
+control 2	컨트롤 2
+control 3	컨트롤 3
+control 4	컨트롤 4
+could not reach github	github에 연결할 수 없음
+could not read the PDF	PDF를 읽을 수 없음
+could not start ffmpeg	ffmpeg를 시작할 수 없음
+Cue Goto	큐로 이동
+Custom Output Raster	사용자 출력 래스터
+Default Cue Fade	기본 큐 페이드
+Destination Address	대상 주소
+Destination UDP port	대상 UDP 포트
+display native	디스플레이 기본
+Display none	디스플레이 없음
+DMX Channels	DMX 채널
+EXTREME	극단
+Feedback zoom	피드백 줌
+Find Cue	큐 찾기
+Find+Take Cue	큐 찾기+TAKE
+Fire at a time of day	지정 시각에 실행
+Fire on a MIDI note	MIDI 노트로 실행
+Fire on an OSC address	OSC 주소로 실행
+First channel (1-512)	첫 채널 (1-512)
+Flipbook rate	플립북 속도
+Flow	흐름
+Frequency	주파수
+Glitch	글리치
+GOTO Cue	GOTO 큐로 이동
+Grey	회색
+In time	진입 시간
+Its name, number or id	이름, 번호 또는 id
+Key sender source name	키 송신 소스 이름
+Legacy Cue Link	이전 큐 링크
+Lissajous (L/R phase)	리사주 (L/R 위상)
+Lower Third - subtitle	Lower Third - 부제
+Lower Third - title	Lower Third - 제목
+Lower Third Subtext	Lower Third 보조 텍스트
+Lower Third Title	Lower Third 제목
+Media	미디어
+Melt	녹이기
+Milliseconds 0-5000	밀리초 0-5000
+Mod depth	변조 깊이
+Mod ratio	변조 비율
+music & sparkle	음악과 반짝임
+NDI Key Name	NDI 키 이름
+NDI Name	NDI 이름
+NDI Source Name	NDI 소스 이름
+NEXT	다음
+NMC Port	NMC 포트
+NMC Source	NMC 소스
+NMC Target	NMC 대상
+NMOS Interface Name	NMOS 인터페이스 이름
+NMOS Node Port	NMOS 노드 포트
+NMOS Registry	NMOS 레지스트리
+no ASIO in this build	이 빌드에 ASIO 없음
+no driver named	해당 이름의 드라이버 없음
+no mask made	마스크 없음
+no release found	릴리스를 찾을 수 없음
+no X display to read	읽을 X 디스플레이 없음
+not on this output	이 출력에 없음
+Note	노트
+Note off	노트 오프
+Note on	노트 온
+OSC Address	OSC 주소
+OSC Query HTTP Port	OSC 쿼리 HTTP 포트
+Out time	퇴장 시간
+Output Alpha	출력 알파
+Output Canvas	출력 캔버스
+Output Delay	출력 지연
+output fault	출력 오류
+Output name	출력 이름
+Output Refresh	출력 새로 고침
+own playlist	자체 재생 목록
+Payload	페이로드
+Percent 0-100	백분율 0-100
+Phrases	문구
+PIP Target Cue	PIP 대상 큐
+Pixel density	픽셀 밀도
+Playlist Start TC	재생 목록 시작 TC
+Playlist Timebase	재생 목록 타임베이스
+Plugin	플러그인
+Portal	포털
+Practice show	연습 쇼
+PREVIOUS	이전
+Program change	프로그램 체인지
+Prompter script	프롬프터 원고
+pulse 25%	펄스 25%
+QUALITY	품질
+Raw bytes	원시 바이트
+Raw MIDI Bytes	원시 MIDI 바이트
+Release	릴리스
+Rename cue	큐 이름 변경
+Rename fixture	조명기 이름 변경
+Renumber Cues	큐 번호 다시 지정
+Replay hold	리플레이 유지
+Retrigger	재트리거
+Rim	테두리
+Rotation	회전
+runtime unavailable	런타임 사용 불가
+Save Warp Preset	워프 프리셋 저장
+SCOPES	스코프
+Seconds (0-30)	초 (0-30)
+Sender source name	송신 소스 이름
+size out of range	크기가 범위를 벗어남
+Smear	번짐 효과
+Source Ready	소스 준비됨
+Spout Sender Name	Spout 송신 이름
+Sprite spin	스프라이트 회전
+SRT latency	SRT 지연
+SRT passphrase	SRT 암호문
+SRT stream ID	SRT 스트림 ID
+ST 2110 Destination	ST 2110 대상
+ST 2110 Port	ST 2110 포트
+Step length	단계 길이
+stream restart needed	스트림 재시작 필요
+Stream URL	스트림 URL
+stream write failed	스트림 쓰기 실패
+SUBTLE	미세
+Switcher IP address	스위처 IP 주소
+Timer Message	타이머 메시지
+TSL Tally	TSL 탤리
+Turn	돌리기
+Twist	비틀기
+Universe (0-63999)	유니버스 (0-63999)
+URL or local page path	URL 또는 로컬 페이지 경로
+Video bitrate	비디오 비트레이트
+Video dip fade	비디오 딥 페이드
+vMix HTTP Port	vMix HTTP 포트
+vMix TCP Port	vMix TCP 포트
+Web Monitor PIN	웹 모니터 PIN
+Web Monitor Port	웹 모니터 포트
+What it runs	실행 항목
+Which cue	대상 큐
+X,Y offset in pixels	X,Y 오프셋(픽셀)
+Zoom	줌
+a name for this step	이 단계의 이름
+A number, or blank for none	숫자, 없으면 비워 두기
+A command line, or blank for nothing	명령줄, 실행하지 않으려면 비워 두기
+a playlist that is gone	더 이상 없는 재생 목록
+a target cannot target another target	대상은 다른 대상을 지정할 수 없음
+add an output to scope it	스코프로 볼 출력을 추가하세요
+an ASIO stream is already open	ASIO 스트림이 이미 열려 있음
+another app is holding the pointer	다른 앱이 포인터를 점유 중
+built without ASIO support	ASIO 지원 없이 빌드됨
+built without NDI SDK headers	NDI SDK 헤더 없이 빌드됨
+channel count must be at least 1	채널 수는 1 이상이어야 함
+comma outside a function call	함수 호출 밖의 쉼표
+could not start the PDF renderer	PDF 렌더러를 시작할 수 없음
+could not write the export script	내보내기 스크립트를 쓸 수 없음
+couldn't open explorer	탐색기를 열 수 없음
+couldn't open file manager	파일 관리자를 열 수 없음
+couldn't open finder	파인더를 열 수 없음
+driver refused to start	드라이버가 시작을 거부함
+driver reports no output channels	드라이버에 출력 채널이 없음
+driver would not create output buffers	드라이버가 출력 버퍼를 만들지 못함
+driver would not load (in use by another application?)	드라이버를 로드하지 못함(다른 앱에서 사용 중?)
+driver would not report a buffer size	드라이버가 버퍼 크기를 보고하지 않음
+driver would not report channel info	드라이버가 채널 정보를 보고하지 않음
+escaped to windowed	창 모드로 전환됨
+ffmpeg made no file	ffmpeg가 파일을 만들지 않음
+ffmpeg stopped taking frames	ffmpeg가 프레임 수신을 중단함
+fullscreen dropped	전체 화면이 해제됨
+it could not be started	시작할 수 없음
+LibreOffice could not be run	LibreOffice를 실행할 수 없음
+LibreOffice produced no PDF	LibreOffice가 PDF를 만들지 않음
+libX11 is not installed	libX11이 설치되지 않음
+lost the session bus	세션 버스 연결이 끊김
+macOS could not read the PDF	macOS가 PDF를 읽을 수 없음
+no pages could be rendered	렌더링할 수 있는 페이지 없음
+not a MIDI file (no MThd header)	MIDI 파일이 아님(MThd 헤더 없음)
+not while a cue is playing	큐 재생 중에는 불가
+only a background in it	배경만 있음
+opened in explorer	탐색기에서 열림
+opened in file manager	파일 관리자에서 열림
+pdftoppm produced no pages	pdftoppm이 페이지를 만들지 않음
+PowerPoint could not export this file	PowerPoint가 이 파일을 내보낼 수 없음
+release has no build for this platform	이 플랫폼용 릴리스 빌드가 없음
+revealed in finder	파인더에서 표시됨
+target cue is gone	대상 큐가 사라짐
+targets nothing	대상이 없음
+the document has no pages	문서에 페이지가 없음
+the file has no playable events	파일에 재생 가능한 이벤트가 없음
+the file is empty	파일이 비어 있음
+the header is truncated	헤더가 잘림
+the NDI runtime is not installed	NDI 런타임이 설치되지 않음
+the PDF renderer produced no pages	PDF 렌더러가 페이지를 만들지 않음
+the screen could not be read there	해당 위치의 화면을 읽을 수 없음
+the show plays through ASIO	쇼가 ASIO로 재생됨
+the time division is not readable	시간 분할 정보를 읽을 수 없음
+this build has no X11 support	이 빌드는 X11을 지원하지 않음
+update: could not start the installer	업데이트: 설치 프로그램을 시작할 수 없음
+update: could not start the install helper	업데이트: 설치 도우미를 시작할 수 없음
+update: could not write the install helper	업데이트: 설치 도우미를 쓸 수 없음
+update: not running from an AppImage	업데이트: AppImage에서 실행 중이 아님
+web audio encoder cannot keep up	웹 오디오 인코더가 처리 속도를 따라가지 못함
+Web Monitor Connections	웹 모니터 연결
+%, 1 to 100 (supports + - * / and ())	%, 1~100 (+ - * / 및 () 지원)
+0-1 (supports + - * / and ())	0-1 (+ - * / 및 () 지원)
+0-100% (supports + - * / and ())	0-100% (+ - * / 및 () 지원)
+0-100%, left to right (supports + - * / and ())	0-100%, 왼쪽에서 오른쪽 (+ - * / 및 () 지원)
+0-100%, top to bottom (supports + - * / and ())	0-100%, 위에서 아래 (+ - * / 및 () 지원)
+Amount 0-100% (supports + - * / and ())	양 0-100% (+ - * / 및 () 지원)
+Colour steps, 2-8 (supports + - * / and ())	색상 단계, 2-8 (+ - * / 및 () 지원)
+Degrees -180..180 (supports + - * / and ())	도 -180..180 (+ - * / 및 () 지원)
+Degrees per second, -720 to 720 (supports + - * / and ())	초당 도, -720~720 (+ - * / 및 () 지원)
+Degrees round the colour wheel, 0-360 (supports + - * / and ())	색상환 각도, 0-360 (+ - * / 및 () 지원)
+Degrees, -360 to 360 (supports + - * / and ())	도, -360~360 (+ - * / 및 () 지원)
+Degrees, 0-360 (supports + - * / and ())	도, 0-360 (+ - * / 및 () 지원)
+Feature size, 0.1-8 (supports + - * / and ())	무늬 크기, 0.1-8 (+ - * / 및 () 지원)
+Frames a second, 1 to 60 (supports + - * / and ())	초당 프레임, 1~60 (+ - * / 및 () 지원)
+Hertz, 20-20000 (supports + - * / and ())	헤르츠, 20-20000 (+ - * / 및 () 지원)
+Horizontal cells, 64-960 (supports + - * / and ())	가로 셀 수, 64-960 (+ - * / 및 () 지원)
+How big a blob grows, 0-1 (supports + - * / and ())	덩어리 성장 크기, 0-1 (+ - * / 및 () 지원)
+How hard it cuts, %, 0 to 100 (supports + - * / and ())	컷 강도, %, 0~100 (+ - * / 및 () 지원)
+How hard the audio drives it, 0-1 (supports + - * / and ())	오디오 구동 강도, 0-1 (+ - * / 및 () 지원)
+How many are alive at once, 3-48 (supports + - * / and ())	동시 활성 수, 3-48 (+ - * / 및 () 지원)
+Palette turn, 0-1 (supports + - * / and ())	팔레트 회전, 0-1 (+ - * / 및 () 지원)
+Pitch in hertz, 20-8000 (supports + - * / and ())	음높이(헤르츠), 20-8000 (+ - * / 및 () 지원)
+Pixel sort amount, 0-1 (supports + - * / and ())	픽셀 정렬 양, 0-1 (+ - * / 및 () 지원)
+Pixels (supports + - * / and ())	픽셀 (+ - * / 및 () 지원)
+Pixels, 64-2160 (supports + - * / and ())	픽셀, 64-2160 (+ - * / 및 () 지원)
+Pixels, 64-3840 (supports + - * / and ())	픽셀, 64-3840 (+ - * / 및 () 지원)
+Scale of the whole graphic, 0.5-2 (supports + - * / and ())	전체 그래픽 배율, 0.5-2 (+ - * / 및 () 지원)
+Seconds between retriggers, 0-8 (supports + - * / and ())	재트리거 간격(초), 0-8 (+ - * / 및 () 지원)
+Seconds the finished drawing stays, 0 to 60 (supports + - * / and ())	완성된 그림 유지 시간(초), 0~60 (+ - * / 및 () 지원)
+Seconds the in move takes, 0-5 (supports + - * / and ())	진입 동작 시간(초), 0-5 (+ - * / 및 () 지원)
+Seconds the out move takes, 0-5 (supports + - * / and ())	퇴장 동작 시간(초), 0-5 (+ - * / 및 () 지원)
+Seconds, 0-4 (supports + - * / and ())	초, 0-4 (+ - * / 및 () 지원)
+Seconds, 0-8 (supports + - * / and ())	초, 0-8 (+ - * / 및 () 지원)
+Size, %, 5 to 400 (supports + - * / and ())	크기, %, 5~400 (+ - * / 및 () 지원)
+Spiral size, 0.25-4 (supports + - * / and ())	나선 크기, 0.25-4 (+ - * / 및 () 지원)
+Spiral strength, 0-4 (supports + - * / and ())	나선 강도, 0-4 (+ - * / 및 () 지원)
+Thickness of the glowing edge, 0-1 (supports + - * / and ())	빛나는 가장자리 두께, 0-1 (+ - * / 및 () 지원)
+Where the eye sits, 0 left to 1 right (supports + - * / and ())	눈 위치, 0 왼쪽~1 오른쪽 (+ - * / 및 () 지원)
+Where the eye sits, 0 top to 1 bottom (supports + - * / and ())	눈 위치, 0 위~1 아래 (+ - * / 및 () 지원)
+% of the picture's height, 0.1 to 20 (supports + - * / and ())	영상 높이의 %, 0.1~20 (+ - * / 및 () 지원)
+-3 to 3: 0 holds, negative runs backwards (supports + - * / and ())	-3~3: 0 유지, 음수는 역재생 (+ - * / 및 () 지원)
+0 classic, 1 fire, 2 ice, 3 neon, 4 mono (supports + - * / and ())	0 클래식, 1 불, 2 얼음, 3 네온, 4 단색 (+ - * / 및 () 지원)
+0 rainbow + grey, 1 rainbow, 2 theme, 3 mono (supports + - * / and ())	0 무지개 + 회색, 1 무지개, 2 테마, 3 단색 (+ - * / 및 () 지원)
+0 zone, 1 twin, 2 flow, 3 saddle, 4 ripple, 5 shear (supports + - * / and ())	0 영역, 1 쌍, 2 흐름, 3 안장, 4 잔물결, 5 전단 (+ - * / 및 () 지원)
+0-100%: 0 holds the field still (supports + - * / and ())	0-100%: 0은 장을 정지 상태로 유지 (+ - * / 및 () 지원)
+0-100%: 50 is 1x, 0 a quarter, 100 four times (supports + - * / and ())	0-100%: 50은 1x, 0은 1/4, 100은 4배 (+ - * / 및 () 지원)
+0-100%: how far the field bends (supports + - * / and ())	0-100%: 장이 휘는 정도 (+ - * / 및 () 지원)
+0-100%: the share of each band drawn as grey stripes (supports + - * / and ())	0-100%: 각 대역에서 회색 줄무늬로 그리는 비율 (+ - * / 및 () 지원)
+Across, % of the width, -100 to 100 (supports + - * / and ())	가로, 너비의 %, -100~100 (+ - * / 및 () 지원)
+Birth, drift and fade rate, 0.1-3 (supports + - * / and ())	생성, 드리프트, 페이드 속도, 0.1-3 (+ - * / 및 () 지원)
+Block displacement and channel tearing, 0-1 (supports + - * / and ())	블록 변위와 채널 찢김, 0-1 (+ - * / 및 () 지원)
+dBFS, -60 to 0 (-18 is EBU alignment) (supports + - * / and ())	dBFS, -60~0(-18은 EBU 기준 레벨) (+ - * / 및 () 지원)
+Down, % of the height, -100 to 100 (supports + - * / and ())	아래로, 높이의 %, -100~100 (+ - * / 및 () 지원)
+Edge out (+) or in (-), % of the height, -25 to 25 (supports + - * / and ())	가장자리 바깥(+) 또는 안쪽(-), 높이의 %, -25~25 (+ - * / 및 () 지원)
+Edge softness, % of the height, 0 to 25 (supports + - * / and ())	가장자리 부드러움, 높이의 %, 0~25 (+ - * / 및 () 지원)
+FDS hardware gain range, 0-63 (supports + - * / and ())	FDS 하드웨어 게인 범위, 0-63 (+ - * / 및 () 지원)
+Fields per frame, 0-4 (1 = one field per rendered frame) (supports + - * / and ())	프레임당 장, 0-4(1 = 렌더 프레임당 장 하나) (+ - * / 및 () 지원)
+How much of each frame feeds the next, 0-0.95 (supports + - * / and ())	각 프레임을 다음에 공급하는 비율, 0-0.95 (+ - * / 및 () 지원)
+How readily neighbours merge, 0 (never) to 1 (supports + - * / and ())	이웃의 병합 용이도, 0(없음)~1 (+ - * / 및 () 지원)
+Internal resolution, 1 (chunky) to 5 (fine) (supports + - * / and ())	내부 해상도, 1(거침)~5(정밀) (+ - * / 및 () 지원)
+Master oscillator rate, 0.01-8 (supports + - * / and ())	마스터 오실레이터 속도, 0.01-8 (+ - * / 및 () 지원)
+Modulator as a ratio of the note, 0.05-16 (supports + - * / and ())	음에 대한 모듈레이터 비율, 0.05-16 (+ - * / 및 () 지원)
+One LED tile's height in pixels, 8-8192 (supports + - * / and ())	LED 타일 하나의 높이(픽셀), 8-8192 (+ - * / 및 () 지원)
+One LED tile's width in pixels, 8-8192 (supports + - * / and ())	LED 타일 하나의 너비(픽셀), 8-8192 (+ - * / 및 () 지원)
+Per-frame zoom of the feedback path, 0.90-1.15 (supports + - * / and ())	프레임별 피드백 경로 줌, 0.90-1.15 (+ - * / 및 () 지원)
+Scanlines, bloom and gun misalignment, 0-1 (supports + - * / and ())	주사선, 블룸, 전자총 정렬 불량, 0-1 (+ - * / 및 () 지원)
+Seconds before it leaves by itself; 0 waits for OUT (supports + - * / and ())	자동 퇴장까지 초, 0은 OUT 대기 (+ - * / 및 () 지원)
+Space under it, as a fraction of the frame, 0-0.8 (supports + - * / and ())	아래 여백의 프레임 비율, 0-0.8 (+ - * / 및 () 지원)
+Turbulence, 0 still to 3 boiling (supports + - * / and ())	난류, 0 정지~3 끓음 (+ - * / 및 () 지원)
+Turns the rim's colours round the wheel, 0-1 (supports + - * / and ())	테두리 색상을 색상환에서 회전, 0-1 (+ - * / 및 () 지원)
+AUTO	자동
+auto (59.94 Hz)	자동 (59.94 Hz)
+BITRATE	비트레이트
+audioprint	오디오프린트
+bohlen-pierce	볼렌-피어스
+chladni	클라드니
+databend	데이터벤드
+datamosh	데이터모시
+Devamp	반복 해제
+Fireside	난롯가
+just	순정률
+meantone	중전음률
+pythagorean	피타고라스 음률
+purkinje	푸르키네
+Ouroboros	우로보로스
+MONO L	모노 L
+MONO R	모노 R
+LOAD NEXT	다음 로드
+MSC Cue Number	MSC 큐 번호
+SYPHON TEXTURE SHARE	SYPHON 텍스처 공유
+SYPHON / SPOUT TEXTURE SHARE	SYPHON / SPOUT 텍스처 공유
+DECODE --.-	디코드 --.-
+DECODE OFF	디코드 OFF
+DECODE WARM	디코드 준비
+OUTPUT --.-	출력 --.-
+OUTPUT WARM	출력 준비
+STREAM --.-	스트림 --.-
+STREAM ERR	스트림 오류
+STREAM OFF	스트림 OFF
+STREAM WARM	스트림 준비
+PROXY 720p	프록시 720p
+hh:mm:ss or seconds	hh:mm:ss 또는 초
+e.g. /cue/1/start	예: /cue/1/start
+e.g. 12.5	예: 12.5
+e.g. 192.168.1.50	예: 192.168.1.50
+e.g. 1=255, 10-14=64	예: 1=255, 10-14=64
+e.g. 20:0 or client name	예: 20:0 또는 클라이언트 이름
+e.g. 90 3C 7F	예: 90 3C 7F
+0-127; 127 is all-call	0-127; 127은 전체 호출
+0-127; the domain the facility's clock runs on	0-127; 시설 클록이 동작하는 도메인
+10-79 characters, or empty for none	10-79자, 없으면 비워 두기
+8+ characters; letters and symbols are allowed	8자 이상; 문자와 기호 허용
+Apple keeps the Keynote format secret on purpose, a malicious lock-in tactic, so only Apple's own software can read it properly. Best route: open it in Keynote on iCloud.com (free, in any browser), choose Download a Copy > PDF, and import that PDF	Apple은 Keynote 형식을 의도적으로 비공개로 유지합니다. 이는 사용자를 묶어 두려는 악의적인 수법으로, Apple 자체 소프트웨어만 제대로 읽을 수 있게 합니다. 가장 좋은 방법: iCloud.com의 Keynote에서 열고(무료, 모든 브라우저), 복사본 다운로드 > PDF를 선택한 뒤 해당 PDF를 가져오세요
+8+ characters; other machines send AUTH <passphrase> first. Empty = off	8자 이상; 다른 기기는 먼저 AUTH <passphrase> 전송. 비워 두면 꺼짐
+A command line, as a DASH button runs it. {value} is the knob's number, {note} the key.	DASH 버튼처럼 실행하는 명령줄. {value}는 노브 값, {note}는 건반입니다.
+an IPv4 address, or 255.255.255.255 to broadcast	IPv4 주소, 브로드캐스트는 255.255.255.255
+browser connections at once, 1-64 (default 8)	동시 브라우저 연결 수, 1-64(기본 8)
+Default Non-Movie Duration	동영상 외 기본 길이
+Fire at incoming timecode	수신 타임코드에 실행
+Hz or AUTO (e.g. 60 or 59.94)	Hz 또는 AUTO(예: 60 또는 59.94)
+kbps (32-512; 160 is a sane default)	kbps (32-512; 160이 적절한 기본값)
+milliseconds (40..2000)	밀리초 (40..2000)
+milliseconds (20-8000; ~4x your RTT)	밀리초 (20-8000; RTT의 약 4x)
+Name visible to receivers	수신 측에 표시되는 이름
+NDI source name (e.g. LAPTOP (source 1))	NDI 소스 이름(예: LAPTOP (source 1))
+OSC Feedback Mirror Rate	OSC 피드백 미러 속도
+Paste the key from your platform	플랫폼의 키를 붙여넣으세요
+paste your stream key here	여기에 스트림 키를 붙여넣으세요
+pixels (of the output raster)	픽셀(출력 래스터 기준)
+position on the output raster, in pixels	출력 래스터에서 위치(픽셀)
+Routing hint for the receiver	수신 측 라우팅 힌트
+seconds (1-10; most platforms want 2)	초(1-10; 대부분의 플랫폼은 2 필요)
+Seconds for new-cue fade in/out defaults	새 큐의 기본 페이드 인/아웃 시간(초)
+seconds this step holds before PLAY moves on	PLAY가 진행되기 전 이 단계를 유지하는 초
+ST 2110 network interface	ST 2110 네트워크 인터페이스
+Target IP (or 255.255.255.255 to broadcast)	대상 IP(브로드캐스트는 255.255.255.255)
+UDP port for transport sync	재생 동기화용 UDP 포트
+Where to send transport (blank = broadcast)	재생 제어 전송 대상(비워 두면 브로드캐스트)
+Which switcher input Deckboy is (0 = not set)	Deckboy에 해당하는 스위처 입력(0 = 미설정)
+AUDIOALSO: expected ADD <name>, REMOVE <name> or CLEAR	AUDIOALSO: 필요한 형식: ADD <name>, REMOVE <name> 또는 CLEAR
+BROWSER KEY: expected Enter|Tab|Backspace|Escape	BROWSER KEY: 필요한 형식: Enter|Tab|Backspace|Escape
+BUGSWAT: expected START, SHOWME, SKIP, PLAY, EXIT or STATUS	BUGSWAT: 필요한 형식: START, SHOWME, SKIP, PLAY, EXIT 또는 STATUS
+CAPTIONS LIVE: expected ON, OFF, STATUS or TEXT	CAPTIONS LIVE: 필요한 형식: ON, OFF, STATUS 또는 TEXT
+CAPTIONS SOURCE: expected INPUT, DECK <n> or OUTPUT <n>	CAPTIONS SOURCE: 필요한 형식: INPUT, DECK <n> 또는 OUTPUT <n>
+DMXCUE FIXTURE: expected <name> <level%>|LEAVE [<colour>]	DMXCUE FIXTURE: 필요한 형식: <name> <level%>|LEAVE [<colour>]
+DMXCUE LFO: expected <name> LEVEL|COLOUR ON|OFF [<rate Hz>] [<depth %>]	DMXCUE LFO: 필요한 형식: <name> LEVEL|COLOUR ON|OFF [<rate Hz>] [<depth %>]
+DMXCUE: expected NEW, SET, FADE, UNIVERSE, HOST, PORT, FIRE or BLACKOUT	DMXCUE: 필요한 형식: NEW, SET, FADE, UNIVERSE, HOST, PORT, FIRE 또는 BLACKOUT
+ENDACTION: expected INHERIT, STOP, LOOP, HOLD or NEXT	ENDACTION: 필요한 형식: INHERIT, STOP, LOOP, HOLD 또는 NEXT
+expected waveform|scope|lissajous|spectrum|level|cover	필요한 형식: waveform|scope|lissajous|spectrum|level|cover
+FADE CURVE: expected linear, ease-in, ease-out or s-curve	FADE CURVE: 필요한 형식: linear, ease-in, ease-out 또는 s-curve
+FADE WHAT: expected opacity, volume, dimmer, brightness, contrast, saturation, hue, effect, audiofx or speed	FADE WHAT: 필요한 형식: opacity, volume, dimmer, brightness, contrast, saturation, hue, effect, audiofx 또는 speed
+FIXTURE ADD: expected <name> dimmer|rgb|rgbw|rgba|drgb|dcct <universe> [<address>]	FIXTURE ADD: 필요한 형식: <name> dimmer|rgb|rgbw|rgba|drgb|dcct <universe> [<address>]
+LOWERSTYLE: expected none, fade, rise, slide, wipe or NEXT	LOWERSTYLE: 필요한 형식: none, fade, rise, slide, wipe 또는 NEXT
+MASK ASSIGN: expected <id|NONE> CUE | LAYER <output> <playlist> | OUTPUT <n> | MATTE <n>	MASK ASSIGN: 필요한 형식: <id|NONE> CUE | LAYER <output> <playlist> | OUTPUT <n> | MATTE <n>
+MASK ASSIGN: expected CUE, LAYER, OUTPUT or MATTE	MASK ASSIGN: 필요한 형식: CUE, LAYER, OUTPUT 또는 MATTE
+MASK EXPORT: expected <id> <file.png|file.svg> [WxH]	MASK EXPORT: 필요한 형식: <id> <file.png|file.svg> [WxH]
+MASK LFO: expected <id> <param> ON|OFF [rate Hz] [depth %]	MASK LFO: 필요한 형식: <id> <param> ON|OFF [rate Hz] [depth %]
+MATRIX SET: expected <source 1-2> <dest> <0-100>	MATRIX SET: 필요한 형식: <source 1-2> <dest> <0-100>
+MATRIX: expected SET <src> <dest> <0-100>, SEED or CLEAR	MATRIX: 필요한 형식: SET <src> <dest> <0-100>, SEED 또는 CLEAR
+MESH: expected on|off|toggle|height|tilt|yaw|spin|grid	MESH: 필요한 형식: on|off|toggle|height|tilt|yaw|spin|grid
+MIC: expected ADD, LIST, INPUT, CHANNEL or GAIN	MIC: 필요한 형식: ADD, LIST, INPUT, CHANNEL 또는 GAIN
+MIDICUE KIND: expected note-on, note-off, cc, program, msc-go, msc-stop, msc-resume or raw	MIDICUE KIND: 필요한 형식: note-on, note-off, cc, program, msc-go, msc-stop, msc-resume 또는 raw
+MIDICUE: expected NEW, PORTS, PORT, KIND, CH, D1, D2, DEVICE, CUENUM, LIST, RAW or SEND	MIDICUE: 필요한 형식: NEW, PORTS, PORT, KIND, CH, D1, D2, DEVICE, CUENUM, LIST, RAW 또는 SEND
+MULTIVIEW LAYOUT: expected GRID, BIG, BIGTOP or TWOTOP	MULTIVIEW LAYOUT: 필요한 형식: GRID, BIG, BIGTOP 또는 TWOTOP
+MULTIVIEW WINDOW: expected PROGRAMME, DECK<n>, OUTPUT<n>, NEXT, CLOCK or EMPTY	MULTIVIEW WINDOW: 필요한 형식: PROGRAMME, DECK<n>, OUTPUT<n>, NEXT, CLOCK 또는 EMPTY
+NETCUE: expected NEW, PROTO, HOST, PORT, ADDRESS, PAYLOAD or SEND	NETCUE: 필요한 형식: NEW, PROTO, HOST, PORT, ADDRESS, PAYLOAD 또는 SEND
+OUTPROBE: expected <output> <x 0-1> <y 0-1>	OUTPROBE: 필요한 형식: <output> <x 0-1> <y 0-1>
+OUTPUT HDR: expected ON, OFF, AUTO, SIGNAL PQ|HLG, WHITE <nits> or STATUS	OUTPUT HDR: 필요한 형식: ON, OFF, AUTO, SIGNAL PQ|HLG, WHITE <nits> 또는 STATUS
+OUTPUTFX ADD: expected hpf, lpf, tilt, comp or width	OUTPUTFX ADD: 필요한 형식: hpf, lpf, tilt, comp 또는 width
+OUTPUTFX: expected ADD, SET, REMOVE, BYPASS, CLEAR or DEVICE	OUTPUTFX: 필요한 형식: ADD, SET, REMOVE, BYPASS, CLEAR 또는 DEVICE
+OUTPUTS ADD: expected <name> CH <n> or CH <n>-<n+1>	OUTPUTS ADD: 필요한 형식: <name> CH <n> 또는 CH <n>-<n+1>
+PATCH: expected <deck> <output> <dB> or OFF	PATCH: 필요한 형식: <deck> <output> <dB> 또는 OFF
+presenter colour: expected BG|INK|ACCENT #rrggbb	presenter colour: 필요한 형식: BG|INK|ACCENT #rrggbb
+PRESET: expected LIST, SAVE, RECALL, UPDATE, SCOPE, RENAME or DELETE	PRESET: 필요한 형식: LIST, SAVE, RECALL, UPDATE, SCOPE, RENAME 또는 DELETE
+rectc: expected <hh:mm:ss:ff|timeofday> [df|ndf|auto]	rectc: 필요한 형식: <hh:mm:ss:ff|timeofday> [df|ndf|auto]
+SCALEMODE: expected fit|fill|stretch|unscaled	SCALEMODE: 필요한 형식: fit|fill|stretch|unscaled
+SCOPES BIG: expected waveform, parade, vector, diamond, histogram, falsecolour, sound or off	SCOPES BIG: 필요한 형식: waveform, parade, vector, diamond, histogram, falsecolour, sound 또는 off
+SCOPES: expected PROGRAM, SCOPES, BOTH, TOGGLE, BIG, FREEZE, MATRIX, SOURCE, STATS or SOUND	SCOPES: 필요한 형식: PROGRAM, SCOPES, BOTH, TOGGLE, BIG, FREEZE, MATRIX, SOURCE, STATS 또는 SOUND
+SECTION: expected playback|metadata|geometry|key|audio|effects|timer|tone|synth	SECTION: 필요한 형식: playback|metadata|geometry|key|audio|effects|timer|tone|synth
+STING: expected ON, PITCH, LENGTH, SWEEP or BODY	STING: 필요한 형식: ON, PITCH, LENGTH, SWEEP 또는 BODY
+TARGET VERB: expected start|stop|pause|resume|load|arm|disarm	TARGET VERB: 필요한 형식: start|stop|pause|resume|load|arm|disarm
+TEXTCUE ALIGN: expected left, centre or right	TEXTCUE ALIGN: 필요한 형식: left, centre 또는 right
+TEXTCUE ANIM: expected none, fade, typewriter, scroll, crawl, pulse or wobble	TEXTCUE ANIM: 필요한 형식: none, fade, typewriter, scroll, crawl, pulse 또는 wobble
+TEXTCUE: expected NEW, BODY, ANIM, SIZE, SPEED, ALIGN, CARD, LOWERNEW, LOWER, TITLE, SUB, LOOK, BAR, ACCENT, SCALE, WIGGLE, IN, OUTMOVE or OUT	TEXTCUE: 필요한 형식: NEW, BODY, ANIM, SIZE, SPEED, ALIGN, CARD, LOWERNEW, LOWER, TITLE, SUB, LOOK, BAR, ACCENT, SCALE, WIGGLE, IN, OUTMOVE 또는 OUT
+TRACKER: expected GO, BACK, PLAY, STOP, STEP <n>, ADD, SET <step> <deck> <cue|STOP|FADE|VOLUME|OPACITY>, MUTE|SOLO <deck>, JUMP <step> <row>, SECTION <step> <name>, VIEW, LOOP or CLICKER	TRACKER: 필요한 형식: GO, BACK, PLAY, STOP, STEP <n>, ADD, SET <step> <deck> <cue|STOP|FADE|VOLUME|OPACITY>, MUTE|SOLO <deck>, JUMP <step> <row>, SECTION <step> <name>, VIEW, LOOP 또는 CLICKER
+TUTORIAL: expected START, SHOWME, SKIP, EXIT, STATUS or SCREENS	TUTORIAL: 필요한 형식: START, SHOWME, SKIP, EXIT, STATUS 또는 SCREENS
+UPDATE: expected check|download|install|status	UPDATE: 필요한 형식: check|download|install|status
+VJ: expected ON|OFF|TOGGLE|MIX <0-1>|BLEND <mode>|TAP|BPM <n>|CLOCK <on|off>|QUANTISE <on|off>|DECKS <a> <b>|STATUS	VJ: 필요한 형식: ON|OFF|TOGGLE|MIX <0-1>|BLEND <mode>|TAP|BPM <n>|CLOCK <on|off>|QUANTISE <on|off>|DECKS <a> <b>|STATUS
+AUDIOFX: expected OFF, BYPASS, or amount and parameters as percentages	AUDIOFX: OFF, BYPASS 또는 양과 매개변수를 백분율로 지정
+BLEND PAIR: expected <other output number> <overlap in pixels>	BLEND PAIR: <other output number> <overlap in pixels> 필요
+BROWSER SCROLL: expected pixels (negative is up)	BROWSER SCROLL: 픽셀 수 필요(음수는 위로)
+CHIP ENV: expected <attack> <release> in seconds	CHIP ENV: <attack> <release> 초 단위로 지정
+DMXCUE SET: expected channel=level pairs, e.g. 1=255,10-14=64	DMXCUE SET: 채널=레벨 쌍 필요, 예: 1=255,10-14=64
+expected one expression, three for colour, or four with alpha	수식 하나, 색상은 세 개, 알파 포함은 네 개 필요
+MASK SET: expected INVERT, X, Y, SCALE, ROTATION, FEATHER, GROW or OPACITY and a number	MASK SET: INVERT, X, Y, SCALE, ROTATION, FEATHER, GROW 또는 OPACITY와 숫자 필요
+MASK SHAPE: expected a shape (MASK SHAPES lists them)	MASK SHAPE: 도형 필요(MASK SHAPES로 목록 확인)
+MASTER DECK: expected a deck number and a cue number	MASTER DECK: 데크 번호와 큐 번호 필요
+MIC INPUT: expected SETTINGS, TEST or a device name (MIC LIST)	MIC INPUT: SETTINGS, TEST 또는 장치 이름(MIC LIST) 필요
+MIDIFILE: expected PORT, or no argument to report it	MIDIFILE: PORT 필요, 인수 없이 현재 값 표시
+MONITOR DECK: expected a playlist number or FOLLOW	MONITOR DECK: 재생 목록 번호 또는 FOLLOW 필요
+MONITOR ROOM: expected a playlist and ON or OFF	MONITOR ROOM: 재생 목록과 ON 또는 OFF 필요
+MULTIVIEW WINDOW <n>: expected a source, or SAFE/METER/LABEL ON|OFF	MULTIVIEW WINDOW <n>: 소스 또는 SAFE/METER/LABEL ON|OFF 필요
+MULTIVIEW WINDOW REMOVE: expected a window number	MULTIVIEW WINDOW REMOVE: 창 번호 필요
+NETCUE ADDRESS: expected an OSC path starting with /	NETCUE ADDRESS: /로 시작하는 OSC 경로 필요
+OUTPUT AOI: expected a size like 256x256, or FULL	OUTPUT AOI: 256x256 같은 크기 또는 FULL 필요
+OUTPUT HDR WHITE: expected 80..500 nits (203 is BT.2408)	OUTPUT HDR WHITE: 80..500니트 필요(203은 BT.2408)
+OUTPUTFX SET: expected an effect number and 0-100	OUTPUTFX SET: 효과 번호와 0-100 필요
+PORTS: expected an http port and a tcp port	PORTS: http 포트와 tcp 포트 필요
+PRELOAD: expected a position in seconds, OFF or STATUS	PRELOAD: 초 단위 위치, OFF 또는 STATUS 필요
+presenter panel: expected <live|prev|next|notes> <x> <y> <w> <h> in percent	presenter panel: <live|prev|next|notes> <x> <y> <w> <h> 백분율로 지정
+SCOPES SOURCE: expected PROGRAMME or an output number, 1-	SCOPES SOURCE: PROGRAMME 또는 출력 번호 필요, 1-
+STREAM ADD: expected a URL, e.g. srt://host:port	STREAM ADD: URL 필요, 예: srt://host:port
+TARGET CUE: expected a deck number and a cue number	TARGET CUE: 데크 번호와 큐 번호 필요
+TEXTCUE SIZE: expected 1-100 (percent of the raster)	TEXTCUE SIZE: 1-100 필요(래스터 백분율)
+TUTORIAL SCREENS: expected a count, MIRRORED or REAL	TUTORIAL SCREENS: 개수, MIRRORED 또는 REAL 필요
+VIDEO OUTPUT LAYER: expected a layer number (1 is the base)	VIDEO OUTPUT LAYER: 레이어 번호 필요(1은 기본)
+VIDEO OUTPUT LAYERWARP: expected OFF, MODE, or eight numbers clockwise from the top left	VIDEO OUTPUT LAYERWARP: OFF, MODE 또는 왼쪽 위부터 시계 방향으로 숫자 8개 필요
+warp grid: expected <n>, <cols> <rows>, off, smooth or straight	warp grid: <n>, <cols> <rows>, off, smooth 또는 straight 필요
+WARP SELECT: expected TL, TR, BR, BL or a grid <col> <row>	WARP SELECT: TL, TR, BR, BL 또는 격자 <col> <row> 필요
+How big each tile is.	각 타일의 크기입니다.
+How big the crystals grow before they meet.	결정이 서로 만나기 전까지 자라는 크기입니다.
+How closely spaced the rings are.	고리 사이의 간격입니다.
+How far a band can slide.	띠가 미끄러질 수 있는 거리입니다.
+How far each shard slides from where it belongs.	각 파편이 원래 위치에서 미끄러지는 거리입니다.
+How far each stroke is dragged along the grain.	각 획을 결 방향으로 끄는 거리입니다.
+How far it smears: up to a few percent of the picture.	번지는 거리로, 영상의 몇 퍼센트까지입니다.
+How far out the darkening starts.	어두워지기 시작하는 바깥쪽 위치입니다.
+How far the bright parts pull away from the surface.	밝은 부분이 표면에서 떨어져 나오는 거리입니다.
+How far the glow spreads.	글로우가 퍼지는 거리입니다.
+How far the sound throws each line sideways.	소리가 각 줄을 옆으로 밀어내는 거리입니다.
+How fast the sand travels to the still lines.	모래가 정지한 선으로 이동하는 속도입니다.
+How fast the surface moves.	표면이 움직이는 속도입니다.
+How fast they travel outward.	바깥으로 이동하는 속도입니다.
+How gradually the key cuts in. Hard at the left.	키가 적용되는 점진성입니다. 왼쪽은 경계가 뚜렷합니다.
+How hard it is driven into its own limits.	자체 한계까지 밀어붙이는 강도입니다.
+How hard the short hits.	쇼트가 발생하는 강도입니다.
+How many shades survive the quantise.	양자화 후 남는 명암 단계 수입니다.
+How many spikes the field breaks into.	장이 나뉘는 돌기의 수입니다.
+How many torn bands per frame.	프레임당 찢긴 띠의 수입니다.
+How much each shard turns on its own centre.	각 파편이 자기 중심을 기준으로 회전하는 양입니다.
+How much the edges are lifted.	가장자리를 들어 올리는 양입니다.
+How much the flame gutters frame to frame.	프레임 사이 불꽃이 흔들리며 약해지는 정도입니다.
+How often it skips.	건너뛰는 빈도입니다.
+How quickly the loop relaxes when nothing feeds it.	입력이 없을 때 루프가 가라앉는 속도입니다.
+How strongly the outlines are drawn.	윤곽선을 그리는 강도입니다.
+How strongly the water bends the picture.	물이 영상을 휘게 하는 강도입니다.
+Darkens the boundaries where crystals meet.	결정이 만나는 경계를 어둡게 합니다.
+Lifts the dark tones without moving pure black.	순수한 검정은 유지하며 어두운 톤을 올립니다.
+Pushes the rings in or out of the centre.	고리를 중심 안쪽 또는 바깥쪽으로 밉니다.
+Rounds the tiles off, all the way to dots.	타일을 둥글게 하며 끝까지 올리면 점이 됩니다.
+Softens the fold so it ramps instead of creasing.	접힘을 부드럽게 하여 날카로운 주름 대신 완만한 경사를 만듭니다.
+Where the filter sits.	필터의 위치입니다.
+Which way it drips.	흘러내리는 방향입니다.
+8 zones already: click one to remove it first	이미 영역이 8개입니다. 먼저 하나를 클릭해 제거하세요
+AUDIOALSO ADD: seven extra destinations is the limit	AUDIOALSO ADD: 추가 대상은 최대 7개입니다
+AUDIOALSO ADD: that is already this deck's main device -- it would play twice	AUDIOALSO ADD: 이미 이 데크의 주 장치입니다. 소리가 두 번 재생됩니다
+AUDIOFX PLUGIN: this build has no plugin host	AUDIOFX PLUGIN: 이 빌드에 플러그인 호스트가 없음
+BROWSER CLICK: this browser backend cannot drive the page	BROWSER CLICK: 이 브라우저 백엔드는 페이지를 조작할 수 없음
+BROWSER SCROLL: this browser backend cannot drive the page	BROWSER SCROLL: 이 브라우저 백엔드는 페이지를 조작할 수 없음
+BROWSER SCROLLBAR: this browser backend cannot drive the page	BROWSER SCROLLBAR: 이 브라우저 백엔드는 페이지를 조작할 수 없음
+BROWSER INTERACT: this browser backend has no hands-on mode	BROWSER INTERACT: 이 브라우저 백엔드는 직접 조작 모드가 없음
+BROWSER TYPE: this browser backend cannot type	BROWSER TYPE: 이 브라우저 백엔드는 텍스트를 입력할 수 없음
+LOWERSTYLE: this cue is not a Lower Third	LOWERSTYLE: 이 큐는 Lower Third가 아님
+MIDIFILE: the selected cue is not a midi file cue	MIDIFILE: 선택한 큐는 MIDI 파일 큐가 아님
+NETCUE: the selected cue is not a network cue	NETCUE: 선택한 큐는 네트워크 큐가 아님
+SCRIPTCUE: the selected cue is not a script cue	SCRIPTCUE: 선택한 큐는 스크립트 큐가 아님
+SYNTH: the selected cue is not a video synth	SYNTH: 선택한 큐는 비디오 신스가 아님
+TCCUE: the selected cue is not a timecode cue	TCCUE: 선택한 큐는 타임코드 큐가 아님
+TEXTCUE: the selected cue is not a text cue	TEXTCUE: 선택한 큐는 텍스트 큐가 아님
+SLICE ADD: already 16 slices on this output	SLICE ADD: 이 출력에 이미 슬라이스가 16개 있음
+VIDEO OUTPUT ASSIGN: already on this output, or no such deck or output	VIDEO OUTPUT ASSIGN: 이미 이 출력에 있거나 해당 데크 또는 출력이 없음
+VIDEO OUTPUT LAYER: this deck is not on this output, or it is already at that layer	VIDEO OUTPUT LAYER: 이 데크가 이 출력에 없거나 이미 해당 레이어에 있음
+VIDEO OUTPUT UNASSIGN: this deck is not on this output, or it is the only thing on it	VIDEO OUTPUT UNASSIGN: 이 데크가 이 출력에 없거나 유일한 항목임
+port number (default 5510)	포트 번호(기본 5510)
+port number (default 5511)	포트 번호(기본 5511)
+port number (default 6454)	포트 번호(기본 6454)
+port number (default 8090)	포트 번호(기본 8090)
+port number (vMix uses 8088)	포트 번호(vMix는 8088 사용)
+port number (vMix uses 8099)	포트 번호(vMix는 8099 사용)
+Prefix (optional). Example: Q	접두사(선택 사항). 예: Q
+Prefix and optional start (example: Q 100)	접두사와 시작 번호(선택 사항, 예: Q 100)
+WIDTHxHEIGHT (e.g. 2560x1080)	너비x높이(예: 2560x1080)
+WIDTHxHEIGHT (e.g. 5760x2160)	너비x높이(예: 5760x2160)
+#rrggbb -- the colour of the presenter screen	#rrggbb -- 발표자 화면 색상
+#rrggbb, or a name (red, teal...)	#rrggbb 또는 이름(red, teal...)
+Cue name (blank restores the file name)	큐 이름(비워 두면 파일 이름 복원)
+Leave empty to follow the live cue notes	라이브 큐 메모를 따르려면 비워 두세요
+Multicast group (e.g. 239.20.10.1)	멀티캐스트 그룹(예: 239.20.10.1)
+Port the Node + Connection API serve on	Node + Connection API 서비스 포트
+NIC address or name; empty = the default route	NIC 주소 또는 이름; 비워 두면 기본 경로
+NIC name reported in interface_bindings (e.g. eth0)	interface_bindings에 보고된 NIC 이름(예: eth0)
+flow (follows the picture)	흐름(영상 추적)
+Above halfway, the repeated piece plays backwards.	중간보다 높으면 반복 구간을 역재생합니다.
+The brightness that decides black from white.	검정과 흰색을 구분하는 밝기입니다.
+The colour to change, round the wheel from red.	바꿀 색상으로, 빨강부터 색상환을 따라 지정합니다.
+no picture on this cue - nothing to follow	이 큐에 영상이 없어 추적할 대상이 없음
+this cue has no known end to resolve into	이 큐는 효과가 수렴할 끝 지점을 알 수 없음
+only a MIDI note or an OSC address can take a cue	MIDI 노트 또는 OSC 주소만 큐를 TAKE할 수 있음
+The bright net the waves focus onto the picture.	파도가 영상에 모으는 밝은 그물무늬입니다.
+can't move the active cue -- take another cue on this deck first	활성 큐를 이동할 수 없습니다 -- 먼저 이 데크에서 다른 큐를 송출하세요
+cancelled: the waiting cue is no longer in the playlist	취소됨: 대기 중인 큐가 재생 목록에 없습니다
+could not create an OpenGL context for Spout receive	Spout 수신용 OpenGL 컨텍스트를 만들 수 없습니다
+could not create the offscreen window Spout receive needs	Spout 수신에 필요한 오프스크린 창을 만들 수 없습니다
+could not get a device context for Spout receive	Spout 수신용 장치 컨텍스트를 가져올 수 없습니다
+couldn't decode still image — unsupported format or corrupt file	정지 이미지를 디코딩할 수 없습니다 — 지원하지 않는 형식이거나 손상된 파일
+couldn't open a browser -- please report at github.com/Utopian-Academy/Deckboy/issues	브라우저를 열 수 없습니다 -- github.com/Utopian-Academy/Deckboy/issues에 신고하세요
+downloading the caption model, then listening...	자막 모델을 다운로드한 후 듣기를 시작합니다...
+drag the panels to arrange the presenter screen	패널을 끌어 발표자 화면을 배치하세요
+encoder destination: _converted beside the show	인코더 저장 위치: 쇼 파일 옆의 _converted
+fetching the speech model - captions start when it arrives	음성 모델을 가져오는 중 - 완료되면 자막이 시작됩니다
+four effects at most on one device: remove one first	장치당 효과는 최대 4개입니다: 먼저 하나를 제거하세요
+live captions are not installed here (deckboy-listen was not found)	실시간 자막이 설치되지 않았습니다(deckboy-listen을 찾을 수 없음)
+Lower Third added - put its playlist on a layer	Lower Third 추가됨 - 재생 목록을 레이어에 배치하세요
+mic live on the default speakers - watch for feedback	기본 스피커로 마이크가 출력 중입니다 - 하울링에 주의하세요
+network sharing and phone control require an 8+ character passphrase	네트워크 공유와 휴대폰 제어에는 8자 이상의 암호가 필요합니다
+no filled shapes in it (paths, rectangles, circles, ellipses or polygons)	채워진 도형이 없습니다(경로, 사각형, 원, 타원 또는 다각형)
+no masks yet: make one in a cue's MASK section	마스크가 없습니다: 큐의 MASK 영역에서 만드세요
+no OpenGL pixel format available for Spout receive	Spout 수신에 사용할 OpenGL 픽셀 형식이 없습니다
+no picture - shorts run on a timer instead of on cuts	영상 없음 - 쇼트가 컷 대신 타이머로 작동합니다
+no picture on this cue - nothing decides where the playhead is	이 큐에는 영상이 없습니다 - 재생 헤드 위치를 결정할 입력이 없습니다
+no picture on this cue - nothing to close the loop through	이 큐에는 영상이 없습니다 - 루프를 닫을 입력이 없습니다
+no video clock on this cue - nothing to lock to	이 큐에는 영상 클록이 없습니다 - 동기화할 기준이 없습니다
+normalize all: no file-backed audio in this deck	전체 정규화: 이 데크에 파일 기반 오디오가 없습니다
+nothing to mask here: select a cue, or change MASK ON	마스크 대상이 없습니다: 큐를 선택하거나 MASK ON을 변경하세요
+offset in percent of the picture	영상 대비 오프셋(%)
+output effects bypassed: no effect and no limit on this device	출력 효과 우회됨: 이 장치의 효과와 제한이 해제됩니다
+over 16 MB: not a drawing to make a mask from	16 MB 초과: 마스크를 만들 수 있는 그림이 아닙니다
+pair with a picture effect whose LFO is set to Audio	LFO가 Audio로 설정된 영상 효과와 함께 사용하세요
+paired phones removed: they need the QR code or the passphrase again	페어링된 휴대폰 제거됨: QR 코드 또는 암호가 다시 필요합니다
+phone control requires an 8+ character passphrase	휴대폰 제어에는 8자 이상의 암호가 필요합니다
+save failed - retrying; still open, use SAVE AS if needed	저장 실패 - 재시도 중입니다. 아직 열려 있으니 필요하면 SAVE AS를 사용하세요
+set an 8+ character Web Monitor passphrase first	먼저 웹 모니터에 8자 이상의 암호를 설정하세요
+the caption model has not been downloaded yet	자막 모델이 아직 다운로드되지 않았습니다
+the desktop portal did not answer	데스크톱 포털이 응답하지 않았습니다
+the file is empty (0 bytes): it may not have finished copying or saving	파일이 비어 있습니다(0바이트): 복사나 저장이 완료되지 않았을 수 있습니다
+the installed NDI runtime is missing entry points this needs	설치된 NDI 런타임에 필요한 진입점이 없습니다
+the NDI runtime declined to start on this machine	이 컴퓨터에서 NDI 런타임이 시작되지 않았습니다
+the playing step was removed - sequence stopped	재생 중인 단계가 제거됨 - 시퀀스가 중지되었습니다
+update: cannot find this app bundle to replace	업데이트: 교체할 앱 번들을 찾을 수 없습니다
+what the operator should be told when GO reaches here	GO가 여기에 도달하면 운용자에게 알릴 내용
+what the patch and the cues call it (FOH, SUB, PRESS FEED)	패치와 큐에서 사용할 이름(FOH, SUB, PRESS FEED)
+window capture fell back to screen grab — update ffmpeg for exact window capture	창 캡처가 화면 캡처로 전환됨 — 정확한 창 캡처를 위해 ffmpeg를 업데이트하세요
+A dark line between the tiles, like grout or an LED wall.	줄눈이나 LED 벽처럼 타일 사이에 어두운 선을 만듭니다.
+a plugin overran the audio thread and was bypassed — take it out of the chain	플러그인이 오디오 스레드 처리 시간을 초과하여 우회되었습니다 — 체인에서 제거하세요
+A slow rocking of the viewpoint, which is what makes the depth read without glasses.	시점을 천천히 흔들어 안경 없이 깊이를 느끼게 합니다.
+A slow sag in the supply, pulling the filter up and down like a dying battery.	전원 공급이 서서히 처지며 소모된 배터리처럼 필터를 오르내리게 합니다.
+A worn or dirty head: softer, with noise that streaks along the lines.	마모되거나 더러운 헤드: 영상이 부드러워지고 주사선을 따라 노이즈가 번집니다.
+Above halfway, a hard cut in the picture resets the loop to clean.	절반 이상에서는 영상의 하드 컷이 루프를 깨끗하게 초기화합니다.
+An old deck: the picture wobbles, bends at the top of the frame and carries hum bars.	오래된 데크: 영상이 흔들리고 프레임 위쪽이 휘며 험 막대가 나타납니다.
+An old tape loses bits of its oxide: dropouts flick white and repeat the line above, and the colour fizzes.	오래된 테이프의 산화물이 떨어져 드롭아웃이 흰색으로 번쩍이며 위 주사선을 반복하고 색에 잡음이 생깁니다.
+brightness moves the playhead (needs CPU frames)	밝기로 재생 헤드를 움직입니다(CPU 프레임 필요)
+centred and full-frame - moves when the picture does	중앙 및 전체 프레임 - 영상과 함께 움직입니다
+Characters across. Fewer means bigger cells and less of the picture surviving, which is usually the point.	가로 문자 수. 적을수록 셀이 커지고 영상의 세부가 줄어들며, 보통 그것이 의도입니다.
+Characters to build the picture from, darkest first. Empty uses the chosen glyph set.	영상을 구성할 문자를 어두운 순서로 입력합니다. 비우면 선택한 글리프 세트를 사용합니다.
+Chladni listens: the figure follows the pitch of the sound	클라드니가 소리를 듣고 음높이에 따라 무늬가 바뀝니다
+click anywhere on any screen to take its colour. Esc cancels	어느 화면이든 클릭하여 색을 추출합니다. Esc로 취소
+click program or preview monitor to sample key color	프로그램 또는 미리보기 모니터를 클릭하여 키 색상을 추출하세요
+Colour is recorded at a fraction of the detail: it smears sideways, lands late and its hue wanders.	색을 낮은 해상도로 기록해 옆으로 번지고 늦게 도착하며 색상이 흔들립니다.
+Copies of copies: none at the left, four at the right. Each one loses more.	복사본의 복사본: 왼쪽은 없음, 오른쪽은 4세대. 거듭할수록 손실이 커집니다.
+Fine sensor noise at the bottom, chunky film at the top.	아래쪽은 미세한 센서 노이즈, 위쪽은 굵은 필름 입자입니다.
+follows this cue's own brightness (needs CPU frames)	이 큐 자체의 밝기를 따릅니다(CPU 프레임 필요)
+format 2 files are a set of independent patterns, not a performance	형식 2 파일은 하나의 연주가 아닌 독립된 패턴 모음입니다
+From an even blur to a streak along the angle, like movement.	균일한 흐림에서 움직임처럼 각도 방향으로 늘어지는 흐림으로 바뀝니다.
+full-frame and no picture - bends when the picture shrinks	전체 프레임 및 영상 없음 - 영상이 줄어들면 휘어집니다.
+Grain size: one pixel at the left, big blocky grains at the right.	입자 크기: 왼쪽은 1픽셀, 오른쪽은 큰 블록형 입자입니다.
+Grows or shrinks the echo each pass. Centre holds still.	반복할 때마다 잔상을 확대하거나 축소합니다. 중앙에서는 유지됩니다.
+How abruptly it arrives. Low is a soft cloud, high is a hard porthole.	나타나는 경계의 선명도. 낮으면 부드러운 구름, 높으면 단단한 둥근 창입니다.
+How big the room is. Small is a booth, large is a hall.	공간의 크기. 작으면 부스, 크면 홀입니다.
+How big the shards are. Small is frosted glass, large is a dropped plate.	파편 크기. 작으면 반투명 유리, 크면 떨어뜨린 접시입니다.
+How dark the dark lines go. All the way up is black between lines.	어두운 선의 진하기. 최대로 올리면 선 사이가 검게 됩니다.
+How far away. Distance dulls the top and softens the difference between the ears.	거리. 멀어지면 고역이 둔해지고 양쪽 귀의 차이가 줄어듭니다.
+How far back each skip jumps, from a stutter to half a second.	스킵마다 뒤로 이동하는 길이. 짧은 끊김부터 0.5초까지.
+How fast it closes. Slow enough not to chop the ends off words.	닫히는 속도. 단어 끝이 잘리지 않을 만큼 느리게 설정하세요.
+How fast the drips run. At the left the picture only sags.	방울이 흐르는 속도. 왼쪽에서는 영상이 처지기만 합니다.
+How fast the light walks around it. Zero holds it still.	빛이 주위를 도는 속도. 0이면 정지합니다.
+How fast the wave travels. Faster spreads further in the same time and interferes more.	파동의 이동 속도. 빠를수록 같은 시간에 더 멀리 퍼지고 간섭이 늘어납니다.
+How gently the change fades out at the edges of the band.	대역 가장자리에서 변화가 사라지는 부드러움.
+How hard it holds once it is working. Gentle at the bottom, a limiter at the top.	작동 후 억제 강도. 아래는 부드럽고 위는 리미터처럼 작동합니다.
+How irregular the growth is. Low gives an even honeycomb, high gives long shards.	성장의 불규칙성. 낮으면 균일한 벌집, 높으면 긴 파편입니다.
+How long a short stays closed, in VIDEO FRAMES.	쇼트가 닫힌 상태로 유지되는 길이. 단위는 영상 프레임.
+How long the reaction runs each frame. Short is a stain, long is an organism.	프레임마다 반응하는 시간. 짧으면 얼룩, 길면 유기체처럼 됩니다.
+How many places drip: a few big drips at the left, many thin ones at the right.	방울이 생기는 곳의 수: 왼쪽은 크고 적게, 오른쪽은 가늘고 많게.
+How many times a skip repeats before the sound catches up again.	소리가 다시 따라잡기 전까지 스킵을 반복하는 횟수.
+How much of the picture glows: only the brightest at the left, nearly everything at the right.	발광하는 영상 범위: 왼쪽은 가장 밝은 부분만, 오른쪽은 거의 전체.
+How much of the picture shows behind the lines. None at the left: lines on black.	선 뒤로 보이는 영상의 양. 왼쪽은 검은 배경에 선만 표시합니다.
+How much of the push goes downward rather than sideways.	옆 대신 아래로 미는 비율.
+How quickly the room eats the top end. More damping is a softer, more furnished space.	공간이 고역을 흡수하는 속도. 감쇠가 클수록 부드럽고 가구가 많은 공간이 됩니다.
+How readily an edge catches. Low sets the whole picture alight, high only the hardest lines.	가장자리가 불붙는 정도. 낮으면 전체 영상, 높으면 가장 선명한 선만 탑니다.
+How wide a band of colours either side of it changes too.	양쪽에서 함께 바뀌는 색상 범위의 폭.
+ASCII HOLD: seconds, 0-60 (0 mutes the phrases)	ASCII HOLD: 초, 0-60(0은 문구 숨김)
+ASCII WOBBLEMODE: drift | flow (follows luma) | hue (follows colour); no argument cycles	ASCII WOBBLEMODE: drift | flow(휘도 추종) | hue(색상 추종); 인수 없으면 순환
+ASCII: the selected cue has no text mode (add the TEXT MODE effect, or select a video synth cue)	ASCII: 선택한 큐에 텍스트 모드가 없습니다(TEXT MODE 효과를 추가하거나 영상 신시사이저 큐 선택)
+CHIP DUTY: this cue is an FDS synth, which has no duty	CHIP DUTY: 이 큐는 FDS 신시사이저이므로 듀티가 없습니다
+CHIP NOISE: this cue is an FDS synth, which has no noise	CHIP NOISE: 이 큐는 FDS 신시사이저이므로 노이즈가 없습니다
+CHIP VOICE: this cue is an FDS synth, which has no voice	CHIP VOICE: 이 큐는 FDS 신시사이저이므로 음색 선택이 없습니다
+DASH SET: needs a command -- DASH SET <n> <label> | <command> [| <glyph>]	DASH SET: 명령이 필요합니다 -- DASH SET <n> <label> | <command> [| <glyph>]
+DATAMOSH on - preparing (long clip, watch Encoder tab)	DATAMOSH 켜짐 - 준비 중(긴 클립, 인코더 탭 확인)
+DECKLINK: no DeckLink driver on this computer (Blackmagic Desktop Video)	DECKLINK: 이 컴퓨터에 DeckLink 드라이버가 없습니다(Blackmagic Desktop Video)
+DMXCUE LEVELS: nothing has been sent on that universe	DMXCUE LEVELS: 해당 유니버스로 전송된 값이 없습니다
+DRAW COLOUR: #rrggbb, #rrggbbaa, a name, or 1-8 for the palette	DRAW COLOUR: #rrggbb, #rrggbbaa, 색 이름 또는 팔레트 번호 1-8
+DRAW STROKE: each point is x,y or x,y,pressure, in percent	DRAW STROKE: 각 점은 x,y 또는 x,y,pressure이며 단위는 백분율
+DRAW TOOL: brush, erase, line, box, oval or fill	DRAW TOOL: brush, erase, line, box, oval 또는 fill 선택
+EDIT is off - press EDIT to type into the tracker	EDIT 꺼짐 - 트래커에 입력하려면 EDIT를 누르세요
+ENDACTION: only video and audio cues have an end action	ENDACTION: 영상 및 오디오 큐에만 종료 동작이 있습니다
+Enter playlist SMPTE FPS: 24 / 25 / 29.97 / 30	재생 목록 SMPTE FPS 입력: 24 / 25 / 29.97 / 30
+FADE TO: a speed from 0.25 to 4 (0.5 is half speed, an octave down)	FADE TO: 속도 0.25~4(0.5는 절반 속도, 한 옥타브 낮음)
+FX ADD: datamosh needs a file-backed video cue	FX ADD: datamosh에는 파일 기반 영상 큐가 필요합니다
+FX LFO wants <index> <slot> <on|off|shape> [value]	FX LFO에 <index> <slot> <on|off|shape> [value] 필요
+FX LFO: on, off, shape, rate, depth, zone, channel or cc	FX LFO: on, off, shape, rate, depth, zone, channel 또는 cc 선택
+GEOLFO: x, y, width, height, rotation, cropleft, cropright, croptop or cropbottom	GEOLFO: x, y, width, height, rotation, cropleft, cropright, croptop 또는 cropbottom 선택
+HH:MM or HH:MM:SS on this computer's clock; empty for none	이 컴퓨터의 시각 HH:MM 또는 HH:MM:SS; 비우면 없음
+HH:MM:SS:FF of the timecode Deckboy is chasing; empty for none	Deckboy가 추종하는 타임코드의 HH:MM:SS:FF; 비우면 없음
+INPUTMONITOR: a row count, OPEN, CLOSE, CLEAR, PAUSE or RESUME	INPUTMONITOR: 행 수, OPEN, CLOSE, CLEAR, PAUSE 또는 RESUME
+IPv4 addresses or a.b.c.d/bits, comma separated; empty = only this computer	IPv4 주소 또는 a.b.c.d/bits를 쉼표로 구분; 비우면 이 컴퓨터만
+key+fill ON, but no key device set (DECKLINK KEYFILL ON <device>)	key+fill ON이지만 키 장치가 설정되지 않았습니다(DECKLINK KEYFILL ON <device>)
+label | command | glyph      (empty label|command removes it)	레이블 | 명령 | 글리프      (빈 label|command는 항목 제거)
+LFO: density, speed, warp, turn, centrex, centrey, grey or hue	LFO: density, speed, warp, turn, centrex, centrey, grey 또는 hue 선택
+MIC: select a mic cue first (MIC ADD makes one)	MIC: 먼저 마이크 큐를 선택하세요(MIC ADD로 생성)
+MIDIIN OSC: an address, and optionally a number	MIDIIN OSC: 주소 및 선택적 숫자
+MIDIMAP: that command is only accepted from this computer	MIDIMAP: 이 명령은 이 컴퓨터에서만 허용됩니다
+MOTION ZONE ADD: the zone must fit inside the picture	MOTION ZONE ADD: 영역은 영상 안에 들어가야 합니다
+NETCUE ADDRESS: an OSC address must start with /	NETCUE ADDRESS: OSC 주소는 /로 시작해야 합니다
+NEWSHOW: something is live or unsaved -- send NEWSHOW again within 2.5 s	NEWSHOW: 송출 중이거나 저장되지 않았습니다 -- 2.5초 안에 NEWSHOW를 다시 보내세요
+NMOS: discovery needs the remote network allowed	NMOS: 검색하려면 원격 네트워크를 허용해야 합니다
+NMOS: NOT registering - network is LOCAL ONLY (turn REMOTE ON to publish)	NMOS: 등록 안 함 - 네트워크가 LOCAL ONLY입니다(게시하려면 REMOTE ON)
+NMOS: searching for a registry (mDNS)	NMOS: 레지스트리 검색 중(mDNS)
+OUTPROBE: that output has no compositor (is it on?)	OUTPROBE: 해당 출력에 합성기가 없습니다(켜져 있나요?)
+OUTPUTFX ADD: four effects at most on one device	OUTPUTFX ADD: 장치당 효과는 최대 4개
+PATCH: a level is dB from -48 to +6, or OFF	PATCH: 레벨은 -48~+6 dB 또는 OFF
+PIP: retired -- scale a second deck over this one instead	PIP: 폐지됨 -- 대신 두 번째 데크의 크기를 조절해 겹치세요
+pip: retired -- scale a second deck over this one instead	pip: 폐지됨 -- 대신 두 번째 데크의 크기를 조절해 겹치세요
+presenter panel: the panel must fit on the screen (x+w and y+h no more than 100)	발표자 패널: 화면 안에 들어가야 합니다(x+w 및 y+h는 100 이하)
+preset: delivery | proxy | match | datamosh	프리셋: delivery | proxy | match | datamosh
+programme sound is always included; use WEBMONITOR OFF to stop the monitor	프로그램 소리는 항상 포함됩니다. 모니터를 중지하려면 WEBMONITOR OFF를 사용하세요
+Registry URL (e.g. http://192.168.1.50:8010) - blank for mDNS	레지스트리 URL(예: http://192.168.1.50:8010) - 비우면 mDNS
+SLICE CORNER: TL, TR, BR or BL, then dx dy in percent of the output	SLICE CORNER: TL, TR, BR 또는 BL 다음 출력 대비 백분율로 dx dy
+SLICE EDGE: L, R, T or B, then 0-50 (% of the slice)	SLICE EDGE: L, R, T 또는 B 다음 0-50(슬라이스의 %)
+SLICE GRID POINT: col row (from 1, on a grid that is on) then dx dy in percent	SLICE GRID POINT: col row(1부터, 켜진 그리드에서) 다음 백분율로 dx dy
+SLICE LFO: X, Y, ROTATION or OPACITY, then ON, OFF, SHAPE, RATE, DEPTH...	SLICE LFO: X, Y, ROTATION 또는 OPACITY 다음 ON, OFF, SHAPE, RATE, DEPTH...
+SLICE ROTATE: IN (the crop) or OUT (the placed picture), then degrees	SLICE ROTATE: IN(자르기) 또는 OUT(배치된 영상) 다음 각도
+SMPTE hh:mm:ss:ff or seconds (blank = 00:00:00:00)	SMPTE hh:mm:ss:ff 또는 초(비우면 00:00:00:00)
+SOURCE CAMERA: name the device	SOURCE CAMERA: 장치 이름을 지정하세요
+SOURCE WINDOW: name the window, e.g. title:Firefox (or "desktop")	SOURCE WINDOW: 창 이름 지정, 예: title:Firefox(또는 "desktop")
+STING: select a tone cue first (TONECUE makes one)	STING: 먼저 톤 큐를 선택하세요(TONECUE로 생성)
+Stream URL (srt://, rtmp://, rtsp://, udp://, or an http HLS .m3u8)	스트림 URL(srt://, rtmp://, rtsp://, udp:// 또는 http HLS .m3u8)
+SUBTITLE CONVERT: destination must be .srt or .vtt	SUBTITLE CONVERT: 대상은 .srt 또는 .vtt여야 합니다
+TRACKER SET: a step cannot act on its own playlist	TRACKER SET: 단계는 자신이 속한 재생 목록에 동작할 수 없습니다
+TRACKER: there are no steps (TRACKER ADD makes one)	TRACKER: 단계가 없습니다(TRACKER ADD로 생성)
+VIDEO OUTPUT LAYERWARP MODE: linear or perspective	VIDEO OUTPUT LAYERWARP MODE: linear 또는 perspective 선택
+WARP AT: open the editor (WARP EDIT) and select a point first	WARP AT: 먼저 편집기를 열고(WARP EDIT) 점을 선택하세요
+warp point: that is a corner -- move it with WARP <corner> dx dy	왜곡 점: 모서리입니다 -- WARP <corner> dx dy로 이동하세요
+WEBMONITOR PIN: network sharing and phone control require 8 or more characters	WEBMONITOR PIN: 네트워크 공유와 휴대폰 제어에는 8자 이상이 필요합니다
+WEBMONITOR QR: needs the monitor on and shared on the network	WEBMONITOR QR: 모니터를 켜고 네트워크에 공유해야 합니다
+WEBMONITOR SOURCE: could not create the web output	WEBMONITOR SOURCE: 웹 출력을 만들 수 없습니다
+WEBMONITOR SOURCE: PROGRAMME or the number of an output that shows a picture	WEBMONITOR SOURCE: PROGRAMME 또는 영상을 표시하는 출력 번호
+0 flows ALONG the edges, so colour orbits the shapes. 1 flows across them, which bleeds the picture into itself.	0은 가장자리를 따라 흘러 색이 형태 주위를 돕니다. 1은 가로질러 흘러 영상이 자체로 번집니다.
+a note number 0-127, LEARN to take the next note played, or empty for none	음 번호 0-127, LEARN으로 다음 연주 음 학습, 비우면 없음
+a video cue's duration comes from its file; still duration applies to stills, patterns and browsers	영상 큐 길이는 파일에서 가져옵니다. 정지 길이는 이미지, 패턴, 브라우저에 적용됩니다
+Below the middle narrows toward mono -- which is what a single PA cluster is. Above it widens.	중앙 아래는 단일 PA 클러스터처럼 모노에 가깝게 좁아지고, 위는 넓어집니다.
+Blueshift toward the direction of travel and redshift at the rim. Zero leaves the colour alone and it reads as a lens instead.	이동 방향은 청색, 가장자리는 적색 편이. 0이면 색을 유지해 렌즈처럼 보입니다.
+Bright: bright things drip over the dark, as text and logos do. Whole picture: everything is wax, and the picture itself runs down in its own colours.	밝은 부분: 글자나 로고처럼 밝은 것이 어두운 곳으로 흐릅니다. 전체 영상: 모두 밀랍이 되어 원래 색으로 흘러내립니다.
+Centre is a straight line. Up bends it into an S -- darker shadows, brighter highlights, more contrast. Down flattens it.	중앙은 직선입니다. 올리면 S자로 휘어 그림자는 어두워지고 밝은 부분과 대비가 강해집니다. 내리면 평탄해집니다.
+e.g. /stage/doors -- sent to Deckboy's OSC port; empty for none	예: /stage/doors -- Deckboy의 OSC 포트로 전송; 비우면 없음
+How bright a pixel has to be before it lifts at all, so only the highlights spike.	픽셀이 솟기 시작하는 밝기. 밝은 부분만 튀어나오게 합니다.
+How bright a pixel has to be to join a run. Lower catches more of the picture and the runs grow longer.	연속 구간에 포함될 픽셀의 밝기. 낮을수록 더 많은 영상이 포함되고 구간이 길어집니다.
+How deep the picture is treated as being. The brightness becomes height and is lit from the side.	영상의 깊이. 밝기를 높이로 바꾸고 옆에서 비춥니다.
+How faint a gradient still registers. High turns the quietest shading into visible structure.	감지할 수 있는 그라데이션의 미세함. 높이면 가장 옅은 음영도 구조로 나타납니다.
+How far back the chain listens. The picture is played through a delay, so this is the distance the damage is dragged across.	체인이 과거를 듣는 길이. 영상을 지연시키므로 손상이 끌리는 거리가 됩니다.
+How far the burn spreads off the edge, and how hot its colour runs.	가장자리에서 불이 번지는 거리와 색의 뜨거움.
+How far the colour turns on each trip round the loop. This is the oil-slick: the trail walks through the spectrum instead of fading.	루프마다 색이 회전하는 양. 기름막처럼 잔상이 사라지는 대신 스펙트럼을 돕니다.
+How far the picture stands out. Bright parts come forward, dark parts stay back. At the left it is flat.	영상이 튀어나오는 정도. 밝은 부분은 앞으로, 어두운 부분은 뒤로. 왼쪽은 평면입니다.
+How far the picture swings the filter. The cue's own brightness opens and closes it, so a cut to black takes the top off the sound.	영상이 필터를 움직이는 양. 큐 밝기로 열고 닫으므로 검정으로 컷하면 고역이 줄어듭니다.
+How far the top comes down as the end approaches. This is not a fade: the level is left alone.	끝에 가까워질 때 고역이 줄어드는 양. 페이드가 아니며 레벨은 유지됩니다.
+How far the two eyes disagree. Brightness is read as nearness.	양쪽 눈의 차이. 밝기를 가까움으로 해석합니다.
+How fast it settles away while held. At zero it holds indefinitely, which is what room tone under a held title wants.	홀드 중 잦아드는 속도. 0은 무기한 유지하여 고정된 제목 아래의 룸 톤에 적합합니다.
+How fast the open slit crosses the picture. Slow smears a long moment across the frame.	열린 슬릿이 영상을 가로지르는 속도. 느리면 긴 순간이 프레임에 번집니다.
+How fast what has dripped hardens away. At the left the drips stay until the cue changes.	흘러내린 것이 굳어 사라지는 속도. 왼쪽은 큐가 바뀔 때까지 남습니다.
+How fine the water is. Long ocean swell at one end, rain on a puddle at the other.	물결의 세밀함. 한쪽은 긴 바다 너울, 다른 쪽은 웅덩이에 내리는 비입니다.
+How hard the light gathers where the rays converge. This is the part that makes it read as water rather than as a wobble.	광선이 모이는 곳의 빛 집중 강도. 단순한 흔들림 대신 물처럼 보이게 합니다.
+How hard the moving parts throw sand. More shake clears the plate faster and makes the lines thinner.	움직이는 부분이 모래를 던지는 강도. 흔들림이 클수록 판이 빨리 비워지고 선이 가늘어집니다.
+How long a grain is, in VIDEO FRAMES. On a 23.976 clip one frame is 41.7ms, which is not a musical value and is exactly the point.	그레인 길이는 영상 프레임 단위입니다. 23.976 클립의 한 프레임은 41.7ms로, 음악적 값이 아니라는 점이 의도입니다.
+How long before the end it starts. The cue has to have a known length -- an open-ended one has no end to resolve into.	끝나기 얼마 전에 시작할지. 큐 길이가 알려져야 합니다. 무기한 큐에는 도달할 끝이 없습니다.
+How long it is allowed to run. More steps means the ripples have crossed and reflected more times.	실행을 허용하는 길이. 단계가 많으면 물결이 더 많이 교차하고 반사됩니다.
+How long the old waves linger when the note changes. Left: they die at once. Right: they slosh for a while.	음이 바뀐 뒤 이전 파동이 남는 길이. 왼쪽은 즉시 사라지고 오른쪽은 한동안 출렁입니다.
+How much each facet catches the light, which is what makes them read as faceted rather than as flat blobs.	각 면이 빛을 받는 양. 평평한 덩어리 대신 각진 면처럼 보이게 합니다.
+How much its SIZE becomes distance. Shrink the picture and the sound goes away from you: the top comes off, the image narrows, the level drops.	크기를 거리로 바꾸는 양. 영상을 줄이면 소리가 멀어져 고역이 줄고 음상이 좁아지며 레벨이 낮아집니다.
+How much of the bent picture goes round again. High is where it stops being an echo and starts eating itself.	휘어진 영상을 다시 순환시키는 양. 높이면 잔상을 넘어 스스로 잠식하기 시작합니다.
+How much of the driver's movement the picture KEEPS. At zero it follows the driver frame by frame, which is a twitch. Wind it up and the motion accumulates, so the driver sculpts the picture over time and it holds the pose -- which is what puppetry means.	영상이 구동자의 움직임을 보존하는 양. 0이면 프레임마다 따라 떨립니다. 올리면 움직임이 누적되어 영상을 빚고 자세를 유지하므로 인형 조종처럼 됩니다.
+How much of the picture's position on the output is used. A PIP on the left sounds on the left -- and it is a placement, not a pan: the far ear gets the delay and the head shadow too.	출력에서 영상 위치를 반영하는 양. 왼쪽 PIP는 왼쪽에서 들립니다. 단순 팬이 아닌 배치라 먼 귀에 지연과 머리 음영도 적용됩니다.
+How much of the tail is kept going while the cue is held. Long enough to hide the splice in room tone, short enough not to smear a rhythm in it.	큐 홀드 중 이어갈 꼬리 길이. 룸 톤의 이음새를 숨기되 리듬이 번지지 않을 정도로 설정합니다.
+How much room comes up under it, so the sound settles into the cut instead of being severed.	아래에 더할 공간 울림의 양. 소리를 끊지 않고 컷에 자연스럽게 안착시킵니다.
+How much the echo is distorted each pass. It compounds, so a little ripples and a lot melts the picture into itself.	반복마다 잔상이 왜곡되는 양. 누적되어 적으면 물결치고 많으면 영상이 자체로 녹습니다.
+How much the material draws in towards each drip, so it runs as a thin neck with a heavier head.	방울마다 재료가 모이는 양. 가는 목과 무거운 머리로 흐르게 합니다.
+How often its settings are corrupted. Corrupted far enough it oscillates on its own -- loud, but it cannot run away.	설정이 손상되는 빈도. 심하면 자체 발진하지만 소리가 커도 폭주하지 않습니다.
+How quickly the picture springs back to rest once the driver stops pushing it. Only does anything when memory is up.	구동자가 멈춘 뒤 영상이 원상태로 돌아오는 속도. 메모리가 올라가야 작동합니다.
+How small a cut sets it off. With no picture it runs on a timer instead, and this is how often.	작동을 유발할 컷의 미세함. 영상이 없으면 타이머로 작동하며 그 빈도를 정합니다。
+How strongly the finished picture pushes the bend. Pair it with a picture effect whose LFO is set to Audio and the two drive each other.	최종 영상이 벤드를 구동하는 강도. LFO를 Audio로 설정한 영상 효과와 함께 쓰면 서로 구동합니다.
+How wide a view is being compressed. Narrow is a punch down the middle, wide folds the whole frame into the centre.	압축할 시야의 폭. 좁으면 중앙을 뚫고 넓으면 전체 프레임이 중앙으로 접힙니다.
+Lift or cut, 12dB either way. The centre is flat, so a band that has just been added does nothing until this is moved.	양쪽으로 12dB 증폭 또는 감쇠. 중앙은 평탄하므로 새 대역은 이 값을 움직여야 작동합니다.
+Light on the drips, as on something wet: a gloss where it faces the light, darker where it curls away.	젖은 표면처럼 방울에 빛을 줍니다. 빛을 향하면 광택, 말려 나가면 어두워집니다.
+Line pitch in pixels, so this reads at 4K as well as at 720.	선 간격은 픽셀 단위여서 4K와 720 모두에서 보입니다.
+cannot read the file: if it lives in OneDrive or iCloud, open it once so it downloads, then import it	파일을 읽을 수 없습니다. OneDrive나 iCloud에 있다면 한 번 열어 다운로드한 후 가져오세요
+did not finish in 3 minutes. It may be waiting on a prompt it cannot show (Protected View, sign-in, a repair). Open the deck there once, or export it as a PDF and import that	3분 안에 완료되지 않았습니다. 표시할 수 없는 확인창(제한된 보기, 로그인, 복구)을 기다릴 수 있습니다. 해당 앱에서 한 번 열거나 PDF로 내보내 가져오세요
+forget my defaults? only NEW changes, this show keeps its settings: press again	내 기본값을 지울까요? NEW만 바뀌고 이 쇼의 설정은 유지됩니다. 다시 누르세요
+Keynote could not export this file (it may need permission to be automated: System Settings > Privacy & Security > Automation)	Keynote가 파일을 내보내지 못했습니다(자동화 권한 필요 가능: 시스템 설정 > 개인정보 보호 및 보안 > 자동화)
+my defaults forgotten: NEW starts from factory settings, this show is unchanged	내 기본값을 지웠습니다. NEW는 공장 설정으로 시작하며 이 쇼는 유지됩니다
+N=new  Enter/P=previous  O=open saved  E=examples  L=learn  1-	N=새로 만들기  Enter/P=이전  O=저장본 열기  E=예제  L=학습  1-
+ndi tally trigger on -- program tally takes the cue	ndi 탈리 트리거 켜짐 -- 프로그램 탈리가 큐를 송출합니다
+notestep: this cue's notes have no builds (separate them with a line of ---)	notestep: 이 큐의 메모에 단계가 없습니다(--- 행으로 구분하세요)
+Only accept transport from this sender (blank = anyone)	이 송신자의 재생 제어만 허용(비우면 모두)
+opened github.com in your browser -- nothing is sent until you submit the report there	브라우저에서 github.com을 열었습니다 -- 거기서 보고서를 제출해야 전송됩니다
+Output height in px - math ok: 1080x2, 2160/2, 540+30	출력 높이(px) - 계산 가능: 1080x2, 2160/2, 540+30
+Output width in px - math ok: 1920x2, 3840/2, 960+64	출력 너비(px) - 계산 가능: 1920x2, 3840/2, 960+64
+PHONE LEVEL: removed -- a paired phone or the passphrase can do everything; BLACKOUT and RECORD are hold-to-fire on the phone	PHONE LEVEL: 제거됨 -- 페어링된 휴대폰이나 암호로 모든 조작이 가능합니다. 휴대폰의 BLACKOUT과 RECORD는 길게 눌러 실행합니다
+phones need THE NETWORK: set 'Who can see it' first	휴대폰에는 네트워크가 필요합니다. 먼저 '볼 수 있는 사람'을 설정하세요
+PowerPoint could not export this file (it may need permission to be automated: System Settings > Privacy & Security > Automation)	PowerPoint가 파일을 내보내지 못했습니다(자동화 권한 필요 가능: 시스템 설정 > 개인정보 보호 및 보안 > 자동화)
+PowerPoint could not open the file (it gave up waiting for it). If it is in OneDrive, right-click it and choose Always keep on this device, then import it again	PowerPoint가 파일을 열지 못했습니다(대기 포기). OneDrive에 있다면 우클릭하여 '항상 이 장치에 유지'를 선택한 후 다시 가져오세요
+saved as my defaults: NEW starts like this show, without the cues	내 기본값으로 저장됨: NEW는 이 쇼와 같은 설정으로 큐 없이 시작합니다
+Seconds for new image/pattern/browser/Lower Third cues (0 = hold)	새 이미지/패턴/브라우저/Lower Third 큐의 초 단위 길이(0=홀드)
+select a Draw cue first (SOURCE > MADE BY DECKBOY > Draw)	먼저 그리기 큐를 선택하세요(SOURCE > MADE BY DECKBOY > Draw)
+something mellow appeared in SOURCE > MADE BY DECKBOY	SOURCE > MADE BY DECKBOY에 부드러운 무언가가 나타났습니다
+sound scopes: integrated loudness and true peak start again	오디오 스코프: 통합 라우드니스와 트루 피크 측정을 다시 시작합니다
+splitnotes: that cue's notes have no parts (separate them with a line of ---)	splitnotes: 해당 큐의 메모에 구분이 없습니다(--- 행으로 구분하세요)
+still reading the last folder -- one at a time	이전 폴더를 읽는 중입니다 -- 한 번에 하나씩 처리합니다
+that key drives the desk - use F1-F10, F12 or the number pad	그 키는 데스크 제어에 사용됩니다 - F1-F10, F12 또는 숫자 패드를 쓰세요
+the background alpha belongs to a Lower Third	배경 알파는 Lower Third에 속합니다
+the clicker now spends note builds before advancing	클리커가 이제 다음으로 넘어가기 전에 메모 단계를 먼저 진행합니다
+this file is only in OneDrive, and OneDrive is not running. Start OneDrive, or copy the file to this computer, then import it again	파일이 OneDrive에만 있고 OneDrive가 실행 중이 아닙니다. OneDrive를 시작하거나 파일을 이 컴퓨터로 복사한 후 다시 가져오세요
+this presentation needs a password to open. Remove the password in PowerPoint (File > Info > Protect Presentation) or export it as a PDF, then import that	이 프레젠테이션은 암호가 필요합니다. PowerPoint에서 암호를 제거하거나(파일 > 정보 > 프레젠테이션 보호) PDF로 내보내 가져오세요
+a step cannot fire the playlist it lives on	단계는 자신이 속한 재생 목록을 실행할 수 없습니다
+ASCII: use ON|OFF|TOGGLE | STATUS | INK | SET | SHUFFLE | PRESET [name|next|prev] | FONT | GLYPHS [chars] | CHAOS <0-1> | WOBBLE <0-1> | WOBBLEMODE [drift|flow|hue] | COLS <n> | GLITCH <a> <b> <c> [d] | PHRASES <a|b|c> | HOLD <seconds>	ASCII: ON|OFF|TOGGLE | STATUS | INK | SET | SHUFFLE | PRESET [name|next|prev] | FONT | GLYPHS [chars] | CHAOS <0-1> | WOBBLE <0-1> | WOBBLEMODE [drift|flow|hue] | COLS <n> | GLITCH <a> <b> <c> [d] | PHRASES <a|b|c> | HOLD <seconds> 사용
+atem tally on -- set which input Deckboy is	ATEM 탤리 켜짐 -- Deckboy에 해당하는 입력을 설정하세요
+DRAW SIZE: 0.1-20 (% of the picture's height)	DRAW SIZE: 0.1-20 (화면 높이의 %)
+esc: control window - again to clear output	esc: 제어 창으로 - 다시 누르면 출력 지우기
+Flip across, upside down or both, or fold one half onto the other: right onto left, left onto right, bottom onto top, top onto bottom, or one corner into all four.	좌우, 상하 또는 둘 다 뒤집거나 한쪽 절반을 다른 쪽으로 접습니다. 오른쪽을 왼쪽으로, 왼쪽을 오른쪽으로, 아래를 위로, 위를 아래로, 또는 한 모서리를 네 모서리 모두로 펼칩니다.
+FX: use LIST | ADD <effect> [amount] | AMOUNT <n> <v> | PARAM <n> <A-F> <0-1> | CHOICE <n> <A|B> <name> | LFO <n> <A-G> ... | COPY | PASTE | CLEAR	FX: LIST | ADD <effect> [amount] | AMOUNT <n> <v> | PARAM <n> <A-F> <0-1> | CHOICE <n> <A|B> <name> | LFO <n> <A-G> ... | COPY | PASTE | CLEAR 사용
+group presets became master cues: use MASTER	그룹 프리셋이 마스터 큐로 바뀌었습니다: MASTER 사용
+make a step first: a section starts at a step	먼저 단계를 만드세요: 섹션은 단계에서 시작합니다
+MASK PATH: a path needs at least three points	MASK PATH: 경로에는 최소 세 점이 필요합니다
+MATRIX SET: level is a percent from 0 to 100	MATRIX SET: 레벨은 0~100의 백분율입니다
+MIDIIN: NOTE <n> <vel>, NOTEOFF <n>, CC <c> <v>, PITCH <0-16383>, PRESSURE <v>, KEYPRESSURE <n> <v>, PROGRAM <n> or OSC <address> [<n>], then CH <1-16> if not channel 1	MIDIIN: NOTE <n> <vel>, NOTEOFF <n>, CC <c> <v>, PITCH <0-16383>, PRESSURE <v>, KEYPRESSURE <n> <v>, PROGRAM <n> 또는 OSC <address> [<n>], 채널 1이 아니면 뒤에 CH <1-16>
+MIDIMAP: LIST, ADD, SET, REMOVE, CLEAR, RESET, LEARN, LEARNED, PRESET or FEEDBACK	MIDIMAP: LIST, ADD, SET, REMOVE, CLEAR, RESET, LEARN, LEARNED, PRESET 또는 FEEDBACK
+motion on: the camera is read, never recorded	모션 켜짐: 카메라를 읽기만 하며 녹화하지 않습니다
+Moves the direction of travel off the centre of frame, so the picture rushes past rather than straight at you.	이동 방향을 프레임 중심에서 벗어나게 하여 화면이 정면으로 다가오는 대신 옆을 스쳐 지나가게 합니다.
+new show disarms all outputs: press new again	새 쇼는 모든 출력을 해제합니다: 새로 만들기를 다시 누르세요
+nmos: network is LOCAL ONLY - not registering	NMOS: 네트워크가 LOCAL ONLY입니다 - 등록하지 않음
+normalize: selection has no file-backed audio	정규화: 선택 항목에 파일 기반 오디오가 없습니다
+on the dashboard - Ctrl+D or the DASH button	대시보드에 있습니다 - Ctrl+D 또는 DASH 버튼
+One knob for the whole balance: below the middle is darker, above it is brighter.	노브 하나로 전체 균형을 조절합니다. 중앙 아래는 어둡게, 위는 밝게 합니다.
+Original: the picture pulled onto the figure. Sand: the picture as grains that are thrown off the moving parts and pour into each new figure. Fluid: the picture under water on the plate, bent and lit by its standing waves.	원본: 영상을 형상 위로 끌어옵니다. 모래: 영상이 입자로 변해 움직이는 부분에서 튀어나오고 새 형상마다 흘러듭니다. 유체: 판 위 물속의 영상이 정상파에 따라 굴절되고 빛납니다.
+output recover failed: fullscreen unavailable	출력 복구 실패: 전체 화면을 사용할 수 없습니다
+Page Down / Page Up step the focused playlist	Page Down / Page Up으로 포커스된 재생 목록의 단계를 이동합니다
+Pulls the bright tones down without moving pure white, so a hot highlight rolls off instead of clipping.	순백색은 그대로 두고 밝은 톤을 낮춰 강한 하이라이트가 잘리지 않고 부드럽게 줄어들게 합니다.
+recordings remux to MP4 when the take stops	테이크가 멈추면 녹화 파일을 재인코딩 없이 MP4로 리먹스합니다
+Rotates the reading, so straight lines wind into spirals rather than rings.	읽는 방향을 회전시켜 직선이 고리가 아닌 나선으로 감기게 합니다.
+Rows lose sync and repeat one character, the way a real text screen breaks up. At 0 the grid is clean.	실제 텍스트 화면이 깨지듯 행의 동기가 어긋나고 한 문자가 반복됩니다. 0에서는 격자가 깨끗합니다.
+SLICE <n>: CROP, PLACE, CORNER, EDGE, MASK, SOURCE, ROTATE, FLIP, OPACITY, LFO, ON, OFF, LINEAR, PERSPECTIVE or NAME	SLICE <n>: CROP, PLACE, CORNER, EDGE, MASK, SOURCE, ROTATE, FLIP, OPACITY, LFO, ON, OFF, LINEAR, PERSPECTIVE 또는 NAME
+SLICE GRID: <cols> <rows> (2-9), OFF, SMOOTH ON|OFF, or POINT col row dx dy	SLICE GRID: <cols> <rows> (2-9), OFF, SMOOTH ON|OFF, 또는 POINT col row dx dy
+Something near the deck: a phone's buzz, a light dimmer's herringbone, a radio's slow bars.	데크 주변의 간섭입니다. 휴대폰의 윙윙거림, 조광기의 사선 무늬, 무전기의 느린 띠 등을 재현합니다.
+Sorts the runs the other way, so they pour from light to dark.	연속 구간을 반대 순서로 정렬하여 밝은 곳에서 어두운 곳으로 흐르게 합니다.
+SUBTITLE CONVERT: the cue has no caption file	SUBTITLE CONVERT: 큐에 자막 파일이 없습니다
+Takes out everything brighter than this as well. Left takes out nothing.	이보다 밝은 부분도 모두 제거합니다. 왼쪽 끝에서는 아무것도 제거하지 않습니다.
+Takes out everything darker than this, so what lies beneath shows through. Left takes out nothing.	이보다 어두운 부분을 모두 제거하여 아래 레이어가 비치게 합니다. 왼쪽 끝에서는 아무것도 제거하지 않습니다.
+Tape speed: SP is the best picture, LP and EP fit more on a tape and lose detail and colour.	테이프 속도: SP는 화질이 가장 좋습니다. LP와 EP는 더 오래 담을 수 있지만 디테일과 색을 잃습니다.
+The brightness that stays put. Everything above it reaches one way and everything below it the other.	고정되는 밝기입니다. 이보다 밝은 부분은 한쪽으로, 어두운 부분은 반대쪽으로 뻗습니다.
+The character of the growth: low is waves, then labyrinth, coral, worms, and holes at the top.	성장 형태입니다. 낮은 값에서는 파도, 이어서 미로, 산호, 벌레 형태가 되고 맨 위에서는 구멍이 됩니다.
+The colour it becomes. Shading and brightness stay as they were, so a red shirt turns blue and keeps its folds.	바뀔 색입니다. 음영과 밝기는 그대로이므로 빨간 셔츠를 파랗게 바꿔도 주름은 유지됩니다.
+The distance that sits ON the screen. Either side of it comes forward or falls behind.	화면 표면에 놓이는 거리입니다. 양쪽의 영상은 앞으로 나오거나 뒤로 물러납니다.
+The frequency it pivots around -- what counts as 'low' and 'high' for the tilt.	기울기의 회전 중심 주파수입니다. 이를 기준으로 '저역'과 '고역'이 나뉩니다.
+The head drifting off the track: a band of noise rolls through the picture.	헤드가 트랙을 벗어나면서 노이즈 띠가 화면을 지나갑니다.
+The level below which the source is closed. Set it under the quietest thing you want to hear.	소스가 닫히는 기준 레벨입니다. 듣고 싶은 가장 작은 소리보다 낮게 설정하세요.
+The level it starts working at. Lower catches more of the performance.	효과가 작동하기 시작하는 레벨입니다. 낮추면 연주의 더 많은 부분에 적용됩니다.
+The plugin's first four automatable controls, in its own order. Everything else it has keeps whatever the plugin was left set to.	플러그인 고유 순서의 처음 네 자동화 가능 컨트롤입니다. 나머지 설정은 플러그인의 마지막 상태를 유지합니다.
+this output's renderer could not cut the mask	이 출력의 렌더러가 마스크를 잘라내지 못했습니다
+Tints the two directions apart, so light bending one way and the other are different colours instead of both being grey.	두 방향에 서로 다른 색을 입혀 양쪽으로 굴절되는 빛이 모두 회색이 되는 대신 각기 다른 색을 띠게 합니다.
+Turns the echo each pass, which winds the melt into a spiral.	매번 잔상을 회전시켜 녹아내림이 나선으로 감기게 합니다.
+Turns the strokes across the grain instead of along it, which combs the picture apart rather than smoothing it.	붓질을 결을 따르는 대신 가로지르도록 돌려 영상을 매끄럽게 하기보다 빗으로 풀듯 흩어 놓습니다.
+Turns the whole arrangement, so the fold lines do not sit on the same part of the picture all night.	전체 배치를 회전시켜 접힘선이 밤새 화면의 같은 부분에 머물지 않게 합니다.
+Two is a mirror, twelve is a snowflake, and they are completely different pictures.	2는 거울, 12는 눈송이가 되어 완전히 다른 화면을 만듭니다.
+unsaved changes will be lost: press new again	저장하지 않은 변경 사항이 사라집니다: 새로 만들기를 다시 누르세요
+WEBMONITOR: STATUS | ON | OFF | CONTROL ON|OFF | SHARE ON|OFF | SOURCE PROGRAMME|<output> | QR [ON|OFF] | PORT <n> | PIN <pin>|OFF (sound is included)	WEBMONITOR: STATUS | ON | OFF | CONTROL ON|OFF | SHARE ON|OFF | SOURCE PROGRAMME|<output> | QR [ON|OFF] | PORT <n> | PIN <pin>|OFF (소리 포함)
+Where highlights fold back through black. Low folds most of the picture, high folds only the brightest.	하이라이트가 검정을 거쳐 되접히는 지점입니다. 낮으면 영상 대부분을, 높으면 가장 밝은 부분만 접습니다.
+Where the band sits, 30Hz to 16kHz across the travel.	대역의 위치입니다. 조절 범위는 30Hz~16kHz입니다.
+Where the fold sits: the middle at the left, toward the far edge to the right. Flips have no fold.	접힘 위치입니다. 왼쪽 끝에서는 중앙이고 오른쪽으로 갈수록 먼 가장자리로 이동합니다. 뒤집기에는 접힘이 없습니다.
+Where the light stands, in degrees around the frame.	프레임 주위의 조명 위치를 각도로 지정합니다.
+Where the source sits around the listener, all the way round. For headphones -- it is a timing and shading trick, not a pan.	청취자를 둘러싼 전체 원에서 소스가 놓이는 위치입니다. 헤드폰용이며, 패닝 대신 시간차와 음색을 이용합니다.
+Where the top ends, 200Hz to 20kHz. Pull it down to take the harshness off a bright source.	고역의 끝 지점으로 200Hz~20kHz입니다. 낮추면 밝은 소스의 거친 소리가 줄어듭니다.
+Which channel the curve acts on: all three, then red, green or blue on its own -- the way a colourist warms or cools one end of the picture.	커브가 적용되는 채널입니다. 세 채널 전체 또는 빨강, 초록, 파랑 개별 채널로, 컬러리스트가 화면의 밝은 쪽이나 어두운 쪽을 따뜻하거나 차갑게 만드는 방식입니다.
+Which way the knife edge lies. Only gradients ACROSS the edge show, so turning it swaps which features appear and which vanish.	칼날 경계의 방향입니다. 경계를 가로지르는 명암 변화만 보이므로 회전하면 드러나는 특징과 사라지는 특징이 바뀝니다.
+Which way the streak runs: across at the left, upright in the middle, across again at the right.	줄무늬 방향입니다. 왼쪽은 가로, 중앙은 세로, 오른쪽은 다시 가로입니다.
+Widens the decision into a ramp, so edges keep their shape instead of jagging.	판정 경계를 점진적인 변화로 넓혀 윤곽이 톱니처럼 깨지지 않고 형태를 유지하게 합니다.
+Words to surface in the field, separated by | . One shows at a time, moving on the hold clock.	필드에 나타낼 단어를 | 로 구분합니다. 한 번에 하나씩 표시되며 유지 타이머에 따라 바뀝니다.
+Zero is one noise value across all three channels, which reads as film. Higher gives each channel its own, which reads as video.	0에서는 세 채널에 같은 노이즈 값을 써서 필름처럼 보입니다. 높이면 채널마다 별도 노이즈를 써서 비디오처럼 보입니다.
+zones cleared: Motion reads the whole picture	영역을 지웠습니다: 모션이 전체 화면을 읽습니다
+Lens	렌즈
+Lumia	루미아
+Prism	프리즘
+Water	물
+Lasers	레이저
+Pixels	픽셀
+out:--	출력:--
+Listens	오디오 반응
+Mirrors	거울
+Shimmer	반짝임
+FDS synth	FDS 신시사이저
+Terrarium	테라리움
+(bypassed)	(바이패스됨)
+Second jet	두 번째 분사
+%, 1 to 100	%, 1~100
+Panel angle	패널 각도
+Ripple size	물결 크기
+Panels, 0-12	패널 수, 0-12
+Seconds, 0-4	초, 0-4
+Seconds, 0-8	초, 0-8
+Top / bottom	위 / 아래
+Amount 0-100%	양 0-100%
+ALSA MIDI Port	ALSA MIDI 포트
+Degrees, 0-360	도, 0-360
+Terrarium Pico	테라리움 피코
+ASIOInit failed	ASIOInit 실패
+Hertz, 20-20000	헤르츠, 20-20000
+Pixels, 64-2160	픽셀, 64-2160
+Pixels, 64-3840	픽셀, 64-3840
+Colour steps, 2-8	색 단계, 2-8
+Degrees -180..180	도 -180..180
+Palette turn, 0-1	팔레트 회전, 0-1
+Size, %, 5 to 400	크기, %, 5~400
+Feature size, 0.1-8	무늬 크기, 0.1-8
+Spiral size, 0.25-4	나선 크기, 0.25-4
+Degrees, -360 to 360	도, -360~360
+Spiral strength, 0-4	나선 강도, 0-4
+0-100%, left to right	0-100%, 왼쪽에서 오른쪽
+0-100%, top to bottom	0-100%, 위에서 아래
+0-100%: laser speckle	0-100%: 레이저 스펙클
+Pixel sort amount, 0-1	픽셀 정렬 양, 0-1
+Pitch in hertz, 20-8000	음높이(헤르츠), 20-8000
+Frames a second, 1 to 60	초당 프레임, 1~60
+Horizontal cells, 64-960	가로 셀 수, 64-960
+select a lumia cue first	먼저 루미아 큐를 선택하세요
+0 tube, 1 mandala, 2 none	0 튜브, 1 만다라, 2 없음
+How big a blob grows, 0-1	덩어리 성장 크기, 0-1
+0-100%: overall brightness	0-100%: 전체 밝기
+FDS hardware gain range, 0-63	FDS 하드웨어 게인 범위, 0-63
+How hard it cuts, %, 0 to 100	절단 강도, %, 0~100
+{1} (supports + - * / and ())	{1} (+ - * / 및 () 지원)
+Master oscillator rate, 0.01-8	마스터 발진기 속도, 0.01-8
+Seconds the in move takes, 0-5	진입 동작 시간(초), 0-5
+0-100%: 0 holds the field still	0-100%: 0이면 필드 정지
+0-100%: how bright the water is	0-100%: 물 밝기
+0-100%: how far the field bends	0-100%: 필드 휘어짐 정도
+0-100%: the whole picture turns	0-100%: 전체 화면 회전
+Degrees per second, -720 to 720	초당 각도, -720~720
+Lumia (laser light and mirrors)	루미아(레이저 빛과 거울)
+Seconds between retriggers, 0-8	재트리거 간격(초), 0-8
+Seconds the out move takes, 0-5	퇴장 동작 시간(초), 0-5
+0-100%: how fast the water moves	0-100%: 물 이동 속도
+0-100%: the halo round the lines	0-100%: 선 주변 후광
+How many are alive at once, 3-48	동시 활성 개수, 3-48
+Turbulence, 0 still to 3 boiling	난류, 0 정지~3 끓음
+Birth, drift and fade rate, 0.1-3	생성·표류·페이드 속도, 0.1-3
+How hard the audio drives it, 0-1	오디오 반응 강도, 0-1
+Scale of the whole graphic, 0.5-2	전체 그래픽 배율, 0.5-2
+0-100%: 0 broad, 100 fine and busy	0-100%: 0 넓음, 100 정교하고 조밀함
+Down, % of the height, -100 to 100	아래로, 높이의 %, -100~100
+Thickness of the glowing edge, 0-1	빛나는 가장자리 두께, 0-1
+0-100%: how hard the lines are bent	0-100%: 선 휘어짐 강도
+0-100%: light lingers on the screen	0-100%: 화면에 남는 빛
+Across, % of the width, -100 to 100	가로로, 너비의 %, -100~100
+% of the picture's height, 0.1 to 20	화면 높이의 %, 0.1~20
+0-100%: how far the colours fan apart	0-100%: 색 퍼짐 정도
+Degrees round the colour wheel, 0-360	색상환 각도, 0-360
+Where the eye sits, 0 left to 1 right	시점 위치, 0 왼쪽~1 오른쪽
+Where the eye sits, 0 top to 1 bottom	시점 위치, 0 위~1 아래
+dBFS, -60 to 0 (-18 is EBU alignment)	dBFS, -60~0(-18은 EBU 정렬 레벨)
+0-100%: how bright the laser lines are	0-100%: 레이저 선 밝기
+One LED tile's width in pixels, 8-8192	LED 타일 하나의 너비(픽셀), 8-8192
+0-100%: a second jet crossing the first	0-100%: 첫 분사와 교차하는 두 번째 분사
+Edge softness, % of the height, 0 to 25	가장자리 부드러움, 높이의 %, 0~25
+One LED tile's height in pixels, 8-8192	LED 타일 하나의 높이(픽셀), 8-8192
+0 classic, 1 fire, 2 ice, 3 neon, 4 mono	0 클래식, 1 불, 2 얼음, 3 네온, 4 단색
+Modulator as a ratio of the note, 0.05-16	음에 대한 변조기 비율, 0.05-16
+Scanlines, bloom and gun misalignment, 0-1	주사선, 블룸 및 전자총 정렬 오차, 0-1
+0-100%: the round lens, barrel and dark rim	0-100%: 둥근 렌즈, 배럴 왜곡 및 어두운 테두리
+Block displacement and channel tearing, 0-1	블록 변위 및 채널 찢김, 0-1
+Internal resolution, 1 (chunky) to 5 (fine)	내부 해상도, 1(거침)~5(정밀)
+Seconds the finished drawing stays, 0 to 60	완성된 그림 유지 시간(초), 0~60
+0 rainbow + grey, 1 rainbow, 2 theme, 3 mono	0 무지개 + 회색, 1 무지개, 2 테마, 3 단색
+How readily neighbours merge, 0 (never) to 1	인접 항목 병합 용이성, 0(안 함)~1
+Turns the rim's colours round the wheel, 0-1	가장자리 색을 색상환에서 회전, 0-1
+drag to turn round it · wheel to come closer	드래그하여 주위 회전 · 휠로 가까이 이동
+0-100%: 50 is 1x, 0 a quarter, 100 four times	0-100%: 50은 1x, 0은 1/4, 100은 4배
+How much of each frame feeds the next, 0-0.95	각 프레임이 다음에 반영되는 양, 0-0.95
+Per-frame zoom of the feedback path, 0.90-1.15	프레임별 피드백 경로 확대율, 0.90-1.15
+Space under it, as a fraction of the frame, 0-0.8	아래 공간의 프레임 대비 비율, 0-0.8
+0 rgb, 1 rainbow, 2 floyd, 3 warm, 4 cool, 5 green	0 rgb, 1 무지개, 2 플로이드, 3 따뜻함, 4 차가움, 5 녹색
+Edge out (+) or in (-), % of the height, -25 to 25	가장자리를 밖으로(+) 또는 안으로(-), 높이의 %, -25~25
+0 zone, 1 twin, 2 flow, 3 saddle, 4 ripple, 5 shear	0 영역, 1 쌍, 2 흐름, 3 안장, 4 물결, 5 전단
+Seconds before it leaves by itself; 0 waits for OUT	자동 퇴장까지 초; 0은 OUT 대기
+0-100%: how far each panel tilts from the one before	0-100%: 이전 패널에 대한 각 패널 기울기
+0-100%: the share of each band drawn as grey stripes	0-100%: 각 띠에서 회색 줄무늬로 그릴 비율
+0 off, 1 on: the flow surges with the programme sound	0 끔, 1 켬: 프로그램 소리에 따라 흐름이 강해짐
+0 off, 1 on: the top mirrors the bottom round a dark seam	0 끔, 1 켬: 어두운 이음선을 중심으로 아래를 위에 반사
+' (cues, position, look, effects, levels, routing, master)	' (큐, 위치, 룩, 효과, 레벨, 라우팅, 마스터)
+' -- try ADD, ON, OFF, ASSIGN, UNASSIGN, LAYER, HOST, TYPE, MIRROR or an output number	' -- ADD, ON, OFF, ASSIGN, UNASSIGN, LAYER, HOST, TYPE, MIRROR 또는 출력 번호를 사용하세요
+BLEND ROW: expected <first output> <how many, 2 or more> <overlap in pixels>, with that many outputs	BLEND ROW: <첫 출력> <개수, 2 이상> <겹침 픽셀> 및 해당 개수의 출력 필요
+DASH SET: <n> <label> | <command> [| <glyph>]	DASH SET: <n> <라벨> | <명령> [| <기호>]
+DASH: LIST | <n> | SET <n> <label> | <command> | CLEAR <n>	DASH: LIST | <n> | SET <n> <라벨> | <명령> | CLEAR <n>
+OUTPUT SPOUT: ON | OFF | TOGGLE | NAME <sender name>	OUTPUT SPOUT: ON | OFF | TOGGLE | NAME <송신자 이름>
+SCREENS STAGE: STATUS, SET <what> <value> or APPLY	SCREENS STAGE: STATUS, SET <항목> <값> 또는 APPLY
+LFO: flow, water, ripple, jet, prism, split, focus, shimmer, mirrors, angle, spin, lens, glow, bright or trail	LFO: flow, water, ripple, jet, prism, split, focus, shimmer, mirrors, angle, spin, lens, glow, bright 또는 trail
+SCREENS STAGE SET: WIDTH|HEIGHT <m>, LUMENS, THROW, OVERLAP <%>, GAIN, COUNT, PIXELS <w> <h> or UNITS METRES|FEET	SCREENS STAGE SET: WIDTH|HEIGHT <m>, LUMENS, THROW, OVERLAP <%>, GAIN, COUNT, PIXELS <w> <h> 또는 UNITS METRES|FEET
+STATUS | SHAPE <0-5> | PALETTE <0-3> | DENSITY|SPEED|WARP|CENTREX|CENTREY|GREY <0-100> | TURN|HUE <0-360> | LFO <control> <setting>	STATUS | SHAPE <0-5> | PALETTE <0-3> | DENSITY|SPEED|WARP|CENTREX|CENTREY|GREY <0-100> | TURN|HUE <0-360> | LFO <컨트롤> <설정>
+STATUS | PALETTE <0-5 or name> | MODE <0-2 or name> | TOPBOTTOM|LISTENS ON|OFF | FLOW|WATER|RIPPLE|JET|PRISM|SPLIT|FOCUS|SHIMMER|ANGLE|SPIN|LENS|GLOW|BRIGHT|TRAIL <0-100> | MIRRORS <0-12> | LFO <control> <setting>	STATUS | PALETTE <0-5 또는 이름> | MODE <0-2 또는 이름> | TOPBOTTOM|LISTENS ON|OFF | FLOW|WATER|RIPPLE|JET|PRISM|SPLIT|FOCUS|SHIMMER|ANGLE|SPIN|LENS|GLOW|BRIGHT|TRAIL <0-100> | MIRRORS <0-12> | LFO <컨트롤> <설정>
+Render	렌더링
+Opacity	불투명도
+opacity	불투명도
+PNG frames	PNG 프레임
+START RENDER	렌더링 시작
+CANCEL RENDER	렌더링 취소
+RENDER TO FILE	파일로 렌더링
+RENDER TO FILE...	파일로 렌더링...
+QUANTISE: beat	퀀타이즈: 박
+QUANTISE: 1 bar	퀀타이즈: 1마디
+QUANTISE: 2 bars	퀀타이즈: 2마디
+QUANTISE: 4 bars	퀀타이즈: 4마디
+about {1} left	약 {1} 남음
+LINK: {1} peers	LINK: 피어 {1}개
+render cancelled	렌더링 취소됨
+{1} frames in {2}	{2}에 {1}프레임
+the output's ({1})	출력의 값({1})
+From cue and to cue	시작 큐와 끝 큐
+left the Link session	Link 세션에서 나감
+joined the Link session	Link 세션에 참여함
+the playlist has no cues	재생 목록에 큐가 없음
+{1} frames, {2}, {3}x{4}	{1}프레임, {2}, {3}x{4}
+the source made no picture	소스가 영상을 생성하지 않음
+a render is already running	이미 렌더링 중임
+TAKE waits for the bar: {1} s	TAKE 마디 대기: {1} s
+TAKE waits for the beat: {1} s	TAKE 박 대기: {1} s
+there is no playlist to render	렌더링할 재생 목록이 없음
+this build has no Ableton Link	이 빌드에는 Ableton Link가 없음
+there is no picture in that range	해당 범위에 영상이 없음
+RENDER CANCEL: nothing is rendering	RENDER CANCEL: 렌더링 중인 작업 없음
+VJ LINK: this build has no Ableton Link	VJ LINK: 이 빌드에는 Ableton Link가 없음
+PAD CHIP: <slot> ON|OFF	PAD CHIP: <슬롯> ON|OFF
+PAD MODE: HOLD or LATCH	PAD MODE: HOLD 또는 LATCH
+RENDER START: CUE, CUES a-b or OUTPUT	RENDER START: CUE, CUES a-b 또는 OUTPUT
+frame {1} of {2} \xC2\xB7 {3} frames/s	프레임 {1}/{2} \xC2\xB7 {3} 프레임/초
+RENDER START CUES: first-last, numbered from 1	RENDER START CUES: 처음-마지막, 번호는 1부터
+the output's mask is not drawn by a render yet	출력 마스크는 아직 렌더링에 반영되지 않음
+PAD ASSIGN: this cue does not have that control	PAD ASSIGN: 이 큐에 해당 컨트롤이 없음
+the output's slices are not drawn by a render yet	출력 슬라이스는 아직 렌더링에 반영되지 않음
+the output's crossfader is not drawn by a render yet	출력 크로스페이더는 아직 렌더링에 반영되지 않음
+RENDER START: needs a size, a rate, a codec and a file	RENDER START: 크기, 속도, 코덱 및 파일 필요
+VJ QUANTISE: beat | 1 | 2 | 4 | off  (1, 2, 4 are bars)	VJ QUANTISE: beat | 1 | 2 | 4 | off  (1, 2, 4는 마디 수)
+PAD SET: x and y are numbers from 0 to 1 (y = 1 is the top)	PAD SET: x와 y는 0~1 사이 숫자(y = 1은 위쪽)
+RENDER START: size is 1080P, 4K or OUTPUT; codec is PRORES, H264 or PNG	RENDER START: 크기는 1080P, 4K 또는 OUTPUT; 코덱은 PRORES, H264 또는 PNG
+PAD ASSIGN: a control is OPACITY, FX<n>.AMOUNT, FX<n>.A to F, or NUM.<name> such as NUM.lumia.flow	PAD ASSIGN: 컨트롤은 OPACITY, FX<n>.AMOUNT, FX<n>.A~F 또는 NUM.<이름>(예: NUM.lumia.flow)
+PAD: expected PAD <deck> SET <x> <y> | RELEASE | MODE | ASSIGN | REMOVE | CHIP | LIST	PAD: 필요한 형식: PAD <deck> SET <x> <y> | RELEASE | MODE | ASSIGN | REMOVE | CHIP | LIST
+PAD: expected PAD <deck> SET <x> <y> | RELEASE | MODE HOLD|LATCH | ASSIGN <slot> <x> <y> | REMOVE <slot> | CHIP <slot> ON|OFF | LIST	PAD: 필요한 형식: PAD <deck> SET <x> <y> | RELEASE | MODE HOLD|LATCH | ASSIGN <slot> <x> <y> | REMOVE <slot> | CHIP <slot> ON|OFF | LIST
+VJ: expected ON|OFF|TOGGLE|MIX <0-1>|BLEND <mode>|TAP|BPM <n>|CLOCK <on|off>|QUANTISE <beat|1|2|4|off>|LINK <on|off|status>|DECKS <a> <b>|STATUS	VJ: 필요한 형식: ON|OFF|TOGGLE|MIX <0-1>|BLEND <mode>|TAP|BPM <n>|CLOCK <on|off>|QUANTISE <beat|1|2|4|off>|LINK <on|off|status>|DECKS <a> <b>|STATUS
+RENDER: START <CUE|CUES a-b|OUTPUT> <1080P|4K|OUTPUT> <25|30|50|60> <PRORES|H264|PNG> <file>, STATUS, CANCEL, DIALOG	RENDER: START <CUE|CUES a-b|OUTPUT> <1080P|4K|OUTPUT> <25|30|50|60> <PRORES|H264|PNG> <파일>, STATUS, CANCEL, DIALOG

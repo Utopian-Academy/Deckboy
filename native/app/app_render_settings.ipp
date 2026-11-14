@@ -1010,7 +1010,7 @@
       // — nobody looks for "where do my recordings go" under the tab about
       // display routing. It is mirrored here rather than moved, so the control
       // sits beside the RECORD button's own tab AND where people look first.
-      int recordH = stackH({sLineH, sRowH});
+      int recordH = stackH({sLineH, sRowH, sRowH});
       // A line for the folder in use and a row for the two buttons -- the same
       // shape as RECORDING, because it is the same kind of setting.
       int watchH = stackH({sLineH, sRowH});
@@ -1526,6 +1526,12 @@
       drawCenteredTextSafe(controlRenderer_, fontSmall_, recClear, "DEFAULT",
                            settingsStateInk(false));
       settingsBtns_.push_back({recClear, kSettingsActionRecordDirClear, "record_dir_clear"});
+      // RENDER TO FILE: the same programme drawn frame by frame, not recorded.
+      recY += sRowH + sGap;
+      const SDL_Rect renderRow = settingsRow(recX, recW, recY, sRowH, "Render", sGap);
+      drawSettingsStateFill(renderRow, false);
+      drawCenteredTextSafe(controlRenderer_, fontSmall_, renderRow, "RENDER TO FILE...", settingsStateInk(false));
+      settingsBtns_.push_back({renderRow, kSettingsActionRenderFile, "render_file"});
 
       // WATCH FOLDER. Media dropped into the folder joins the focused playlist
       // by itself. Under RECORDING because both are "a folder on disk this
@@ -5093,6 +5099,7 @@
       if (sb.action == kSettingsActionEncoderCancelAll)   { cancelAllConversions(); continue; }
       if (sb.action == kSettingsActionEncoderMoshLook)    { toggleMoshLook(); continue; }
       if (sb.action == kSettingsActionRecordToggle)   { toggleRecording(); continue; }
+      if (sb.action == kSettingsActionRenderFile) { settingsOpen_ = false; uiWatchdogPopupEvent("settings_modal", false); openRenderDialog(); continue; }
       // ── The five that were saved but unreachable ────────────────────────
       if (sb.action == kSettingsActionRecordRemux) {
         project_.recordingRemuxOnStop = !project_.recordingRemuxOnStop;

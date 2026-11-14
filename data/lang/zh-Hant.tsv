@@ -3246,3 +3246,1280 @@ whole picture	整幅畫面
 FX CHOICE: choice must be A or B	FX CHOICE：選項必須為 A 或 B
 FX CHOICE: no effect at that index	FX CHOICE：該索引處沒有特效
 FX LFO: slot is A-D for the parameters, E for the amount, F and G for the fifth and sixth (or 0-6)	FX LFO：槽位 A-D 對應參數，E 對應強度，F 和 G 對應第五和第六個（或 0-6）
+angle	角度
+attack	起音
+azimuth	方位角
+band curve	頻帶曲線
+bands	頻帶
+base layer	底層
+bits	位元數
+black point	黑位
+bleed	滲色
+block glitch	區塊故障
+block size	區塊大小
+blocks	區塊數
+blur	模糊
+bright	亮部
+buzzer	蜂鳴器
+by brightness	依亮度
+catch	捕捉
+caustics	焦散
+channel skew	色版偏斜
+channel spread	色版擴散
+character	字元
+chop	切碎
+coherence	同調性
+colour bleed	串色
+colour drift	色彩漂移
+colour lag	色彩延遲
+colour replace	色彩取代
+columns	欄數
+convergence	會聚
+copies	副本數
+corrupt	破壞
+corruption	損壞程度
+coupling	耦合
+crystallise	結晶化
+curl detail	渦旋細節
+curves	曲線
+cut bright	亮部裁切
+cut dark	暗部裁切
+cut reset	切鏡重設
+cutoff	截止頻率
+cuts	切割數
+cyan	青色
+damage	損傷
+damping	阻尼
+dark	暗部
+darkness	暗度
+deck age	機器老化
+depth	深度
+depth split	深度分離
+diamond	菱形
+distance	距離
+doppler	都卜勒
+dots move	點移動
+drift	漂移
+drip	滴落
+drips	滴數
+drive	驅動
+dye advect	染料平流
+edge ignite	邊緣點燃
+edges	邊緣
+empty	空白
+extended	延伸
+facet light	晶面光照
+falloff	衰減
+falsecolour	假色
+feed rate	供給速率
+feedback bloom	回授輝光
+ferrofluid	磁流體
+field of view	視角
+flash length	閃光長度
+flash to	閃至
+flicker	閃爍
+floor	下限
+flow	流動
+focus	聚焦
+fold	摺疊
+fold point	摺疊點
+frames	影格數
+frequency	頻率
+gap	間隙
+gather	匯聚
+glow	輝光
+glyph set	字形集
+gong	鑼
+grain	顆粒
+grain flow	顆粒流動
+grain size	顆粒大小
+green split	綠色分離
+grid	網格
+growl	低吼
+growth	生長
+head wear	磁頭磨損
+heat	熱量
+highlight roll	亮部滾降
+histogram	直方圖
+horizontal	水平
+hue turn	色相旋轉
+ice	冰
+ink	墨色
+interference	干擾
+irregularity	不規則度
+jump	跳躍
+kaleido	萬花
+kaleidoscope	萬花筒
+knee	轉折
+knife angle	刀口角度
+leak	洩漏
+let go	釋放
+lift	提升
+light	光照
+light angle	光照角度
+lightspeed	光速
+line colour	線條色彩
+line glow	線條輝光
+lissajous	李薩如
+luma displace	亮度位移
+luma key	亮度去背
+material	材質
+melt	融化
+memory	記憶
+midtones	中間調
+moire	摩爾紋
+mono	單聲道
+mosaic	馬賽克
+motion mosh	動態錯碼
+motion puppet	動態木偶
+motion trails	動態殘影
+night eyes	夜視眼
+no colour	無色
+noise	雜訊
+not connected	未連線
+nothing drawn	尚未繪製
+off-axis	離軸
+offline	離線
+orbit speed	環繞速度
+overflow	溢位
+parade	分量波形
+parallax	視差
+phone	電話
+pinch	捏合
+ping-pong	往返
+pink noise	粉紅雜訊
+pitch	音高
+pivot	樞軸
+pixel sort	像素排序
+plasma	電漿
+polar warp	極座標扭曲
+posterise	色階分離
+radial zoom	放射縮放
+radio	收音機
+radius	半徑
+ramp	斜坡
+range	範圍
+ratio	比率
+reach	延伸
+reaction bloom	反應綻放
+recordings	錄製檔案
+recovering	復原中
+refresh	重新整理
+release	釋音
+relief	浮雕
+relight	重新打光
+repeat width	重複寬度
+resonance	共振
+reverse	反向
+rgb split	RGB分離
+rings	環數
+ripple	漣漪
+rising	上升
+rod bias	視桿偏置
+room	房間
+rot	腐化
+rotation	旋轉
+round	圓形
+sag	下垂
+saw	鋸齒波
+scanlines	掃描線
+schlieren	紋影
+scope	示波器
+second mode	第二模式
+see through	透視
+seed density	種子密度
+self	自身
+settle	沉降
+shadow lift	暗部提升
+shake	抖動
+shard size	碎片大小
+sharpen	銳利化
+sheen	光澤
+sideways	橫向
+slit scan	狹縫掃描
+slit width	狹縫寬度
+smear	拖抹
+softness	柔和度
+solarise	曝光反轉
+spike count	尖峰數量
+spike length	尖峰長度
+spin	自轉
+spinning	旋轉中
+spring	彈簧
+sprite sheet	精靈圖集
+square	方波
+steps	步數
+stereogram	立體圖
+stiffness	剛度
+sting	短促音
+strength	強度
+strobe	頻閃
+stroke	筆觸
+sway	搖擺
+sweep	掃頻
+sweep speed	掃頻速度
+swell speed	湧浪速度
+symbols	符號
+system default	系統預設
+system output	系統輸出
+tape	磁帶
+tape age	磁帶老化
+tear width	撕裂寬度
+temporal dither	時間抖色
+test signal	測試訊號
+text to send	傳送文字
+threshold	閾值
+throw	拋擲
+tile size	磁磚大小
+tilt	傾斜
+time	時間
+time cube	時間立方
+tint	染色
+tint colour	染色色彩
+tracking	循軌
+trail	殘影
+transparent	透明
+triangle	三角波
+triple beep	三連嗶聲
+turn	轉動
+twist	扭轉
+unavailable	無法使用
+unbalanced )	未配對的 )
+vapor	蒸氣
+vector	向量
+vertical	垂直
+vertical bias	垂直偏置
+vibrato	顫音
+vignette	暗角
+wash out	褪色
+wave height	波高
+wavefront	波前
+way	方向
+wedges	楔形
+white	白色
+white noise	白雜訊
+white point	白位
+window hidden	視窗已隱藏
+window minimized	視窗已最小化
+wire	線框
+wrong display	顯示器錯誤
+zoom	縮放
+(choose cue)	(選擇提示)
+(missing)	(遺失)
+(no slots)	(無插槽)
+(set media file)	(設定媒體檔案)
+(set url)	(設定url)
+A number	數值
+across the grain	橫跨紋理
+additive	相加
+alternating	交替
+amber	琥珀色
+Audio bitrate	音訊位元率
+Audio reactivity	音訊反應
+Brush opacity	筆刷不透明度
+Brush size	筆刷大小
+cancelled	已取消
+Canvas Height	畫布高度
+Canvas View	畫布檢視
+Canvas Width	畫布寬度
+Centre X	中心X
+Centre Y	中心Y
+Control change	控制變更
+Cue Notes	提示備註
+Custom Glyphs	自訂字形
+Density	密度
+Detail	細節
+Draw colour	繪製色彩
+empty expression	運算式為空
+export as .png or .svg	匯出為 .png 或 .svg
+Fixture address	燈具位址
+Fixture name	燈具名稱
+Fixture universe	燈具域
+Height	高度
+Height (px)	高度 (px)
+Key Color	去背色彩
+Keyframe interval	關鍵影格間隔
+Live Browser	即時瀏覽器
+Live Source	即時來源
+Mask opacity	遮罩不透明度
+Mask rotation	遮罩旋轉
+Mask scale	遮罩縮放
+Mask X	遮罩X
+Mask Y	遮罩Y
+Add Browser Cue	新增瀏覽器提示
+Add NDI Source Cue	新增NDI來源提示
+Add Stream Cue	新增串流提示
+Art-Net Destination	Art-Net目的地
+ASCII 95 (density)	ASCII 95 (密度)
+ASCII 95 (raw)	ASCII 95 (原始)
+ASIO is off	ASIO已關閉
+ATEM Input	ATEM輸入
+Attach Lower Third	附加Lower Third
+Attach PIP Overlay	附加子母畫面覆蓋層
+Attack	起音
+Bands	頻帶
+Blobs	團塊
+BOTH	兩者
+Browser Ready	瀏覽器就緒
+CLASSIC	經典
+CLOCK	時鐘
+Companion/OSC Port	Companion/OSC連接埠
+control 1	控制1
+control 2	控制2
+control 3	控制3
+control 4	控制4
+could not reach github	無法連線至github
+could not read the PDF	無法讀取PDF
+could not start ffmpeg	無法啟動ffmpeg
+Cue Goto	跳至提示
+Custom Output Raster	自訂輸出點陣
+Default Cue Fade	預設提示淡變
+Destination Address	目的地位址
+Destination UDP port	目的地UDP連接埠
+display native	顯示器原生
+Display none	無顯示器
+DMX Channels	DMX通道
+EXTREME	極強
+Feedback zoom	回授縮放
+Find Cue	尋找提示
+Find+Take Cue	尋找並TAKE提示
+Fire at a time of day	依時刻觸發
+Fire on a MIDI note	由MIDI音符觸發
+Fire on an OSC address	由OSC位址觸發
+First channel (1-512)	起始通道 (1-512)
+Flipbook rate	翻頁速率
+Flow	流動
+Frequency	頻率
+Glitch	故障
+GOTO Cue	GOTO 跳至提示
+Grey	灰色
+In time	進場時間
+Its name, number or id	其名稱、編號或id
+Key sender source name	去背傳送來源名稱
+Legacy Cue Link	舊式提示連結
+Lissajous (L/R phase)	李薩如 (L/R相位)
+Lower Third - subtitle	Lower Third - 副標題
+Lower Third - title	Lower Third - 標題
+Lower Third Subtext	Lower Third副文字
+Lower Third Title	Lower Third標題
+Media	媒體
+Melt	融化
+Milliseconds 0-5000	毫秒 0-5000
+Mod depth	調變深度
+Mod ratio	調變比率
+music & sparkle	音樂與閃光
+NDI Key Name	NDI去背名稱
+NDI Name	NDI名稱
+NDI Source Name	NDI來源名稱
+NEXT	下一個
+NMC Port	NMC連接埠
+NMC Source	NMC來源
+NMC Target	NMC目標
+NMOS Interface Name	NMOS介面名稱
+NMOS Node Port	NMOS節點連接埠
+NMOS Registry	NMOS註冊中心
+no ASIO in this build	此組建不含ASIO
+no driver named	無此名稱的驅動程式
+no mask made	未建立遮罩
+no release found	找不到發行版本
+no X display to read	無可讀取的X顯示器
+not on this output	不在此輸出上
+Note	音符
+Note off	音符關
+Note on	音符開
+OSC Address	OSC位址
+OSC Query HTTP Port	OSC查詢HTTP連接埠
+Out time	退場時間
+Output Alpha	輸出透明度
+Output Canvas	輸出畫布
+Output Delay	輸出延遲
+output fault	輸出故障
+Output name	輸出名稱
+Output Refresh	輸出更新
+own playlist	自身播放清單
+Payload	訊息內容
+Percent 0-100	百分比 0-100
+Phrases	片語
+PIP Target Cue	子母畫面目標提示
+Pixel density	像素密度
+Playlist Start TC	播放清單起始時碼
+Playlist Timebase	播放清單時基
+Plugin	外掛
+Portal	傳送門
+Practice show	練習演出
+PREVIOUS	上一個
+Program change	音色變更
+Prompter script	提詞器文稿
+pulse 25%	脈衝25%
+QUALITY	品質
+Raw bytes	原始位元組
+Raw MIDI Bytes	原始MIDI位元組
+Release	釋音
+Rename cue	重新命名提示
+Rename fixture	重新命名燈具
+Renumber Cues	重新編號提示
+Replay hold	重播保持
+Retrigger	重新觸發
+Rim	邊緣
+Rotation	旋轉
+runtime unavailable	執行階段無法使用
+Save Warp Preset	儲存變形預設
+SCOPES	示波器
+Seconds (0-30)	秒 (0-30)
+Sender source name	傳送來源名稱
+size out of range	大小超出範圍
+Smear	拖抹
+Source Ready	來源就緒
+Spout Sender Name	Spout傳送名稱
+Sprite spin	精靈旋轉
+SRT latency	SRT延遲
+SRT passphrase	SRT通行片語
+SRT stream ID	SRT串流ID
+ST 2110 Destination	ST 2110目的地
+ST 2110 Port	ST 2110連接埠
+Step length	步驟長度
+stream restart needed	需要重新啟動串流
+Stream URL	串流URL
+stream write failed	串流寫入失敗
+SUBTLE	輕微
+Switcher IP address	切換台IP位址
+Timer Message	計時器訊息
+TSL Tally	TSL指示燈
+Turn	轉動
+Twist	扭轉
+Universe (0-63999)	域 (0-63999)
+URL or local page path	URL或本機頁面路徑
+Video bitrate	視訊位元率
+Video dip fade	視訊浸色淡變
+vMix HTTP Port	vMix HTTP連接埠
+vMix TCP Port	vMix TCP連接埠
+Web Monitor PIN	網頁監看PIN
+Web Monitor Port	網頁監看連接埠
+What it runs	執行內容
+Which cue	哪個提示
+X,Y offset in pixels	X,Y偏移像素值
+Zoom	縮放
+a name for this step	此步驟的名稱
+A number, or blank for none	輸入數字，留白表示無
+A command line, or blank for nothing	輸入命令列，留白不執行
+a playlist that is gone	播放清單已不存在
+a target cannot target another target	目標不能指向另一個目標
+add an output to scope it	新增輸出以查看示波器
+an ASIO stream is already open	ASIO串流已開啟
+another app is holding the pointer	其他應用程式正在占用指標
+built without ASIO support	組建時未啟用ASIO支援
+built without NDI SDK headers	組建時未包含NDI SDK標頭檔
+channel count must be at least 1	通道數必須至少為1
+comma outside a function call	函式呼叫外存在逗號
+could not start the PDF renderer	無法啟動PDF算繪器
+could not write the export script	無法寫入匯出指令稿
+couldn't open explorer	無法開啟檔案總管
+couldn't open file manager	無法開啟檔案管理員
+couldn't open finder	無法開啟Finder
+driver refused to start	驅動程式拒絕啟動
+driver reports no output channels	驅動程式回報無輸出通道
+driver would not create output buffers	驅動程式無法建立輸出緩衝區
+driver would not load (in use by another application?)	驅動程式無法載入（是否正由其他應用程式使用？）
+driver would not report a buffer size	驅動程式未回報緩衝區大小
+driver would not report channel info	驅動程式未回報通道資訊
+escaped to windowed	已返回視窗模式
+ffmpeg made no file	ffmpeg未產生檔案
+ffmpeg stopped taking frames	ffmpeg已停止接收影格
+fullscreen dropped	已退出全螢幕
+it could not be started	無法啟動
+LibreOffice could not be run	無法執行LibreOffice
+LibreOffice produced no PDF	LibreOffice未產生PDF
+libX11 is not installed	未安裝libX11
+lost the session bus	工作階段匯流排連線中斷
+macOS could not read the PDF	macOS無法讀取PDF
+no pages could be rendered	無法算繪任何頁面
+not a MIDI file (no MThd header)	不是MIDI檔案（無MThd標頭）
+not while a cue is playing	提示播放時無法操作
+only a background in it	僅含背景
+opened in explorer	已在檔案總管中開啟
+opened in file manager	已在檔案管理員中開啟
+pdftoppm produced no pages	pdftoppm未產生頁面
+PowerPoint could not export this file	PowerPoint無法匯出此檔案
+release has no build for this platform	此版本沒有適用於此平台的組建
+revealed in finder	已在Finder中顯示
+target cue is gone	目標提示已不存在
+targets nothing	未指向任何目標
+the document has no pages	文件沒有頁面
+the file has no playable events	檔案沒有可播放的事件
+the file is empty	檔案為空
+the header is truncated	檔案標頭遭截斷
+the NDI runtime is not installed	未安裝NDI執行階段
+the PDF renderer produced no pages	PDF算繪器未產生頁面
+the screen could not be read there	無法讀取該處螢幕
+the show plays through ASIO	演出透過ASIO播放
+the time division is not readable	無法讀取時間分割
+this build has no X11 support	此組建不支援X11
+update: could not start the installer	更新：無法啟動安裝程式
+update: could not start the install helper	更新：無法啟動安裝輔助程式
+update: could not write the install helper	更新：無法寫入安裝輔助程式
+update: not running from an AppImage	更新：並非由AppImage執行
+web audio encoder cannot keep up	網頁音訊編碼器處理速度不足
+Web Monitor Connections	網頁監看連線數
+%, 1 to 100 (supports + - * / and ())	%，1至100 (支援 + - * / 和 ())
+0-1 (supports + - * / and ())	0-1 (支援 + - * / 和 ())
+0-100% (supports + - * / and ())	0-100% (支援 + - * / 和 ())
+0-100%, left to right (supports + - * / and ())	0-100%，由左至右 (支援 + - * / 和 ())
+0-100%, top to bottom (supports + - * / and ())	0-100%，由上至下 (支援 + - * / 和 ())
+Amount 0-100% (supports + - * / and ())	強度0-100% (支援 + - * / 和 ())
+Colour steps, 2-8 (supports + - * / and ())	色階數，2-8 (支援 + - * / 和 ())
+Degrees -180..180 (supports + - * / and ())	度 -180..180 (支援 + - * / 和 ())
+Degrees per second, -720 to 720 (supports + - * / and ())	度/秒，-720至720 (支援 + - * / 和 ())
+Degrees round the colour wheel, 0-360 (supports + - * / and ())	色環角度，0-360 (支援 + - * / 和 ())
+Degrees, -360 to 360 (supports + - * / and ())	度，-360至360 (支援 + - * / 和 ())
+Degrees, 0-360 (supports + - * / and ())	度，0-360 (支援 + - * / 和 ())
+Feature size, 0.1-8 (supports + - * / and ())	特徵大小，0.1-8 (支援 + - * / 和 ())
+Frames a second, 1 to 60 (supports + - * / and ())	每秒影格數，1至60 (支援 + - * / 和 ())
+Hertz, 20-20000 (supports + - * / and ())	赫茲，20-20000 (支援 + - * / 和 ())
+Horizontal cells, 64-960 (supports + - * / and ())	橫向儲存格數，64-960 (支援 + - * / 和 ())
+How big a blob grows, 0-1 (supports + - * / and ())	團塊生長大小，0-1 (支援 + - * / 和 ())
+How hard it cuts, %, 0 to 100 (supports + - * / and ())	切割硬度，%，0至100 (支援 + - * / 和 ())
+How hard the audio drives it, 0-1 (supports + - * / and ())	音訊驅動強度，0-1 (支援 + - * / 和 ())
+How many are alive at once, 3-48 (supports + - * / and ())	同時存活數量，3-48 (支援 + - * / 和 ())
+Palette turn, 0-1 (supports + - * / and ())	調色盤旋轉，0-1 (支援 + - * / 和 ())
+Pitch in hertz, 20-8000 (supports + - * / and ())	音高（赫茲），20-8000 (支援 + - * / 和 ())
+Pixel sort amount, 0-1 (supports + - * / and ())	像素排序強度，0-1 (支援 + - * / 和 ())
+Pixels (supports + - * / and ())	像素 (支援 + - * / 和 ())
+Pixels, 64-2160 (supports + - * / and ())	像素，64-2160 (支援 + - * / 和 ())
+Pixels, 64-3840 (supports + - * / and ())	像素，64-3840 (支援 + - * / 和 ())
+Scale of the whole graphic, 0.5-2 (supports + - * / and ())	整體圖形縮放，0.5-2 (支援 + - * / 和 ())
+Seconds between retriggers, 0-8 (supports + - * / and ())	重新觸發間隔秒數，0-8 (支援 + - * / 和 ())
+Seconds the finished drawing stays, 0 to 60 (supports + - * / and ())	完成繪圖的停留秒數，0至60 (支援 + - * / 和 ())
+Seconds the in move takes, 0-5 (supports + - * / and ())	進場動作秒數，0-5 (支援 + - * / 和 ())
+Seconds the out move takes, 0-5 (supports + - * / and ())	退場動作秒數，0-5 (支援 + - * / 和 ())
+Seconds, 0-4 (supports + - * / and ())	秒，0-4 (支援 + - * / 和 ())
+Seconds, 0-8 (supports + - * / and ())	秒，0-8 (支援 + - * / 和 ())
+Size, %, 5 to 400 (supports + - * / and ())	大小，%，5至400 (支援 + - * / 和 ())
+Spiral size, 0.25-4 (supports + - * / and ())	螺旋大小，0.25-4 (支援 + - * / 和 ())
+Spiral strength, 0-4 (supports + - * / and ())	螺旋強度，0-4 (支援 + - * / 和 ())
+Thickness of the glowing edge, 0-1 (supports + - * / and ())	發光邊緣厚度，0-1 (支援 + - * / 和 ())
+Where the eye sits, 0 left to 1 right (supports + - * / and ())	視點位置，0左至1右 (支援 + - * / 和 ())
+Where the eye sits, 0 top to 1 bottom (supports + - * / and ())	視點位置，0上至1下 (支援 + - * / 和 ())
+% of the picture's height, 0.1 to 20 (supports + - * / and ())	畫面高度的%，0.1至20 (支援 + - * / 和 ())
+-3 to 3: 0 holds, negative runs backwards (supports + - * / and ())	-3至3：0保持，負值倒放 (支援 + - * / 和 ())
+0 classic, 1 fire, 2 ice, 3 neon, 4 mono (supports + - * / and ())	0經典，1火，2冰，3霓虹，4單色 (支援 + - * / 和 ())
+0 rainbow + grey, 1 rainbow, 2 theme, 3 mono (supports + - * / and ())	0彩虹+灰，1彩虹，2佈景主題，3單色 (支援 + - * / 和 ())
+0 zone, 1 twin, 2 flow, 3 saddle, 4 ripple, 5 shear (supports + - * / and ())	0區域，1雙生，2流動，3鞍形，4漣漪，5剪切 (支援 + - * / 和 ())
+0-100%: 0 holds the field still (supports + - * / and ())	0-100%：0使場靜止 (支援 + - * / 和 ())
+0-100%: 50 is 1x, 0 a quarter, 100 four times (supports + - * / and ())	0-100%：50為1x，0為四分之一，100為四倍 (支援 + - * / 和 ())
+0-100%: how far the field bends (supports + - * / and ())	0-100%：場的彎曲程度 (支援 + - * / 和 ())
+0-100%: the share of each band drawn as grey stripes (supports + - * / and ())	0-100%：各頻帶繪為灰條紋的比例 (支援 + - * / 和 ())
+Across, % of the width, -100 to 100 (supports + - * / and ())	橫向，寬度的%，-100至100 (支援 + - * / 和 ())
+Birth, drift and fade rate, 0.1-3 (supports + - * / and ())	生成、漂移和淡出速率，0.1-3 (支援 + - * / 和 ())
+Block displacement and channel tearing, 0-1 (supports + - * / and ())	區塊位移與色版撕裂，0-1 (支援 + - * / 和 ())
+dBFS, -60 to 0 (-18 is EBU alignment) (supports + - * / and ())	dBFS，-60至0（-18為EBU校準位準） (支援 + - * / 和 ())
+Down, % of the height, -100 to 100 (supports + - * / and ())	向下，高度的%，-100至100 (支援 + - * / 和 ())
+Edge out (+) or in (-), % of the height, -25 to 25 (supports + - * / and ())	邊緣外擴(+)或內縮(-)，高度的%，-25至25 (支援 + - * / 和 ())
+Edge softness, % of the height, 0 to 25 (supports + - * / and ())	邊緣柔和度，高度的%，0至25 (支援 + - * / 和 ())
+FDS hardware gain range, 0-63 (supports + - * / and ())	FDS硬體增益範圍，0-63 (支援 + - * / 和 ())
+Fields per frame, 0-4 (1 = one field per rendered frame) (supports + - * / and ())	每影格場數，0-4（1=每算繪影格一個場） (支援 + - * / 和 ())
+How much of each frame feeds the next, 0-0.95 (supports + - * / and ())	每影格回授至下一影格的比例，0-0.95 (支援 + - * / 和 ())
+How readily neighbours merge, 0 (never) to 1 (supports + - * / and ())	相鄰物件融合程度，0（從不）至1 (支援 + - * / 和 ())
+Internal resolution, 1 (chunky) to 5 (fine) (supports + - * / and ())	內部精度，1（粗）至5（細） (支援 + - * / 和 ())
+Master oscillator rate, 0.01-8 (supports + - * / and ())	主振盪器速率，0.01-8 (支援 + - * / 和 ())
+Modulator as a ratio of the note, 0.05-16 (supports + - * / and ())	調變器與音符的比率，0.05-16 (支援 + - * / 和 ())
+One LED tile's height in pixels, 8-8192 (supports + - * / and ())	單塊LED屏高度（像素），8-8192 (支援 + - * / 和 ())
+One LED tile's width in pixels, 8-8192 (supports + - * / and ())	單塊LED屏寬度（像素），8-8192 (支援 + - * / 和 ())
+Per-frame zoom of the feedback path, 0.90-1.15 (supports + - * / and ())	回授路徑每影格縮放，0.90-1.15 (支援 + - * / 和 ())
+Scanlines, bloom and gun misalignment, 0-1 (supports + - * / and ())	掃描線、輝光與電子槍失準，0-1 (支援 + - * / 和 ())
+Seconds before it leaves by itself; 0 waits for OUT (supports + - * / and ())	自動退場前秒數；0等待OUT (支援 + - * / 和 ())
+Space under it, as a fraction of the frame, 0-0.8 (supports + - * / and ())	下方留白占畫面的比例，0-0.8 (支援 + - * / 和 ())
+Turbulence, 0 still to 3 boiling (supports + - * / and ())	亂流，0靜止至3沸騰 (支援 + - * / 和 ())
+Turns the rim's colours round the wheel, 0-1 (supports + - * / and ())	沿色環旋轉邊緣色彩，0-1 (支援 + - * / 和 ())
+AUTO	自動
+auto (59.94 Hz)	自動 (59.94 Hz)
+BITRATE	位元率
+audioprint	音訊印跡
+bohlen-pierce	波倫-皮爾斯
+chladni	克拉尼
+databend	資料彎折
+datamosh	資料錯碼
+Devamp	結束循環
+Fireside	爐邊
+just	純律
+meantone	中全音律
+pythagorean	畢達哥拉斯律
+purkinje	浦肯野
+Ouroboros	銜尾蛇
+MONO L	單聲道 L
+MONO R	單聲道 R
+LOAD NEXT	載入下一個
+MSC Cue Number	MSC提示編號
+SYPHON TEXTURE SHARE	SYPHON紋理共享
+SYPHON / SPOUT TEXTURE SHARE	SYPHON / SPOUT紋理共享
+DECODE --.-	解碼 --.-
+DECODE OFF	解碼 OFF
+DECODE WARM	解碼預熱
+OUTPUT --.-	輸出 --.-
+OUTPUT WARM	輸出預熱
+STREAM --.-	串流 --.-
+STREAM ERR	串流錯誤
+STREAM OFF	串流 OFF
+STREAM WARM	串流預熱
+PROXY 720p	代理720p
+hh:mm:ss or seconds	hh:mm:ss或秒
+e.g. /cue/1/start	例如 /cue/1/start
+e.g. 12.5	例如 12.5
+e.g. 192.168.1.50	例如 192.168.1.50
+e.g. 1=255, 10-14=64	例如 1=255, 10-14=64
+e.g. 20:0 or client name	例如20:0或用戶端名稱
+e.g. 90 3C 7F	例如 90 3C 7F
+0-127; 127 is all-call	0-127；127為全呼
+0-127; the domain the facility's clock runs on	0-127；場館時鐘運作的域
+10-79 characters, or empty for none	10-79個字元，留白表示無
+8+ characters; letters and symbols are allowed	至少8個字元；允許字母和符號
+Apple keeps the Keynote format secret on purpose, a malicious lock-in tactic, so only Apple's own software can read it properly. Best route: open it in Keynote on iCloud.com (free, in any browser), choose Download a Copy > PDF, and import that PDF	Apple故意對Keynote格式保密，這是一種惡意綁定使用者的手段，使得只有Apple自家的軟體才能正確讀取。最佳辦法：在iCloud.com的Keynote中開啟（免費，任何瀏覽器皆可），選擇「下載副本 > PDF」，再匯入該PDF
+8+ characters; other machines send AUTH <passphrase> first. Empty = off	至少8個字元；其他機器須先傳送AUTH <passphrase>。留白=關閉
+A command line, as a DASH button runs it. {value} is the knob's number, {note} the key.	如DASH按鈕所執行的命令列。{value}為旋鈕數值，{note}為琴鍵。
+an IPv4 address, or 255.255.255.255 to broadcast	IPv4位址，或用255.255.255.255廣播
+browser connections at once, 1-64 (default 8)	瀏覽器同時連線數，1-64（預設8）
+Default Non-Movie Duration	非影片預設長度
+Fire at incoming timecode	依輸入時碼觸發
+Hz or AUTO (e.g. 60 or 59.94)	Hz或AUTO（例如60或59.94）
+kbps (32-512; 160 is a sane default)	kbps（32-512；160是合理預設值）
+milliseconds (40..2000)	毫秒 (40..2000)
+milliseconds (20-8000; ~4x your RTT)	毫秒（20-8000；約為RTT的4x）
+Name visible to receivers	接收端可見名稱
+NDI source name (e.g. LAPTOP (source 1))	NDI來源名稱（例如LAPTOP (source 1)）
+OSC Feedback Mirror Rate	OSC回授鏡像速率
+Paste the key from your platform	貼上平台提供的金鑰
+paste your stream key here	在此貼上串流金鑰
+pixels (of the output raster)	像素（輸出點陣）
+position on the output raster, in pixels	在輸出點陣上的位置，單位為像素
+Routing hint for the receiver	接收端路由提示
+seconds (1-10; most platforms want 2)	秒（1-10；多數平台要求2）
+Seconds for new-cue fade in/out defaults	新提示預設淡入/淡出秒數
+seconds this step holds before PLAY moves on	PLAY繼續前此步驟保持的秒數
+ST 2110 network interface	ST 2110網路介面
+Target IP (or 255.255.255.255 to broadcast)	目標IP（廣播用255.255.255.255）
+UDP port for transport sync	播放同步UDP連接埠
+Where to send transport (blank = broadcast)	播放控制傳送位置（留白=廣播）
+Which switcher input Deckboy is (0 = not set)	Deckboy對應的切換台輸入（0=未設定）
+AUDIOALSO: expected ADD <name>, REMOVE <name> or CLEAR	AUDIOALSO: 所需格式：ADD <name>, REMOVE <name> 或 CLEAR
+BROWSER KEY: expected Enter|Tab|Backspace|Escape	BROWSER KEY: 所需格式：Enter|Tab|Backspace|Escape
+BUGSWAT: expected START, SHOWME, SKIP, PLAY, EXIT or STATUS	BUGSWAT: 所需格式：START, SHOWME, SKIP, PLAY, EXIT 或 STATUS
+CAPTIONS LIVE: expected ON, OFF, STATUS or TEXT	CAPTIONS LIVE: 所需格式：ON, OFF, STATUS 或 TEXT
+CAPTIONS SOURCE: expected INPUT, DECK <n> or OUTPUT <n>	CAPTIONS SOURCE: 所需格式：INPUT, DECK <n> 或 OUTPUT <n>
+DMXCUE FIXTURE: expected <name> <level%>|LEAVE [<colour>]	DMXCUE FIXTURE: 所需格式：<name> <level%>|LEAVE [<colour>]
+DMXCUE LFO: expected <name> LEVEL|COLOUR ON|OFF [<rate Hz>] [<depth %>]	DMXCUE LFO: 所需格式：<name> LEVEL|COLOUR ON|OFF [<rate Hz>] [<depth %>]
+DMXCUE: expected NEW, SET, FADE, UNIVERSE, HOST, PORT, FIRE or BLACKOUT	DMXCUE: 所需格式：NEW, SET, FADE, UNIVERSE, HOST, PORT, FIRE 或 BLACKOUT
+ENDACTION: expected INHERIT, STOP, LOOP, HOLD or NEXT	ENDACTION: 所需格式：INHERIT, STOP, LOOP, HOLD 或 NEXT
+expected waveform|scope|lissajous|spectrum|level|cover	所需格式：waveform|scope|lissajous|spectrum|level|cover
+FADE CURVE: expected linear, ease-in, ease-out or s-curve	FADE CURVE: 所需格式：linear, ease-in, ease-out 或 s-curve
+FADE WHAT: expected opacity, volume, dimmer, brightness, contrast, saturation, hue, effect, audiofx or speed	FADE WHAT: 所需格式：opacity, volume, dimmer, brightness, contrast, saturation, hue, effect, audiofx 或 speed
+FIXTURE ADD: expected <name> dimmer|rgb|rgbw|rgba|drgb|dcct <universe> [<address>]	FIXTURE ADD: 所需格式：<name> dimmer|rgb|rgbw|rgba|drgb|dcct <universe> [<address>]
+LOWERSTYLE: expected none, fade, rise, slide, wipe or NEXT	LOWERSTYLE: 所需格式：none, fade, rise, slide, wipe 或 NEXT
+MASK ASSIGN: expected <id|NONE> CUE | LAYER <output> <playlist> | OUTPUT <n> | MATTE <n>	MASK ASSIGN: 所需格式：<id|NONE> CUE | LAYER <output> <playlist> | OUTPUT <n> | MATTE <n>
+MASK ASSIGN: expected CUE, LAYER, OUTPUT or MATTE	MASK ASSIGN: 所需格式：CUE, LAYER, OUTPUT 或 MATTE
+MASK EXPORT: expected <id> <file.png|file.svg> [WxH]	MASK EXPORT: 所需格式：<id> <file.png|file.svg> [WxH]
+MASK LFO: expected <id> <param> ON|OFF [rate Hz] [depth %]	MASK LFO: 所需格式：<id> <param> ON|OFF [rate Hz] [depth %]
+MATRIX SET: expected <source 1-2> <dest> <0-100>	MATRIX SET: 所需格式：<source 1-2> <dest> <0-100>
+MATRIX: expected SET <src> <dest> <0-100>, SEED or CLEAR	MATRIX: 所需格式：SET <src> <dest> <0-100>, SEED 或 CLEAR
+MESH: expected on|off|toggle|height|tilt|yaw|spin|grid	MESH: 所需格式：on|off|toggle|height|tilt|yaw|spin|grid
+MIC: expected ADD, LIST, INPUT, CHANNEL or GAIN	MIC: 所需格式：ADD, LIST, INPUT, CHANNEL 或 GAIN
+MIDICUE KIND: expected note-on, note-off, cc, program, msc-go, msc-stop, msc-resume or raw	MIDICUE KIND: 所需格式：note-on, note-off, cc, program, msc-go, msc-stop, msc-resume 或 raw
+MIDICUE: expected NEW, PORTS, PORT, KIND, CH, D1, D2, DEVICE, CUENUM, LIST, RAW or SEND	MIDICUE: 所需格式：NEW, PORTS, PORT, KIND, CH, D1, D2, DEVICE, CUENUM, LIST, RAW 或 SEND
+MULTIVIEW LAYOUT: expected GRID, BIG, BIGTOP or TWOTOP	MULTIVIEW LAYOUT: 所需格式：GRID, BIG, BIGTOP 或 TWOTOP
+MULTIVIEW WINDOW: expected PROGRAMME, DECK<n>, OUTPUT<n>, NEXT, CLOCK or EMPTY	MULTIVIEW WINDOW: 所需格式：PROGRAMME, DECK<n>, OUTPUT<n>, NEXT, CLOCK 或 EMPTY
+NETCUE: expected NEW, PROTO, HOST, PORT, ADDRESS, PAYLOAD or SEND	NETCUE: 所需格式：NEW, PROTO, HOST, PORT, ADDRESS, PAYLOAD 或 SEND
+OUTPROBE: expected <output> <x 0-1> <y 0-1>	OUTPROBE: 所需格式：<output> <x 0-1> <y 0-1>
+OUTPUT HDR: expected ON, OFF, AUTO, SIGNAL PQ|HLG, WHITE <nits> or STATUS	OUTPUT HDR: 所需格式：ON, OFF, AUTO, SIGNAL PQ|HLG, WHITE <nits> 或 STATUS
+OUTPUTFX ADD: expected hpf, lpf, tilt, comp or width	OUTPUTFX ADD: 所需格式：hpf, lpf, tilt, comp 或 width
+OUTPUTFX: expected ADD, SET, REMOVE, BYPASS, CLEAR or DEVICE	OUTPUTFX: 所需格式：ADD, SET, REMOVE, BYPASS, CLEAR 或 DEVICE
+OUTPUTS ADD: expected <name> CH <n> or CH <n>-<n+1>	OUTPUTS ADD: 所需格式：<name> CH <n> 或 CH <n>-<n+1>
+PATCH: expected <deck> <output> <dB> or OFF	PATCH: 所需格式：<deck> <output> <dB> 或 OFF
+presenter colour: expected BG|INK|ACCENT #rrggbb	presenter colour: 所需格式：BG|INK|ACCENT #rrggbb
+PRESET: expected LIST, SAVE, RECALL, UPDATE, SCOPE, RENAME or DELETE	PRESET: 所需格式：LIST, SAVE, RECALL, UPDATE, SCOPE, RENAME 或 DELETE
+rectc: expected <hh:mm:ss:ff|timeofday> [df|ndf|auto]	rectc: 所需格式：<hh:mm:ss:ff|timeofday> [df|ndf|auto]
+SCALEMODE: expected fit|fill|stretch|unscaled	SCALEMODE: 所需格式：fit|fill|stretch|unscaled
+SCOPES BIG: expected waveform, parade, vector, diamond, histogram, falsecolour, sound or off	SCOPES BIG: 所需格式：waveform, parade, vector, diamond, histogram, falsecolour, sound 或 off
+SCOPES: expected PROGRAM, SCOPES, BOTH, TOGGLE, BIG, FREEZE, MATRIX, SOURCE, STATS or SOUND	SCOPES: 所需格式：PROGRAM, SCOPES, BOTH, TOGGLE, BIG, FREEZE, MATRIX, SOURCE, STATS 或 SOUND
+SECTION: expected playback|metadata|geometry|key|audio|effects|timer|tone|synth	SECTION: 所需格式：playback|metadata|geometry|key|audio|effects|timer|tone|synth
+STING: expected ON, PITCH, LENGTH, SWEEP or BODY	STING: 所需格式：ON, PITCH, LENGTH, SWEEP 或 BODY
+TARGET VERB: expected start|stop|pause|resume|load|arm|disarm	TARGET VERB: 所需格式：start|stop|pause|resume|load|arm|disarm
+TEXTCUE ALIGN: expected left, centre or right	TEXTCUE ALIGN: 所需格式：left, centre 或 right
+TEXTCUE ANIM: expected none, fade, typewriter, scroll, crawl, pulse or wobble	TEXTCUE ANIM: 所需格式：none, fade, typewriter, scroll, crawl, pulse 或 wobble
+TEXTCUE: expected NEW, BODY, ANIM, SIZE, SPEED, ALIGN, CARD, LOWERNEW, LOWER, TITLE, SUB, LOOK, BAR, ACCENT, SCALE, WIGGLE, IN, OUTMOVE or OUT	TEXTCUE: 所需格式：NEW, BODY, ANIM, SIZE, SPEED, ALIGN, CARD, LOWERNEW, LOWER, TITLE, SUB, LOOK, BAR, ACCENT, SCALE, WIGGLE, IN, OUTMOVE 或 OUT
+TRACKER: expected GO, BACK, PLAY, STOP, STEP <n>, ADD, SET <step> <deck> <cue|STOP|FADE|VOLUME|OPACITY>, MUTE|SOLO <deck>, JUMP <step> <row>, SECTION <step> <name>, VIEW, LOOP or CLICKER	TRACKER: 所需格式：GO, BACK, PLAY, STOP, STEP <n>, ADD, SET <step> <deck> <cue|STOP|FADE|VOLUME|OPACITY>, MUTE|SOLO <deck>, JUMP <step> <row>, SECTION <step> <name>, VIEW, LOOP 或 CLICKER
+TUTORIAL: expected START, SHOWME, SKIP, EXIT, STATUS or SCREENS	TUTORIAL: 所需格式：START, SHOWME, SKIP, EXIT, STATUS 或 SCREENS
+UPDATE: expected check|download|install|status	UPDATE: 所需格式：check|download|install|status
+VJ: expected ON|OFF|TOGGLE|MIX <0-1>|BLEND <mode>|TAP|BPM <n>|CLOCK <on|off>|QUANTISE <on|off>|DECKS <a> <b>|STATUS	VJ: 所需格式：ON|OFF|TOGGLE|MIX <0-1>|BLEND <mode>|TAP|BPM <n>|CLOCK <on|off>|QUANTISE <on|off>|DECKS <a> <b>|STATUS
+AUDIOFX: expected OFF, BYPASS, or amount and parameters as percentages	AUDIOFX：應為OFF、BYPASS，或以百分比指定強度與參數
+BLEND PAIR: expected <other output number> <overlap in pixels>	BLEND PAIR：應為<other output number> <overlap in pixels>
+BROWSER SCROLL: expected pixels (negative is up)	BROWSER SCROLL：應為像素數（負數向上）
+CHIP ENV: expected <attack> <release> in seconds	CHIP ENV：應為<attack> <release>，單位為秒
+DMXCUE SET: expected channel=level pairs, e.g. 1=255,10-14=64	DMXCUE SET：應為通道=位準配對，例如1=255,10-14=64
+expected one expression, three for colour, or four with alpha	應為一個運算式，色彩用三個，含透明度用四個
+MASK SET: expected INVERT, X, Y, SCALE, ROTATION, FEATHER, GROW or OPACITY and a number	MASK SET：應為INVERT、X、Y、SCALE、ROTATION、FEATHER、GROW或OPACITY及一個數字
+MASK SHAPE: expected a shape (MASK SHAPES lists them)	MASK SHAPE：應為形狀（用MASK SHAPES列出）
+MASTER DECK: expected a deck number and a cue number	MASTER DECK：應為卡座編號和提示編號
+MIC INPUT: expected SETTINGS, TEST or a device name (MIC LIST)	MIC INPUT：應為SETTINGS、TEST或裝置名稱（MIC LIST）
+MIDIFILE: expected PORT, or no argument to report it	MIDIFILE：應為PORT，無參數則回報目前值
+MONITOR DECK: expected a playlist number or FOLLOW	MONITOR DECK：應為播放清單編號或FOLLOW
+MONITOR ROOM: expected a playlist and ON or OFF	MONITOR ROOM：應為播放清單及ON或OFF
+MULTIVIEW WINDOW <n>: expected a source, or SAFE/METER/LABEL ON|OFF	MULTIVIEW WINDOW <n>：應為來源或SAFE/METER/LABEL ON|OFF
+MULTIVIEW WINDOW REMOVE: expected a window number	MULTIVIEW WINDOW REMOVE：應為視窗編號
+NETCUE ADDRESS: expected an OSC path starting with /	NETCUE ADDRESS：應為以/開頭的OSC路徑
+OUTPUT AOI: expected a size like 256x256, or FULL	OUTPUT AOI：應為256x256等尺寸或FULL
+OUTPUT HDR WHITE: expected 80..500 nits (203 is BT.2408)	OUTPUT HDR WHITE：應為80..500尼特（203對應BT.2408）
+OUTPUTFX SET: expected an effect number and 0-100	OUTPUTFX SET：應為效果編號及0-100
+PORTS: expected an http port and a tcp port	PORTS：應為http連接埠和tcp連接埠
+PRELOAD: expected a position in seconds, OFF or STATUS	PRELOAD：應為秒數位置、OFF或STATUS
+presenter panel: expected <live|prev|next|notes> <x> <y> <w> <h> in percent	presenter panel：應為<live|prev|next|notes> <x> <y> <w> <h>，單位為百分比
+SCOPES SOURCE: expected PROGRAMME or an output number, 1-	SCOPES SOURCE：應為PROGRAMME或輸出編號，1-
+STREAM ADD: expected a URL, e.g. srt://host:port	STREAM ADD：應為URL，例如srt://host:port
+TARGET CUE: expected a deck number and a cue number	TARGET CUE：應為卡座編號和提示編號
+TEXTCUE SIZE: expected 1-100 (percent of the raster)	TEXTCUE SIZE：應為1-100（點陣的百分比）
+TUTORIAL SCREENS: expected a count, MIRRORED or REAL	TUTORIAL SCREENS：應為數量、MIRRORED或REAL
+VIDEO OUTPUT LAYER: expected a layer number (1 is the base)	VIDEO OUTPUT LAYER：應為圖層編號（1為底層）
+VIDEO OUTPUT LAYERWARP: expected OFF, MODE, or eight numbers clockwise from the top left	VIDEO OUTPUT LAYERWARP：應為OFF、MODE，或由左上起順時針排列的八個數字
+warp grid: expected <n>, <cols> <rows>, off, smooth or straight	warp grid：應為<n>、<cols> <rows>、off、smooth或straight
+WARP SELECT: expected TL, TR, BR, BL or a grid <col> <row>	WARP SELECT：應為TL、TR、BR、BL或網格<col> <row>
+How big each tile is.	每塊磁磚的大小。
+How big the crystals grow before they meet.	晶體相遇前生長的大小。
+How closely spaced the rings are.	環與環的間距。
+How far a band can slide.	每條帶可滑動的距離。
+How far each shard slides from where it belongs.	各碎片偏離原位的滑動距離。
+How far each stroke is dragged along the grain.	每條筆觸沿紋理拖動的距離。
+How far it smears: up to a few percent of the picture.	拖抹距離，最多為畫面的百分之幾。
+How far out the darkening starts.	從距中心多遠處開始變暗。
+How far the bright parts pull away from the surface.	亮部離開表面的距離。
+How far the glow spreads.	輝光擴散的距離。
+How far the sound throws each line sideways.	聲音將每行橫向推移的距離。
+How fast the sand travels to the still lines.	沙粒移向靜止線條的速度。
+How fast the surface moves.	表面的移動速度。
+How fast they travel outward.	向外移動的速度。
+How gradually the key cuts in. Hard at the left.	去背切入的漸變程度。左端為硬邊。
+How hard it is driven into its own limits.	將其推向自身極限的力度。
+How hard the short hits.	短路衝擊的強度。
+How many shades survive the quantise.	量化後保留的色階數量。
+How many spikes the field breaks into.	場分裂成的尖峰數量。
+How many torn bands per frame.	每影格撕裂條帶的數量。
+How much each shard turns on its own centre.	各碎片繞自身中心旋轉的程度。
+How much the edges are lifted.	邊緣抬升的程度。
+How much the flame gutters frame to frame.	火焰逐影格明滅的程度。
+How often it skips.	跳讀的頻率。
+How quickly the loop relaxes when nothing feeds it.	無輸入時循環消退的速度。
+How strongly the outlines are drawn.	輪廓繪製的強度。
+How strongly the water bends the picture.	水對畫面的扭曲強度。
+Darkens the boundaries where crystals meet.	使晶體相接處的邊界變暗。
+Lifts the dark tones without moving pure black.	提升暗調，同時保持純黑不變。
+Pushes the rings in or out of the centre.	將環推向中心或向外推開。
+Rounds the tiles off, all the way to dots.	將磁磚逐漸變圓，直至成為圓點。
+Softens the fold so it ramps instead of creasing.	柔化摺疊，使其漸變而非出現硬摺痕。
+Where the filter sits.	濾波器所在的位置。
+Which way it drips.	滴落的方向。
+8 zones already: click one to remove it first	已有8個區域：請先點擊一個將其刪除
+AUDIOALSO ADD: seven extra destinations is the limit	AUDIOALSO ADD：最多七個額外目標
+AUDIOALSO ADD: that is already this deck's main device -- it would play twice	AUDIOALSO ADD：這已是此卡座的主要裝置，會重複播放
+AUDIOFX PLUGIN: this build has no plugin host	AUDIOFX PLUGIN：此組建沒有外掛宿主
+BROWSER CLICK: this browser backend cannot drive the page	BROWSER CLICK：此瀏覽器後端無法操作頁面
+BROWSER SCROLL: this browser backend cannot drive the page	BROWSER SCROLL：此瀏覽器後端無法操作頁面
+BROWSER SCROLLBAR: this browser backend cannot drive the page	BROWSER SCROLLBAR：此瀏覽器後端無法操作頁面
+BROWSER INTERACT: this browser backend has no hands-on mode	BROWSER INTERACT：此瀏覽器後端沒有直接互動模式
+BROWSER TYPE: this browser backend cannot type	BROWSER TYPE：此瀏覽器後端無法輸入文字
+LOWERANIM: this cue is not a Lower Third	LOWERANIM：此提示不是Lower Third
+LOWERSTYLE: this cue is not a Lower Third	LOWERSTYLE：此提示不是Lower Third
+MIDIFILE: the selected cue is not a midi file cue	MIDIFILE：所選提示不是MIDI檔案提示
+NETCUE: the selected cue is not a network cue	NETCUE：所選提示不是網路提示
+SCRIPTCUE: the selected cue is not a script cue	SCRIPTCUE：所選提示不是指令稿提示
+SYNTH: the selected cue is not a video synth	SYNTH：所選提示不是視訊合成器
+TCCUE: the selected cue is not a timecode cue	TCCUE：所選提示不是時碼提示
+TEXTCUE: the selected cue is not a text cue	TEXTCUE：所選提示不是文字提示
+SLICE ADD: already 16 slices on this output	SLICE ADD：此輸出已有16個切片
+VIDEO OUTPUT ASSIGN: already on this output, or no such deck or output	VIDEO OUTPUT ASSIGN：已在此輸出上，或沒有此卡座或輸出
+VIDEO OUTPUT LAYER: this deck is not on this output, or it is already at that layer	VIDEO OUTPUT LAYER：此卡座不在此輸出上，或已位於該圖層
+VIDEO OUTPUT UNASSIGN: this deck is not on this output, or it is the only thing on it	VIDEO OUTPUT UNASSIGN：此卡座不在此輸出上，或它是唯一內容
+port number (default 5510)	連接埠號碼（預設5510）
+port number (default 5511)	連接埠號碼（預設5511）
+port number (default 6454)	連接埠號碼（預設6454）
+port number (default 8090)	連接埠號碼（預設8090）
+port number (vMix uses 8088)	連接埠號碼（vMix使用8088）
+port number (vMix uses 8099)	連接埠號碼（vMix使用8099）
+Prefix (optional). Example: Q	前綴（選填）。例如：Q
+Prefix and optional start (example: Q 100)	前綴及選填起始編號（例如：Q 100）
+WIDTHxHEIGHT (e.g. 2560x1080)	寬x高（例如2560x1080）
+WIDTHxHEIGHT (e.g. 5760x2160)	寬x高（例如5760x2160）
+#rrggbb -- the colour of the presenter screen	#rrggbb -- 簡報者螢幕色彩
+#rrggbb, or a name (red, teal...)	#rrggbb或色彩名稱（red, teal...）
+Cue name (blank restores the file name)	提示名稱（留白恢復檔名）
+Leave empty to follow the live cue notes	留白以跟隨直播提示的備註
+Multicast group (e.g. 239.20.10.1)	多點傳送群組（例如239.20.10.1）
+Port the Node + Connection API serve on	Node + Connection API服務連接埠
+NIC address or name; empty = the default route	網卡位址或名稱；留白=預設路由
+NIC name reported in interface_bindings (e.g. eth0)	interface_bindings中回報的網卡名稱（例如eth0）
+flow (follows the picture)	流動（跟隨畫面）
+Above halfway, the repeated piece plays backwards.	超過中點時，重複片段倒放。
+The brightness that decides black from white.	決定黑白分界的亮度。
+The colour to change, round the wheel from red.	要取代的色彩，由紅色起沿色環選擇。
+no picture on this cue - nothing to follow	此提示沒有畫面，無法跟隨
+this cue has no known end to resolve into	此提示沒有可供收束的已知終點
+only a MIDI note or an OSC address can take a cue	只有MIDI音符或OSC位址可TAKE提示
+The bright net the waves focus onto the picture.	波浪聚焦在畫面上的明亮網紋。
+can't move the active cue -- take another cue on this deck first	無法移動目前提示項 -- 請先在此播放機送出另一個提示項
+cancelled: the waiting cue is no longer in the playlist	已取消：等待的提示項已不在播放清單中
+could not create an OpenGL context for Spout receive	無法建立 Spout 接收所需的 OpenGL 繪圖環境
+could not create the offscreen window Spout receive needs	無法建立 Spout 接收所需的離屏視窗
+could not get a device context for Spout receive	無法取得 Spout 接收所需的裝置環境
+couldn't decode still image — unsupported format or corrupt file	無法解碼靜態影像 — 格式不受支援或檔案已損毀
+couldn't open a browser -- please report at github.com/Utopian-Academy/Deckboy/issues	無法開啟瀏覽器 -- 請前往 github.com/Utopian-Academy/Deckboy/issues 回報
+downloading the caption model, then listening...	正在下載字幕模型，隨後開始聆聽...
+drag the panels to arrange the presenter screen	拖曳面板以配置簡報者螢幕
+encoder destination: _converted beside the show	編碼輸出位置：演出檔案旁的 _converted
+fetching the speech model - captions start when it arrives	正在取得語音模型 - 下載完成後開始字幕
+four effects at most on one device: remove one first	每台裝置最多四個效果：請先移除一個
+live captions are not installed here (deckboy-listen was not found)	未安裝即時字幕功能（找不到 deckboy-listen）
+Lower Third added - put its playlist on a layer	已新增 Lower Third - 請將其播放清單放到圖層上
+mic live on the default speakers - watch for feedback	麥克風正透過預設喇叭輸出 - 注意聲音回授
+network sharing and phone control require an 8+ character passphrase	網路分享和手機控制需要至少 8 個字元的通行片語
+no filled shapes in it (paths, rectangles, circles, ellipses or polygons)	其中沒有填滿形狀（路徑、矩形、圓、橢圓或多邊形）
+no masks yet: make one in a cue's MASK section	尚無遮罩：請在提示項的 MASK 區域建立
+no OpenGL pixel format available for Spout receive	沒有可用於 Spout 接收的 OpenGL 像素格式
+no picture - shorts run on a timer instead of on cuts	無畫面 - 短路由計時器而非切鏡觸發
+no picture on this cue - nothing decides where the playhead is	此提示項無畫面 - 無法決定播放頭位置
+no picture on this cue - nothing to close the loop through	此提示項無畫面 - 無法閉合迴路
+no video clock on this cue - nothing to lock to	此提示項無視訊時鐘 - 沒有鎖定參考
+normalize all: no file-backed audio in this deck	全部正規化：此播放機沒有檔案音訊
+nothing to mask here: select a cue, or change MASK ON	此處沒有遮罩對象：請選擇提示項或變更 MASK ON
+offset in percent of the picture	偏移量，占畫面的百分比
+output effects bypassed: no effect and no limit on this device	已旁通輸出效果：此裝置無效果也無限制
+over 16 MB: not a drawing to make a mask from	超過 16 MB：不能作為遮罩繪圖
+pair with a picture effect whose LFO is set to Audio	與 LFO 設為 Audio 的畫面效果配對
+paired phones removed: they need the QR code or the passphrase again	已移除配對手機：需重新使用 QR 碼或通行片語
+phone control requires an 8+ character passphrase	手機控制需要至少 8 個字元的通行片語
+save failed - retrying; still open, use SAVE AS if needed	儲存失敗 - 正在重試；檔案仍開啟，必要時請用 SAVE AS
+set an 8+ character Web Monitor passphrase first	請先為網頁監看設定至少 8 個字元的通行片語
+the caption model has not been downloaded yet	尚未下載字幕模型
+the desktop portal did not answer	桌面入口未回應
+the file is empty (0 bytes): it may not have finished copying or saving	檔案為空（0 位元組）：可能尚未完成複製或儲存
+the installed NDI runtime is missing entry points this needs	已安裝的 NDI 執行階段缺少所需進入點
+the NDI runtime declined to start on this machine	NDI 執行階段拒絕在此電腦上啟動
+the playing step was removed - sequence stopped	正在播放的步驟已移除 - 序列已停止
+update: cannot find this app bundle to replace	更新：找不到要替換的應用程式套件
+what the operator should be told when GO reaches here	GO 到達此處時應告知操作員的內容
+what the patch and the cues call it (FOH, SUB, PRESS FEED)	配線和提示項使用的名稱（FOH, SUB, PRESS FEED）
+window capture fell back to screen grab — update ffmpeg for exact window capture	視窗擷取已退回螢幕擷取 — 請更新 ffmpeg 以精確擷取視窗
+A dark line between the tiles, like grout or an LED wall.	方塊間的暗線，如填縫或 LED 牆。
+a plugin overran the audio thread and was bypassed — take it out of the chain	外掛超出音訊執行緒處理時限，已旁通 — 請將其移出效果鏈
+A slow rocking of the viewpoint, which is what makes the depth read without glasses.	緩慢搖動視點，讓人無需眼鏡也能感受到縱深。
+A slow sag in the supply, pulling the filter up and down like a dying battery.	供電緩慢下垂，像快耗盡的電池一樣拉動濾波器上下變化。
+A worn or dirty head: softer, with noise that streaks along the lines.	磁頭磨損或髒污：畫面變軟，雜訊沿掃描線拖曳。
+Above halfway, a hard cut in the picture resets the loop to clean.	超過一半時，畫面的硬切會清空並重設迴路。
+An old deck: the picture wobbles, bends at the top of the frame and carries hum bars.	老舊放影機：畫面抖動、頂部彎曲，並出現交流干擾條紋。
+An old tape loses bits of its oxide: dropouts flick white and repeat the line above, and the colour fizzes.	舊磁帶氧化層脫落：掉磁處閃白、重複上一行，色彩出現雜點。
+brightness moves the playhead (needs CPU frames)	亮度驅動播放頭（需要 CPU 影格）
+centred and full-frame - moves when the picture does	置中且充滿畫面 - 隨畫面移動
+Characters across. Fewer means bigger cells and less of the picture surviving, which is usually the point.	橫向字元數。越少則單元越大，保留的畫面越少，通常這正是目的。
+Characters to build the picture from, darkest first. Empty uses the chosen glyph set.	用於組成畫面的字元，從最暗開始。留空則使用所選字形集。
+Chladni listens: the figure follows the pitch of the sound	克拉尼圖形聆聽聲音：圖案跟隨音高變化
+click anywhere on any screen to take its colour. Esc cancels	點擊任意螢幕上的任意位置取色。Esc 取消
+click program or preview monitor to sample key color	點擊播出或預覽監看器以取樣去背顏色
+Colour is recorded at a fraction of the detail: it smears sideways, lands late and its hue wanders.	色彩以較低細節記錄：橫向拖色、延遲，並伴有色相漂移。
+Copies of copies: none at the left, four at the right. Each one loses more.	反覆複製：最左為零次，最右為四次。每次都會進一步損失。
+Fine sensor noise at the bottom, chunky film at the top.	低端為細密感光元件雜訊，高端為粗大膠片顆粒。
+follows this cue's own brightness (needs CPU frames)	跟隨此提示項自身的亮度（需要 CPU 影格）
+format 2 files are a set of independent patterns, not a performance	格式 2 檔案是一組獨立樂段，而非完整演奏
+From an even blur to a streak along the angle, like movement.	從均勻模糊變為沿角度拖曳的條紋，如動態模糊。
+full-frame and no picture - bends when the picture shrinks	全畫面且無影像 - 畫面縮小時彎曲
+Grain size: one pixel at the left, big blocky grains at the right.	顆粒大小：最左為一個像素，最右為粗大塊狀顆粒。
+Grows or shrinks the echo each pass. Centre holds still.	每次循環放大或縮小回聲。中間保持不變。
+How abruptly it arrives. Low is a soft cloud, high is a hard porthole.	出現時的銳利程度。低值像柔軟雲團，高值像邊緣清晰的舷窗。
+How big the room is. Small is a booth, large is a hall.	房間大小。小值如隔間，大值如大廳。
+How big the shards are. Small is frosted glass, large is a dropped plate.	碎片大小。小值像磨砂玻璃，大值像摔碎的盤子。
+How dark the dark lines go. All the way up is black between lines.	暗線的深度。最大時線間全黑。
+How far away. Distance dulls the top and softens the difference between the ears.	距離。越遠，高頻越暗，兩耳差異越小。
+How far back each skip jumps, from a stutter to half a second.	每次跳回的距離，從短促卡頓到半秒。
+How fast it closes. Slow enough not to chop the ends off words.	關閉速度。應足夠慢，避免切掉字尾。
+How fast the drips run. At the left the picture only sags.	液滴流動速度。最左僅使畫面下垂。
+How fast the light walks around it. Zero holds it still.	光線環繞的速度。零為靜止。
+How fast the wave travels. Faster spreads further in the same time and interferes more.	波的傳播速度。越快則同時間傳播越遠，干涉越多。
+How gently the change fades out at the edges of the band.	變化在頻段邊緣淡出的柔和程度。
+How hard it holds once it is working. Gentle at the bottom, a limiter at the top.	生效後的壓制力度。低端柔和，高端成為限制器。
+How irregular the growth is. Low gives an even honeycomb, high gives long shards.	生長的不規則程度。低值為均勻蜂窩，高值為長條碎片。
+How long a short stays closed, in VIDEO FRAMES.	短路閉合的時長，以視訊影格計。
+How long the reaction runs each frame. Short is a stain, long is an organism.	每影格的反應時長。短則像污跡，長則像生物。
+How many places drip: a few big drips at the left, many thin ones at the right.	滴落點數量：最左為少數大液滴，最右為大量細液滴。
+How many times a skip repeats before the sound catches up again.	聲音重新跟上之前的跳躍重複次數。
+How much of the picture glows: only the brightest at the left, nearly everything at the right.	發光的畫面範圍：最左僅最亮處，最右幾乎全部。
+How much of the picture shows behind the lines. None at the left: lines on black.	線條後方顯示的畫面量。最左為零：黑底線條。
+How much of the push goes downward rather than sideways.	推力向下而非向側面的比例。
+How quickly the room eats the top end. More damping is a softer, more furnished space.	房間吸收高頻的速度。阻尼越大，空間越柔和、陳設越多。
+How readily an edge catches. Low sets the whole picture alight, high only the hardest lines.	邊緣著火的容易程度。低值點燃整幅畫面，高值僅點燃最銳利線條。
+How wide a band of colours either side of it changes too.	兩側一同變化的顏色範圍寬度。
+ASCII HOLD: seconds, 0-60 (0 mutes the phrases)	ASCII HOLD: 秒，0-60（0 隱藏片語）
+ASCII WOBBLEMODE: drift | flow (follows luma) | hue (follows colour); no argument cycles	ASCII WOBBLEMODE: drift | flow（跟隨亮度）| hue（跟隨顏色）；無參數則循環切換
+ASCII: the selected cue has no text mode (add the TEXT MODE effect, or select a video synth cue)	ASCII: 所選提示項沒有文字模式（請新增 TEXT MODE 效果或選擇視訊合成器提示項）
+CHIP DUTY: this cue is an FDS synth, which has no duty	CHIP DUTY: 此提示項為 FDS 合成器，沒有占空比
+CHIP NOISE: this cue is an FDS synth, which has no noise	CHIP NOISE: 此提示項為 FDS 合成器，沒有雜訊
+CHIP VOICE: this cue is an FDS synth, which has no voice	CHIP VOICE: 此提示項為 FDS 合成器，沒有音色選擇
+DASH SET: needs a command -- DASH SET <n> <label> | <command> [| <glyph>]	DASH SET: 需要命令 -- DASH SET <n> <label> | <command> [| <glyph>]
+DATAMOSH on - preparing (long clip, watch Encoder tab)	DATAMOSH 已開啟 - 正在準備（長片段，請留意編碼器分頁）
+DECKLINK: no DeckLink driver on this computer (Blackmagic Desktop Video)	DECKLINK: 此電腦未安裝 DeckLink 驅動程式（Blackmagic Desktop Video）
+DMXCUE LEVELS: nothing has been sent on that universe	DMXCUE LEVELS: 尚未向該域傳送任何資料
+DRAW COLOUR: #rrggbb, #rrggbbaa, a name, or 1-8 for the palette	DRAW COLOUR: #rrggbb、#rrggbbaa、顏色名稱，或調色盤編號 1-8
+DRAW STROKE: each point is x,y or x,y,pressure, in percent	DRAW STROKE: 每個點為 x,y 或 x,y,pressure，單位為百分比
+DRAW TOOL: brush, erase, line, box, oval or fill	DRAW TOOL: 請選擇 brush、erase、line、box、oval 或 fill
+EDIT is off - press EDIT to type into the tracker	EDIT 已關閉 - 請按 EDIT 在追蹤器中輸入
+ENDACTION: only video and audio cues have an end action	ENDACTION: 僅視訊和音訊提示項具有結束動作
+Enter playlist SMPTE FPS: 24 / 25 / 29.97 / 30	輸入播放清單 SMPTE 影格率：24 / 25 / 29.97 / 30
+FADE TO: a speed from 0.25 to 4 (0.5 is half speed, an octave down)	FADE TO: 速度 0.25 至 4（0.5 為半速，低一個八度）
+FX ADD: datamosh needs a file-backed video cue	FX ADD: datamosh 需要以檔案為來源的視訊提示項
+FX LFO wants <index> <slot> <on|off|shape> [value]	FX LFO 需要 <index> <slot> <on|off|shape> [value]
+FX LFO: on, off, shape, rate, depth, zone, channel or cc	FX LFO: 請選擇 on、off、shape、rate、depth、zone、channel 或 cc
+GEOLFO: x, y, width, height, rotation, cropleft, cropright, croptop or cropbottom	GEOLFO: 請選擇 x、y、width、height、rotation、cropleft、cropright、croptop 或 cropbottom
+HH:MM or HH:MM:SS on this computer's clock; empty for none	依此電腦時鐘填寫 HH:MM 或 HH:MM:SS；留空表示無
+HH:MM:SS:FF of the timecode Deckboy is chasing; empty for none	Deckboy 所追蹤時間碼的 HH:MM:SS:FF；留空表示無
+INPUTMONITOR: a row count, OPEN, CLOSE, CLEAR, PAUSE or RESUME	INPUTMONITOR: 列數，或 OPEN、CLOSE、CLEAR、PAUSE、RESUME
+IPv4 addresses or a.b.c.d/bits, comma separated; empty = only this computer	IPv4 位址或 a.b.c.d/bits，以逗號分隔；留空＝僅此電腦
+key+fill ON, but no key device set (DECKLINK KEYFILL ON <device>)	key+fill 已 ON，但尚未設定鍵訊號裝置（DECKLINK KEYFILL ON <device>）
+label | command | glyph      (empty label|command removes it)	標籤 | 命令 | 字形      （label|command 留空則移除）
+LFO: density, speed, warp, turn, centrex, centrey, grey or hue	LFO: 請選擇 density、speed、warp、turn、centrex、centrey、grey 或 hue
+MIC: select a mic cue first (MIC ADD makes one)	MIC: 請先選擇麥克風提示項（MIC ADD 可建立）
+MIDIIN OSC: an address, and optionally a number	MIDIIN OSC: 位址，以及選填的數值
+MIDIMAP: that command is only accepted from this computer	MIDIMAP: 該命令僅接受來自此電腦的請求
+MOTION ZONE ADD: the zone must fit inside the picture	MOTION ZONE ADD: 區域必須位於畫面內部
+NETCUE ADDRESS: an OSC address must start with /	NETCUE ADDRESS: OSC 位址必須以 / 開頭
+NEWSHOW: something is live or unsaved -- send NEWSHOW again within 2.5 s	NEWSHOW: 有內容正在播出或尚未儲存 -- 請在 2.5 秒內再次傳送 NEWSHOW
+NMOS: discovery needs the remote network allowed	NMOS: 探索功能需要允許遠端網路存取
+NMOS: NOT registering - network is LOCAL ONLY (turn REMOTE ON to publish)	NMOS: 未註冊 - 網路為 LOCAL ONLY（使用 REMOTE ON 發布）
+NMOS: searching for a registry (mDNS)	NMOS: 正在尋找註冊服務（mDNS）
+OUTPROBE: that output has no compositor (is it on?)	OUTPROBE: 該輸出沒有合成器（已開啟嗎？）
+OUTPUTFX ADD: four effects at most on one device	OUTPUTFX ADD: 每台裝置最多四個效果
+PATCH: a level is dB from -48 to +6, or OFF	PATCH: 電平為 -48 至 +6 dB，或 OFF
+PIP: retired -- scale a second deck over this one instead	PIP: 已停用 -- 請改為將第二個播放機縮放後疊在此播放機上
+pip: retired -- scale a second deck over this one instead	pip: 已停用 -- 請改為將第二個播放機縮放後疊在此播放機上
+presenter panel: the panel must fit on the screen (x+w and y+h no more than 100)	簡報者面板：必須位於螢幕內（x+w 和 y+h 不得超過 100）
+preset: delivery | proxy | match | datamosh	預設：delivery | proxy | match | datamosh
+programme sound is always included; use WEBMONITOR OFF to stop the monitor	始終包含播出聲音；使用 WEBMONITOR OFF 停止監看
+Registry URL (e.g. http://192.168.1.50:8010) - blank for mDNS	註冊服務 URL（如 http://192.168.1.50:8010）- 留空使用 mDNS
+SLICE CORNER: TL, TR, BR or BL, then dx dy in percent of the output	SLICE CORNER: TL、TR、BR 或 BL，隨後為占輸出百分比的 dx dy
+SLICE EDGE: L, R, T or B, then 0-50 (% of the slice)	SLICE EDGE: L、R、T 或 B，隨後為 0-50（切片的 %）
+SLICE GRID POINT: col row (from 1, on a grid that is on) then dx dy in percent	SLICE GRID POINT: col row（從 1 開始，網格須開啟），隨後為百分比 dx dy
+SLICE LFO: X, Y, ROTATION or OPACITY, then ON, OFF, SHAPE, RATE, DEPTH...	SLICE LFO: X、Y、ROTATION 或 OPACITY，隨後為 ON、OFF、SHAPE、RATE、DEPTH...
+SLICE ROTATE: IN (the crop) or OUT (the placed picture), then degrees	SLICE ROTATE: IN（裁切）或 OUT（已放置畫面），隨後為角度
+SMPTE hh:mm:ss:ff or seconds (blank = 00:00:00:00)	SMPTE hh:mm:ss:ff 或秒（留空＝00:00:00:00）
+SOURCE CAMERA: name the device	SOURCE CAMERA: 請指定裝置名稱
+SOURCE WINDOW: name the window, e.g. title:Firefox (or "desktop")	SOURCE WINDOW: 請指定視窗名稱，如 title:Firefox（或 "desktop"）
+STING: select a tone cue first (TONECUE makes one)	STING: 請先選擇音調提示項（TONECUE 可建立）
+Stream URL (srt://, rtmp://, rtsp://, udp://, or an http HLS .m3u8)	串流 URL（srt://、rtmp://、rtsp://、udp:// 或 http HLS .m3u8）
+SUBTITLE CONVERT: destination must be .srt or .vtt	SUBTITLE CONVERT: 目標檔案必須為 .srt 或 .vtt
+TRACKER SET: a step cannot act on its own playlist	TRACKER SET: 步驟不能操作其自身所在的播放清單
+TRACKER: there are no steps (TRACKER ADD makes one)	TRACKER: 沒有步驟（TRACKER ADD 可建立）
+VIDEO OUTPUT LAYERWARP MODE: linear or perspective	VIDEO OUTPUT LAYERWARP MODE: 請選擇 linear 或 perspective
+WARP AT: open the editor (WARP EDIT) and select a point first	WARP AT: 請先開啟編輯器（WARP EDIT）並選擇一個點
+warp point: that is a corner -- move it with WARP <corner> dx dy	變形點：這是角點 -- 請用 WARP <corner> dx dy 移動
+WEBMONITOR PIN: network sharing and phone control require 8 or more characters	WEBMONITOR PIN: 網路分享和手機控制需要至少 8 個字元
+WEBMONITOR QR: needs the monitor on and shared on the network	WEBMONITOR QR: 需要開啟監看並在網路上分享
+WEBMONITOR SOURCE: could not create the web output	WEBMONITOR SOURCE: 無法建立網頁輸出
+WEBMONITOR SOURCE: PROGRAMME or the number of an output that shows a picture	WEBMONITOR SOURCE: PROGRAMME 或顯示畫面的輸出編號
+0 flows ALONG the edges, so colour orbits the shapes. 1 flows across them, which bleeds the picture into itself.	0 沿邊緣流動，使顏色環繞形狀。1 橫穿邊緣，使畫面滲入自身。
+a note number 0-127, LEARN to take the next note played, or empty for none	音符編號 0-127，LEARN 學習下一個彈奏音符，留空表示無
+a video cue's duration comes from its file; still duration applies to stills, patterns and browsers	視訊提示項時長取自檔案；靜態時長適用於靜態圖、圖案和瀏覽器
+Below the middle narrows toward mono -- which is what a single PA cluster is. Above it widens.	中點以下收窄至單聲道，如單組 PA 音箱；以上則加寬。
+Blueshift toward the direction of travel and redshift at the rim. Zero leaves the colour alone and it reads as a lens instead.	運動方向藍移，邊緣紅移。零不改顏色，呈現透鏡效果。
+Bright: bright things drip over the dark, as text and logos do. Whole picture: everything is wax, and the picture itself runs down in its own colours.	亮部：文字、標誌等亮處滴落到暗處。整幅畫面：一切變成蠟，畫面以自身顏色流下。
+Centre is a straight line. Up bends it into an S -- darker shadows, brighter highlights, more contrast. Down flattens it.	中間為直線。向上彎成 S：暗部更暗、亮部更亮、對比更強。向下使其變平。
+e.g. /stage/doors -- sent to Deckboy's OSC port; empty for none	如 /stage/doors -- 傳送至 Deckboy 的 OSC 連接埠；留空表示無
+How bright a pixel has to be before it lifts at all, so only the highlights spike.	像素開始抬升的亮度閾值，使僅高光突出。
+How bright a pixel has to be to join a run. Lower catches more of the picture and the runs grow longer.	像素加入連續段所需的亮度。越低則包含畫面越多，連續段越長。
+How deep the picture is treated as being. The brightness becomes height and is lit from the side.	畫面被視為多深。亮度轉換為高度，並從側面照明。
+How faint a gradient still registers. High turns the quietest shading into visible structure.	可偵測的最弱漸層。高值將最細微明暗也顯成結構。
+How far back the chain listens. The picture is played through a delay, so this is the distance the damage is dragged across.	效果鏈回聽多久。畫面經過延遲，因此決定損傷拖曳的距離。
+How far the burn spreads off the edge, and how hot its colour runs.	燃燒從邊緣擴散的距離，以及顏色的灼熱程度。
+How far the colour turns on each trip round the loop. This is the oil-slick: the trail walks through the spectrum instead of fading.	每圈色相旋轉量。如油膜：拖尾不淡出，而是遍歷光譜。
+How far the picture stands out. Bright parts come forward, dark parts stay back. At the left it is flat.	畫面突出距離。亮處向前，暗處留後。最左為平面。
+How far the picture swings the filter. The cue's own brightness opens and closes it, so a cut to black takes the top off the sound.	畫面驅動濾波器的幅度。自身亮度使其開合，切黑便削去聲音高頻。
+How far the top comes down as the end approaches. This is not a fade: the level is left alone.	接近結尾時高頻降低多少。這不是淡出：電平不變。
+How far the two eyes disagree. Brightness is read as nearness.	雙眼視差量。亮度被解讀為距離近。
+How fast it settles away while held. At zero it holds indefinitely, which is what room tone under a held title wants.	保持期間的衰減速度。零則無限保持，適合固定標題下的環境底聲。
+How fast the open slit crosses the picture. Slow smears a long moment across the frame.	開口狹縫掃過畫面的速度。慢速將更長時刻塗抹在畫面中。
+How fast what has dripped hardens away. At the left the drips stay until the cue changes.	已滴落部分固化消失的速度。最左持續到切換提示項。
+How fine the water is. Long ocean swell at one end, rain on a puddle at the other.	水紋細密程度。一端為長海湧，另一端為雨落水窪。
+How hard the light gathers where the rays converge. This is the part that makes it read as water rather than as a wobble.	光線匯聚處的聚光強度。這使其看起來像水，而非單純晃動。
+How hard the moving parts throw sand. More shake clears the plate faster and makes the lines thinner.	運動部分拋沙的力度。振動越大，清空盤面越快，線條越細。
+How long a grain is, in VIDEO FRAMES. On a 23.976 clip one frame is 41.7ms, which is not a musical value and is exactly the point.	顆粒長度以視訊影格計。23.976 片段每影格為 41.7ms，並非音樂時值，這正是目的。
+How long before the end it starts. The cue has to have a known length -- an open-ended one has no end to resolve into.	結束前多久開始。提示項長度必須已知；無限時長沒有可收束的終點。
+How long it is allowed to run. More steps means the ripples have crossed and reflected more times.	允許執行多久。步數越多，波紋穿越、反射的次數越多。
+How long the old waves linger when the note changes. Left: they die at once. Right: they slosh for a while.	音符改變後舊波持續多久。左：立即消失；右：繼續晃動一陣。
+How much each facet catches the light, which is what makes them read as faceted rather than as flat blobs.	各切面受光量，使其呈現切面而非扁平色塊。
+How much its SIZE becomes distance. Shrink the picture and the sound goes away from you: the top comes off, the image narrows, the level drops.	將大小轉為距離的程度。縮小畫面，聲音便遠離：高頻減少、音像變窄、電平降低。
+How much of the bent picture goes round again. High is where it stops being an echo and starts eating itself.	彎曲畫面再次循環的量。高值使其從回聲變為自我吞噬。
+How much of the driver's movement the picture KEEPS. At zero it follows the driver frame by frame, which is a twitch. Wind it up and the motion accumulates, so the driver sculpts the picture over time and it holds the pose -- which is what puppetry means.	畫面保留驅動運動的程度。零時逐影格跟隨而抽動；調高則運動累積，逐漸塑形並保持姿態，如操縱木偶。
+How much of the picture's position on the output is used. A PIP on the left sounds on the left -- and it is a placement, not a pan: the far ear gets the delay and the head shadow too.	使用畫面輸出位置的程度。左側 PIP 聽起來在左側；這是空間定位而非音像平移，遠耳也會收到延遲和頭部遮蔽。
+How much of the tail is kept going while the cue is held. Long enough to hide the splice in room tone, short enough not to smear a rhythm in it.	提示項保持時延續多少尾音。長到能掩蓋環境聲接縫，又短到不會模糊節奏。
+How much room comes up under it, so the sound settles into the cut instead of being severed.	下方加入多少房間聲，使聲音融入切點而非被截斷。
+How much the echo is distorted each pass. It compounds, so a little ripples and a lot melts the picture into itself.	每次循環的回聲畸變量。會累積，少量起波紋，大量使畫面自融。
+How much the material draws in towards each drip, so it runs as a thin neck with a heavier head.	材料向液滴聚攏的量，使其形成細頸和較重滴頭。
+How often its settings are corrupted. Corrupted far enough it oscillates on its own -- loud, but it cannot run away.	設定損壞的頻率。嚴重時會自激振盪：響亮，但不會失控。
+How quickly the picture springs back to rest once the driver stops pushing it. Only does anything when memory is up.	驅動停止後畫面恢復靜止的速度。僅提高記憶量後有效。
+How small a cut sets it off. With no picture it runs on a timer instead, and this is how often.	多小的切鏡即可觸發。無畫面時改用計時器，此值決定頻率。
+How strongly the finished picture pushes the bend. Pair it with a picture effect whose LFO is set to Audio and the two drive each other.	最終畫面驅動彎折的強度。與 LFO 設為 Audio 的畫面效果配對，即可相互驅動。
+How wide a view is being compressed. Narrow is a punch down the middle, wide folds the whole frame into the centre.	壓縮的視野寬度。窄時衝向中央，寬時將整幅畫面折入中心。
+Lift or cut, 12dB either way. The centre is flat, so a band that has just been added does nothing until this is moved.	提升或削減，各 12dB。中央平直，新加入的頻段須調此值才生效。
+Light on the drips, as on something wet: a gloss where it faces the light, darker where it curls away.	如濕物般照亮液滴：朝光處有光澤，捲離處較暗。
+Line pitch in pixels, so this reads at 4K as well as at 720.	線距以像素計，確保 4K 和 720 下均清晰可見。
+cannot read the file: if it lives in OneDrive or iCloud, open it once so it downloads, then import it	無法讀取檔案：若在 OneDrive 或 iCloud 中，請先開啟一次以下載，再匯入
+did not finish in 3 minutes. It may be waiting on a prompt it cannot show (Protected View, sign-in, a repair). Open the deck there once, or export it as a PDF and import that	3 分鐘內未完成。可能在等待無法顯示的提示（受保護檢視、登入或修復）。請在原應用程式中開啟一次，或匯出 PDF 後匯入
+forget my defaults? only NEW changes, this show keeps its settings: press again	忘記我的預設值？僅影響 NEW，此演出保留設定：請再按一次
+Keynote could not export this file (it may need permission to be automated: System Settings > Privacy & Security > Automation)	Keynote 無法匯出此檔案（可能需要自動化權限：系統設定 > 隱私權與安全性 > 自動化）
+my defaults forgotten: NEW starts from factory settings, this show is unchanged	已忘記我的預設值：NEW 從出廠設定開始，此演出不變
+N=new  Enter/P=previous  O=open saved  E=examples  L=learn  1-	N=新增  Enter/P=上次  O=開啟已儲存  E=範例  L=學習  1-
+ndi tally trigger on -- program tally takes the cue	ndi tally 觸發已開啟 -- 播出 tally 將送出提示項
+notestep: this cue's notes have no builds (separate them with a line of ---)	notestep: 此提示項備註沒有分步（用單獨一行 --- 分隔）
+Only accept transport from this sender (blank = anyone)	僅接受此傳送者的播放控制（留空＝任何人）
+opened github.com in your browser -- nothing is sent until you submit the report there	已在瀏覽器中開啟 github.com -- 在那裡提交報告之前不會傳送任何內容
+Output height in px - math ok: 1080x2, 2160/2, 540+30	輸出高度（px）- 支援計算：1080x2, 2160/2, 540+30
+Output width in px - math ok: 1920x2, 3840/2, 960+64	輸出寬度（px）- 支援計算：1920x2, 3840/2, 960+64
+PHONE LEVEL: removed -- a paired phone or the passphrase can do everything; BLACKOUT and RECORD are hold-to-fire on the phone	PHONE LEVEL: 已移除 -- 配對手機或通行片語可執行所有操作；手機上的 BLACKOUT 和 RECORD 需長按觸發
+phones need THE NETWORK: set 'Who can see it' first	手機需要網路存取：請先設定「誰可以看到」
+PowerPoint could not export this file (it may need permission to be automated: System Settings > Privacy & Security > Automation)	PowerPoint 無法匯出此檔案（可能需要自動化權限：系統設定 > 隱私權與安全性 > 自動化）
+PowerPoint could not open the file (it gave up waiting for it). If it is in OneDrive, right-click it and choose Always keep on this device, then import it again	PowerPoint 無法開啟檔案（已放棄等待）。若在 OneDrive 中，請按右鍵選擇「一律保留在此裝置上」，然後重新匯入
+saved as my defaults: NEW starts like this show, without the cues	已儲存為我的預設值：NEW 以此演出設定開始，但不含提示項
+Seconds for new image/pattern/browser/Lower Third cues (0 = hold)	新增影像/圖案/瀏覽器/Lower Third 提示項的秒數（0＝保持）
+select a Draw cue first (SOURCE > MADE BY DECKBOY > Draw)	請先選擇繪圖提示項（SOURCE > MADE BY DECKBOY > Draw）
+something mellow appeared in SOURCE > MADE BY DECKBOY	SOURCE > MADE BY DECKBOY 中出現了柔和的東西
+sound scopes: integrated loudness and true peak start again	聲音示波器：綜合響度和真峰值重新計量
+splitnotes: that cue's notes have no parts (separate them with a line of ---)	splitnotes: 該提示項備註沒有分段（用單獨一行 --- 分隔）
+still reading the last folder -- one at a time	仍在讀取上一個資料夾 -- 每次一個
+that key drives the desk - use F1-F10, F12 or the number pad	該鍵用於控制操作台 - 請用 F1-F10、F12 或數字鍵盤
+the background alpha belongs to a Lower Third	背景透明度屬於 Lower Third
+the clicker now spends note builds before advancing	翻頁器現在會先完成備註分步再前進
+this file is only in OneDrive, and OneDrive is not running. Start OneDrive, or copy the file to this computer, then import it again	檔案僅在 OneDrive 中，而 OneDrive 未執行。請啟動 OneDrive 或將檔案複製到此電腦，然後重新匯入
+this presentation needs a password to open. Remove the password in PowerPoint (File > Info > Protect Presentation) or export it as a PDF, then import that	此簡報需要密碼。請在 PowerPoint 中移除密碼（檔案 > 資訊 > 保護簡報），或匯出 PDF 後匯入
+a step cannot fire the playlist it lives on	步驟不能觸發它所在的播放清單
+ASCII: use ON|OFF|TOGGLE | STATUS | INK | SET | SHUFFLE | PRESET [name|next|prev] | FONT | GLYPHS [chars] | CHAOS <0-1> | WOBBLE <0-1> | WOBBLEMODE [drift|flow|hue] | COLS <n> | GLITCH <a> <b> <c> [d] | PHRASES <a|b|c> | HOLD <seconds>	ASCII: 使用 ON|OFF|TOGGLE | STATUS | INK | SET | SHUFFLE | PRESET [name|next|prev] | FONT | GLYPHS [chars] | CHAOS <0-1> | WOBBLE <0-1> | WOBBLEMODE [drift|flow|hue] | COLS <n> | GLITCH <a> <b> <c> [d] | PHRASES <a|b|c> | HOLD <seconds>
+atem tally on -- set which input Deckboy is	ATEM tally 已開啟 -- 請設定 Deckboy 對應的輸入
+DRAW SIZE: 0.1-20 (% of the picture's height)	DRAW SIZE: 0.1-20（佔畫面高度的 %）
+esc: control window - again to clear output	esc: 返回控制視窗 - 再按一次清空輸出
+Flip across, upside down or both, or fold one half onto the other: right onto left, left onto right, bottom onto top, top onto bottom, or one corner into all four.	水平、垂直或同時翻轉，或將一半摺疊到另一半：右到左、左到右、下到上、上到下，或將一個角映射到全部四個角。
+FX: use LIST | ADD <effect> [amount] | AMOUNT <n> <v> | PARAM <n> <A-F> <0-1> | CHOICE <n> <A|B> <name> | LFO <n> <A-G> ... | COPY | PASTE | CLEAR	FX: 使用 LIST | ADD <effect> [amount] | AMOUNT <n> <v> | PARAM <n> <A-F> <0-1> | CHOICE <n> <A|B> <name> | LFO <n> <A-G> ... | COPY | PASTE | CLEAR
+group presets became master cues: use MASTER	群組預設已改為主控提示：請使用 MASTER
+make a step first: a section starts at a step	請先建立步驟：區段從步驟開始
+MASK PATH: a path needs at least three points	MASK PATH: 路徑至少需要三個點
+MATRIX SET: level is a percent from 0 to 100	MATRIX SET: 位準為 0 到 100 的百分比
+MIDIIN: NOTE <n> <vel>, NOTEOFF <n>, CC <c> <v>, PITCH <0-16383>, PRESSURE <v>, KEYPRESSURE <n> <v>, PROGRAM <n> or OSC <address> [<n>], then CH <1-16> if not channel 1	MIDIIN: NOTE <n> <vel>, NOTEOFF <n>, CC <c> <v>, PITCH <0-16383>, PRESSURE <v>, KEYPRESSURE <n> <v>, PROGRAM <n> 或 OSC <address> [<n>]，若不是通道 1，再加 CH <1-16>
+MIDIMAP: LIST, ADD, SET, REMOVE, CLEAR, RESET, LEARN, LEARNED, PRESET or FEEDBACK	MIDIMAP: LIST, ADD, SET, REMOVE, CLEAR, RESET, LEARN, LEARNED, PRESET 或 FEEDBACK
+motion on: the camera is read, never recorded	動作偵測已開啟：讀取攝影機，但絕不錄影
+Moves the direction of travel off the centre of frame, so the picture rushes past rather than straight at you.	將移動方向偏離畫面中心，使畫面從身旁掠過，而非迎面衝來。
+new show disarms all outputs: press new again	新建演出會解除所有輸出待命：請再次按新建
+nmos: network is LOCAL ONLY - not registering	NMOS: 網路為 LOCAL ONLY - 不進行註冊
+normalize: selection has no file-backed audio	響度正規化：所選項目中沒有以檔案為來源的音訊
+on the dashboard - Ctrl+D or the DASH button	位於儀表板中 - Ctrl+D 或 DASH 按鈕
+One knob for the whole balance: below the middle is darker, above it is brighter.	一個旋鈕調整整體平衡：低於中點變暗，高於中點變亮。
+Original: the picture pulled onto the figure. Sand: the picture as grains that are thrown off the moving parts and pour into each new figure. Fluid: the picture under water on the plate, bent and lit by its standing waves.	原圖：將畫面拉伸到圖形上。沙粒：畫面化為顆粒，從移動部分飛散，流入每個新圖形。流體：畫面位於板上的水下，由駐波折射並照亮。
+output recover failed: fullscreen unavailable	還原輸出失敗：無法使用全螢幕
+Page Down / Page Up step the focused playlist	Page Down / Page Up 逐步切換目前焦點所在的播放清單
+Pulls the bright tones down without moving pure white, so a hot highlight rolls off instead of clipping.	降低明亮色調而不改變純白，使強烈高光平滑衰減，而非發生截波。
+recordings remux to MP4 when the take stops	錄製停止時將錄製檔案重新封裝為 MP4
+Rotates the reading, so straight lines wind into spirals rather than rings.	旋轉讀取方向，使直線捲成螺旋，而非圓環。
+Rows lose sync and repeat one character, the way a real text screen breaks up. At 0 the grid is clean.	各行失去同步並重複同一字元，模擬真實文字螢幕的故障。設為 0 時網格清晰無干擾。
+SLICE <n>: CROP, PLACE, CORNER, EDGE, MASK, SOURCE, ROTATE, FLIP, OPACITY, LFO, ON, OFF, LINEAR, PERSPECTIVE or NAME	SLICE <n>: CROP, PLACE, CORNER, EDGE, MASK, SOURCE, ROTATE, FLIP, OPACITY, LFO, ON, OFF, LINEAR, PERSPECTIVE 或 NAME
+SLICE GRID: <cols> <rows> (2-9), OFF, SMOOTH ON|OFF, or POINT col row dx dy	SLICE GRID: <cols> <rows> (2-9), OFF, SMOOTH ON|OFF，或 POINT col row dx dy
+Something near the deck: a phone's buzz, a light dimmer's herringbone, a radio's slow bars.	模擬播放機附近的干擾：手機的嗡鳴、燈光調光器的人字紋、無線電設備的緩慢條帶。
+Sorts the runs the other way, so they pour from light to dark.	將連續區段反向排序，使其從明亮處流向暗處。
+SUBTITLE CONVERT: the cue has no caption file	SUBTITLE CONVERT: 提示沒有字幕檔案
+Takes out everything brighter than this as well. Left takes out nothing.	同時去除比此值更亮的部分。最左端不去除任何內容。
+Takes out everything darker than this, so what lies beneath shows through. Left takes out nothing.	去除比此值更暗的部分，讓下層透出。最左端不去除任何內容。
+Tape speed: SP is the best picture, LP and EP fit more on a tape and lose detail and colour.	磁帶速度：SP 畫質最佳；LP 和 EP 可在磁帶上容納更長時間，但會損失細節與色彩。
+The brightness that stays put. Everything above it reaches one way and everything below it the other.	保持不動的亮度。高於此值的部分向一側延伸，低於此值的部分向另一側延伸。
+The character of the growth: low is waves, then labyrinth, coral, worms, and holes at the top.	生長形態：低值為波紋，隨後是迷宮、珊瑚、蠕蟲，最高端為孔洞。
+The colour it becomes. Shading and brightness stay as they were, so a red shirt turns blue and keeps its folds.	替換後的顏色。明暗層次與亮度保持不變，因此紅襯衫變藍後仍保留皺摺。
+The distance that sits ON the screen. Either side of it comes forward or falls behind.	位於螢幕平面的距離。兩側的內容分別向前突出或向後退去。
+The frequency it pivots around -- what counts as 'low' and 'high' for the tilt.	傾斜圍繞的支點頻率，即劃分「低頻」與「高頻」的基準。
+The head drifting off the track: a band of noise rolls through the picture.	磁頭偏離磁軌：一條雜訊帶滾過畫面。
+The level below which the source is closed. Set it under the quietest thing you want to hear.	低於此位準時關閉訊號源。請設在想聽到的最輕聲音以下。
+The level it starts working at. Lower catches more of the performance.	開始處理的位準。設得越低，演出中受處理的部分越多。
+The plugin's first four automatable controls, in its own order. Everything else it has keeps whatever the plugin was left set to.	外掛程式按自身順序排列的前四個可自動化控制項。其餘設定均保持外掛程式上次的狀態。
+this output's renderer could not cut the mask	此輸出的算圖器無法裁切遮罩
+Tints the two directions apart, so light bending one way and the other are different colours instead of both being grey.	為兩個方向分別著色，使向兩側彎折的光呈現不同顏色，而非都是灰色。
+Turns the echo each pass, which winds the melt into a spiral.	每次回傳都旋轉殘影，使熔化效果捲成螺旋。
+Turns the strokes across the grain instead of along it, which combs the picture apart rather than smoothing it.	將筆觸轉為橫跨紋理，而非順著紋理，使畫面如被梳開般分離，而非平滑。
+Turns the whole arrangement, so the fold lines do not sit on the same part of the picture all night.	旋轉整個配置，使摺線不會整晚停留在畫面的同一位置。
+Two is a mirror, twelve is a snowflake, and they are completely different pictures.	兩個分區是鏡像，十二個分區是雪花，兩者會形成完全不同的畫面。
+unsaved changes will be lost: press new again	未儲存的變更將遺失：請再次按新建
+WEBMONITOR: STATUS | ON | OFF | CONTROL ON|OFF | SHARE ON|OFF | SOURCE PROGRAMME|<output> | QR [ON|OFF] | PORT <n> | PIN <pin>|OFF (sound is included)	WEBMONITOR: STATUS | ON | OFF | CONTROL ON|OFF | SHARE ON|OFF | SOURCE PROGRAMME|<output> | QR [ON|OFF] | PORT <n> | PIN <pin>|OFF（包含聲音）
+Where highlights fold back through black. Low folds most of the picture, high folds only the brightest.	高光經過黑色後折返的位置。低值使大部分畫面折返，高值只使最亮部分折返。
+Where the band sits, 30Hz to 16kHz across the travel.	頻帶的位置，整個行程從 30Hz 到 16kHz。
+Where the fold sits: the middle at the left, toward the far edge to the right. Flips have no fold.	摺疊的位置：最左端在中央，向右則移向遠端邊緣。翻轉沒有摺線。
+Where the light stands, in degrees around the frame.	光源的位置，以繞畫面的角度表示。
+Where the source sits around the listener, all the way round. For headphones -- it is a timing and shading trick, not a pan.	訊號源在聽者周圍一整圈的位置。適用於耳機——利用時間差與音色塑形，並非聲像平移。
+Where the top ends, 200Hz to 20kHz. Pull it down to take the harshness off a bright source.	高頻截止位置，200Hz 到 20kHz。調低可減輕明亮音源的刺耳感。
+Which channel the curve acts on: all three, then red, green or blue on its own -- the way a colourist warms or cools one end of the picture.	曲線作用的通道：全部三個，或單獨的紅、綠、藍，類似調色師將畫面暗部或亮部調暖或調冷。
+Which way the knife edge lies. Only gradients ACROSS the edge show, so turning it swaps which features appear and which vanish.	刀口邊緣的方向。只有橫跨邊緣的梯度可見，因此旋轉會改變哪些特徵顯現或消失。
+Which way the streak runs: across at the left, upright in the middle, across again at the right.	條紋方向：左端為水平，中間為垂直，右端再次為水平。
+Widens the decision into a ramp, so edges keep their shape instead of jagging.	將判定邊界擴展為漸層，讓邊緣保持形狀而不產生鋸齒。
+Words to surface in the field, separated by | . One shows at a time, moving on the hold clock.	在場中浮現的詞語，用 | 分隔。每次顯示一個，按保持計時器切換。
+Zero is one noise value across all three channels, which reads as film. Higher gives each channel its own, which reads as video.	設為零時，三個通道使用相同的雜訊值，呈現膠片質感。調高後各通道有獨立雜訊，呈現視訊質感。
+zones cleared: Motion reads the whole picture	區域已清除：動作偵測讀取整個畫面
+Lens	鏡頭
+Lumia	光影
+Prism	稜鏡
+Water	水面
+Lasers	雷射
+Pixels	像素
+out:--	輸出:--
+Listens	跟隨聲音
+Mirrors	鏡面
+Shimmer	閃爍
+FDS synth	FDS 合成器
+Terrarium	生態缸
+(bypassed)	(已旁通)
+Second jet	第二道噴流
+%, 1 to 100	%，1 至 100
+Panel angle	面板角度
+Ripple size	漣漪大小
+Panels, 0-12	面板數，0-12
+Seconds, 0-4	秒，0-4
+Seconds, 0-8	秒，0-8
+Top / bottom	上 / 下
+Amount 0-100%	強度 0-100%
+ALSA MIDI Port	ALSA MIDI 連接埠
+Degrees, 0-360	度，0-360
+Terrarium Pico	微型生態缸
+ASIOInit failed	ASIOInit 失敗
+Hertz, 20-20000	赫茲，20-20000
+Pixels, 64-2160	像素，64-2160
+Pixels, 64-3840	像素，64-3840
+Colour steps, 2-8	色階數，2-8
+Degrees -180..180	度 -180..180
+Palette turn, 0-1	調色盤旋轉，0-1
+Size, %, 5 to 400	大小，%，5 至 400
+Feature size, 0.1-8	特徵大小，0.1-8
+Spiral size, 0.25-4	螺旋大小，0.25-4
+Degrees, -360 to 360	度，-360 至 360
+Spiral strength, 0-4	螺旋強度，0-4
+0-100%, left to right	0-100%，從左到右
+0-100%, top to bottom	0-100%，從上到下
+0-100%: laser speckle	0-100%: 雷射散斑
+Pixel sort amount, 0-1	像素排序強度，0-1
+Pitch in hertz, 20-8000	音高（赫茲），20-8000
+Frames a second, 1 to 60	每秒影格數，1 至 60
+Horizontal cells, 64-960	橫向單元數，64-960
+select a lumia cue first	請先選擇光影提示
+0 tube, 1 mandala, 2 none	0 管狀，1 曼陀羅，2 無
+How big a blob grows, 0-1	斑塊生長大小，0-1
+0-100%: overall brightness	0-100%: 整體亮度
+FDS hardware gain range, 0-63	FDS 硬體增益範圍，0-63
+How hard it cuts, %, 0 to 100	切割強度，%，0 至 100
+{1} (supports + - * / and ())	{1}（支援 + - * / 和 ()）
+Master oscillator rate, 0.01-8	主振盪器速率，0.01-8
+Seconds the in move takes, 0-5	入場動作秒數，0-5
+0-100%: 0 holds the field still	0-100%: 0 時場保持靜止
+0-100%: how bright the water is	0-100%: 水面亮度
+0-100%: how far the field bends	0-100%: 場彎曲程度
+0-100%: the whole picture turns	0-100%: 整幅畫面旋轉
+Degrees per second, -720 to 720	度/秒，-720 至 720
+Lumia (laser light and mirrors)	光影（雷射與鏡面）
+Seconds between retriggers, 0-8	再次觸發間隔秒數，0-8
+Seconds the out move takes, 0-5	出場動作秒數，0-5
+0-100%: how fast the water moves	0-100%: 水流速度
+0-100%: the halo round the lines	0-100%: 線條周圍的光暈
+How many are alive at once, 3-48	同時存活數量，3-48
+Turbulence, 0 still to 3 boiling	紊流，0 靜止至 3 沸騰
+Birth, drift and fade rate, 0.1-3	生成、漂移與淡出速率，0.1-3
+How hard the audio drives it, 0-1	音訊驅動強度，0-1
+Scale of the whole graphic, 0.5-2	整體圖形縮放，0.5-2
+0-100%: 0 broad, 100 fine and busy	0-100%: 0 寬大，100 精細密集
+Down, % of the height, -100 to 100	向下，高度的 %，-100 至 100
+Thickness of the glowing edge, 0-1	發光邊緣厚度，0-1
+0-100%: how hard the lines are bent	0-100%: 線條彎曲強度
+0-100%: light lingers on the screen	0-100%: 螢幕上的餘光
+Across, % of the width, -100 to 100	橫向，寬度的 %，-100 至 100
+% of the picture's height, 0.1 to 20	畫面高度的 %，0.1 至 20
+0-100%: how far the colours fan apart	0-100%: 色彩散開程度
+Degrees round the colour wheel, 0-360	色環角度，0-360
+Where the eye sits, 0 left to 1 right	視點位置，0 左至 1 右
+Where the eye sits, 0 top to 1 bottom	視點位置，0 上至 1 下
+dBFS, -60 to 0 (-18 is EBU alignment)	dBFS，-60 至 0（-18 為 EBU 校準位準）
+0-100%: how bright the laser lines are	0-100%: 雷射線條亮度
+One LED tile's width in pixels, 8-8192	單塊 LED 模組寬度（像素），8-8192
+0-100%: a second jet crossing the first	0-100%: 與第一道交叉的第二道噴流
+Edge softness, % of the height, 0 to 25	邊緣柔化，高度的 %，0 至 25
+One LED tile's height in pixels, 8-8192	單塊 LED 模組高度（像素），8-8192
+0 classic, 1 fire, 2 ice, 3 neon, 4 mono	0 經典，1 火焰，2 冰，3 霓虹，4 單色
+Modulator as a ratio of the note, 0.05-16	調變器相對音符的頻率比，0.05-16
+Scanlines, bloom and gun misalignment, 0-1	掃描線、泛光與電子槍偏移，0-1
+0-100%: the round lens, barrel and dark rim	0-100%: 圓形鏡頭、桶形畸變與暗邊
+Block displacement and channel tearing, 0-1	區塊位移與通道撕裂，0-1
+Internal resolution, 1 (chunky) to 5 (fine)	內部解析度，1（粗）至 5（細）
+Seconds the finished drawing stays, 0 to 60	繪製完成後停留秒數，0 至 60
+0 rainbow + grey, 1 rainbow, 2 theme, 3 mono	0 彩虹 + 灰色，1 彩虹，2 主題，3 單色
+How readily neighbours merge, 0 (never) to 1	相鄰斑塊融合難易，0（從不）至 1
+Turns the rim's colours round the wheel, 0-1	沿色環旋轉邊緣顏色，0-1
+drag to turn round it · wheel to come closer	拖曳以環繞旋轉 · 滾輪以拉近
+0-100%: 50 is 1x, 0 a quarter, 100 four times	0-100%: 50 為 1x，0 為四分之一，100 為四倍
+How much of each frame feeds the next, 0-0.95	每影格回饋至下一影格的比例，0-0.95
+Per-frame zoom of the feedback path, 0.90-1.15	回饋路徑的逐影格縮放，0.90-1.15
+Space under it, as a fraction of the frame, 0-0.8	下方空間占畫面的比例，0-0.8
+0 rgb, 1 rainbow, 2 floyd, 3 warm, 4 cool, 5 green	0 rgb，1 彩虹，2 弗洛伊德，3 暖色，4 冷色，5 綠色
+Edge out (+) or in (-), % of the height, -25 to 25	邊緣外擴 (+) 或內縮 (-)，高度的 %，-25 至 25
+0 zone, 1 twin, 2 flow, 3 saddle, 4 ripple, 5 shear	0 區域，1 雙重，2 流動，3 鞍形，4 漣漪，5 剪切
+Seconds before it leaves by itself; 0 waits for OUT	自動退場前的秒數；0 表示等待 OUT
+0-100%: how far each panel tilts from the one before	0-100%: 每塊面板相對前一塊的傾斜程度
+0-100%: the share of each band drawn as grey stripes	0-100%: 每個色帶繪為灰色條紋的比例
+0 off, 1 on: the flow surges with the programme sound	0 關閉，1 開啟：流動隨節目聲音增強
+0 off, 1 on: the top mirrors the bottom round a dark seam	0 關閉，1 開啟：上方沿暗縫鏡像下方
+' (cues, position, look, effects, levels, routing, master)	'（提示、位置、外觀、效果、位準、路由、主控）
+' -- try ADD, ON, OFF, ASSIGN, UNASSIGN, LAYER, HOST, TYPE, MIRROR or an output number	' -- 請嘗試 ADD, ON, OFF, ASSIGN, UNASSIGN, LAYER, HOST, TYPE, MIRROR 或輸出編號
+BLEND ROW: expected <first output> <how many, 2 or more> <overlap in pixels>, with that many outputs	BLEND ROW: 需要 <首個輸出> <數量，至少 2 個> <重疊像素數>，且須有相應數量的輸出
+DASH SET: <n> <label> | <command> [| <glyph>]	DASH SET: <n> <標籤> | <命令> [| <圖符>]
+DASH: LIST | <n> | SET <n> <label> | <command> | CLEAR <n>	DASH: LIST | <n> | SET <n> <標籤> | <命令> | CLEAR <n>
+OUTPUT SPOUT: ON | OFF | TOGGLE | NAME <sender name>	OUTPUT SPOUT: ON | OFF | TOGGLE | NAME <傳送端名稱>
+SCREENS STAGE: STATUS, SET <what> <value> or APPLY	SCREENS STAGE: STATUS, SET <項目> <值> 或 APPLY
+LFO: flow, water, ripple, jet, prism, split, focus, shimmer, mirrors, angle, spin, lens, glow, bright or trail	LFO: flow, water, ripple, jet, prism, split, focus, shimmer, mirrors, angle, spin, lens, glow, bright 或 trail
+SCREENS STAGE SET: WIDTH|HEIGHT <m>, LUMENS, THROW, OVERLAP <%>, GAIN, COUNT, PIXELS <w> <h> or UNITS METRES|FEET	SCREENS STAGE SET: WIDTH|HEIGHT <m>, LUMENS, THROW, OVERLAP <%>, GAIN, COUNT, PIXELS <w> <h> 或 UNITS METRES|FEET
+STATUS | SHAPE <0-5> | PALETTE <0-3> | DENSITY|SPEED|WARP|CENTREX|CENTREY|GREY <0-100> | TURN|HUE <0-360> | LFO <control> <setting>	STATUS | SHAPE <0-5> | PALETTE <0-3> | DENSITY|SPEED|WARP|CENTREX|CENTREY|GREY <0-100> | TURN|HUE <0-360> | LFO <控制項> <設定>
+STATUS | PALETTE <0-5 or name> | MODE <0-2 or name> | TOPBOTTOM|LISTENS ON|OFF | FLOW|WATER|RIPPLE|JET|PRISM|SPLIT|FOCUS|SHIMMER|ANGLE|SPIN|LENS|GLOW|BRIGHT|TRAIL <0-100> | MIRRORS <0-12> | LFO <control> <setting>	STATUS | PALETTE <0-5 或名稱> | MODE <0-2 或名稱> | TOPBOTTOM|LISTENS ON|OFF | FLOW|WATER|RIPPLE|JET|PRISM|SPLIT|FOCUS|SHIMMER|ANGLE|SPIN|LENS|GLOW|BRIGHT|TRAIL <0-100> | MIRRORS <0-12> | LFO <控制項> <設定>
+Render	算圖
+Opacity	不透明度
+opacity	不透明度
+PNG frames	PNG 影格
+START RENDER	開始算圖
+CANCEL RENDER	取消算圖
+RENDER TO FILE	算圖至檔案
+RENDER TO FILE...	算圖至檔案...
+QUANTISE: beat	量化：拍
+QUANTISE: 1 bar	量化：1 小節
+QUANTISE: 2 bars	量化：2 小節
+QUANTISE: 4 bars	量化：4 小節
+about {1} left	約剩 {1}
+LINK: {1} peers	LINK: {1} 個對等端
+render cancelled	算圖已取消
+{1} frames in {2}	{2} 內完成 {1} 影格
+the output's ({1})	輸出的（{1}）
+From cue and to cue	起始提示與結束提示
+left the Link session	已離開 Link 工作階段
+joined the Link session	已加入 Link 工作階段
+the playlist has no cues	播放清單中沒有提示
+{1} frames, {2}, {3}x{4}	{1} 影格，{2}，{3}x{4}
+the source made no picture	訊號源未產生畫面
+a render is already running	已有算圖工作在執行
+TAKE waits for the bar: {1} s	TAKE 等待小節：{1} s
+TAKE waits for the beat: {1} s	TAKE 等待節拍：{1} s
+there is no playlist to render	沒有可算圖的播放清單
+this build has no Ableton Link	此組建不含 Ableton Link
+there is no picture in that range	該範圍內沒有畫面
+RENDER CANCEL: nothing is rendering	RENDER CANCEL: 沒有正在執行的算圖
+VJ LINK: this build has no Ableton Link	VJ LINK: 此組建不含 Ableton Link
+PAD CHIP: <slot> ON|OFF	PAD CHIP: <槽位> ON|OFF
+PAD MODE: HOLD or LATCH	PAD MODE: HOLD 或 LATCH
+RENDER START: CUE, CUES a-b or OUTPUT	RENDER START: CUE, CUES a-b 或 OUTPUT
+frame {1} of {2} \xC2\xB7 {3} frames/s	第 {1} 影格，共 {2} 影格 \xC2\xB7 {3} 影格/秒
+RENDER START CUES: first-last, numbered from 1	RENDER START CUES: 首個-末個，編號從 1 開始
+the output's mask is not drawn by a render yet	算圖尚不繪製輸出遮罩
+PAD ASSIGN: this cue does not have that control	PAD ASSIGN: 此提示沒有該控制項
+the output's slices are not drawn by a render yet	算圖尚不繪製輸出切片
+the output's crossfader is not drawn by a render yet	算圖尚不反映輸出交叉淡化
+RENDER START: needs a size, a rate, a codec and a file	RENDER START: 需要尺寸、影格率、編碼器和檔案
+VJ QUANTISE: beat | 1 | 2 | 4 | off  (1, 2, 4 are bars)	VJ QUANTISE: beat | 1 | 2 | 4 | off  （1、2、4 表示小節數）
+PAD SET: x and y are numbers from 0 to 1 (y = 1 is the top)	PAD SET: x 和 y 為 0 至 1 的數值（y = 1 為頂部）
+RENDER START: size is 1080P, 4K or OUTPUT; codec is PRORES, H264 or PNG	RENDER START: 尺寸為 1080P、4K 或 OUTPUT；編碼器為 PRORES、H264 或 PNG
+PAD ASSIGN: a control is OPACITY, FX<n>.AMOUNT, FX<n>.A to F, or NUM.<name> such as NUM.lumia.flow	PAD ASSIGN: 控制項為 OPACITY、FX<n>.AMOUNT、FX<n>.A 至 F，或 NUM.<名稱>，如 NUM.lumia.flow
+PAD: expected PAD <deck> SET <x> <y> | RELEASE | MODE | ASSIGN | REMOVE | CHIP | LIST	PAD: 需要 PAD <deck> SET <x> <y> | RELEASE | MODE | ASSIGN | REMOVE | CHIP | LIST
+PAD: expected PAD <deck> SET <x> <y> | RELEASE | MODE HOLD|LATCH | ASSIGN <slot> <x> <y> | REMOVE <slot> | CHIP <slot> ON|OFF | LIST	PAD: 需要 PAD <deck> SET <x> <y> | RELEASE | MODE HOLD|LATCH | ASSIGN <slot> <x> <y> | REMOVE <slot> | CHIP <slot> ON|OFF | LIST
+VJ: expected ON|OFF|TOGGLE|MIX <0-1>|BLEND <mode>|TAP|BPM <n>|CLOCK <on|off>|QUANTISE <beat|1|2|4|off>|LINK <on|off|status>|DECKS <a> <b>|STATUS	VJ: 需要 ON|OFF|TOGGLE|MIX <0-1>|BLEND <mode>|TAP|BPM <n>|CLOCK <on|off>|QUANTISE <beat|1|2|4|off>|LINK <on|off|status>|DECKS <a> <b>|STATUS
+RENDER: START <CUE|CUES a-b|OUTPUT> <1080P|4K|OUTPUT> <25|30|50|60> <PRORES|H264|PNG> <file>, STATUS, CANCEL, DIALOG	RENDER: START <CUE|CUES a-b|OUTPUT> <1080P|4K|OUTPUT> <25|30|50|60> <PRORES|H264|PNG> <檔案>, STATUS, CANCEL, DIALOG

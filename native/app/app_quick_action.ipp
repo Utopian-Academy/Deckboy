@@ -527,6 +527,21 @@
                                               : "takes are immediate");
         markProjectDirty();
         return;
+      case QuickAction::VjToggleLink:
+        setVjLink(!project_.vjLinkEnabled);
+        if (deckboy::LinkSession::available()) {
+          triggerToast(project_.vjLinkEnabled ? "joined the Link session"
+                                              : "left the Link session");
+        }
+        return;
+      case QuickAction::VjCycleQuantise: {
+        const deckboy::vjclock::Quantise q = deckboy::vjclock::nextQuantise(
+          {project_.vjQuantiseTakes, project_.vjQuantiseBeats});
+        project_.vjQuantiseTakes = q.on;
+        project_.vjQuantiseBeats = q.beats;
+        markProjectDirty();
+        return;
+      }
       case QuickAction::EffectChainCopy:  copySelectedEffectChain(); return;
       case QuickAction::EffectChainPaste: pasteSelectedEffectChain(); return;
       default: break;

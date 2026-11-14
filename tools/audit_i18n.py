@@ -70,12 +70,15 @@ DRAW_HELPERS = [
     # failRemoteCommand toasts its reason as well. And a template handed to
     # i18n::format or i18n::translate is a line a catalogue must hold.
     "triggerToast", "failRemoteCommand", r"i18n::format", r"i18n::translate",
+    # The inline editor draws its title and prompt through drawText; its literals
+    # (key colour, offset, width...) were never counted either.
+    r"openInline\w*Editor",
 ]
 
 SOURCE_DIRS = [os.path.join(ROOT, "native")]
 
 # A literal is prose worth translating when it is not one of these.
-TOKENISH = re.compile(r"^[a-z0-9_.:/\\-]+$")          # ids, paths, tokens
+TOKENISH = re.compile(r"^[a-z0-9_.:/\\-]+$|^[a-z]+(\.[A-Za-z0-9_]+)+$")   # ids, paths, tokens, cue.effect.paramA
 FORMATTY = re.compile(r"%[-0-9.]*[sdfxu]|\{\}")        # format strings
 
 # NOT PROSE, and translating these would be actively wrong rather than merely
@@ -168,7 +171,8 @@ def drawn_strings():
                             continue
                         rel = os.path.relpath(path, ROOT).replace("\\", "/")
                         found.setdefault(s, rel)
-    return found
+    # A prompt drawn with the editor's suffix glued on is looked up as the bare hint.
+    return {bare_hint(k): v for k, v in found.items()}
 
 
 # THE MENUS. A dropdown, a picker or a SOURCE menu is built as a list of
@@ -220,6 +224,174 @@ def option_labels():
                         if not_a_label(s):
                             continue
                         found.setdefault(s, rel)
+    return found
+
+
+# STRINGS THAT TRAVEL IN A VARIABLE. drawn_strings() only sees a literal written
+# inside a draw call, and option_labels() only an (id, label) pair. The effect
+# inspector draws `cueEffectParamLabelFor(fx, which)`, a tip from
+# `cueEffectChoiceTip`, an import failure read out of `result.error`: the
+# literal sits in a table or a function far from the draw, so both audits were
+# blind to it and about 900 interface strings were in no catalogue at all
+# (2026-11-13: "channel spread", "tape age", the Keynote message). translate()
+# looks every one of them up at draw time, so each needs a line like any other.
+#
+# Three static scans, no compiling:
+#   * a function named like a label table (xxxLabel, xxxTip, xxxName, xxxOptions
+#     ...): the literals in its `return` statements. A `return "a" + b` is
+#     skipped, because the whole never exists as a literal.
+#   * an `error = "..."` or `why = ...` assignment in the files whose text reaches
+#     a toast (pdf_import, the app's .ipp files, a few platform sources).
+#   * NumericParamSpec{token, label, hint, ...} rows: the label, and the hint
+#     with the suffix the editor always appends to it.
+LABEL_FN_NAME = re.compile(r"(Label|Tip|Name|Reason|Options|Choices|Title|Hint|Help)(For)?$")
+# Functions the name test catches that do not make interface text: wire
+# formats, hardware names, file stems, defaults that take a number after them.
+NOT_A_LABEL_FN = {
+    "textureFormatName", "hwDeviceName", "hardwareDecodeName", "st2110SamplingLabel",
+    "className", "dxgiPresentationModeName", "deckLinkModeLabel", "exeName", "getName",
+    "deckDefaultName", "outputDefaultName", "escapeFixtureName", "unescapeFixtureName",
+    "sanitizeBundleFilenameStem", "hostnameSafe", "colourNameForms", "normaliseColourName",
+    "defaultNdiSourceName", "defaultNdiKeySourceName", "defaultOutputNdiSourceName",
+    "defaultOutputNdiKeySourceName", "compositeSlotDefaultName", "browserCueNameForUrl",
+    "macDefaultPlaybackDeviceName", "cleanAudioOutputName", "getDeckLinkModelName",
+    "getDeckLinkDisplayName", "deckboyGetDisplayName", "cueTargetVerbToken", "playlistTimebaseLabel",
+    "extractEmbeddedSubtitleSrt", "describeMessage", "describeOutMessage", "refUnsupportedReason",
+    "sourceCueRefFriendlyLabel", "deckLinkCueDeviceLabel",
+}
+FUNCTION_HEAD = re.compile(
+    r"^[ \t]*(?:(?:inline|static|constexpr)\s+)*"
+    r"(?:const\s+char\s*\*|std::string|std::vector<const\s+char\s*\*>|std::vector<std::string>)"
+    r"\s+(?:\w+::)*(\w+)\s*\([^)]*\)\s*(?:const)?\s*\{", re.MULTILINE)
+RETURN_STATEMENT = re.compile(r"\breturn\b([^;]*);")
+LITERAL = re.compile(r'"((?:[^"\\]|\\.)*)"')
+# Files whose error text is shown to the operator. The engine's own decoder
+# and driver errors (snappy, ASIOInit) are log lines, not interface.
+ERROR_FILES = {"pdf_import.cpp", "midi.cpp", "masks.hpp", "live_captions.hpp", "screen_colour.cpp",
+               "code_source.hpp", "ndi_input.cpp", "asio_audio.cpp", "spout_input.cpp"}
+ERROR_ASSIGNMENT = re.compile(
+    r"\b(\w*(?:[eE]rror|[rR]eason|why|[aA]dvice|errorMessage|loadError))\s*(?:=|\+=)\s*([^;]*);"
+    r"|\bconst\s+char\s*\*\s*(k[A-Z]\w+)\s*=\s*([^;]*);")
+SPEC_ROW = re.compile(
+    r'NumericParamSpec\s+\w+\s*\{\s*"[^"]*"\s*,\s*"((?:[^"\\]|\\.)*)"\s*,\s*((?:"(?:[^"\\]|\\.)*"\s*)+)')
+# What openInlineNumericExpressionEditor appends to a spec's hint. The editor
+# translates the hint on its own and fills it into one template (app_ui_widgets
+# .ipp), so the catalogues need the bare hint and the template, never the two
+# glued together.
+HINT_SUFFIX = " (supports + - * / and ())"
+# Templates the app fills with a translated piece (i18n::format), and words it
+# translates on their own before building a line. Each is one catalogue line.
+TEMPLATES = ("{1} (supports + - * / and ())", "added {1}", "(bypassed)")
+# key as translate() sees it -> the literal in the source, for --staged.
+JOINED = {}
+
+
+def bare_hint(s):
+    """A prompt with the editor's suffix glued on, as the hint alone."""
+    return s[:-len(HINT_SUFFIX)] if s.endswith(HINT_SUFFIX) and len(s) > len(HINT_SUFFIX) else s
+
+
+def strip_comments(text):
+    """Blank out // and /* */ comments but leave string literals alone."""
+    return re.sub(r'"(?:[^"\\]|\\.)*"|//[^\n]*|/\*.*?\*/',
+                  lambda m: m.group(0) if m.group(0).startswith('"') else " ", text, flags=re.S)
+
+
+def block_end(text, start):
+    """Index just past the brace block whose first line begins at `start`."""
+    depth = 1
+    i = start
+    while i < len(text) and depth:
+        c = text[i]
+        if c == '"':
+            i += 1
+            while i < len(text) and text[i] != '"':
+                i += 2 if text[i] == "\\" else 1
+        elif c == "{":
+            depth += 1
+        elif c == "}":
+            depth -= 1
+        i += 1
+    return i
+
+
+def label_ok(s):
+    return (is_prose(s) and not FORMATTY.search(s) and not not_a_label(s)
+            and not s.startswith(("\\", "'", "-", "+")) and re.search(r"[A-Za-z]", s) is not None)
+
+
+def source_files():
+    for root in SOURCE_DIRS:
+        for dirpath, _dirs, files in os.walk(root):
+            if "extras" in dirpath.replace("\\", "/").split("/"):
+                continue
+            for name in files:
+                if name.endswith((".cpp", ".hpp", ".ipp")) and name != "app_smoke.ipp":
+                    path = os.path.join(dirpath, name)
+                    text = open(path, encoding="utf-8", errors="replace").read()
+                    yield name, os.path.relpath(path, ROOT).replace("\\", "/"), strip_comments(text)
+
+
+def table_strings():
+    """Literals returned by label tables: {string: 'file:function'}."""
+    found = {}
+    for _name, rel, text in source_files():
+        for head in FUNCTION_HEAD.finditer(text):
+            fn = head.group(1)
+            if not LABEL_FN_NAME.search(fn) or fn in NOT_A_LABEL_FN:
+                continue
+            body = text[head.end():block_end(text, head.end())]
+            for ret in RETURN_STATEMENT.finditer(body):
+                stmt = re.sub(r'"\s+"', "", ret.group(1))
+                if "+" in LITERAL.sub("", stmt):
+                    continue          # "added " + name: no whole string to look up
+                for lit in LITERAL.finditer(stmt):
+                    if label_ok(lit.group(1)):
+                        found.setdefault(lit.group(1), rel + ":" + fn)
+    return found
+
+
+def error_strings():
+    """Literals of error/reason assignments in the files that toast them."""
+    found = {}
+    for name, rel, text in source_files():
+        if name not in ERROR_FILES and not (rel.startswith("native/app/") or rel == "native/main.cpp"):
+            continue
+        for m in ERROR_ASSIGNMENT.finditer(text):
+            who = m.group(1) or m.group(3)
+            stmt = re.sub(r'"\s+"', "", m.group(2) if m.group(1) else m.group(4))
+            for lit in LITERAL.finditer(stmt):
+                s = lit.group(1)
+                if len(s) < 4 or not label_ok(s):
+                    continue
+                if " " not in s and not s[0].islower():
+                    continue          # "Keynote", "PowerPoint": a product name
+                found.setdefault(s, rel + ":" + who)
+    return found
+
+
+def spec_strings():
+    """NumericParamSpec labels and hints, and the editor's prompt template."""
+    found = {}
+    for _name, rel, text in source_files():
+        for m in SPEC_ROW.finditer(text):
+            label = m.group(1)
+            hint = "".join(LITERAL.findall(m.group(2)))
+            if label_ok(label):
+                found.setdefault(label, rel + ":NumericParamSpec")
+            if hint and label_ok(bare_hint(hint)):
+                found.setdefault(bare_hint(hint), rel + ":NumericParamSpec")
+    for t in TEMPLATES:
+        found.setdefault(t, "i18n::format template")
+    return found
+
+
+def variable_strings():
+    """Every string that reaches the screen through a variable, not a draw call."""
+    found = {}
+    for part in (table_strings(), error_strings(), spec_strings()):
+        for s, where in part.items():
+            found.setdefault(s, where)
     return found
 
 
@@ -411,6 +583,8 @@ def main():
         sys.exit("audit_i18n: found no drawn strings -- did the helpers change name?")
     options = option_labels()
     for s, where in options.items():
+        drawn.setdefault(s, where)
+    for s, where in variable_strings().items():
         drawn.setdefault(s, where)
 
     langs = sorted(f for f in os.listdir(LANG_DIR) if f.endswith(".tsv"))

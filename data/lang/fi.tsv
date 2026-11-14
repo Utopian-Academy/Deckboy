@@ -3279,3 +3279,1245 @@ whole picture	koko kuva
 FX CHOICE: choice must be A or B	FX CHOICE: valinnan on oltava A tai B
 FX CHOICE: no effect at that index	FX CHOICE: ei efektiä tuossa hakemistossa
 FX LFO: slot is A-D for the parameters, E for the amount, F and G for the fifth and sixth (or 0-6)	FX LFO: paikka on A-D parametreille, E määrälle, F ja G viidennelle ja kuudennelle (tai 0-6)
+(choose cue)	(valitse cue)
+(missing)	(puuttuu)
+(no slots)	(ei paikkoja)
+(set media file)	(aseta mediatiedosto)
+(set url)	(aseta url)
+a name for this step	tämän askeleen nimi
+A number	Luku
+across the grain	syitä vastaan
+Add Browser Cue	Lisää selaincue
+Add NDI Source Cue	Lisää NDI-lähdecue
+Add Stream Cue	Lisää virtacue
+additive	lisäävä
+alternating	vuorotteleva
+amber	meripihka
+angle	kulma
+Art-Net Destination	Art-Net-kohde
+ASCII 95 (density)	ASCII 95 (tiheys)
+ASCII 95 (raw)	ASCII 95 (raaka)
+ASIO is off	ASIO on pois päältä
+ATEM Input	ATEM-tulo
+Attach Lower Third	Liitä Lower Third
+Attach PIP Overlay	Liitä PIP-peittokuva
+Attack	Nousuaika
+attack	nousuaika
+Audio bitrate	Äänen bittinopeus
+Audio reactivity	Äänireaktiivisuus
+audioprint	äänijälki
+auto (59.94 Hz)	automaattinen (59.94 Hz)
+azimuth	atsimuutti
+band curve	kaistakäyrä
+Bands	Kaistat
+bands	kaistat
+base layer	pohjataso
+BITRATE	BITTINOPEUS
+bits	bitit
+black point	mustapiste
+bleed	vuoto
+Blobs	Läiskät
+block glitch	lohkovirhe
+block size	lohkokoko
+blocks	lohkot
+blur	sumennus
+BOTH	MOLEMMAT
+bright	kirkas
+Browser Ready	Selain valmis
+Brush opacity	Siveltimen peittävyys
+Brush size	Siveltimen koko
+buzzer	summeri
+by brightness	kirkkauden mukaan
+cancelled	peruttu
+Canvas Height	Kankaan korkeus
+Canvas View	Kangasnäkymä
+Canvas Width	Kankaan leveys
+catch	tartunta
+caustics	kaustiikka
+Centre X	Keskipiste X
+Centre Y	Keskipiste Y
+channel skew	kanavavinous
+channel spread	kanavalevitys
+character	luonne
+chladni	Chladni-kuviot
+chop	pilkonta
+CLASSIC	KLASSINEN
+CLOCK	KELLO
+coherence	koherenssi
+colour bleed	värivuoto
+colour drift	väriajautuma
+colour lag	väriviive
+colour replace	värinkorvaus
+columns	sarakkeet
+Companion/OSC Port	Companion/OSC-portti
+control 1	säädin 1
+control 2	säädin 2
+control 3	säädin 3
+control 4	säädin 4
+Control change	Ohjainmuutos
+convergence	konvergenssi
+copies	kopiot
+corrupt	turmele
+corruption	turmelu
+could not reach github	github ei vastaa
+could not read the PDF	PDF ei avautunut
+could not start ffmpeg	ffmpeg ei käynnistynyt
+couldn't open explorer	resurssienhallinta ei avautunut
+couldn't open finder	finder ei avautunut
+coupling	kytkentä
+crystallise	kiteytys
+Cue Goto	Siirry cueen
+Cue Notes	Cuen muistiinpanot
+curl detail	pyörreyksityiskohdat
+curves	käyrät
+Custom Glyphs	Omat merkit
+Custom Output Raster	Oma lähtörasteri
+cut bright	leikkaa kirkas
+cut dark	leikkaa tumma
+cut reset	nollaus leikkauksessa
+cutoff	rajataajuus
+cuts	leikkaukset
+cyan	syaani
+damage	vaurio
+damping	vaimennus
+dark	tumma
+darkness	pimeys
+databend	datavääntö
+datamosh	pakkaussotku
+deck age	dekin ikä
+Default Cue Fade	Cuen oletushäivytys
+Density	Tiheys
+depth	syvyys
+depth split	syvyyserottelu
+Destination Address	Kohdeosoite
+Destination UDP port	Kohteen UDP-portti
+Detail	Yksityiskohdat
+diamond	vinoneliö
+display native	näytön oma
+Display none	Ei näyttöä
+distance	etäisyys
+DMX Channels	DMX-kanavat
+doppler	doppler-ilmiö
+dots move	pisteiden liike
+Draw colour	Piirtoväri
+drift	ajautuma
+drip	valuma
+drips	valumat
+drive	yliohjaus
+driver refused to start	ajuri ei suostunut käynnistymään
+dye advect	väriainekuljetus
+edges	reunat
+empty	tyhjä
+empty expression	tyhjä lauseke
+escaped to windowed	siirryttiin ikkunatilaan
+export as .png or .svg	vie .png- tai .svg-muodossa
+extended	laajennettu
+EXTREME	ÄÄRIMMÄINEN
+facet light	tahkovalo
+falloff	vaimenema
+falsecolour	vääräväri
+feed rate	syöttönopeus
+feedback bloom	takaisinkytkentähehku
+Feedback zoom	Takaisinkytkennän zoom
+ferrofluid	ferrofluidi
+ffmpeg made no file	ffmpeg ei luonut tiedostoa
+field of view	näkökenttä
+Find Cue	Etsi cue
+Find+Take Cue	Etsi+TAKE cue
+Fire at a time of day	Käynnistä kellonaikaan
+Fire on a MIDI note	Käynnistä MIDI-nuotista
+Fire on an OSC address	Käynnistä OSC-osoitteesta
+Fireside	Takkatuli
+First channel (1-512)	Ensikanava (1-512)
+Fixture address	Valaisimen osoite
+Fixture name	Valaisimen nimi
+Fixture universe	Valaisimen universumi
+flash length	välähdysaika
+flash to	välähdysväri
+flicker	välkyntä
+Flipbook rate	Pläräysnopeus
+floor	alaraja
+Flow	Virtaus
+flow	virtaus
+focus	tarkennus
+fold	taitto
+fold point	taittopiste
+frames	ruudut
+Frequency	Taajuus
+frequency	taajuus
+fullscreen dropped	koko näyttö poistui
+gap	väli
+gather	kokoaminen
+Glitch	Häiriö
+glow	hehku
+glyph set	merkistö
+gong	gongi
+GOTO Cue	GOTO-cue
+grain	rakeisuus
+grain flow	rakeiden virtaus
+grain size	raekoko
+green split	vihreäerottelu
+Grey	Harmaa
+grid	ruudukko
+growl	murina
+growth	kasvu
+head wear	äänipään kuluma
+heat	lämpö
+Height	Korkeus
+Height (px)	Korkeus (px)
+hh:mm:ss or seconds	hh:mm:ss tai sekunnit
+highlight roll	huippuvalopehmennys
+histogram	histogrammi
+horizontal	vaakasuora
+How big each tile is.	Kunkin laatan koko.
+How often it skips.	Kuinka usein ohitetaan.
+hue turn	sävyn kierto
+ice	jää
+In time	Sisääntuloaika
+ink	muste
+interference	häiriö
+irregularity	epäsäännöllisyys
+it could not be started	ei voitu käynnistää
+Its name, number or id	Nimi, numero tai id
+jump	hyppy
+just	puhdas viritys
+kaleido	kaleidoefekti
+kaleidoscope	kaleidoskooppi
+Key Color	Avainnusväri
+Key sender source name	Avainlähettäjän lähdenimi
+Keyframe interval	Avainruutuväli
+knee	polvi
+knife angle	veitsikulma
+leak	vuoto
+Legacy Cue Link	Vanha cue-linkki
+let go	vapautus
+libX11 is not installed	libX11 ei ole asennettu
+lift	nosto
+light	valo
+light angle	valokulma
+lightspeed	valonnopeus
+line colour	viivaväri
+line glow	viivahehku
+lissajous	Lissajous-käyrä
+Lissajous (L/R phase)	Lissajous (L/R-vaihe)
+Live Browser	Suora selain
+Live Source	Suora lähde
+LOAD NEXT	LATAA SEURAAVA
+lost the session bus	istuntoväylä katkesi
+Lower Third - subtitle	Lower Third - alaotsikko
+Lower Third - title	Lower Third - otsikko
+Lower Third Subtext	Lower Third - alateksti
+Lower Third Title	Lower Third - otsikko
+luma displace	lumasiirto
+luma key	luma-avainnus
+Mask opacity	Maskin peittävyys
+Mask rotation	Maskin kierto
+Mask scale	Maskin skaala
+Mask X	Maski X
+Mask Y	Maski Y
+material	materiaali
+meantone	keskisävelviritys
+Media	Mediat
+Melt	Sulatus
+melt	sulatus
+memory	muisti
+midtones	keskisävyt
+milliseconds (40..2000)	millisekuntia (40..2000)
+Milliseconds 0-5000	Millisekuntia 0-5000
+Mod depth	Modulaatiosyvyys
+Mod ratio	Modulaatiosuhde
+moire	moaree
+mono	monofoninen
+MONO L	MONOFONINEN L
+MONO R	MONOFONINEN R
+mosaic	mosaiikki
+motion mosh	liikesotku
+motion puppet	liikenukke
+motion trails	liikejäljet
+MSC Cue Number	MSC-cuen numero
+music & sparkle	musiikki ja kimallus
+NDI Key Name	NDI-avaimen nimi
+NDI Name	NDI-nimi
+NDI Source Name	NDI-lähdenimi
+NEXT	SEURAAVA
+night eyes	yönäkö
+NMC Port	NMC-portti
+NMC Source	NMC-lähde
+NMC Target	NMC-kohde
+NMOS Interface Name	NMOS-liittymän nimi
+NMOS Node Port	NMOS-solmun portti
+NMOS Registry	NMOS-rekisteri
+no ASIO in this build	tässä koosteessa ei ole ASIO-tukea
+no colour	ei väriä
+no driver named	ei tämännimistä ajuria
+no mask made	maskia ei tehty
+no release found	julkaisua ei löytynyt
+no X display to read	ei luettavaa X-näyttöä
+noise	kohina
+not connected	ei yhteyttä
+not on this output	ei tässä lähdössä
+Note	Nuotti
+Note off	Nuotti pois
+Note on	Nuotti päälle
+nothing drawn	mitään ei piirretty
+off-axis	akselin sivussa
+offline	ei verkossa
+only a background in it	sisältää vain taustan
+opened in explorer	avattu resurssienhallinnassa
+opened in file manager	avattu tiedostonhallinnassa
+orbit speed	kiertonopeus
+OSC Address	OSC-osoite
+OSC Query HTTP Port	OSC Query -HTTP-portti
+Out time	Poistumisaika
+Output Alpha	Lähdön alfa
+Output Canvas	Lähtökangas
+Output Delay	Lähtöviive
+output fault	lähtövika
+Output name	Lähdön nimi
+Output Refresh	Lähdön virkistystaajuus
+overflow	ylivuoto
+own playlist	oma soittolista
+parade	kanavaparaati
+parallax	parallaksi
+Payload	Hyötykuorma
+Percent 0-100	Prosenttia 0-100
+phone	puhelin
+Phrases	Fraasit
+pinch	nipistys
+ping-pong	edestakainen
+pink noise	vaaleanpunakohina
+PIP Target Cue	PIP-kohdecue
+pitch	sävelkorkeus
+pivot	kääntöpiste
+Pixel density	Pikselitiheys
+pixel sort	pikselilajittelu
+plasma	plasmakuva
+Playlist Start TC	Soittolistan alku-TC
+Playlist Timebase	Soittolistan aikakanta
+Plugin	Liitännäinen
+polar warp	napavääristys
+Portal	Portaali
+posterise	posterointi
+Practice show	Harjoitusesitys
+PREVIOUS	EDELLINEN
+Program change	Ohjelmanvaihto
+Prompter script	Prompterin teksti
+QUALITY	LAATU
+radial zoom	säteittäinen zoom
+radio	radiovastaanotin
+radius	säde
+ramp	liukuma
+range	alue
+ratio	suhde
+Raw bytes	Raakatavut
+Raw MIDI Bytes	MIDI-raakatavut
+reach	ulottuvuus
+reaction bloom	reaktiohehku
+recordings	tallenteet
+recovering	palautetaan
+refresh	virkistys
+Release	Palautumisaika
+release	palautumisaika
+relief	kohokuvio
+relight	uudelleenvalaisu
+Rename cue	Nimeä cue uudelleen
+Rename fixture	Nimeä valaisin uudelleen
+Renumber Cues	Numeroi cuet uudelleen
+repeat width	toistoleveys
+Replay hold	Toiston pito
+resonance	resonanssi
+Retrigger	Uudelleenlaukaisu
+revealed in finder	näytetty finderissa
+reverse	käänteinen
+rgb split	rgb-erottelu
+Rim	Reunus
+rings	renkaat
+ripple	väreily
+rising	nouseva
+rod bias	sauvasolupaino
+room	huone
+rot	laho
+Rotation	Kierto
+rotation	kierto
+round	pyöreä
+runtime unavailable	ajoympäristö ei käytettävissä
+sag	jännitekuoppa
+Save Warp Preset	Tallenna vääristysasetus
+saw	saha
+scanlines	pyyhkäisyviivat
+schlieren	schlieren-kuva
+scope	mittari
+SCOPES	MITTARIT
+second mode	toinen tila
+Seconds (0-30)	Sekuntia (0-30)
+see through	läpinäkyvyys
+seed density	siementiheys
+self	itse
+Sender source name	Lähettäjän lähdenimi
+settle	asettuminen
+shadow lift	varjojen nosto
+shake	tärinä
+shard size	sirpalekoko
+sharpen	terävöitys
+sheen	hohde
+sideways	sivuttain
+size out of range	koko alueen ulkopuolella
+slit scan	rakoskannaus
+slit width	raon leveys
+Smear	Suttaus
+smear	suttaus
+softness	pehmeys
+solarise	solarisaatio
+Source Ready	Lähde valmis
+spike count	piikkimäärä
+spike length	piikkipituus
+spin	pyöritys
+spinning	pyörivä
+Spout Sender Name	Spout-lähettäjän nimi
+spring	jousi
+sprite sheet	spritearkki
+Sprite spin	Spriten kierto
+square	neliö
+SRT latency	SRT-viive
+SRT passphrase	SRT-salalause
+SRT stream ID	SRT-virran ID
+ST 2110 Destination	ST 2110 -kohde
+ST 2110 Port	ST 2110 -portti
+Step length	Askelpituus
+steps	askeleet
+stereogram	stereogrammi
+stiffness	jäykkyys
+sting	äänitunnus
+stream restart needed	virta on käynnistettävä uudelleen
+Stream URL	Virran URL
+stream write failed	virran kirjoitus epäonnistui
+strength	voimakkuus
+strobe	strobo
+stroke	veto
+SUBTLE	HIENOVARAINEN
+sway	huojunta
+sweep	pyyhkäisy
+sweep speed	pyyhkäisynopeus
+swell speed	paisuntanopeus
+Switcher IP address	Kuvamikserin IP-osoite
+symbols	symbolit
+SYPHON TEXTURE SHARE	SYPHON-TEKSTUURIJAKO
+system default	järjestelmän oletus
+system output	järjestelmän lähtö
+tape	nauha
+tape age	nauhan ikä
+target cue is gone	kohdecue on poistettu
+targets nothing	ei kohdetta
+tear width	repeämäleveys
+temporal dither	ajallinen rasterointi
+test signal	testisignaali
+text to send	lähetettävä teksti
+the file is empty	tiedosto on tyhjä
+the header is truncated	otsake on katkennut
+threshold	kynnys
+throw	heitto
+tile size	laattakoko
+tilt	kallistus
+time	aika
+time cube	aikakuutio
+Timer Message	Ajastimen viesti
+tint	sävytys
+tint colour	sävytysväri
+tracking	seuranta
+trail	jälki
+transparent	läpinäkyvä
+triangle	kolmio
+triple beep	kolmoispiippaus
+TSL Tally	TSL-merkkivalo
+Turn	Käännä
+turn	käännä
+Twist	Kierre
+twist	kierre
+unavailable	ei käytettävissä
+unbalanced )	pariton )
+Universe (0-63999)	Universumi (0-63999)
+URL or local page path	URL tai paikallisen sivun polku
+vapor	höyry
+vector	vektori
+vertical	pystysuora
+vertical bias	pystypainotus
+vibrato	vibraatto
+Video bitrate	Videon bittinopeus
+Video dip fade	Videon mustahäivytys
+vignette	vinjetointi
+vMix HTTP Port	vMix-HTTP-portti
+vMix TCP Port	vMix-TCP-portti
+wash out	haalistus
+wave height	aallonkorkeus
+wavefront	aaltorintama
+way	suunta
+Web Monitor Connections	Verkkonäytön yhteydet
+Web Monitor PIN	Verkkonäytön PIN
+Web Monitor Port	Verkkonäytön portti
+wedges	kiilat
+What it runs	Mitä suorittaa
+Where the filter sits.	Suodattimen sijainti.
+Which cue	Mikä cue
+Which way it drips.	Mihin suuntaan valuu.
+white	valkoinen
+white noise	valkokohina
+white point	valkopiste
+window hidden	ikkuna piilotettu
+window minimized	ikkuna pienennetty
+wire	lanka
+wrong display	väärä näyttö
+X,Y offset in pixels	X,Y-siirto pikseleinä
+Zoom	Suurennus
+zoom	suurennus
+% of the picture's height, 0.1 to 20 (supports + - * / and ())	% kuvan korkeudesta, 0.1–20 (tukee + - * / ja ())
+%, 1 to 100 (supports + - * / and ())	%, 1–100 (tukee + - * / ja ())
+-3 to 3: 0 holds, negative runs backwards (supports + - * / and ())	-3–3: 0 pitää, negatiivinen toistaa taakse (tukee + - * / ja ())
+0 classic, 1 fire, 2 ice, 3 neon, 4 mono (supports + - * / and ())	0 klassinen, 1 tuli, 2 jää, 3 neon, 4 yksivärinen (tukee + - * / ja ())
+0 rainbow + grey, 1 rainbow, 2 theme, 3 mono (supports + - * / and ())	0 sateenkaari + harmaa, 1 sateenkaari, 2 teema, 3 yksivärinen (tukee + - * / ja ())
+0 zone, 1 twin, 2 flow, 3 saddle, 4 ripple, 5 shear (supports + - * / and ())	0 vyöhyke, 1 pari, 2 virtaus, 3 satula, 4 väreily, 5 leikkaus (tukee + - * / ja ())
+0-1 (supports + - * / and ())	0-1 (tukee + - * / ja ())
+0-100% (supports + - * / and ())	0-100% (tukee + - * / ja ())
+0-100%, left to right (supports + - * / and ())	0-100%, vasemmalta oikealle (tukee + - * / ja ())
+0-100%, top to bottom (supports + - * / and ())	0-100%, ylhäältä alas (tukee + - * / ja ())
+0-100%: 0 holds the field still (supports + - * / and ())	0-100%: 0 pysäyttää kentän (tukee + - * / ja ())
+0-100%: 50 is 1x, 0 a quarter, 100 four times (supports + - * / and ())	0-100%: 50 on 1x, 0 neljäsosa, 100 nelinkertainen (tukee + - * / ja ())
+0-100%: how far the field bends (supports + - * / and ())	0-100%: kentän taipumamäärä (tukee + - * / ja ())
+0-100%: the share of each band drawn as grey stripes (supports + - * / and ())	0-100%: kunkin kaistan harmaaraitainen osuus (tukee + - * / ja ())
+Across, % of the width, -100 to 100 (supports + - * / and ())	Vaakaan, % leveydestä, -100–100 (tukee + - * / ja ())
+Amount 0-100% (supports + - * / and ())	Määrä 0-100% (tukee + - * / ja ())
+Birth, drift and fade rate, 0.1-3 (supports + - * / and ())	Syntymis-, ajautumis- ja häipymisnopeus, 0.1-3 (tukee + - * / ja ())
+Block displacement and channel tearing, 0-1 (supports + - * / and ())	Lohkosiirto ja kanavarepeily, 0-1 (tukee + - * / ja ())
+Colour steps, 2-8 (supports + - * / and ())	Väriportaat, 2-8 (tukee + - * / ja ())
+dBFS, -60 to 0 (-18 is EBU alignment) (supports + - * / and ())	dBFS, -60–0 (-18 on EBU-vertailutaso) (tukee + - * / ja ())
+Degrees -180..180 (supports + - * / and ())	Astetta -180..180 (tukee + - * / ja ())
+Degrees per second, -720 to 720 (supports + - * / and ())	Astetta sekunnissa, -720–720 (tukee + - * / ja ())
+Degrees round the colour wheel, 0-360 (supports + - * / and ())	Astetta väriympyrällä, 0-360 (tukee + - * / ja ())
+Degrees, -360 to 360 (supports + - * / and ())	Astetta, -360–360 (tukee + - * / ja ())
+Degrees, 0-360 (supports + - * / and ())	Astetta, 0-360 (tukee + - * / ja ())
+Down, % of the height, -100 to 100 (supports + - * / and ())	Alas, % korkeudesta, -100–100 (tukee + - * / ja ())
+Edge out (+) or in (-), % of the height, -25 to 25 (supports + - * / and ())	Reuna ulos (+) tai sisään (-), % korkeudesta, -25–25 (tukee + - * / ja ())
+Edge softness, % of the height, 0 to 25 (supports + - * / and ())	Reunapehmeys, % korkeudesta, 0–25 (tukee + - * / ja ())
+FDS hardware gain range, 0-63 (supports + - * / and ())	FDS-laitteiston vahvistus, 0-63 (tukee + - * / ja ())
+Feature size, 0.1-8 (supports + - * / and ())	Piirrekoko, 0.1-8 (tukee + - * / ja ())
+Fields per frame, 0-4 (1 = one field per rendered frame) (supports + - * / and ())	Kenttiä ruudussa, 0-4 (1 = yksi kenttä renderöityä ruutua kohti) (tukee + - * / ja ())
+Frames a second, 1 to 60 (supports + - * / and ())	Ruutua sekunnissa, 1–60 (tukee + - * / ja ())
+Hertz, 20-20000 (supports + - * / and ())	Hertsiä, 20-20000 (tukee + - * / ja ())
+Horizontal cells, 64-960 (supports + - * / and ())	Vaakasoluja, 64-960 (tukee + - * / ja ())
+How big a blob grows, 0-1 (supports + - * / and ())	Läiskän kasvukoko, 0-1 (tukee + - * / ja ())
+How hard it cuts, %, 0 to 100 (supports + - * / and ())	Leikkauksen jyrkkyys, %, 0–100 (tukee + - * / ja ())
+How hard the audio drives it, 0-1 (supports + - * / and ())	Äänen ohjausvoima, 0-1 (tukee + - * / ja ())
+How many are alive at once, 3-48 (supports + - * / and ())	Yhtä aikaa eläviä, 3-48 (tukee + - * / ja ())
+How much of each frame feeds the next, 0-0.95 (supports + - * / and ())	Seuraavaan syötettävä ruudun osuus, 0-0.95 (tukee + - * / ja ())
+How readily neighbours merge, 0 (never) to 1 (supports + - * / and ())	Naapurien yhdistymisherkkyys, 0 (ei koskaan)–1 (tukee + - * / ja ())
+Internal resolution, 1 (chunky) to 5 (fine) (supports + - * / and ())	Sisäinen tarkkuus, 1 (karkea)–5 (hieno) (tukee + - * / ja ())
+Master oscillator rate, 0.01-8 (supports + - * / and ())	Pääoskillaattorin nopeus, 0.01-8 (tukee + - * / ja ())
+Modulator as a ratio of the note, 0.05-16 (supports + - * / and ())	Modulaattorin suhde nuottiin, 0.05-16 (tukee + - * / ja ())
+One LED tile's height in pixels, 8-8192 (supports + - * / and ())	LED-laatan korkeus pikseleinä, 8-8192 (tukee + - * / ja ())
+One LED tile's width in pixels, 8-8192 (supports + - * / and ())	LED-laatan leveys pikseleinä, 8-8192 (tukee + - * / ja ())
+Palette turn, 0-1 (supports + - * / and ())	Paletin kierto, 0-1 (tukee + - * / ja ())
+Per-frame zoom of the feedback path, 0.90-1.15 (supports + - * / and ())	Takaisinkytkentäpolun ruutukohtainen zoom, 0.90-1.15 (tukee + - * / ja ())
+Pitch in hertz, 20-8000 (supports + - * / and ())	Sävelkorkeus hertseinä, 20-8000 (tukee + - * / ja ())
+Pixel sort amount, 0-1 (supports + - * / and ())	Pikselilajittelun määrä, 0-1 (tukee + - * / ja ())
+Pixels (supports + - * / and ())	Pikseliä (tukee + - * / ja ())
+Pixels, 64-2160 (supports + - * / and ())	Pikseliä, 64-2160 (tukee + - * / ja ())
+Pixels, 64-3840 (supports + - * / and ())	Pikseliä, 64-3840 (tukee + - * / ja ())
+Scale of the whole graphic, 0.5-2 (supports + - * / and ())	Koko grafiikan skaala, 0.5-2 (tukee + - * / ja ())
+Scanlines, bloom and gun misalignment, 0-1 (supports + - * / and ())	Pyyhkäisyviivat, hehku ja tykkien kohdistusvirhe, 0-1 (tukee + - * / ja ())
+Seconds before it leaves by itself; 0 waits for OUT (supports + - * / and ())	Sekuntia automaattiseen poistumiseen; 0 odottaa OUT (tukee + - * / ja ())
+Seconds between retriggers, 0-8 (supports + - * / and ())	Sekuntia uudelleenlaukaisujen välillä, 0-8 (tukee + - * / ja ())
+Seconds the finished drawing stays, 0 to 60 (supports + - * / and ())	Valmiin piirroksen pitoaika sekunteina, 0–60 (tukee + - * / ja ())
+Seconds the in move takes, 0-5 (supports + - * / and ())	Tuloliikkeen kesto sekunteina, 0-5 (tukee + - * / ja ())
+Seconds the out move takes, 0-5 (supports + - * / and ())	Poistumisliikkeen kesto sekunteina, 0-5 (tukee + - * / ja ())
+Seconds, 0-4 (supports + - * / and ())	Sekuntia, 0-4 (tukee + - * / ja ())
+Seconds, 0-8 (supports + - * / and ())	Sekuntia, 0-8 (tukee + - * / ja ())
+Size, %, 5 to 400 (supports + - * / and ())	Koko, %, 5–400 (tukee + - * / ja ())
+Space under it, as a fraction of the frame, 0-0.8 (supports + - * / and ())	Alatila ruudun osuutena, 0-0.8 (tukee + - * / ja ())
+Spiral size, 0.25-4 (supports + - * / and ())	Spiraalikoko, 0.25-4 (tukee + - * / ja ())
+Spiral strength, 0-4 (supports + - * / and ())	Spiraalivoima, 0-4 (tukee + - * / ja ())
+Thickness of the glowing edge, 0-1 (supports + - * / and ())	Hehkuvan reunan paksuus, 0-1 (tukee + - * / ja ())
+Turbulence, 0 still to 3 boiling (supports + - * / and ())	Turbulenssi, 0 tyyni–3 kiehuva (tukee + - * / ja ())
+Turns the rim's colours round the wheel, 0-1 (supports + - * / and ())	Kiertää reunusvärejä väriympyrällä, 0-1 (tukee + - * / ja ())
+Where the eye sits, 0 left to 1 right (supports + - * / and ())	Silmän sijainti, 0 vasen–1 oikea (tukee + - * / ja ())
+Where the eye sits, 0 top to 1 bottom (supports + - * / and ())	Silmän sijainti, 0 ylä–1 ala (tukee + - * / ja ())
+0-127; 127 is all-call	0-127; 127 kutsuu kaikkia
+0-127; the domain the facility's clock runs on	0-127; laitoksen kellon toimialue
+10-79 characters, or empty for none	10-79 merkkiä tai tyhjä ilman
+8+ characters; letters and symbols are allowed	8+ merkkiä; kirjaimet ja symbolit sallittu
+A command line, or blank for nothing	Komentorivi tai tyhjä ilman toimintoa
+A number, or blank for none	Luku tai tyhjä ilman
+a playlist that is gone	poistettu soittolista
+a target cannot target another target	kohde ei voi kohdistua toiseen kohteeseen
+add an output to scope it	lisää lähtö mitattavaksi
+an ASIO stream is already open	ASIO-virta on jo auki
+an IPv4 address, or 255.255.255.255 to broadcast	IPv4-osoite tai 255.255.255.255 yleislähetykseen
+another app is holding the pointer	toinen sovellus pitää osoitinta
+AUDIOALSO ADD: seven extra destinations is the limit	AUDIOALSO ADD: enintään seitsemän lisäkohdetta
+brightness moves the playhead (needs CPU frames)	kirkkaus siirtää toistopäätä (vaatii CPU-ruudut)
+browser connections at once, 1-64 (default 8)	samanaikaisia selainyhteyksiä, 1-64 (oletus 8)
+built without ASIO support	koostettu ilman ASIO-tukea
+built without NDI SDK headers	koostettu ilman NDI SDK -otsakkeita
+cancelled: the waiting cue is no longer in the playlist	peruttu: odottava cue ei ole enää soittolistalla
+channel count must be at least 1	kanavia on oltava vähintään 1
+comma outside a function call	pilkku funktiokutsun ulkopuolella
+could not start the PDF renderer	PDF-renderöijä ei käynnistynyt
+could not write the export script	vientiskriptiä ei voitu kirjoittaa
+couldn't open file manager	tiedostonhallinta ei avautunut
+Cue name (blank restores the file name)	Cuen nimi (tyhjä palauttaa tiedostonimen)
+Default Non-Movie Duration	Muun kuin videon oletuskesto
+downloading the caption model, then listening...	ladataan tekstitysmallia, sitten kuunnellaan...
+driver reports no output channels	ajuri ei ilmoita lähtökanavia
+driver would not create output buffers	ajuri ei luonut lähtöpuskureita
+driver would not load (in use by another application?)	ajuri ei latautunut (toisen sovelluksen käytössä?)
+driver would not report a buffer size	ajuri ei ilmoittanut puskurikokoa
+driver would not report channel info	ajuri ei ilmoittanut kanavatietoja
+ffmpeg stopped taking frames	ffmpeg lakkasi vastaanottamasta ruutuja
+Fire at incoming timecode	Käynnistä saapuvasta aikakoodista
+flow (follows the picture)	virtaus (seuraa kuvaa)
+follows this cue's own brightness (needs CPU frames)	seuraa tämän cuen kirkkautta (vaatii CPU-ruudut)
+four effects at most on one device: remove one first	enintään neljä efektiä laitteessa: poista ensin yksi
+Hz or AUTO (e.g. 60 or 59.94)	Hz tai AUTO (esim. 60 tai 59.94)
+kbps (32-512; 160 is a sane default)	kbps (32-512; 160 on sopiva oletus)
+Leave empty to follow the live cue notes	Jätä tyhjäksi seurataksesi live-cuen muistiinpanoja
+LibreOffice could not be run	LibreOffice ei käynnistynyt
+LibreOffice produced no PDF	LibreOffice ei tuottanut PDF:ää
+milliseconds (20-8000; ~4x your RTT)	millisekuntia (20-8000; ~4x RTT)
+Multicast group (e.g. 239.20.10.1)	Monilähetysryhmä (esim. 239.20.10.1)
+Name visible to receivers	Vastaanottajille näkyvä nimi
+NDI source name (e.g. LAPTOP (source 1))	NDI-lähdenimi (esim. LAPTOP (source 1))
+NIC address or name; empty = the default route	NIC-osoite tai nimi; tyhjä = oletusreitti
+NIC name reported in interface_bindings (e.g. eth0)	interface_bindings-kohdan NIC-nimi (esim. eth0)
+no pages could be rendered	yhtään sivua ei voitu renderöidä
+not a MIDI file (no MThd header)	ei MIDI-tiedosto (MThd-otsake puuttuu)
+not while a cue is playing	ei cuen toiston aikana
+offset in percent of the picture	siirto kuvan prosentteina
+OSC Feedback Mirror Rate	OSC-palautteen peilausnopeus
+paste your stream key here	liitä suoratoistoavain tähän
+Paste the key from your platform	Liitä alustasi avain
+pdftoppm produced no pages	pdftoppm ei tuottanut sivuja
+pixels (of the output raster)	pikseliä (lähtörasterissa)
+position on the output raster, in pixels	sijainti lähtörasterissa pikseleinä
+PowerPoint could not export this file	PowerPoint ei voinut viedä tätä tiedostoa
+Prefix (optional). Example: Q	Etuliite (valinnainen). Esimerkki: Q
+Prefix and optional start (example: Q 100)	Etuliite ja valinnainen alkunumero (esimerkki: Q 100)
+release has no build for this platform	julkaisussa ei ole koostetta tälle alustalle
+Routing hint for the receiver	Reititysvihje vastaanottajalle
+seconds (1-10; most platforms want 2)	sekuntia (1-10; useimmat alustat vaativat 2)
+Seconds for new-cue fade in/out defaults	Uuden cuen oletushäivytykset sekunteina
+seconds this step holds before PLAY moves on	askeleen pitoaika ennen kuin PLAY jatkaa
+ST 2110 network interface	ST 2110 -verkkoliittymä
+still reading the last folder -- one at a time	edellistä kansiota luetaan vielä -- yksi kerrallaan
+the background alpha belongs to a Lower Third	taustan alfa kuuluu Lower Third -grafiikkaan
+the caption model has not been downloaded yet	tekstitysmallia ei ole vielä ladattu
+the desktop portal did not answer	työpöytäportaali ei vastannut
+the document has no pages	asiakirjassa ei ole sivuja
+the file has no playable events	tiedostossa ei ole toistettavia tapahtumia
+the NDI runtime is not installed	NDI-ajoympäristöä ei ole asennettu
+the PDF renderer produced no pages	PDF-renderöijä ei tuottanut sivuja
+the screen could not be read there	näyttöä ei voitu lukea siitä
+the show plays through ASIO	esitys toistetaan ASIO:n kautta
+the time division is not readable	aikajakoa ei voi lukea
+this build has no X11 support	tässä koosteessa ei ole X11-tukea
+UDP port for transport sync	Toistosynkronoinnin UDP-portti
+web audio encoder cannot keep up	verkkoäänienkooderi ei pysy mukana
+AUDIOALSO: expected ADD <name>, REMOVE <name> or CLEAR	AUDIOALSO: odotetaan ADD <name>, REMOVE <name> tai CLEAR
+BROWSER KEY: expected Enter|Tab|Backspace|Escape	BROWSER KEY: odotetaan Enter|Tab|Backspace|Escape
+BUGSWAT: expected START, SHOWME, SKIP, PLAY, EXIT or STATUS	BUGSWAT: odotetaan START, SHOWME, SKIP, PLAY, EXIT tai STATUS
+CAPTIONS LIVE: expected ON, OFF, STATUS or TEXT	CAPTIONS LIVE: odotetaan ON, OFF, STATUS tai TEXT
+CAPTIONS SOURCE: expected INPUT, DECK <n> or OUTPUT <n>	CAPTIONS SOURCE: odotetaan INPUT, DECK <n> tai OUTPUT <n>
+DMXCUE FIXTURE: expected <name> <level%>|LEAVE [<colour>]	DMXCUE FIXTURE: odotetaan <name> <level%>|LEAVE [<colour>]
+DMXCUE LFO: expected <name> LEVEL|COLOUR ON|OFF [<rate Hz>] [<depth %>]	DMXCUE LFO: odotetaan <name> LEVEL|COLOUR ON|OFF [<rate Hz>] [<depth %>]
+DMXCUE: expected NEW, SET, FADE, UNIVERSE, HOST, PORT, FIRE or BLACKOUT	DMXCUE: odotetaan NEW, SET, FADE, UNIVERSE, HOST, PORT, FIRE tai BLACKOUT
+ENDACTION: expected INHERIT, STOP, LOOP, HOLD or NEXT	ENDACTION: odotetaan INHERIT, STOP, LOOP, HOLD tai NEXT
+expected waveform|scope|lissajous|spectrum|level|cover	odotetaan waveform|scope|lissajous|spectrum|level|cover
+FADE CURVE: expected linear, ease-in, ease-out or s-curve	FADE CURVE: odotetaan linear, ease-in, ease-out tai s-curve
+FADE WHAT: expected opacity, volume, dimmer, brightness, contrast, saturation, hue, effect, audiofx or speed	FADE WHAT: odotetaan opacity, volume, dimmer, brightness, contrast, saturation, hue, effect, audiofx tai speed
+FIXTURE ADD: expected <name> dimmer|rgb|rgbw|rgba|drgb|dcct <universe> [<address>]	FIXTURE ADD: odotetaan <name> dimmer|rgb|rgbw|rgba|drgb|dcct <universe> [<address>]
+LOWERSTYLE: expected none, fade, rise, slide, wipe or NEXT	LOWERSTYLE: odotetaan none, fade, rise, slide, wipe tai NEXT
+MASK ASSIGN: expected <id|NONE> CUE | LAYER <output> <playlist> | OUTPUT <n> | MATTE <n>	MASK ASSIGN: odotetaan <id|NONE> CUE | LAYER <output> <playlist> | OUTPUT <n> | MATTE <n>
+MASK ASSIGN: expected CUE, LAYER, OUTPUT or MATTE	MASK ASSIGN: odotetaan CUE, LAYER, OUTPUT tai MATTE
+MASK EXPORT: expected <id> <file.png|file.svg> [WxH]	MASK EXPORT: odotetaan <id> <file.png|file.svg> [WxH]
+MASK LFO: expected <id> <param> ON|OFF [rate Hz] [depth %]	MASK LFO: odotetaan <id> <param> ON|OFF [rate Hz] [depth %]
+MATRIX SET: expected <source 1-2> <dest> <0-100>	MATRIX SET: odotetaan <source 1-2> <dest> <0-100>
+MATRIX: expected SET <src> <dest> <0-100>, SEED or CLEAR	MATRIX: odotetaan SET <src> <dest> <0-100>, SEED tai CLEAR
+MESH: expected on|off|toggle|height|tilt|yaw|spin|grid	MESH: odotetaan on|off|toggle|height|tilt|yaw|spin|grid
+MIC: expected ADD, LIST, INPUT, CHANNEL or GAIN	MIC: odotetaan ADD, LIST, INPUT, CHANNEL tai GAIN
+MIDICUE KIND: expected note-on, note-off, cc, program, msc-go, msc-stop, msc-resume or raw	MIDICUE KIND: odotetaan note-on, note-off, cc, program, msc-go, msc-stop, msc-resume tai raw
+MIDICUE: expected NEW, PORTS, PORT, KIND, CH, D1, D2, DEVICE, CUENUM, LIST, RAW or SEND	MIDICUE: odotetaan NEW, PORTS, PORT, KIND, CH, D1, D2, DEVICE, CUENUM, LIST, RAW tai SEND
+MULTIVIEW LAYOUT: expected GRID, BIG, BIGTOP or TWOTOP	MULTIVIEW LAYOUT: odotetaan GRID, BIG, BIGTOP tai TWOTOP
+MULTIVIEW WINDOW: expected PROGRAMME, DECK<n>, OUTPUT<n>, NEXT, CLOCK or EMPTY	MULTIVIEW WINDOW: odotetaan PROGRAMME, DECK<n>, OUTPUT<n>, NEXT, CLOCK tai EMPTY
+NETCUE: expected NEW, PROTO, HOST, PORT, ADDRESS, PAYLOAD or SEND	NETCUE: odotetaan NEW, PROTO, HOST, PORT, ADDRESS, PAYLOAD tai SEND
+OUTPUT HDR: expected ON, OFF, AUTO, SIGNAL PQ|HLG, WHITE <nits> or STATUS	OUTPUT HDR: odotetaan ON, OFF, AUTO, SIGNAL PQ|HLG, WHITE <nits> tai STATUS
+OUTPUTFX ADD: expected hpf, lpf, tilt, comp or width	OUTPUTFX ADD: odotetaan hpf, lpf, tilt, comp tai width
+OUTPUTFX: expected ADD, SET, REMOVE, BYPASS, CLEAR or DEVICE	OUTPUTFX: odotetaan ADD, SET, REMOVE, BYPASS, CLEAR tai DEVICE
+OUTPUTS ADD: expected <name> CH <n> or CH <n>-<n+1>	OUTPUTS ADD: odotetaan <name> CH <n> tai CH <n>-<n+1>
+PATCH: expected <deck> <output> <dB> or OFF	PATCH: odotetaan <deck> <output> <dB> tai OFF
+presenter colour: expected BG|INK|ACCENT #rrggbb	presenter colour: odotetaan BG|INK|ACCENT #rrggbb
+PRESET: expected LIST, SAVE, RECALL, UPDATE, SCOPE, RENAME or DELETE	PRESET: odotetaan LIST, SAVE, RECALL, UPDATE, SCOPE, RENAME tai DELETE
+rectc: expected <hh:mm:ss:ff|timeofday> [df|ndf|auto]	rectc: odotetaan <hh:mm:ss:ff|timeofday> [df|ndf|auto]
+SCOPES BIG: expected waveform, parade, vector, diamond, histogram, falsecolour, sound or off	SCOPES BIG: odotetaan waveform, parade, vector, diamond, histogram, falsecolour, sound tai off
+SCOPES: expected PROGRAM, SCOPES, BOTH, TOGGLE, BIG, FREEZE, MATRIX, SOURCE, STATS or SOUND	SCOPES: odotetaan PROGRAM, SCOPES, BOTH, TOGGLE, BIG, FREEZE, MATRIX, SOURCE, STATS tai SOUND
+SECTION: expected playback|metadata|geometry|key|audio|effects|timer|tone|synth	SECTION: odotetaan playback|metadata|geometry|key|audio|effects|timer|tone|synth
+STING: expected ON, PITCH, LENGTH, SWEEP or BODY	STING: odotetaan ON, PITCH, LENGTH, SWEEP tai BODY
+TARGET VERB: expected start|stop|pause|resume|load|arm|disarm	TARGET VERB: odotetaan start|stop|pause|resume|load|arm|disarm
+TEXTCUE ANIM: expected none, fade, typewriter, scroll, crawl, pulse or wobble	TEXTCUE ANIM: odotetaan none, fade, typewriter, scroll, crawl, pulse tai wobble
+TEXTCUE: expected NEW, BODY, ANIM, SIZE, SPEED, ALIGN, CARD, LOWERNEW, LOWER, TITLE, SUB, LOOK, BAR, ACCENT, SCALE, WIGGLE, IN, OUTMOVE or OUT	TEXTCUE: odotetaan NEW, BODY, ANIM, SIZE, SPEED, ALIGN, CARD, LOWERNEW, LOWER, TITLE, SUB, LOOK, BAR, ACCENT, SCALE, WIGGLE, IN, OUTMOVE tai OUT
+TRACKER: expected GO, BACK, PLAY, STOP, STEP <n>, ADD, SET <step> <deck> <cue|STOP|FADE|VOLUME|OPACITY>, MUTE|SOLO <deck>, JUMP <step> <row>, SECTION <step> <name>, VIEW, LOOP or CLICKER	TRACKER: odotetaan GO, BACK, PLAY, STOP, STEP <n>, ADD, SET <step> <deck> <cue|STOP|FADE|VOLUME|OPACITY>, MUTE|SOLO <deck>, JUMP <step> <row>, SECTION <step> <name>, VIEW, LOOP tai CLICKER
+TUTORIAL: expected START, SHOWME, SKIP, EXIT, STATUS or SCREENS	TUTORIAL: odotetaan START, SHOWME, SKIP, EXIT, STATUS tai SCREENS
+UPDATE: expected check|download|install|status	UPDATE: odotetaan check|download|install|status
+VJ: expected ON|OFF|TOGGLE|MIX <0-1>|BLEND <mode>|TAP|BPM <n>|CLOCK <on|off>|QUANTISE <on|off>|DECKS <a> <b>|STATUS	VJ: odotetaan ON|OFF|TOGGLE|MIX <0-1>|BLEND <mode>|TAP|BPM <n>|CLOCK <on|off>|QUANTISE <on|off>|DECKS <a> <b>|STATUS
+How hard the short hits.	Oikosulun iskun voimakkuus.
+How far a band can slide.	Kuinka kauas kaista liukuu.
+How far the glow spreads.	Kuinka laajalle hehku leviää.
+How fast the surface moves.	Kuinka nopeasti pinta liikkuu.
+How fast they travel outward.	Kuinka nopeasti ne kulkevat ulospäin.
+How many torn bands per frame.	Repeytyvien kaistojen määrä ruudussa.
+How much the edges are lifted.	Kuinka paljon reunoja nostetaan.
+How closely spaced the rings are.	Kuinka lähekkäin renkaat ovat.
+How far out the darkening starts.	Kuinka ulkona tummennus alkaa.
+How strongly the outlines are drawn.	Kuinka voimakkaasti ääriviivat piirretään.
+How many shades survive the quantise.	Kuinka monta sävyä kvantisointi säilyttää.
+How many spikes the field breaks into.	Kuinka moneksi piikiksi kenttä hajoaa.
+How strongly the water bends the picture.	Kuinka voimakkaasti vesi taivuttaa kuvaa.
+Pushes the rings in or out of the centre.	Työntää renkaita keskustaan tai siitä pois.
+How hard it is driven into its own limits.	Kuinka kovaa sitä ajetaan rajoihinsa.
+Softens the fold so it ramps instead of creasing.	Pehmentää taiton liukumaksi terävän taitteen sijaan.
+Above halfway, the repeated piece plays backwards.	Puolivälin yläpuolella toistuva pala soi takaperin.
+How quickly the loop relaxes when nothing feeds it.	Kuinka nopeasti silmukka vaimenee ilman syöttöä.
+How far the bright parts pull away from the surface.	Kuinka kauas kirkkaat osat erkanevat pinnasta.
+How big the room is. Small is a booth, large is a hall.	Huoneen koko. Pieni on koppi, suuri sali.
+Apple keeps the Keynote format secret on purpose, a malicious lock-in tactic, so only Apple's own software can read it properly. Best route: open it in Keynote on iCloud.com (free, in any browser), choose Download a Copy > PDF, and import that PDF	Apple pitää Keynote-muodon tarkoituksella salassa, mikä on pahantahtoinen keino lukita käyttäjät sen tuotteisiin, jotta vain Applen ohjelmistot lukevat sen oikein. Paras tapa: avaa se Keynotessa iCloud.comissa (ilmaiseksi missä tahansa selaimessa), valitse Lataa kopio > PDF ja tuo tämä PDF
+BROWSER CLICK: this browser backend cannot drive the page	BROWSER CLICK: tämä selaintausta ei voi ohjata sivua
+BROWSER SCROLL: this browser backend cannot drive the page	BROWSER SCROLL: tämä selaintausta ei voi ohjata sivua
+BROWSER SCROLLBAR: this browser backend cannot drive the page	BROWSER SCROLLBAR: tämä selaintausta ei voi ohjata sivua
+BROWSER TYPE: this browser backend cannot type	BROWSER TYPE: tämä selaintausta ei voi kirjoittaa
+BROWSER INTERACT: this browser backend has no hands-on mode	BROWSER INTERACT: tässä selaintaustassa ei ole vuorovaikutustilaa
+BROWSER SCROLL: expected pixels (negative is up)	BROWSER SCROLL: odotetaan pikseleitä (negatiivinen ylös)
+CHIP DUTY: this cue is an FDS synth, which has no duty	CHIP DUTY: tämä cue on FDS-syntikka ilman pulssisuhdetta
+CHIP NOISE: this cue is an FDS synth, which has no noise	CHIP NOISE: tämä cue on FDS-syntikka ilman kohinaa
+CHIP VOICE: this cue is an FDS synth, which has no voice	CHIP VOICE: tämä cue on FDS-syntikka ilman äänivalintaa
+CHIP ENV: expected <attack> <release> in seconds	CHIP ENV: odotetaan <attack> <release> sekunteina
+SCRIPTCUE: the selected cue is not a script cue	SCRIPTCUE: valittu cue ei ole skripticue
+MIDIFILE: the selected cue is not a midi file cue	MIDIFILE: valittu cue ei ole midi-tiedostocue
+LOWERSTYLE: this cue is not a Lower Third	LOWERSTYLE: tämä cue ei ole Lower Third
+MIC: select a mic cue first (MIC ADD makes one)	MIC: valitse ensin mikrofonicue (MIC ADD luo sen)
+STING: select a tone cue first (TONECUE makes one)	STING: valitse ensin äänicue (TONECUE luo sen)
+SUBTITLE CONVERT: destination must be .srt or .vtt	SUBTITLE CONVERT: kohteen on oltava .srt tai .vtt
+How much the flame gutters frame to frame.	Kuinka paljon liekki lepattaa ruudusta toiseen.
+Rounds the tiles off, all the way to dots.	Pyöristää laatat aina pisteiksi asti.
+Darkens the boundaries where crystals meet.	Tummentaa kiteiden kohtaamisrajat.
+How big the crystals grow before they meet.	Kuinka suuriksi kiteet kasvavat ennen kohtaamista.
+How far the sound throws each line sideways.	Kuinka kauas ääni heittää kutakin riviä sivulle.
+How much each shard turns on its own centre.	Kuinka paljon kukin sirpale kiertyy keskensä ympäri.
+The brightness that decides black from white.	Kirkkaus, joka erottaa mustan valkoisesta.
+How far each stroke is dragged along the grain.	Kuinka kauas kutakin vetoa vedetään syiden suuntaan.
+How long a short stays closed, in VIDEO FRAMES.	Oikosulun kesto VIDEORUUTUINA.
+The colour to change, round the wheel from red.	Muutettava väri ympyrällä punaisesta alkaen.
+How far each shard slides from where it belongs.	Kuinka kauas kukin sirpale liukuu paikaltaan.
+How gradually the key cuts in. Hard at the left.	Kuinka asteittain avainnus alkaa. Vasemmalla jyrkkä.
+The bright net the waves focus onto the picture.	Kirkas verkko, jonka aallot keskittävät kuvaan.
+How fast the sand travels to the still lines.	Kuinka nopeasti hiekka kulkee paikallaan oleviin viivoihin.
+AUDIOFX: expected OFF, BYPASS, or amount and parameters as percentages	AUDIOFX: odotetaan OFF, BYPASS tai määrä ja parametrit prosentteina
+BLEND PAIR: expected <other output number> <overlap in pixels>	BLEND PAIR: odotetaan <other output number> <overlap in pixels>
+expected one expression, three for colour, or four with alpha	odotetaan yhtä lauseketta, kolmea värille tai neljää alfalla
+MASK SET: expected INVERT, X, Y, SCALE, ROTATION, FEATHER, GROW or OPACITY and a number	MASK SET: odotetaan INVERT, X, Y, SCALE, ROTATION, FEATHER, GROW tai OPACITY ja luku
+MASK SHAPE: expected a shape (MASK SHAPES lists them)	MASK SHAPE: odotetaan muotoa (MASK SHAPES listaa ne)
+MASTER DECK: expected a deck number and a cue number	MASTER DECK: odotetaan dekin ja cuen numeroa
+TARGET CUE: expected a deck number and a cue number	TARGET CUE: odotetaan dekin ja cuen numeroa
+MONITOR DECK: expected a playlist number or FOLLOW	MONITOR DECK: odotetaan soittolistan numeroa tai FOLLOW
+MONITOR ROOM: expected a playlist and ON or OFF	MONITOR ROOM: odotetaan soittolistaa ja ON tai OFF
+MULTIVIEW WINDOW REMOVE: expected a window number	MULTIVIEW WINDOW REMOVE: odotetaan ikkunanumeroa
+MULTIVIEW WINDOW <n>: expected a source, or SAFE/METER/LABEL ON|OFF	MULTIVIEW WINDOW <n>: odotetaan lähdettä tai SAFE/METER/LABEL ON|OFF
+NETCUE ADDRESS: expected an OSC path starting with /	NETCUE ADDRESS: odotetaan /-alkuista OSC-polkua
+OUTPUT AOI: expected a size like 256x256, or FULL	OUTPUT AOI: odotetaan kokoa kuten 256x256 tai FULL
+OUTPUTFX SET: expected an effect number and 0-100	OUTPUTFX SET: odotetaan efektinumeroa ja arvoa 0-100
+OUTPUT HDR WHITE: expected 80..500 nits (203 is BT.2408)	OUTPUT HDR WHITE: odotetaan 80..500 nitiä (203 on BT.2408)
+PRELOAD: expected a position in seconds, OFF or STATUS	PRELOAD: odotetaan sijaintia sekunteina, OFF tai STATUS
+SCOPES SOURCE: expected PROGRAMME or an output number, 1-	SCOPES SOURCE: odotetaan PROGRAMME tai lähtönumeroa, 1-
+STREAM ADD: expected a URL, e.g. srt://host:port	STREAM ADD: odotetaan URL:ää, esim. srt://host:port
+TEXTCUE SIZE: expected 1-100 (percent of the raster)	TEXTCUE SIZE: odotetaan 1-100 (rasterin prosenttia)
+TUTORIAL SCREENS: expected a count, MIRRORED or REAL	TUTORIAL SCREENS: odotetaan määrää, MIRRORED tai REAL
+VIDEO OUTPUT LAYER: expected a layer number (1 is the base)	VIDEO OUTPUT LAYER: odotetaan tasonumeroa (1 on pohja)
+VIDEO OUTPUT LAYERWARP: expected OFF, MODE, or eight numbers clockwise from the top left	VIDEO OUTPUT LAYERWARP: odotetaan OFF, MODE tai kahdeksaa lukua myötäpäivään vasemmasta yläkulmasta
+e.g. /cue/1/start	esim. /cue/1/start
+e.g. 12.5	esim. 12.5
+e.g. 192.168.1.50	esim. 192.168.1.50
+e.g. 1=255, 10-14=64	esim. 1=255, 10-14=64
+e.g. 90 3C 7F	esim. 90 3C 7F
+port number (default 5510)	porttinumero (oletus 5510)
+port number (default 5511)	porttinumero (oletus 5511)
+port number (default 6454)	porttinumero (oletus 6454)
+port number (default 8090)	porttinumero (oletus 8090)
+port number (vMix uses 8088)	porttinumero (vMix käyttää 8088)
+port number (vMix uses 8099)	porttinumero (vMix käyttää 8099)
+WIDTHxHEIGHT (e.g. 2560x1080)	LEVEYSxKORKEUS (esim. 2560x1080)
+WIDTHxHEIGHT (e.g. 5760x2160)	LEVEYSxKORKEUS (esim. 5760x2160)
+pulse 25%	pulssi 25%
+edge ignite	reunasytytys
+pythagorean	pythagoralainen
+purkinje	Purkinje-ilmiö
+Ouroboros	Uroboros
+Devamp	Lopeta vamp
+EDIT is off - press EDIT to type into the tracker	EDIT on pois - kirjoita trackeriin painamalla EDIT
+encoder destination: _converted beside the show	enkooderin kohde: _converted esityksen vieressä
+fetching the speech model - captions start when it arrives	haetaan puhemallia - tekstitys alkaa sen saavuttua
+format 2 files are a set of independent patterns, not a performance	muodon 2 tiedostot ovat erillisiä kuvioita, eivät esitys
+Target IP (or 255.255.255.255 to broadcast)	Kohteen IP (tai 255.255.255.255 yleislähetykseen)
+the NDI runtime declined to start on this machine	NDI-ajoympäristö ei suostunut käynnistymään tällä koneella
+this cue has no known end to resolve into	tällä cuella ei ole tunnettua loppua ratkaisulle
+update: cannot find this app bundle to replace	päivitys: korvattavaa sovelluspakettia ei löydy
+update: could not start the install helper	päivitys: asennusavustaja ei käynnistynyt
+update: could not start the installer	päivitys: asennusohjelma ei käynnistynyt
+update: could not write the install helper	päivitys: asennusavustajaa ei voitu kirjoittaa
+update: not running from an AppImage	päivitys: ei ajeta AppImagesta
+what the operator should be told when GO reaches here	mitä käyttäjälle kerrotaan kun GO saapuu tähän
+Where to send transport (blank = broadcast)	Toiston lähetyskohde (tyhjä = yleislähetys)
+Which switcher input Deckboy is (0 = not set)	Mikä mikseritulo Deckboy on (0 = ei asetettu)
+drag the panels to arrange the presenter screen	järjestä esittäjän näyttö vetämällä paneeleja
+SOURCE CAMERA: name the device	SOURCE CAMERA: anna laitteen nimi
+NETCUE ADDRESS: an OSC address must start with /	NETCUE ADDRESS: OSC-osoitteen on alettava merkillä /
+TRACKER SET: a step cannot act on its own playlist	TRACKER SET: askel ei voi toimia omalla soittolistallaan
+TRACKER: there are no steps (TRACKER ADD makes one)	TRACKER: ei askelia (TRACKER ADD luo yhden)
+#rrggbb -- the colour of the presenter screen	#rrggbb -- esittäjän näytön väri
+#rrggbb, or a name (red, teal...)	#rrggbb tai nimi (red, teal...)
+8+ characters; other machines send AUTH <passphrase> first. Empty = off	8+ merkkiä; muut koneet lähettävät ensin AUTH <passphrase>. Tyhjä = pois
+A command line, as a DASH button runs it. {value} is the knob's number, {note} the key.	Komentorivi kuten DASH-painikkeella. {value} on säätimen luku, {note} näppäin.
+A dark line between the tiles, like grout or an LED wall.	Tumma viiva laattojen välissä kuin sauma tai LED-seinä.
+a note number 0-127, LEARN to take the next note played, or empty for none	nuottinumero 0-127, LEARN ottaa seuraavan soitetun nuotin, tyhjä ilman
+a plugin overran the audio thread and was bypassed — take it out of the chain	liitännäinen ylitti äänisäikeen ajan ja ohitettiin — poista se ketjusta
+a video cue's duration comes from its file; still duration applies to stills, patterns and browsers	videocuen kesto tulee tiedostosta; still-kesto koskee kuvia, kuvioita ja selaimia
+Above halfway, a hard cut in the picture resets the loop to clean.	Puolivälin yläpuolella kuvan suora leikkaus nollaa silmukan puhtaaksi.
+can't move the active cue -- take another cue on this deck first	aktiivista cueta ei voi siirtää -- käynnistä ensin toinen cue tässä dekissä
+centred and full-frame - moves when the picture does	keskitetty ja koko ruutu - liikkuu kuvan mukana
+Chladni listens: the figure follows the pitch of the sound	Chladni kuuntelee: kuvio seuraa äänen sävelkorkeutta
+click anywhere on any screen to take its colour. Esc cancels	napsauta mitä tahansa näyttökohtaa poimiaksesi värin. Esc peruu
+click program or preview monitor to sample key color	poimi avainnusväri napsauttamalla ohjelma- tai esikatselunäyttöä
+Copies of copies: none at the left, four at the right. Each one loses more.	Kopioiden kopiot: vasemmalla ei yhtään, oikealla neljä. Jokainen menettää enemmän.
+could not create an OpenGL context for Spout receive	OpenGL-kontekstia ei voitu luoda Spout-vastaanottoon
+could not create the offscreen window Spout receive needs	Spout-vastaanoton vaatimaa näytön ulkopuolista ikkunaa ei voitu luoda
+could not get a device context for Spout receive	Laitekontekstia ei saatu Spout-vastaanottoon
+couldn't decode still image — unsupported format or corrupt file	still-kuvaa ei voitu purkaa — tukematon muoto tai vioittunut tiedosto
+DECKLINK: no DeckLink driver on this computer (Blackmagic Desktop Video)	DECKLINK: tässä koneessa ei ole DeckLink-ajuria (Blackmagic Desktop Video)
+DMXCUE LEVELS: nothing has been sent on that universe	DMXCUE LEVELS: tähän universumiin ei ole lähetetty mitään
+ENDACTION: only video and audio cues have an end action	ENDACTION: vain video- ja äänicuella on lopputoiminto
+FX ADD: datamosh needs a file-backed video cue	FX ADD: datamosh vaatii tiedostopohjaisen videocuen
+no video clock on this cue - nothing to lock to	cuella ei ole videokelloa - ei lukituskohdetta
+no picture on this cue - nothing to follow	cuella ei ole kuvaa - ei seurattavaa
+no picture on this cue - nothing to close the loop through	cuella ei ole kuvaa - ei silmukan sulkevaa kohdetta
+no picture on this cue - nothing decides where the playhead is	cuella ei ole kuvaa - mikään ei määrää toistopään paikkaa
+no picture - shorts run on a timer instead of on cuts	ei kuvaa - oikosulut toimivat ajastimella leikkausten sijaan
+normalize all: no file-backed audio in this deck	normalisoi kaikki: dekissä ei ole tiedostopohjaista ääntä
+no masks yet: make one in a cue's MASK section	ei vielä maskeja: luo yksi cuen MASK-osiossa
+no filled shapes in it (paths, rectangles, circles, ellipses or polygons)	ei täytettyjä muotoja (polkuja, suorakulmioita, ympyröitä, ellipsejä tai monikulmioita)
+no OpenGL pixel format available for Spout receive	OpenGL-pikselimuotoa ei ole Spout-vastaanottoon
+only a MIDI note or an OSC address can take a cue	vain MIDI-nuotti tai OSC-osoite voi käynnistää cuen
+phone control requires an 8+ character passphrase	puhelinohjaus vaatii vähintään 8 merkin salalauseen
+network sharing and phone control require an 8+ character passphrase	verkkojako ja puhelinohjaus vaativat vähintään 8 merkin salalauseen
+WEBMONITOR PIN: network sharing and phone control require 8 or more characters	WEBMONITOR PIN: verkkojako ja puhelinohjaus vaativat vähintään 8 merkkiä
+set an 8+ character Web Monitor passphrase first	aseta ensin verkkonäytön vähintään 8 merkin salalause
+WEBMONITOR QR: needs the monitor on and shared on the network	WEBMONITOR QR: näyttö on käynnistettävä ja jaettava verkossa
+WEBMONITOR SOURCE: could not create the web output	WEBMONITOR SOURCE: verkkolähtöä ei voitu luoda
+WEBMONITOR SOURCE: PROGRAMME or the number of an output that shows a picture	WEBMONITOR SOURCE: PROGRAMME tai kuvaa näyttävän lähdön numero
+OUTPROBE: that output has no compositor (is it on?)	OUTPROBE: lähdössä ei ole koostinta (onko se päällä?)
+OUTPUTFX ADD: four effects at most on one device	OUTPUTFX ADD: enintään neljä efektiä laitteessa
+over 16 MB: not a drawing to make a mask from	yli 16 MB: ei maskin luomiseen sopiva piirros
+A worn or dirty head: softer, with noise that streaks along the lines.	Kulunut tai likainen pää: pehmeämpi kuva, kohina juovittuu rivien suuntaan.
+A slow rocking of the viewpoint, which is what makes the depth read without glasses.	Näkökulman hidas keinunta tuo syvyyden esiin ilman laseja.
+A slow sag in the supply, pulling the filter up and down like a dying battery.	Hidas syöttöjännitteen lasku liikuttaa suodatinta kuin hiipuva paristo.
+An old deck: the picture wobbles, bends at the top of the frame and carries hum bars.	Vanha dekki: kuva huojuu, taipuu yläreunasta ja siinä on hurinaraitoja.
+An old tape loses bits of its oxide: dropouts flick white and repeat the line above, and the colour fizzes.	Vanha nauha menettää oksidia: katkokset välähtävät valkoisina, toistavat ylärivin ja väri kohisee.
+Below the middle narrows toward mono -- which is what a single PA cluster is. Above it widens.	Keskikohdan alapuolella kapenee monoksi, kuten yksittäinen PA-ryhmä. Yläpuolella levenee.
+Centre is a straight line. Up bends it into an S -- darker shadows, brighter highlights, more contrast. Down flattens it.	Keskellä suora. Ylös tekee S-käyrän: tummemmat varjot, kirkkaammat huiput, enemmän kontrastia. Alas loiventaa.
+Characters across. Fewer means bigger cells and less of the picture surviving, which is usually the point.	Merkkejä vaakaan. Vähemmän tarkoittaa isompia soluja ja vähemmän säilyvää kuvaa, mikä yleensä on tarkoitus.
+Characters to build the picture from, darkest first. Empty uses the chosen glyph set.	Kuvan muodostavat merkit tummimmasta alkaen. Tyhjä käyttää valittua merkistöä.
+Fine sensor noise at the bottom, chunky film at the top.	Alhaalla hieno kennokohina, ylhäällä karkea filmirae.
+From an even blur to a streak along the angle, like movement.	Tasaisesta sumennuksesta kulman suuntaiseksi liikejuovaksi.
+Grain size: one pixel at the left, big blocky grains at the right.	Raekoko: vasemmalla yksi pikseli, oikealla isoja lohkomaisia rakeita.
+Grows or shrinks the echo each pass. Centre holds still.	Kasvattaa tai kutistaa kaikua joka kierroksella. Keskellä pysyy samana.
+How abruptly it arrives. Low is a soft cloud, high is a hard porthole.	Kuinka äkisti se saapuu. Matala on pehmeä pilvi, korkea terävä ikkuna.
+How big the shards are. Small is frosted glass, large is a dropped plate.	Sirpaleiden koko. Pieni on huurrelasia, suuri pudotettu lautanen.
+ASCII: use ON|OFF|TOGGLE | STATUS | INK | SET | SHUFFLE | PRESET [name|next|prev] | FONT | GLYPHS [chars] | CHAOS <0-1> | WOBBLE <0-1> | WOBBLEMODE [drift|flow|hue] | COLS <n> | GLITCH <a> <b> <c> [d] | PHRASES <a|b|c> | HOLD <seconds>	ASCII: käytä ON|OFF|TOGGLE | STATUS | INK | SET | SHUFFLE | PRESET [name|next|prev] | FONT | GLYPHS [chars] | CHAOS <0-1> | WOBBLE <0-1> | WOBBLEMODE [drift|flow|hue] | COLS <n> | GLITCH <a> <b> <c> [d] | PHRASES <a|b|c> | HOLD <seconds>
+FX: use LIST | ADD <effect> [amount] | AMOUNT <n> <v> | PARAM <n> <A-F> <0-1> | CHOICE <n> <A|B> <name> | LFO <n> <A-G> ... | COPY | PASTE | CLEAR	FX: käytä LIST | ADD <effect> [amount] | AMOUNT <n> <v> | PARAM <n> <A-F> <0-1> | CHOICE <n> <A|B> <name> | LFO <n> <A-G> ... | COPY | PASTE | CLEAR
+FX LFO: on, off, shape, rate, depth, zone, channel or cc	FX LFO: on, off, shape, rate, depth, zone, channel tai cc
+GEOLFO: x, y, width, height, rotation, cropleft, cropright, croptop or cropbottom	GEOLFO: x, y, width, height, rotation, cropleft, cropright, croptop tai cropbottom
+LFO: density, speed, warp, turn, centrex, centrey, grey or hue	LFO: density, speed, warp, turn, centrex, centrey, grey tai hue
+MIDIMAP: LIST, ADD, SET, REMOVE, CLEAR, RESET, LEARN, LEARNED, PRESET or FEEDBACK	MIDIMAP: LIST, ADD, SET, REMOVE, CLEAR, RESET, LEARN, LEARNED, PRESET tai FEEDBACK
+SLICE <n>: CROP, PLACE, CORNER, EDGE, MASK, SOURCE, ROTATE, FLIP, OPACITY, LFO, ON, OFF, LINEAR, PERSPECTIVE or NAME	SLICE <n>: CROP, PLACE, CORNER, EDGE, MASK, SOURCE, ROTATE, FLIP, OPACITY, LFO, ON, OFF, LINEAR, PERSPECTIVE tai NAME
+VIDEO OUTPUT LAYERWARP MODE: linear or perspective	VIDEO OUTPUT LAYERWARP MODE: linear tai perspective
+DASH SET: needs a command -- DASH SET <n> <label> | <command> [| <glyph>]	DASH SET: vaatii komennon -- DASH SET <n> <label> | <command> [| <glyph>]
+ASCII HOLD: seconds, 0-60 (0 mutes the phrases)	ASCII HOLD: sekuntia, 0-60 (0 vaimentaa fraasit)
+AUDIOALSO ADD: that is already this deck's main device -- it would play twice	AUDIOALSO ADD: tämä on jo dekin päälaite -- toistuisi kahdesti
+DMXCUE SET: expected channel=level pairs, e.g. 1=255,10-14=64	DMXCUE SET: odotetaan kanava=taso-pareja, esim. 1=255,10-14=64
+DRAW COLOUR: #rrggbb, #rrggbbaa, a name, or 1-8 for the palette	DRAW COLOUR: #rrggbb, #rrggbbaa, nimi tai paletin 1-8
+DRAW STROKE: each point is x,y or x,y,pressure, in percent	DRAW STROKE: kukin piste on x,y tai x,y,paine prosentteina
+DRAW TOOL: brush, erase, line, box, oval or fill	DRAW TOOL: brush, erase, line, box, oval tai fill
+Enter playlist SMPTE FPS: 24 / 25 / 29.97 / 30	Anna soittolistan SMPTE FPS: 24 / 25 / 29.97 / 30
+FX LFO wants <index> <slot> <on|off|shape> [value]	FX LFO vaatii <index> <slot> <on|off|shape> [value]
+HH:MM or HH:MM:SS on this computer's clock; empty for none	HH:MM tai HH:MM:SS tämän koneen kellossa; tyhjä ilman
+HH:MM:SS:FF of the timecode Deckboy is chasing; empty for none	Deckboyn seuraaman aikakoodin HH:MM:SS:FF; tyhjä ilman
+live captions are not installed here (deckboy-listen was not found)	livetextitystä ei ole asennettu (deckboy-listen puuttuu)
+Lower Third added - put its playlist on a layer	Lower Third lisätty - aseta sen soittolista tasolle
+macOS could not read the PDF	macOS ei voinut lukea PDF:ää
+MIC INPUT: expected SETTINGS, TEST or a device name (MIC LIST)	MIC INPUT: odotetaan SETTINGS, TEST tai laitenimeä (MIC LIST)
+MIDIFILE: expected PORT, or no argument to report it	MIDIFILE: odotetaan PORT tai ilman argumenttia sen näyttämiseksi
+MIDIIN OSC: an address, and optionally a number	MIDIIN OSC: osoite ja valinnainen luku
+MIDIMAP: that command is only accepted from this computer	MIDIMAP: komento hyväksytään vain tältä koneelta
+MOTION ZONE ADD: the zone must fit inside the picture	MOTION ZONE ADD: alueen on mahduttava kuvan sisään
+How far it smears: up to a few percent of the picture.	Suttausetäisyys: muutamaan prosenttiin kuvasta asti.
+How fast the light walks around it. Zero holds it still.	Kuinka nopeasti valo kiertää. Nolla pitää paikallaan.
+How much of the push goes downward rather than sideways.	Kuinka suuri osa työnnöstä suuntautuu alas eikä sivulle.
+How gently the change fades out at the edges of the band.	Kuinka pehmeästi muutos häipyy kaistan reunoilla.
+How wide a band of colours either side of it changes too.	Kuinka leveä värikaista kummaltakin puolelta muuttuu myös.
+How fast the drips run. At the left the picture only sags.	Kuinka nopeasti valumat kulkevat. Vasemmalla kuva vain painuu.
+Line pitch in pixels, so this reads at 4K as well as at 720.	Viivaväli pikseleinä, jotta se näkyy 4K:ssa yhtä hyvin kuin 720:ssä.
+How far back each skip jumps, from a stutter to half a second.	Kuinka kauas kukin hyppy menee taakse, änkytyksestä puoleen sekuntiin.
+How far the two eyes disagree. Brightness is read as nearness.	Kuinka paljon silmien kuvat eroavat. Kirkkaus tulkitaan läheisyydeksi.
+How fast it closes. Slow enough not to chop the ends off words.	Kuinka nopeasti sulkeutuu. Riittävän hitaasti, ettei katkaise sanojen loppuja.
+How many times a skip repeats before the sound catches up again.	Kuinka monta kertaa hyppy toistuu ennen kuin ääni ottaa kiinni.
+How dark the dark lines go. All the way up is black between lines.	Kuinka tummia viivat ovat. Maksimissa viivojen väli on musta.
+How fast the open slit crosses the picture. Slow smears a long moment across the frame.	Avoimen raon nopeus kuvan yli. Hidas levittää pitkän hetken koko ruutuun.
+How fast the wave travels. Faster spreads further in the same time and interferes more.	Aallon nopeus. Nopeampi leviää samassa ajassa kauemmas ja interferoi enemmän.
+How fine the water is. Long ocean swell at one end, rain on a puddle at the other.	Veden hienojakoisuus. Toisessa päässä pitkä merenkäynti, toisessa sade lammikossa.
+How irregular the growth is. Low gives an even honeycomb, high gives long shards.	Kasvun epäsäännöllisyys. Matala antaa tasaisen kennoston, korkea pitkiä sirpaleita.
+How long the reaction runs each frame. Short is a stain, long is an organism.	Reaktion kesto ruudussa. Lyhyt on tahra, pitkä eliö.
+How much of the picture shows behind the lines. None at the left: lines on black.	Kuinka paljon kuvaa näkyy viivojen takaa. Vasemmalla ei mitään: viivoja mustalla.
+How much of the picture glows: only the brightest at the left, nearly everything at the right.	Kuinka suuri osa kuvasta hehkuu: vasemmalla vain kirkkain, oikealla lähes kaikki.
+How many places drip: a few big drips at the left, many thin ones at the right.	Kuinka monta valumakohtaa: vasemmalla muutama iso, oikealla monta ohutta.
+0 flows ALONG the edges, so colour orbits the shapes. 1 flows across them, which bleeds the picture into itself.	0 virtaa reunoja PITKIN, väri kiertää muodot. 1 virtaa poikittain ja levittää kuvaa itseensä.
+ASCII WOBBLEMODE: drift | flow (follows luma) | hue (follows colour); no argument cycles	ASCII WOBBLEMODE: drift | flow (seuraa luminanssia) | hue (seuraa väriä); ilman argumenttia vaihtaa tilaa
+ASCII: the selected cue has no text mode (add the TEXT MODE effect, or select a video synth cue)	ASCII: valitulla cuella ei ole tekstitilaa (lisää TEXT MODE -tehoste tai valitse videosyntetisaattoricue)
+Blueshift toward the direction of travel and redshift at the rim. Zero leaves the colour alone and it reads as a lens instead.	Sinisiirtymä kulkusuuntaan, punasiirtymä reunalla. Nollassa väri säilyy ja vaikutelma on linssi.
+Bright: bright things drip over the dark, as text and logos do. Whole picture: everything is wax, and the picture itself runs down in its own colours.	Kirkkaat: kirkkaat kohteet valuvat tummien päälle, kuten teksti ja logot. Koko kuva: kaikki on vahaa ja kuva valuu omissa väreissään.
+cannot read the file: if it lives in OneDrive or iCloud, open it once so it downloads, then import it	Tiedostoa ei voi lukea: jos se on OneDrivessa tai iCloudissa, avaa se latausta varten ja tuo sitten
+Colour is recorded at a fraction of the detail: it smears sideways, lands late and its hue wanders.	Väri tallennetaan pienemmällä tarkkuudella: se leviää sivuille, viivästyy ja sävy vaeltaa.
+couldn't open a browser -- please report at github.com/Utopian-Academy/Deckboy/issues	Selainta ei voitu avata — ilmoita osoitteessa github.com/Utopian-Academy/Deckboy/issues
+DASH: LIST | <n> | SET <n> <label> | <command> | CLEAR <n>	DASH: LIST | <n> | SET <n> <nimi> | <komento> | CLEAR <n>
+DATAMOSH on - preparing (long clip, watch Encoder tab)	DATAMOSH käytössä — valmistellaan (pitkä leike, seuraa Kooderi-välilehteä)
+DECODE --.-	PURKU --.-
+DECODE OFF	PURKU POIS
+DECODE WARM	PURKU LÄMMITYS
+did not finish in 3 minutes. It may be waiting on a prompt it cannot show (Protected View, sign-in, a repair). Open the deck there once, or export it as a PDF and import that	Ei valmistunut 3 minuutissa. Saattaa odottaa piilossa olevaa kehotetta (suojattu näkymä, kirjautuminen, korjaus). Avaa esitys sovelluksessa tai vie PDF:ksi ja tuo se
+e.g. /stage/doors -- sent to Deckboy's OSC port; empty for none	esim. /stage/doors — Deckboyn OSC-porttiin; tyhjä = ei mitään
+e.g. 20:0 or client name	esim. 20:0 tai asiakkaan nimi
+FADE TO: a speed from 0.25 to 4 (0.5 is half speed, an octave down)	FADE TO: nopeus 0.25–4 (0.5 on puolinopeus, oktaavi alemmas)
+Flip across, upside down or both, or fold one half onto the other: right onto left, left onto right, bottom onto top, top onto bottom, or one corner into all four.	Käännä vaaka- tai pystysuunnassa tai molemmissa, tai taita oikea vasemmalle, vasen oikealle, ala ylös, ylä alas tai yksi kulma kaikkiin neljään.
+forget my defaults? only NEW changes, this show keeps its settings: press again	Unohdetaanko omat oletukset? Vain NEW muuttuu, tämän esityksen asetukset säilyvät: paina uudelleen
+full-frame and no picture - bends when the picture shrinks	koko ruutu eikä kuvaa — taipuu kuvan pienentyessä
+How bright a pixel has to be before it lifts at all, so only the highlights spike.	Pikselin kirkkauskynnys, jonka ylittävät vain huippuvalot.
+How bright a pixel has to be to join a run. Lower catches more of the picture and the runs grow longer.	Kirkkausraja jaksoon liittymiselle. Alempi arvo ottaa mukaan enemmän kuvaa ja pidentää jaksoja.
+How deep the picture is treated as being. The brightness becomes height and is lit from the side.	Kuvan tulkittu syvyys. Kirkkaus muuttuu korkeudeksi, jota valaistaan sivulta.
+How faint a gradient still registers. High turns the quietest shading into visible structure.	Heikkojen liukujen herkkyys. Suuri arvo tuo hennonkin varjostuksen rakenteen näkyviin.
+How far away. Distance dulls the top and softens the difference between the ears.	Etäisyys. Kauempana diskantti vaimenee ja korvien välinen ero pienenee.
+How far back the chain listens. The picture is played through a delay, so this is the distance the damage is dragged across.	Kuinka kauas taakse ketju kuuntelee. Kuva kulkee viiveen läpi, joten tämä määrää vaurion vetomatkan.
+How far the burn spreads off the edge, and how hot its colour runs.	Palamisen leviäminen reunasta ja sen värin kuumuus.
+How far the colour turns on each trip round the loop. This is the oil-slick: the trail walks through the spectrum instead of fading.	Värin kierto kullakin kierroksella. Öljykalvon tapaan jälki kulkee spektrin läpi häipymisen sijaan.
+How far the picture stands out. Bright parts come forward, dark parts stay back. At the left it is flat.	Kuvan ulkonema. Kirkkaat osat eteen, tummat taakse. Vasemmalla tasainen.
+How far the picture swings the filter. The cue's own brightness opens and closes it, so a cut to black takes the top off the sound.	Kuvan vaikutus suotimeen. Cuen kirkkaus avaa ja sulkee sitä, joten mustaan leikkaus poistaa diskantin.
+How far the top comes down as the end approaches. This is not a fade: the level is left alone.	Diskantin vaimennus loppua kohti. Tämä ei ole häivytys: taso säilyy.
+How fast it settles away while held. At zero it holds indefinitely, which is what room tone under a held title wants.	Vaimenemisnopeus pidossa. Nolla pitää loputtomasti, kuten huoneääni pysäytetyn otsikon alla tarvitsee.
+How fast what has dripped hardens away. At the left the drips stay until the cue changes.	Tippojen kovettumisnopeus. Vasemmalla ne säilyvät cuen vaihtumiseen asti.
+How hard it holds once it is working. Gentle at the bottom, a limiter at the top.	Voimakkuus toiminnan alettua. Alhaalla hellä, ylhäällä rajoitin.
+How hard the light gathers where the rays converge. This is the part that makes it read as water rather than as a wobble.	Valon keskittyminen säteiden yhtymäkohtiin. Se luo veden vaikutelman pelkän huojunnan sijaan.
+How hard the moving parts throw sand. More shake clears the plate faster and makes the lines thinner.	Liikkuvien osien hiekanheittovoima. Enemmän ravistusta puhdistaa levyn nopeammin ja ohentaa viivoja.
+How long a grain is, in VIDEO FRAMES. On a 23.976 clip one frame is 41.7ms, which is not a musical value and is exactly the point.	Rakeen pituus VIDEORUUTUINA. 23.976-leikkeessä ruutu on 41.7ms — tarkoituksella ei musiikillinen arvo.
+How long before the end it starts. The cue has to have a known length -- an open-ended one has no end to resolve into.	Aloitusaika ennen loppua. Cuen pituuden on oltava tiedossa; avoimella ei ole loppua, johon asettua.
+How long it is allowed to run. More steps means the ripples have crossed and reflected more times.	Suoritusaika. Useampi askel tarkoittaa useampia aaltojen risteämisiä ja heijastuksia.
+How long the old waves linger when the note changes. Left: they die at once. Right: they slosh for a while.	Vanhojen aaltojen kesto nuotin vaihtuessa. Vasemmalla sammuvat heti, oikealla loiskuvat vielä.
+How much each facet catches the light, which is what makes them read as faceted rather than as flat blobs.	Kuinka paljon kukin tahko saa valoa, mikä erottaa ne litteistä läikistä.
+How much its SIZE becomes distance. Shrink the picture and the sound goes away from you: the top comes off, the image narrows, the level drops.	KOON vaikutus etäisyyteen. Kuvaa pienentäessä ääni etääntyy: diskantti vaimenee, stereokuva kapenee ja taso laskee.
+How much of the bent picture goes round again. High is where it stops being an echo and starts eating itself.	Vääristyneen kuvan palautusmäärä. Suurella arvolla kaiku alkaa syödä itseään.
+How much of the driver's movement the picture KEEPS. At zero it follows the driver frame by frame, which is a twitch. Wind it up and the motion accumulates, so the driver sculpts the picture over time and it holds the pose -- which is what puppetry means.	Kuinka paljon kuva MUISTAA ohjaimen liikettä. Nollassa se seuraa ruutu ruudulta nykien. Suuremmalla liike kertyy, ohjain muovaa kuvaa ajan myötä ja asento säilyy kuin nukella.
+How much of the picture's position on the output is used. A PIP on the left sounds on the left -- and it is a placement, not a pan: the far ear gets the delay and the head shadow too.	Kuvan sijainnin vaikutus. Vasen PIP kuuluu vasemmalta: kyse on sijoittelusta, myös kauemman korvan viiveestä ja pään varjosta.
+How much of the tail is kept going while the cue is held. Long enough to hide the splice in room tone, short enough not to smear a rhythm in it.	Hännän kesto cuen pidossa. Riittävän pitkä peittämään huoneäänen sauman, riittävän lyhyt säilyttämään rytmin.
+How much room comes up under it, so the sound settles into the cut instead of being severed.	Huonetilan lisäys, jotta ääni asettuu leikkaukseen katkeamatta äkisti.
+How much the echo is distorted each pass. It compounds, so a little ripples and a lot melts the picture into itself.	Kaiun vääristymä kullakin kierroksella. Kertyy: vähän aaltoilee, paljon sulattaa kuvan itseensä.
+How much the material draws in towards each drip, so it runs as a thin neck with a heavier head.	Materiaalin vetäytyminen pisaraa kohti, jolloin syntyy ohut kaula ja painavampi pää.
+How often its settings are corrupted. Corrupted far enough it oscillates on its own -- loud, but it cannot run away.	Asetusten vioittumistiheys. Riittävä vioittuminen saa sen värähtelemään itsestään — kovaa, mutta hallitusti.
+How quickly the picture springs back to rest once the driver stops pushing it. Only does anything when memory is up.	Kuvan palautumisnopeus ohjauksen lakatessa. Vaikuttaa vain, kun muistia on lisätty.
+How quickly the room eats the top end. More damping is a softer, more furnished space.	Huoneen diskanttivaimennuksen nopeus. Enemmän vaimennusta vastaa pehmeämpää, kalustetumpaa tilaa.
+How readily an edge catches. Low sets the whole picture alight, high only the hardest lines.	Reunan syttymisherkkyys. Alhaalla koko kuva syttyy, ylhäällä vain terävimmät viivat.
+How small a cut sets it off. With no picture it runs on a timer instead, and this is how often.	Laukaisevan leikkauksen herkkyys. Ilman kuvaa käytetään ajastinta; tämä määrää sen tiheyden.
+How strongly the finished picture pushes the bend. Pair it with a picture effect whose LFO is set to Audio and the two drive each other.	Valmiin kuvan vaikutus taivutukseen. Yhdistä kuvatehosteeseen, jonka LFO on Audio-tilassa, niin ne ohjaavat toisiaan.
+How wide a view is being compressed. Narrow is a punch down the middle, wide folds the whole frame into the centre.	Pakatun näkymän leveys. Kapea iskee keskelle, leveä taittaa koko ruudun keskustaan.
+INPUTMONITOR: a row count, OPEN, CLOSE, CLEAR, PAUSE or RESUME	INPUTMONITOR: rivimäärä, OPEN, CLOSE, CLEAR, PAUSE tai RESUME
+IPv4 addresses or a.b.c.d/bits, comma separated; empty = only this computer	IPv4-osoitteet tai a.b.c.d/bits pilkuin eroteltuina; tyhjä = vain tämä kone
+kbps (500-50000)	kbit/s (500-50000)
+key+fill ON, but no key device set (DECKLINK KEYFILL ON <device>)	key+fill ON, mutta key-laitetta ei ole asetettu (DECKLINK KEYFILL ON <device>)
+Keynote could not export this file (it may need permission to be automated: System Settings > Privacy & Security > Automation)	Keynote ei voinut viedä tiedostoa (automaatio voi vaatia luvan: Järjestelmäasetukset > Tietosuoja ja suojaus > Automaatio)
+label | command | glyph      (empty label|command removes it)	nimi | komento | merkki      (tyhjä nimi|komento poistaa sen)
+Lift or cut, 12dB either way. The centre is flat, so a band that has just been added does nothing until this is moved.	Nosto tai leikkaus, 12dB kumpaankin suuntaan. Keskellä tasainen: uusi kaista ei vaikuta ennen säätöä.
+Lifts the dark tones without moving pure black.	Nostaa tummia sävyjä muuttamatta puhdasta mustaa.
+Light on the drips, as on something wet: a gloss where it faces the light, darker where it curls away.	Pisaroiden märkä valaistus: kiilto valoa kohti, tummempi poispäin kaartuvissa kohdissa.
+mic live on the default speakers - watch for feedback	mikrofoni kuuluu oletuskaiuttimista — varo kiertoa
+MIDIIN: NOTE <n> <vel>, NOTEOFF <n>, CC <c> <v>, PITCH <0-16383>, PRESSURE <v>, KEYPRESSURE <n> <v>, PROGRAM <n> or OSC <address> [<n>], then CH <1-16> if not channel 1	MIDIIN: NOTE <n> <vel>, NOTEOFF <n>, CC <c> <v>, PITCH <0-16383>, PRESSURE <v>, KEYPRESSURE <n> <v>, PROGRAM <n> tai OSC <address> [<n>], sitten CH <1-16> jos kanava ei ole 1
+Moves the direction of travel off the centre of frame, so the picture rushes past rather than straight at you.	Siirtää kulkusuunnan pois keskeltä, jolloin kuva syöksyy ohi eikä suoraan kohti.
+my defaults forgotten: NEW starts from factory settings, this show is unchanged	Omat oletukset unohdettu: NEW käyttää tehdasasetuksia, tämä esitys säilyy
+N=new  Enter/P=previous  O=open saved  E=examples  L=learn  1-	N=uusi  Enter/P=edellinen  O=avaa tallennettu  E=esimerkit  L=opi  1-
+ndi tally trigger on -- program tally takes the cue	NDI tally -liipaisu käytössä — PROGRAM tally ajaa cuen
+NEWSHOW: something is live or unsaved -- send NEWSHOW again within 2.5 s	NEWSHOW: jotain on suorana tai tallentamatta — lähetä NEWSHOW uudelleen 2.5 s sisällä
+NMOS: discovery needs the remote network allowed	NMOS: haku vaatii etäverkon sallimisen
+NMOS: NOT registering - network is LOCAL ONLY (turn REMOTE ON to publish)	NMOS: EI rekisteröidytä — verkko VAIN PAIKALLINEN (julkaise komennolla REMOTE ON)
+NMOS: searching for a registry (mDNS)	NMOS: etsitään rekisteriä (mDNS)
+notestep: this cue's notes have no builds (separate them with a line of ---)	notestep: cuen muistiinpanoissa ei ole vaiheita (erota rivillä ---)
+nothing to mask here: select a cue, or change MASK ON	Ei maskattavaa: valitse cue tai vaihda MASK ON
+One knob for the whole balance: below the middle is darker, above it is brighter.	Yksi säädin koko tasapainolle: keskikohdan alla tummempi, yllä kirkkaampi.
+Only accept transport from this sender (blank = anyone)	Hyväksy toistonohjaus vain tältä lähettäjältä (tyhjä = kuka tahansa)
+opened github.com in your browser -- nothing is sent until you submit the report there	github.com avattu selaimeen — mitään ei lähetetä ennen kuin lähetät ilmoituksen siellä
+Original: the picture pulled onto the figure. Sand: the picture as grains that are thrown off the moving parts and pour into each new figure. Fluid: the picture under water on the plate, bent and lit by its standing waves.	Alkuperäinen: kuva vedetään kuvioon. Hiekka: kuvan rakeet sinkoutuvat liikkuvista osista uusiin kuvioihin. Neste: kuva veden alla levyllä, seisovien aaltojen taivuttamana ja valaisemana.
+OUTPUT --.-	ULOSTULO --.-
+output effects bypassed: no effect and no limit on this device	Ulostulotehosteet ohitettu: tällä laitteella ei tehosteita eikä rajaa
+Output height in px - math ok: 1080x2, 2160/2, 540+30	Ulostulon korkeus px — laskut sallittu: 1080x2, 2160/2, 540+30
+OUTPUT WARM	ULOSTULO LÄMMITYS
+Output width in px - math ok: 1920x2, 3840/2, 960+64	Ulostulon leveys px — laskut sallittu: 1920x2, 3840/2, 960+64
+pair with a picture effect whose LFO is set to Audio	Yhdistä kuvatehosteeseen, jonka LFO on Audio-tilassa
+paired phones removed: they need the QR code or the passphrase again	Puhelinparit poistettu: ne tarvitsevat QR-koodin tai tunnuslauseen uudelleen
+PATCH: a level is dB from -48 to +6, or OFF	PATCH: taso dB-arvona -48–+6 tai OFF
+PHONE LEVEL: removed -- a paired phone or the passphrase can do everything; BLACKOUT and RECORD are hold-to-fire on the phone	PHONE LEVEL: poistettu — paritettu puhelin tai tunnuslause antaa kaikki oikeudet; puhelimen BLACKOUT ja RECORD vaativat pitkän painalluksen
+phones need THE NETWORK: set 'Who can see it' first	Puhelimet tarvitsevat VERKON: aseta ensin 'Kuka näkee sen'
+PIP: retired -- scale a second deck over this one instead	PIP: poistettu — skaalaa toinen dekki tämän päälle
+pip: retired -- scale a second deck over this one instead	pip: poistettu — skaalaa toinen dekki tämän päälle
+Port the Node + Connection API serve on	Node + Connection API:n portti
+PowerPoint could not export this file (it may need permission to be automated: System Settings > Privacy & Security > Automation)	PowerPoint ei voinut viedä tiedostoa (automaatio voi vaatia luvan: Järjestelmäasetukset > Tietosuoja ja suojaus > Automaatio)
+PowerPoint could not open the file (it gave up waiting for it). If it is in OneDrive, right-click it and choose Always keep on this device, then import it again	PowerPoint ei avannut tiedostoa (odotus päättyi). Jos se on OneDrivessa, napsauta oikealla, valitse 'Säilytä aina tässä laitteessa' ja tuo uudelleen
+presenter panel: expected <live|prev|next|notes> <x> <y> <w> <h> in percent	esittäjän paneeli: odotetaan <live|prev|next|notes> <x> <y> <w> <h> prosentteina
+presenter panel: the panel must fit on the screen (x+w and y+h no more than 100)	esittäjän paneeli: mahduttava näytölle (x+w ja y+h enintään 100)
+preset: delivery | proxy | match | datamosh	esiasetus: delivery | proxy | match | datamosh
+programme sound is always included; use WEBMONITOR OFF to stop the monitor	Ohjelmaääni sisältyy aina; pysäytä monitori komennolla WEBMONITOR OFF
+PROXY 720p	VÄLITYSKOPIO 720p
+Pulls the bright tones down without moving pure white, so a hot highlight rolls off instead of clipping.	Laskee kirkkaita sävyjä muuttamatta puhdasta valkoista, jolloin huippuvalo loivenee leikkautumatta.
+Registry URL (e.g. http://192.168.1.50:8010) - blank for mDNS	Rekisterin URL (esim. http://192.168.1.50:8010) — tyhjä = mDNS
+Rotates the reading, so straight lines wind into spirals rather than rings.	Kiertää lukusuuntaa niin, että suorat kiertyvät spiraaleiksi renkaiden sijaan.
+Rows lose sync and repeat one character, the way a real text screen breaks up. At 0 the grid is clean.	Rivit menettävät tahdistuksen ja toistavat yhtä merkkiä, kuten vioittunut tekstinäyttö. Nollassa ruudukko on puhdas.
+save failed - retrying; still open, use SAVE AS if needed	Tallennus epäonnistui — yritetään uudelleen; yhä auki, käytä tarvittaessa SAVE AS
+saved as my defaults: NEW starts like this show, without the cues	Tallennettu omiksi oletuksiksi: NEW aloittaa kuin tämä esitys ilman cueita
+Seconds for new image/pattern/browser/Lower Third cues (0 = hold)	Uusien kuva-/testikuva-/selain-/Lower Third -cueiden sekunnit (0 = pito)
+select a Draw cue first (SOURCE > MADE BY DECKBOY > Draw)	Valitse ensin Draw-cue (SOURCE > MADE BY DECKBOY > Draw)
+SLICE CORNER: TL, TR, BR or BL, then dx dy in percent of the output	SLICE CORNER: TL, TR, BR tai BL, sitten dx dy ulostulon prosentteina
+SLICE EDGE: L, R, T or B, then 0-50 (% of the slice)	SLICE EDGE: L, R, T tai B, sitten 0-50 (% leikkeestä)
+SLICE GRID POINT: col row (from 1, on a grid that is on) then dx dy in percent	SLICE GRID POINT: col row (alkaen 1, käytössä olevassa ruudukossa), sitten dx dy prosentteina
+SLICE GRID: <cols> <rows> (2-9), OFF, SMOOTH ON|OFF, or POINT col row dx dy	SLICE GRID: <cols> <rows> (2-9), OFF, SMOOTH ON|OFF tai POINT col row dx dy
+SLICE LFO: X, Y, ROTATION or OPACITY, then ON, OFF, SHAPE, RATE, DEPTH...	SLICE LFO: X, Y, ROTATION tai OPACITY, sitten ON, OFF, SHAPE, RATE, DEPTH...
+SLICE ROTATE: IN (the crop) or OUT (the placed picture), then degrees	SLICE ROTATE: IN (rajaus) tai OUT (sijoitettu kuva), sitten asteet
+SMPTE hh:mm:ss:ff or seconds (blank = 00:00:00:00)	SMPTE hh:mm:ss:ff tai sekunnit (tyhjä = 00:00:00:00)
+something mellow appeared in SOURCE > MADE BY DECKBOY	Jotain leppoisaa ilmestyi kohtaan SOURCE > MADE BY DECKBOY
+Something near the deck: a phone's buzz, a light dimmer's herringbone, a radio's slow bars.	Laitteen lähellä: puhelimen surina, himmentimen kalanruoto, radion hitaat palkit.
+Sorts the runs the other way, so they pour from light to dark.	Lajittelee jaksot toisin päin, vaaleasta tummaan.
+sound scopes: integrated loudness and true peak start again	Äänimittarit: integroitu äänekkyys ja todellinen huippu aloitetaan alusta
+SOURCE WINDOW: name the window, e.g. title:Firefox (or "desktop")	SOURCE WINDOW: nimeä ikkuna, esim. title:Firefox (tai "desktop")
+splitnotes: that cue's notes have no parts (separate them with a line of ---)	splitnotes: cuen muistiinpanoissa ei ole osia (erota rivillä ---)
+STREAM --.-	LÄHETYS --.-
+STREAM ERR	LÄHETYS VIRHE
+STREAM OFF	LÄHETYS POIS
+Stream URL (srt://, rtmp://, rtsp://, udp://, or an http HLS .m3u8)	Virran URL (srt://, rtmp://, rtsp://, udp:// tai http HLS .m3u8)
+STREAM WARM	LÄHETYS LÄMMITYS
+SYPHON / SPOUT TEXTURE SHARE	SYPHON / SPOUT TEKSTUURIJAKO
+Takes out everything brighter than this as well. Left takes out nothing.	Poistaa myös kaiken tätä kirkkaamman. Vasemmalla ei poista mitään.
+Takes out everything darker than this, so what lies beneath shows through. Left takes out nothing.	Poistaa kaiken tätä tummemman, jolloin alla oleva näkyy. Vasemmalla ei poista mitään.
+Tape speed: SP is the best picture, LP and EP fit more on a tape and lose detail and colour.	Nauhanopeus: SP antaa parhaan kuvan, LP ja EP mahtuvat pidempään mutta menettävät yksityiskohtia ja väriä.
+that key drives the desk - use F1-F10, F12 or the number pad	Tämä näppäin ohjaa pöytää — käytä F1-F10, F12 tai numeronäppäimistöä
+The brightness that stays put. Everything above it reaches one way and everything below it the other.	Paikallaan pysyvä kirkkaus. Sitä kirkkaammat venyvät yhteen suuntaan, tummemmat toiseen.
+The character of the growth: low is waves, then labyrinth, coral, worms, and holes at the top.	Kasvun luonne: alhaalla aaltoja, sitten labyrinttiä, korallia, matoja ja ylhäällä reikiä.
+the clicker now spends note builds before advancing	Esityskaukosäädin käy nyt muistiinpanojen vaiheet ennen etenemistä
+The colour it becomes. Shading and brightness stay as they were, so a red shirt turns blue and keeps its folds.	Uusi väri. Varjostus ja kirkkaus säilyvät: punainen paita muuttuu siniseksi ja pitää laskoksensa.
+The distance that sits ON the screen. Either side of it comes forward or falls behind.	Näytön TASOSSA oleva etäisyys. Sen kummallakin puolella tullaan eteen tai jäädään taakse.
+the file is empty (0 bytes): it may not have finished copying or saving	Tiedosto on tyhjä (0 tavua): kopiointi tai tallennus voi olla kesken
+The frequency it pivots around -- what counts as 'low' and 'high' for the tilt.	Kallistuksen kääntöpisteen taajuus — mikä lasketaan matalaksi ja korkeaksi.
+The head drifting off the track: a band of noise rolls through the picture.	Lukupää ajautuu raidalta: kohinavyöhyke kulkee kuvan läpi.
+the installed NDI runtime is missing entry points this needs	Asennetusta NDI-ajoympäristöstä puuttuvat tarvittavat aloituspisteet
+The level below which the source is closed. Set it under the quietest thing you want to hear.	Taso, jonka alla lähde suljetaan. Aseta hiljaisimman halutun äänen alle.
+The level it starts working at. Lower catches more of the performance.	Toiminnan kynnystaso. Alempi ottaa mukaan enemmän esityksestä.
+the playing step was removed - sequence stopped	Toistettava askel poistettiin — sekvenssi pysäytetty
+The plugin's first four automatable controls, in its own order. Everything else it has keeps whatever the plugin was left set to.	Lisäosan neljä ensimmäistä automatisoitavaa säädintä sen omassa järjestyksessä. Muut säilyttävät lisäosaan jätetyt asetukset.
+this file is only in OneDrive, and OneDrive is not running. Start OneDrive, or copy the file to this computer, then import it again	Tiedosto on vain OneDrivessa eikä OneDrive ole käynnissä. Käynnistä OneDrive tai kopioi tiedosto tälle koneelle ja tuo uudelleen
+this presentation needs a password to open. Remove the password in PowerPoint (File > Info > Protect Presentation) or export it as a PDF, then import that	Esitys vaatii salasanan. Poista se PowerPointissa (Tiedosto > Tiedot > Suojaa esitys) tai vie PDF:ksi ja tuo se
+Tints the two directions apart, so light bending one way and the other are different colours instead of both being grey.	Sävyttää suunnat eri värein, jolloin eri suuntiin taipuva valo erottuu harmaan sijaan.
+Turns the echo each pass, which winds the melt into a spiral.	Kiertää kaikua joka kierroksella ja kietoo sulamisen spiraaliksi.
+Turns the strokes across the grain instead of along it, which combs the picture apart rather than smoothing it.	Kääntää vedot syitä vastaan, jolloin kuva kampautuu hajalle tasoittumisen sijaan.
+Turns the whole arrangement, so the fold lines do not sit on the same part of the picture all night.	Kiertää koko asettelua, etteivät taitoslinjat pysy samassa kohdassa koko iltaa.
+Two is a mirror, twelve is a snowflake, and they are completely different pictures.	Kaksi on peili, kaksitoista lumihiutale — täysin eri kuvia.
+VIDEO OUTPUT ASSIGN: already on this output, or no such deck or output	VIDEO OUTPUT ASSIGN: jo tällä ulostulolla tai dekkiä tai ulostuloa ei ole
+VIDEO OUTPUT LAYER: this deck is not on this output, or it is already at that layer	VIDEO OUTPUT LAYER: dekki ei ole tällä ulostulolla tai on jo tällä tasolla
+VIDEO OUTPUT UNASSIGN: this deck is not on this output, or it is the only thing on it	VIDEO OUTPUT UNASSIGN: dekki ei ole tällä ulostulolla tai on sen ainoa kohde
+WARP AT: open the editor (WARP EDIT) and select a point first	WARP AT: avaa ensin muokkain (WARP EDIT) ja valitse piste
+warp grid: expected <n>, <cols> <rows>, off, smooth or straight	warp grid: odotetaan <n>, <cols> <rows>, off, smooth tai straight
+warp point: that is a corner -- move it with WARP <corner> dx dy	warp point: tämä on kulma — siirrä komennolla WARP <corner> dx dy
+WARP SELECT: expected TL, TR, BR, BL or a grid <col> <row>	WARP SELECT: odotetaan TL, TR, BR, BL tai ruudukon <col> <row>
+WEBMONITOR: STATUS | ON | OFF | CONTROL ON|OFF | SHARE ON|OFF | SOURCE PROGRAMME|<output> | QR [ON|OFF] | PORT <n> | PIN <pin>|OFF (sound is included)	WEBMONITOR: STATUS | ON | OFF | CONTROL ON|OFF | SHARE ON|OFF | SOURCE PROGRAMME|<output> | QR [ON|OFF] | PORT <n> | PIN <pin>|OFF (ääni mukana)
+what the patch and the cues call it (FOH, SUB, PRESS FEED)	Nimi reitityksessä ja cueissa (FOH, SUB, PRESS FEED)
+Where highlights fold back through black. Low folds most of the picture, high folds only the brightest.	Kohta, jossa huippuvalot taittuvat mustan läpi. Alhaalla suurin osa kuvasta, ylhäällä vain kirkkaimmat.
+Where the band sits, 30Hz to 16kHz across the travel.	Kaistan sijainti, säätöalue 30Hz–16kHz.
+Where the fold sits: the middle at the left, toward the far edge to the right. Flips have no fold.	Taitoksen paikka: vasemmalla keskellä, oikealla kaukoreunaa kohti. Käännöissä ei ole taitosta.
+Where the light stands, in degrees around the frame.	Valon sijainti asteina ruudun ympärillä.
+Where the source sits around the listener, all the way round. For headphones -- it is a timing and shading trick, not a pan.	Lähteen sijainti kuuntelijan ympärillä, koko kierros. Kuulokkeille: viive- ja varjostustemppu, ei panorointi.
+Where the top ends, 200Hz to 20kHz. Pull it down to take the harshness off a bright source.	Yläraja, 200Hz–20kHz. Laske poistaaksesi kirkkaan lähteen karkeutta.
+Which channel the curve acts on: all three, then red, green or blue on its own -- the way a colourist warms or cools one end of the picture.	Käyrän kanava: kaikki kolme, sitten punainen, vihreä tai sininen erikseen — kuten värimäärittelijä lämmittää tai viilentää sävyalueen yhtä päätä.
+Which way the knife edge lies. Only gradients ACROSS the edge show, so turning it swaps which features appear and which vanish.	Veitsenterän suunta. Vain reunan POIKKI kulkevat liu'ut näkyvät, joten kääntö vaihtaa näkyvät ja katoavat piirteet.
+Which way the streak runs: across at the left, upright in the middle, across again at the right.	Juovan suunta: vasemmalla poikittain, keskellä pystyyn, oikealla taas poikittain.
+Widens the decision into a ramp, so edges keep their shape instead of jagging.	Leventää kynnyksen liu'uksi, jolloin reunojen muoto säilyy sahalaitojen sijaan.
+window capture fell back to screen grab — update ffmpeg for exact window capture	Ikkunakaappaus vaihtui ruutukaappaukseksi — päivitä FFmpeg tarkkaa ikkunakaappausta varten
+Words to surface in the field, separated by | . One shows at a time, moving on the hold clock.	Kentässä näkyvät sanat, erotin | . Yksi kerrallaan, vaihtuu pitoajan tahdissa.
+Zero is one noise value across all three channels, which reads as film. Higher gives each channel its own, which reads as video.	Nollassa sama kohina kaikissa kolmessa kanavassa, kuin filmi. Suuremmalla kullakin on omansa, kuin video.
+OUTPUT SPOUT: ON | OFF | TOGGLE | NAME <sender name>	OUTPUT SPOUT: ON | OFF | TOGGLE | NAME <L?HETT?J?N NIMI>
+STATUS | SHAPE <0-5> | PALETTE <0-3> | DENSITY|SPEED|WARP|CENTREX|CENTREY|GREY <0-100> | TURN|HUE <0-360> | LFO <control> <setting>	STATUS | SHAPE <0-5> | PALETTE <0-3> | DENSITY|SPEED|WARP|CENTREX|CENTREY|GREY <0-100> | TURN|HUE <0-360> | LFO <S??DIN> <ASETUS>
+AUTO	AUTOM.
+Lens	Linssi
+Prism	Prisma
+Water	Vesi
+Lasers	Laserit
+Pixels	Pikselit
+Listens	Kuuntelee
+Mirrors	Peilit
+Shimmer	Välke
+FDS synth	FDS-syntikka
+Terrarium	Terraario
+(bypassed)	(ohitettu)
+Second jet	Toinen suihku
+%, 1 to 100	%, 1–100
+Panel angle	Paneelikulma
+Ripple size	Väreilyn koko
+Panels, 0-12	Paneelit, 0-12
+Seconds, 0-4	Sekunnit, 0-4
+Seconds, 0-8	Sekunnit, 0-8
+Top / bottom	Ylä / ala
+Amount 0-100%	Määrä 0-100%
+ALSA MIDI Port	ALSA MIDI -portti
+Degrees, 0-360	Asteet, 0-360
+Terrarium Pico	Terraario Pico
+ASIOInit failed	ASIOInit epäonnistui
+Hertz, 20-20000	Hertsit, 20-20000
+Pixels, 64-2160	Pikselit, 64-2160
+Pixels, 64-3840	Pikselit, 64-3840
+Colour steps, 2-8	Väriportaat, 2-8
+Degrees -180..180	Asteet -180..180
+Palette turn, 0-1	Paletin kierto, 0-1
+Size, %, 5 to 400	Koko, %, 5–400
+Feature size, 0.1-8	Piirteiden koko, 0.1-8
+Spiral size, 0.25-4	Spiraalin koko, 0.25-4
+Degrees, -360 to 360	Asteet, -360–360
+Spiral strength, 0-4	Spiraalin voima, 0-4
+0-100%, left to right	0-100%, vasemmalta oikealle
+0-100%, top to bottom	0-100%, ylhäältä alas
+0-100%: laser speckle	0-100%: laserpilkut
+Pixel sort amount, 0-1	Pikselilajittelun määrä, 0-1
+Pitch in hertz, 20-8000	Sävelkorkeus hertseinä, 20-8000
+Frames a second, 1 to 60	Kuvaa sekunnissa, 1–60
+Horizontal cells, 64-960	Vaakasolut, 64-960
+select a lumia cue first	valitse ensin Lumia-vihje
+0 tube, 1 mandala, 2 none	0 putki, 1 mandala, 2 ei mitään
+How big a blob grows, 0-1	Läiskän kasvukoko, 0-1
+0-100%: overall brightness	0-100%: kokonaiskirkkaus
+FDS hardware gain range, 0-63	FDS-laitteiston vahvistusalue, 0-63
+How hard it cuts, %, 0 to 100	Leikkauksen jyrkkyys, %, 0–100
+{1} (supports + - * / and ())	{1} (tukee + - * / ja ())
+Master oscillator rate, 0.01-8	Pääoskillaattorin nopeus, 0.01-8
+Seconds the in move takes, 0-5	Sisääntulon kesto sekunteina, 0-5
+0-100%: 0 holds the field still	0-100%: 0 pitää kentän paikallaan
+0-100%: how bright the water is	0-100%: veden kirkkaus
+0-100%: how far the field bends	0-100%: kentän taipuma
+0-100%: the whole picture turns	0-100%: koko kuva kiertyy
+Degrees per second, -720 to 720	Astetta sekunnissa, -720–720
+Lumia (laser light and mirrors)	Lumia (laservalo ja peilit)
+Seconds between retriggers, 0-8	Sekuntia uudelleenlaukaisujen välillä, 0-8
+Seconds the out move takes, 0-5	Poistumisen kesto sekunteina, 0-5
+0-100%: how fast the water moves	0-100%: veden liikenopeus
+0-100%: the halo round the lines	0-100%: viivojen hohde
+How many are alive at once, 3-48	Samanaikaisesti elossa, 3-48
+Turbulence, 0 still to 3 boiling	Pyörteisyys, 0 tyyni – 3 kiehuva
+Birth, drift and fade rate, 0.1-3	Synnyn, ajelehtimisen ja hiipumisen nopeus, 0.1-3
+How hard the audio drives it, 0-1	Äänen ohjausvoima, 0-1
+Scale of the whole graphic, 0.5-2	Koko grafiikan mittakaava, 0.5-2
+0-100%: 0 broad, 100 fine and busy	0-100%: 0 laaja, 100 hieno ja tiheä
+Down, % of the height, -100 to 100	Alas, % korkeudesta, -100–100
+Thickness of the glowing edge, 0-1	Hohtavan reunan paksuus, 0-1
+0-100%: how hard the lines are bent	0-100%: viivojen taivutusvoima
+0-100%: light lingers on the screen	0-100%: valon jälki ruudulla
+Across, % of the width, -100 to 100	Sivulle, % leveydestä, -100–100
+% of the picture's height, 0.1 to 20	% kuvan korkeudesta, 0.1–20
+0-100%: how far the colours fan apart	0-100%: värien levitys viuhkaksi
+Degrees round the colour wheel, 0-360	Asteet väriympyrällä, 0-360
+Where the eye sits, 0 left to 1 right	Silmäpiste, 0 vasen – 1 oikea
+Where the eye sits, 0 top to 1 bottom	Silmäpiste, 0 ylä – 1 ala
+dBFS, -60 to 0 (-18 is EBU alignment)	dBFS, -60–0 (-18 on EBU:n kohdistustaso)
+0-100%: how bright the laser lines are	0-100%: laserviivojen kirkkaus
+One LED tile's width in pixels, 8-8192	LED-laatan leveys pikseleinä, 8-8192
+0-100%: a second jet crossing the first	0-100%: toinen suihku risteää ensimmäisen kanssa
+Edge softness, % of the height, 0 to 25	Reunan pehmeys, % korkeudesta, 0–25
+One LED tile's height in pixels, 8-8192	LED-laatan korkeus pikseleinä, 8-8192
+0 classic, 1 fire, 2 ice, 3 neon, 4 mono	0 klassinen, 1 tuli, 2 jää, 3 neon, 4 yksivärinen
+Modulator as a ratio of the note, 0.05-16	Modulaattori suhteessa säveleen, 0.05-16
+Scanlines, bloom and gun misalignment, 0-1	Juovat, hohde ja säteiden kohdistusvirhe, 0-1
+0-100%: the round lens, barrel and dark rim	0-100%: pyöreä linssi, tynnyrivääristymä ja tumma reuna
+Block displacement and channel tearing, 0-1	Lohkosiirtymä ja kanavien repeily, 0-1
+Internal resolution, 1 (chunky) to 5 (fine)	Sisäinen tarkkuus, 1 (karkea) – 5 (hieno)
+Seconds the finished drawing stays, 0 to 60	Valmiin piirroksen näyttöaika sekunteina, 0–60
+0 rainbow + grey, 1 rainbow, 2 theme, 3 mono	0 sateenkaari + harmaa, 1 sateenkaari, 2 teema, 3 yksivärinen
+How readily neighbours merge, 0 (never) to 1	Naapurien yhdistymisherkkyys, 0 (ei koskaan) – 1
+Turns the rim's colours round the wheel, 0-1	Reunan värien kierto väriympyrällä, 0-1
+drag to turn round it · wheel to come closer	kierrä vetämällä · lähennä rullalla
+0-100%: 50 is 1x, 0 a quarter, 100 four times	0-100%: 50 on 1x, 0 neljäsosa, 100 nelinkertainen
+How much of each frame feeds the next, 0-0.95	Edelliseltä kuvalta seuraavalle siirtyvä osuus, 0-0.95
+Per-frame zoom of the feedback path, 0.90-1.15	Takaisinkytkennän zoomaus kuvaa kohti, 0.90-1.15
+Space under it, as a fraction of the frame, 0-0.8	Alapuolinen tila osuutena kuvasta, 0-0.8
+0 rgb, 1 rainbow, 2 floyd, 3 warm, 4 cool, 5 green	0 rgb, 1 sateenkaari, 2 floyd, 3 lämmin, 4 viileä, 5 vihreä
+Edge out (+) or in (-), % of the height, -25 to 25	Reuna ulos (+) tai sisään (-), % korkeudesta, -25–25
+0 zone, 1 twin, 2 flow, 3 saddle, 4 ripple, 5 shear	0 vyöhyke, 1 kaksoinen, 2 virtaus, 3 satula, 4 väreily, 5 leikkaus
+Seconds before it leaves by itself; 0 waits for OUT	Sekuntia automaattiseen poistumiseen; 0 odottaa OUT
+0-100%: how far each panel tilts from the one before	0-100%: paneelin kallistus edelliseen nähden
+0-100%: the share of each band drawn as grey stripes	0-100%: harmaiksi raidoiksi piirretty osuus kustakin kaistasta
+0 off, 1 on: the flow surges with the programme sound	0 pois, 1 päällä: virtaus sykkii PROGRAM-äänen mukana
+0 off, 1 on: the top mirrors the bottom round a dark seam	0 pois, 1 päällä: yläosa peilaa alaosaa tumman sauman yli
+' (cues, position, look, effects, levels, routing, master)	' (vihjeet, sijainti, ilme, tehosteet, tasot, reititys, pää)
+' -- try ADD, ON, OFF, ASSIGN, UNASSIGN, LAYER, HOST, TYPE, MIRROR or an output number	' -- kokeile ADD, ON, OFF, ASSIGN, UNASSIGN, LAYER, HOST, TYPE, MIRROR tai ulostulon numeroa
+BLEND ROW: expected <first output> <how many, 2 or more> <overlap in pixels>, with that many outputs	BLEND ROW: odotetaan <ensimmäinen ulostulo> <määrä, vähintään 2> <limitys pikseleinä> ja vastaava määrä ulostuloja
+SCREENS STAGE: STATUS, SET <what> <value> or APPLY	SCREENS STAGE: STATUS, SET <kohde> <arvo> tai APPLY
+SCREENS STAGE SET: WIDTH|HEIGHT <m>, LUMENS, THROW, OVERLAP <%>, GAIN, COUNT, PIXELS <w> <h> or UNITS METRES|FEET	SCREENS STAGE SET: WIDTH|HEIGHT <m>, LUMENS, THROW, OVERLAP <%>, GAIN, COUNT, PIXELS <w> <h> tai UNITS METRES|FEET
+LFO: flow, water, ripple, jet, prism, split, focus, shimmer, mirrors, angle, spin, lens, glow, bright or trail	LFO: flow, water, ripple, jet, prism, split, focus, shimmer, mirrors, angle, spin, lens, glow, bright tai trail
+STATUS | PALETTE <0-5 or name> | MODE <0-2 or name> | TOPBOTTOM|LISTENS ON|OFF | FLOW|WATER|RIPPLE|JET|PRISM|SPLIT|FOCUS|SHIMMER|ANGLE|SPIN|LENS|GLOW|BRIGHT|TRAIL <0-100> | MIRRORS <0-12> | LFO <control> <setting>	STATUS | PALETTE <0-5 tai nimi> | MODE <0-2 tai nimi> | TOPBOTTOM|LISTENS ON|OFF | FLOW|WATER|RIPPLE|JET|PRISM|SPLIT|FOCUS|SHIMMER|ANGLE|SPIN|LENS|GLOW|BRIGHT|TRAIL <0-100> | MIRRORS <0-12> | LFO <säädin> <asetus>
+Opacity	Peittävyys
+opacity	peittävyys
+PAD MODE: HOLD or LATCH	PAD MODE: HOLD tai LATCH
+PAD ASSIGN: this cue does not have that control	PAD ASSIGN: tällä vihjeellä ei ole kyseistä säädintä
+PAD SET: x and y are numbers from 0 to 1 (y = 1 is the top)	PAD SET: x ja y ovat lukuja väliltä 0–1 (y = 1 on yläreuna)
+PAD ASSIGN: a control is OPACITY, FX<n>.AMOUNT, FX<n>.A to F, or NUM.<name> such as NUM.lumia.flow	PAD ASSIGN: säädin on OPACITY, FX<n>.AMOUNT, FX<n>.A–F tai NUM.<name>, kuten NUM.lumia.flow
+PAD: expected PAD <deck> SET <x> <y> | RELEASE | MODE | ASSIGN | REMOVE | CHIP | LIST	PAD: odotetaan PAD <deck> SET <x> <y> | RELEASE | MODE | ASSIGN | REMOVE | CHIP | LIST
+PAD: expected PAD <deck> SET <x> <y> | RELEASE | MODE HOLD|LATCH | ASSIGN <slot> <x> <y> | REMOVE <slot> | CHIP <slot> ON|OFF | LIST	PAD: odotetaan PAD <deck> SET <x> <y> | RELEASE | MODE HOLD|LATCH | ASSIGN <slot> <x> <y> | REMOVE <slot> | CHIP <slot> ON|OFF | LIST
+QUANTISE: beat	KVANTISOINTI: isku
+QUANTISE: 1 bar	KVANTISOINTI: 1 tahti
+QUANTISE: 2 bars	KVANTISOINTI: 2 tahtia
+QUANTISE: 4 bars	KVANTISOINTI: 4 tahtia
+LINK: {1} peers	LINK: {1} vertaista
+left the Link session	poistuttiin Link-istunnosta
+joined the Link session	liityttiin Link-istuntoon
+TAKE waits for the bar: {1} s	TAKE odottaa tahtia: {1} s
+TAKE waits for the beat: {1} s	TAKE odottaa iskua: {1} s
+this build has no Ableton Link	tässä koosteessa ei ole Ableton Linkiä
+VJ LINK: this build has no Ableton Link	VJ LINK: tässä koosteessa ei ole Ableton Linkiä
+VJ QUANTISE: beat | 1 | 2 | 4 | off  (1, 2, 4 are bars)	VJ QUANTISE: beat | 1 | 2 | 4 | off  (1, 2, 4 ovat tahteja)
+VJ: expected ON|OFF|TOGGLE|MIX <0-1>|BLEND <mode>|TAP|BPM <n>|CLOCK <on|off>|QUANTISE <beat|1|2|4|off>|LINK <on|off|status>|DECKS <a> <b>|STATUS	VJ: odotetaan ON|OFF|TOGGLE|MIX <0-1>|BLEND <mode>|TAP|BPM <n>|CLOCK <on|off>|QUANTISE <beat|1|2|4|off>|LINK <on|off|status>|DECKS <a> <b>|STATUS
+Render	Renderöi
+PNG frames	PNG-kuvat
+START RENDER	ALOITA RENDERÖINTI
+CANCEL RENDER	PERU RENDERÖINTI
+RENDER TO FILE	RENDERÖI TIEDOSTOON
+RENDER TO FILE...	RENDERÖI TIEDOSTOON...
+about {1} left	noin {1} jäljellä
+render cancelled	renderöinti peruttu
+{1} frames in {2}	{1} kuvaa ajassa {2}
+the output's ({1})	ulostulon ({1})
+From cue and to cue	Alku- ja loppuvihje
+ProRes 4444 (alpha)	ProRes 4444 (alfa)
+the playlist has no cues	soittolistalla ei ole vihjeitä
+{1} frames, {2}, {3}x{4}	{1} kuvaa, {2}, {3}x{4}
+the source made no picture	lähde ei tuottanut kuvaa
+a render is already running	renderöinti on jo käynnissä
+there is no playlist to render	renderöitävää soittolistaa ei ole
+there is no picture in that range	tällä välillä ei ole kuvaa
+RENDER CANCEL: nothing is rendering	RENDER CANCEL: mitään ei renderöidä
+RENDER START: CUE, CUES a-b or OUTPUT	RENDER START: CUE, CUES a-b tai OUTPUT
+RENDER START CUES: first-last, numbered from 1	RENDER START CUES: ensimmäinen-viimeinen, numerointi alkaa 1:stä
+the output's mask is not drawn by a render yet	renderöinti ei vielä piirrä ulostulon maskia
+the output's slices are not drawn by a render yet	renderöinti ei vielä piirrä ulostulon viipaleita
+the output's crossfader is not drawn by a render yet	renderöinti ei vielä piirrä ulostulon ristihäivytystä
+RENDER START: needs a size, a rate, a codec and a file	RENDER START: tarvitaan koko, kuvataajuus, koodekki ja tiedosto
+RENDER START: size is 1080P, 4K or OUTPUT; codec is PRORES, H264 or PNG	RENDER START: koko on 1080P, 4K tai OUTPUT; koodekki on PRORES, H264 tai PNG
+frame {1} of {2} \xC2\xB7 {3} frames/s	kuva {1}/{2} \xC2\xB7 {3} kuvaa/s
+out:--	ulos:--

@@ -91,6 +91,35 @@
         </div>
       </div>
 
+      <!-- X/Y PAD: one finger moves two controls. Approved 2026-11-14. -->
+      <p class="label" id="pad-title">PAD &middot; DECK 1</p>
+      <div id="pad-block">
+        <div class="pad-axes"><span id="pad-ylab">Y -</span><span id="pad-xlab">X -</span></div>
+        <div id="pad" class="pad" tabindex="0" role="application" aria-label="X and Y pad">
+          <div class="pad-line pad-v"></div><div class="pad-line pad-h"></div>
+          <div id="pad-dot" class="pad-dot" hidden></div>
+        </div>
+        <div id="pad-chips" class="chips" aria-label="Controls on the pad"></div>
+        <div class="row3">
+          <button id="pad-hold" aria-pressed="true">HOLD</button>
+          <button id="pad-latch" aria-pressed="false">LATCH</button>
+          <button id="pad-add">+ EFFECT</button>
+        </div>
+        <p class="hint">Let go: springs back &middot; latch: stays</p>
+        <form id="pad-edit" class="panel" hidden>
+          <p id="pad-edit-title" class="label">PAD CONTROL</p>
+          <label for="pad-ex">X (ACROSS)</label>
+          <select id="pad-ex"></select>
+          <label for="pad-ey">Y (UP)</label>
+          <select id="pad-ey"></select>
+          <div class="row3">
+            <button type="submit" class="on">SAVE</button>
+            <button type="button" id="pad-remove">REMOVE</button>
+            <button type="button" id="pad-cancel">CANCEL</button>
+          </div>
+        </form>
+      </div>
+
       <p class="label">SHOW <span class="dim">HOLD BLACKOUT AND REC</span></p>
       <div class="row3">
         <button id="blackout" class="hold">BLACKOUT</button>

@@ -73,8 +73,13 @@
     if (!dbfs::is_regular_file(dbfs::u8path(file), ec)) return false;
     Cue* cue = selectedCueMutable();
     if (cue && isShaderCue(*cue)) {
+      // A name the cue got from its old file follows the new one; a name
+      // the operator typed stays.
+      const std::string oldStem = dbfs::u8path(deckboy::isf::pathFromCuePath(cue->path)).stem().string();
       cue->path = deckboy::isf::cuePathFor(file);
-      if (cue->name.empty() || cue->name == "Shader") cue->name = dbfs::path(file).stem().string();
+      if (cue->name.empty() || cue->name == "Shader" || cue->name == oldStem) {
+        cue->name = dbfs::path(file).stem().string();
+      }
       markProjectDirty();
     } else {
       addShaderCue(file);
@@ -131,13 +136,13 @@
   }
 
   // ---- numeric rows: a float input's value, a point's two ----------------------
-  const NumericParamSpec* isfParamSpec(NumericParam id) {
+  const NumericParamSpec* isfParamSpec(NumericParam id) const {
     static NumericParamSpec specs[kIsfMaxInputs * 4];
     static std::string texts[kIsfMaxInputs * 4][3];
     if (!isfParamIs(id)) return nullptr;
     const int n = static_cast<int>(id) - kIsfParamBase;
     const int input = n / 4, comp = n % 4;
-    const Cue* cue = selectedCueMutable();
+    const Cue* cue = selectedCuePtr();
     if (!cue || !isShaderCue(*cue)) return nullptr;
     const auto shader = shaderOfCue(*cue);
     if (!shader || input >= static_cast<int>(shader->inputs.size())) return nullptr;
@@ -156,7 +161,7 @@
     return &specs[n];
   }
 
-  bool readIsfParam(const Cue& cue, NumericParam id, double& out) {
+  bool readIsfParam(const Cue& cue, NumericParam id, double& out) const {
     if (!isfParamIs(id) || !isShaderCue(cue)) return false;
     const int n = static_cast<int>(id) - kIsfParamBase;
     const auto shader = shaderOfCue(cue);

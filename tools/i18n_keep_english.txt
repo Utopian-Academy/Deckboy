@@ -536,3 +536,432 @@ zu	src=... | cmd=... | ...
 *	LESSONS TRACK: PIXEL or VIDEO
 *	VIDEODIP: expected ON, OFF or FADE <seconds>
 *	expected ON, OFF, TOGGLE or PORTS
+# 2026-11-14: stays English after the Lumia/STAGE/PAD/RENDER/Link batches
+*	#rrggbb -- the colour of the presenter screen
+*	#rrggbb, or a name (red, teal...)
+*	0-1
+*	0-100%
+*	10-bit
+*	12-TET
+haw	14-bit
+*	19-TET
+*	24-TET
+*	2A03 (NES)
+*	8-bit
+fr	AUTO
+pl	AUTO
+da	BITRATE
+de	BITRATE
+it	BITRATE
+*	C64
+*	CGA
+*	CRT
+fr	Centre X
+fr	Centre Y
+*	DMX
+nl	Detail
+*	EGA 16
+*	F12
+*	FDS
+pt-BR	FX: use LIST | ADD <effect> [amount] | AMOUNT <n> <v> | PARAM <n> <A-F> <0-1> | CHOICE <n> <A|B> <name> | LFO <n> <A-G> ... | COPY | PASTE | CLEAR
+*	Game Boy
+da	Glitch
+de	Glitch
+fr	Glitch
+nl	Glitch
+*	H.264
+*	HDR PQ 16-bit
+*	HLG
+da	Hertz, 20-20000
+de	Hertz, 20-20000
+fr	Hertz, 20-20000
+is	Hertz, 20-20000
+it	Hertz, 20-20000
+kab	Hertz, 20-20000
+nl	Hertz, 20-20000
+pap-AW	Hertz, 20-20000
+pt-BR	Hertz, 20-20000
+tr	Hertz, 20-20000
+es	Iris
+es-CU	Iris
+fr	Lasers
+nl	Lasers
+pt-BR	Lasers
+nl	Lens
+pap-AW	Lens
+bg	Lumia
+da	Lumia
+de	Lumia
+el	Lumia
+es	Lumia
+es-CU	Lumia
+fi	Lumia
+fr	Lumia
+gd	Lumia
+haw	Lumia
+is	Lumia
+it	Lumia
+kab	Lumia
+lo	Lumia
+lum	Lumia
+nl	Lumia
+pap-AW	Lumia
+pl	Lumia
+pt-BR	Lumia
+ru	Lumia
+tr	Lumia
+uk	Lumia
+vi	Lumia
+zgh	Lumia
+zu	Lumia
+*	MIDI
+*	MMC LOCATE
+*	MMC PAUSE
+*	MMC PLAY
+*	MMC STOP
+de	MONO L
+nl	MONO L
+pl	MONO L
+de	MONO R
+nl	MONO R
+*	MSC GO
+*	MSC RESUME
+*	MSC STOP
+*	NES
+*	NUM0
+de	Note
+fr	Note
+da	Ouroboros
+de	Ouroboros
+fr	Ouroboros
+haw	Ouroboros
+kab	Ouroboros
+lo	Ouroboros
+lum	Ouroboros
+nl	Ouroboros
+pap-AW	Ouroboros
+pt-BR	Ouroboros
+vi	Ouroboros
+zgh	Ouroboros
+zu	Ouroboros
+bg	PAD CHIP: <slot> ON|OFF
+da	PAD CHIP: <slot> ON|OFF
+de	PAD CHIP: <slot> ON|OFF
+el	PAD CHIP: <slot> ON|OFF
+es	PAD CHIP: <slot> ON|OFF
+es-CU	PAD CHIP: <slot> ON|OFF
+fi	PAD CHIP: <slot> ON|OFF
+fr	PAD CHIP: <slot> ON|OFF
+gd	PAD CHIP: <slot> ON|OFF
+haw	PAD CHIP: <slot> ON|OFF
+is	PAD CHIP: <slot> ON|OFF
+it	PAD CHIP: <slot> ON|OFF
+kab	PAD CHIP: <slot> ON|OFF
+lo	PAD CHIP: <slot> ON|OFF
+lum	PAD CHIP: <slot> ON|OFF
+nl	PAD CHIP: <slot> ON|OFF
+pap-AW	PAD CHIP: <slot> ON|OFF
+pl	PAD CHIP: <slot> ON|OFF
+pt-BR	PAD CHIP: <slot> ON|OFF
+ru	PAD CHIP: <slot> ON|OFF
+tr	PAD CHIP: <slot> ON|OFF
+uk	PAD CHIP: <slot> ON|OFF
+vi	PAD CHIP: <slot> ON|OFF
+zgh	PAD CHIP: <slot> ON|OFF
+zu	PAD CHIP: <slot> ON|OFF
+*	PIP
+*	PQ (HDR10)
+haw	PROGRAM
+da	PROXY 720p
+de	PROXY 720p
+es	PROXY 720p
+es-CU	PROXY 720p
+fr	PROXY 720p
+it	PROXY 720p
+nl	PROXY 720p
+pt-BR	PROXY 720p
+fr	Phrases
+fr	Pixels
+nl	Pixels
+pt-BR	Pixels
+fr	Pixels, 64-2160
+nl	Pixels, 64-2160
+pt-BR	Pixels, 64-2160
+fr	Pixels, 64-3840
+nl	Pixels, 64-3840
+pt-BR	Pixels, 64-3840
+da	Portal
+de	Portal
+es	Portal
+es-CU	Portal
+pl	Portal
+pt-BR	Portal
+da	ProRes 4444 (alpha)
+de	ProRes 4444 (alpha)
+fr	ProRes 4444 (alpha)
+haw	ProRes 4444 (alpha)
+it	ProRes 4444 (alpha)
+kab	ProRes 4444 (alpha)
+lum	ProRes 4444 (alpha)
+nl	ProRes 4444 (alpha)
+vi	ProRes 4444 (alpha)
+zgh	ProRes 4444 (alpha)
+*	RGB
+*	RGB 8-bit
+*	RGBA
+*	RGBW
+da	Rotation
+fr	Rotation
+*	SDR
+da	STATUS | PALETTE <0-5 or name> | MODE <0-2 or name> | TOPBOTTOM|LISTENS ON|OFF | FLOW|WATER|RIPPLE|JET|PRISM|SPLIT|FOCUS|SHIMMER|ANGLE|SPIN|LENS|GLOW|BRIGHT|TRAIL <0-100> | MIRRORS <0-12> | LFO <control> <setting>
+de	STATUS | PALETTE <0-5 or name> | MODE <0-2 or name> | TOPBOTTOM|LISTENS ON|OFF | FLOW|WATER|RIPPLE|JET|PRISM|SPLIT|FOCUS|SHIMMER|ANGLE|SPIN|LENS|GLOW|BRIGHT|TRAIL <0-100> | MIRRORS <0-12> | LFO <control> <setting>
+es	STATUS | PALETTE <0-5 or name> | MODE <0-2 or name> | TOPBOTTOM|LISTENS ON|OFF | FLOW|WATER|RIPPLE|JET|PRISM|SPLIT|FOCUS|SHIMMER|ANGLE|SPIN|LENS|GLOW|BRIGHT|TRAIL <0-100> | MIRRORS <0-12> | LFO <control> <setting>
+es-CU	STATUS | PALETTE <0-5 or name> | MODE <0-2 or name> | TOPBOTTOM|LISTENS ON|OFF | FLOW|WATER|RIPPLE|JET|PRISM|SPLIT|FOCUS|SHIMMER|ANGLE|SPIN|LENS|GLOW|BRIGHT|TRAIL <0-100> | MIRRORS <0-12> | LFO <control> <setting>
+fr	STATUS | PALETTE <0-5 or name> | MODE <0-2 or name> | TOPBOTTOM|LISTENS ON|OFF | FLOW|WATER|RIPPLE|JET|PRISM|SPLIT|FOCUS|SHIMMER|ANGLE|SPIN|LENS|GLOW|BRIGHT|TRAIL <0-100> | MIRRORS <0-12> | LFO <control> <setting>
+it	STATUS | PALETTE <0-5 or name> | MODE <0-2 or name> | TOPBOTTOM|LISTENS ON|OFF | FLOW|WATER|RIPPLE|JET|PRISM|SPLIT|FOCUS|SHIMMER|ANGLE|SPIN|LENS|GLOW|BRIGHT|TRAIL <0-100> | MIRRORS <0-12> | LFO <control> <setting>
+nl	STATUS | PALETTE <0-5 or name> | MODE <0-2 or name> | TOPBOTTOM|LISTENS ON|OFF | FLOW|WATER|RIPPLE|JET|PRISM|SPLIT|FOCUS|SHIMMER|ANGLE|SPIN|LENS|GLOW|BRIGHT|TRAIL <0-100> | MIRRORS <0-12> | LFO <control> <setting>
+pl	STATUS | PALETTE <0-5 or name> | MODE <0-2 or name> | TOPBOTTOM|LISTENS ON|OFF | FLOW|WATER|RIPPLE|JET|PRISM|SPLIT|FOCUS|SHIMMER|ANGLE|SPIN|LENS|GLOW|BRIGHT|TRAIL <0-100> | MIRRORS <0-12> | LFO <control> <setting>
+pt-BR	STATUS | PALETTE <0-5 or name> | MODE <0-2 or name> | TOPBOTTOM|LISTENS ON|OFF | FLOW|WATER|RIPPLE|JET|PRISM|SPLIT|FOCUS|SHIMMER|ANGLE|SPIN|LENS|GLOW|BRIGHT|TRAIL <0-100> | MIRRORS <0-12> | LFO <control> <setting>
+da	STREAM --.-
+de	STREAM --.-
+it	STREAM --.-
+nl	STREAM --.-
+fr	Second jet
+*	Syphon/Spout
+da	Terrarium
+de	Terrarium
+fr	Terrarium
+nl	Terrarium
+pl	Terrarium
+da	Terrarium Pico
+de	Terrarium Pico
+fr	Terrarium Pico
+nl	Terrarium Pico
+pl	Terrarium Pico
+de	Timecode
+it	Timecode
+pt-BR	Timecode
+*	VJ LINK: on | off | status
+nl	Water
+fr	Zoom
+fr	angle
+fr	auto (59.94 Hz)
+es	bits
+es-CU	bits
+fr	bits
+nl	bits
+pt-BR	bits
+fi	bohlen-pierce
+gd	bohlen-pierce
+haw	bohlen-pierce
+is	bohlen-pierce
+kab	bohlen-pierce
+lo	bohlen-pierce
+lum	bohlen-pierce
+pap-AW	bohlen-pierce
+tr	bohlen-pierce
+vi	bohlen-pierce
+zgh	bohlen-pierce
+zu	bohlen-pierce
+haw	chladni
+kab	chladni
+lo	chladni
+lum	chladni
+pap-AW	chladni
+vi	chladni
+zgh	chladni
+zu	chladni
+es	control 1
+es-CU	control 1
+es	control 2
+es-CU	control 2
+es	control 3
+es-CU	control 3
+es	control 4
+es-CU	control 4
+fr	convergence
+fr	copies
+fr	corruption
+da	cyan
+fr	cyan
+da	databend
+de	databend
+es	databend
+es-CU	databend
+fr	databend
+haw	databend
+it	databend
+kab	databend
+lo	databend
+lum	databend
+nl	databend
+pap-AW	databend
+pl	databend
+pt-BR	databend
+vi	databend
+zgh	databend
+zu	databend
+da	datamosh
+de	datamosh
+es	datamosh
+es-CU	datamosh
+fr	datamosh
+haw	datamosh
+it	datamosh
+kab	datamosh
+lo	datamosh
+lum	datamosh
+nl	datamosh
+pap-AW	datamosh
+pl	datamosh
+pt-BR	datamosh
+vi	datamosh
+zgh	datamosh
+zu	datamosh
+*	default.deckboy
+fr	distance
+haw	doppler
+kab	doppler
+lo	doppler
+lum	doppler
+pap-AW	doppler
+vi	doppler
+zgh	doppler
+zu	doppler
+da	drift
+nl	drift
+pl	ferrofluid
+da	gong
+es	gong
+es-CU	gong
+fr	gong
+it	gong
+nl	gong
+pl	gong
+fr	grain
+*	h264
+da	histogram
+nl	histogram
+pl	histogram
+es	horizontal
+es-CU	horizontal
+fr	horizontal
+pt-BR	horizontal
+nl	kaleido
+ar	kbps (500-50000)
+ckb	kbps (500-50000)
+da	kbps (500-50000)
+de	kbps (500-50000)
+el	kbps (500-50000)
+es	kbps (500-50000)
+es-CU	kbps (500-50000)
+fa	kbps (500-50000)
+fr	kbps (500-50000)
+gd	kbps (500-50000)
+haw	kbps (500-50000)
+hi	kbps (500-50000)
+it	kbps (500-50000)
+ja	kbps (500-50000)
+kab	kbps (500-50000)
+kmr	kbps (500-50000)
+ko	kbps (500-50000)
+lo	kbps (500-50000)
+lum	kbps (500-50000)
+nl	kbps (500-50000)
+pap-AW	kbps (500-50000)
+pl	kbps (500-50000)
+pt-BR	kbps (500-50000)
+vi	kbps (500-50000)
+zgh	kbps (500-50000)
+zh-Hans	kbps (500-50000)
+zh-Hant	kbps (500-50000)
+zu	kbps (500-50000)
+haw	lissajous
+kab	lissajous
+lo	lissajous
+lum	lissajous
+pap-AW	lissajous
+vi	lissajous
+zgh	lissajous
+zu	lissajous
+es	material
+es-CU	material
+pt-BR	material
+da	mono
+es	mono
+es-CU	mono
+fr	mono
+it	mono
+nl	mono
+pl	mono
+pt-BR	mono
+da	parade
+fr	parade
+nl	parade
+nl	parallax
+es	ping-pong
+es-CU	ping-pong
+fr	ping-pong
+haw	ping-pong
+it	ping-pong
+kab	ping-pong
+lo	ping-pong
+lum	ping-pong
+pap-AW	ping-pong
+pl	ping-pong
+zgh	ping-pong
+zu	ping-pong
+fr	pivot
+da	plasma
+es	plasma
+es-CU	plasma
+fr	plasma
+it	plasma
+nl	plasma
+pt-BR	plasma
+*	png
+*	prores
+vi	purkinje
+da	radio
+es	radio
+es-CU	radio
+fr	radio
+it	radio
+nl	radio
+pl	radio
+da	radius
+da	relief
+fr	relief
+pl	relief
+da	rotation
+fr	rotation
+da	schlieren
+nl	schlieren
+fr	second mode
+*	srt://127.0.0.1:9000?mode=listener
+da	stereogram
+nl	stereogram
+pl	stereogram
+da	sweep
+nl	tint
+fr	transparent
+fr	triangle
+es	vapor
+es-CU	vapor
+pt-BR	vapor
+es	vector
+es-CU	vector
+nl	vector
+es	vertical
+es-CU	vertical
+fr	vertical
+pt-BR	vertical
+da	vibrato
+es	vibrato
+es-CU	vibrato
+fr	vibrato
+it	vibrato
+nl	vibrato
+pt-BR	vibrato
+fr	zoom
+*	{1}

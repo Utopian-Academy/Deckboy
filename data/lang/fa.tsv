@@ -3293,3 +3293,1247 @@ FX CHOICE: choice must be A or B	FX CHOICE: گزینه باید A یا B باش�
 FX CHOICE: no effect at that index	FX CHOICE: در آن اندیس افکتی نیست
 whole picture	کل تصویر
 FX LFO: slot is A-D for the parameters, E for the amount, F and G for the fifth and sixth (or 0-6)	FX LFO: اسلات برای پارامترها A-D است، برای مقدار E، و برای پنجم و ششم F و G (یا 0-6)
+angle	زاویه
+attack	حمله
+azimuth	سمت
+band curve	منحنی باند
+bands	باندها
+base layer	لایهٔ پایه
+bits	بیت‌ها
+black point	نقطهٔ سیاه
+bleed	نشت
+block glitch	خرابی بلوکی
+block size	اندازهٔ بلوک
+blocks	بلوک‌ها
+blur	تاری
+bright	روشن
+buzzer	بیزر
+by brightness	بر پایهٔ روشنایی
+catch	گرفتن
+caustics	کاستیک
+channel skew	کجی کانال
+channel spread	پخش کانال
+character	نویسه
+chop	تکه‌تکه
+coherence	همدوسی
+colour bleed	نشت رنگ
+colour drift	رانش رنگ
+colour lag	تأخیر رنگ
+colour replace	جایگزینی رنگ
+columns	ستون‌ها
+convergence	همگرایی
+copies	نسخه‌ها
+corrupt	خراب‌کردن
+corruption	خرابی
+coupling	کوپلینگ
+crystallise	بلوری‌کردن
+curl detail	جزئیات پیچش
+curves	منحنی‌ها
+cut bright	حذف روشن‌ها
+cut dark	حذف تیره‌ها
+cut reset	بازنشانی با کات
+cutoff	فرکانس قطع
+cuts	برش‌ها
+cyan	فیروزه‌ای
+damage	آسیب
+damping	میرایی
+dark	تیره
+darkness	تیرگی
+deck age	عمر دستگاه
+depth	عمق
+depth split	تفکیک عمق
+diamond	لوزی
+distance	فاصله
+doppler	دوپلر
+dots move	حرکت نقطه‌ها
+drift	رانش
+drip	چکیدن
+drips	چکه‌ها
+drive	درایو
+dye advect	انتقال رنگ
+edge ignite	اشتعال لبه
+edges	لبه‌ها
+empty	خالی
+extended	گسترده
+facet light	نور وجه‌ها
+falloff	افت
+falsecolour	رنگ کاذب
+feed rate	نرخ تغذیه
+feedback bloom	درخشش بازخورد
+ferrofluid	فروسیال
+field of view	میدان دید
+flash length	مدت فلاش
+flash to	فلاش به
+flicker	سوسو
+floor	کف
+flow	جریان
+focus	فوکوس
+fold	تاخوردگی
+fold point	نقطهٔ تا
+frames	فریم‌ها
+frequency	بسامد
+gap	فاصله
+gather	تجمع
+glow	درخشش
+glyph set	مجموعهٔ نویسه
+gong	گونگ
+grain	دانه
+grain flow	جریان دانه
+grain size	اندازهٔ دانه
+green split	تفکیک سبز
+grid	شبکه
+growl	غرش
+growth	رشد
+head wear	فرسودگی هد
+heat	گرما
+highlight roll	افت هایلایت
+histogram	هیستوگرام
+horizontal	افقی
+hue turn	چرخش فام
+ice	یخ
+ink	جوهر
+interference	تداخل
+irregularity	بی‌نظمی
+jump	پرش
+kaleido	کالیدو
+kaleidoscope	کالیدوسکوپ
+knee	زانوی فشرده‌سازی
+knife angle	زاویهٔ تیغه
+leak	نشتی
+let go	رهاسازی
+lift	بالابری
+light	نور
+light angle	زاویهٔ نور
+lightspeed	سرعت نور
+line colour	رنگ خط
+line glow	درخشش خط
+lissajous	لیساژو
+luma displace	جابجایی لوما
+luma key	کلید لوما
+material	ماده
+melt	ذوب
+memory	حافظه
+midtones	میان‌تون‌ها
+moire	موآره
+mono	مونو
+mosaic	موزاییک
+motion mosh	خرابی حرکت
+motion puppet	عروسک حرکتی
+motion trails	رد حرکت
+night eyes	دید شب
+no colour	بدون رنگ
+noise	نویز
+not connected	متصل نیست
+nothing drawn	چیزی رسم نشده
+off-axis	خارج از محور
+offline	آفلاین
+orbit speed	سرعت گردش
+overflow	سرریز
+parade	پارید
+parallax	اختلاف منظر
+phone	تلفن
+pinch	نیشگون
+ping-pong	رفت‌وبرگشت
+pink noise	نویز صورتی
+pitch	زیر و بمی
+pivot	محور چرخش
+pixel sort	مرتب‌سازی پیکسل
+plasma	پلاسما
+polar warp	اعوجاج قطبی
+posterise	پوستری‌کردن
+radial zoom	بزرگ‌نمایی شعاعی
+radio	رادیو
+radius	شعاع
+ramp	رمپ
+range	بازه
+ratio	نسبت
+reach	دسترس
+reaction bloom	شکوفایی واکنش
+recordings	ضبط‌ها
+recovering	در حال بازیابی
+refresh	نوسازی
+release	رهاسازی
+relief	برجستگی
+relight	نورپردازی دوباره
+repeat width	پهنای تکرار
+resonance	تشدید
+reverse	معکوس
+rgb split	تفکیک RGB
+rings	حلقه‌ها
+ripple	موجک
+rising	صعودی
+rod bias	سوگیری استوانه‌ای
+room	اتاق
+rot	پوسیدگی
+rotation	چرخش
+round	گرد
+sag	افتادگی
+saw	دندانه‌اره‌ای
+scanlines	خطوط اسکن
+schlieren	شلیرن
+scope	اسکوپ
+second mode	حالت دوم
+see through	شفافیت
+seed density	تراکم بذر
+self	خود
+settle	نشست
+shadow lift	بالابری سایه
+shake	لرزش
+shard size	اندازهٔ تکه
+sharpen	واضح‌سازی
+sheen	جلا
+sideways	به پهلو
+slit scan	اسکن شکاف
+slit width	پهنای شکاف
+smear	کشیدگی
+softness	نرمی
+solarise	سولاریزه
+spike count	تعداد نوک‌ها
+spike length	طول نوک‌ها
+spin	چرخش
+spinning	چرخان
+spring	فنر
+sprite sheet	صفحهٔ اسپرایت
+square	مربعی
+steps	گام‌ها
+stereogram	استریوگرام
+stiffness	سفتی
+sting	ضربهٔ کوتاه
+strength	قدرت
+strobe	استروب
+stroke	قلم‌مو
+sway	تاب‌خوردن
+sweep	جاروب
+sweep speed	سرعت جاروب
+swell speed	سرعت خیزش
+symbols	نمادها
+system default	پیش‌فرض سیستم
+system output	خروجی سیستم
+tape	نوار
+tape age	عمر نوار
+tear width	پهنای پارگی
+temporal dither	دیتر زمانی
+test signal	سیگنال آزمایش
+text to send	متن ارسالی
+threshold	آستانه
+throw	پرتاب
+tile size	اندازهٔ کاشی
+tilt	شیب
+time	زمان
+time cube	مکعب زمان
+tint	ته‌رنگ
+tint colour	رنگ ته‌رنگ
+tracking	ردگیری
+trail	رد
+transparent	شفاف
+triangle	مثلثی
+triple beep	سه بوق
+turn	گردش
+twist	پیچش
+unavailable	در دسترس نیست
+unbalanced )	پرانتز ) نامتوازن
+vapor	بخار
+vector	بردار
+vertical	عمودی
+vertical bias	سوگیری عمودی
+vibrato	ویبراتو
+vignette	وینیت
+wash out	رنگ‌پریدگی
+wave height	ارتفاع موج
+wavefront	جبههٔ موج
+way	جهت
+wedges	گوه‌ها
+white	سفید
+white noise	نویز سفید
+white point	نقطهٔ سفید
+window hidden	پنجره پنهان است
+window minimized	پنجره کمینه شده
+wire	سیم
+wrong display	نمایشگر نادرست
+zoom	بزرگ‌نمایی
+(choose cue)	(کیو را انتخاب کنید)
+(missing)	(مفقود)
+(no slots)	(بدون جایگاه)
+(set media file)	(فایل رسانه را تعیین کنید)
+(set url)	(url را تعیین کنید)
+A number	عدد
+across the grain	عمود بر بافت
+additive	افزایشی
+alternating	متناوب
+amber	کهربایی
+Audio bitrate	نرخ بیت صدا
+Audio reactivity	واکنش به صدا
+Brush opacity	تیرگی قلم‌مو
+Brush size	اندازهٔ قلم‌مو
+cancelled	لغو شد
+Canvas Height	ارتفاع بوم
+Canvas View	نمای بوم
+Canvas Width	عرض بوم
+Centre X	مرکز X
+Centre Y	مرکز Y
+Control change	تغییر کنترل
+Cue Notes	یادداشت‌های کیو
+Custom Glyphs	نویسه‌های سفارشی
+Density	تراکم
+Detail	جزئیات
+Draw colour	رنگ رسم
+empty expression	عبارت خالی
+export as .png or .svg	به صورت .png یا .svg صادر کنید
+Fixture address	آدرس چراغ
+Fixture name	نام چراغ
+Fixture universe	یونیورس چراغ
+Height	ارتفاع
+Height (px)	ارتفاع (px)
+Key Color	رنگ کلید
+Keyframe interval	فاصلهٔ فریم کلیدی
+Live Browser	مرورگر زنده
+Live Source	منبع زنده
+Mask opacity	تیرگی ماسک
+Mask rotation	چرخش ماسک
+Mask scale	مقیاس ماسک
+Mask X	ماسک X
+Mask Y	ماسک Y
+Add Browser Cue	افزودن کیوی مرورگر
+Add NDI Source Cue	افزودن کیوی منبع NDI
+Add Stream Cue	افزودن کیوی استریم
+Art-Net Destination	مقصد Art-Net
+ASCII 95 (density)	ASCII 95 (تراکم)
+ASCII 95 (raw)	ASCII 95 (خام)
+ASIO is off	ASIO خاموش است
+ATEM Input	ورودی ATEM
+Attach Lower Third	افزودن Lower Third
+Attach PIP Overlay	افزودن لایهٔ PIP
+Attack	حمله
+Bands	باندها
+Blobs	لکه‌ها
+BOTH	هردو
+Browser Ready	مرورگر آماده است
+CLASSIC	کلاسیک
+CLOCK	ساعت
+Companion/OSC Port	درگاه Companion/OSC
+control 1	کنترل 1
+control 2	کنترل 2
+control 3	کنترل 3
+control 4	کنترل 4
+could not reach github	دسترسی به github ممکن نشد
+could not read the PDF	خواندن PDF ممکن نشد
+could not start ffmpeg	اجرای ffmpeg ممکن نشد
+Cue Goto	رفتن به کیو
+Custom Output Raster	رستر خروجی سفارشی
+Default Cue Fade	فید پیش‌فرض کیو
+Destination Address	آدرس مقصد
+Destination UDP port	درگاه UDP مقصد
+display native	بومی نمایشگر
+Display none	بدون نمایشگر
+DMX Channels	کانال‌های DMX
+EXTREME	شدید
+Feedback zoom	زوم بازخورد
+Find Cue	یافتن کیو
+Find+Take Cue	یافتن و TAKE کیو
+Fire at a time of day	اجرا در ساعت مشخص
+Fire on a MIDI note	اجرا با نت MIDI
+Fire on an OSC address	اجرا با آدرس OSC
+First channel (1-512)	کانال اول (1-512)
+Flipbook rate	سرعت ورق‌خوردن
+Flow	جریان
+Frequency	بسامد
+Glitch	گلیچ
+GOTO Cue	GOTO رفتن به کیو
+Grey	خاکستری
+In time	زمان ورود
+Its name, number or id	نام، شماره یا شناسهٔ آن
+Key sender source name	نام منبع فرستندهٔ کلید
+Legacy Cue Link	پیوند قدیمی کیو
+Lissajous (L/R phase)	لیساژو (فاز L/R)
+Lower Third - subtitle	Lower Third - زیرعنوان
+Lower Third - title	Lower Third - عنوان
+Lower Third Subtext	متن فرعی Lower Third
+Lower Third Title	عنوان Lower Third
+Media	رسانه
+Melt	ذوب
+Milliseconds 0-5000	میلی‌ثانیه 0-5000
+Mod depth	عمق مدولاسیون
+Mod ratio	نسبت مدولاسیون
+music & sparkle	موسیقی و درخشش
+NDI Key Name	نام کلید NDI
+NDI Name	نام NDI
+NDI Source Name	نام منبع NDI
+NEXT	بعدی
+NMC Port	درگاه NMC
+NMC Source	منبع NMC
+NMC Target	هدف NMC
+NMOS Interface Name	نام رابط NMOS
+NMOS Node Port	درگاه گره NMOS
+NMOS Registry	رجیستری NMOS
+no ASIO in this build	این ساخت ASIO ندارد
+no driver named	درایوری با این نام نیست
+no mask made	ماسکی ساخته نشده
+no release found	نسخه‌ای یافت نشد
+no X display to read	نمایشگر X برای خواندن نیست
+not on this output	روی این خروجی نیست
+Note	نت
+Note off	پایان نت
+Note on	شروع نت
+OSC Address	آدرس OSC
+OSC Query HTTP Port	درگاه HTTP پرس‌وجوی OSC
+Out time	زمان خروج
+Output Alpha	آلفای خروجی
+Output Canvas	بوم خروجی
+Output Delay	تأخیر خروجی
+output fault	خطای خروجی
+Output name	نام خروجی
+Output Refresh	نوسازی خروجی
+own playlist	فهرست پخش خودش
+Payload	محتوای پیام
+Percent 0-100	درصد 0-100
+Phrases	عبارت‌ها
+PIP Target Cue	کیوی هدف PIP
+Pixel density	تراکم پیکسل
+Playlist Start TC	تایم‌کد شروع فهرست
+Playlist Timebase	مبنای زمانی فهرست
+Plugin	افزونه
+Portal	درگاه
+Practice show	اجرای تمرینی
+PREVIOUS	قبلی
+Program change	تغییر برنامه
+Prompter script	متن اتوکیو
+pulse 25%	پالس 25%
+QUALITY	کیفیت
+Raw bytes	بایت‌های خام
+Raw MIDI Bytes	بایت‌های خام MIDI
+Release	رهاسازی
+Rename cue	تغییر نام کیو
+Rename fixture	تغییر نام چراغ
+Renumber Cues	شماره‌گذاری دوبارهٔ کیوها
+Replay hold	نگه‌داری بازپخش
+Retrigger	تحریک دوباره
+Rim	لبه
+Rotation	چرخش
+runtime unavailable	محیط اجرا در دسترس نیست
+Save Warp Preset	ذخیرهٔ پیش‌تنظیم اعوجاج
+SCOPES	اسکوپ‌ها
+Seconds (0-30)	ثانیه (0-30)
+Sender source name	نام منبع فرستنده
+size out of range	اندازه خارج از بازه است
+Smear	کشیدگی
+Source Ready	منبع آماده است
+Spout Sender Name	نام فرستندهٔ Spout
+Sprite spin	چرخش اسپرایت
+SRT latency	تأخیر SRT
+SRT passphrase	عبارت عبور SRT
+SRT stream ID	شناسهٔ استریم SRT
+ST 2110 Destination	مقصد ST 2110
+ST 2110 Port	درگاه ST 2110
+Step length	طول گام
+stream restart needed	استریم باید دوباره آغاز شود
+Stream URL	نشانی استریم
+stream write failed	نوشتن استریم ناموفق بود
+SUBTLE	ملایم
+Switcher IP address	آدرس IP سوئیچر
+Timer Message	پیام زمان‌سنج
+TSL Tally	تالی TSL
+Turn	گردش
+Twist	پیچش
+Universe (0-63999)	یونیورس (0-63999)
+URL or local page path	نشانی وب یا مسیر صفحهٔ محلی
+Video bitrate	نرخ بیت ویدیو
+Video dip fade	فید ویدیو از میان رنگ
+vMix HTTP Port	درگاه HTTP در vMix
+vMix TCP Port	درگاه TCP در vMix
+Web Monitor PIN	رمز نمایشگر وب
+Web Monitor Port	درگاه نمایشگر وب
+What it runs	آنچه اجرا می‌کند
+Which cue	کدام کیو
+X,Y offset in pixels	جابجایی X,Y به پیکسل
+Zoom	بزرگ‌نمایی
+a name for this step	نامی برای این گام
+A number, or blank for none	عدد، یا خالی برای هیچ‌کدام
+A command line, or blank for nothing	خط فرمان، یا خالی برای هیچ کاری
+a playlist that is gone	فهرست پخشی که دیگر وجود ندارد
+a target cannot target another target	هدف نمی‌تواند هدف دیگری را هدف بگیرد
+add an output to scope it	برای تحلیل، یک خروجی اضافه کنید
+an ASIO stream is already open	یک جریان ASIO از قبل باز است
+another app is holding the pointer	برنامهٔ دیگری نشانگر را در اختیار دارد
+built without ASIO support	بدون پشتیبانی ASIO ساخته شده
+built without NDI SDK headers	بدون سرآیندهای NDI SDK ساخته شده
+channel count must be at least 1	تعداد کانال باید دست‌کم 1 باشد
+comma outside a function call	ویرگول بیرون از فراخوانی تابع
+could not start the PDF renderer	اجرای رندرکنندهٔ PDF ممکن نشد
+could not write the export script	نوشتن اسکریپت خروجی ممکن نشد
+couldn't open explorer	باز کردن اکسپلورر ممکن نشد
+couldn't open file manager	باز کردن مدیر فایل ممکن نشد
+couldn't open finder	باز کردن فایندر ممکن نشد
+driver refused to start	درایور از شروع خودداری کرد
+driver reports no output channels	درایور هیچ کانال خروجی گزارش نمی‌کند
+driver would not create output buffers	درایور بافرهای خروجی را نساخت
+driver would not load (in use by another application?)	درایور بارگیری نشد (برنامهٔ دیگری از آن استفاده می‌کند؟)
+driver would not report a buffer size	درایور اندازهٔ بافر را گزارش نکرد
+driver would not report channel info	درایور اطلاعات کانال را گزارش نکرد
+escaped to windowed	به حالت پنجره برگشت
+ffmpeg made no file	ffmpeg فایلی نساخت
+ffmpeg stopped taking frames	ffmpeg دیگر فریم دریافت نمی‌کند
+fullscreen dropped	حالت تمام‌صفحه قطع شد
+it could not be started	شروع آن ممکن نشد
+LibreOffice could not be run	اجرای LibreOffice ممکن نشد
+LibreOffice produced no PDF	LibreOffice هیچ PDF نساخت
+libX11 is not installed	libX11 نصب نشده است
+lost the session bus	ارتباط با گذرگاه نشست قطع شد
+macOS could not read the PDF	macOS نتوانست PDF را بخواند
+no pages could be rendered	هیچ صفحه‌ای رندر نشد
+not a MIDI file (no MThd header)	فایل MIDI نیست (سرآیند MThd ندارد)
+not while a cue is playing	هنگام پخش کیو ممکن نیست
+only a background in it	فقط پس‌زمینه دارد
+opened in explorer	در اکسپلورر باز شد
+opened in file manager	در مدیر فایل باز شد
+pdftoppm produced no pages	pdftoppm هیچ صفحه‌ای نساخت
+PowerPoint could not export this file	PowerPoint نتوانست این فایل را صادر کند
+release has no build for this platform	این نسخه ساختی برای این پلتفرم ندارد
+revealed in finder	در فایندر نمایش داده شد
+target cue is gone	کیوی هدف دیگر وجود ندارد
+targets nothing	هدفی ندارد
+the document has no pages	سند هیچ صفحه‌ای ندارد
+the file has no playable events	فایل رویداد قابل پخشی ندارد
+the file is empty	فایل خالی است
+the header is truncated	سرآیند ناقص است
+the NDI runtime is not installed	محیط اجرای NDI نصب نشده است
+the PDF renderer produced no pages	رندرکنندهٔ PDF هیچ صفحه‌ای نساخت
+the screen could not be read there	خواندن صفحه در آنجا ممکن نشد
+the show plays through ASIO	اجرا از طریق ASIO پخش می‌شود
+the time division is not readable	تقسیم زمانی خواندنی نیست
+this build has no X11 support	این ساخت از X11 پشتیبانی نمی‌کند
+update: could not start the installer	به‌روزرسانی: نصب‌کننده اجرا نشد
+update: could not start the install helper	به‌روزرسانی: دستیار نصب اجرا نشد
+update: could not write the install helper	به‌روزرسانی: نوشتن دستیار نصب ممکن نشد
+update: not running from an AppImage	به‌روزرسانی: از AppImage اجرا نشده است
+web audio encoder cannot keep up	رمزگذار صدای وب همگام نمی‌ماند
+Web Monitor Connections	اتصال‌های نمایشگر وب
+%, 1 to 100 (supports + - * / and ())	%، از 1 تا 100 (از + - * / و () پشتیبانی می‌کند)
+0-1 (supports + - * / and ())	0-1 (از + - * / و () پشتیبانی می‌کند)
+0-100% (supports + - * / and ())	0-100% (از + - * / و () پشتیبانی می‌کند)
+0-100%, left to right (supports + - * / and ())	0-100%، از چپ به راست (از + - * / و () پشتیبانی می‌کند)
+0-100%, top to bottom (supports + - * / and ())	0-100%، از بالا به پایین (از + - * / و () پشتیبانی می‌کند)
+Amount 0-100% (supports + - * / and ())	مقدار 0-100% (از + - * / و () پشتیبانی می‌کند)
+Colour steps, 2-8 (supports + - * / and ())	پله‌های رنگ، 2-8 (از + - * / و () پشتیبانی می‌کند)
+Degrees -180..180 (supports + - * / and ())	درجه -180..180 (از + - * / و () پشتیبانی می‌کند)
+Degrees per second, -720 to 720 (supports + - * / and ())	درجه در ثانیه، از -720 تا 720 (از + - * / و () پشتیبانی می‌کند)
+Degrees round the colour wheel, 0-360 (supports + - * / and ())	درجه روی چرخهٔ رنگ، 0-360 (از + - * / و () پشتیبانی می‌کند)
+Degrees, -360 to 360 (supports + - * / and ())	درجه، از -360 تا 360 (از + - * / و () پشتیبانی می‌کند)
+Degrees, 0-360 (supports + - * / and ())	درجه، 0-360 (از + - * / و () پشتیبانی می‌کند)
+Feature size, 0.1-8 (supports + - * / and ())	اندازهٔ عارضه، 0.1-8 (از + - * / و () پشتیبانی می‌کند)
+Frames a second, 1 to 60 (supports + - * / and ())	فریم در ثانیه، از 1 تا 60 (از + - * / و () پشتیبانی می‌کند)
+Hertz, 20-20000 (supports + - * / and ())	هرتز، 20-20000 (از + - * / و () پشتیبانی می‌کند)
+Horizontal cells, 64-960 (supports + - * / and ())	خانه‌های افقی، 64-960 (از + - * / و () پشتیبانی می‌کند)
+How big a blob grows, 0-1 (supports + - * / and ())	اندازهٔ رشد لکه، 0-1 (از + - * / و () پشتیبانی می‌کند)
+How hard it cuts, %, 0 to 100 (supports + - * / and ())	شدت برش، %، از 0 تا 100 (از + - * / و () پشتیبانی می‌کند)
+How hard the audio drives it, 0-1 (supports + - * / and ())	شدت تحریک با صدا، 0-1 (از + - * / و () پشتیبانی می‌کند)
+How many are alive at once, 3-48 (supports + - * / and ())	تعداد فعال هم‌زمان، 3-48 (از + - * / و () پشتیبانی می‌کند)
+Palette turn, 0-1 (supports + - * / and ())	چرخش پالت، 0-1 (از + - * / و () پشتیبانی می‌کند)
+Pitch in hertz, 20-8000 (supports + - * / and ())	زیر و بمی به هرتز، 20-8000 (از + - * / و () پشتیبانی می‌کند)
+Pixel sort amount, 0-1 (supports + - * / and ())	مقدار مرتب‌سازی پیکسل، 0-1 (از + - * / و () پشتیبانی می‌کند)
+Pixels (supports + - * / and ())	پیکسل (از + - * / و () پشتیبانی می‌کند)
+Pixels, 64-2160 (supports + - * / and ())	پیکسل، 64-2160 (از + - * / و () پشتیبانی می‌کند)
+Pixels, 64-3840 (supports + - * / and ())	پیکسل، 64-3840 (از + - * / و () پشتیبانی می‌کند)
+Scale of the whole graphic, 0.5-2 (supports + - * / and ())	مقیاس کل گرافیک، 0.5-2 (از + - * / و () پشتیبانی می‌کند)
+Seconds between retriggers, 0-8 (supports + - * / and ())	ثانیه بین تحریک‌های دوباره، 0-8 (از + - * / و () پشتیبانی می‌کند)
+Seconds the finished drawing stays, 0 to 60 (supports + - * / and ())	مدت ماندن نقاشی کامل به ثانیه، از 0 تا 60 (از + - * / و () پشتیبانی می‌کند)
+Seconds the in move takes, 0-5 (supports + - * / and ())	مدت حرکت ورود به ثانیه، 0-5 (از + - * / و () پشتیبانی می‌کند)
+Seconds the out move takes, 0-5 (supports + - * / and ())	مدت حرکت خروج به ثانیه، 0-5 (از + - * / و () پشتیبانی می‌کند)
+Seconds, 0-4 (supports + - * / and ())	ثانیه، 0-4 (از + - * / و () پشتیبانی می‌کند)
+Seconds, 0-8 (supports + - * / and ())	ثانیه، 0-8 (از + - * / و () پشتیبانی می‌کند)
+Size, %, 5 to 400 (supports + - * / and ())	اندازه، %، از 5 تا 400 (از + - * / و () پشتیبانی می‌کند)
+Spiral size, 0.25-4 (supports + - * / and ())	اندازهٔ مارپیچ، 0.25-4 (از + - * / و () پشتیبانی می‌کند)
+Spiral strength, 0-4 (supports + - * / and ())	شدت مارپیچ، 0-4 (از + - * / و () پشتیبانی می‌کند)
+Thickness of the glowing edge, 0-1 (supports + - * / and ())	ضخامت لبهٔ درخشان، 0-1 (از + - * / و () پشتیبانی می‌کند)
+Where the eye sits, 0 left to 1 right (supports + - * / and ())	موقعیت چشم، 0 چپ تا 1 راست (از + - * / و () پشتیبانی می‌کند)
+Where the eye sits, 0 top to 1 bottom (supports + - * / and ())	موقعیت چشم، 0 بالا تا 1 پایین (از + - * / و () پشتیبانی می‌کند)
+% of the picture's height, 0.1 to 20 (supports + - * / and ())	% از ارتفاع تصویر، 0.1 تا 20 (از + - * / و () پشتیبانی می‌کند)
+-3 to 3: 0 holds, negative runs backwards (supports + - * / and ())	-3 تا 3: 0 نگه می‌دارد، منفی معکوس پخش می‌کند (از + - * / و () پشتیبانی می‌کند)
+0 classic, 1 fire, 2 ice, 3 neon, 4 mono (supports + - * / and ())	0 کلاسیک، 1 آتش، 2 یخ، 3 نئون، 4 تک‌رنگ (از + - * / و () پشتیبانی می‌کند)
+0 rainbow + grey, 1 rainbow, 2 theme, 3 mono (supports + - * / and ())	0 رنگین‌کمان + خاکستری، 1 رنگین‌کمان، 2 پوسته، 3 تک‌رنگ (از + - * / و () پشتیبانی می‌کند)
+0 zone, 1 twin, 2 flow, 3 saddle, 4 ripple, 5 shear (supports + - * / and ())	0 ناحیه، 1 دوقلو، 2 جریان، 3 زینی، 4 موجک، 5 برش (از + - * / و () پشتیبانی می‌کند)
+0-100%: 0 holds the field still (supports + - * / and ())	0-100%: 0 میدان را ثابت نگه می‌دارد (از + - * / و () پشتیبانی می‌کند)
+0-100%: 50 is 1x, 0 a quarter, 100 four times (supports + - * / and ())	0-100%: 50 برابر 1x، 0 یک‌چهارم، 100 چهار برابر (از + - * / و () پشتیبانی می‌کند)
+0-100%: how far the field bends (supports + - * / and ())	0-100%: میزان خمیدگی میدان (از + - * / و () پشتیبانی می‌کند)
+0-100%: the share of each band drawn as grey stripes (supports + - * / and ())	0-100%: سهم هر باند که به صورت نوارهای خاکستری رسم می‌شود (از + - * / و () پشتیبانی می‌کند)
+Across, % of the width, -100 to 100 (supports + - * / and ())	افقی، % از عرض، -100 تا 100 (از + - * / و () پشتیبانی می‌کند)
+Birth, drift and fade rate, 0.1-3 (supports + - * / and ())	نرخ پیدایش، رانش و محوشدن، 0.1-3 (از + - * / و () پشتیبانی می‌کند)
+Block displacement and channel tearing, 0-1 (supports + - * / and ())	جابجایی بلوک و پارگی کانال، 0-1 (از + - * / و () پشتیبانی می‌کند)
+dBFS, -60 to 0 (-18 is EBU alignment) (supports + - * / and ())	dBFS، -60 تا 0 (-18 هم‌ترازی EBU است) (از + - * / و () پشتیبانی می‌کند)
+Down, % of the height, -100 to 100 (supports + - * / and ())	رو به پایین، % از ارتفاع، -100 تا 100 (از + - * / و () پشتیبانی می‌کند)
+Edge out (+) or in (-), % of the height, -25 to 25 (supports + - * / and ())	لبه بیرون (+) یا درون (-)، % از ارتفاع، -25 تا 25 (از + - * / و () پشتیبانی می‌کند)
+Edge softness, % of the height, 0 to 25 (supports + - * / and ())	نرمی لبه، % از ارتفاع، 0 تا 25 (از + - * / و () پشتیبانی می‌کند)
+FDS hardware gain range, 0-63 (supports + - * / and ())	بازهٔ بهرهٔ سخت‌افزار FDS، 0-63 (از + - * / و () پشتیبانی می‌کند)
+Fields per frame, 0-4 (1 = one field per rendered frame) (supports + - * / and ())	میدان در هر فریم، 0-4 (1 = یک میدان در هر فریم رندرشده) (از + - * / و () پشتیبانی می‌کند)
+How much of each frame feeds the next, 0-0.95 (supports + - * / and ())	سهم هر فریم در تغذیهٔ فریم بعدی، 0-0.95 (از + - * / و () پشتیبانی می‌کند)
+How readily neighbours merge, 0 (never) to 1 (supports + - * / and ())	سهولت ادغام همسایه‌ها، 0 (هرگز) تا 1 (از + - * / و () پشتیبانی می‌کند)
+Internal resolution, 1 (chunky) to 5 (fine) (supports + - * / and ())	وضوح داخلی، 1 (درشت) تا 5 (ریز) (از + - * / و () پشتیبانی می‌کند)
+Master oscillator rate, 0.01-8 (supports + - * / and ())	نرخ نوسان‌ساز اصلی، 0.01-8 (از + - * / و () پشتیبانی می‌کند)
+Modulator as a ratio of the note, 0.05-16 (supports + - * / and ())	مدولاتور به نسبت نت، 0.05-16 (از + - * / و () پشتیبانی می‌کند)
+One LED tile's height in pixels, 8-8192 (supports + - * / and ())	ارتفاع یک کاشی LED به پیکسل، 8-8192 (از + - * / و () پشتیبانی می‌کند)
+One LED tile's width in pixels, 8-8192 (supports + - * / and ())	عرض یک کاشی LED به پیکسل، 8-8192 (از + - * / و () پشتیبانی می‌کند)
+Per-frame zoom of the feedback path, 0.90-1.15 (supports + - * / and ())	زوم مسیر بازخورد در هر فریم، 0.90-1.15 (از + - * / و () پشتیبانی می‌کند)
+Scanlines, bloom and gun misalignment, 0-1 (supports + - * / and ())	خطوط اسکن، درخشش و ناهم‌ترازی تفنگ الکترونی، 0-1 (از + - * / و () پشتیبانی می‌کند)
+Seconds before it leaves by itself; 0 waits for OUT (supports + - * / and ())	ثانیه تا خروج خودکار؛ 0 منتظر OUT می‌ماند (از + - * / و () پشتیبانی می‌کند)
+Space under it, as a fraction of the frame, 0-0.8 (supports + - * / and ())	فضای زیر آن به نسبت فریم، 0-0.8 (از + - * / و () پشتیبانی می‌کند)
+Turbulence, 0 still to 3 boiling (supports + - * / and ())	آشفتگی، از 0 ساکن تا 3 جوشان (از + - * / و () پشتیبانی می‌کند)
+Turns the rim's colours round the wheel, 0-1 (supports + - * / and ())	رنگ‌های لبه را روی چرخه می‌چرخاند، 0-1 (از + - * / و () پشتیبانی می‌کند)
+AUTO	خودکار
+auto (59.94 Hz)	خودکار (59.94 Hz)
+BITRATE	نرخ بیت
+audioprint	چاپ صدا
+bohlen-pierce	بولن-پیرس
+chladni	کلادنی
+databend	خم‌کردن داده
+datamosh	دیتاماش
+Devamp	پایان تکرار
+Fireside	کنار آتش
+just	خالص
+meantone	میان‌پرده‌ای
+pythagorean	فیثاغورثی
+purkinje	پورکینیه
+Ouroboros	اوروبوروس
+MONO L	مونو L
+MONO R	مونو R
+LOAD NEXT	بارگیری بعدی
+MSC Cue Number	شمارهٔ کیوی MSC
+SYPHON TEXTURE SHARE	اشتراک بافت SYPHON
+SYPHON / SPOUT TEXTURE SHARE	اشتراک بافت SYPHON / SPOUT
+DECODE --.-	رمزگشایی --.-
+DECODE OFF	رمزگشایی OFF
+DECODE WARM	رمزگشایی گرم
+OUTPUT --.-	خروجی --.-
+OUTPUT WARM	خروجی گرم
+STREAM --.-	استریم --.-
+STREAM ERR	خطای استریم
+STREAM OFF	استریم OFF
+STREAM WARM	استریم گرم
+PROXY 720p	پروکسی 720p
+hh:mm:ss or seconds	hh:mm:ss یا ثانیه
+e.g. /cue/1/start	مثلاً /cue/1/start
+e.g. 12.5	مثلاً 12.5
+e.g. 192.168.1.50	مثلاً 192.168.1.50
+e.g. 1=255, 10-14=64	مثلاً 1=255, 10-14=64
+e.g. 20:0 or client name	مثلاً 20:0 یا نام کارخواه
+e.g. 90 3C 7F	مثلاً 90 3C 7F
+0-127; 127 is all-call	0-127؛ 127 فراخوان همگانی است
+0-127; the domain the facility's clock runs on	0-127؛ دامنهٔ ساعت تأسیسات
+10-79 characters, or empty for none	10-79 نویسه، یا خالی برای هیچ‌کدام
+8+ characters; letters and symbols are allowed	8 نویسه یا بیشتر؛ حروف و نمادها مجازند
+Apple keeps the Keynote format secret on purpose, a malicious lock-in tactic, so only Apple's own software can read it properly. Best route: open it in Keynote on iCloud.com (free, in any browser), choose Download a Copy > PDF, and import that PDF	Apple عمداً قالب Keynote را مخفی نگه می‌دارد؛ ترفندی بدخواهانه برای اسیرکردن کاربران، تا فقط نرم‌افزار خود Apple بتواند آن را درست بخواند. بهترین راه: آن را در Keynote روی iCloud.com باز کنید (رایگان، در هر مرورگری)، «بارگیری یک نسخه > PDF» را انتخاب کنید و آن PDF را وارد کنید
+8+ characters; other machines send AUTH <passphrase> first. Empty = off	8 نویسه یا بیشتر؛ دستگاه‌های دیگر ابتدا AUTH <passphrase> می‌فرستند. خالی = خاموش
+A command line, as a DASH button runs it. {value} is the knob's number, {note} the key.	خط فرمان، همان‌طور که دکمهٔ DASH اجرا می‌کند. {value} عدد پیچ و {note} کلید است.
+an IPv4 address, or 255.255.255.255 to broadcast	آدرس IPv4، یا 255.255.255.255 برای پخش همگانی
+browser connections at once, 1-64 (default 8)	اتصال‌های هم‌زمان مرورگر، 1-64 (پیش‌فرض 8)
+Default Non-Movie Duration	مدت پیش‌فرض غیر ویدیو
+Fire at incoming timecode	اجرا در تایم‌کد ورودی
+Hz or AUTO (e.g. 60 or 59.94)	Hz یا AUTO (مثلاً 60 یا 59.94)
+kbps (32-512; 160 is a sane default)	kbps (32-512؛ 160 پیش‌فرض مناسبی است)
+milliseconds (40..2000)	میلی‌ثانیه (40..2000)
+milliseconds (20-8000; ~4x your RTT)	میلی‌ثانیه (20-8000؛ حدود 4x مقدار RTT)
+Name visible to receivers	نام نمایان برای گیرنده‌ها
+NDI source name (e.g. LAPTOP (source 1))	نام منبع NDI (مثلاً LAPTOP (source 1))
+OSC Feedback Mirror Rate	نرخ بازتاب بازخورد OSC
+Paste the key from your platform	کلید پلتفرمتان را بچسبانید
+paste your stream key here	کلید استریم را اینجا بچسبانید
+pixels (of the output raster)	پیکسل (از رستر خروجی)
+position on the output raster, in pixels	موقعیت روی رستر خروجی، به پیکسل
+Routing hint for the receiver	راهنمای مسیریابی برای گیرنده
+seconds (1-10; most platforms want 2)	ثانیه (1-10؛ بیشتر پلتفرم‌ها 2 می‌خواهند)
+Seconds for new-cue fade in/out defaults	ثانیه برای فید ورودی/خروجی پیش‌فرض کیوی جدید
+seconds this step holds before PLAY moves on	ثانیه‌ای که این گام پیش از ادامهٔ PLAY نگه می‌دارد
+ST 2110 network interface	رابط شبکهٔ ST 2110
+Target IP (or 255.255.255.255 to broadcast)	IP هدف (یا 255.255.255.255 برای پخش همگانی)
+UDP port for transport sync	درگاه UDP برای همگام‌سازی پخش
+Where to send transport (blank = broadcast)	مقصد ارسال کنترل پخش (خالی = پخش همگانی)
+Which switcher input Deckboy is (0 = not set)	ورودی سوئیچر برای Deckboy (0 = تعیین نشده)
+AUDIOALSO: expected ADD <name>, REMOVE <name> or CLEAR	AUDIOALSO: قالب مورد انتظار: ADD <name>, REMOVE <name> یا CLEAR
+BROWSER KEY: expected Enter|Tab|Backspace|Escape	BROWSER KEY: قالب مورد انتظار: Enter|Tab|Backspace|Escape
+BUGSWAT: expected START, SHOWME, SKIP, PLAY, EXIT or STATUS	BUGSWAT: قالب مورد انتظار: START, SHOWME, SKIP, PLAY, EXIT یا STATUS
+CAPTIONS LIVE: expected ON, OFF, STATUS or TEXT	CAPTIONS LIVE: قالب مورد انتظار: ON, OFF, STATUS یا TEXT
+CAPTIONS SOURCE: expected INPUT, DECK <n> or OUTPUT <n>	CAPTIONS SOURCE: قالب مورد انتظار: INPUT, DECK <n> یا OUTPUT <n>
+DMXCUE FIXTURE: expected <name> <level%>|LEAVE [<colour>]	DMXCUE FIXTURE: قالب مورد انتظار: <name> <level%>|LEAVE [<colour>]
+DMXCUE LFO: expected <name> LEVEL|COLOUR ON|OFF [<rate Hz>] [<depth %>]	DMXCUE LFO: قالب مورد انتظار: <name> LEVEL|COLOUR ON|OFF [<rate Hz>] [<depth %>]
+DMXCUE: expected NEW, SET, FADE, UNIVERSE, HOST, PORT, FIRE or BLACKOUT	DMXCUE: قالب مورد انتظار: NEW, SET, FADE, UNIVERSE, HOST, PORT, FIRE یا BLACKOUT
+ENDACTION: expected INHERIT, STOP, LOOP, HOLD or NEXT	ENDACTION: قالب مورد انتظار: INHERIT, STOP, LOOP, HOLD یا NEXT
+expected waveform|scope|lissajous|spectrum|level|cover	قالب مورد انتظار: waveform|scope|lissajous|spectrum|level|cover
+FADE CURVE: expected linear, ease-in, ease-out or s-curve	FADE CURVE: قالب مورد انتظار: linear, ease-in, ease-out یا s-curve
+FADE WHAT: expected opacity, volume, dimmer, brightness, contrast, saturation, hue, effect, audiofx or speed	FADE WHAT: قالب مورد انتظار: opacity, volume, dimmer, brightness, contrast, saturation, hue, effect, audiofx یا speed
+FIXTURE ADD: expected <name> dimmer|rgb|rgbw|rgba|drgb|dcct <universe> [<address>]	FIXTURE ADD: قالب مورد انتظار: <name> dimmer|rgb|rgbw|rgba|drgb|dcct <universe> [<address>]
+LOWERSTYLE: expected none, fade, rise, slide, wipe or NEXT	LOWERSTYLE: قالب مورد انتظار: none, fade, rise, slide, wipe یا NEXT
+MASK ASSIGN: expected <id|NONE> CUE | LAYER <output> <playlist> | OUTPUT <n> | MATTE <n>	MASK ASSIGN: قالب مورد انتظار: <id|NONE> CUE | LAYER <output> <playlist> | OUTPUT <n> | MATTE <n>
+MASK ASSIGN: expected CUE, LAYER, OUTPUT or MATTE	MASK ASSIGN: قالب مورد انتظار: CUE, LAYER, OUTPUT یا MATTE
+MASK EXPORT: expected <id> <file.png|file.svg> [WxH]	MASK EXPORT: قالب مورد انتظار: <id> <file.png|file.svg> [WxH]
+MASK LFO: expected <id> <param> ON|OFF [rate Hz] [depth %]	MASK LFO: قالب مورد انتظار: <id> <param> ON|OFF [rate Hz] [depth %]
+MATRIX SET: expected <source 1-2> <dest> <0-100>	MATRIX SET: قالب مورد انتظار: <source 1-2> <dest> <0-100>
+MATRIX: expected SET <src> <dest> <0-100>, SEED or CLEAR	MATRIX: قالب مورد انتظار: SET <src> <dest> <0-100>, SEED یا CLEAR
+MESH: expected on|off|toggle|height|tilt|yaw|spin|grid	MESH: قالب مورد انتظار: on|off|toggle|height|tilt|yaw|spin|grid
+MIC: expected ADD, LIST, INPUT, CHANNEL or GAIN	MIC: قالب مورد انتظار: ADD, LIST, INPUT, CHANNEL یا GAIN
+MIDICUE KIND: expected note-on, note-off, cc, program, msc-go, msc-stop, msc-resume or raw	MIDICUE KIND: قالب مورد انتظار: note-on, note-off, cc, program, msc-go, msc-stop, msc-resume یا raw
+MIDICUE: expected NEW, PORTS, PORT, KIND, CH, D1, D2, DEVICE, CUENUM, LIST, RAW or SEND	MIDICUE: قالب مورد انتظار: NEW, PORTS, PORT, KIND, CH, D1, D2, DEVICE, CUENUM, LIST, RAW یا SEND
+MULTIVIEW LAYOUT: expected GRID, BIG, BIGTOP or TWOTOP	MULTIVIEW LAYOUT: قالب مورد انتظار: GRID, BIG, BIGTOP یا TWOTOP
+MULTIVIEW WINDOW: expected PROGRAMME, DECK<n>, OUTPUT<n>, NEXT, CLOCK or EMPTY	MULTIVIEW WINDOW: قالب مورد انتظار: PROGRAMME, DECK<n>, OUTPUT<n>, NEXT, CLOCK یا EMPTY
+NETCUE: expected NEW, PROTO, HOST, PORT, ADDRESS, PAYLOAD or SEND	NETCUE: قالب مورد انتظار: NEW, PROTO, HOST, PORT, ADDRESS, PAYLOAD یا SEND
+OUTPUT HDR: expected ON, OFF, AUTO, SIGNAL PQ|HLG, WHITE <nits> or STATUS	OUTPUT HDR: قالب مورد انتظار: ON, OFF, AUTO, SIGNAL PQ|HLG, WHITE <nits> یا STATUS
+OUTPUTFX ADD: expected hpf, lpf, tilt, comp or width	OUTPUTFX ADD: قالب مورد انتظار: hpf, lpf, tilt, comp یا width
+OUTPUTFX: expected ADD, SET, REMOVE, BYPASS, CLEAR or DEVICE	OUTPUTFX: قالب مورد انتظار: ADD, SET, REMOVE, BYPASS, CLEAR یا DEVICE
+OUTPUTS ADD: expected <name> CH <n> or CH <n>-<n+1>	OUTPUTS ADD: قالب مورد انتظار: <name> CH <n> یا CH <n>-<n+1>
+PATCH: expected <deck> <output> <dB> or OFF	PATCH: قالب مورد انتظار: <deck> <output> <dB> یا OFF
+presenter colour: expected BG|INK|ACCENT #rrggbb	presenter colour: قالب مورد انتظار: BG|INK|ACCENT #rrggbb
+PRESET: expected LIST, SAVE, RECALL, UPDATE, SCOPE, RENAME or DELETE	PRESET: قالب مورد انتظار: LIST, SAVE, RECALL, UPDATE, SCOPE, RENAME یا DELETE
+rectc: expected <hh:mm:ss:ff|timeofday> [df|ndf|auto]	rectc: قالب مورد انتظار: <hh:mm:ss:ff|timeofday> [df|ndf|auto]
+SCOPES BIG: expected waveform, parade, vector, diamond, histogram, falsecolour, sound or off	SCOPES BIG: قالب مورد انتظار: waveform, parade, vector, diamond, histogram, falsecolour, sound یا off
+SCOPES: expected PROGRAM, SCOPES, BOTH, TOGGLE, BIG, FREEZE, MATRIX, SOURCE, STATS or SOUND	SCOPES: قالب مورد انتظار: PROGRAM, SCOPES, BOTH, TOGGLE, BIG, FREEZE, MATRIX, SOURCE, STATS یا SOUND
+SECTION: expected playback|metadata|geometry|key|audio|effects|timer|tone|synth	SECTION: قالب مورد انتظار: playback|metadata|geometry|key|audio|effects|timer|tone|synth
+STING: expected ON, PITCH, LENGTH, SWEEP or BODY	STING: قالب مورد انتظار: ON, PITCH, LENGTH, SWEEP یا BODY
+TARGET VERB: expected start|stop|pause|resume|load|arm|disarm	TARGET VERB: قالب مورد انتظار: start|stop|pause|resume|load|arm|disarm
+TEXTCUE ANIM: expected none, fade, typewriter, scroll, crawl, pulse or wobble	TEXTCUE ANIM: قالب مورد انتظار: none, fade, typewriter, scroll, crawl, pulse یا wobble
+TEXTCUE: expected NEW, BODY, ANIM, SIZE, SPEED, ALIGN, CARD, LOWERNEW, LOWER, TITLE, SUB, LOOK, BAR, ACCENT, SCALE, WIGGLE, IN, OUTMOVE or OUT	TEXTCUE: قالب مورد انتظار: NEW, BODY, ANIM, SIZE, SPEED, ALIGN, CARD, LOWERNEW, LOWER, TITLE, SUB, LOOK, BAR, ACCENT, SCALE, WIGGLE, IN, OUTMOVE یا OUT
+TRACKER: expected GO, BACK, PLAY, STOP, STEP <n>, ADD, SET <step> <deck> <cue|STOP|FADE|VOLUME|OPACITY>, MUTE|SOLO <deck>, JUMP <step> <row>, SECTION <step> <name>, VIEW, LOOP or CLICKER	TRACKER: قالب مورد انتظار: GO, BACK, PLAY, STOP, STEP <n>, ADD, SET <step> <deck> <cue|STOP|FADE|VOLUME|OPACITY>, MUTE|SOLO <deck>, JUMP <step> <row>, SECTION <step> <name>, VIEW, LOOP یا CLICKER
+TUTORIAL: expected START, SHOWME, SKIP, EXIT, STATUS or SCREENS	TUTORIAL: قالب مورد انتظار: START, SHOWME, SKIP, EXIT, STATUS یا SCREENS
+UPDATE: expected check|download|install|status	UPDATE: قالب مورد انتظار: check|download|install|status
+VJ: expected ON|OFF|TOGGLE|MIX <0-1>|BLEND <mode>|TAP|BPM <n>|CLOCK <on|off>|QUANTISE <on|off>|DECKS <a> <b>|STATUS	VJ: قالب مورد انتظار: ON|OFF|TOGGLE|MIX <0-1>|BLEND <mode>|TAP|BPM <n>|CLOCK <on|off>|QUANTISE <on|off>|DECKS <a> <b>|STATUS
+AUDIOFX: expected OFF, BYPASS, or amount and parameters as percentages	AUDIOFX: OFF، BYPASS یا مقدار و پارامترها به درصد لازم است
+BLEND PAIR: expected <other output number> <overlap in pixels>	BLEND PAIR: <other output number> <overlap in pixels> لازم است
+BROWSER SCROLL: expected pixels (negative is up)	BROWSER SCROLL: پیکسل لازم است (منفی به بالا)
+CHIP ENV: expected <attack> <release> in seconds	CHIP ENV: <attack> <release> به ثانیه لازم است
+DMXCUE SET: expected channel=level pairs, e.g. 1=255,10-14=64	DMXCUE SET: جفت‌های کانال=سطح، مثلاً 1=255,10-14=64 لازم است
+expected one expression, three for colour, or four with alpha	یک عبارت، سه عبارت برای رنگ، یا چهار عبارت با آلفا لازم است
+MASK SET: expected INVERT, X, Y, SCALE, ROTATION, FEATHER, GROW or OPACITY and a number	MASK SET: INVERT، X، Y، SCALE، ROTATION، FEATHER، GROW یا OPACITY و یک عدد لازم است
+MASK SHAPE: expected a shape (MASK SHAPES lists them)	MASK SHAPE: شکل لازم است (MASK SHAPES آن‌ها را فهرست می‌کند)
+MASTER DECK: expected a deck number and a cue number	MASTER DECK: شمارهٔ دک و شمارهٔ کیو لازم است
+MIC INPUT: expected SETTINGS, TEST or a device name (MIC LIST)	MIC INPUT: SETTINGS، TEST یا نام دستگاه (MIC LIST) لازم است
+MIDIFILE: expected PORT, or no argument to report it	MIDIFILE: PORT لازم است؛ برای نمایش، بدون آرگومان
+MONITOR DECK: expected a playlist number or FOLLOW	MONITOR DECK: شمارهٔ فهرست پخش یا FOLLOW لازم است
+MONITOR ROOM: expected a playlist and ON or OFF	MONITOR ROOM: فهرست پخش و ON یا OFF لازم است
+MULTIVIEW WINDOW <n>: expected a source, or SAFE/METER/LABEL ON|OFF	MULTIVIEW WINDOW <n>: منبع یا SAFE/METER/LABEL ON|OFF لازم است
+MULTIVIEW WINDOW REMOVE: expected a window number	MULTIVIEW WINDOW REMOVE: شمارهٔ پنجره لازم است
+NETCUE ADDRESS: expected an OSC path starting with /	NETCUE ADDRESS: مسیر OSC که با / شروع شود لازم است
+OUTPUT AOI: expected a size like 256x256, or FULL	OUTPUT AOI: اندازه‌ای مانند 256x256 یا FULL لازم است
+OUTPUT HDR WHITE: expected 80..500 nits (203 is BT.2408)	OUTPUT HDR WHITE: 80..500 نیت لازم است (203 مطابق BT.2408 است)
+OUTPUTFX SET: expected an effect number and 0-100	OUTPUTFX SET: شمارهٔ افکت و 0-100 لازم است
+PRELOAD: expected a position in seconds, OFF or STATUS	PRELOAD: موقعیت به ثانیه، OFF یا STATUS لازم است
+presenter panel: expected <live|prev|next|notes> <x> <y> <w> <h> in percent	presenter panel: <live|prev|next|notes> <x> <y> <w> <h> به درصد لازم است
+SCOPES SOURCE: expected PROGRAMME or an output number, 1-	SCOPES SOURCE: PROGRAMME یا شمارهٔ خروجی، 1- لازم است
+STREAM ADD: expected a URL, e.g. srt://host:port	STREAM ADD: نشانی وب لازم است، مثلاً srt://host:port
+TARGET CUE: expected a deck number and a cue number	TARGET CUE: شمارهٔ دک و شمارهٔ کیو لازم است
+TEXTCUE SIZE: expected 1-100 (percent of the raster)	TEXTCUE SIZE: 1-100 لازم است (درصد رستر)
+TUTORIAL SCREENS: expected a count, MIRRORED or REAL	TUTORIAL SCREENS: تعداد، MIRRORED یا REAL لازم است
+VIDEO OUTPUT LAYER: expected a layer number (1 is the base)	VIDEO OUTPUT LAYER: شمارهٔ لایه لازم است (1 پایه است)
+VIDEO OUTPUT LAYERWARP: expected OFF, MODE, or eight numbers clockwise from the top left	VIDEO OUTPUT LAYERWARP: OFF، MODE یا هشت عدد ساعت‌گرد از بالا چپ لازم است
+warp grid: expected <n>, <cols> <rows>, off, smooth or straight	warp grid: <n>، <cols> <rows>، off، smooth یا straight لازم است
+WARP SELECT: expected TL, TR, BR, BL or a grid <col> <row>	WARP SELECT: TL، TR، BR، BL یا شبکهٔ <col> <row> لازم است
+How big each tile is.	اندازهٔ هر کاشی.
+How big the crystals grow before they meet.	اندازهٔ رشد بلورها پیش از برخورد.
+How closely spaced the rings are.	میزان نزدیکی حلقه‌ها به هم.
+How far a band can slide.	مسافتی که هر باند می‌تواند بلغزد.
+How far each shard slides from where it belongs.	فاصلهٔ لغزش هر تکه از جای اصلی آن.
+How far each stroke is dragged along the grain.	مسافت کشیده‌شدن هر قلم در راستای بافت.
+How far it smears: up to a few percent of the picture.	میزان کشیدگی: تا چند درصد تصویر.
+How far out the darkening starts.	تاریک‌شدن از چه فاصله‌ای به بیرون آغاز شود.
+How far the bright parts pull away from the surface.	بخش‌های روشن چقدر از سطح دور شوند.
+How far the glow spreads.	درخشش تا چه فاصله‌ای پخش شود.
+How far the sound throws each line sideways.	صدا هر خط را چقدر به پهلو پرتاب کند.
+How fast the sand travels to the still lines.	سرعت رفتن شن به سوی خطوط ساکن.
+How fast the surface moves.	سرعت حرکت سطح.
+How fast they travel outward.	سرعت حرکت آن‌ها به بیرون.
+How gradually the key cuts in. Hard at the left.	تدریجی‌بودن برش کلید. سمت چپ سخت است.
+How hard it is driven into its own limits.	شدت رانده‌شدن آن به محدودیت‌های خودش.
+How hard the short hits.	شدت ضربهٔ اتصال کوتاه.
+How many shades survive the quantise.	تعداد طیف‌های باقی‌مانده پس از کوانتیزه.
+How many spikes the field breaks into.	تعداد نوک‌هایی که میدان به آن‌ها تقسیم می‌شود.
+How many torn bands per frame.	تعداد باندهای پاره در هر فریم.
+How much each shard turns on its own centre.	میزان چرخش هر تکه حول مرکز خودش.
+How much the edges are lifted.	میزان بالابردن لبه‌ها.
+How much the flame gutters frame to frame.	میزان نوسان شعله از فریمی به فریم دیگر.
+How often it skips.	بسامد پرش‌ها.
+How quickly the loop relaxes when nothing feeds it.	سرعت آرام‌شدن حلقه وقتی تغذیه نمی‌شود.
+How strongly the outlines are drawn.	شدت ترسیم خطوط پیرامونی.
+How strongly the water bends the picture.	شدت خم‌کردن تصویر به دست آب.
+Darkens the boundaries where crystals meet.	مرز برخورد بلورها را تیره می‌کند.
+Lifts the dark tones without moving pure black.	تون‌های تیره را بدون جابجایی سیاه خالص بالا می‌برد.
+Pushes the rings in or out of the centre.	حلقه‌ها را به مرکز یا بیرون از آن می‌راند.
+Rounds the tiles off, all the way to dots.	کاشی‌ها را گرد می‌کند، تا جایی که نقطه شوند.
+Softens the fold so it ramps instead of creasing.	تا را نرم می‌کند تا به جای چین تیز، شیب بگیرد.
+Where the filter sits.	جای فیلتر.
+Which way it drips.	جهت چکیدن.
+AUDIOALSO ADD: seven extra destinations is the limit	AUDIOALSO ADD: حداکثر هفت مقصد اضافی مجاز است
+AUDIOALSO ADD: that is already this deck's main device -- it would play twice	AUDIOALSO ADD: این دستگاه اصلی دک است -- صدا دو بار پخش می‌شود
+BROWSER CLICK: this browser backend cannot drive the page	BROWSER CLICK: این موتور مرورگر نمی‌تواند صفحه را کنترل کند
+BROWSER SCROLL: this browser backend cannot drive the page	BROWSER SCROLL: این موتور مرورگر نمی‌تواند صفحه را کنترل کند
+BROWSER SCROLLBAR: this browser backend cannot drive the page	BROWSER SCROLLBAR: این موتور مرورگر نمی‌تواند صفحه را کنترل کند
+BROWSER INTERACT: this browser backend has no hands-on mode	BROWSER INTERACT: این موتور مرورگر حالت تعامل مستقیم ندارد
+BROWSER TYPE: this browser backend cannot type	BROWSER TYPE: این موتور مرورگر نمی‌تواند تایپ کند
+LOWERSTYLE: this cue is not a Lower Third	LOWERSTYLE: این کیو Lower Third نیست
+MIDIFILE: the selected cue is not a midi file cue	MIDIFILE: کیوی انتخاب‌شده از نوع فایل MIDI نیست
+SCRIPTCUE: the selected cue is not a script cue	SCRIPTCUE: کیوی انتخاب‌شده از نوع اسکریپت نیست
+VIDEO OUTPUT ASSIGN: already on this output, or no such deck or output	VIDEO OUTPUT ASSIGN: از قبل روی این خروجی است، یا دک یا خروجی وجود ندارد
+VIDEO OUTPUT LAYER: this deck is not on this output, or it is already at that layer	VIDEO OUTPUT LAYER: این دک روی این خروجی نیست، یا از قبل در آن لایه است
+VIDEO OUTPUT UNASSIGN: this deck is not on this output, or it is the only thing on it	VIDEO OUTPUT UNASSIGN: این دک روی این خروجی نیست، یا تنها مورد روی آن است
+port number (default 5510)	شمارهٔ درگاه (پیش‌فرض 5510)
+port number (default 5511)	شمارهٔ درگاه (پیش‌فرض 5511)
+port number (default 6454)	شمارهٔ درگاه (پیش‌فرض 6454)
+port number (default 8090)	شمارهٔ درگاه (پیش‌فرض 8090)
+port number (vMix uses 8088)	شمارهٔ درگاه (vMix از 8088 استفاده می‌کند)
+port number (vMix uses 8099)	شمارهٔ درگاه (vMix از 8099 استفاده می‌کند)
+Prefix (optional). Example: Q	پیشوند (اختیاری). مثال: Q
+Prefix and optional start (example: Q 100)	پیشوند و شروع اختیاری (مثال: Q 100)
+WIDTHxHEIGHT (e.g. 2560x1080)	عرضxارتفاع (مثلاً 2560x1080)
+WIDTHxHEIGHT (e.g. 5760x2160)	عرضxارتفاع (مثلاً 5760x2160)
+#rrggbb -- the colour of the presenter screen	#rrggbb -- رنگ صفحهٔ ارائه‌دهنده
+#rrggbb, or a name (red, teal...)	#rrggbb، یا نام رنگ (red, teal...)
+Cue name (blank restores the file name)	نام کیو (خالی نام فایل را بازمی‌گرداند)
+Leave empty to follow the live cue notes	برای دنبال‌کردن یادداشت‌های کیوی زنده خالی بگذارید
+Multicast group (e.g. 239.20.10.1)	گروه چندپخشی (مثلاً 239.20.10.1)
+Port the Node + Connection API serve on	درگاه سرویس Node + Connection API
+NIC address or name; empty = the default route	آدرس یا نام NIC؛ خالی = مسیر پیش‌فرض
+NIC name reported in interface_bindings (e.g. eth0)	نام NIC گزارش‌شده در interface_bindings (مثلاً eth0)
+flow (follows the picture)	جریان (دنبال‌کنندهٔ تصویر)
+Above halfway, the repeated piece plays backwards.	بالاتر از نیمه، قطعهٔ تکراری معکوس پخش می‌شود.
+The brightness that decides black from white.	روشنایی تعیین‌کنندهٔ سیاه و سفید.
+The colour to change, round the wheel from red.	رنگی که باید تغییر کند، دور چرخه از قرمز.
+no picture on this cue - nothing to follow	این کیو تصویر ندارد - چیزی برای دنبال‌کردن نیست
+this cue has no known end to resolve into	این کیو پایان مشخصی برای فرونشستن ندارد
+only a MIDI note or an OSC address can take a cue	فقط نت MIDI یا آدرس OSC می‌تواند کیو را TAKE کند
+The bright net the waves focus onto the picture.	شبکهٔ روشنی که موج‌ها روی تصویر متمرکز می‌کنند.
+can't move the active cue -- take another cue on this deck first	کیوی فعال را نمی‌توان جابه‌جا کرد -- ابتدا کیوی دیگری در این دک پخش کنید
+cancelled: the waiting cue is no longer in the playlist	لغو شد: کیوی منتظر دیگر در فهرست پخش نیست
+could not create an OpenGL context for Spout receive	ساخت زمینهٔ OpenGL برای دریافت Spout ممکن نشد
+could not create the offscreen window Spout receive needs	ساخت پنجرهٔ خارج از صفحه برای دریافت Spout ممکن نشد
+could not get a device context for Spout receive	دریافت زمینهٔ دستگاه برای دریافت Spout ممکن نشد
+couldn't decode still image — unsupported format or corrupt file	رمزگشایی تصویر ثابت ممکن نشد — قالب پشتیبانی نمی‌شود یا فایل خراب است
+couldn't open a browser -- please report at github.com/Utopian-Academy/Deckboy/issues	مرورگر باز نشد -- در github.com/Utopian-Academy/Deckboy/issues گزارش دهید
+downloading the caption model, then listening...	در حال دریافت مدل زیرنویس، سپس شنیدن...
+drag the panels to arrange the presenter screen	برای چیدن صفحهٔ ارائه‌دهنده، پنل‌ها را بکشید
+encoder destination: _converted beside the show	مقصد رمزگذار: _converted کنار فایل اجرا
+fetching the speech model - captions start when it arrives	در حال دریافت مدل گفتار - زیرنویس پس از دریافت آغاز می‌شود
+four effects at most on one device: remove one first	حداکثر چهار افکت در هر دستگاه: ابتدا یکی را حذف کنید
+live captions are not installed here (deckboy-listen was not found)	زیرنویس زنده نصب نیست (deckboy-listen پیدا نشد)
+Lower Third added - put its playlist on a layer	Lower Third افزوده شد - فهرست پخش آن را روی یک لایه بگذارید
+mic live on the default speakers - watch for feedback	میکروفون روی بلندگوهای پیش‌فرض زنده است - مراقب فیدبک باشید
+network sharing and phone control require an 8+ character passphrase	اشتراک شبکه و کنترل با تلفن به گذرواژه‌ای با 8 نویسه یا بیشتر نیاز دارند
+no filled shapes in it (paths, rectangles, circles, ellipses or polygons)	شکل پُری ندارد (مسیر، مستطیل، دایره، بیضی یا چندضلعی)
+no masks yet: make one in a cue's MASK section	هنوز ماسکی نیست: در بخش MASK یک کیو بسازید
+no OpenGL pixel format available for Spout receive	قالب پیکسل OpenGL برای دریافت Spout موجود نیست
+no picture - shorts run on a timer instead of on cuts	تصویری نیست - اتصال‌های کوتاه با زمان‌سنج اجرا می‌شوند، نه کات‌ها
+no picture on this cue - nothing decides where the playhead is	این کیو تصویری ندارد - جای هد پخش را چیزی تعیین نمی‌کند
+no picture on this cue - nothing to close the loop through	این کیو تصویری ندارد - چیزی برای بستن حلقه نیست
+no video clock on this cue - nothing to lock to	این کیو ساعت ویدیو ندارد - مرجعی برای هم‌قفل شدن نیست
+normalize all: no file-backed audio in this deck	نرمال‌سازی همه: این دک صدای مبتنی بر فایل ندارد
+nothing to mask here: select a cue, or change MASK ON	چیزی برای ماسک نیست: کیویی انتخاب کنید یا MASK ON را تغییر دهید
+offset in percent of the picture	جابجایی به درصد تصویر
+output effects bypassed: no effect and no limit on this device	افکت‌های خروجی کنار گذاشته شدند: بدون افکت و محدودیت روی این دستگاه
+over 16 MB: not a drawing to make a mask from	بیش از 16 MB: برای ساخت ماسک مناسب نیست
+pair with a picture effect whose LFO is set to Audio	با افکت تصویری جفت کنید که LFO آن روی Audio است
+paired phones removed: they need the QR code or the passphrase again	تلفن‌های جفت‌شده حذف شدند: دوباره به کد QR یا گذرواژه نیاز دارند
+phone control requires an 8+ character passphrase	کنترل با تلفن به گذرواژه‌ای با 8 نویسه یا بیشتر نیاز دارد
+save failed - retrying; still open, use SAVE AS if needed	ذخیره نشد - تلاش دوباره؛ هنوز باز است، در صورت نیاز از SAVE AS استفاده کنید
+set an 8+ character Web Monitor passphrase first	ابتدا گذرواژهٔ نمایشگر وب با 8 نویسه یا بیشتر تعیین کنید
+the caption model has not been downloaded yet	مدل زیرنویس هنوز دریافت نشده است
+the desktop portal did not answer	درگاه دسکتاپ پاسخ نداد
+the file is empty (0 bytes): it may not have finished copying or saving	فایل خالی است (0 بایت): شاید کپی یا ذخیرهٔ آن تمام نشده باشد
+the installed NDI runtime is missing entry points this needs	نسخهٔ نصب‌شدهٔ NDI توابع ورودی لازم را ندارد
+the NDI runtime declined to start on this machine	محیط اجرای NDI روی این دستگاه شروع نشد
+the playing step was removed - sequence stopped	گام در حال پخش حذف شد - توالی متوقف شد
+update: cannot find this app bundle to replace	به‌روزرسانی: بستهٔ این برنامه برای جایگزینی پیدا نشد
+what the operator should be told when GO reaches here	پیامی که با رسیدن GO به اینجا به اپراتور گفته می‌شود
+what the patch and the cues call it (FOH, SUB, PRESS FEED)	نام آن در پچ و کیوها (FOH, SUB, PRESS FEED)
+window capture fell back to screen grab — update ffmpeg for exact window capture	ضبط پنجره به ضبط صفحه برگشت — برای ضبط دقیق پنجره ffmpeg را به‌روز کنید
+A dark line between the tiles, like grout or an LED wall.	خطی تیره بین کاشی‌ها، مانند بندکشی یا دیوار LED.
+a plugin overran the audio thread and was bypassed — take it out of the chain	افزونه از زمان رشتهٔ صوتی فراتر رفت و کنار گذاشته شد — آن را از زنجیره حذف کنید
+A slow rocking of the viewpoint, which is what makes the depth read without glasses.	نوسان آرام دیدگاه که عمق را بدون عینک نمایان می‌کند.
+A slow sag in the supply, pulling the filter up and down like a dying battery.	افت آرام تغذیه که فیلتر را مانند باتری رو به اتمام بالا و پایین می‌برد.
+A worn or dirty head: softer, with noise that streaks along the lines.	هد فرسوده یا کثیف: نرم‌تر، با نویزی که در امتداد خطوط کشیده می‌شود.
+Above halfway, a hard cut in the picture resets the loop to clean.	بالاتر از نیمه، کات ناگهانی تصویر حلقه را پاک می‌کند.
+An old deck: the picture wobbles, bends at the top of the frame and carries hum bars.	دک قدیمی: تصویر می‌لرزد، بالای قاب خم می‌شود و نوارهای هوم دارد.
+An old tape loses bits of its oxide: dropouts flick white and repeat the line above, and the colour fizzes.	نوار قدیمی اکسید از دست می‌دهد: افت‌ها سفید می‌زنند و خط بالایی را تکرار می‌کنند و رنگ‌ها نویزی می‌شوند.
+brightness moves the playhead (needs CPU frames)	روشنایی هد پخش را جابه‌جا می‌کند (نیازمند فریم‌های CPU)
+centred and full-frame - moves when the picture does	در مرکز و تمام‌قاب - با تصویر حرکت می‌کند
+Characters across. Fewer means bigger cells and less of the picture surviving, which is usually the point.	تعداد نویسه در عرض. کمتر یعنی خانه‌های بزرگ‌تر و جزئیات کمتر، که معمولاً هدف همین است.
+Characters to build the picture from, darkest first. Empty uses the chosen glyph set.	نویسه‌های سازندهٔ تصویر، از تیره‌ترین. خالی یعنی مجموعهٔ نشانگان انتخاب‌شده.
+Chladni listens: the figure follows the pitch of the sound	کلادنی گوش می‌دهد: شکل از زیر و بمی صدا پیروی می‌کند
+click anywhere on any screen to take its colour. Esc cancels	برای برداشتن رنگ در هر جای هر صفحه کلیک کنید. Esc لغو می‌کند
+click program or preview monitor to sample key color	برای نمونه‌گیری رنگ کروما روی نمایشگر پخش یا پیش‌نمایش کلیک کنید
+Colour is recorded at a fraction of the detail: it smears sideways, lands late and its hue wanders.	رنگ با جزئیات کمتری ضبط می‌شود: افقی پخش می‌شود، دیر می‌رسد و فامش سرگردان است.
+Copies of copies: none at the left, four at the right. Each one loses more.	کپیِ کپی‌ها: چپ صفر، راست چهار. هر نسل افت بیشتری دارد.
+Fine sensor noise at the bottom, chunky film at the top.	پایین نویز ریز حسگر، بالا دانه‌های درشت فیلم.
+follows this cue's own brightness (needs CPU frames)	از روشنایی خود این کیو پیروی می‌کند (نیازمند فریم‌های CPU)
+format 2 files are a set of independent patterns, not a performance	فایل‌های قالب 2 مجموعه‌ای از الگوهای مستقل‌اند، نه یک اجرا
+From an even blur to a streak along the angle, like movement.	از تاری یکنواخت تا کشیدگی در امتداد زاویه، مانند حرکت.
+full-frame and no picture - bends when the picture shrinks	تمام‌قاب و بدون تصویر - با کوچک شدن تصویر خم می‌شود
+Grain size: one pixel at the left, big blocky grains at the right.	اندازهٔ دانه: چپ یک پیکسل، راست دانه‌های درشت و بلوکی.
+Grows or shrinks the echo each pass. Centre holds still.	اکو را در هر دور بزرگ یا کوچک می‌کند. مرکز ثابت می‌ماند.
+How abruptly it arrives. Low is a soft cloud, high is a hard porthole.	شدت ناگهانی بودن ظهور. کم ابر نرم، زیاد روزنهٔ تیز.
+How big the room is. Small is a booth, large is a hall.	اندازهٔ اتاق. کوچک کابین، بزرگ تالار.
+How big the shards are. Small is frosted glass, large is a dropped plate.	اندازهٔ خرده‌ها. کوچک شیشهٔ مات، بزرگ بشقاب شکسته.
+How dark the dark lines go. All the way up is black between lines.	تیرگی خطوط تیره. در بیشینه، بین خطوط سیاه است.
+How far away. Distance dulls the top and softens the difference between the ears.	فاصله. دوری فرکانس‌های بالا را تیره و تفاوت دو گوش را کمتر می‌کند.
+How far back each skip jumps, from a stutter to half a second.	مقدار پرش به عقب، از لکنت تا نیم‌ثانیه.
+How fast it closes. Slow enough not to chop the ends off words.	سرعت بسته شدن. آن‌قدر آهسته که پایان واژه‌ها بریده نشود.
+How fast the drips run. At the left the picture only sags.	سرعت ریزش قطره‌ها. در چپ تصویر فقط افت می‌کند.
+How fast the light walks around it. Zero holds it still.	سرعت گردش نور به دور آن. صفر ثابت نگه می‌دارد.
+How fast the wave travels. Faster spreads further in the same time and interferes more.	سرعت انتشار موج. سریع‌تر در زمان برابر دورتر می‌رود و تداخل بیشتری دارد.
+How gently the change fades out at the edges of the band.	نرمی محو شدن تغییر در لبه‌های باند.
+How hard it holds once it is working. Gentle at the bottom, a limiter at the top.	شدت مهار پس از فعال شدن. پایین ملایم، بالا لیمیتر.
+How irregular the growth is. Low gives an even honeycomb, high gives long shards.	بی‌نظمی رشد. کم لانه‌زنبوری منظم، زیاد خرده‌های کشیده.
+How long a short stays closed, in VIDEO FRAMES.	مدت وصل ماندن اتصال کوتاه، به فریم ویدیو.
+How long the reaction runs each frame. Short is a stain, long is an organism.	مدت واکنش در هر فریم. کوتاه لکه، بلند جاندار.
+How many places drip: a few big drips at the left, many thin ones at the right.	تعداد محل ریزش: چپ چند قطرهٔ بزرگ، راست قطره‌های باریک فراوان.
+How many times a skip repeats before the sound catches up again.	تعداد تکرار پرش پیش از اینکه صدا دوباره برسد.
+How much of the picture glows: only the brightest at the left, nearly everything at the right.	مقدار درخشش تصویر: چپ فقط روشن‌ترین‌ها، راست تقریباً همه.
+How much of the picture shows behind the lines. None at the left: lines on black.	مقدار تصویر پشت خطوط. چپ هیچ: خطوط روی سیاهی.
+How much of the push goes downward rather than sideways.	مقدار نیرو به پایین به‌جای طرفین.
+How quickly the room eats the top end. More damping is a softer, more furnished space.	سرعت جذب فرکانس‌های بالا توسط اتاق. میرایی بیشتر فضایی نرم‌تر و مبله‌تر است.
+How readily an edge catches. Low sets the whole picture alight, high only the hardest lines.	آمادگی لبه برای شعله‌ور شدن. کم تمام تصویر، زیاد فقط تیزترین خطوط.
+How wide a band of colours either side of it changes too.	پهنای دامنهٔ رنگ‌هایی که در دو سوی آن نیز تغییر می‌کنند.
+ASCII HOLD: seconds, 0-60 (0 mutes the phrases)	ASCII HOLD: ثانیه، 0-60 (0 عبارت‌ها را خاموش می‌کند)
+ASCII WOBBLEMODE: drift | flow (follows luma) | hue (follows colour); no argument cycles	ASCII WOBBLEMODE: drift | flow (پیروی از روشنایی) | hue (پیروی از رنگ)؛ بدون آرگومان گردش می‌کند
+ASCII: the selected cue has no text mode (add the TEXT MODE effect, or select a video synth cue)	ASCII: کیوی انتخابی حالت متن ندارد (افکت TEXT MODE را اضافه کنید یا کیوی سینت ویدیو انتخاب کنید)
+CHIP DUTY: this cue is an FDS synth, which has no duty	CHIP DUTY: این کیو سینت FDS است و دیوتی ندارد
+CHIP NOISE: this cue is an FDS synth, which has no noise	CHIP NOISE: این کیو سینت FDS است و نویز ندارد
+CHIP VOICE: this cue is an FDS synth, which has no voice	CHIP VOICE: این کیو سینت FDS است و انتخاب صدا ندارد
+DASH SET: needs a command -- DASH SET <n> <label> | <command> [| <glyph>]	DASH SET: فرمان لازم است -- DASH SET <n> <label> | <command> [| <glyph>]
+DATAMOSH on - preparing (long clip, watch Encoder tab)	DATAMOSH روشن - در حال آماده‌سازی (کلیپ بلند، زبانهٔ رمزگذار را ببینید)
+DECKLINK: no DeckLink driver on this computer (Blackmagic Desktop Video)	DECKLINK: درایور DeckLink روی این رایانه نیست (Blackmagic Desktop Video)
+DMXCUE LEVELS: nothing has been sent on that universe	DMXCUE LEVELS: چیزی روی آن یونیورس فرستاده نشده
+DRAW COLOUR: #rrggbb, #rrggbbaa, a name, or 1-8 for the palette	DRAW COLOUR: #rrggbb، #rrggbbaa، نام، یا 1-8 برای پالت
+DRAW STROKE: each point is x,y or x,y,pressure, in percent	DRAW STROKE: هر نقطه x,y یا x,y,pressure، به درصد
+DRAW TOOL: brush, erase, line, box, oval or fill	DRAW TOOL: یکی از brush، erase، line، box، oval یا fill
+EDIT is off - press EDIT to type into the tracker	EDIT خاموش است - برای تایپ در ترکر EDIT را بزنید
+ENDACTION: only video and audio cues have an end action	ENDACTION: فقط کیوهای ویدیو و صدا کنش پایان دارند
+Enter playlist SMPTE FPS: 24 / 25 / 29.97 / 30	نرخ فریم SMPTE فهرست پخش را وارد کنید: 24 / 25 / 29.97 / 30
+FADE TO: a speed from 0.25 to 4 (0.5 is half speed, an octave down)	FADE TO: سرعت 0.25 تا 4 (0.5 نصف سرعت، یک اکتاو پایین‌تر)
+FX ADD: datamosh needs a file-backed video cue	FX ADD: datamosh به کیوی ویدیوی مبتنی بر فایل نیاز دارد
+FX LFO wants <index> <slot> <on|off|shape> [value]	FX LFO نیاز دارد به <index> <slot> <on|off|shape> [value]
+FX LFO: on, off, shape, rate, depth, zone, channel or cc	FX LFO: یکی از on، off، shape، rate، depth، zone، channel یا cc
+GEOLFO: x, y, width, height, rotation, cropleft, cropright, croptop or cropbottom	GEOLFO: یکی از x، y، width، height، rotation، cropleft، cropright، croptop یا cropbottom
+HH:MM or HH:MM:SS on this computer's clock; empty for none	HH:MM یا HH:MM:SS بر اساس ساعت این رایانه؛ خالی یعنی هیچ
+HH:MM:SS:FF of the timecode Deckboy is chasing; empty for none	HH:MM:SS:FF از تایم‌کدی که Deckboy دنبال می‌کند؛ خالی یعنی هیچ
+INPUTMONITOR: a row count, OPEN, CLOSE, CLEAR, PAUSE or RESUME	INPUTMONITOR: تعداد ردیف، OPEN، CLOSE، CLEAR، PAUSE یا RESUME
+IPv4 addresses or a.b.c.d/bits, comma separated; empty = only this computer	نشانی‌های IPv4 یا a.b.c.d/bits، با ویرگول جدا شوند؛ خالی = فقط این رایانه
+key+fill ON, but no key device set (DECKLINK KEYFILL ON <device>)	key+fill ON است، ولی دستگاه کی تعیین نشده (DECKLINK KEYFILL ON <device>)
+label | command | glyph      (empty label|command removes it)	برچسب | فرمان | نشان      (label|command خالی آن را حذف می‌کند)
+LFO: density, speed, warp, turn, centrex, centrey, grey or hue	LFO: یکی از density، speed، warp، turn، centrex، centrey، grey یا hue
+MIC: select a mic cue first (MIC ADD makes one)	MIC: ابتدا کیوی میکروفون انتخاب کنید (MIC ADD یکی می‌سازد)
+MIDIIN OSC: an address, and optionally a number	MIDIIN OSC: یک نشانی و در صورت نیاز یک عدد
+MIDIMAP: that command is only accepted from this computer	MIDIMAP: این فرمان فقط از این رایانه پذیرفته می‌شود
+MOTION ZONE ADD: the zone must fit inside the picture	MOTION ZONE ADD: ناحیه باید داخل تصویر جا بگیرد
+NETCUE ADDRESS: an OSC address must start with /	NETCUE ADDRESS: نشانی OSC باید با / شروع شود
+NEWSHOW: something is live or unsaved -- send NEWSHOW again within 2.5 s	NEWSHOW: چیزی زنده یا ذخیره‌نشده است -- ظرف 2.5 ثانیه دوباره NEWSHOW بفرستید
+NMOS: discovery needs the remote network allowed	NMOS: کشف به مجاز بودن شبکهٔ راه‌دور نیاز دارد
+NMOS: NOT registering - network is LOCAL ONLY (turn REMOTE ON to publish)	NMOS: ثبت نمی‌شود - شبکه LOCAL ONLY است (برای انتشار REMOTE ON کنید)
+NMOS: searching for a registry (mDNS)	NMOS: در حال جستجوی رجیستری (mDNS)
+OUTPROBE: that output has no compositor (is it on?)	OUTPROBE: آن خروجی ترکیب‌گر ندارد (روشن است؟)
+OUTPUTFX ADD: four effects at most on one device	OUTPUTFX ADD: حداکثر چهار افکت در هر دستگاه
+PATCH: a level is dB from -48 to +6, or OFF	PATCH: سطح به dB از -48 تا +6، یا OFF
+PIP: retired -- scale a second deck over this one instead	PIP: بازنشسته شد -- دک دوم را روی این یکی مقیاس دهید
+pip: retired -- scale a second deck over this one instead	pip: بازنشسته شد -- دک دوم را روی این یکی مقیاس دهید
+presenter panel: the panel must fit on the screen (x+w and y+h no more than 100)	پنل ارائه‌دهنده: باید داخل صفحه جا بگیرد (x+w و y+h حداکثر 100)
+preset: delivery | proxy | match | datamosh	پیش‌تنظیم: delivery | proxy | match | datamosh
+programme sound is always included; use WEBMONITOR OFF to stop the monitor	صدای پخش همیشه همراه است؛ برای توقف نمایشگر از WEBMONITOR OFF استفاده کنید
+Registry URL (e.g. http://192.168.1.50:8010) - blank for mDNS	نشانی رجیستری (مثلاً http://192.168.1.50:8010) - خالی برای mDNS
+SLICE CORNER: TL, TR, BR or BL, then dx dy in percent of the output	SLICE CORNER: ‏TL، TR، BR یا BL، سپس dx dy به درصد خروجی
+SLICE EDGE: L, R, T or B, then 0-50 (% of the slice)	SLICE EDGE: ‏L، R، T یا B، سپس 0-50 (% برش)
+SLICE GRID POINT: col row (from 1, on a grid that is on) then dx dy in percent	SLICE GRID POINT: ‏col row (از 1، روی شبکهٔ روشن) سپس dx dy به درصد
+SLICE LFO: X, Y, ROTATION or OPACITY, then ON, OFF, SHAPE, RATE, DEPTH...	SLICE LFO: ‏X، Y، ROTATION یا OPACITY، سپس ON، OFF، SHAPE، RATE، DEPTH...
+SLICE ROTATE: IN (the crop) or OUT (the placed picture), then degrees	SLICE ROTATE: ‏IN (برش) یا OUT (تصویر جای‌گذاری‌شده)، سپس درجه
+SMPTE hh:mm:ss:ff or seconds (blank = 00:00:00:00)	SMPTE hh:mm:ss:ff یا ثانیه (خالی = 00:00:00:00)
+SOURCE CAMERA: name the device	SOURCE CAMERA: نام دستگاه را بدهید
+SOURCE WINDOW: name the window, e.g. title:Firefox (or "desktop")	SOURCE WINDOW: نام پنجره، مثلاً title:Firefox (یا "desktop")
+STING: select a tone cue first (TONECUE makes one)	STING: ابتدا کیوی تُن انتخاب کنید (TONECUE یکی می‌سازد)
+Stream URL (srt://, rtmp://, rtsp://, udp://, or an http HLS .m3u8)	نشانی جریان (srt://، rtmp://، rtsp://، udp:// یا http HLS .m3u8)
+SUBTITLE CONVERT: destination must be .srt or .vtt	SUBTITLE CONVERT: مقصد باید .srt یا .vtt باشد
+TRACKER SET: a step cannot act on its own playlist	TRACKER SET: گام نمی‌تواند روی فهرست پخش خودش عمل کند
+TRACKER: there are no steps (TRACKER ADD makes one)	TRACKER: گامی نیست (TRACKER ADD یکی می‌سازد)
+VIDEO OUTPUT LAYERWARP MODE: linear or perspective	VIDEO OUTPUT LAYERWARP MODE: یکی از linear یا perspective
+WARP AT: open the editor (WARP EDIT) and select a point first	WARP AT: ابتدا ویرایشگر را باز کنید (WARP EDIT) و نقطه‌ای انتخاب کنید
+warp point: that is a corner -- move it with WARP <corner> dx dy	نقطهٔ وارپ: این گوشه است -- با WARP <corner> dx dy جابه‌جا کنید
+WEBMONITOR PIN: network sharing and phone control require 8 or more characters	WEBMONITOR PIN: اشتراک شبکه و کنترل تلفن به 8 نویسه یا بیشتر نیاز دارد
+WEBMONITOR QR: needs the monitor on and shared on the network	WEBMONITOR QR: نمایشگر باید روشن و در شبکه به اشتراک گذاشته شود
+WEBMONITOR SOURCE: could not create the web output	WEBMONITOR SOURCE: ساخت خروجی وب ممکن نشد
+WEBMONITOR SOURCE: PROGRAMME or the number of an output that shows a picture	WEBMONITOR SOURCE: ‏PROGRAMME یا شمارهٔ خروجی دارای تصویر
+0 flows ALONG the edges, so colour orbits the shapes. 1 flows across them, which bleeds the picture into itself.	0 در امتداد لبه‌هاست و رنگ دور شکل‌ها می‌گردد. 1 از آن‌ها می‌گذرد و تصویر در خودش پخش می‌شود.
+a note number 0-127, LEARN to take the next note played, or empty for none	شمارهٔ نت 0-127، فرمان LEARN برای نت بعدی، یا خالی برای هیچ
+a video cue's duration comes from its file; still duration applies to stills, patterns and browsers	مدت کیوی ویدیو از فایل است؛ مدت ثابت برای تصاویر، الگوها و مرورگرهاست
+Below the middle narrows toward mono -- which is what a single PA cluster is. Above it widens.	زیر مرکز به مونو باریک می‌شود، مانند یک خوشهٔ PA. بالاتر پهن می‌شود.
+Blueshift toward the direction of travel and redshift at the rim. Zero leaves the colour alone and it reads as a lens instead.	در جهت حرکت آبی و در لبه قرمز می‌شود. صفر رنگ را حفظ می‌کند و مانند عدسی است.
+Bright: bright things drip over the dark, as text and logos do. Whole picture: everything is wax, and the picture itself runs down in its own colours.	روشن: بخش‌های روشن مثل متن و نشان روی تاریکی می‌چکند. تمام تصویر: همه موم است و تصویر با رنگ‌های خودش جاری می‌شود.
+Centre is a straight line. Up bends it into an S -- darker shadows, brighter highlights, more contrast. Down flattens it.	مرکز خط راست است. بالا S می‌سازد: سایهٔ تیره‌تر، هایلایت روشن‌تر و کنتراست بیشتر. پایین تخت می‌کند.
+e.g. /stage/doors -- sent to Deckboy's OSC port; empty for none	مثلاً /stage/doors -- به درگاه OSC در Deckboy فرستاده می‌شود؛ خالی یعنی هیچ
+How bright a pixel has to be before it lifts at all, so only the highlights spike.	آستانهٔ روشنایی برای بلند شدن پیکسل؛ فقط هایلایت‌ها اوج می‌گیرند.
+How bright a pixel has to be to join a run. Lower catches more of the picture and the runs grow longer.	روشنایی لازم برای پیوستن پیکسل به ردیف. کمتر، تصویر بیشتر و ردیف‌های بلندتر.
+How deep the picture is treated as being. The brightness becomes height and is lit from the side.	عمق فرضی تصویر. روشنایی به ارتفاع تبدیل و از کنار نورپردازی می‌شود.
+How faint a gradient still registers. High turns the quietest shading into visible structure.	کم‌رنگ‌ترین گرادیان قابل تشخیص. زیاد، ظریف‌ترین سایه را نمایان می‌کند.
+How far back the chain listens. The picture is played through a delay, so this is the distance the damage is dragged across.	میزان نگاه زنجیره به عقب. تصویر از تأخیر می‌گذرد؛ این فاصلهٔ کشیده شدن خرابی است.
+How far the burn spreads off the edge, and how hot its colour runs.	گستردگی سوختگی از لبه و گرمای رنگش.
+How far the colour turns on each trip round the loop. This is the oil-slick: the trail walks through the spectrum instead of fading.	چرخش رنگ در هر دور. مانند لکهٔ روغن: رد به‌جای محو شدن در طیف می‌گردد.
+How far the picture stands out. Bright parts come forward, dark parts stay back. At the left it is flat.	برجستگی تصویر. روشن‌ها جلو و تیره‌ها عقب می‌مانند. چپ تخت است.
+How far the picture swings the filter. The cue's own brightness opens and closes it, so a cut to black takes the top off the sound.	دامنهٔ حرکت فیلتر با تصویر. روشنایی کیو آن را باز و بسته می‌کند؛ کات به سیاه، فرکانس‌های بالا را می‌برد.
+How far the top comes down as the end approaches. This is not a fade: the level is left alone.	افت فرکانس بالا نزدیک پایان. فید نیست: سطح صدا ثابت می‌ماند.
+How far the two eyes disagree. Brightness is read as nearness.	اختلاف دو چشم. روشنایی به‌معنای نزدیکی است.
+How fast it settles away while held. At zero it holds indefinitely, which is what room tone under a held title wants.	سرعت فروکش در حالت نگه‌داشتن. صفر بی‌نهایت نگه می‌دارد، مناسب صدای محیط زیر عنوان ثابت.
+How fast the open slit crosses the picture. Slow smears a long moment across the frame.	سرعت عبور شکاف باز از تصویر. آهسته، زمان بلندتری را روی قاب می‌کشد.
+How fast what has dripped hardens away. At the left the drips stay until the cue changes.	سرعت سفت و محو شدن قطره‌ها. چپ تا تغییر کیو می‌مانند.
+How fine the water is. Long ocean swell at one end, rain on a puddle at the other.	ریزی موج آب. یک سر موج بلند اقیانوس، سر دیگر باران روی گودال.
+How hard the light gathers where the rays converge. This is the part that makes it read as water rather than as a wobble.	شدت تجمع نور در همگرایی پرتوها. این بخش حس آب می‌دهد، نه صرفاً لرزش.
+How hard the moving parts throw sand. More shake clears the plate faster and makes the lines thinner.	شدت پرتاب شن از بخش‌های متحرک. لرزش بیشتر صفحه را زودتر پاک و خطوط را نازک‌تر می‌کند.
+How long a grain is, in VIDEO FRAMES. On a 23.976 clip one frame is 41.7ms, which is not a musical value and is exactly the point.	طول دانه به فریم ویدیو. در 23.976 هر فریم 41.7ms است؛ مقدار موسیقایی نیست و هدف همین است.
+How long before the end it starts. The cue has to have a known length -- an open-ended one has no end to resolve into.	چه مدت پیش از پایان شروع شود. طول کیو باید مشخص باشد؛ کیوی باز پایانی برای فرود ندارد.
+How long it is allowed to run. More steps means the ripples have crossed and reflected more times.	مدت مجاز اجرا. گام‌های بیشتر یعنی عبور و بازتاب بیشتر موج‌ها.
+How long the old waves linger when the note changes. Left: they die at once. Right: they slosh for a while.	ماندگاری موج قبلی با تغییر نت. چپ فوراً می‌میرد، راست مدتی تلاطم دارد.
+How much each facet catches the light, which is what makes them read as faceted rather than as flat blobs.	میزان نورگیری هر وجه، تا وجه‌دار دیده شود نه لکهٔ تخت.
+How much its SIZE becomes distance. Shrink the picture and the sound goes away from you: the top comes off, the image narrows, the level drops.	تبدیل اندازه به فاصله. تصویر را کوچک کنید تا صدا دور شود: فرکانس بالا کم، میدان باریک و سطح پایین می‌شود.
+How much of the bent picture goes round again. High is where it stops being an echo and starts eating itself.	مقدار تصویر خمیده که بازمی‌گردد. زیاد، اکو را به بلعیدن خودش تبدیل می‌کند.
+How much of the driver's movement the picture KEEPS. At zero it follows the driver frame by frame, which is a twitch. Wind it up and the motion accumulates, so the driver sculpts the picture over time and it holds the pose -- which is what puppetry means.	مقدار حرکت محرک که تصویر نگه می‌دارد. صفر فریم‌به‌فریم می‌پرد. افزایش، حرکت را انباشته می‌کند تا محرک تصویر را شکل دهد و حالت را نگه دارد، مانند عروسک‌گردانی.
+How much of the picture's position on the output is used. A PIP on the left sounds on the left -- and it is a placement, not a pan: the far ear gets the delay and the head shadow too.	میزان استفاده از موقعیت تصویر در خروجی. PIP چپ از چپ شنیده می‌شود؛ مکان‌دهی است نه پن: گوش دورتر تأخیر و سایهٔ سر هم دارد.
+How much of the tail is kept going while the cue is held. Long enough to hide the splice in room tone, short enough not to smear a rhythm in it.	مقدار دنباله در نگه‌داشتن کیو. بلند برای پنهان کردن اتصال صدای محیط، کوتاه برای حفظ ریتم.
+How much room comes up under it, so the sound settles into the cut instead of being severed.	مقدار صدای اتاق زیر آن، تا صدا به‌جای قطع شدن در کات بنشیند.
+How much the echo is distorted each pass. It compounds, so a little ripples and a lot melts the picture into itself.	اعوجاج اکو در هر دور. انباشته می‌شود؛ کم موج می‌دهد، زیاد تصویر را در خودش ذوب می‌کند.
+How much the material draws in towards each drip, so it runs as a thin neck with a heavier head.	مقدار کشش ماده به هر قطره، با گردن باریک و سر سنگین‌تر.
+How often its settings are corrupted. Corrupted far enough it oscillates on its own -- loud, but it cannot run away.	بسامد خرابی تنظیمات. خرابی زیاد خودنوسانی می‌دهد؛ بلند است ولی مهارگسیخته نمی‌شود.
+How quickly the picture springs back to rest once the driver stops pushing it. Only does anything when memory is up.	سرعت بازگشت تصویر به سکون با توقف محرک. فقط با افزایش حافظه مؤثر است.
+How small a cut sets it off. With no picture it runs on a timer instead, and this is how often.	حساسیت به کات کوچک. بدون تصویر با زمان‌سنج اجرا می‌شود و این بسامد آن است.
+How strongly the finished picture pushes the bend. Pair it with a picture effect whose LFO is set to Audio and the two drive each other.	قدرت تأثیر تصویر نهایی بر خمیدگی. با افکت تصویر با LFO روی Audio جفت کنید تا همدیگر را برانند.
+How wide a view is being compressed. Narrow is a punch down the middle, wide folds the whole frame into the centre.	پهنای دید فشرده. باریک ضربه‌ای در مرکز است؛ پهن تمام قاب را به مرکز تا می‌کند.
+Lift or cut, 12dB either way. The centre is flat, so a band that has just been added does nothing until this is moved.	تقویت یا کاهش تا 12dB. مرکز خنثی است؛ باند تازه تا حرکت این کنترل اثری ندارد.
+Light on the drips, as on something wet: a gloss where it faces the light, darker where it curls away.	نور روی قطره‌ها مانند سطح خیس: رو به نور براق، پشت خمیدگی تیره.
+Line pitch in pixels, so this reads at 4K as well as at 720.	فاصلهٔ خطوط به پیکسل، تا در 4K و 720 دیده شود.
+cannot read the file: if it lives in OneDrive or iCloud, open it once so it downloads, then import it	فایل خوانده نشد: اگر در OneDrive یا iCloud است، یک بار برای دانلود بازش کنید، سپس وارد کنید
+did not finish in 3 minutes. It may be waiting on a prompt it cannot show (Protected View, sign-in, a repair). Open the deck there once, or export it as a PDF and import that	در 3 دقیقه تمام نشد. شاید منتظر پیام پنهان است (نمای محافظت‌شده، ورود، تعمیر). ارائه را یک بار آنجا باز کنید یا PDF بگیرید و وارد کنید
+forget my defaults? only NEW changes, this show keeps its settings: press again	پیش‌فرض‌هایم فراموش شود؟ فقط NEW تغییر می‌کند؛ تنظیمات این اجرا می‌ماند: دوباره بزنید
+Keynote could not export this file (it may need permission to be automated: System Settings > Privacy & Security > Automation)	Keynote نتوانست فایل را صادر کند (شاید اجازهٔ خودکارسازی لازم است: تنظیمات سیستم > حریم خصوصی و امنیت > خودکارسازی)
+my defaults forgotten: NEW starts from factory settings, this show is unchanged	پیش‌فرض‌هایم پاک شد: NEW با تنظیمات کارخانه شروع می‌شود؛ این اجرا تغییر نکرد
+N=new  Enter/P=previous  O=open saved  E=examples  L=learn  1-	N=جدید  Enter/P=قبلی  O=باز کردن ذخیره‌شده  E=نمونه‌ها  L=آموزش  1-
+ndi tally trigger on -- program tally takes the cue	تریگر تالی ndi روشن -- تالی پخش کیو را اجرا می‌کند
+notestep: this cue's notes have no builds (separate them with a line of ---)	notestep: یادداشت‌های کیو مرحله ندارند (با خط --- جدا کنید)
+Only accept transport from this sender (blank = anyone)	فقط کنترل پخش این فرستنده پذیرفته شود (خالی = همه)
+opened github.com in your browser -- nothing is sent until you submit the report there	github.com در مرورگر باز شد -- تا گزارش را آنجا ثبت نکنید چیزی ارسال نمی‌شود
+Output height in px - math ok: 1080x2, 2160/2, 540+30	ارتفاع خروجی به px - محاسبه مجاز: 1080x2, 2160/2, 540+30
+Output width in px - math ok: 1920x2, 3840/2, 960+64	عرض خروجی به px - محاسبه مجاز: 1920x2, 3840/2, 960+64
+PHONE LEVEL: removed -- a paired phone or the passphrase can do everything; BLACKOUT and RECORD are hold-to-fire on the phone	PHONE LEVEL: حذف شد -- تلفن جفت‌شده یا گذرواژه همهٔ دسترسی‌ها را دارد؛ BLACKOUT و RECORD در تلفن با نگه‌داشتن فعال می‌شوند
+phones need THE NETWORK: set 'Who can see it' first	تلفن‌ها به شبکه نیاز دارند: ابتدا «چه کسی می‌بیند» را تنظیم کنید
+PowerPoint could not export this file (it may need permission to be automated: System Settings > Privacy & Security > Automation)	PowerPoint نتوانست فایل را صادر کند (شاید اجازهٔ خودکارسازی لازم است: تنظیمات سیستم > حریم خصوصی و امنیت > خودکارسازی)
+PowerPoint could not open the file (it gave up waiting for it). If it is in OneDrive, right-click it and choose Always keep on this device, then import it again	PowerPoint فایل را باز نکرد (مهلت انتظار تمام شد). در OneDrive روی آن راست‌کلیک و «همیشه در این دستگاه نگه دار» را انتخاب و دوباره وارد کنید
+saved as my defaults: NEW starts like this show, without the cues	به‌عنوان پیش‌فرض ذخیره شد: NEW مانند این اجرا، بدون کیوها شروع می‌شود
+Seconds for new image/pattern/browser/Lower Third cues (0 = hold)	ثانیه برای کیوهای جدید تصویر/الگو/مرورگر/Lower Third (0 = نگه‌داشتن)
+select a Draw cue first (SOURCE > MADE BY DECKBOY > Draw)	ابتدا کیوی رسم انتخاب کنید (SOURCE > MADE BY DECKBOY > Draw)
+something mellow appeared in SOURCE > MADE BY DECKBOY	چیزی ملایم در SOURCE > MADE BY DECKBOY ظاهر شد
+sound scopes: integrated loudness and true peak start again	سنجش صوت: بلندی یکپارچه و قلهٔ واقعی از نو شروع می‌شوند
+splitnotes: that cue's notes have no parts (separate them with a line of ---)	splitnotes: یادداشت‌های کیو بخش ندارند (با خط --- جدا کنید)
+still reading the last folder -- one at a time	هنوز پوشهٔ قبلی خوانده می‌شود -- هر بار یکی
+that key drives the desk - use F1-F10, F12 or the number pad	آن کلید میز را کنترل می‌کند - از F1-F10، F12 یا صفحه‌کلید عددی استفاده کنید
+the background alpha belongs to a Lower Third	آلفای پس‌زمینه متعلق به Lower Third است
+the clicker now spends note builds before advancing	کلیکر اکنون پیش از رفتن به بعد، مراحل یادداشت را طی می‌کند
+this file is only in OneDrive, and OneDrive is not running. Start OneDrive, or copy the file to this computer, then import it again	فایل فقط در OneDrive است و OneDrive اجرا نیست. آن را اجرا یا فایل را به رایانه کپی کنید، سپس دوباره وارد کنید
+this presentation needs a password to open. Remove the password in PowerPoint (File > Info > Protect Presentation) or export it as a PDF, then import that	ارائه برای باز شدن گذرواژه می‌خواهد. در PowerPoint حذف کنید (فایل > اطلاعات > محافظت از ارائه) یا PDF بگیرید و وارد کنید
+ASCII: use ON|OFF|TOGGLE | STATUS | INK | SET | SHUFFLE | PRESET [name|next|prev] | FONT | GLYPHS [chars] | CHAOS <0-1> | WOBBLE <0-1> | WOBBLEMODE [drift|flow|hue] | COLS <n> | GLITCH <a> <b> <c> [d] | PHRASES <a|b|c> | HOLD <seconds>	ASCII: از ON|OFF|TOGGLE | STATUS | INK | SET | SHUFFLE | PRESET [name|next|prev] | FONT | GLYPHS [chars] | CHAOS <0-1> | WOBBLE <0-1> | WOBBLEMODE [drift|flow|hue] | COLS <n> | GLITCH <a> <b> <c> [d] | PHRASES <a|b|c> | HOLD <seconds> استفاده کنید
+Flip across, upside down or both, or fold one half onto the other: right onto left, left onto right, bottom onto top, top onto bottom, or one corner into all four.	تصویر را افقی، عمودی یا هر دو برگردانید، یا یک نیمه را روی دیگری تا کنید: راست روی چپ، چپ روی راست، پایین روی بالا، بالا روی پایین، یا یک گوشه در هر چهار گوشه.
+FX: use LIST | ADD <effect> [amount] | AMOUNT <n> <v> | PARAM <n> <A-F> <0-1> | CHOICE <n> <A|B> <name> | LFO <n> <A-G> ... | COPY | PASTE | CLEAR	FX: از LIST | ADD <effect> [amount] | AMOUNT <n> <v> | PARAM <n> <A-F> <0-1> | CHOICE <n> <A|B> <name> | LFO <n> <A-G> ... | COPY | PASTE | CLEAR استفاده کنید
+MIDIIN: NOTE <n> <vel>, NOTEOFF <n>, CC <c> <v>, PITCH <0-16383>, PRESSURE <v>, KEYPRESSURE <n> <v>, PROGRAM <n> or OSC <address> [<n>], then CH <1-16> if not channel 1	MIDIIN: NOTE <n> <vel>, NOTEOFF <n>, CC <c> <v>, PITCH <0-16383>, PRESSURE <v>, KEYPRESSURE <n> <v>, PROGRAM <n> یا OSC <address> [<n>]، سپس اگر کانال 1 نیست CH <1-16>
+MIDIMAP: LIST, ADD, SET, REMOVE, CLEAR, RESET, LEARN, LEARNED, PRESET or FEEDBACK	MIDIMAP: LIST, ADD, SET, REMOVE, CLEAR, RESET, LEARN, LEARNED, PRESET یا FEEDBACK
+Moves the direction of travel off the centre of frame, so the picture rushes past rather than straight at you.	جهت حرکت را از مرکز قاب دور می‌کند تا تصویر به‌جای آمدن مستقیم به سوی شما، از کنارتان بگذرد.
+One knob for the whole balance: below the middle is darker, above it is brighter.	یک پیچ برای کل توازن: پایین‌تر از وسط تیره‌تر و بالاتر از آن روشن‌تر است.
+Original: the picture pulled onto the figure. Sand: the picture as grains that are thrown off the moving parts and pour into each new figure. Fluid: the picture under water on the plate, bent and lit by its standing waves.	اصلی: تصویر روی شکل کشیده می‌شود. شن: تصویر به دانه‌هایی تبدیل می‌شود که از بخش‌های متحرک جدا شده و در هر شکل تازه می‌ریزند. سیال: تصویر زیر آب روی صفحه است و موج‌های ایستاده آن را خم و روشن می‌کنند.
+Pulls the bright tones down without moving pure white, so a hot highlight rolls off instead of clipping.	تون‌های روشن را بدون تغییر سفید خالص پایین می‌آورد تا روشنایی‌های شدید به‌جای بریده‌شدن، نرم افت کنند.
+Rotates the reading, so straight lines wind into spirals rather than rings.	جهت خواندن را می‌چرخاند تا خط‌های راست به‌جای حلقه، مارپیچ شوند.
+Rows lose sync and repeat one character, the way a real text screen breaks up. At 0 the grid is clean.	ردیف‌ها همگامی را از دست می‌دهند و یک نویسه را تکرار می‌کنند، مانند خرابی یک نمایشگر متن واقعی. در 0 شبکه تمیز است.
+SLICE <n>: CROP, PLACE, CORNER, EDGE, MASK, SOURCE, ROTATE, FLIP, OPACITY, LFO, ON, OFF, LINEAR, PERSPECTIVE or NAME	SLICE <n>: CROP, PLACE, CORNER, EDGE, MASK, SOURCE, ROTATE, FLIP, OPACITY, LFO, ON, OFF, LINEAR, PERSPECTIVE یا NAME
+SLICE GRID: <cols> <rows> (2-9), OFF, SMOOTH ON|OFF, or POINT col row dx dy	SLICE GRID: <cols> <rows> (2-9), OFF, SMOOTH ON|OFF، یا POINT col row dx dy
+Something near the deck: a phone's buzz, a light dimmer's herringbone, a radio's slow bars.	چیزی نزدیک پخش‌کننده: وزوز تلفن، نقش جناغی دیمر نور، یا نوارهای آهستهٔ رادیو.
+Sorts the runs the other way, so they pour from light to dark.	رشته‌ها را در جهت عکس مرتب می‌کند تا از روشن به تیره سرازیر شوند.
+Takes out everything brighter than this as well. Left takes out nothing.	هر چیزی روشن‌تر از این را نیز حذف می‌کند. در انتهای چپ چیزی حذف نمی‌شود.
+Takes out everything darker than this, so what lies beneath shows through. Left takes out nothing.	هر چیزی تیره‌تر از این را حذف می‌کند تا لایهٔ زیرین دیده شود. در انتهای چپ چیزی حذف نمی‌شود.
+Tape speed: SP is the best picture, LP and EP fit more on a tape and lose detail and colour.	سرعت نوار: SP بهترین تصویر را می‌دهد؛ LP و EP زمان بیشتری روی نوار جا می‌دهند ولی جزئیات و رنگ را کاهش می‌دهند.
+The brightness that stays put. Everything above it reaches one way and everything below it the other.	روشنایی‌ای که ثابت می‌ماند. هرچه بالاتر از آن است به یک سو و هرچه پایین‌تر است به سوی دیگر کشیده می‌شود.
+The character of the growth: low is waves, then labyrinth, coral, worms, and holes at the top.	ماهیت رشد: در پایین موج، سپس هزارتو، مرجان، کرم و در بالا حفره است.
+The colour it becomes. Shading and brightness stay as they were, so a red shirt turns blue and keeps its folds.	رنگ نهایی. سایه‌روشن و روشنایی ثابت می‌مانند؛ پیراهن قرمز آبی می‌شود و چین‌هایش را حفظ می‌کند.
+The distance that sits ON the screen. Either side of it comes forward or falls behind.	فاصله‌ای که روی صفحه قرار می‌گیرد. دو سوی آن جلو می‌آیند یا عقب می‌روند.
+The frequency it pivots around -- what counts as 'low' and 'high' for the tilt.	فرکانس محور چرخش؛ مرز «بم» و «زیر» برای شیب.
+The head drifting off the track: a band of noise rolls through the picture.	انحراف هد از مسیر: نواری از نویز در تصویر حرکت می‌کند.
+The level below which the source is closed. Set it under the quietest thing you want to hear.	سطحی که زیر آن منبع بسته می‌شود. آن را پایین‌تر از آرام‌ترین صدایی که می‌خواهید بشنوید تنظیم کنید.
+The level it starts working at. Lower catches more of the performance.	سطح شروع عملکرد. مقدار کمتر، بخش بیشتری از اجرا را درگیر می‌کند.
+The plugin's first four automatable controls, in its own order. Everything else it has keeps whatever the plugin was left set to.	چهار کنترل اول افزونه که قابل خودکارسازی‌اند، به ترتیب خود افزونه. سایر تنظیمات افزونه روی آخرین مقدارشان می‌مانند.
+Tints the two directions apart, so light bending one way and the other are different colours instead of both being grey.	دو جهت را جداگانه رنگ می‌کند تا نور خم‌شده در هر جهت، به‌جای خاکستری بودن هر دو، رنگ متفاوتی داشته باشد.
+Turns the echo each pass, which winds the melt into a spiral.	پژواک را در هر گذر می‌چرخاند تا ذوب به مارپیچ تبدیل شود.
+Turns the strokes across the grain instead of along it, which combs the picture apart rather than smoothing it.	قلم‌ضربه‌ها را به‌جای امتداد بافت، در عرض آن می‌چرخاند تا تصویر به‌جای نرم‌شدن، شانه‌شانه از هم باز شود.
+Turns the whole arrangement, so the fold lines do not sit on the same part of the picture all night.	کل آرایش را می‌چرخاند تا خط‌های تا تمام شب روی یک بخش تصویر نمانند.
+Two is a mirror, twelve is a snowflake, and they are completely different pictures.	دو، آینه می‌سازد و دوازده، دانهٔ برف؛ این دو تصویر کاملاً متفاوت‌اند.
+WEBMONITOR: STATUS | ON | OFF | CONTROL ON|OFF | SHARE ON|OFF | SOURCE PROGRAMME|<output> | QR [ON|OFF] | PORT <n> | PIN <pin>|OFF (sound is included)	WEBMONITOR: STATUS | ON | OFF | CONTROL ON|OFF | SHARE ON|OFF | SOURCE PROGRAMME|<output> | QR [ON|OFF] | PORT <n> | PIN <pin>|OFF (صدا هم گنجانده می‌شود)
+Where highlights fold back through black. Low folds most of the picture, high folds only the brightest.	جایی که روشنایی‌ها از سیاهی برمی‌گردند. مقدار کم بیشتر تصویر و مقدار زیاد فقط روشن‌ترین بخش‌ها را تا می‌کند.
+Where the band sits, 30Hz to 16kHz across the travel.	جای باند، از 30Hz تا 16kHz در طول مسیر کنترل.
+Where the fold sits: the middle at the left, toward the far edge to the right. Flips have no fold.	جای تا: در سمت چپ، وسط تصویر؛ با حرکت به راست، نزدیک لبهٔ دور. برگرداندن تصویر تا ندارد.
+Where the light stands, in degrees around the frame.	جای نور، بر حسب درجه دور قاب.
+Where the source sits around the listener, all the way round. For headphones -- it is a timing and shading trick, not a pan.	جای منبع در تمام دایرهٔ پیرامون شنونده. برای هدفون؛ ترفندی با زمان و رنگ صداست، نه پن.
+Where the top ends, 200Hz to 20kHz. Pull it down to take the harshness off a bright source.	انتهای فرکانس‌های بالا، از 200Hz تا 20kHz. پایین بیاورید تا تیزی منبع روشن کم شود.
+Which channel the curve acts on: all three, then red, green or blue on its own -- the way a colourist warms or cools one end of the picture.	کانالی که منحنی روی آن اثر می‌گذارد: هر سه، سپس قرمز، سبز یا آبی به‌تنهایی؛ مانند گرم یا سرد کردن یک سر طیف تصویر توسط رنگ‌پرداز.
+Which way the knife edge lies. Only gradients ACROSS the edge show, so turning it swaps which features appear and which vanish.	جهت لبهٔ تیغه. فقط گرادیان‌های عمود بر لبه دیده می‌شوند؛ چرخاندن آن مشخص می‌کند کدام ویژگی‌ها نمایان یا ناپدید شوند.
+Which way the streak runs: across at the left, upright in the middle, across again at the right.	جهت رگه: در چپ افقی، در وسط عمودی و در راست دوباره افقی.
+Widens the decision into a ramp, so edges keep their shape instead of jagging.	مرز تصمیم را به یک شیب گسترش می‌دهد تا لبه‌ها به‌جای دندانه‌دار شدن، شکلشان را حفظ کنند.
+Words to surface in the field, separated by | . One shows at a time, moving on the hold clock.	واژه‌های ظاهرشونده در میدان، جداشده با | . هر بار یکی نمایش داده می‌شود و با ساعت نگه‌داری عوض می‌شود.
+Zero is one noise value across all three channels, which reads as film. Higher gives each channel its own, which reads as video.	صفر برای هر سه کانال یک مقدار نویز می‌دهد که شبیه فیلم است. مقدار بالاتر به هر کانال نویز جداگانه می‌دهد که شبیه ویدیو است.
+Lens	عدسی
+Lumia	لومیا
+Prism	منشور
+Water	آب
+Lasers	لیزرها
+Pixels	پیکسل‌ها
+out:--	خروجی:--
+Listens	پیروی از صدا
+Mirrors	آینه‌ها
+Shimmer	سوسو
+FDS synth	سینتی‌سایزر FDS
+Terrarium	تراریوم
+(bypassed)	(کنارگذر)
+Second jet	فوارهٔ دوم
+%, 1 to 100	%، از 1 تا 100
+Panel angle	زاویهٔ پنل
+Ripple size	اندازهٔ موجک
+Panels, 0-12	پنل‌ها، 0-12
+Seconds, 0-4	ثانیه، 0-4
+Seconds, 0-8	ثانیه، 0-8
+Top / bottom	بالا / پایین
+Amount 0-100%	مقدار 0-100%
+ALSA MIDI Port	درگاه ALSA MIDI
+Degrees, 0-360	درجه، 0-360
+Terrarium Pico	تراریوم پیکو
+ASIOInit failed	ASIOInit ناموفق بود
+Hertz, 20-20000	هرتز، 20-20000
+Pixels, 64-2160	پیکسل، 64-2160
+Pixels, 64-3840	پیکسل، 64-3840
+Colour steps, 2-8	پله‌های رنگ، 2-8
+Degrees -180..180	درجه -180..180
+Palette turn, 0-1	چرخش پالت، 0-1
+Size, %, 5 to 400	اندازه، %، از 5 تا 400
+Feature size, 0.1-8	اندازهٔ جزئیات، 0.1-8
+Spiral size, 0.25-4	اندازهٔ مارپیچ، 0.25-4
+Degrees, -360 to 360	درجه، از -360 تا 360
+Spiral strength, 0-4	شدت مارپیچ، 0-4
+0-100%, left to right	0-100%، از چپ به راست
+0-100%, top to bottom	0-100%، از بالا به پایین
+0-100%: laser speckle	0-100%: لکه‌های لیزر
+Pixel sort amount, 0-1	مقدار مرتب‌سازی پیکسل، 0-1
+Pitch in hertz, 20-8000	زیرایی بر حسب هرتز، 20-8000
+Frames a second, 1 to 60	فریم در ثانیه، از 1 تا 60
+Horizontal cells, 64-960	خانه‌های افقی، 64-960
+select a lumia cue first	ابتدا یک کیوی لومیا انتخاب کنید
+0 tube, 1 mandala, 2 none	0 لوله، 1 ماندالا، 2 هیچ‌کدام
+How big a blob grows, 0-1	اندازهٔ رشد لکه، 0-1
+0-100%: overall brightness	0-100%: روشنایی کلی
+FDS hardware gain range, 0-63	بازهٔ بهرهٔ سخت‌افزاری FDS، 0-63
+How hard it cuts, %, 0 to 100	شدت برش، %، از 0 تا 100
+{1} (supports + - * / and ())	{1} (از + - * / و () پشتیبانی می‌کند)
+Master oscillator rate, 0.01-8	سرعت نوسان‌ساز اصلی، 0.01-8
+Seconds the in move takes, 0-5	زمان حرکت ورود به ثانیه، 0-5
+0-100%: 0 holds the field still	0-100%: در 0 میدان ثابت می‌ماند
+0-100%: how bright the water is	0-100%: روشنایی آب
+0-100%: how far the field bends	0-100%: میزان خمیدگی میدان
+0-100%: the whole picture turns	0-100%: چرخش کل تصویر
+Degrees per second, -720 to 720	درجه در ثانیه، از -720 تا 720
+Lumia (laser light and mirrors)	لومیا (نور لیزر و آینه‌ها)
+Seconds between retriggers, 0-8	فاصلهٔ تحریک دوباره به ثانیه، 0-8
+Seconds the out move takes, 0-5	زمان حرکت خروج به ثانیه، 0-5
+0-100%: how fast the water moves	0-100%: سرعت حرکت آب
+0-100%: the halo round the lines	0-100%: هالهٔ دور خط‌ها
+How many are alive at once, 3-48	تعداد زنده‌ها در یک زمان، 3-48
+Turbulence, 0 still to 3 boiling	آشفتگی، از 0 آرام تا 3 جوشان
+Birth, drift and fade rate, 0.1-3	سرعت پیدایش، رانش و محوشدن، 0.1-3
+How hard the audio drives it, 0-1	شدت تأثیر صدا، 0-1
+Scale of the whole graphic, 0.5-2	مقیاس کل طرح، 0.5-2
+0-100%: 0 broad, 100 fine and busy	0-100%: 0 درشت، 100 ریز و شلوغ
+Down, % of the height, -100 to 100	پایین، % ارتفاع، از -100 تا 100
+Thickness of the glowing edge, 0-1	ضخامت لبهٔ درخشان، 0-1
+0-100%: how hard the lines are bent	0-100%: شدت خمیدگی خط‌ها
+0-100%: light lingers on the screen	0-100%: ماندگاری نور روی صفحه
+Across, % of the width, -100 to 100	افقی، % عرض، از -100 تا 100
+% of the picture's height, 0.1 to 20	% ارتفاع تصویر، از 0.1 تا 20
+0-100%: how far the colours fan apart	0-100%: میزان بازشدن رنگ‌ها
+Degrees round the colour wheel, 0-360	درجه روی چرخهٔ رنگ، 0-360
+Where the eye sits, 0 left to 1 right	جای چشم، از 0 چپ تا 1 راست
+Where the eye sits, 0 top to 1 bottom	جای چشم، از 0 بالا تا 1 پایین
+dBFS, -60 to 0 (-18 is EBU alignment)	dBFS، از -60 تا 0 (-18 تراز مرجع EBU است)
+0-100%: how bright the laser lines are	0-100%: روشنایی خط‌های لیزر
+One LED tile's width in pixels, 8-8192	عرض یک کاشی LED به پیکسل، 8-8192
+0-100%: a second jet crossing the first	0-100%: فوارهٔ دومی که اولی را قطع می‌کند
+Edge softness, % of the height, 0 to 25	نرمی لبه، % ارتفاع، از 0 تا 25
+One LED tile's height in pixels, 8-8192	ارتفاع یک کاشی LED به پیکسل، 8-8192
+0 classic, 1 fire, 2 ice, 3 neon, 4 mono	0 کلاسیک، 1 آتش، 2 یخ، 3 نئون، 4 تک‌رنگ
+Modulator as a ratio of the note, 0.05-16	نسبت مدولاتور به نت، 0.05-16
+Scanlines, bloom and gun misalignment, 0-1	خطوط اسکن، درخشش و ناهم‌ترازی تفنگ‌ها، 0-1
+0-100%: the round lens, barrel and dark rim	0-100%: عدسی گرد، اعوجاج بشکه‌ای و حاشیهٔ تیره
+Block displacement and channel tearing, 0-1	جابه‌جایی بلوک و پارگی کانال، 0-1
+Internal resolution, 1 (chunky) to 5 (fine)	وضوح داخلی، از 1 (درشت) تا 5 (ریز)
+Seconds the finished drawing stays, 0 to 60	ماندگاری طرح کامل به ثانیه، از 0 تا 60
+0 rainbow + grey, 1 rainbow, 2 theme, 3 mono	0 رنگین‌کمان + خاکستری، 1 رنگین‌کمان، 2 پوسته، 3 تک‌رنگ
+How readily neighbours merge, 0 (never) to 1	آسانی ادغام همسایه‌ها، از 0 (هرگز) تا 1
+Turns the rim's colours round the wheel, 0-1	رنگ‌های حاشیه را روی چرخهٔ رنگ می‌چرخاند، 0-1
+drag to turn round it · wheel to come closer	برای چرخیدن دور آن بکشید · برای نزدیک‌شدن از چرخ ماوس استفاده کنید
+0-100%: 50 is 1x, 0 a quarter, 100 four times	0-100%: 50 برابر 1x، 0 یک‌چهارم، 100 چهار برابر
+How much of each frame feeds the next, 0-0.95	سهم هر فریم در فریم بعدی، 0-0.95
+Per-frame zoom of the feedback path, 0.90-1.15	بزرگ‌نمایی مسیر بازخورد در هر فریم، 0.90-1.15
+Space under it, as a fraction of the frame, 0-0.8	فضای زیر آن به نسبت فریم، 0-0.8
+0 rgb, 1 rainbow, 2 floyd, 3 warm, 4 cool, 5 green	0 rgb، 1 رنگین‌کمان، 2 فلوید، 3 گرم، 4 سرد، 5 سبز
+Edge out (+) or in (-), % of the height, -25 to 25	لبه به بیرون (+) یا داخل (-)، % ارتفاع، از -25 تا 25
+0 zone, 1 twin, 2 flow, 3 saddle, 4 ripple, 5 shear	0 ناحیه، 1 دوقلو، 2 جریان، 3 زینی، 4 موجک، 5 برش
+Seconds before it leaves by itself; 0 waits for OUT	ثانیه تا خروج خودکار؛ 0 منتظر OUT می‌ماند
+0-100%: how far each panel tilts from the one before	0-100%: میزان کج‌شدن هر پنل نسبت به قبلی
+0-100%: the share of each band drawn as grey stripes	0-100%: سهم هر نوار که به صورت راه‌راه خاکستری رسم می‌شود
+0 off, 1 on: the flow surges with the programme sound	0 خاموش، 1 روشن: جریان با صدای برنامه اوج می‌گیرد
+0 off, 1 on: the top mirrors the bottom round a dark seam	0 خاموش، 1 روشن: بالا بازتاب پایین در دو سوی درزی تیره است
+' (cues, position, look, effects, levels, routing, master)	' (کیوها، موقعیت، ظاهر، افکت‌ها، سطح‌ها، مسیریابی، مستر)
+' -- try ADD, ON, OFF, ASSIGN, UNASSIGN, LAYER, HOST, TYPE, MIRROR or an output number	' -- ADD, ON, OFF, ASSIGN, UNASSIGN, LAYER, HOST, TYPE, MIRROR یا شمارهٔ خروجی را امتحان کنید
+BLEND ROW: expected <first output> <how many, 2 or more> <overlap in pixels>, with that many outputs	BLEND ROW: نیاز به <اولین خروجی> <تعداد، 2 یا بیشتر> <هم‌پوشانی به پیکسل>، با همین تعداد خروجی
+DASH: LIST | <n> | SET <n> <label> | <command> | CLEAR <n>	DASH: LIST | <n> | SET <n> <برچسب> | <فرمان> | CLEAR <n>
+OUTPUT SPOUT: ON | OFF | TOGGLE | NAME <sender name>	OUTPUT SPOUT: ON | OFF | TOGGLE | NAME <نام فرستنده>
+SCREENS STAGE: STATUS, SET <what> <value> or APPLY	SCREENS STAGE: STATUS, SET <پارامتر> <مقدار> یا APPLY
+LFO: flow, water, ripple, jet, prism, split, focus, shimmer, mirrors, angle, spin, lens, glow, bright or trail	LFO: flow, water, ripple, jet, prism, split, focus, shimmer, mirrors, angle, spin, lens, glow, bright یا trail
+SCREENS STAGE SET: WIDTH|HEIGHT <m>, LUMENS, THROW, OVERLAP <%>, GAIN, COUNT, PIXELS <w> <h> or UNITS METRES|FEET	SCREENS STAGE SET: WIDTH|HEIGHT <m>, LUMENS, THROW, OVERLAP <%>, GAIN, COUNT, PIXELS <w> <h> یا UNITS METRES|FEET
+STATUS | SHAPE <0-5> | PALETTE <0-3> | DENSITY|SPEED|WARP|CENTREX|CENTREY|GREY <0-100> | TURN|HUE <0-360> | LFO <control> <setting>	STATUS | SHAPE <0-5> | PALETTE <0-3> | DENSITY|SPEED|WARP|CENTREX|CENTREY|GREY <0-100> | TURN|HUE <0-360> | LFO <کنترل> <تنظیم>
+STATUS | PALETTE <0-5 or name> | MODE <0-2 or name> | TOPBOTTOM|LISTENS ON|OFF | FLOW|WATER|RIPPLE|JET|PRISM|SPLIT|FOCUS|SHIMMER|ANGLE|SPIN|LENS|GLOW|BRIGHT|TRAIL <0-100> | MIRRORS <0-12> | LFO <control> <setting>	STATUS | PALETTE <0-5 یا نام> | MODE <0-2 یا نام> | TOPBOTTOM|LISTENS ON|OFF | FLOW|WATER|RIPPLE|JET|PRISM|SPLIT|FOCUS|SHIMMER|ANGLE|SPIN|LENS|GLOW|BRIGHT|TRAIL <0-100> | MIRRORS <0-12> | LFO <کنترل> <تنظیم>
+Render	رندر
+Opacity	کدری
+opacity	کدری
+PNG frames	فریم‌های PNG
+START RENDER	شروع رندر
+CANCEL RENDER	لغو رندر
+RENDER TO FILE	رندر در فایل
+RENDER TO FILE...	رندر در فایل...
+QUANTISE: beat	کوانتایز: ضرب
+QUANTISE: 1 bar	کوانتایز: 1 میزان
+QUANTISE: 2 bars	کوانتایز: 2 میزان
+QUANTISE: 4 bars	کوانتایز: 4 میزان
+about {1} left	حدود {1} باقی مانده
+LINK: {1} peers	LINK: {1} همتا
+render cancelled	رندر لغو شد
+{1} frames in {2}	{1} فریم در {2}
+the output's ({1})	متعلق به خروجی ({1})
+From cue and to cue	کیوی آغاز و پایان
+left the Link session	از نشست Link خارج شد
+joined the Link session	به نشست Link پیوست
+the playlist has no cues	فهرست پخش کیویی ندارد
+{1} frames, {2}, {3}x{4}	{1} فریم، {2}، {3}x{4}
+the source made no picture	منبع تصویری تولید نکرد
+a render is already running	یک رندر در حال اجراست
+TAKE waits for the bar: {1} s	TAKE منتظر میزان است: {1} s
+TAKE waits for the beat: {1} s	TAKE منتظر ضرب است: {1} s
+there is no playlist to render	فهرست پخشی برای رندر وجود ندارد
+this build has no Ableton Link	این ساخت فاقد Ableton Link است
+there is no picture in that range	در آن بازه تصویری نیست
+RENDER CANCEL: nothing is rendering	RENDER CANCEL: رندری در حال اجرا نیست
+VJ LINK: this build has no Ableton Link	VJ LINK: این ساخت فاقد Ableton Link است
+PAD CHIP: <slot> ON|OFF	PAD CHIP: <جایگاه> ON|OFF
+PAD MODE: HOLD or LATCH	PAD MODE: HOLD یا LATCH
+RENDER START: CUE, CUES a-b or OUTPUT	RENDER START: CUE, CUES a-b یا OUTPUT
+frame {1} of {2} \xC2\xB7 {3} frames/s	فریم {1} از {2} \xC2\xB7 {3} فریم/ثانیه
+RENDER START CUES: first-last, numbered from 1	RENDER START CUES: اول-آخر، شماره‌گذاری از 1
+the output's mask is not drawn by a render yet	رندر هنوز ماسک خروجی را رسم نمی‌کند
+PAD ASSIGN: this cue does not have that control	PAD ASSIGN: این کیو آن کنترل را ندارد
+the output's slices are not drawn by a render yet	رندر هنوز برش‌های خروجی را رسم نمی‌کند
+the output's crossfader is not drawn by a render yet	رندر هنوز کراس‌فیدر خروجی را رسم نمی‌کند
+RENDER START: needs a size, a rate, a codec and a file	RENDER START: اندازه، نرخ، کدک و فایل لازم است
+VJ QUANTISE: beat | 1 | 2 | 4 | off  (1, 2, 4 are bars)	VJ QUANTISE: beat | 1 | 2 | 4 | off  (1، 2، 4 تعداد میزان‌هاست)
+PAD SET: x and y are numbers from 0 to 1 (y = 1 is the top)	PAD SET: x و y اعدادی از 0 تا 1 هستند (y = 1 بالاست)
+RENDER START: size is 1080P, 4K or OUTPUT; codec is PRORES, H264 or PNG	RENDER START: اندازه 1080P، 4K یا OUTPUT؛ کدک PRORES، H264 یا PNG
+PAD ASSIGN: a control is OPACITY, FX<n>.AMOUNT, FX<n>.A to F, or NUM.<name> such as NUM.lumia.flow	PAD ASSIGN: کنترل OPACITY، FX<n>.AMOUNT، FX<n>.A تا F، یا NUM.<نام> مانند NUM.lumia.flow است
+PAD: expected PAD <deck> SET <x> <y> | RELEASE | MODE | ASSIGN | REMOVE | CHIP | LIST	PAD: قالب مورد انتظار PAD <deck> SET <x> <y> | RELEASE | MODE | ASSIGN | REMOVE | CHIP | LIST
+PAD: expected PAD <deck> SET <x> <y> | RELEASE | MODE HOLD|LATCH | ASSIGN <slot> <x> <y> | REMOVE <slot> | CHIP <slot> ON|OFF | LIST	PAD: قالب مورد انتظار PAD <deck> SET <x> <y> | RELEASE | MODE HOLD|LATCH | ASSIGN <slot> <x> <y> | REMOVE <slot> | CHIP <slot> ON|OFF | LIST
+VJ: expected ON|OFF|TOGGLE|MIX <0-1>|BLEND <mode>|TAP|BPM <n>|CLOCK <on|off>|QUANTISE <beat|1|2|4|off>|LINK <on|off|status>|DECKS <a> <b>|STATUS	VJ: قالب مورد انتظار ON|OFF|TOGGLE|MIX <0-1>|BLEND <mode>|TAP|BPM <n>|CLOCK <on|off>|QUANTISE <beat|1|2|4|off>|LINK <on|off|status>|DECKS <a> <b>|STATUS
+RENDER: START <CUE|CUES a-b|OUTPUT> <1080P|4K|OUTPUT> <25|30|50|60> <PRORES|H264|PNG> <file>, STATUS, CANCEL, DIALOG	RENDER: START <CUE|CUES a-b|OUTPUT> <1080P|4K|OUTPUT> <25|30|50|60> <PRORES|H264|PNG> <فایل>, STATUS, CANCEL, DIALOG

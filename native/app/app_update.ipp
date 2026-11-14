@@ -463,6 +463,7 @@
     // The MIDI map first: a knob's frame of values becomes one command here.
     serviceMidiMap();
     processRemoteCommands();
+    padWatchdog();
     refreshNmcSyncState();
     refreshNdiTriggerBridgeState();
     refreshLtcCaptureState();
@@ -1198,6 +1199,7 @@
       }
     }
     ++motionDriverFrameCounter_;
+    serviceVjLink();
     serviceVjQuantisedTake();
     // A and B preview textures, from each deck's own decoded frame.
     //

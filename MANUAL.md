@@ -1039,16 +1039,36 @@ column carries the controls.
   the fader.
 - **Tap tempo**, averaged over recent taps rather than the last interval —
   nobody taps evenly. Taps more than two seconds apart start again.
-- **Quantised takes** hold until the next beat. The point of tempo in a video
+- **Quantised takes** hold until the next boundary. The point of tempo in a video
   mixer is not that anything moves by itself, it is that **what you do lands on
-  the music**.
+  the music**. The QUANTISE button under the bar steps through **beat**,
+  **1 bar**, **2 bars**, **4 bars** and **off**. A bar is four beats. While a
+  take is held, the bar says how long is left: "TAKE waits for the bar: 0.9 s".
+  A boundary less than a tenth of a beat away counts as the one you just hit, so
+  the take goes at once.
+- The **four-beat light** is four lamps under the badge. The current beat of the
+  bar is lit. Beat 1 is the bar line.
+- **Ableton Link.** The LINK button joins the Link session on your network, so
+  Deckboy follows the tempo and the bar phase of Live, Traktor, Rekordbox or any
+  other app that speaks Link. It reads "LINK: 3 peers" with a lit lamp when
+  others are in the session. In a session, the tempo is the session's: a peer
+  changes it and the BPM here follows; TAP or a typed BPM here is offered to
+  the session and the peers follow. Bars line up with the session, so a take
+  quantised to a bar lands on the bar line every other app is counting. The
+  LFOs run on the same beats. While Link is on, MIDI clock does not set the
+  tempo. The Link setting is saved with the show. Link needs UDP on your local
+  network (multicast to 224.76.78.75, port 20808). A build made with
+  `-DENABLE_LINK=OFF` has no Link and says so on the button.
 - Both playlists are on screen side by side, each headed with which side of the
   crossfader it is, and A, the mix, and B each get their own monitor — a
   crossfader you cannot see both sides of is a blind control.
 
 `VJ ON|OFF | MIX <0-1> | BLEND [mode] | TAP | BPM <n> | CLOCK <on|off> |
-QUANTISE <on|off> | DECKS <a> <b> | STATUS` over the wire, because a fader is
-the one control nobody wants to reach for with a mouse.
+QUANTISE <beat|1|2|4|off|on> | LINK <on|off|status> | DECKS <a> <b> | STATUS`
+over the wire, because a fader is the one control nobody wants to reach for
+with a mouse. QUANTISE 1, 2 and 4 are bars; ON keeps the length you had.
+LINK STATUS answers `off`, `on, 3 peers`, or `unavailable` in a build without
+Link.
 
 ### Layer blend modes
 
@@ -1545,6 +1565,65 @@ Over the wire: `RECORD [on|off|toggle]`, `RECFORMAT <WxH|program> [fps|program]`
 `RECSEGMENT <minutes> [megabytes]`.
 
 ---
+
+### Render to a file
+
+`MENU > RECORDING > RENDER TO FILE...` makes a file frame by frame. It is not a
+recording. RECORD films the programme as it plays, so a laptop that cannot play
+4K60 live records a 4K60 file that stutters. A render draws each frame when the
+one before it is written. A slow machine takes longer, and the file is still
+perfect.
+
+The dialog asks for five things:
+
+- **What.** This cue; from cue N to M (the playlist in focus); or an output's
+  whole show: the output's playlist and every layer over it, each laid on the ones below with its own opacity, blend and rect.
+- **Size.** 1080p, 4K, or the output's own size.
+- **Frames a second.** 25, 30, 50 or 60.
+- **File.** ProRes 4444 (keeps alpha), H.264 (over black), or PNG frames (a
+  folder of numbered pictures, with alpha).
+- **Where.** CHOOSE... picks the file. Without a choice the name is made from
+  the cue, in the recording folder.
+
+While it runs, the dialog shows `frame 1,368 of 3,600`, the frames a second it
+makes, and the time left. CANCEL RENDER stops it and removes the partial file.
+The show keeps working during a render.
+
+**Why it is exact.** The render owns the show's clock. Frame *n* is *n* divided
+by the rate, whatever the wall clock says. A generated source is built at that
+moment, every LFO reads it, an effect gets that frame's number, and a video
+file is read at exactly the render's rate: ffmpeg waits for the render, so no
+frame is dropped. Nothing touches the live decks. The same render gives the same
+file twice; `tools/check_render_to_file.py` renders twice and compares the
+decoded frames and the bytes.
+
+**Not frame-exact yet.** The dialog refuses these, and says which cue and why:
+live inputs (camera, window, NDI, stream, capture card), browser pages, timers,
+the Terrarium (its simulation keeps its own clock), rotation and the size and
+position oscillators, Text mode, the motion puppet, Audioprint, masks, slices, a
+layer's corner pin, and an output's crossfader.
+
+**Transitions.** Each cue arrives by its own transition style and length, or its
+playlist's, from the cue before it: crossfade, dip to black or white, push, wipe,
+iris, and the portal, shatter, clouds and ghastly builders. The transition fills
+the first seconds of the new cue (the file is not made longer), and the cue it
+leaves is held on its last picture, as a live take holds a finished cue. The bars
+round a letterboxed picture are clear, not black.
+
+**Layers.** An output's whole show draws every playlist the output shows, bottom
+first, with each playlist's opacity, its layer's blend (dissolve, add, multiply,
+screen, lighten, darken, subtract, undercut, infiltrate, ember) and its rect.
+Each playlist runs its own cues from cue 1; a layer whose cues are done draws
+nothing. A render is the programme before the output's warp and edge blend.
+
+**Not drawn at all.** Sound (the file has no audio track). Audio-only cues are skipped.
+A still or a generated cue lasts its still duration; with none set it lasts the
+playlist's default still time.
+
+**Companion and scripts.** `RENDER START <CUE|CUES a-b|OUTPUT> <1080P|4K|OUTPUT>
+<25|30|50|60> <PRORES|H264|PNG> <file>`, `RENDER STATUS`, `RENDER CANCEL` and
+`RENDER DIALOG`. START writes to a path the caller names, so it answers only
+on the local machine.
 
 ## 14. Per-Cue Effects
 
@@ -3646,6 +3725,20 @@ The screen, top to bottom:
   do anything else on this screen, so editing one cannot reach further.
 - **TRACKER**, when the show has tracker steps: the step, the next one,
   **BACK**, **GO** and **PLAY** / **STOP**.
+- **PAD**: one finger moves two controls. Drag on the square: the dot follows
+  your finger, and the two controls on its axes move together (the labels
+  above the square say which, such as `X glow`, `Y blur`). The chips under it
+  are the controls on the pad; a filled chip is on. Tap a chip to turn it on
+  or off, hold it to change it, and press **+ EFFECT** to add one. Each chip is
+  a pair: any two controls of the live cue (or the selected cue when nothing is
+  live), picked from a list: an effect's sliders and its amount, the deck's
+  opacity, and the numbers of a generated source such as Lumia (flow, prism),
+  Moire (density), Swirl or Portal. Stack up to eight chips and they all follow
+  the same finger. **HOLD** (the default): when you let go, every control
+  springs back to where it was when you touched down. **LATCH**: they stay
+  where you left them. A phone that goes quiet with a finger down is let go
+  after four seconds. Pad assignments last for the session; they are not saved
+  in the show.
 - **SHOW**: **BLACKOUT** and **REC** fire after a half-second hold, so a pocket
   cannot press them; **TEST CARD** and each output toggle with a tap.
 - The page wears the desk's theme and Deckboy's pixel face, and shows each

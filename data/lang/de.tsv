@@ -3271,3 +3271,1225 @@ whole picture	das ganze Bild
 FX CHOICE: choice must be A or B	FX CHOICE: Auswahl muss A oder B sein
 FX CHOICE: no effect at that index	FX CHOICE: kein Effekt an diesem Index
 FX LFO: slot is A-D for the parameters, E for the amount, F and G for the fifth and sixth (or 0-6)	FX LFO: Slot ist A-D für die Parameter, E für die Stärke, F und G für den fünften und sechsten (oder 0-6)
+(choose cue)	(Cue wählen)
+(missing)	(fehlt)
+(no slots)	(keine Plätze)
+(set media file)	(Mediendatei wählen)
+(set url)	(URL festlegen)
+A number	Eine Zahl
+A number, or blank for none	Eine Zahl, sonst leer lassen
+across the grain	quer zur Maserung
+additive	additiv
+alternating	abwechselnd
+amber	bernstein
+angle	Winkel
+Art-Net Destination	Art-Net-Ziel
+ASIO is off	ASIO ist aus
+ATEM Input	ATEM-Eingang
+Attach Lower Third	Lower Third anhängen
+Attach PIP Overlay	PIP-Overlay anhängen
+Attack	Ansprechzeit
+attack	Ansprechzeit
+Audio bitrate	Audio-Bitrate
+Audio reactivity	Audioreaktivität
+band curve	Bandkurve
+Bands	Bänder
+bands	Bänder
+base layer	Basisebene
+black point	Schwarzpunkt
+bleed	Ausbluten
+Blobs	Flecken
+block glitch	Blockstörung
+block size	Blockgröße
+blocks	Blöcke
+blur	Unschärfe
+BOTH	BEIDE
+bright	hell
+Browser Ready	Browser bereit
+Brush opacity	Pinsel-Deckkraft
+Brush size	Pinselgröße
+buzzer	Summer
+by brightness	nach Helligkeit
+cancelled	abgebrochen
+Canvas Height	Arbeitsflächenhöhe
+Canvas View	Arbeitsflächenansicht
+Canvas Width	Arbeitsflächenbreite
+catch	Einfangen
+caustics	Kaustik
+Centre X	Mitte X
+Centre Y	Mitte Y
+channel skew	Kanalversatz
+channel spread	Kanalspreizung
+character	Zeichen
+chop	Zerhacken
+CLASSIC	KLASSISCH
+CLOCK	UHR
+coherence	Kohärenz
+colour bleed	Farbausbluten
+colour drift	Farbdrift
+colour lag	Farbverzögerung
+colour replace	Farbersetzung
+columns	Spalten
+Control change	Controllerwechsel
+convergence	Konvergenz
+copies	Kopien
+corrupt	Beschädigen
+corruption	Beschädigung
+coupling	Kopplung
+crystallise	Kristallisieren
+Cue Notes	Cue-Notizen
+curl detail	Wirbeldetail
+curves	Kurven
+Custom Glyphs	Eigene Zeichen
+Custom Output Raster	Eigenes Ausgaberaster
+cut bright	Helles ausblenden
+cut dark	Dunkles ausblenden
+cut reset	Schnitt-Reset
+cutoff	Grenzfrequenz
+cuts	Schnitte
+cyan	Cyan
+damage	Schaden
+damping	Dämpfung
+dark	dunkel
+darkness	Dunkelheit
+deck age	Deck-Alter
+Density	Dichte
+depth	Tiefe
+depth split	Tiefentrennung
+Destination Address	Zieladresse
+Destination UDP port	UDP-Zielport
+Detail	Details
+diamond	Raute
+display native	Bildschirmnativ
+Display none	Kein Bildschirm
+distance	Abstand
+DMX Channels	DMX-Kanäle
+dots move	Punktbewegung
+Draw colour	Zeichenfarbe
+drift	Drift
+drip	Tropfen
+drips	Tropfen
+drive	Ansteuerung
+dye advect	Farbtransport
+edge ignite	Kantenfeuer
+edges	Kanten
+empty	leer
+empty expression	leerer Ausdruck
+extended	erweitert
+EXTREME	EXTREM
+facet light	Facettenlicht
+falloff	Abfall
+falsecolour	Falschfarben
+feed rate	Zufuhrrate
+feedback bloom	Rückkopplungsblüte
+Feedback zoom	Rückkopplungszoom
+ferrofluid	Ferrofluid
+field of view	Sichtfeld
+flash length	Blitzdauer
+flash to	Blitzfarbe
+flicker	Flackern
+Flipbook rate	Daumenkino-Tempo
+floor	Untergrenze
+Flow	Fluss
+flow	Fluss
+focus	Fokus
+fold	Faltung
+fold point	Faltpunkt
+frames	Bilder
+Frequency	Frequenz
+frequency	Frequenz
+gap	Lücke
+gather	Sammeln
+glow	Leuchten
+glyph set	Zeichensatz
+grain	Körnung
+grain flow	Kornfluss
+grain size	Korngröße
+green split	Grüntrennung
+Grey	Grau
+grid	Raster
+growl	Knurren
+growth	Wachstum
+head wear	Kopfverschleiß
+heat	Hitze
+Height	Höhe
+Height (px)	Höhe (px)
+highlight roll	Lichterabrollung
+horizontal	waagerecht
+hue turn	Farbtondrehung
+ice	Eis
+ink	Tinte
+interference	Störung
+irregularity	Unregelmäßigkeit
+jump	Sprung
+kaleido	Kaleido
+kaleidoscope	Kaleidoskop
+Key Color	Key-Farbe
+knee	Kennlinienknie
+knife angle	Messerwinkel
+leak	Leck
+let go	Loslassen
+lift	Anhebung
+light	Licht
+light angle	Lichtwinkel
+lightspeed	Lichttempo
+line colour	Linienfarbe
+line glow	Linienleuchten
+Lower Third - subtitle	Lower Third - Untertitel
+Lower Third - title	Lower Third - Titel
+Lower Third Subtext	Lower Third Untertext
+Lower Third Title	Lower Third Titel
+luma displace	Luma-Versatz
+luma key	Luma-Key
+Mask opacity	Masken-Deckkraft
+Mask rotation	Maskendrehung
+Mask scale	Maskenskalierung
+Mask X	Maske X
+Mask Y	Maske Y
+material	Material
+Melt	Schmelzen
+melt	Schmelzen
+memory	Gedächtnis
+midtones	Mitteltöne
+mosaic	Mosaik
+motion mosh	Bewegungs-Mosh
+motion puppet	Bewegungsmarionette
+motion trails	Bewegungsspuren
+music & sparkle	Musik & Glitzern
+night eyes	Nachtaugen
+no colour	keine Farbe
+noise	Rauschen
+not connected	nicht verbunden
+not on this output	nicht auf diesem Ausgang
+nothing drawn	nichts gezeichnet
+off-axis	außeraxial
+offline	nicht verbunden
+orbit speed	Umlauftempo
+Out time	Ausblendzeit
+Output Alpha	Ausgabe-Alpha
+Output Canvas	Ausgabefläche
+Output Delay	Ausgabeverzögerung
+output fault	Ausgabefehler
+Output name	Ausgabename
+Output Refresh	Ausgabe-Bildrate
+overflow	Überlauf
+own playlist	eigene Liste
+parallax	Parallaxe
+Payload	Nutzdaten
+Percent 0-100	Prozent 0-100
+phone	Telefon
+Phrases	Phrasen
+pinch	Zusammenziehen
+pink noise	Rosa Rauschen
+pitch	Tonhöhe
+pivot	Drehpunkt
+Pixel density	Pixeldichte
+pixel sort	Pixelsortierung
+polar warp	Polare Verzerrung
+posterise	Posterisieren
+Practice show	Übungsshow
+PREVIOUS	VORHERIGE
+Program change	Programmwechsel
+Prompter script	Prompter-Text
+pythagorean	pythagoreisch
+QUALITY	QUALITÄT
+radial zoom	Radialzoom
+radius	Radius
+ramp	Rampe
+range	Bereich
+ratio	Verhältnis
+Raw bytes	Rohbytes
+Raw MIDI Bytes	MIDI-Rohbytes
+reach	Reichweite
+reaction bloom	Reaktionsblüte
+recordings	Aufnahmen
+recovering	Wiederherstellung
+refresh	Aktualisieren
+Release	Abklingzeit
+release	Abklingzeit
+relief	Relief
+relight	Neu beleuchten
+Rename cue	Cue umbenennen
+Rename fixture	Scheinwerfer umbenennen
+Renumber Cues	Cues neu nummerieren
+repeat width	Wiederholbreite
+Replay hold	Wiederholhaltezeit
+resonance	Resonanz
+Retrigger	Neu auslösen
+reverse	rückwärts
+rgb split	RGB-Trennung
+Rim	Rand
+rings	Ringe
+ripple	Wellen
+rising	steigend
+rod bias	Stäbchenanteil
+room	Raum
+rot	Verfall
+Rotation	Drehung
+rotation	Drehung
+round	rund
+sag	Spannungsabfall
+saw	Sägezahn
+scanlines	Scanzeilen
+scope	Messanzeige
+SCOPES	MESSANZEIGEN
+second mode	zweiter Modus
+see through	Durchsicht
+seed density	Keimdichte
+self	Selbst
+settle	Beruhigen
+shadow lift	Schattenanhebung
+shake	Zittern
+shard size	Splittergröße
+sharpen	Schärfen
+sheen	Schimmer
+sideways	seitwärts
+slit scan	Schlitzscan
+slit width	Schlitzbreite
+Smear	Schmieren
+smear	Schmieren
+softness	Weichheit
+solarise	Solarisieren
+Source Ready	Quelle bereit
+spike count	Spitzenzahl
+spike length	Spitzenlänge
+spin	Drehung
+spinning	drehend
+spring	Feder
+sprite sheet	Sprite-Bogen
+Sprite spin	Sprite-Drehung
+square	Rechteck
+SRT latency	SRT-Latenz
+SRT passphrase	SRT-Passphrase
+SRT stream ID	SRT-Stream-ID
+ST 2110 Destination	ST 2110-Ziel
+ST 2110 network interface	ST 2110-Netzwerkschnittstelle
+ST 2110 Port	ST 2110-Port
+Step length	Schrittlänge
+steps	Schritte
+stereogram	Stereogramm
+stiffness	Steifigkeit
+sting	Akzent
+stream restart needed	Stream-Neustart nötig
+Stream URL	Stream-URL
+stream write failed	Stream-Schreiben fehlgeschlagen
+strength	Stärke
+strobe	Stroboskop
+stroke	Strich
+SUBTLE	DEZENT
+sway	Schwanken
+sweep	Durchlauf
+sweep speed	Durchlauftempo
+swell speed	Anschwelltempo
+Switcher IP address	Mischer-IP-Adresse
+symbols	Symbole
+system default	Systemstandard
+system output	Systemausgabe
+tape	Band
+tape age	Bandalter
+target cue is gone	Ziel-Cue fehlt
+targets nothing	kein Ziel
+tear width	Rissbreite
+temporal dither	Zeitliches Dithering
+test signal	Testsignal
+text to send	zu sendender Text
+threshold	Schwellwert
+throw	Wurfweite
+tile size	Kachelgröße
+tilt	Neigung
+time	Zeit
+time cube	Zeitwürfel
+Timer Message	Timer-Text
+tint	Tönung
+tint colour	Tönungsfarbe
+tracking	Spurlage
+trail	Spur
+transparent	durchsichtig
+triangle	Dreieck
+triple beep	Dreifachpiep
+Turn	Drehung
+turn	Drehung
+Twist	Verdrehen
+twist	Verdrehen
+unavailable	nicht verfügbar
+unbalanced )	ungepaartes )
+Universe (0-63999)	Universum (0-63999)
+URL or local page path	URL oder lokaler Seitenpfad
+vapor	Dampf
+vector	Vektor
+vertical	senkrecht
+vertical bias	Vertikalgewichtung
+Video bitrate	Video-Bitrate
+Video dip fade	Video-Dip-Blende
+vignette	Vignette
+wash out	Auswaschen
+wave height	Wellenhöhe
+wavefront	Wellenfront
+way	Richtung
+wedges	Keile
+What it runs	Ausgeführter Befehl
+Which cue	Welcher Cue
+white	weiß
+white noise	Weißes Rauschen
+white point	Weißpunkt
+window hidden	Fenster verborgen
+window minimized	Fenster minimiert
+wire	Draht
+wrong display	falscher Bildschirm
+X,Y offset in pixels	X,Y-Versatz in Pixeln
+Zoom	Vergrößerung
+zoom	Vergrößerung
+% of the picture's height, 0.1 to 20 (supports + - * / and ())	% der Bildhöhe, 0.1 bis 20 (unterstützt + - * / und ())
+%, 1 to 100 (supports + - * / and ())	%, 1 bis 100 (unterstützt + - * / und ())
+-3 to 3: 0 holds, negative runs backwards (supports + - * / and ())	-3 bis 3: 0 hält, negativ läuft rückwärts (unterstützt + - * / und ())
+0 classic, 1 fire, 2 ice, 3 neon, 4 mono (supports + - * / and ())	0 klassisch, 1 Feuer, 2 Eis, 3 Neon, 4 Mono (unterstützt + - * / und ())
+0 rainbow + grey, 1 rainbow, 2 theme, 3 mono (supports + - * / and ())	0 Regenbogen + Grau, 1 Regenbogen, 2 Thema, 3 Mono (unterstützt + - * / und ())
+0 zone, 1 twin, 2 flow, 3 saddle, 4 ripple, 5 shear (supports + - * / and ())	0 Zone, 1 Zwilling, 2 Fluss, 3 Sattel, 4 Welle, 5 Scherung (unterstützt + - * / und ())
+0-1 (supports + - * / and ())	0-1 (unterstützt + - * / und ())
+0-100% (supports + - * / and ())	0-100% (unterstützt + - * / und ())
+0-100%, left to right (supports + - * / and ())	0-100%, links nach rechts (unterstützt + - * / und ())
+0-100%, top to bottom (supports + - * / and ())	0-100%, oben nach unten (unterstützt + - * / und ())
+0-100%: 0 holds the field still (supports + - * / and ())	0-100%: 0 hält das Feld still (unterstützt + - * / und ())
+0-100%: 50 is 1x, 0 a quarter, 100 four times (supports + - * / and ())	0-100%: 50 ist 1x, 0 ein Viertel, 100 vierfach (unterstützt + - * / und ())
+0-100%: how far the field bends (supports + - * / and ())	0-100%: Stärke der Feldkrümmung (unterstützt + - * / und ())
+0-100%: the share of each band drawn as grey stripes (supports + - * / and ())	0-100%: Anteil jedes Bandes mit grauen Streifen (unterstützt + - * / und ())
+Across, % of the width, -100 to 100 (supports + - * / and ())	Horizontal, % der Breite, -100 bis 100 (unterstützt + - * / und ())
+Amount 0-100% (supports + - * / and ())	Stärke 0-100% (unterstützt + - * / und ())
+Birth, drift and fade rate, 0.1-3 (supports + - * / and ())	Entstehungs-, Drift- und Abklingtempo, 0.1-3 (unterstützt + - * / und ())
+Block displacement and channel tearing, 0-1 (supports + - * / and ())	Blockversatz und Kanalabrisse, 0-1 (unterstützt + - * / und ())
+Colour steps, 2-8 (supports + - * / and ())	Farbstufen, 2-8 (unterstützt + - * / und ())
+dBFS, -60 to 0 (-18 is EBU alignment) (supports + - * / and ())	dBFS, -60 bis 0 (-18 ist EBU-Bezugspegel) (unterstützt + - * / und ())
+Degrees -180..180 (supports + - * / and ())	Grad -180..180 (unterstützt + - * / und ())
+Degrees per second, -720 to 720 (supports + - * / and ())	Grad pro Sekunde, -720 bis 720 (unterstützt + - * / und ())
+Degrees round the colour wheel, 0-360 (supports + - * / and ())	Grad im Farbkreis, 0-360 (unterstützt + - * / und ())
+Degrees, -360 to 360 (supports + - * / and ())	Grad, -360 bis 360 (unterstützt + - * / und ())
+Degrees, 0-360 (supports + - * / and ())	Grad, 0-360 (unterstützt + - * / und ())
+Down, % of the height, -100 to 100 (supports + - * / and ())	Vertikal, % der Höhe, -100 bis 100 (unterstützt + - * / und ())
+Edge out (+) or in (-), % of the height, -25 to 25 (supports + - * / and ())	Rand nach außen (+) oder innen (-), % der Höhe, -25 bis 25 (unterstützt + - * / und ())
+Edge softness, % of the height, 0 to 25 (supports + - * / and ())	Randweichheit, % der Höhe, 0 bis 25 (unterstützt + - * / und ())
+FDS hardware gain range, 0-63 (supports + - * / and ())	FDS-Hardware-Verstärkung, 0-63 (unterstützt + - * / und ())
+Feature size, 0.1-8 (supports + - * / and ())	Strukturgröße, 0.1-8 (unterstützt + - * / und ())
+Frames a second, 1 to 60 (supports + - * / and ())	Bilder pro Sekunde, 1 bis 60 (unterstützt + - * / und ())
+Hertz, 20-20000 (supports + - * / and ())	Hertz, 20-20000 (unterstützt + - * / und ())
+Horizontal cells, 64-960 (supports + - * / and ())	Horizontale Zellen, 64-960 (unterstützt + - * / und ())
+Fields per frame, 0-4 (1 = one field per rendered frame) (supports + - * / and ())	Felder pro Bild, 0-4 (1 = ein Feld pro gerendertem Bild) (unterstützt + - * / und ())
+How big a blob grows, 0-1 (supports + - * / and ())	Wie groß ein Fleck wird, 0-1 (unterstützt + - * / und ())
+How hard it cuts, %, 0 to 100 (supports + - * / and ())	Schnittstärke, %, 0 bis 100 (unterstützt + - * / und ())
+How hard the audio drives it, 0-1 (supports + - * / and ())	Stärke der Audiosteuerung, 0-1 (unterstützt + - * / und ())
+How many are alive at once, 3-48 (supports + - * / and ())	Wie viele gleichzeitig leben, 3-48 (unterstützt + - * / und ())
+How much of each frame feeds the next, 0-0.95 (supports + - * / and ())	Anteil jedes Bildes, der ins nächste einfließt, 0-0.95 (unterstützt + - * / und ())
+How readily neighbours merge, 0 (never) to 1 (supports + - * / and ())	Wie leicht Nachbarn verschmelzen, 0 (nie) bis 1 (unterstützt + - * / und ())
+Internal resolution, 1 (chunky) to 5 (fine) (supports + - * / and ())	Interne Auflösung, 1 (grob) bis 5 (fein) (unterstützt + - * / und ())
+Master oscillator rate, 0.01-8 (supports + - * / and ())	Hauptoszillator-Tempo, 0.01-8 (unterstützt + - * / und ())
+Modulator as a ratio of the note, 0.05-16 (supports + - * / and ())	Modulator als Verhältnis zum Ton, 0.05-16 (unterstützt + - * / und ())
+One LED tile's height in pixels, 8-8192 (supports + - * / and ())	Höhe eines LED-Moduls in Pixeln, 8-8192 (unterstützt + - * / und ())
+One LED tile's width in pixels, 8-8192 (supports + - * / and ())	Breite eines LED-Moduls in Pixeln, 8-8192 (unterstützt + - * / und ())
+Palette turn, 0-1 (supports + - * / and ())	Palettendrehung, 0-1 (unterstützt + - * / und ())
+Per-frame zoom of the feedback path, 0.90-1.15 (supports + - * / and ())	Rückkopplungszoom pro Bild, 0.90-1.15 (unterstützt + - * / und ())
+Pitch in hertz, 20-8000 (supports + - * / and ())	Tonhöhe in Hertz, 20-8000 (unterstützt + - * / und ())
+Pixel sort amount, 0-1 (supports + - * / and ())	Stärke der Pixelsortierung, 0-1 (unterstützt + - * / und ())
+Pixels (supports + - * / and ())	Pixel (unterstützt + - * / und ())
+Pixels, 64-2160 (supports + - * / and ())	Pixel, 64-2160 (unterstützt + - * / und ())
+Pixels, 64-3840 (supports + - * / and ())	Pixel, 64-3840 (unterstützt + - * / und ())
+Scale of the whole graphic, 0.5-2 (supports + - * / and ())	Skalierung der ganzen Grafik, 0.5-2 (unterstützt + - * / und ())
+Scanlines, bloom and gun misalignment, 0-1 (supports + - * / and ())	Scanzeilen, Überstrahlung und Strahlfehlstellung, 0-1 (unterstützt + - * / und ())
+Seconds before it leaves by itself; 0 waits for OUT (supports + - * / and ())	Sekunden bis zum selbständigen Abgang; 0 wartet auf OUT (unterstützt + - * / und ())
+Seconds between retriggers, 0-8 (supports + - * / and ())	Sekunden zwischen Auslösungen, 0-8 (unterstützt + - * / und ())
+Seconds the finished drawing stays, 0 to 60 (supports + - * / and ())	Sekunden, die die fertige Zeichnung bleibt, 0 bis 60 (unterstützt + - * / und ())
+Seconds the in move takes, 0-5 (supports + - * / and ())	Dauer der Eintrittsbewegung in Sekunden, 0-5 (unterstützt + - * / und ())
+Seconds the out move takes, 0-5 (supports + - * / and ())	Dauer der Austrittsbewegung in Sekunden, 0-5 (unterstützt + - * / und ())
+Seconds, 0-4 (supports + - * / and ())	Sekunden, 0-4 (unterstützt + - * / und ())
+Seconds, 0-8 (supports + - * / and ())	Sekunden, 0-8 (unterstützt + - * / und ())
+Size, %, 5 to 400 (supports + - * / and ())	Größe, %, 5 bis 400 (unterstützt + - * / und ())
+Space under it, as a fraction of the frame, 0-0.8 (supports + - * / and ())	Platz darunter als Bildanteil, 0-0.8 (unterstützt + - * / und ())
+Spiral size, 0.25-4 (supports + - * / and ())	Spiralgröße, 0.25-4 (unterstützt + - * / und ())
+Spiral strength, 0-4 (supports + - * / and ())	Spiralstärke, 0-4 (unterstützt + - * / und ())
+Thickness of the glowing edge, 0-1 (supports + - * / and ())	Dicke der leuchtenden Kante, 0-1 (unterstützt + - * / und ())
+Turbulence, 0 still to 3 boiling (supports + - * / and ())	Turbulenz, 0 ruhig bis 3 brodelnd (unterstützt + - * / und ())
+Turns the rim's colours round the wheel, 0-1 (supports + - * / and ())	Dreht die Randfarben im Farbkreis, 0-1 (unterstützt + - * / und ())
+Where the eye sits, 0 left to 1 right (supports + - * / and ())	Augenposition, 0 links bis 1 rechts (unterstützt + - * / und ())
+Where the eye sits, 0 top to 1 bottom (supports + - * / and ())	Augenposition, 0 oben bis 1 unten (unterstützt + - * / und ())
+Add Browser Cue	Browser-Cue hinzufügen
+Add NDI Source Cue	NDI-Quell-Cue hinzufügen
+Add Stream Cue	Stream-Cue hinzufügen
+ASCII 95 (density)	ASCII 95 (Dichte)
+ASCII 95 (raw)	ASCII 95 (roh)
+auto (59.94 Hz)	automatisch (59.94 Hz)
+azimuth	Azimut
+bits	Bit
+bohlen-pierce	Bohlen-Pierce
+chladni	Chladni
+Companion/OSC Port	Companion/OSC-Port
+control 1	Regler 1
+control 2	Regler 2
+control 3	Regler 3
+control 4	Regler 4
+Cue Goto	Cue anspringen
+Cue name (blank restores the file name)	Cue-Name (leer stellt Dateinamen wieder her)
+Default Cue Fade	Standard-Cue-Blende
+Default Non-Movie Duration	Standarddauer ohne Video
+Devamp	Schleife verlassen
+doppler	Doppler
+e.g. /cue/1/start	z. B. /cue/1/start
+e.g. 12.5	z. B. 12.5
+e.g. 192.168.1.50	z. B. 192.168.1.50
+e.g. 1=255, 10-14=64	z. B. 1=255, 10-14=64
+e.g. 20:0 or client name	z. B. 20:0 oder Clientname
+e.g. 90 3C 7F	z. B. 90 3C 7F
+export as .png or .svg	als .png oder .svg exportieren
+Find Cue	Cue suchen
+Find+Take Cue	Cue suchen+TAKE
+Fire at a time of day	Zu einer Uhrzeit auslösen
+Fire at incoming timecode	Bei Eingangs-Timecode auslösen
+Fire on a MIDI note	Bei MIDI-Note auslösen
+Fire on an OSC address	Bei OSC-Adresse auslösen
+Fireside	Kaminfeuer
+First channel (1-512)	Erster Kanal (1-512)
+Fixture address	Scheinwerferadresse
+Fixture name	Scheinwerfername
+Fixture universe	Scheinwerferuniversum
+flow (follows the picture)	Fluss (folgt dem Bild)
+GOTO Cue	Cue anspringen
+hh:mm:ss or seconds	hh:mm:ss oder Sekunden
+histogram	Histogramm
+In time	Einblendzeit
+Its name, number or id	Name, Nummer oder ID
+Key sender source name	Quellname des Key-Senders
+Keyframe interval	Schlüsselbildintervall
+Legacy Cue Link	Alte Cue-Verknüpfung
+Lissajous (L/R phase)	Lissajous (L/R-Phase)
+Live Browser	Live-Browser
+Live Source	Live-Quelle
+Media	Medien
+milliseconds (40..2000)	Millisekunden (40..2000)
+Milliseconds 0-5000	Millisekunden 0-5000
+Mod depth	Modulationstiefe
+Mod ratio	Modulationsverhältnis
+moire	Moiré
+MSC Cue Number	MSC-Cue-Nummer
+Name visible to receivers	Für Empfänger sichtbarer Name
+NDI Key Name	NDI-Key-Name
+NDI Name	NDI-Name
+NDI Source Name	NDI-Quellname
+NMC Port	NMC-Port
+NMC Source	NMC-Quelle
+NMC Target	NMC-Ziel
+NMOS Interface Name	NMOS-Schnittstellenname
+NMOS Node Port	NMOS-Knotenport
+NMOS Registry	NMOS-Register
+Note off	Note aus
+Note on	Note an
+OSC Address	OSC-Adresse
+OSC Feedback Mirror Rate	OSC-Rückmeldespiegelrate
+OSC Query HTTP Port	OSC-Query-HTTP-Port
+PIP Target Cue	PIP-Ziel-Cue
+Playlist Start TC	Listen-Start-TC
+Playlist Timebase	Listen-Zeitbasis
+pulse 25%	Puls 25%
+Save Warp Preset	Warp-Vorgabe speichern
+Seconds (0-30)	Sekunden (0-30)
+Sender source name	Quellname des Senders
+Spout Sender Name	Spout-Sendername
+TSL Tally	TSL-Tally
+UDP port for transport sync	UDP-Port für Transport-Sync
+vMix HTTP Port	vMix-HTTP-Port
+vMix TCP Port	vMix-TCP-Port
+Web Monitor Connections	Webmonitor-Verbindungen
+Web Monitor PIN	Webmonitor-PIN
+Web Monitor Port	Webmonitor-Port
+could not reach github	GitHub nicht erreichbar
+could not read the PDF	PDF konnte nicht gelesen werden
+could not start ffmpeg	ffmpeg konnte nicht gestartet werden
+could not start the PDF renderer	PDF-Renderer konnte nicht gestartet werden
+could not write the export script	Exportskript konnte nicht geschrieben werden
+couldn't open explorer	Explorer konnte nicht geöffnet werden
+couldn't open file manager	Dateimanager konnte nicht geöffnet werden
+couldn't open finder	Finder konnte nicht geöffnet werden
+driver refused to start	Treiber verweigert Start
+driver reports no output channels	Treiber meldet keine Ausgangskanäle
+driver would not create output buffers	Treiber konnte keine Ausgabepuffer erstellen
+driver would not report a buffer size	Treiber meldet keine Puffergröße
+driver would not report channel info	Treiber meldet keine Kanalinfos
+ffmpeg made no file	ffmpeg hat keine Datei erstellt
+ffmpeg stopped taking frames	ffmpeg nimmt keine Bilder mehr an
+it could not be started	Start fehlgeschlagen
+LibreOffice could not be run	LibreOffice konnte nicht ausgeführt werden
+LibreOffice produced no PDF	LibreOffice hat kein PDF erstellt
+libX11 is not installed	libX11 ist nicht installiert
+lost the session bus	Verbindung zum Sitzungsbus verloren
+macOS could not read the PDF	macOS konnte das PDF nicht lesen
+no ASIO in this build	Kein ASIO in diesem Build
+no driver named	kein Treiber namens
+no mask made	keine Maske erstellt
+no pages could be rendered	keine Seiten konnten gerendert werden
+no release found	keine Version gefunden
+no X display to read	kein lesbares X-Display
+not while a cue is playing	nicht während ein Cue spielt
+only a background in it	enthält nur einen Hintergrund
+opened in explorer	im Explorer geöffnet
+opened in file manager	im Dateimanager geöffnet
+pdftoppm produced no pages	pdftoppm hat keine Seiten erstellt
+PowerPoint could not export this file	PowerPoint konnte diese Datei nicht exportieren
+release has no build for this platform	Version hat keinen Build für diese Plattform
+revealed in finder	im Finder angezeigt
+runtime unavailable	Laufzeitumgebung nicht verfügbar
+size out of range	Größe außerhalb des Bereichs
+still reading the last folder -- one at a time	letzter Ordner wird noch gelesen -- einer nach dem anderen
+the document has no pages	das Dokument hat keine Seiten
+the file is empty	die Datei ist leer
+the header is truncated	der Dateikopf ist abgeschnitten
+the show plays through ASIO	die Show spielt über ASIO
+the time division is not readable	die Zeitteilung ist nicht lesbar
+this build has no X11 support	dieser Build unterstützt X11 nicht
+the NDI runtime is not installed	die NDI-Laufzeitumgebung ist nicht installiert
+the PDF renderer produced no pages	der PDF-Renderer hat keine Seiten erstellt
+the screen could not be read there	der Bildschirm konnte dort nicht gelesen werden
+the desktop portal did not answer	das Desktop-Portal hat nicht geantwortet
+the file has no playable events	die Datei hat keine abspielbaren Ereignisse
+Apple keeps the Keynote format secret on purpose, a malicious lock-in tactic, so only Apple's own software can read it properly. Best route: open it in Keynote on iCloud.com (free, in any browser), choose Download a Copy > PDF, and import that PDF	Apple hält das Keynote-Format absichtlich geheim, eine böswillige Taktik zur Kundenbindung, damit nur Apples eigene Software es richtig lesen kann. Bester Weg: in Keynote auf iCloud.com öffnen (kostenlos, in jedem Browser), „Kopie laden > PDF“ wählen und dieses PDF importieren
+cannot read the file: if it lives in OneDrive or iCloud, open it once so it downloads, then import it	Datei nicht lesbar: Liegt sie in OneDrive oder iCloud, einmal öffnen, damit sie heruntergeladen wird, und dann importieren
+this file is only in OneDrive, and OneDrive is not running. Start OneDrive, or copy the file to this computer, then import it again	diese Datei liegt nur in OneDrive, und OneDrive läuft nicht. OneDrive starten oder die Datei auf diesen Computer kopieren, dann erneut importieren
+this presentation needs a password to open. Remove the password in PowerPoint (File > Info > Protect Presentation) or export it as a PDF, then import that	diese Präsentation benötigt ein Passwort. Das Passwort in PowerPoint entfernen (Datei > Informationen > Präsentation schützen) oder als PDF exportieren und dieses importieren
+couldn't decode still image — unsupported format or corrupt file	Standbild konnte nicht dekodiert werden — Format nicht unterstützt oder Datei beschädigt
+the file is empty (0 bytes): it may not have finished copying or saving	die Datei ist leer (0 Bytes): Kopieren oder Speichern ist möglicherweise noch nicht abgeschlossen
+couldn't open a browser -- please report at github.com/Utopian-Academy/Deckboy/issues	Browser konnte nicht geöffnet werden -- bitte auf github.com/Utopian-Academy/Deckboy/issues melden
+a name for this step	ein Name für diesen Schritt
+a playlist that is gone	eine nicht mehr vorhandene Liste
+a target cannot target another target	ein Ziel kann nicht auf ein anderes Ziel zeigen
+an ASIO stream is already open	ein ASIO-Stream ist bereits offen
+another app is holding the pointer	eine andere App hält den Mauszeiger fest
+channel count must be at least 1	Kanalzahl muss mindestens 1 sein
+built without ASIO support	ohne ASIO-Unterstützung gebaut
+built without NDI SDK headers	ohne NDI-SDK-Header gebaut
+comma outside a function call	Komma außerhalb eines Funktionsaufrufs
+escaped to windowed	in den Fenstermodus gewechselt
+fullscreen dropped	Vollbildmodus beendet
+web audio encoder cannot keep up	Web-Audio-Encoder kommt nicht hinterher
+the caption model has not been downloaded yet	das Untertitelmodell wurde noch nicht heruntergeladen
+AUDIOALSO: expected ADD <name>, REMOVE <name> or CLEAR	AUDIOALSO: erwartet ADD <name>, REMOVE <name> oder CLEAR
+BROWSER KEY: expected Enter|Tab|Backspace|Escape	BROWSER KEY: erwartet Enter|Tab|Backspace|Escape
+BUGSWAT: expected START, SHOWME, SKIP, PLAY, EXIT or STATUS	BUGSWAT: erwartet START, SHOWME, SKIP, PLAY, EXIT oder STATUS
+CAPTIONS LIVE: expected ON, OFF, STATUS or TEXT	CAPTIONS LIVE: erwartet ON, OFF, STATUS oder TEXT
+CAPTIONS SOURCE: expected INPUT, DECK <n> or OUTPUT <n>	CAPTIONS SOURCE: erwartet INPUT, DECK <n> oder OUTPUT <n>
+DMXCUE FIXTURE: expected <name> <level%>|LEAVE [<colour>]	DMXCUE FIXTURE: erwartet <name> <level%>|LEAVE [<colour>]
+DMXCUE LFO: expected <name> LEVEL|COLOUR ON|OFF [<rate Hz>] [<depth %>]	DMXCUE LFO: erwartet <name> LEVEL|COLOUR ON|OFF [<rate Hz>] [<depth %>]
+DMXCUE: expected NEW, SET, FADE, UNIVERSE, HOST, PORT, FIRE or BLACKOUT	DMXCUE: erwartet NEW, SET, FADE, UNIVERSE, HOST, PORT, FIRE oder BLACKOUT
+ENDACTION: expected INHERIT, STOP, LOOP, HOLD or NEXT	ENDACTION: erwartet INHERIT, STOP, LOOP, HOLD oder NEXT
+FADE CURVE: expected linear, ease-in, ease-out or s-curve	FADE CURVE: erwartet linear, ease-in, ease-out oder s-curve
+FADE WHAT: expected opacity, volume, dimmer, brightness, contrast, saturation, hue, effect, audiofx or speed	FADE WHAT: erwartet opacity, volume, dimmer, brightness, contrast, saturation, hue, effect, audiofx oder speed
+FIXTURE ADD: expected <name> dimmer|rgb|rgbw|rgba|drgb|dcct <universe> [<address>]	FIXTURE ADD: erwartet <name> dimmer|rgb|rgbw|rgba|drgb|dcct <universe> [<address>]
+LOWERSTYLE: expected none, fade, rise, slide, wipe or NEXT	LOWERSTYLE: erwartet none, fade, rise, slide, wipe oder NEXT
+MASK ASSIGN: expected <id|NONE> CUE | LAYER <output> <playlist> | OUTPUT <n> | MATTE <n>	MASK ASSIGN: erwartet <id|NONE> CUE | LAYER <output> <playlist> | OUTPUT <n> | MATTE <n>
+MASK ASSIGN: expected CUE, LAYER, OUTPUT or MATTE	MASK ASSIGN: erwartet CUE, LAYER, OUTPUT oder MATTE
+MASK EXPORT: expected <id> <file.png|file.svg> [WxH]	MASK EXPORT: erwartet <id> <file.png|file.svg> [WxH]
+MASK LFO: expected <id> <param> ON|OFF [rate Hz] [depth %]	MASK LFO: erwartet <id> <param> ON|OFF [rate Hz] [depth %]
+MATRIX SET: expected <source 1-2> <dest> <0-100>	MATRIX SET: erwartet <source 1-2> <dest> <0-100>
+MATRIX: expected SET <src> <dest> <0-100>, SEED or CLEAR	MATRIX: erwartet SET <src> <dest> <0-100>, SEED oder CLEAR
+MESH: expected on|off|toggle|height|tilt|yaw|spin|grid	MESH: erwartet on|off|toggle|height|tilt|yaw|spin|grid
+MIC: expected ADD, LIST, INPUT, CHANNEL or GAIN	MIC: erwartet ADD, LIST, INPUT, CHANNEL oder GAIN
+MIDICUE KIND: expected note-on, note-off, cc, program, msc-go, msc-stop, msc-resume or raw	MIDICUE KIND: erwartet note-on, note-off, cc, program, msc-go, msc-stop, msc-resume oder raw
+MIDICUE: expected NEW, PORTS, PORT, KIND, CH, D1, D2, DEVICE, CUENUM, LIST, RAW or SEND	MIDICUE: erwartet NEW, PORTS, PORT, KIND, CH, D1, D2, DEVICE, CUENUM, LIST, RAW oder SEND
+MULTIVIEW LAYOUT: expected GRID, BIG, BIGTOP or TWOTOP	MULTIVIEW LAYOUT: erwartet GRID, BIG, BIGTOP oder TWOTOP
+MULTIVIEW WINDOW: expected PROGRAMME, DECK<n>, OUTPUT<n>, NEXT, CLOCK or EMPTY	MULTIVIEW WINDOW: erwartet PROGRAMME, DECK<n>, OUTPUT<n>, NEXT, CLOCK oder EMPTY
+NETCUE: expected NEW, PROTO, HOST, PORT, ADDRESS, PAYLOAD or SEND	NETCUE: erwartet NEW, PROTO, HOST, PORT, ADDRESS, PAYLOAD oder SEND
+OUTPUT HDR: expected ON, OFF, AUTO, SIGNAL PQ|HLG, WHITE <nits> or STATUS	OUTPUT HDR: erwartet ON, OFF, AUTO, SIGNAL PQ|HLG, WHITE <nits> oder STATUS
+OUTPUTFX ADD: expected hpf, lpf, tilt, comp or width	OUTPUTFX ADD: erwartet hpf, lpf, tilt, comp oder width
+OUTPUTFX: expected ADD, SET, REMOVE, BYPASS, CLEAR or DEVICE	OUTPUTFX: erwartet ADD, SET, REMOVE, BYPASS, CLEAR oder DEVICE
+OUTPUTS ADD: expected <name> CH <n> or CH <n>-<n+1>	OUTPUTS ADD: erwartet <name> CH <n> oder CH <n>-<n+1>
+PATCH: expected <deck> <output> <dB> or OFF	PATCH: erwartet <deck> <output> <dB> oder OFF
+presenter colour: expected BG|INK|ACCENT #rrggbb	presenter colour: erwartet BG|INK|ACCENT #rrggbb
+PRESET: expected LIST, SAVE, RECALL, UPDATE, SCOPE, RENAME or DELETE	PRESET: erwartet LIST, SAVE, RECALL, UPDATE, SCOPE, RENAME oder DELETE
+rectc: expected <hh:mm:ss:ff|timeofday> [df|ndf|auto]	rectc: erwartet <hh:mm:ss:ff|timeofday> [df|ndf|auto]
+SCOPES BIG: expected waveform, parade, vector, diamond, histogram, falsecolour, sound or off	SCOPES BIG: erwartet waveform, parade, vector, diamond, histogram, falsecolour, sound oder off
+SCOPES: expected PROGRAM, SCOPES, BOTH, TOGGLE, BIG, FREEZE, MATRIX, SOURCE, STATS or SOUND	SCOPES: erwartet PROGRAM, SCOPES, BOTH, TOGGLE, BIG, FREEZE, MATRIX, SOURCE, STATS oder SOUND
+SECTION: expected playback|metadata|geometry|key|audio|effects|timer|tone|synth	SECTION: erwartet playback|metadata|geometry|key|audio|effects|timer|tone|synth
+STING: expected ON, PITCH, LENGTH, SWEEP or BODY	STING: erwartet ON, PITCH, LENGTH, SWEEP oder BODY
+TARGET VERB: expected start|stop|pause|resume|load|arm|disarm	TARGET VERB: erwartet start|stop|pause|resume|load|arm|disarm
+TEXTCUE ANIM: expected none, fade, typewriter, scroll, crawl, pulse or wobble	TEXTCUE ANIM: erwartet none, fade, typewriter, scroll, crawl, pulse oder wobble
+TEXTCUE: expected NEW, BODY, ANIM, SIZE, SPEED, ALIGN, CARD, LOWERNEW, LOWER, TITLE, SUB, LOOK, BAR, ACCENT, SCALE, WIGGLE, IN, OUTMOVE or OUT	TEXTCUE: erwartet NEW, BODY, ANIM, SIZE, SPEED, ALIGN, CARD, LOWERNEW, LOWER, TITLE, SUB, LOOK, BAR, ACCENT, SCALE, WIGGLE, IN, OUTMOVE oder OUT
+TRACKER: expected GO, BACK, PLAY, STOP, STEP <n>, ADD, SET <step> <deck> <cue|STOP|FADE|VOLUME|OPACITY>, MUTE|SOLO <deck>, JUMP <step> <row>, SECTION <step> <name>, VIEW, LOOP or CLICKER	TRACKER: erwartet GO, BACK, PLAY, STOP, STEP <n>, ADD, SET <step> <deck> <cue|STOP|FADE|VOLUME|OPACITY>, MUTE|SOLO <deck>, JUMP <step> <row>, SECTION <step> <name>, VIEW, LOOP oder CLICKER
+TUTORIAL: expected START, SHOWME, SKIP, EXIT, STATUS or SCREENS	TUTORIAL: erwartet START, SHOWME, SKIP, EXIT, STATUS oder SCREENS
+UPDATE: expected check|download|install|status	UPDATE: erwartet check|download|install|status
+VJ: expected ON|OFF|TOGGLE|MIX <0-1>|BLEND <mode>|TAP|BPM <n>|CLOCK <on|off>|QUANTISE <on|off>|DECKS <a> <b>|STATUS	VJ: erwartet ON|OFF|TOGGLE|MIX <0-1>|BLEND <mode>|TAP|BPM <n>|CLOCK <on|off>|QUANTISE <on|off>|DECKS <a> <b>|STATUS
+0-127; 127 is all-call	0-127; 127 ruft alle auf
+0-127; the domain the facility's clock runs on	0-127; Domäne der Hausuhr
+10-79 characters, or empty for none	10-79 Zeichen, sonst leer lassen
+8+ characters; letters and symbols are allowed	Mindestens 8 Zeichen; Buchstaben und Symbole erlaubt
+8+ characters; other machines send AUTH <passphrase> first. Empty = off	Mindestens 8 Zeichen; andere Rechner senden zuerst AUTH <passphrase>. Leer = aus
+A command line, or blank for nothing	Eine Befehlszeile, sonst leer lassen
+an IPv4 address, or 255.255.255.255 to broadcast	Eine IPv4-Adresse oder 255.255.255.255 für Broadcast
+add an output to scope it	Ausgang hinzufügen, um ihn zu messen
+cancelled: the waiting cue is no longer in the playlist	abgebrochen: wartender Cue ist nicht mehr in der Liste
+downloading the caption model, then listening...	Untertitelmodell wird geladen, danach wird zugehört...
+drag the panels to arrange the presenter screen	Panels ziehen, um den Präsentationsbildschirm anzuordnen
+encoder destination: _converted beside the show	Encoder-Ziel: _converted neben der Show
+fetching the speech model - captions start when it arrives	Sprachmodell wird geladen - Untertitel starten danach
+four effects at most on one device: remove one first	höchstens vier Effekte pro Gerät: zuerst einen entfernen
+Leave empty to follow the live cue notes	Leer lassen, um den Notizen des Live-Cues zu folgen
+Lower Third added - put its playlist on a layer	Lower Third hinzugefügt - seine Liste auf eine Ebene legen
+no masks yet: make one in a cue's MASK section	noch keine Masken: im MASK-Bereich eines Cues eine erstellen
+the playing step was removed - sequence stopped	laufender Schritt wurde entfernt - Sequenz gestoppt
+this cue has no known end to resolve into	dieser Cue hat kein bekanntes Ende zur Auflösung
+the background alpha belongs to a Lower Third	Hintergrund-Alpha gehört zu einem Lower Third
+Where the filter sits.	Wo der Filter liegt.
+Which way it drips.	In welche Richtung es tropft.
+A dark line between the tiles, like grout or an LED wall.	Eine dunkle Linie zwischen den Kacheln, wie Fugen oder bei einer LED-Wand.
+A slow rocking of the viewpoint, which is what makes the depth read without glasses.	Ein langsames Schaukeln des Blickpunkts, das Tiefe ohne Brille erkennbar macht.
+A slow sag in the supply, pulling the filter up and down like a dying battery.	Ein langsamer Spannungseinbruch, der den Filter wie eine sterbende Batterie auf und ab zieht.
+A worn or dirty head: softer, with noise that streaks along the lines.	Ein abgenutzter oder verschmutzter Kopf: weicher, mit Rauschen entlang der Zeilen.
+Above halfway, a hard cut in the picture resets the loop to clean.	Über der Mitte setzt ein harter Bildschnitt die Schleife auf sauber zurück.
+Above halfway, the repeated piece plays backwards.	Über der Mitte läuft das wiederholte Stück rückwärts.
+Darkens the boundaries where crystals meet.	Dunkelt die Grenzen ab, an denen Kristalle zusammentreffen.
+Fine sensor noise at the bottom, chunky film at the top.	Unten feines Sensorrauschen, oben grobes Filmkorn.
+From an even blur to a streak along the angle, like movement.	Von gleichmäßiger Unschärfe zu einer Spur entlang des Winkels, wie Bewegung.
+Grain size: one pixel at the left, big blocky grains at the right.	Korngröße: links ein Pixel, rechts große, blockige Körner.
+Grows or shrinks the echo each pass. Centre holds still.	Vergrößert oder verkleinert das Echo bei jedem Durchlauf. Die Mitte hält es still.
+How big each tile is.	Wie groß jede Kachel ist.
+How big the crystals grow before they meet.	Wie groß Kristalle werden, bevor sie zusammentreffen.
+How big the room is. Small is a booth, large is a hall.	Wie groß der Raum ist. Klein ist eine Kabine, groß ein Saal.
+How closely spaced the rings are.	Wie eng die Ringe beieinanderliegen.
+How far a band can slide.	Wie weit ein Band gleiten kann.
+How far each shard slides from where it belongs.	Wie weit jeder Splitter von seinem Platz gleitet.
+How far each stroke is dragged along the grain.	Wie weit jeder Strich entlang der Maserung gezogen wird.
+How far the glow spreads.	Wie weit das Leuchten reicht.
+How fast the surface moves.	Wie schnell die Oberfläche sich bewegt.
+How fast they travel outward.	Wie schnell sie nach außen wandern.
+How hard the short hits.	Wie heftig der Kurzschluss einschlägt.
+How often it skips.	Wie oft es springt.
+How many shades survive the quantise.	Wie viele Abstufungen die Quantisierung überstehen.
+How many spikes the field breaks into.	In wie viele Spitzen das Feld aufbricht.
+How many torn bands per frame.	Wie viele gerissene Bänder pro Bild.
+How much each shard turns on its own centre.	Wie weit jeder Splitter um seine Mitte dreht.
+How much the edges are lifted.	Wie stark die Kanten angehoben werden.
+How strongly the outlines are drawn.	Wie kräftig die Umrisse gezeichnet werden.
+How strongly the water bends the picture.	Wie stark das Wasser das Bild verbiegt.
+BROWSER CLICK: this browser backend cannot drive the page	BROWSER CLICK: dieses Browser-Backend kann die Seite nicht steuern
+BROWSER SCROLL: this browser backend cannot drive the page	BROWSER SCROLL: dieses Browser-Backend kann die Seite nicht steuern
+BROWSER SCROLLBAR: this browser backend cannot drive the page	BROWSER SCROLLBAR: dieses Browser-Backend kann die Seite nicht steuern
+BROWSER INTERACT: this browser backend has no hands-on mode	BROWSER INTERACT: dieses Browser-Backend hat keinen interaktiven Modus
+BROWSER TYPE: this browser backend cannot type	BROWSER TYPE: dieses Browser-Backend kann keinen Text eingeben
+browser connections at once, 1-64 (default 8)	gleichzeitige Browserverbindungen, 1-64 (Standard 8)
+could not create an OpenGL context for Spout receive	OpenGL-Kontext für Spout-Empfang konnte nicht erstellt werden
+could not create the offscreen window Spout receive needs	für Spout-Empfang benötigtes unsichtbares Fenster konnte nicht erstellt werden
+could not get a device context for Spout receive	Gerätekontext für Spout-Empfang konnte nicht abgerufen werden
+no OpenGL pixel format available for Spout receive	kein OpenGL-Pixelformat für Spout-Empfang verfügbar
+the installed NDI runtime is missing entry points this needs	der installierten NDI-Laufzeitumgebung fehlen hierfür benötigte Einsprungpunkte
+the NDI runtime declined to start on this machine	die NDI-Laufzeitumgebung verweigert den Start auf diesem Rechner
+driver would not load (in use by another application?)	Treiber konnte nicht geladen werden (von anderer Anwendung belegt?)
+DECKLINK: no DeckLink driver on this computer (Blackmagic Desktop Video)	DECKLINK: kein DeckLink-Treiber auf diesem Computer (Blackmagic Desktop Video)
+update: could not start the install helper	Update: Installationshelfer konnte nicht gestartet werden
+update: could not start the installer	Update: Installationsprogramm konnte nicht gestartet werden
+update: could not write the install helper	Update: Installationshelfer konnte nicht geschrieben werden
+update: not running from an AppImage	Update: läuft nicht aus einem AppImage
+update: cannot find this app bundle to replace	Update: zu ersetzendes App-Paket nicht gefunden
+Takes out everything brighter than this as well. Left takes out nothing.	Entfernt auch alles, was heller ist. Ganz links wird nichts entfernt.
+Takes out everything darker than this, so what lies beneath shows through. Left takes out nothing.	Entfernt alles Dunklere, damit das Darunterliegende durchscheint. Ganz links wird nichts entfernt.
+The bright net the waves focus onto the picture.	Das helle Netz, das die Wellen auf dem Bild bündeln.
+The brightness that decides black from white.	Die Helligkeit, die Schwarz von Weiß trennt.
+The colour to change, round the wheel from red.	Die zu ersetzende Farbe, im Farbkreis ab Rot.
+The head drifting off the track: a band of noise rolls through the picture.	Der Kopf gerät aus der Spur: Ein Rauschband rollt durch das Bild.
+The level it starts working at. Lower catches more of the performance.	Der Pegel, ab dem es wirkt. Niedriger erfasst mehr vom Auftritt.
+Turns the echo each pass, which winds the melt into a spiral.	Dreht das Echo bei jedem Durchlauf, sodass die Schmelze zur Spirale wird.
+Softens the fold so it ramps instead of creasing.	Weicht die Faltung auf, sodass sie sanft ansteigt statt zu knicken.
+Sorts the runs the other way, so they pour from light to dark.	Sortiert die Läufe umgekehrt, sodass sie von Hell nach Dunkel fließen.
+Rounds the tiles off, all the way to dots.	Rundet die Kacheln ab, bis hin zu Punkten.
+Pushes the rings in or out of the centre.	Drückt die Ringe zur Mitte oder von ihr weg.
+Lifts the dark tones without moving pure black.	Hebt dunkle Töne an, ohne reines Schwarz zu verschieben.
+How far it smears: up to a few percent of the picture.	Wie weit es verschmiert: bis zu wenigen Prozent des Bildes.
+How far out the darkening starts.	Wie weit außen die Abdunklung beginnt.
+How fast the light walks around it. Zero holds it still.	Wie schnell das Licht darum wandert. Null hält es still.
+How quickly the loop relaxes when nothing feeds it.	Wie schnell die Schleife abklingt, wenn sie nicht gespeist wird.
+How gently the change fades out at the edges of the band.	Wie sanft die Änderung an den Bandrändern ausläuft.
+How gradually the key cuts in. Hard at the left.	Wie allmählich der Key einsetzt. Links hart.
+How hard it is driven into its own limits.	Wie stark es in seine eigenen Grenzen getrieben wird.
+just	rein
+NEXT	WEITER
+pixels (of the output raster)	Pixel (des Ausgangsrasters)
+LOAD NEXT	NÄCHSTEN LADEN
+meantone	mitteltönig
+ASCII HOLD: seconds, 0-60 (0 mutes the phrases)	ASCII HOLD: Sekunden, 0-60 (0 schaltet die Phrasen stumm)
+AUDIOALSO ADD: seven extra destinations is the limit	AUDIOALSO ADD: höchstens sieben zusätzliche Ziele
+AUDIOALSO ADD: that is already this deck's main device -- it would play twice	AUDIOALSO ADD: bereits das Hauptgerät dieses Decks -- es würde doppelt spielen
+AUDIOFX: expected OFF, BYPASS, or amount and parameters as percentages	AUDIOFX: OFF, BYPASS oder Stärke und Parameter in Prozent erwartet
+BROWSER SCROLL: expected pixels (negative is up)	BROWSER SCROLL: Pixel erwartet (negativ = nach oben)
+CHIP ENV: expected <attack> <release> in seconds	CHIP ENV: <attack> <release> in Sekunden erwartet
+DMXCUE LEVELS: nothing has been sent on that universe	DMXCUE LEVELS: auf diesem Universum wurde noch nichts gesendet
+DMXCUE SET: expected channel=level pairs, e.g. 1=255,10-14=64	DMXCUE SET: Paare Kanal=Pegel erwartet, z. B. 1=255,10-14=64
+LOWERANIM: this cue is not a Lower Third	LOWERANIM: dieser Cue ist kein Lower Third
+LOWERSTYLE: this cue is not a Lower Third	LOWERSTYLE: dieser Cue ist kein Lower Third
+MASTER DECK: expected a deck number and a cue number	MASTER DECK: Decknummer und Cuenummer erwartet
+MIC INPUT: expected SETTINGS, TEST or a device name (MIC LIST)	MIC INPUT: SETTINGS, TEST oder Gerätename erwartet (MIC LIST)
+MIC: select a mic cue first (MIC ADD makes one)	MIC: zuerst einen Mikrofon-Cue wählen (MIC ADD erstellt einen)
+MIDIFILE: expected PORT, or no argument to report it	MIDIFILE: PORT erwartet, ohne Argument wird er angezeigt
+MIDIFILE: the selected cue is not a midi file cue	MIDIFILE: der gewählte Cue ist kein MIDI-Datei-Cue
+MIDIIN OSC: an address, and optionally a number	MIDIIN OSC: eine Adresse und optional eine Zahl
+MIDIMAP: that command is only accepted from this computer	MIDIMAP: dieser Befehl wird nur von diesem Computer akzeptiert
+MONITOR DECK: expected a playlist number or FOLLOW	MONITOR DECK: Listennummer oder FOLLOW erwartet
+MONITOR ROOM: expected a playlist and ON or OFF	MONITOR ROOM: Liste und ON oder OFF erwartet
+MOTION ZONE ADD: the zone must fit inside the picture	MOTION ZONE ADD: die Zone muss ins Bild passen
+MULTIVIEW WINDOW REMOVE: expected a window number	MULTIVIEW WINDOW REMOVE: Fensternummer erwartet
+NETCUE ADDRESS: an OSC address must start with /	NETCUE ADDRESS: eine OSC-Adresse muss mit / beginnen
+NETCUE ADDRESS: expected an OSC path starting with /	NETCUE ADDRESS: OSC-Pfad mit / am Anfang erwartet
+NMOS: discovery needs the remote network allowed	NMOS: die Erkennung erfordert eine Freigabe für das entfernte Netzwerk
+NMOS: searching for a registry (mDNS)	NMOS: suche einen Registrierungsserver (mDNS)
+OUTPROBE: that output has no compositor (is it on?)	OUTPROBE: dieser Ausgang hat keinen Compositor (ist er an?)
+OUTPUT AOI: expected a size like 256x256, or FULL	OUTPUT AOI: Größe wie 256x256 oder FULL erwartet
+OUTPUT HDR WHITE: expected 80..500 nits (203 is BT.2408)	OUTPUT HDR WHITE: 80..500 Nits erwartet (203 entspricht BT.2408)
+OUTPUTFX ADD: four effects at most on one device	OUTPUTFX ADD: höchstens vier Effekte pro Gerät
+OUTPUTFX SET: expected an effect number and 0-100	OUTPUTFX SET: Effektnummer und 0-100 erwartet
+PATCH: a level is dB from -48 to +6, or OFF	PATCH: Pegel in dB von -48 bis +6 oder OFF
+PRELOAD: expected a position in seconds, OFF or STATUS	PRELOAD: Position in Sekunden, OFF oder STATUS erwartet
+SCRIPTCUE: the selected cue is not a script cue	SCRIPTCUE: der gewählte Cue ist kein Skript-Cue
+SOURCE CAMERA: name the device	SOURCE CAMERA: Gerätenamen angeben
+STREAM ADD: expected a URL, e.g. srt://host:port	STREAM ADD: URL erwartet, z. B. srt://host:port
+SUBTITLE CONVERT: destination must be .srt or .vtt	SUBTITLE CONVERT: das Ziel muss .srt oder .vtt sein
+TARGET CUE: expected a deck number and a cue number	TARGET CUE: Decknummer und Cuenummer erwartet
+TEXTCUE SIZE: expected 1-100 (percent of the raster)	TEXTCUE SIZE: 1-100 erwartet (Prozent des Rasters)
+TRACKER SET: a step cannot act on its own playlist	TRACKER SET: ein Schritt kann nicht auf seine eigene Liste wirken
+TRACKER: there are no steps (TRACKER ADD makes one)	TRACKER: keine Schritte vorhanden (TRACKER ADD erstellt einen)
+TUTORIAL SCREENS: expected a count, MIRRORED or REAL	TUTORIAL SCREENS: Anzahl, MIRRORED oder REAL erwartet
+VIDEO OUTPUT LAYER: expected a layer number (1 is the base)	VIDEO OUTPUT LAYER: Ebenennummer erwartet (1 ist die Basis)
+WARP AT: open the editor (WARP EDIT) and select a point first	WARP AT: zuerst den Editor öffnen (WARP EDIT) und einen Punkt wählen
+WEBMONITOR QR: needs the monitor on and shared on the network	WEBMONITOR QR: der Monitor muss an und im Netzwerk freigegeben sein
+WEBMONITOR SOURCE: could not create the web output	WEBMONITOR SOURCE: Webausgang konnte nicht erstellt werden
+Hz or AUTO (e.g. 60 or 59.94)	Hz oder AUTO (z. B. 60 oder 59.94)
+IPv4 addresses or a.b.c.d/bits, comma separated; empty = only this computer	IPv4-Adressen oder a.b.c.d/bits, kommagetrennt; leer = nur dieser Computer
+kbps (32-512; 160 is a sane default)	kbps (32-512; 160 ist ein sinnvoller Standard)
+milliseconds (20-8000; ~4x your RTT)	Millisekunden (20-8000; ~4x Ihre RTT)
+Multicast group (e.g. 239.20.10.1)	Multicast-Gruppe (z. B. 239.20.10.1)
+NDI source name (e.g. LAPTOP (source 1))	NDI-Quellenname (z. B. LAPTOP (Quelle 1))
+NIC address or name; empty = the default route	NIC-Adresse oder -Name; leer = Standardroute
+NIC name reported in interface_bindings (e.g. eth0)	NIC-Name aus interface_bindings (z. B. eth0)
+offset in percent of the picture	Versatz in Prozent des Bildes
+Only accept transport from this sender (blank = anyone)	Transport nur von diesem Sender annehmen (leer = alle)
+Output height in px - math ok: 1080x2, 2160/2, 540+30	Ausgangshöhe in px - Rechnen erlaubt: 1080x2, 2160/2, 540+30
+Output width in px - math ok: 1920x2, 3840/2, 960+64	Ausgangsbreite in px - Rechnen erlaubt: 1920x2, 3840/2, 960+64
+Paste the key from your platform	Schlüssel Ihrer Plattform einfügen
+paste your stream key here	Streamschlüssel hier einfügen
+Port the Node + Connection API serve on	Port für Node + Connection API
+position on the output raster, in pixels	Position im Ausgangsraster, in Pixeln
+Prefix (optional). Example: Q	Präfix (optional). Beispiel: Q
+Prefix and optional start (example: Q 100)	Präfix und optionaler Startwert (Beispiel: Q 100)
+Registry URL (e.g. http://192.168.1.50:8010) - blank for mDNS	Registrierungs-URL (z. B. http://192.168.1.50:8010) - leer für mDNS
+Routing hint for the receiver	Routinghinweis für den Empfänger
+seconds (1-10; most platforms want 2)	Sekunden (1-10; die meisten Plattformen wollen 2)
+Seconds for new image/pattern/browser/Lower Third cues (0 = hold)	Sekunden für neue Bild-/Testbild-/Browser-/Lower Third-Cues (0 = halten)
+Seconds for new-cue fade in/out defaults	Standardsekunden für Ein-/Ausblendung neuer Cues
+seconds this step holds before PLAY moves on	Sekunden, die dieser Schritt wartet, bevor PLAY weitergeht
+SMPTE hh:mm:ss:ff or seconds (blank = 00:00:00:00)	SMPTE hh:mm:ss:ff oder Sekunden (leer = 00:00:00:00)
+Stream URL (srt://, rtmp://, rtsp://, udp://, or an http HLS .m3u8)	Stream-URL (srt://, rtmp://, rtsp://, udp:// oder http HLS .m3u8)
+Target IP (or 255.255.255.255 to broadcast)	Ziel-IP (oder 255.255.255.255 für Broadcast)
+Where to send transport (blank = broadcast)	Ziel für Transport (leer = Broadcast)
+Which switcher input Deckboy is (0 = not set)	Mischereingang von Deckboy (0 = nicht festgelegt)
+WIDTHxHEIGHT (e.g. 2560x1080)	BREITExHÖHE (z. B. 2560x1080)
+WIDTHxHEIGHT (e.g. 5760x2160)	BREITExHÖHE (z. B. 5760x2160)
+port number (default 5510)	Portnummer (Standard 5510)
+port number (default 5511)	Portnummer (Standard 5511)
+port number (default 6454)	Portnummer (Standard 6454)
+port number (default 8090)	Portnummer (Standard 8090)
+port number (vMix uses 8088)	Portnummer (vMix nutzt 8088)
+port number (vMix uses 8099)	Portnummer (vMix nutzt 8099)
+brightness moves the playhead (needs CPU frames)	Helligkeit bewegt den Abspielkopf (benötigt CPU-Frames)
+can't move the active cue -- take another cue on this deck first	aktiven Cue nicht verschiebbar -- zuerst anderen Cue dieses Decks schalten
+centred and full-frame - moves when the picture does	zentriert und bildfüllend - bewegt sich mit dem Bild
+CHIP DUTY: this cue is an FDS synth, which has no duty	CHIP DUTY: dieser Cue ist ein FDS-Synth ohne Pulsbreite
+CHIP NOISE: this cue is an FDS synth, which has no noise	CHIP NOISE: dieser Cue ist ein FDS-Synth ohne Rauschen
+CHIP VOICE: this cue is an FDS synth, which has no voice	CHIP VOICE: dieser Cue ist ein FDS-Synth ohne Stimmenwahl
+Chladni listens: the figure follows the pitch of the sound	Chladni hört zu: die Figur folgt der Tonhöhe
+click anywhere on any screen to take its colour. Esc cancels	Beliebige Bildschirmstelle anklicken, um ihre Farbe zu übernehmen. Esc bricht ab
+click program or preview monitor to sample key color	PROGRAM- oder Vorschaumonitor anklicken, um die Keyfarbe zu wählen
+DATAMOSH on - preparing (long clip, watch Encoder tab)	DATAMOSH an - Vorbereitung (langer Clip, Encoder-Tab beachten)
+EDIT is off - press EDIT to type into the tracker	EDIT ist aus - EDIT drücken, um im Tracker zu schreiben
+ENDACTION: only video and audio cues have an end action	ENDACTION: nur Video- und Audio-Cues haben eine Endaktion
+Enter playlist SMPTE FPS: 24 / 25 / 29.97 / 30	SMPTE-Bildrate der Liste eingeben: 24 / 25 / 29.97 / 30
+expected one expression, three for colour, or four with alpha	ein Ausdruck erwartet, drei für Farbe oder vier mit Alpha
+FADE TO: a speed from 0.25 to 4 (0.5 is half speed, an octave down)	FADE TO: Geschwindigkeit von 0.25 bis 4 (0.5 ist halbe Geschwindigkeit, eine Oktave tiefer)
+follows this cue's own brightness (needs CPU frames)	folgt der Helligkeit dieses Cues (benötigt CPU-Frames)
+format 2 files are a set of independent patterns, not a performance	Format-2-Dateien enthalten unabhängige Muster, keine Aufführung
+full-frame and no picture - bends when the picture shrinks	bildfüllend und ohne Bild - verbiegt sich beim Verkleinern des Bildes
+FX ADD: datamosh needs a file-backed video cue	FX ADD: Datamosh benötigt einen Video-Cue mit Datei
+live captions are not installed here (deckboy-listen was not found)	Live-Untertitel sind hier nicht installiert (deckboy-listen nicht gefunden)
+mic live on the default speakers - watch for feedback	Mikrofon live auf den Standardlautsprechern - Rückkopplung beachten
+no filled shapes in it (paths, rectangles, circles, ellipses or polygons)	keine gefüllten Formen enthalten (Pfade, Rechtecke, Kreise, Ellipsen oder Polygone)
+no picture - shorts run on a timer instead of on cuts	kein Bild - Kurzschlüsse laufen zeitgesteuert statt bei Schnitten
+no picture on this cue - nothing decides where the playhead is	kein Bild in diesem Cue - nichts bestimmt die Abspielposition
+no picture on this cue - nothing to close the loop through	kein Bild in diesem Cue - nichts schließt die Schleife
+no picture on this cue - nothing to follow	kein Bild in diesem Cue - nichts zum Verfolgen
+no video clock on this cue - nothing to lock to	keine Videouhr in diesem Cue - nichts zum Synchronisieren
+normalize all: no file-backed audio in this deck	alles normalisieren: kein dateibasiertes Audio in diesem Deck
+not a MIDI file (no MThd header)	keine MIDI-Datei (kein MThd-Header)
+nothing to mask here: select a cue, or change MASK ON	nichts zu maskieren: Cue wählen oder MASK ON ändern
+only a MIDI note or an OSC address can take a cue	nur eine MIDI-Note oder OSC-Adresse kann einen Cue schalten
+over 16 MB: not a drawing to make a mask from	über 16 MB: keine Zeichnung für eine Maske
+paired phones removed: they need the QR code or the passphrase again	gekoppelte Telefone entfernt: QR-Code oder Passphrase erneut nötig
+that key drives the desk - use F1-F10, F12 or the number pad	diese Taste steuert das Pult - F1-F10, F12 oder Ziffernblock verwenden
+How abruptly it arrives. Low is a soft cloud, high is a hard porthole.	Wie abrupt es erscheint. Niedrig ergibt eine weiche Wolke, hoch ein scharfes Bullauge.
+How big the shards are. Small is frosted glass, large is a dropped plate.	Größe der Splitter. Klein ergibt Milchglas, groß einen zerbrochenen Teller.
+How bright a pixel has to be before it lifts at all, so only the highlights spike.	Mindesthelligkeit, ab der ein Pixel angehoben wird, sodass nur Spitzlichter aufragen.
+How dark the dark lines go. All the way up is black between lines.	Dunkelheit der dunklen Zeilen. Ganz aufgedreht ist es zwischen den Zeilen schwarz.
+How deep the picture is treated as being. The brightness becomes height and is lit from the side.	Angenommene Bildtiefe. Helligkeit wird zu Höhe und seitlich beleuchtet.
+How faint a gradient still registers. High turns the quietest shading into visible structure.	Wie schwach ein Verlauf noch erfasst wird. Hoch macht feinste Schattierungen sichtbar.
+How far away. Distance dulls the top and softens the difference between the ears.	Entfernung. Abstand dämpft die Höhen und mildert den Unterschied zwischen den Ohren.
+How far back each skip jumps, from a stutter to half a second.	Wie weit jeder Sprung zurückgeht, vom Stottern bis zu einer halben Sekunde.
+How far the bright parts pull away from the surface.	Wie weit helle Teile von der Oberfläche abheben.
+How far the burn spreads off the edge, and how hot its colour runs.	Wie weit das Feuer über die Kante greift und wie heiß seine Farbe wirkt.
+How far the sound throws each line sideways.	Wie weit der Ton jede Zeile seitlich versetzt.
+How far the top comes down as the end approaches. This is not a fade: the level is left alone.	Wie stark die Höhen zum Ende hin sinken. Kein Ausblenden: der Pegel bleibt gleich.
+How far the two eyes disagree. Brightness is read as nearness.	Wie stark die beiden Augen abweichen. Helligkeit wird als Nähe gelesen.
+How fast it closes. Slow enough not to chop the ends off words.	Wie schnell es schließt. Langsam genug, um Wortenden nicht abzuschneiden.
+How fast the drips run. At the left the picture only sags.	Wie schnell die Tropfen laufen. Links sackt das Bild nur ab.
+How fast the sand travels to the still lines.	Wie schnell der Sand zu den ruhenden Linien wandert.
+How fast the wave travels. Faster spreads further in the same time and interferes more.	Wellengeschwindigkeit. Schneller breitet sich in derselben Zeit weiter aus und erzeugt mehr Interferenz.
+How fast what has dripped hardens away. At the left the drips stay until the cue changes.	Wie schnell Getropftes erstarrt und verschwindet. Links bleiben Tropfen bis zum Cuewechsel.
+How fine the water is. Long ocean swell at one end, rain on a puddle at the other.	Feinheit des Wassers. Lange Meeresdünung an einem Ende, Regen auf einer Pfütze am anderen.
+How hard it holds once it is working. Gentle at the bottom, a limiter at the top.	Wie stark es nach dem Einsetzen hält. Unten sanft, oben ein Limiter.
+How irregular the growth is. Low gives an even honeycomb, high gives long shards.	Unregelmäßigkeit des Wachstums. Niedrig ergibt gleichmäßige Waben, hoch lange Splitter.
+How long a short stays closed, in VIDEO FRAMES.	Wie lange ein Kurzschluss geschlossen bleibt, in VIDEOFRAMES.
+How long the reaction runs each frame. Short is a stain, long is an organism.	Wie lange die Reaktion pro Frame läuft. Kurz ergibt einen Fleck, lang einen Organismus.
+How many places drip: a few big drips at the left, many thin ones at the right.	Anzahl der Tropfstellen: links wenige große Tropfen, rechts viele dünne.
+How many times a skip repeats before the sound catches up again.	Wie oft ein Sprung wiederholt wird, bevor der Ton wieder aufholt.
+How much of the picture glows: only the brightest at the left, nearly everything at the right.	Wie viel vom Bild leuchtet: links nur das Hellste, rechts fast alles.
+How much of the picture shows behind the lines. None at the left: lines on black.	Wie viel Bild hinter den Linien erscheint. Links keines: Linien auf Schwarz.
+How much of the push goes downward rather than sideways.	Wie viel vom Schub nach unten statt seitwärts geht.
+How much the flame gutters frame to frame.	Wie stark die Flamme von Frame zu Frame flackert.
+How wide a band of colours either side of it changes too.	Wie breit der Farbbereich beiderseits ist, der ebenfalls geändert wird.
+How bright a pixel has to be to join a run. Lower catches more of the picture and the runs grow longer.	Mindesthelligkeit, damit ein Pixel zur Folge gehört. Niedriger erfasst mehr Bild und verlängert die Folgen.
+How far back the chain listens. The picture is played through a delay, so this is the distance the damage is dragged across.	Wie weit die Kette zurückhört. Das Bild läuft durch eine Verzögerung; das ist die Strecke, über die sich der Schaden zieht.
+How far the colour turns on each trip round the loop. This is the oil-slick: the trail walks through the spectrum instead of fading.	Farbdrehung pro Schleifendurchlauf. Das ergibt den Ölfilm: die Spur durchläuft das Spektrum, statt zu verblassen.
+How far the picture stands out. Bright parts come forward, dark parts stay back. At the left it is flat.	Wie weit das Bild hervortritt. Helle Teile kommen nach vorn, dunkle bleiben hinten. Links ist es flach.
+How far the picture swings the filter. The cue's own brightness opens and closes it, so a cut to black takes the top off the sound.	Wie stark das Bild den Filter bewegt. Die Cuehelligkeit öffnet und schließt ihn; ein Schnitt auf Schwarz nimmt dem Ton die Höhen.
+How fast it settles away while held. At zero it holds indefinitely, which is what room tone under a held title wants.	Wie schnell es beim Halten abklingt. Bei null bleibt es unbegrenzt stehen, passend für Raumton unter einem gehaltenen Titel.
+How fast the open slit crosses the picture. Slow smears a long moment across the frame.	Wie schnell der offene Schlitz durchs Bild läuft. Langsam verschmiert einen langen Moment über das Bild.
+How hard the light gathers where the rays converge. This is the part that makes it read as water rather than as a wobble.	Wie stark sich Licht an Strahlenschnittpunkten sammelt. Dadurch wirkt es wie Wasser statt wie Wackeln.
+How hard the moving parts throw sand. More shake clears the plate faster and makes the lines thinner.	Wie stark bewegte Teile Sand werfen. Mehr Rütteln räumt die Platte schneller frei und macht Linien dünner.
+How long a grain is, in VIDEO FRAMES. On a 23.976 clip one frame is 41.7ms, which is not a musical value and is exactly the point.	Länge eines Korns in VIDEOFRAMES. Bei 23.976 dauert ein Frame 41.7ms: kein musikalischer Wert, und genau darum geht es.
+How long before the end it starts. The cue has to have a known length -- an open-ended one has no end to resolve into.	Wie lange vor dem Ende es beginnt. Die Cuelänge muss bekannt sein -- ohne festes Ende kann nichts darin ausklingen.
+How long it is allowed to run. More steps means the ripples have crossed and reflected more times.	Wie lange es laufen darf. Mehr Schritte bedeuten häufigeres Kreuzen und Reflektieren der Wellen.
+How long the old waves linger when the note changes. Left: they die at once. Right: they slosh for a while.	Wie lange alte Wellen beim Notenwechsel bleiben. Links sterben sie sofort, rechts schwappen sie noch eine Weile.
+How much each facet catches the light, which is what makes them read as faceted rather than as flat blobs.	Wie stark jede Facette Licht fängt. Dadurch wirken sie facettiert statt wie flache Flecken.
+How much of the bent picture goes round again. High is where it stops being an echo and starts eating itself.	Wie viel vom verbogenen Bild erneut umläuft. Hoch hört es auf, Echo zu sein, und beginnt sich selbst zu fressen.
+How much room comes up under it, so the sound settles into the cut instead of being severed.	Wie viel Raumklang darunter aufkommt, damit der Ton im Schnitt ausklingt, statt abzureißen.
+How much the echo is distorted each pass. It compounds, so a little ripples and a lot melts the picture into itself.	Verzerrung des Echos pro Durchlauf. Sie summiert sich: wenig kräuselt, viel schmilzt das Bild in sich selbst.
+How much the material draws in towards each drip, so it runs as a thin neck with a heavier head.	Wie stark sich das Material zu jedem Tropfen zieht, sodass ein dünner Hals mit schwererem Kopf entsteht.
+How often its settings are corrupted. Corrupted far enough it oscillates on its own -- loud, but it cannot run away.	Wie oft Einstellungen beschädigt werden. Stark genug schwingt es von selbst -- laut, aber ohne durchzugehen.
+How quickly the picture springs back to rest once the driver stops pushing it. Only does anything when memory is up.	Wie schnell das Bild zurückfedert, sobald der Antrieb stoppt. Wirkt nur bei aufgedrehtem Gedächtnis.
+How quickly the room eats the top end. More damping is a softer, more furnished space.	Wie schnell der Raum die Höhen schluckt. Mehr Dämpfung ergibt einen weicheren, stärker möblierten Raum.
+How readily an edge catches. Low sets the whole picture alight, high only the hardest lines.	Wie leicht eine Kante Feuer fängt. Niedrig entzündet das ganze Bild, hoch nur die härtesten Linien.
+How small a cut sets it off. With no picture it runs on a timer instead, and this is how often.	Wie klein ein Schnitt zum Auslösen sein darf. Ohne Bild läuft es zeitgesteuert; dies bestimmt die Häufigkeit.
+How strongly the finished picture pushes the bend. Pair it with a picture effect whose LFO is set to Audio and the two drive each other.	Wie stark das fertige Bild die Verbiegung antreibt. Mit einem Bildeffekt, dessen LFO auf Audio steht, treiben sich beide gegenseitig an.
+How wide a view is being compressed. Narrow is a punch down the middle, wide folds the whole frame into the centre.	Breite des komprimierten Blickfelds. Schmal stößt durch die Mitte, breit faltet das ganze Bild ins Zentrum.
+0 flows ALONG the edges, so colour orbits the shapes. 1 flows across them, which bleeds the picture into itself.	0 fließt ENTLANG der Kanten, sodass Farbe die Formen umkreist. 1 fließt quer dazu und lässt das Bild in sich verlaufen.
+A command line, as a DASH button runs it. {value} is the knob's number, {note} the key.	Eine Befehlszeile wie bei einer DASH-Taste. {value} ist der Reglerwert, {note} die Taste.
+a note number 0-127, LEARN to take the next note played, or empty for none	Notennummer 0-127, LEARN für die nächste gespielte Note, oder leer für keine
+a video cue's duration comes from its file; still duration applies to stills, patterns and browsers	Die Dauer eines Video-Cues kommt aus seiner Datei; die Standbilddauer gilt für Bilder, Testbilder und Browser
+An old deck: the picture wobbles, bends at the top of the frame and carries hum bars.	Ein altes Deck: das Bild wackelt, biegt sich oben und zeigt Brummbalken.
+An old tape loses bits of its oxide: dropouts flick white and repeat the line above, and the colour fizzes.	Ein altes Band verliert Oxidpartikel: Aussetzer blitzen weiß auf, wiederholen die Zeile darüber, und die Farbe rauscht.
+Below the middle narrows toward mono -- which is what a single PA cluster is. Above it widens.	Unterhalb der Mitte wird es schmaler bis mono -- wie ein einzelner PA-Cluster. Darüber wird es breiter.
+Blueshift toward the direction of travel and redshift at the rim. Zero leaves the colour alone and it reads as a lens instead.	Blauverschiebung in Bewegungsrichtung, Rotverschiebung am Rand. Null lässt die Farbe unverändert; es wirkt dann wie eine Linse.
+Bright: bright things drip over the dark, as text and logos do. Whole picture: everything is wax, and the picture itself runs down in its own colours.	Hell: Helles tropft über Dunkles, wie Text und Logos. Ganzes Bild: alles ist Wachs; das Bild selbst läuft in seinen Farben herab.
+Centre is a straight line. Up bends it into an S -- darker shadows, brighter highlights, more contrast. Down flattens it.	In der Mitte eine Gerade. Nach oben wird sie zum S -- dunklere Schatten, hellere Lichter, mehr Kontrast. Nach unten wird sie flacher.
+Characters across. Fewer means bigger cells and less of the picture surviving, which is usually the point.	Zeichen in der Breite. Weniger ergibt größere Zellen und weniger erhaltenes Bild -- meist genau das Ziel.
+Characters to build the picture from, darkest first. Empty uses the chosen glyph set.	Zeichen zum Bildaufbau, dunkelste zuerst. Leer verwendet den gewählten Zeichensatz.
+Colour is recorded at a fraction of the detail: it smears sideways, lands late and its hue wanders.	Farbe wird mit einem Bruchteil der Details aufgezeichnet: sie schmiert seitwärts, kommt verspätet und schwankt im Farbton.
+Copies of copies: none at the left, four at the right. Each one loses more.	Kopien von Kopien: links keine, rechts vier. Jede verliert mehr.
+How much its SIZE becomes distance. Shrink the picture and the sound goes away from you: the top comes off, the image narrows, the level drops.	Wie stark GRÖSSE zu Entfernung wird. Bild verkleinern entfernt den Ton: Höhen verschwinden, Stereobild wird schmaler, Pegel sinkt.
+How much of the driver's movement the picture KEEPS. At zero it follows the driver frame by frame, which is a twitch. Wind it up and the motion accumulates, so the driver sculpts the picture over time and it holds the pose -- which is what puppetry means.	Wie viel Antriebsbewegung das Bild BEHÄLT. Bei null folgt es Frame für Frame und zuckt. Aufgedreht sammelt sich die Bewegung; der Antrieb formt das Bild mit der Zeit und es hält die Pose -- wie beim Puppenspiel.
+How much of the picture's position on the output is used. A PIP on the left sounds on the left -- and it is a placement, not a pan: the far ear gets the delay and the head shadow too.	Wie stark die Bildposition am Ausgang eingeht. Ein PIP links klingt links -- räumlich platziert: das entfernte Ohr erhält auch Verzögerung und Kopfschatten.
+How much of the tail is kept going while the cue is held. Long enough to hide the splice in room tone, short enough not to smear a rhythm in it.	Wie viel Nachklang beim Halten weiterläuft. Lang genug, um die Schnittstelle im Raumton zu verbergen, kurz genug, um dessen Rhythmus nicht zu verschmieren.
+Lift or cut, 12dB either way. The centre is flat, so a band that has just been added does nothing until this is moved.	Anheben oder Absenken, je 12dB. Mitte ist neutral; ein neu hinzugefügtes Band wirkt erst nach dem Verstellen.
+Light on the drips, as on something wet: a gloss where it faces the light, darker where it curls away.	Licht auf Tropfen wie auf Nassem: Glanz zur Lichtquelle hin, dunkler an abgewandten Krümmungen.
+Line pitch in pixels, so this reads at 4K as well as at 720.	Zeilenabstand in Pixeln, damit es bei 4K ebenso lesbar ist wie bei 720.
+One knob for the whole balance: below the middle is darker, above it is brighter.	Ein Regler für die gesamte Balance: unter der Mitte dunkler, darüber heller.
+Pulls the bright tones down without moving pure white, so a hot highlight rolls off instead of clipping.	Senkt helle Töne, ohne reines Weiß zu verschieben, sodass Spitzlichter sanft auslaufen statt abzuschneiden.
+Rotates the reading, so straight lines wind into spirals rather than rings.	Dreht die Abtastung, sodass sich gerade Linien zu Spiralen statt zu Ringen winden.
+Rows lose sync and repeat one character, the way a real text screen breaks up. At 0 the grid is clean.	Zeilen verlieren die Synchronisation und wiederholen ein Zeichen, wie ein gestörter Textbildschirm. Bei 0 ist das Raster sauber.
+The brightness that stays put. Everything above it reaches one way and everything below it the other.	Die Helligkeit, die stehen bleibt. Alles darüber zieht in die eine Richtung, alles darunter in die andere.
+The character of the growth: low is waves, then labyrinth, coral, worms, and holes at the top.	Wachstumscharakter: niedrig Wellen, dann Labyrinth, Korallen, Würmer und ganz oben Löcher.
+The colour it becomes. Shading and brightness stay as they were, so a red shirt turns blue and keeps its folds.	Die Zielfarbe. Schattierung und Helligkeit bleiben erhalten; ein rotes Hemd wird blau und behält seine Falten.
+The distance that sits ON the screen. Either side of it comes forward or falls behind.	Die Entfernung AUF dem Bildschirm. Beiderseits kommt das Bild nach vorn oder fällt zurück.
+The frequency it pivots around -- what counts as 'low' and 'high' for the tilt.	Die Drehfrequenz -- was für die Neigung als „tief“ und „hoch“ gilt.
+The level below which the source is closed. Set it under the quietest thing you want to hear.	Pegel, unter dem die Quelle schließt. Unter das leiseste gewünschte Signal setzen.
+The plugin's first four automatable controls, in its own order. Everything else it has keeps whatever the plugin was left set to.	Die ersten vier automatisierbaren Plugin-Regler in dessen Reihenfolge. Alle anderen Einstellungen bleiben wie zuletzt im Plugin gesetzt.
+Tints the two directions apart, so light bending one way and the other are different colours instead of both being grey.	Färbt die Richtungen unterschiedlich; verschieden abgelenktes Licht hat verschiedene Farben statt zweimal Grau.
+Turns the strokes across the grain instead of along it, which combs the picture apart rather than smoothing it.	Dreht Striche quer zur Körnung statt längs dazu; das kämmt das Bild auseinander, statt es zu glätten.
+Turns the whole arrangement, so the fold lines do not sit on the same part of the picture all night.	Dreht die gesamte Anordnung, damit Faltlinien nicht den ganzen Abend auf derselben Bildstelle liegen.
+Two is a mirror, twelve is a snowflake, and they are completely different pictures.	Zwei ergibt einen Spiegel, zwölf eine Schneeflocke -- völlig verschiedene Bilder.
+Where highlights fold back through black. Low folds most of the picture, high folds only the brightest.	Wo Spitzlichter durch Schwarz zurückklappen. Niedrig faltet fast das ganze Bild, hoch nur das Hellste.
+Where the band sits, 30Hz to 16kHz across the travel.	Bandposition, über den Regelweg von 30Hz bis 16kHz.
+Where the fold sits: the middle at the left, toward the far edge to the right. Flips have no fold.	Faltposition: links die Mitte, nach rechts zum äußeren Rand. Spiegelungen haben keine Falte.
+Where the light stands, in degrees around the frame.	Lichtposition in Grad um das Bild.
+Where the source sits around the listener, all the way round. For headphones -- it is a timing and shading trick, not a pan.	Quellposition rund um den Hörer, im ganzen Kreis. Für Kopfhörer -- ein Laufzeit- und Abschattungstrick, kein Panoramaregler.
+Where the top ends, 200Hz to 20kHz. Pull it down to take the harshness off a bright source.	Obere Grenzfrequenz, 200Hz bis 20kHz. Absenken nimmt einer hellen Quelle die Schärfe.
+Which channel the curve acts on: all three, then red, green or blue on its own -- the way a colourist warms or cools one end of the picture.	Kanal der Kurve: alle drei, dann Rot, Grün oder Blau einzeln -- wie beim wärmeren oder kühleren Abstimmen eines Tonwertbereichs.
+Which way the knife edge lies. Only gradients ACROSS the edge show, so turning it swaps which features appear and which vanish.	Richtung der Messerkante. Nur Verläufe QUER dazu erscheinen; Drehen tauscht sichtbare und unsichtbare Strukturen.
+Which way the streak runs: across at the left, upright in the middle, across again at the right.	Streifenrichtung: links quer, in der Mitte senkrecht, rechts wieder quer.
+Widens the decision into a ramp, so edges keep their shape instead of jagging.	Verbreitert die Schwelle zu einer Rampe; Kanten behalten ihre Form statt auszuzacken.
+Zero is one noise value across all three channels, which reads as film. Higher gives each channel its own, which reads as video.	Null verwendet denselben Rauschwert in allen drei Kanälen und wirkt wie Film. Höher erhält jeder Kanal eigenes Rauschen und wirkt wie Video.
+BLEND PAIR: expected <other output number> <overlap in pixels>	BLEND PAIR: <other output number> <overlap in pixels> erwartet
+ASCII WOBBLEMODE: drift | flow (follows luma) | hue (follows colour); no argument cycles	ASCII WOBBLEMODE: drift | flow (folgt Luma) | hue (folgt Farbe); ohne Argument weiterschalten
+ASCII: the selected cue has no text mode (add the TEXT MODE effect, or select a video synth cue)	ASCII: der gewählte Cue hat keinen Textmodus (Effekt TEXT MODE hinzufügen oder Videosynth-Cue wählen)
+DASH SET: needs a command -- DASH SET <n> <label> | <command> [| <glyph>]	DASH SET: Befehl nötig -- DASH SET <n> <label> | <command> [| <glyph>]
+DRAW COLOUR: #rrggbb, #rrggbbaa, a name, or 1-8 for the palette	DRAW COLOUR: #rrggbb, #rrggbbaa, Name oder 1-8 für die Palette
+DRAW STROKE: each point is x,y or x,y,pressure, in percent	DRAW STROKE: jeder Punkt ist x,y oder x,y,pressure, in Prozent
+DRAW TOOL: brush, erase, line, box, oval or fill	DRAW TOOL: brush, erase, line, box, oval oder fill
+MASK SET: expected INVERT, X, Y, SCALE, ROTATION, FEATHER, GROW or OPACITY and a number	MASK SET: INVERT, X, Y, SCALE, ROTATION, FEATHER, GROW oder OPACITY und Zahl erwartet
+MASK SHAPE: expected a shape (MASK SHAPES lists them)	MASK SHAPE: Form erwartet (MASK SHAPES listet sie auf)
+MULTIVIEW WINDOW <n>: expected a source, or SAFE/METER/LABEL ON|OFF	MULTIVIEW WINDOW <n>: Quelle oder SAFE/METER/LABEL ON|OFF erwartet
+NEWSHOW: something is live or unsaved -- send NEWSHOW again within 2.5 s	NEWSHOW: etwas ist live oder ungespeichert -- NEWSHOW binnen 2.5 s erneut senden
+NMOS: NOT registering - network is LOCAL ONLY (turn REMOTE ON to publish)	NMOS: KEINE Registrierung - Netzwerk ist NUR LOKAL (REMOTE ON zum Veröffentlichen)
+SCOPES SOURCE: expected PROGRAMME or an output number, 1-	SCOPES SOURCE: PROGRAMME oder Ausgangsnummer erwartet, 1-
+SLICE <n>: CROP, PLACE, CORNER, EDGE, MASK, SOURCE, ROTATE, FLIP, OPACITY, LFO, ON, OFF, LINEAR, PERSPECTIVE or NAME	SLICE <n>: CROP, PLACE, CORNER, EDGE, MASK, SOURCE, ROTATE, FLIP, OPACITY, LFO, ON, OFF, LINEAR, PERSPECTIVE oder NAME
+SLICE CORNER: TL, TR, BR or BL, then dx dy in percent of the output	SLICE CORNER: TL, TR, BR oder BL, dann dx dy in Prozent des Ausgangs
+SLICE EDGE: L, R, T or B, then 0-50 (% of the slice)	SLICE EDGE: L, R, T oder B, dann 0-50 (% des Ausschnitts)
+SLICE GRID POINT: col row (from 1, on a grid that is on) then dx dy in percent	SLICE GRID POINT: col row (ab 1, auf einem aktiven Gitter), dann dx dy in Prozent
+SLICE GRID: <cols> <rows> (2-9), OFF, SMOOTH ON|OFF, or POINT col row dx dy	SLICE GRID: <cols> <rows> (2-9), OFF, SMOOTH ON|OFF oder POINT col row dx dy
+SLICE LFO: X, Y, ROTATION or OPACITY, then ON, OFF, SHAPE, RATE, DEPTH...	SLICE LFO: X, Y, ROTATION oder OPACITY, dann ON, OFF, SHAPE, RATE, DEPTH...
+SLICE ROTATE: IN (the crop) or OUT (the placed picture), then degrees	SLICE ROTATE: IN (Beschnitt) oder OUT (platziertes Bild), dann Grad
+STING: select a tone cue first (TONECUE makes one)	STING: zuerst einen Ton-Cue wählen (TONECUE erstellt einen)
+VIDEO OUTPUT ASSIGN: already on this output, or no such deck or output	VIDEO OUTPUT ASSIGN: bereits auf diesem Ausgang oder Deck/Ausgang nicht vorhanden
+VIDEO OUTPUT LAYER: this deck is not on this output, or it is already at that layer	VIDEO OUTPUT LAYER: dieses Deck liegt nicht auf diesem Ausgang oder bereits auf dieser Ebene
+VIDEO OUTPUT LAYERWARP MODE: linear or perspective	VIDEO OUTPUT LAYERWARP MODE: linear oder perspective
+VIDEO OUTPUT LAYERWARP: expected OFF, MODE, or eight numbers clockwise from the top left	VIDEO OUTPUT LAYERWARP: OFF, MODE oder acht Zahlen im Uhrzeigersinn ab oben links erwartet
+VIDEO OUTPUT UNASSIGN: this deck is not on this output, or it is the only thing on it	VIDEO OUTPUT UNASSIGN: dieses Deck liegt nicht auf diesem Ausgang oder ist dort das einzige
+WARP SELECT: expected TL, TR, BR, BL or a grid <col> <row>	WARP SELECT: TL, TR, BR, BL oder Gitterpunkt <col> <row> erwartet
+WEBMONITOR PIN: network sharing and phone control require 8 or more characters	WEBMONITOR PIN: Netzwerkfreigabe und Telefonsteuerung benötigen mindestens 8 Zeichen
+WEBMONITOR SOURCE: PROGRAMME or the number of an output that shows a picture	WEBMONITOR SOURCE: PROGRAMME oder die Nummer eines Ausgangs mit Bild
+e.g. /stage/doors -- sent to Deckboy's OSC port; empty for none	z. B. /stage/doors -- an Deckboys OSC-Port gesendet; leer für keine
+forget my defaults? only NEW changes, this show keeps its settings: press again	Eigene Vorgaben vergessen? Nur NEW ändert sich, diese Show behält ihre Einstellungen: erneut drücken
+HH:MM or HH:MM:SS on this computer's clock; empty for none	HH:MM oder HH:MM:SS nach der Uhr dieses Computers; leer für keine
+HH:MM:SS:FF of the timecode Deckboy is chasing; empty for none	HH:MM:SS:FF des von Deckboy verfolgten Timecodes; leer für keinen
+key+fill ON, but no key device set (DECKLINK KEYFILL ON <device>)	Key+Fill ON, aber kein Keygerät gesetzt (DECKLINK KEYFILL ON <device>)
+my defaults forgotten: NEW starts from factory settings, this show is unchanged	Eigene Vorgaben vergessen: NEW startet mit Werkseinstellungen, diese Show bleibt unverändert
+N=new  Enter/P=previous  O=open saved  E=examples  L=learn  1-	N=neu  Enter/P=vorherige  O=gespeicherte öffnen  E=Beispiele  L=lernen  1-
+ndi tally trigger on -- program tally takes the cue	NDI-Tally-Trigger an -- PROGRAM-Tally schaltet den Cue
+network sharing and phone control require an 8+ character passphrase	Netzwerkfreigabe und Telefonsteuerung benötigen eine Passphrase mit mindestens 8 Zeichen
+notestep: this cue's notes have no builds (separate them with a line of ---)	notestep: die Notizen dieses Cues haben keine Schritte (durch eine Zeile mit --- trennen)
+opened github.com in your browser -- nothing is sent until you submit the report there	github.com im Browser geöffnet -- nichts wird gesendet, bis Sie dort den Bericht absenden
+output effects bypassed: no effect and no limit on this device	Ausgangseffekte umgangen: kein Effekt und keine Begrenzung auf diesem Gerät
+pair with a picture effect whose LFO is set to Audio	mit einem Bildeffekt koppeln, dessen LFO auf Audio steht
+phone control requires an 8+ character passphrase	Telefonsteuerung benötigt eine Passphrase mit mindestens 8 Zeichen
+phones need THE NETWORK: set 'Who can see it' first	Telefone benötigen DAS NETZWERK: zuerst „Wer es sehen kann“ festlegen
+programme sound is always included; use WEBMONITOR OFF to stop the monitor	PROGRAM-Ton ist immer enthalten; WEBMONITOR OFF stoppt den Monitor
+save failed - retrying; still open, use SAVE AS if needed	Speichern fehlgeschlagen - erneuter Versuch; noch offen, bei Bedarf SAVE AS nutzen
+saved as my defaults: NEW starts like this show, without the cues	als eigene Vorgaben gespeichert: NEW startet wie diese Show, ohne Cues
+set an 8+ character Web Monitor passphrase first	zuerst eine Webmonitor-Passphrase mit mindestens 8 Zeichen setzen
+sound scopes: integrated loudness and true peak start again	Audioanzeigen: integrierte Lautheit und True Peak beginnen neu
+splitnotes: that cue's notes have no parts (separate them with a line of ---)	splitnotes: die Notizen dieses Cues haben keine Teile (mit einer Zeile --- trennen)
+the clicker now spends note builds before advancing	der Presenter durchläuft jetzt erst Notizschritte, bevor er weitergeht
+what the operator should be told when GO reaches here	Meldung für den Bediener, wenn GO hier ankommt
+what the patch and the cues call it (FOH, SUB, PRESS FEED)	Name in Patch und Cues (FOH, SUB, PRESS FEED)
+Flip across, upside down or both, or fold one half onto the other: right onto left, left onto right, bottom onto top, top onto bottom, or one corner into all four.	Horizontal, vertikal oder beides spiegeln, oder eine Hälfte auf die andere falten: rechts auf links, links auf rechts, unten auf oben, oben auf unten oder eine Ecke in alle vier.
+Moves the direction of travel off the centre of frame, so the picture rushes past rather than straight at you.	Verschiebt die Bewegungsrichtung aus der Bildmitte, sodass das Bild vorbeirauscht statt direkt auf Sie zu.
+Original: the picture pulled onto the figure. Sand: the picture as grains that are thrown off the moving parts and pour into each new figure. Fluid: the picture under water on the plate, bent and lit by its standing waves.	Original: das auf die Figur gezogene Bild. Sand: Bildkörner werden von bewegten Teilen abgeworfen und rieseln in jede neue Figur. Flüssig: das Bild unter Wasser auf der Platte, durch stehende Wellen verzerrt und beleuchtet.
+PHONE LEVEL: removed -- a paired phone or the passphrase can do everything; BLACKOUT and RECORD are hold-to-fire on the phone	PHONE LEVEL: entfernt -- gekoppeltes Telefon oder Passphrase erlaubt alles; BLACKOUT und RECORD am Telefon zum Auslösen halten
+presenter panel: expected <live|prev|next|notes> <x> <y> <w> <h> in percent	Presenter-Feld: <live|prev|next|notes> <x> <y> <w> <h> in Prozent erwartet
+presenter panel: the panel must fit on the screen (x+w and y+h no more than 100)	Presenter-Feld: das Feld muss auf den Bildschirm passen (x+w und y+h höchstens 100)
+select a Draw cue first (SOURCE > MADE BY DECKBOY > Draw)	zuerst einen Zeichen-Cue wählen (SOURCE > MADE BY DECKBOY > Draw)
+something mellow appeared in SOURCE > MADE BY DECKBOY	etwas Entspanntes ist in SOURCE > MADE BY DECKBOY erschienen
+Something near the deck: a phone's buzz, a light dimmer's herringbone, a radio's slow bars.	Etwas nahe am Deck: Handybrummen, Fischgräten eines Dimmers, langsame Radiobalken.
+SOURCE WINDOW: name the window, e.g. title:Firefox (or "desktop")	SOURCE WINDOW: Fenster angeben, z. B. title:Firefox (oder "desktop")
+Tape speed: SP is the best picture, LP and EP fit more on a tape and lose detail and colour.	Bandgeschwindigkeit: SP bietet das beste Bild; LP und EP fassen mehr aufs Band, verlieren aber Details und Farbe.
+Words to surface in the field, separated by | . One shows at a time, moving on the hold clock.	Wörter für das Feld, getrennt durch | . Jeweils eines erscheint, Wechsel nach dem Haltetakt.
+SYPHON / SPOUT TEXTURE SHARE	SYPHON / SPOUT TEXTURFREIGABE
+SYPHON TEXTURE SHARE	SYPHON TEXTURFREIGABE
+Keynote could not export this file (it may need permission to be automated: System Settings > Privacy & Security > Automation)	Keynote konnte diese Datei nicht exportieren (eventuell ist Automatisierung zu erlauben: Systemeinstellungen > Datenschutz & Sicherheit > Automation)
+PowerPoint could not export this file (it may need permission to be automated: System Settings > Privacy & Security > Automation)	PowerPoint konnte diese Datei nicht exportieren (eventuell ist Automatisierung zu erlauben: Systemeinstellungen > Datenschutz & Sicherheit > Automation)
+ASCII: use ON|OFF|TOGGLE | STATUS | INK | SET | SHUFFLE | PRESET [name|next|prev] | FONT | GLYPHS [chars] | CHAOS <0-1> | WOBBLE <0-1> | WOBBLEMODE [drift|flow|hue] | COLS <n> | GLITCH <a> <b> <c> [d] | PHRASES <a|b|c> | HOLD <seconds>	ASCII: verwenden: ON|OFF|TOGGLE | STATUS | INK | SET | SHUFFLE | PRESET [name|next|prev] | FONT | GLYPHS [chars] | CHAOS <0-1> | WOBBLE <0-1> | WOBBLEMODE [drift|flow|hue] | COLS <n> | GLITCH <a> <b> <c> [d] | PHRASES <a|b|c> | HOLD <seconds>
+FX: use LIST | ADD <effect> [amount] | AMOUNT <n> <v> | PARAM <n> <A-F> <0-1> | CHOICE <n> <A|B> <name> | LFO <n> <A-G> ... | COPY | PASTE | CLEAR	FX: verwenden: LIST | ADD <effect> [amount] | AMOUNT <n> <v> | PARAM <n> <A-F> <0-1> | CHOICE <n> <A|B> <name> | LFO <n> <A-G> ... | COPY | PASTE | CLEAR
+FX LFO wants <index> <slot> <on|off|shape> [value]	FX LFO erwartet <index> <slot> <on|off|shape> [value]
+FX LFO: on, off, shape, rate, depth, zone, channel or cc	FX LFO: on, off, shape, rate, depth, zone, channel oder cc
+GEOLFO: x, y, width, height, rotation, cropleft, cropright, croptop or cropbottom	GEOLFO: x, y, width, height, rotation, cropleft, cropright, croptop oder cropbottom
+LFO: density, speed, warp, turn, centrex, centrey, grey or hue	LFO: density, speed, warp, turn, centrex, centrey, grey oder hue
+MIDIMAP: LIST, ADD, SET, REMOVE, CLEAR, RESET, LEARN, LEARNED, PRESET or FEEDBACK	MIDIMAP: LIST, ADD, SET, REMOVE, CLEAR, RESET, LEARN, LEARNED, PRESET oder FEEDBACK
+INPUTMONITOR: a row count, OPEN, CLOSE, CLEAR, PAUSE or RESUME	INPUTMONITOR: Zeilenzahl, OPEN, CLOSE, CLEAR, PAUSE oder RESUME
+OUTPUT SPOUT: ON | OFF | TOGGLE | NAME <sender name>	OUTPUT SPOUT: ON | OFF | TOGGLE | NAME <sender name> (Sendername)
+WEBMONITOR: STATUS | ON | OFF | CONTROL ON|OFF | SHARE ON|OFF | SOURCE PROGRAMME|<output> | QR [ON|OFF] | PORT <n> | PIN <pin>|OFF (sound is included)	WEBMONITOR: STATUS | ON | OFF | CONTROL ON|OFF | SHARE ON|OFF | SOURCE PROGRAMME|<output> | QR [ON|OFF] | PORT <n> | PIN <pin>|OFF (Ton enthalten)
+expected waveform|scope|lissajous|spectrum|level|cover	erwartet: waveform|scope|lissajous|spectrum|level|cover
+MIDIIN: NOTE <n> <vel>, NOTEOFF <n>, CC <c> <v>, PITCH <0-16383>, PRESSURE <v>, KEYPRESSURE <n> <v>, PROGRAM <n> or OSC <address> [<n>], then CH <1-16> if not channel 1	MIDIIN: NOTE <n> <vel>, NOTEOFF <n>, CC <c> <v>, PITCH <0-16383>, PRESSURE <v>, KEYPRESSURE <n> <v>, PROGRAM <n> oder OSC <address> [<n>], dann CH <1-16>, falls nicht Kanal 1
+warp grid: expected <n>, <cols> <rows>, off, smooth or straight	warp grid: <n>, <cols> <rows>, off, smooth oder straight erwartet
+warp point: that is a corner -- move it with WARP <corner> dx dy	warp point: das ist eine Ecke -- verschieben mit WARP <corner> dx dy
+label | command | glyph      (empty label|command removes it)	Beschriftung | Befehl | Zeichen      (leeres label|command entfernt den Eintrag)
+PIP: retired -- scale a second deck over this one instead	PIP: eingestellt -- stattdessen ein zweites Deck darüber skalieren
+pip: retired -- scale a second deck over this one instead	pip: eingestellt -- stattdessen ein zweites Deck darüber skalieren
+did not finish in 3 minutes. It may be waiting on a prompt it cannot show (Protected View, sign-in, a repair). Open the deck there once, or export it as a PDF and import that	nach 3 Minuten nicht fertig. Möglicherweise wartet ein unsichtbarer Dialog (geschützte Ansicht, Anmeldung, Reparatur). Präsentation einmal dort öffnen oder als PDF exportieren und diese importieren
+PowerPoint could not open the file (it gave up waiting for it). If it is in OneDrive, right-click it and choose Always keep on this device, then import it again	PowerPoint konnte die Datei nicht öffnen (Wartezeit überschritten). Liegt sie in OneDrive, rechtsklicken und „Immer auf diesem Gerät behalten“ wählen, dann erneut importieren
+a plugin overran the audio thread and was bypassed — take it out of the chain	Ein Plugin überlastete den Audiothread und wurde umgangen — aus der Kette entfernen
+window capture fell back to screen grab — update ffmpeg for exact window capture	Fensteraufnahme auf Bildschirmaufnahme zurückgefallen — FFmpeg für exakte Fensteraufnahme aktualisieren
+DECODE --.-	DEKODIEREN --.-
+DECODE OFF	DEKODIEREN AUS
+OUTPUT --.-	AUSGANG --.-
+STREAM ERR	STREAM FEHLER
+STREAM OFF	STREAM AUS
+DECODE WARM	DEKOD. START
+OUTPUT WARM	AUSGANG START
+STREAM WARM	STREAM START
+audioprint	Audioabdruck
+AUTO	AUTOMATIK
+Iris	Blende
+Lens	Linse
+gong	Gong
+mono	Mono
+Prism	Prisma
+Water	Wasser
+radio	Radio
+Lasers	Laser
+Pixels	Pixel
+out:--	Ausg.:--
+parade	Parade
+plasma	Plasma
+Listens	Hört mit
+Mirrors	Spiegel
+Shimmer	Schimmer
+vibrato	Vibrato
+purkinje	Purkinje
+FDS synth	FDS-Synth
+lissajous	Lissajous
+ping-pong	Pingpong
+schlieren	Schlieren
+(bypassed)	(umgangen)
+Second jet	Zweiter Strahl
+%, 1 to 100	%, 1 bis 100
+Panel angle	Panelwinkel
+Ripple size	Wellengröße
+Panels, 0-12	Paneele, 0-12
+Seconds, 0-4	Sekunden, 0-4
+Seconds, 0-8	Sekunden, 0-8
+Top / bottom	Oben / unten
+Amount 0-100%	Stärke 0-100%
+ALSA MIDI Port	ALSA MIDI-Port
+Degrees, 0-360	Grad, 0-360
+ASIOInit failed	ASIOInit fehlgeschlagen
+Pixels, 64-2160	Pixel, 64-2160
+Pixels, 64-3840	Pixel, 64-3840
+Colour steps, 2-8	Farbstufen, 2-8
+Degrees -180..180	Grad -180..180
+Palette turn, 0-1	Palettendrehung, 0-1
+Size, %, 5 to 400	Größe, %, 5 bis 400
+Feature size, 0.1-8	Strukturgröße, 0.1-8
+Spiral size, 0.25-4	Spiralgröße, 0.25-4
+Degrees, -360 to 360	Grad, -360 bis 360
+Spiral strength, 0-4	Spiralstärke, 0-4
+0-100%, left to right	0-100%, links nach rechts
+0-100%, top to bottom	0-100%, oben nach unten
+0-100%: laser speckle	0-100%: Lasergranulation
+Pixel sort amount, 0-1	Pixelsortierstärke, 0-1
+Pitch in hertz, 20-8000	Tonhöhe in Hertz, 20-8000
+Frames a second, 1 to 60	Bilder pro Sekunde, 1 bis 60
+Horizontal cells, 64-960	Horizontale Zellen, 64-960
+select a lumia cue first	zuerst einen Lumia-Cue wählen
+0 tube, 1 mandala, 2 none	0 Röhre, 1 Mandala, 2 keine
+How big a blob grows, 0-1	Wie groß ein Fleck wird, 0-1
+0-100%: overall brightness	0-100%: Gesamthelligkeit
+FDS hardware gain range, 0-63	FDS-Hardware-Verstärkungsbereich, 0-63
+How hard it cuts, %, 0 to 100	Schnitthärte, %, 0 bis 100
+{1} (supports + - * / and ())	{1} (erlaubt + - * / und ())
+Master oscillator rate, 0.01-8	Rate des Hauptoszillators, 0.01-8
+Seconds the in move takes, 0-5	Dauer der Einfahrt in Sekunden, 0-5
+0-100%: 0 holds the field still	0-100%: 0 hält das Feld still
+0-100%: how bright the water is	0-100%: Helligkeit des Wassers
+0-100%: how far the field bends	0-100%: Stärke der Feldkrümmung
+0-100%: the whole picture turns	0-100%: das ganze Bild dreht sich
+Degrees per second, -720 to 720	Grad pro Sekunde, -720 bis 720
+Lumia (laser light and mirrors)	Lumia (Laserlicht und Spiegel)
+Seconds between retriggers, 0-8	Sekunden zwischen Neuauslösungen, 0-8
+Seconds the out move takes, 0-5	Dauer der Ausfahrt in Sekunden, 0-5
+0-100%: how fast the water moves	0-100%: Bewegungstempo des Wassers
+0-100%: the halo round the lines	0-100%: Lichtsaum um die Linien
+How many are alive at once, 3-48	Wie viele gleichzeitig leben, 3-48
+Turbulence, 0 still to 3 boiling	Turbulenz, 0 still bis 3 kochend
+Birth, drift and fade rate, 0.1-3	Tempo von Entstehung, Drift und Verblassen, 0.1-3
+How hard the audio drives it, 0-1	Stärke des Audioantriebs, 0-1
+Scale of the whole graphic, 0.5-2	Skalierung der ganzen Grafik, 0.5-2
+0-100%: 0 broad, 100 fine and busy	0-100%: 0 breit, 100 fein und dicht
+Down, % of the height, -100 to 100	Abwärts, % der Höhe, -100 bis 100
+Thickness of the glowing edge, 0-1	Dicke des leuchtenden Rands, 0-1
+0-100%: how hard the lines are bent	0-100%: Stärke der Linienkrümmung
+0-100%: light lingers on the screen	0-100%: Licht leuchtet auf dem Bildschirm nach
+Across, % of the width, -100 to 100	Quer, % der Breite, -100 bis 100
+% of the picture's height, 0.1 to 20	% der Bildhöhe, 0.1 bis 20
+0-100%: how far the colours fan apart	0-100%: wie weit die Farben auffächern
+Degrees round the colour wheel, 0-360	Grad auf dem Farbkreis, 0-360
+Where the eye sits, 0 left to 1 right	Augenposition, 0 links bis 1 rechts
+Where the eye sits, 0 top to 1 bottom	Augenposition, 0 oben bis 1 unten
+dBFS, -60 to 0 (-18 is EBU alignment)	dBFS, -60 bis 0 (-18 ist EBU-Bezugspegel)
+0-100%: how bright the laser lines are	0-100%: Helligkeit der Laserlinien
+One LED tile's width in pixels, 8-8192	Breite einer LED-Kachel in Pixeln, 8-8192
+0-100%: a second jet crossing the first	0-100%: ein zweiter Strahl kreuzt den ersten
+Edge softness, % of the height, 0 to 25	Randweichheit, % der Höhe, 0 bis 25
+One LED tile's height in pixels, 8-8192	Höhe einer LED-Kachel in Pixeln, 8-8192
+0 classic, 1 fire, 2 ice, 3 neon, 4 mono	0 klassisch, 1 Feuer, 2 Eis, 3 Neon, 4 Mono
+Modulator as a ratio of the note, 0.05-16	Modulator als Verhältnis zur Note, 0.05-16
+Scanlines, bloom and gun misalignment, 0-1	Rasterzeilen, Überstrahlung und Strahlfehlstellung, 0-1
+0-100%: the round lens, barrel and dark rim	0-100%: Rundlinse, Tonnenverzerrung und dunkler Rand
+Block displacement and channel tearing, 0-1	Blockversatz und Kanalrisse, 0-1
+Internal resolution, 1 (chunky) to 5 (fine)	Interne Auflösung, 1 (grob) bis 5 (fein)
+Seconds the finished drawing stays, 0 to 60	Standzeit der fertigen Zeichnung in Sekunden, 0 bis 60
+0 rainbow + grey, 1 rainbow, 2 theme, 3 mono	0 Regenbogen + Grau, 1 Regenbogen, 2 Design, 3 Mono
+How readily neighbours merge, 0 (never) to 1	Wie leicht Nachbarn verschmelzen, 0 (nie) bis 1
+Turns the rim's colours round the wheel, 0-1	Dreht die Randfarben auf dem Farbkreis, 0-1
+drag to turn round it · wheel to come closer	ziehen zum Umkreisen · Mausrad zum Annähern
+0-100%: 50 is 1x, 0 a quarter, 100 four times	0-100%: 50 ist 1x, 0 ein Viertel, 100 das Vierfache
+How much of each frame feeds the next, 0-0.95	Anteil jedes Bildes im nächsten, 0-0.95
+Per-frame zoom of the feedback path, 0.90-1.15	Zoom pro Bild im Rückkopplungspfad, 0.90-1.15
+Space under it, as a fraction of the frame, 0-0.8	Platz darunter als Bruchteil des Bildes, 0-0.8
+0 rgb, 1 rainbow, 2 floyd, 3 warm, 4 cool, 5 green	0 rgb, 1 Regenbogen, 2 Floyd, 3 warm, 4 kühl, 5 grün
+Edge out (+) or in (-), % of the height, -25 to 25	Rand nach außen (+) oder innen (-), % der Höhe, -25 bis 25
+SCREENS STAGE: STATUS, SET <what> <value> or APPLY	SCREENS STAGE: STATUS, SET <what> <value> oder APPLY
+0 zone, 1 twin, 2 flow, 3 saddle, 4 ripple, 5 shear	0 Zone, 1 Zwilling, 2 Fluss, 3 Sattel, 4 Wellen, 5 Scherung
+Seconds before it leaves by itself; 0 waits for OUT	Sekunden bis zum automatischen Abgang; 0 wartet auf OUT
+0-100%: how far each panel tilts from the one before	0-100%: Neigung jedes Paneels gegenüber dem vorigen
+0-100%: the share of each band drawn as grey stripes	0-100%: als graue Streifen gezeichneter Anteil jedes Bands
+0 off, 1 on: the flow surges with the programme sound	0 aus, 1 an: der Fluss pulsiert mit dem Programmton
+0 off, 1 on: the top mirrors the bottom round a dark seam	0 aus, 1 an: oben wird unten an einer dunklen Naht gespiegelt
+' (cues, position, look, effects, levels, routing, master)	' (Cues, Position, Look, Effekte, Pegel, Routing, Master)
+' -- try ADD, ON, OFF, ASSIGN, UNASSIGN, LAYER, HOST, TYPE, MIRROR or an output number	' -- ADD, ON, OFF, ASSIGN, UNASSIGN, LAYER, HOST, TYPE, MIRROR oder eine Ausgangsnummer versuchen
+BLEND ROW: expected <first output> <how many, 2 or more> <overlap in pixels>, with that many outputs	BLEND ROW: erwartet <first output> <how many, 2 or more> <overlap in pixels>, mit entsprechend vielen Ausgängen
+SCREENS STAGE SET: WIDTH|HEIGHT <m>, LUMENS, THROW, OVERLAP <%>, GAIN, COUNT, PIXELS <w> <h> or UNITS METRES|FEET	SCREENS STAGE SET: WIDTH|HEIGHT <m>, LUMENS, THROW, OVERLAP <%>, GAIN, COUNT, PIXELS <w> <h> oder UNITS METRES|FEET
+opacity	Deckkraft
+Opacity	Deckkraft
+this build has no Ableton Link	dieser Build hat kein Ableton Link
+joined the Link session	der Link-Sitzung beigetreten
+left the Link session	Link-Sitzung verlassen
+VJ LINK: this build has no Ableton Link	VJ LINK: dieser Build hat kein Ableton Link
+LINK: {1} peers	LINK: {1} Teilnehmer
+TAKE waits for the beat: {1} s	TAKE wartet auf den Schlag: {1} s
+TAKE waits for the bar: {1} s	TAKE wartet auf den Takt: {1} s
+QUANTISE: 1 bar	QUANTISE: 1 Takt
+QUANTISE: 2 bars	QUANTISE: 2 Takte
+QUANTISE: 4 bars	QUANTISE: 4 Takte
+QUANTISE: beat	QUANTISE: Schlag
+PAD MODE: HOLD or LATCH	PAD MODE: HOLD oder LATCH
+PAD ASSIGN: this cue does not have that control	PAD ASSIGN: dieser Cue hat diesen Regler nicht
+PAD SET: x and y are numbers from 0 to 1 (y = 1 is the top)	PAD SET: x und y sind Zahlen von 0 bis 1 (y = 1 ist oben)
+PAD ASSIGN: a control is OPACITY, FX<n>.AMOUNT, FX<n>.A to F, or NUM.<name> such as NUM.lumia.flow	PAD ASSIGN: ein Regler ist OPACITY, FX<n>.AMOUNT, FX<n>.A bis F oder NUM.<name> wie NUM.lumia.flow
+PAD: expected PAD <deck> SET <x> <y> | RELEASE | MODE | ASSIGN | REMOVE | CHIP | LIST	PAD: erwartet PAD <deck> SET <x> <y> | RELEASE | MODE | ASSIGN | REMOVE | CHIP | LIST
+PAD: expected PAD <deck> SET <x> <y> | RELEASE | MODE HOLD|LATCH | ASSIGN <slot> <x> <y> | REMOVE <slot> | CHIP <slot> ON|OFF | LIST	PAD: erwartet PAD <deck> SET <x> <y> | RELEASE | MODE HOLD|LATCH | ASSIGN <slot> <x> <y> | REMOVE <slot> | CHIP <slot> ON|OFF | LIST
+VJ: expected ON|OFF|TOGGLE|MIX <0-1>|BLEND <mode>|TAP|BPM <n>|CLOCK <on|off>|QUANTISE <beat|1|2|4|off>|LINK <on|off|status>|DECKS <a> <b>|STATUS	VJ: erwartet ON|OFF|TOGGLE|MIX <0-1>|BLEND <mode>|TAP|BPM <n>|CLOCK <on|off>|QUANTISE <beat|1|2|4|off>|LINK <on|off|status>|DECKS <a> <b>|STATUS
+VJ QUANTISE: beat | 1 | 2 | 4 | off  (1, 2, 4 are bars)	VJ QUANTISE: beat | 1 | 2 | 4 | off  (1, 2, 4 sind Takte)
+LFO: flow, water, ripple, jet, prism, split, focus, shimmer, mirrors, angle, spin, lens, glow, bright or trail	LFO: flow, water, ripple, jet, prism, split, focus, shimmer, mirrors, angle, spin, lens, glow, bright oder trail
+render cancelled	Rendering abgebrochen
+RENDER TO FILE	IN DATEI RENDERN
+From cue and to cue	Von Cue und bis Cue
+the output's ({1})	des Ausgangs ({1})
+{1} frames, {2}, {3}x{4}	{1} Bilder, {2}, {3}x{4}
+about {1} left	noch etwa {1}
+{1} frames in {2}	{1} Bilder in {2}
+CANCEL RENDER	RENDERN ABBRECHEN
+START RENDER	RENDERN STARTEN
+RENDER CANCEL: nothing is rendering	RENDER CANCEL: es wird nichts gerendert
+RENDER START CUES: first-last, numbered from 1	RENDER START CUES: erster-letzter, ab 1 nummeriert
+RENDER START: CUE, CUES a-b or OUTPUT	RENDER START: CUE, CUES a-b oder OUTPUT
+RENDER START: needs a size, a rate, a codec and a file	RENDER START: benötigt Größe, Bildrate, Codec und Datei
+RENDER START: size is 1080P, 4K or OUTPUT; codec is PRORES, H264 or PNG	RENDER START: Größe ist 1080P, 4K oder OUTPUT; Codec ist PRORES, H264 oder PNG
+Render	Rendern
+RENDER TO FILE...	IN DATEI RENDERN...
+PNG frames	PNG-Einzelbilder
+there is no playlist to render	keine Wiedergabeliste zum Rendern vorhanden
+the playlist has no cues	die Wiedergabeliste enthält keine Cues
+the output's crossfader is not drawn by a render yet	der Crossfader des Ausgangs wird beim Rendern noch nicht berücksichtigt
+the output's mask is not drawn by a render yet	die Maske des Ausgangs wird beim Rendern noch nicht berücksichtigt
+the output's slices are not drawn by a render yet	die Slices des Ausgangs werden beim Rendern noch nicht berücksichtigt
+there is no picture in that range	in diesem Bereich ist kein Bild vorhanden
+the source made no picture	die Quelle hat kein Bild erzeugt
+a render is already running	es läuft bereits ein Rendering
+frame {1} of {2} \xC2\xB7 {3} frames/s	Bild {1} von {2} \xC2\xB7 {3} Bilder/s

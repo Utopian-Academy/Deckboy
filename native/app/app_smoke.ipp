@@ -1008,6 +1008,93 @@
     }
 
     {
+      // VJ: how long a take waits, the four-beat light, and Ableton Link.
+      namespace vjc = deckboy::vjclock;
+      // At 120 bpm a beat is 0.5 s. A take at beat 2.25 waits 0.375 s for the
+      // next beat, 0.875 s for the bar, 2.875 s for two bars, 6.875 s for four.
+      auto closeTo = [](double a, double b) { return std::fabs(a - b) < 1e-9; };
+      expect(closeTo(vjc::secondsToBoundary(2.25, 120.0, 1), 0.375), "quantise: a beat waits for the next beat");
+      expect(closeTo(vjc::secondsToBoundary(2.25, 120.0, 4), 0.875), "quantise: 1 bar waits for the bar line");
+      expect(closeTo(vjc::secondsToBoundary(2.25, 120.0, 8), 2.875), "quantise: 2 bars wait for the second bar line");
+      expect(closeTo(vjc::secondsToBoundary(2.25, 120.0, 16), 6.875), "quantise: 4 bars wait for the fourth bar line");
+      expect(closeTo(vjc::secondsToBoundary(8.0, 120.0, 4), 0.0), "quantise: standing on a bar line is not a bar of waiting");
+      expect(closeTo(vjc::secondsToBoundary(-1.5, 60.0, 4), 1.5), "quantise: a negative beat position still finds the bar");
+      expect(closeTo(vjc::secondsToBoundary(2.25, 1.0, 1), vjc::secondsToBoundary(2.25, 20.0, 1)),
+             "quantise: the tempo is held to 20 bpm and up");
+      expect(vjc::sanitiseQuantiseBeats(3) == 1 && vjc::sanitiseQuantiseBeats(16) == 16,
+             "quantise: an odd length from a file falls back to a beat");
+      expect(vjc::beatInBar(0.0) == 0 && vjc::beatInBar(3.99) == 3 && vjc::beatInBar(4.0) == 0 &&
+             vjc::beatInBar(-0.5) == 3, "four-beat light: the lit beat follows the bar, forwards and back");
+      vjc::Quantise q {false, 1};
+      std::string steps;
+      for (int i = 0; i < 5; ++i) {
+        q = vjc::nextQuantise(q);
+        steps += vjc::quantiseLabel(q);
+        steps += '|';
+      }
+      expect(steps == "QUANTISE: beat|QUANTISE: 1 bar|QUANTISE: 2 bars|QUANTISE: 4 bars|QUANTISE: off|",
+             "quantise: the button steps beat, 1, 2, 4 bars, off");
+      vjc::Quantise parsed {true, 4};
+      expect(vjc::parseQuantise("off", parsed) && !parsed.on && parsed.beats == 4 &&
+             vjc::parseQuantise("ON", parsed) && parsed.on && parsed.beats == 4 &&
+             vjc::parseQuantise("2", parsed) && parsed.on && parsed.beats == 8 &&
+             vjc::parseQuantise("beat", parsed) && parsed.beats == 1 && !vjc::parseQuantise("3", parsed),
+             "quantise: the remote words, ON keeps the length, a typo is refused");
+
+      Project vj;
+      vj.vjQuantiseTakes = true;
+      vj.vjQuantiseBeats = 16;
+      vj.vjLinkEnabled = true;
+      vj.vjTempoBpm = 133.5;
+      const fs::path vjFile = fs::temp_directory_path() / "deckboy-vj-check.deckboy";
+      expect(saveProject(vjFile, vj), "a show with quantise and link saves");
+      const Project vjBack = loadProject(vjFile);
+      expect(vjBack.vjQuantiseTakes && vjBack.vjQuantiseBeats == 16 && vjBack.vjLinkEnabled &&
+             std::fabs(vjBack.vjTempoBpm - 133.5) < 1e-9, "quantise length and link survive a save/load round trip");
+      // A show saved before Link has neither line: it must load as it always did.
+      {
+        std::ifstream in(vjFile, std::ios::binary);
+        std::string text((std::istreambuf_iterator<char>(in)), std::istreambuf_iterator<char>());
+        std::string kept;
+        std::istringstream lines(text);
+        for (std::string line; std::getline(lines, line);) {
+          if (line.rfind("vj_quantise_beats", 0) != 0 && line.rfind("vj_link", 0) != 0) {
+            kept += line + "\n";
+          }
+        }
+        in.close();
+        std::ofstream out(vjFile, std::ios::binary | std::ios::trunc);
+        out << kept;
+      }
+      const Project vjOld = loadProject(vjFile);
+      expect(vjOld.vjQuantiseTakes && vjOld.vjQuantiseBeats == 1 && !vjOld.vjLinkEnabled,
+             "an older show loads with beat-long takes and Link off");
+      std::error_code vjIgnored;
+      fs::remove(vjFile, vjIgnored);
+
+      // Link: off by default, joinable when built in. No peer is needed for
+      // this part: alone, the session is ours and holds the tempo we offered.
+      deckboy::LinkSession link;
+      double linkBeats = 0.0;
+      expect(!link.enabled() && link.peers() == 0 && !link.beatsNow(4.0, linkBeats), "link: starts off, with no clock");
+      if (deckboy::LinkSession::available()) {
+        link.setEnabled(true, 128.0);
+        expect(link.enabled(), "link: joins when asked");
+        double a = 0.0, b = 0.0;
+        expect(link.beatsNow(4.0, a), "link: gives a beat clock once joined");
+        SDL_Delay(120);
+        expect(link.beatsNow(4.0, b) && b > a, "link: the beat clock runs forward");
+        link.proposeTempo(90.0);
+        expect(std::fabs(link.tempo() - 90.0) < 0.01, "link: a proposed tempo is the session's tempo");
+        link.setEnabled(false, 90.0);
+        expect(!link.enabled() && !link.beatsNow(4.0, a), "link: leaves when asked");
+      } else {
+        link.setEnabled(true, 128.0);
+        expect(!link.enabled(), "link: a build without Link never claims to be joined");
+      }
+    }
+
+    {
       // Headless integration of the same core exercised by scopes_check.cpp.
       namespace scopes = deckboy::core::scopes;
       const std::array<std::uint8_t, 16> rgba{
@@ -4851,6 +4938,99 @@
                  normalizePatternTypeId("pattern://isf:C:/Some Dir/My_Shader.fs") == "isf",
                "a shader cue's path keeps its case and its underscores");
       }
+    }
+
+    // ── THE X/Y PAD ────────────────────────────────────────────────────────
+    // Assign two controls, move the finger, let go: HOLD springs back, LATCH
+    // stays, a point outside 0-1 is refused, and the phone may send the verb.
+    {
+      App app;
+      app.showSplashOverlay_ = false;
+      app.showStartupDialog_ = false;
+      app.project_.decks = {Deck {}, Deck {}};
+      Cue bars;
+      bars.kind = CueKind::Pattern;
+      bars.path = "pattern://bars";
+      bars.id = "pad-bars";
+      bars.name = "Bars";
+      deckboy::effects::CueEffect glow;
+      glow.kind = deckboy::effects::CueEffectKind::Glow;
+      glow.amount = 0.8f; glow.paramA = 0.25f; glow.paramB = 0.75f;
+      deckboy::effects::CueEffect blur;
+      blur.kind = deckboy::effects::CueEffectKind::Blur;
+      blur.paramA = 0.4f;
+      bars.effects = {glow, blur};
+      app.project_.decks[0].cues = {bars};
+      app.project_.decks[0].selectedIndex = 0;
+      app.project_.focusedDeckIndex = 1;
+      app.addLumiaCue();
+      app.project_.focusedDeckIndex = 0;
+      app.project_.decks[1].selectedIndex = 0;
+      const auto run = [&](const std::string& line) {
+        app.handleRemoteCommand(line);
+        return app.remoteCommandError_.empty();
+      };
+      const auto closeTo = [](double a, double b) { return std::fabs(a - b) < 1e-4; };
+      auto& fx = app.project_.decks[0].cues[0].effects;
+      expect(!run("PAD 1 SET 0.5 0.5"), "PAD refuses a point while nothing is on the pad");
+      expect(run("PAD 1 ASSIGN 1 FX1.A FX1.B") && app.remoteCommandDetail_.find("x ") != std::string::npos,
+             "PAD ASSIGN puts two effect sliders on the axes");
+      expect(!run("PAD 1 ASSIGN 1 FX9.A FX1.B") && !run("PAD 1 ASSIGN 1 NOPE FX1.B") &&
+             !run("PAD 1 ASSIGN 5 FX1.A FX1.B") && !run("PAD 9 LIST"),
+             "PAD refuses a missing effect, an unknown control, a slot out of order and a missing deck");
+      expect(run("PAD 1 SET 0.2 0.9") && closeTo(fx[0].paramA, 0.2) && closeTo(fx[0].paramB, 0.9),
+             "PAD SET moves the x control with x and the y control with y");
+      expect(run("PAD 1 SET 1 0") && closeTo(fx[0].paramA, 1.0) && closeTo(fx[0].paramB, 0.0), "the pad's corners reach each end of a slider");
+      expect(!run("PAD 1 SET 1.5 0.5") && !run("PAD 1 SET -0.1 0.5") && !run("PAD 1 SET abc 0.5") && !run("PAD 1 SET 0.5") &&
+             closeTo(fx[0].paramA, 1.0),
+             "PAD SET refuses a number out of range, a word and a missing number, and changes nothing");
+      expect(run("PAD 1 RELEASE") && closeTo(fx[0].paramA, 0.25) && closeTo(fx[0].paramB, 0.75),
+             "HOLD: letting go springs both controls back to where they were");
+      expect(run("PAD 1 RELEASE") && app.remoteCommandDetail_ == "nothing held", "a second release does nothing");
+      expect(run("PAD 1 MODE LATCH") && run("PAD 1 SET 0.6 0.1") && run("PAD 1 RELEASE") &&
+             closeTo(fx[0].paramA, 0.6) && closeTo(fx[0].paramB, 0.1), "LATCH: letting go leaves the controls where they are");
+      expect(run("PAD 1 MODE HOLD") && run("PAD 1 SET 0.9 0.9") && run("PAD 1 RELEASE") &&
+             closeTo(fx[0].paramA, 0.6) && closeTo(fx[0].paramB, 0.1), "HOLD again: the next gesture returns to the latched values");
+      // Stacked chips, the amount, and the deck's opacity.
+      expect(run("PAD 1 ASSIGN 2 OPACITY FX2.A") && run("PAD 1 MODE HOLD") && app.project_.decks[0].playlistOpacity == 1.0f,
+             "a second chip can use the deck's opacity");
+      expect(run("PAD 1 SET 0.4 0.7") && closeTo(app.project_.decks[0].playlistOpacity, 0.4) && closeTo(fx[1].paramA, 0.7) &&
+             closeTo(fx[0].paramA, 0.4) && closeTo(fx[0].paramB, 0.7), "stacked chips all follow the one finger");
+      expect(run("PAD 1 RELEASE") && closeTo(app.project_.decks[0].playlistOpacity, 1.0) && closeTo(fx[1].paramA, 0.4) &&
+             closeTo(fx[0].paramA, 0.6), "release restores every stacked control");
+      expect(run("PAD 1 CHIP 2 OFF") && run("PAD 1 SET 0.3 0.3") && closeTo(app.project_.decks[0].playlistOpacity, 1.0) &&
+             run("PAD 1 RELEASE"), "a chip that is off leaves its controls alone");
+      expect(run("PAD 1 REMOVE 2") && run("PAD 1 LIST") && app.remoteCommandDetail_.find("2 ") == std::string::npos,
+             "PAD REMOVE takes a chip off the pad");
+      // A control that does not move for 4 s is let go.
+      expect(run("PAD 1 SET 0.9 0.9") && closeTo(fx[0].paramA, 0.9), "the finger is down again");
+      if (SDL_GetTicks() < kPadSilenceMs + 200) SDL_Delay(static_cast<Uint32>(kPadSilenceMs + 200 - SDL_GetTicks()));
+      app.pads_[0].lastSetMs = SDL_GetTicks() - kPadSilenceMs - 100;
+      app.padWatchdog();
+      expect(!app.pads_[0].engaged && closeTo(fx[0].paramA, 0.6), "a phone that goes quiet with a finger down is let go");
+      // A generated source's numbers, by the inspector's own table.
+      expect(run("PAD 2 ASSIGN 1 NUM.lumia.flow NUM.lumia.prism") && run("PAD 2 SET 0.5 1") &&
+             closeTo(app.project_.decks[1].cues[0].lumia.flow, 0.5) && closeTo(app.project_.decks[1].cues[0].lumia.prism, 1.0),
+             "a source's numbers (Lumia flow and prism) go on the axes");
+      expect(run("PAD 2 RELEASE") && closeTo(app.project_.decks[1].cues[0].lumia.flow, LumiaSettings {}.flow),
+             "...and spring back");
+      expect(!run("PAD 2 ASSIGN 1 NUM.lumia.palette NUM.lumia.prism") && !run("PAD 1 ASSIGN 1 NUM.lumia.flow FX1.A"),
+             "a picker is not a pad axis, and a source the cue is not is refused");
+      // The phone's allow-list, and the page's state.
+      expect(App::webRemoteCommandAllowed("PAD 1 SET 0.5 0.5") && App::webRemoteCommandAllowed("PAD 2 RELEASE") &&
+             App::webRemoteCommandAllowed("PAD 1 ASSIGN 3 FX1.A NUM.lumia.flow") && App::webRemoteCommandAllowed("PAD 1 MODE LATCH") &&
+             App::webRemoteCommandAllowed("PAD 1 CHIP 2 OFF") && App::webRemoteCommandAllowed("PAD 1 REMOVE 2"),
+             "a paired phone may send the PAD verbs");
+      expect(!App::webRemoteCommandAllowed("PAD 1 SET 0.5") && !App::webRemoteCommandAllowed("PAD 1 ASSIGN 1 FX1.A;x FX1.B") &&
+             !App::webRemoteCommandAllowed("PAD 1 SET -1 0.5") && !App::webRemoteCommandAllowed("PAD 1 NOPE") &&
+             !App::webRemoteCommandAllowed("PAD x SET 0.5 0.5") && !App::webRemoteCommandAllowed("PAD 1 MODE FAST"),
+             "...and nothing else shaped like it");
+      std::ostringstream stateJson;
+      app.padStateJson(stateJson, 0);
+      const std::string stateText = stateJson.str();
+      expect(stateText.find("\"controls\"") != std::string::npos && stateText.find("FX1.AMOUNT") != std::string::npos &&
+             stateText.find("OPACITY") != std::string::npos,
+             "the phone's state lists what can go on the pad");
     }
 
     std::cout << "smoke failures: " << failures << '\n';

@@ -3279,3 +3279,1243 @@ whole picture	an dealbh slàn
 FX CHOICE: choice must be A or B	FX CHOICE: feumaidh an roghainn a bhith A no B
 FX CHOICE: no effect at that index	FX CHOICE: chan eil èifeachd sam bith aig a' chlàr-amais sin
 FX LFO: slot is A-D for the parameters, E for the amount, F and G for the fifth and sixth (or 0-6)	FX LFO: 's e A-D an slot airson na paramadairean, E airson an uiread, F agus G airson a' chòigeamh is an siathamh (no 0-6)
+(choose cue)	(tagh cue)
+(missing)	(a dhìth)
+(no slots)	(gun sliotan)
+(set media file)	(suidhich faidhle)
+(set url)	(suidhich url)
+a name for this step	ainm a’ cheuma seo
+A number	Àireamh
+across the grain	tarsainn na grànachd
+Add Browser Cue	Cuir cue brabhsair ris
+Add NDI Source Cue	Cuir cue tùs NDI ris
+Add Stream Cue	Cuir cue srutha ris
+additive	cur-ris
+alternating	mu seach
+amber	òmar
+angle	ceàrn
+Art-Net Destination	Ceann-uidhe Art-Net
+ASCII 95 (density)	ASCII 95 (dùmhlachd)
+ASCII 95 (raw)	ASCII 95 (amh)
+ASIO is off	Tha ASIO dheth
+ATEM Input	Ion-chur ATEM
+Attach Lower Third	Ceangail Lower Third
+Attach PIP Overlay	Ceangail tar-chòmhdach PIP
+Attack	Ionnsaigh
+attack	ionnsaigh
+Audio bitrate	Reat bhitichean fuaime
+Audio reactivity	Freagairt ri fuaim
+audioprint	clò fuaime
+AUTO	FÈIN-OBRACHAIL
+auto (59.94 Hz)	fèin-obrachail (59.94 Hz)
+azimuth	asamat
+band curve	lùb banna
+Bands	Bannan
+bands	bannan
+base layer	bun-fhilleadh
+BITRATE	REAT BHITICHEAN
+bits	bìdean
+black point	puing dhubh
+bleed	sileadh
+Blobs	Cnapan
+block size	meud bloca
+blocks	blocaichean
+blur	doilleireachd
+BOTH	AN DÀ CHUID
+bright	soilleir
+Browser Ready	Brabhsair deiseil
+Brush opacity	Teimhneachd bruise
+Brush size	Meud bruise
+buzzer	dùrdan
+by brightness	a-rèir soilleireachd
+cancelled	air a sgur dheth
+Canvas Height	Àirde canabhais
+Canvas View	Sealladh canabhais
+Canvas Width	Leud canabhais
+catch	glacadh
+caustics	pàtrain solais
+Centre X	Meadhan X
+Centre Y	Meadhan Y
+channel skew	fiaradh sheanalan
+channel spread	sgaoileadh sheanalan
+character	caractar
+chladni	pàtrain Chladni
+chop	gearradh
+CLASSIC	CLASAIGEACH
+CLOCK	GLEOC
+coherence	co-leanailteachd
+colour bleed	sileadh datha
+colour drift	siabadh datha
+colour lag	dàil datha
+colour replace	ath-chur datha
+columns	colbhan
+Companion/OSC Port	Port Companion/OSC
+control 1	smachd 1
+control 2	smachd 2
+control 3	smachd 3
+control 4	smachd 4
+Control change	Atharrachadh smachd
+convergence	co-aomadh
+copies	lethbhreacan
+corrupt	truaill
+corruption	truailleadh
+could not reach github	cha deach github a ruigsinn
+could not read the PDF	cha deach am PDF a leughadh
+could not start ffmpeg	cha deach ffmpeg a thòiseachadh
+couldn't open explorer	cha deach explorer fhosgladh
+couldn't open finder	cha deach finder fhosgladh
+coupling	ceangal
+crystallise	criostalaich
+Cue Goto	Rach gu cue
+Cue Notes	Notaichean cue
+curl detail	mion-fhios cuairl
+curves	lùban
+Custom Glyphs	Giofan gnàthaichte
+Custom Output Raster	Rastar toraidh gnàthaichte
+cut bright	geàrr soilleir
+cut dark	geàrr dorcha
+cut reset	ath-shuidheachadh gearraidh
+cutoff	gearradh triceid
+cuts	gearraidhean
+cyan	saidhean
+damage	milleadh
+damping	mùchadh
+dark	dorcha
+darkness	dorchadas
+databend	lùbadh dàta
+datamosh	truailleadh teannaidh
+deck age	aois deic
+Default Cue Fade	Seargadh cue bunaiteach
+Density	Dùmhlachd
+depth	doimhneachd
+depth split	sgaradh doimhneachd
+Destination Address	Seòladh ceann-uidhe
+Destination UDP port	Port UDP ceann-uidhe
+Detail	Mion-fhios
+diamond	daoimean
+display native	dùthchasach sgrìn
+Display none	Gun sgrìn
+distance	astar
+DMX Channels	Seanalan DMX
+doppler	buaidh Doppler
+dots move	gluasad phuingean
+Draw colour	Dath tarraingidh
+drift	siabadh
+drip	sileadh
+drips	boinneagan
+drive	dràibheadh
+driver refused to start	dhiùlt an draibhear tòiseachadh
+dye advect	giùlan datha
+edges	oirean
+empty	falamh
+empty expression	abairt fhalamh
+escaped to windowed	air tilleadh gu uinneag
+export as .png or .svg	às-phortaich mar .png no .svg
+extended	leudaichte
+EXTREME	ANABARRACH
+facet light	solas aghaidhean
+falloff	crìonadh
+falsecolour	dath fuadain
+feed rate	reat biadhaidh
+feedback bloom	deàrrsadh ais-bhiadhaidh
+Feedback zoom	Sùm ais-bhiadhaidh
+ferrofluid	lionn iarainn
+ffmpeg made no file	cha do chruthaich ffmpeg faidhle
+field of view	raon seallaidh
+Find Cue	Lorg cue
+Find+Take Cue	Lorg+TAKE cue
+Fire at a time of day	Tòisich aig àm den latha
+Fire on a MIDI note	Tòisich le nòta MIDI
+Fire on an OSC address	Tòisich le seòladh OSC
+Fireside	Ri taobh an teine
+First channel (1-512)	A’ chiad seanail (1-512)
+Fixture address	Seòladh uidheim
+Fixture name	Ainm uidheim
+Fixture universe	Cruinne uidheim
+flash length	fad lasaidh
+flash to	dath lasaidh
+flicker	priobadh
+Flipbook rate	Reat leabhair-dhealbhan
+floor	bun-ìre
+Flow	Sruth
+flow	sruth
+focus	fòcas
+fold	pasgadh
+fold point	puing pasgaidh
+frames	frèamaichean
+Frequency	Tricead
+frequency	tricead
+fullscreen dropped	dh’fhalbh an làn-sgrìn
+gap	beàrn
+gather	cruinneachadh
+glow	deàrrsadh
+glyph set	seata ghiofan
+gong	gonga
+GOTO Cue	Cue GOTO
+grain	grànachd
+grain flow	sruth gràin
+grain size	meud gràin
+green split	sgaradh uaine
+Grey	Liath
+grid	griod
+growl	grànan
+growth	fàs
+head wear	caitheamh cinn
+heat	teas
+Height	Àirde
+Height (px)	Àirde (px)
+hh:mm:ss or seconds	hh:mm:ss no diogan
+highlight roll	lùbadh shoillsean
+histogram	hiostogram
+horizontal	còmhnard
+How big each tile is.	Meud gach leac.
+How often it skips.	Dè cho tric ’s a leumas e.
+hue turn	tionndadh datha
+ice	deigh
+In time	Ùine a-steach
+ink	inc
+interference	eadar-theachd
+Iris	Seileastair
+irregularity	neo-riaghailteachd
+it could not be started	cha deach a thòiseachadh
+Its name, number or id	Ainm, àireamh no id
+jump	leum
+just	gleus fìor
+kaleido	caileido
+kaleidoscope	caileidosgop
+Key Color	Dath iuchrach
+Key sender source name	Ainm tùs an t-seòladair iuchrach
+Keyframe interval	Eadar-àm iuchair-fhrèama
+knee	glùin
+knife angle	ceàrn sgeine
+leak	aoidion
+Legacy Cue Link	Ceangal cue dìleabach
+let go	leigeil às
+libX11 is not installed	chan eil libX11 stàlaichte
+lift	togail
+light	solas
+light angle	ceàrn solais
+lightspeed	luaths solais
+line colour	dath loidhne
+line glow	deàrrsadh loidhne
+lissajous	lùb Lissajous
+Lissajous (L/R phase)	Lissajous (ìre L/R)
+Live Browser	Brabhsair beò
+Live Source	Tùs beò
+LOAD NEXT	LUCHDAICH AN ATH FHEAR
+lost the session bus	chaidh bus an t-seisein air chall
+Lower Third - subtitle	Lower Third - fo-thiotal
+Lower Third - title	Lower Third - tiotal
+Lower Third Subtext	Fo-theacsa Lower Third
+Lower Third Title	Tiotal Lower Third
+luma displace	gluasad luma
+luma key	iuchair luma
+Mask opacity	Teimhneachd masga
+Mask rotation	Cuairteachadh masga
+Mask scale	Sgèile masga
+Mask X	Masg X
+Mask Y	Masg Y
+material	stuth
+meantone	meadhan-tòna
+Media	Meadhanan
+Melt	Leaghadh
+melt	leaghadh
+memory	cuimhne
+midtones	meadhan-thònaichean
+milliseconds (40..2000)	mili-dhiogan (40..2000)
+Milliseconds 0-5000	Mili-dhiogan 0-5000
+Mod depth	Doimhneachd mod.
+Mod ratio	Co-mheas mod.
+moire	muar
+mono	aon-seanail
+MONO L	AON-SEANAIL L
+MONO R	AON-SEANAIL R
+mosaic	breac-dhualadh
+motion mosh	truailleadh gluasaid
+motion puppet	pupaid gluasaid
+motion trails	lorgan gluasaid
+MSC Cue Number	Àireamh cue MSC
+music & sparkle	ceòl is deàrrsadh
+NDI Key Name	Ainm iuchrach NDI
+NDI Name	Ainm NDI
+NDI Source Name	Ainm tùs NDI
+NEXT	AN ATH FHEAR
+night eyes	sùilean oidhche
+NMC Port	Port NMC
+NMC Source	Tùs NMC
+NMC Target	Targaid NMC
+NMOS Interface Name	Ainm eadar-aghaidh NMOS
+NMOS Node Port	Port nòid NMOS
+NMOS Registry	Clàr NMOS
+no ASIO in this build	chan eil ASIO sa cho-chruinneachadh seo
+no colour	gun dath
+no driver named	chan eil draibhear leis an ainm
+no mask made	cha deach masg a dhèanamh
+no release found	cha deach sgaoileadh a lorg
+no X display to read	chan eil sgrìn X ri leughadh
+noise	fuaim-chnap
+not connected	gun cheangal
+not on this output	chan ann air an toradh seo
+Note	Nòta
+Note off	Nòta dheth
+Note on	Nòta air
+nothing drawn	cha deach dad a tharraing
+off-axis	far na h-aise
+offline	far loidhne
+only a background in it	chan eil ann ach cùlaibh
+opened in explorer	air fhosgladh ann an explorer
+opened in file manager	air fhosgladh sa mhanaidsear fhaidhlichean
+orbit speed	luaths cuairte
+OSC Address	Seòladh OSC
+OSC Query HTTP Port	Port HTTP OSC Query
+Out time	Ùine a-mach
+Output Alpha	Alfa toraidh
+Output Canvas	Canabhas toraidh
+Output Delay	Dàil toraidh
+output fault	mearachd toraidh
+Output name	Ainm toraidh
+Output Refresh	Ùrachadh toraidh
+overflow	cur thairis
+own playlist	liosta-cluiche fhèin
+parade	caismeachd sheanalan
+parallax	paralacs
+Payload	Uallach dàta
+Percent 0-100	Ceudad 0-100
+phone	fòn
+Phrases	Abairtean
+pinch	teannachadh
+ping-pong	a-null ’s a-nall
+pink noise	fuaim phinc
+PIP Target Cue	Cue targaid PIP
+pitch	àirde tòna
+pivot	puing cuairte
+Pixel density	Dùmhlachd phiogsail
+pixel sort	seòrsachadh phiogsail
+plasma	plasma beò
+Playlist Start TC	TC tòiseachaidh liosta
+Playlist Timebase	Bun-ùine liosta
+Plugin	Plugan
+polar warp	fiaradh pòlarach
+Portal	Doras
+posterise	postaraich
+Practice show	Taisbeanadh cleachdaidh
+PREVIOUS	AM FEAR ROIMHE
+Program change	Atharrachadh prògraim
+Prompter script	Teacsa prompter
+QUALITY	CÀILEACHD
+radial zoom	sùm rèididheach
+radio	rèidio
+radius	rèideas
+ramp	rampa
+range	raon
+ratio	co-mheas
+Raw bytes	Baitaichean amh
+Raw MIDI Bytes	Baitaichean MIDI amh
+reach	ruigsinneachd
+reaction bloom	deàrrsadh freagairt
+recordings	clàraidhean
+recovering	ag ath-bheothachadh
+refresh	ùrachadh
+Release	Leigeil às
+release	leigeil às
+relight	ath-shoillsich
+Rename cue	Ath-ainmich cue
+Rename fixture	Ath-ainmich uidheam
+Renumber Cues	Ath-àireamhaich cues
+repeat width	leud ath-aithris
+Replay hold	Cumail ath-chluiche
+resonance	co-fhuaim
+Retrigger	Ath-bhrosnaich
+revealed in finder	air a shealltainn ann am finder
+reverse	air ais
+rgb split	sgaradh rgb
+Rim	Oir
+rings	fàinneachan
+ripple	preabadh uisge
+rising	ag èirigh
+rod bias	claonadh shlatan
+room	seòmar
+rot	lobhadh
+Rotation	Cuairteachadh
+rotation	cuairteachadh
+round	cruinn
+sag	tuiteam bholtaids
+Save Warp Preset	Sàbhail ro-shuidheachadh fiaraidh
+saw	sàbh
+scanlines	loidhnichean sganaidh
+schlieren	dealbh schlieren
+scope	tomhas
+SCOPES	TOMHASAN
+second mode	dàrna modh
+Seconds (0-30)	Diogan (0-30)
+see through	tro-fhollaiseachd
+seed density	dùmhlachd sìl
+self	fhèin
+Sender source name	Ainm tùs an t-seòladair
+settle	socrachadh
+shadow lift	togail sgàilean
+shake	crathadh
+shard size	meud spealg
+sharpen	geuraich
+sheen	lìomh
+sideways	gu taobh
+size out of range	meud taobh a-muigh raoin
+slit scan	sganadh sgoltaidh
+slit width	leud sgoltaidh
+Smear	Smàladh
+smear	smàladh
+softness	buigead
+solarise	grianaich
+Source Ready	Tùs deiseil
+spike count	àireamh bhioran
+spike length	fad bhioran
+spin	cuairteachadh
+spinning	a’ cuairteachadh
+Spout Sender Name	Ainm seòladair Spout
+spring	fuaran
+sprite sheet	duilleag sprite
+Sprite spin	Cuairteachadh sprite
+square	ceàrnag
+SRT latency	Dàil SRT
+SRT passphrase	Abairt-fhaire SRT
+SRT stream ID	ID srutha SRT
+ST 2110 Destination	Ceann-uidhe ST 2110
+ST 2110 Port	Port ST 2110
+Step length	Fad ceuma
+steps	ceumannan
+stereogram	steireogram
+stiffness	cruas
+sting	gleadhraich ghoirid
+stream restart needed	feumar an sruth ath-thòiseachadh
+Stream URL	URL srutha
+stream write failed	dh’fhàillig sgrìobhadh srutha
+strength	neart
+strobe	stròb
+stroke	stròc
+SUBTLE	SEÒLTA
+sway	luasgadh
+sweep	sguabadh
+sweep speed	luaths sguaibaidh
+swell speed	luaths ataidh
+Switcher IP address	Seòladh IP measgadair
+symbols	samhlaidhean
+SYPHON TEXTURE SHARE	CO-ROINN INNEACH SYPHON
+system default	bun-roghainn siostaim
+system output	toradh siostaim
+tape	teip
+tape age	aois teipe
+target cue is gone	tha an cue targaid air falbh
+targets nothing	gun targaid
+tear width	leud reubaidh
+temporal dither	dithreadh ùine
+test signal	comharra deuchainn
+text to send	teacsa ri chur
+the file is empty	tha am faidhle falamh
+the header is truncated	tha an ceann-cinn gearraichte
+threshold	stairsneach
+throw	tilgeil
+tile size	meud leice
+tilt	claonadh
+time	ùine
+time cube	ciùb ùine
+Timer Message	Teachdaireachd tìmear
+tint	dathadh
+tint colour	dath dathaidh
+tracking	tracadh
+trail	lorg
+transparent	tro-fhollaiseach
+triangle	triantan
+triple beep	trì bìpean
+TSL Tally	Comharra TSL
+Turn	Tionndaidh
+turn	tionndaidh
+Twist	Toinneamh
+twist	toinneamh
+unavailable	chan eil ri fhaighinn
+unbalanced )	) gun chàraid
+Universe (0-63999)	Cruinne (0-63999)
+URL or local page path	URL no slighe duilleige ionadail
+vapor	toit
+vector	bheactar
+vertical	inghearach
+vertical bias	claonadh inghearach
+vibrato	crith-thòna
+Video bitrate	Reat bhitichean bhidio
+Video dip fade	Seargadh bhidio tro dhubh
+vignette	dubhadh oirean
+vMix HTTP Port	Port HTTP vMix
+vMix TCP Port	Port TCP vMix
+wash out	bànachadh
+wave height	àirde tuinne
+wavefront	aghaidh tuinne
+way	slighe
+Web Monitor Connections	Ceanglaichean sgrìn-lìn
+Web Monitor PIN	PIN sgrìn-lìn
+Web Monitor Port	Port sgrìn-lìn
+wedges	geinnichean
+What it runs	Na ruitheas e
+Where the filter sits.	Far a bheil an criathrag.
+Which cue	Dè an cue
+Which way it drips.	Dè an taobh a shileas e.
+white	geal
+white noise	fuaim gheal
+white point	puing gheal
+window hidden	uinneag falaichte
+window minimized	uinneag air a lùghdachadh
+wire	uèir
+wrong display	sgrìn cheàrr
+X,Y offset in pixels	Gluasad X,Y ann am piogsail
+Zoom	Sùm
+zoom	sùm
+% of the picture's height, 0.1 to 20 (supports + - * / and ())	% àirde an deilbh, 0.1 gu 20 (cuiridh taic ri + - * / agus ())
+%, 1 to 100 (supports + - * / and ())	%, 1 gu 100 (cuiridh taic ri + - * / agus ())
+-3 to 3: 0 holds, negative runs backwards (supports + - * / and ())	-3 gu 3: cumaidh 0, ruithidh àicheil air ais (cuiridh taic ri + - * / agus ())
+0 classic, 1 fire, 2 ice, 3 neon, 4 mono (supports + - * / and ())	0 clasaigeach, 1 teine, 2 deigh, 3 neon, 4 aon-dath (cuiridh taic ri + - * / agus ())
+0 rainbow + grey, 1 rainbow, 2 theme, 3 mono (supports + - * / and ())	0 bogha-froise + liath, 1 bogha-froise, 2 coltas, 3 aon-dath (cuiridh taic ri + - * / agus ())
+0 zone, 1 twin, 2 flow, 3 saddle, 4 ripple, 5 shear (supports + - * / and ())	0 sòn, 1 càraid, 2 sruth, 3 dìollaid, 4 preabadh, 5 rùsgadh (cuiridh taic ri + - * / agus ())
+0-1 (supports + - * / and ())	0-1 (cuiridh taic ri + - * / agus ())
+0-100% (supports + - * / and ())	0-100% (cuiridh taic ri + - * / agus ())
+0-100%, left to right (supports + - * / and ())	0-100%, clì gu deas (cuiridh taic ri + - * / agus ())
+0-100%, top to bottom (supports + - * / and ())	0-100%, mullach gu bonn (cuiridh taic ri + - * / agus ())
+0-100%: 0 holds the field still (supports + - * / and ())	0-100%: cumaidh 0 an raon na stad (cuiridh taic ri + - * / agus ())
+0-100%: 50 is 1x, 0 a quarter, 100 four times (supports + - * / and ())	0-100%: is 50 1x, 0 cairteal, 100 ceithir uiread (cuiridh taic ri + - * / agus ())
+0-100%: how far the field bends (supports + - * / and ())	0-100%: dè cho fad ’s a lùbas an raon (cuiridh taic ri + - * / agus ())
+0-100%: the share of each band drawn as grey stripes (supports + - * / and ())	0-100%: roinn gach banna le stiallan liatha (cuiridh taic ri + - * / agus ())
+Across, % of the width, -100 to 100 (supports + - * / and ())	Tarsainn, % leud, -100 gu 100 (cuiridh taic ri + - * / agus ())
+Amount 0-100% (supports + - * / and ())	Meud 0-100% (cuiridh taic ri + - * / agus ())
+Birth, drift and fade rate, 0.1-3 (supports + - * / and ())	Reat breith, siabadh is seargadh, 0.1-3 (cuiridh taic ri + - * / agus ())
+Block displacement and channel tearing, 0-1 (supports + - * / and ())	Gluasad bhlocaichean is reubadh sheanalan, 0-1 (cuiridh taic ri + - * / agus ())
+Colour steps, 2-8 (supports + - * / and ())	Ceumannan datha, 2-8 (cuiridh taic ri + - * / agus ())
+dBFS, -60 to 0 (-18 is EBU alignment) (supports + - * / and ())	dBFS, -60 gu 0 (is -18 co-thaobhadh EBU) (cuiridh taic ri + - * / agus ())
+Degrees -180..180 (supports + - * / and ())	Ceumannan -180..180 (cuiridh taic ri + - * / agus ())
+Degrees per second, -720 to 720 (supports + - * / and ())	Ceumannan gach diog, -720 gu 720 (cuiridh taic ri + - * / agus ())
+Degrees round the colour wheel, 0-360 (supports + - * / and ())	Ceumannan mu chuairt dath, 0-360 (cuiridh taic ri + - * / agus ())
+Degrees, -360 to 360 (supports + - * / and ())	Ceumannan, -360 gu 360 (cuiridh taic ri + - * / agus ())
+Degrees, 0-360 (supports + - * / and ())	Ceumannan, 0-360 (cuiridh taic ri + - * / agus ())
+Down, % of the height, -100 to 100 (supports + - * / and ())	Sìos, % àirde, -100 gu 100 (cuiridh taic ri + - * / agus ())
+Edge out (+) or in (-), % of the height, -25 to 25 (supports + - * / and ())	Oir a-mach (+) no a-steach (-), % àirde, -25 gu 25 (cuiridh taic ri + - * / agus ())
+Edge softness, % of the height, 0 to 25 (supports + - * / and ())	Buigead oirean, % àirde, 0 gu 25 (cuiridh taic ri + - * / agus ())
+FDS hardware gain range, 0-63 (supports + - * / and ())	Raon buannachd bathar-cruaidh FDS, 0-63 (cuiridh taic ri + - * / agus ())
+Feature size, 0.1-8 (supports + - * / and ())	Meud feart, 0.1-8 (cuiridh taic ri + - * / agus ())
+Fields per frame, 0-4 (1 = one field per rendered frame) (supports + - * / and ())	Raointean gach frèam, 0-4 (1 = aon raon gach frèam riochdaichte) (cuiridh taic ri + - * / agus ())
+Frames a second, 1 to 60 (supports + - * / and ())	Frèamaichean gach diog, 1 gu 60 (cuiridh taic ri + - * / agus ())
+Hertz, 20-20000 (supports + - * / and ())	Hertz, 20-20000 (cuiridh taic ri + - * / agus ())
+Horizontal cells, 64-960 (supports + - * / and ())	Ceallan còmhnard, 64-960 (cuiridh taic ri + - * / agus ())
+How big a blob grows, 0-1 (supports + - * / and ())	Meud fàis cnap, 0-1 (cuiridh taic ri + - * / agus ())
+How hard it cuts, %, 0 to 100 (supports + - * / and ())	Neart gearraidh, %, 0 gu 100 (cuiridh taic ri + - * / agus ())
+How hard the audio drives it, 0-1 (supports + - * / and ())	Neart dràibhidh na fuaime, 0-1 (cuiridh taic ri + - * / agus ())
+How many are alive at once, 3-48 (supports + - * / and ())	Cia mheud beò aig an aon àm, 3-48 (cuiridh taic ri + - * / agus ())
+How much of each frame feeds the next, 0-0.95 (supports + - * / and ())	Roinn gach frèam dhan ath fhear, 0-0.95 (cuiridh taic ri + - * / agus ())
+How readily neighbours merge, 0 (never) to 1 (supports + - * / and ())	Dè cho furasta ’s a cho-aonas nàbaidhean, 0 (gu bràth) gu 1 (cuiridh taic ri + - * / agus ())
+Internal resolution, 1 (chunky) to 5 (fine) (supports + - * / and ())	Dùmhlachd a-staigh, 1 (garbh) gu 5 (mìn) (cuiridh taic ri + - * / agus ())
+Master oscillator rate, 0.01-8 (supports + - * / and ())	Reat prìomh osgaladair, 0.01-8 (cuiridh taic ri + - * / agus ())
+Modulator as a ratio of the note, 0.05-16 (supports + - * / and ())	Modaladair mar cho-mheas nòta, 0.05-16 (cuiridh taic ri + - * / agus ())
+One LED tile's height in pixels, 8-8192 (supports + - * / and ())	Àirde aon leac LED ann am piogsail, 8-8192 (cuiridh taic ri + - * / agus ())
+One LED tile's width in pixels, 8-8192 (supports + - * / and ())	Leud aon leac LED ann am piogsail, 8-8192 (cuiridh taic ri + - * / agus ())
+Palette turn, 0-1 (supports + - * / and ())	Tionndadh paileid, 0-1 (cuiridh taic ri + - * / agus ())
+Per-frame zoom of the feedback path, 0.90-1.15 (supports + - * / and ())	Sùm gach frèam slighe ais-bhiadhaidh, 0.90-1.15 (cuiridh taic ri + - * / agus ())
+Pitch in hertz, 20-8000 (supports + - * / and ())	Àirde tòna ann an hertz, 20-8000 (cuiridh taic ri + - * / agus ())
+Pixel sort amount, 0-1 (supports + - * / and ())	Meud seòrsachaidh phiogsail, 0-1 (cuiridh taic ri + - * / agus ())
+Pixels (supports + - * / and ())	Piogsail (cuiridh taic ri + - * / agus ())
+Pixels, 64-2160 (supports + - * / and ())	Piogsail, 64-2160 (cuiridh taic ri + - * / agus ())
+Pixels, 64-3840 (supports + - * / and ())	Piogsail, 64-3840 (cuiridh taic ri + - * / agus ())
+Scale of the whole graphic, 0.5-2 (supports + - * / and ())	Sgèile na grafaige air fad, 0.5-2 (cuiridh taic ri + - * / agus ())
+Scanlines, bloom and gun misalignment, 0-1 (supports + - * / and ())	Loidhnichean sganaidh, deàrrsadh is mì-thaobhadh ghunnaichean, 0-1 (cuiridh taic ri + - * / agus ())
+Seconds before it leaves by itself; 0 waits for OUT (supports + - * / and ())	Diogan mus falbh e fhèin; feithidh 0 ri OUT (cuiridh taic ri + - * / agus ())
+Seconds between retriggers, 0-8 (supports + - * / and ())	Diogan eadar ath-bhrosnachaidhean, 0-8 (cuiridh taic ri + - * / agus ())
+Seconds the finished drawing stays, 0 to 60 (supports + - * / and ())	Diogan a mhaireas an dealbh deiseil, 0 gu 60 (cuiridh taic ri + - * / agus ())
+Seconds the in move takes, 0-5 (supports + - * / and ())	Diogan gluasaid a-steach, 0-5 (cuiridh taic ri + - * / agus ())
+Seconds the out move takes, 0-5 (supports + - * / and ())	Diogan gluasaid a-mach, 0-5 (cuiridh taic ri + - * / agus ())
+Seconds, 0-4 (supports + - * / and ())	Diogan, 0-4 (cuiridh taic ri + - * / agus ())
+Seconds, 0-8 (supports + - * / and ())	Diogan, 0-8 (cuiridh taic ri + - * / agus ())
+Size, %, 5 to 400 (supports + - * / and ())	Meud, %, 5 gu 400 (cuiridh taic ri + - * / agus ())
+Space under it, as a fraction of the frame, 0-0.8 (supports + - * / and ())	Àite fodha mar roinn frèam, 0-0.8 (cuiridh taic ri + - * / agus ())
+Spiral size, 0.25-4 (supports + - * / and ())	Meud snìomhain, 0.25-4 (cuiridh taic ri + - * / agus ())
+Spiral strength, 0-4 (supports + - * / and ())	Neart snìomhain, 0-4 (cuiridh taic ri + - * / agus ())
+Thickness of the glowing edge, 0-1 (supports + - * / and ())	Tiughad na h-oire deàrrsaich, 0-1 (cuiridh taic ri + - * / agus ())
+Turbulence, 0 still to 3 boiling (supports + - * / and ())	Buaireas, 0 sàmhach gu 3 goil (cuiridh taic ri + - * / agus ())
+Turns the rim's colours round the wheel, 0-1 (supports + - * / and ())	Tionndaidh dathan na h-oire mun chuairt, 0-1 (cuiridh taic ri + - * / agus ())
+Where the eye sits, 0 left to 1 right (supports + - * / and ())	Suidheachadh sùla, 0 clì gu 1 deas (cuiridh taic ri + - * / agus ())
+Where the eye sits, 0 top to 1 bottom (supports + - * / and ())	Suidheachadh sùla, 0 mullach gu 1 bonn (cuiridh taic ri + - * / agus ())
+0-127; 127 is all-call	0-127; gairmidh 127 air na h-uile
+0-127; the domain the facility's clock runs on	0-127; àrainn gleoc an ionaid
+10-79 characters, or empty for none	10-79 caractar, no falamh gun dad
+8+ characters; letters and symbols are allowed	8+ caractaran; tha litrichean is samhlaidhean ceadaichte
+A command line, or blank for nothing	Loidhne-àithne, no falamh gun dad
+A number, or blank for none	Àireamh, no falamh gun dad
+a playlist that is gone	liosta-cluiche a dh’fhalbh
+a target cannot target another target	chan urrainn do thargaid amas air targaid eile
+add an output to scope it	cuir toradh ris airson tomhas
+an ASIO stream is already open	tha sruth ASIO fosgailte mu thràth
+an IPv4 address, or 255.255.255.255 to broadcast	seòladh IPv4, no 255.255.255.255 airson craoladh
+another app is holding the pointer	tha aplacaid eile a’ cumail a’ phuingear
+AUDIOALSO ADD: seven extra destinations is the limit	AUDIOALSO ADD: seachd cinn-uidhe a bharrachd aig a’ char as motha
+brightness moves the playhead (needs CPU frames)	gluaisidh soilleireachd an ceann-cluiche (feum air frèamaichean CPU)
+browser connections at once, 1-64 (default 8)	ceanglaichean brabhsair còmhla, 1-64 (bun-roghainn 8)
+built without ASIO support	air a cho-chruinneachadh gun taic ASIO
+built without NDI SDK headers	air a cho-chruinneachadh gun chinn-cinn NDI SDK
+cancelled: the waiting cue is no longer in the playlist	air a sgur dheth: chan eil an cue feitheamh san liosta tuilleadh
+channel count must be at least 1	feumaidh co-dhiù 1 seanail a bhith ann
+comma outside a function call	cromag taobh a-muigh gairm fuincsein
+could not start the PDF renderer	cha deach an riochdaiche PDF a thòiseachadh
+could not write the export script	cha deach an sgriobt às-phortachaidh a sgrìobhadh
+couldn't open file manager	cha deach manaidsear nam faidhlichean fhosgladh
+Cue name (blank restores the file name)	Ainm cue (falamh airson ainm faidhle)
+Default Non-Movie Duration	Ùine bhunaiteach gun fhilm
+downloading the caption model, then listening...	a’ luchdadh modail fho-thiotalan, ag èisteachd an uair sin...
+driver reports no output channels	chan eil an draibhear ag aithris seanalan toraidh
+driver would not create output buffers	cha do chruthaich an draibhear bufairean toraidh
+driver would not load (in use by another application?)	cha do luchdaich an draibhear (ga chleachdadh le aplacaid eile?)
+driver would not report a buffer size	cha do dh’aithris an draibhear meud bufair
+driver would not report channel info	cha do dh’aithris an draibhear fiosrachadh seanail
+ffmpeg stopped taking frames	sguir ffmpeg de ghabhail ri frèamaichean
+Fire at incoming timecode	Tòisich le còd-ama a-steach
+flow (follows the picture)	sruth (leanaidh an dealbh)
+follows this cue's own brightness (needs CPU frames)	leanaidh soilleireachd a’ cue seo (feum air frèamaichean CPU)
+four effects at most on one device: remove one first	ceithir buaidhean aig a’ char as motha air uidheam: thoir fear air falbh an toiseach
+Hz or AUTO (e.g. 60 or 59.94)	Hz no AUTO (m.e. 60 no 59.94)
+kbps (32-512; 160 is a sane default)	kbps (32-512; is 160 bun-roghainn chiallach)
+Leave empty to follow the live cue notes	Fàg falamh gus notaichean a’ cue bheò a leantainn
+LibreOffice could not be run	Cha deach LibreOffice a ruith
+LibreOffice produced no PDF	Cha do rinn LibreOffice PDF
+milliseconds (20-8000; ~4x your RTT)	mili-dhiogan (20-8000; ~4x RTT)
+Multicast group (e.g. 239.20.10.1)	Buidheann ioma-chraolaidh (m.e. 239.20.10.1)
+Name visible to receivers	Ainm a chì luchd-faighinn
+NDI source name (e.g. LAPTOP (source 1))	Ainm tùs NDI (m.e. LAPTOP (source 1))
+NIC address or name; empty = the default route	Seòladh no ainm NIC; falamh = slighe bhunaiteach
+NIC name reported in interface_bindings (e.g. eth0)	Ainm NIC ann an interface_bindings (m.e. eth0)
+no pages could be rendered	cha deach duilleag sam bith a riochdachadh
+not a MIDI file (no MThd header)	chan e faidhle MIDI (gun cheann-cinn MThd)
+not while a cue is playing	chan ann fhad ’s a tha cue a’ cluich
+offset in percent of the picture	gluasad ann an ceudad an deilbh
+OSC Feedback Mirror Rate	Reat sgàthain ais-fhreagairt OSC
+paste your stream key here	cuir an iuchair srutha agad an seo
+Paste the key from your platform	Cuir an iuchair on àrd-ùrlar agad ann
+pdftoppm produced no pages	cha do rinn pdftoppm duilleagan
+pixels (of the output raster)	piogsail (rastar an toraidh)
+position on the output raster, in pixels	ionad air rastar toraidh ann am piogsail
+PowerPoint could not export this file	Cha deach aig PowerPoint am faidhle seo às-phortachadh
+Prefix (optional). Example: Q	Ro-leasachan (roghainneil). Eisimpleir: Q
+Prefix and optional start (example: Q 100)	Ro-leasachan is toiseach roghainneil (eisimpleir: Q 100)
+release has no build for this platform	chan eil co-chruinneachadh san sgaoileadh dhan àrd-ùrlar seo
+Routing hint for the receiver	Comhairle slighe don ghlacadair
+seconds (1-10; most platforms want 2)	diogan (1-10; feum air 2 sa mhòr-chuid)
+Seconds for new-cue fade in/out defaults	Diogan seargaidh a-steach/a-mach airson cue ùra
+seconds this step holds before PLAY moves on	diogan a chumas an ceum seo mus gluais PLAY air adhart
+ST 2110 network interface	Eadar-aghaidh lìonra ST 2110
+still reading the last folder -- one at a time	fhathast a’ leughadh a’ phasgain mu dheireadh -- fear mu seach
+the caption model has not been downloaded yet	cha deach modail fho-thiotalan a luchdadh fhathast
+the desktop portal did not answer	cha do fhreagair portal an deasga
+the document has no pages	chan eil duilleagan san sgrìobhainn
+the file has no playable events	chan eil tachartasan a ghabhas cluich san fhaidhle
+the NDI runtime is not installed	chan eil àrainneachd ruith NDI stàlaichte
+the PDF renderer produced no pages	cha do rinn an riochdaiche PDF duilleagan
+the screen could not be read there	cha deach an sgrìn a leughadh an sin
+the show plays through ASIO	cluichidh an taisbeanadh tro ASIO
+the time division is not readable	chan urrainnear roinneadh ùine a leughadh
+this build has no X11 support	chan eil taic X11 sa cho-chruinneachadh seo
+UDP port for transport sync	Port UDP airson sioncronachadh cluiche
+web audio encoder cannot keep up	chan urrainn don chòdaiche fuaime-lìn cumail suas
+AUDIOALSO: expected ADD <name>, REMOVE <name> or CLEAR	AUDIOALSO: tha dùil ri ADD <name>, REMOVE <name> no CLEAR
+BROWSER KEY: expected Enter|Tab|Backspace|Escape	BROWSER KEY: tha dùil ri Enter|Tab|Backspace|Escape
+BUGSWAT: expected START, SHOWME, SKIP, PLAY, EXIT or STATUS	BUGSWAT: tha dùil ri START, SHOWME, SKIP, PLAY, EXIT no STATUS
+CAPTIONS LIVE: expected ON, OFF, STATUS or TEXT	CAPTIONS LIVE: tha dùil ri ON, OFF, STATUS no TEXT
+CAPTIONS SOURCE: expected INPUT, DECK <n> or OUTPUT <n>	CAPTIONS SOURCE: tha dùil ri INPUT, DECK <n> no OUTPUT <n>
+DMXCUE FIXTURE: expected <name> <level%>|LEAVE [<colour>]	DMXCUE FIXTURE: tha dùil ri <name> <level%>|LEAVE [<colour>]
+DMXCUE LFO: expected <name> LEVEL|COLOUR ON|OFF [<rate Hz>] [<depth %>]	DMXCUE LFO: tha dùil ri <name> LEVEL|COLOUR ON|OFF [<rate Hz>] [<depth %>]
+DMXCUE: expected NEW, SET, FADE, UNIVERSE, HOST, PORT, FIRE or BLACKOUT	DMXCUE: tha dùil ri NEW, SET, FADE, UNIVERSE, HOST, PORT, FIRE no BLACKOUT
+ENDACTION: expected INHERIT, STOP, LOOP, HOLD or NEXT	ENDACTION: tha dùil ri INHERIT, STOP, LOOP, HOLD no NEXT
+expected waveform|scope|lissajous|spectrum|level|cover	tha dùil ri waveform|scope|lissajous|spectrum|level|cover
+FADE CURVE: expected linear, ease-in, ease-out or s-curve	FADE CURVE: tha dùil ri linear, ease-in, ease-out no s-curve
+FADE WHAT: expected opacity, volume, dimmer, brightness, contrast, saturation, hue, effect, audiofx or speed	FADE WHAT: tha dùil ri opacity, volume, dimmer, brightness, contrast, saturation, hue, effect, audiofx no speed
+FIXTURE ADD: expected <name> dimmer|rgb|rgbw|rgba|drgb|dcct <universe> [<address>]	FIXTURE ADD: tha dùil ri <name> dimmer|rgb|rgbw|rgba|drgb|dcct <universe> [<address>]
+LOWERSTYLE: expected none, fade, rise, slide, wipe or NEXT	LOWERSTYLE: tha dùil ri none, fade, rise, slide, wipe no NEXT
+MASK ASSIGN: expected <id|NONE> CUE | LAYER <output> <playlist> | OUTPUT <n> | MATTE <n>	MASK ASSIGN: tha dùil ri <id|NONE> CUE | LAYER <output> <playlist> | OUTPUT <n> | MATTE <n>
+MASK ASSIGN: expected CUE, LAYER, OUTPUT or MATTE	MASK ASSIGN: tha dùil ri CUE, LAYER, OUTPUT no MATTE
+MASK EXPORT: expected <id> <file.png|file.svg> [WxH]	MASK EXPORT: tha dùil ri <id> <file.png|file.svg> [WxH]
+MASK LFO: expected <id> <param> ON|OFF [rate Hz] [depth %]	MASK LFO: tha dùil ri <id> <param> ON|OFF [rate Hz] [depth %]
+MATRIX SET: expected <source 1-2> <dest> <0-100>	MATRIX SET: tha dùil ri <source 1-2> <dest> <0-100>
+MATRIX: expected SET <src> <dest> <0-100>, SEED or CLEAR	MATRIX: tha dùil ri SET <src> <dest> <0-100>, SEED no CLEAR
+MESH: expected on|off|toggle|height|tilt|yaw|spin|grid	MESH: tha dùil ri on|off|toggle|height|tilt|yaw|spin|grid
+MIC: expected ADD, LIST, INPUT, CHANNEL or GAIN	MIC: tha dùil ri ADD, LIST, INPUT, CHANNEL no GAIN
+MIDICUE KIND: expected note-on, note-off, cc, program, msc-go, msc-stop, msc-resume or raw	MIDICUE KIND: tha dùil ri note-on, note-off, cc, program, msc-go, msc-stop, msc-resume no raw
+MIDICUE: expected NEW, PORTS, PORT, KIND, CH, D1, D2, DEVICE, CUENUM, LIST, RAW or SEND	MIDICUE: tha dùil ri NEW, PORTS, PORT, KIND, CH, D1, D2, DEVICE, CUENUM, LIST, RAW no SEND
+MULTIVIEW LAYOUT: expected GRID, BIG, BIGTOP or TWOTOP	MULTIVIEW LAYOUT: tha dùil ri GRID, BIG, BIGTOP no TWOTOP
+MULTIVIEW WINDOW: expected PROGRAMME, DECK<n>, OUTPUT<n>, NEXT, CLOCK or EMPTY	MULTIVIEW WINDOW: tha dùil ri PROGRAMME, DECK<n>, OUTPUT<n>, NEXT, CLOCK no EMPTY
+NETCUE: expected NEW, PROTO, HOST, PORT, ADDRESS, PAYLOAD or SEND	NETCUE: tha dùil ri NEW, PROTO, HOST, PORT, ADDRESS, PAYLOAD no SEND
+OUTPUT HDR: expected ON, OFF, AUTO, SIGNAL PQ|HLG, WHITE <nits> or STATUS	OUTPUT HDR: tha dùil ri ON, OFF, AUTO, SIGNAL PQ|HLG, WHITE <nits> no STATUS
+OUTPUTFX ADD: expected hpf, lpf, tilt, comp or width	OUTPUTFX ADD: tha dùil ri hpf, lpf, tilt, comp no width
+OUTPUTFX: expected ADD, SET, REMOVE, BYPASS, CLEAR or DEVICE	OUTPUTFX: tha dùil ri ADD, SET, REMOVE, BYPASS, CLEAR no DEVICE
+OUTPUTS ADD: expected <name> CH <n> or CH <n>-<n+1>	OUTPUTS ADD: tha dùil ri <name> CH <n> no CH <n>-<n+1>
+PATCH: expected <deck> <output> <dB> or OFF	PATCH: tha dùil ri <deck> <output> <dB> no OFF
+presenter colour: expected BG|INK|ACCENT #rrggbb	presenter colour: tha dùil ri BG|INK|ACCENT #rrggbb
+PRESET: expected LIST, SAVE, RECALL, UPDATE, SCOPE, RENAME or DELETE	PRESET: tha dùil ri LIST, SAVE, RECALL, UPDATE, SCOPE, RENAME no DELETE
+rectc: expected <hh:mm:ss:ff|timeofday> [df|ndf|auto]	rectc: tha dùil ri <hh:mm:ss:ff|timeofday> [df|ndf|auto]
+SCOPES BIG: expected waveform, parade, vector, diamond, histogram, falsecolour, sound or off	SCOPES BIG: tha dùil ri waveform, parade, vector, diamond, histogram, falsecolour, sound no off
+SCOPES: expected PROGRAM, SCOPES, BOTH, TOGGLE, BIG, FREEZE, MATRIX, SOURCE, STATS or SOUND	SCOPES: tha dùil ri PROGRAM, SCOPES, BOTH, TOGGLE, BIG, FREEZE, MATRIX, SOURCE, STATS no SOUND
+SECTION: expected playback|metadata|geometry|key|audio|effects|timer|tone|synth	SECTION: tha dùil ri playback|metadata|geometry|key|audio|effects|timer|tone|synth
+STING: expected ON, PITCH, LENGTH, SWEEP or BODY	STING: tha dùil ri ON, PITCH, LENGTH, SWEEP no BODY
+TARGET VERB: expected start|stop|pause|resume|load|arm|disarm	TARGET VERB: tha dùil ri start|stop|pause|resume|load|arm|disarm
+TEXTCUE ANIM: expected none, fade, typewriter, scroll, crawl, pulse or wobble	TEXTCUE ANIM: tha dùil ri none, fade, typewriter, scroll, crawl, pulse no wobble
+TEXTCUE: expected NEW, BODY, ANIM, SIZE, SPEED, ALIGN, CARD, LOWERNEW, LOWER, TITLE, SUB, LOOK, BAR, ACCENT, SCALE, WIGGLE, IN, OUTMOVE or OUT	TEXTCUE: tha dùil ri NEW, BODY, ANIM, SIZE, SPEED, ALIGN, CARD, LOWERNEW, LOWER, TITLE, SUB, LOOK, BAR, ACCENT, SCALE, WIGGLE, IN, OUTMOVE no OUT
+TRACKER: expected GO, BACK, PLAY, STOP, STEP <n>, ADD, SET <step> <deck> <cue|STOP|FADE|VOLUME|OPACITY>, MUTE|SOLO <deck>, JUMP <step> <row>, SECTION <step> <name>, VIEW, LOOP or CLICKER	TRACKER: tha dùil ri GO, BACK, PLAY, STOP, STEP <n>, ADD, SET <step> <deck> <cue|STOP|FADE|VOLUME|OPACITY>, MUTE|SOLO <deck>, JUMP <step> <row>, SECTION <step> <name>, VIEW, LOOP no CLICKER
+TUTORIAL: expected START, SHOWME, SKIP, EXIT, STATUS or SCREENS	TUTORIAL: tha dùil ri START, SHOWME, SKIP, EXIT, STATUS no SCREENS
+UPDATE: expected check|download|install|status	UPDATE: tha dùil ri check|download|install|status
+VJ: expected ON|OFF|TOGGLE|MIX <0-1>|BLEND <mode>|TAP|BPM <n>|CLOCK <on|off>|QUANTISE <on|off>|DECKS <a> <b>|STATUS	VJ: tha dùil ri ON|OFF|TOGGLE|MIX <0-1>|BLEND <mode>|TAP|BPM <n>|CLOCK <on|off>|QUANTISE <on|off>|DECKS <a> <b>|STATUS
+How hard the short hits.	Neart buille a’ gheàrr-chuairt.
+How far a band can slide.	Dè cho fad ’s a shleamhnaicheas banna.
+How far the glow spreads.	Dè cho fad ’s a sgaoileas an deàrrsadh.
+How fast the surface moves.	Dè cho luath ’s a ghluaiseas an uachdar.
+How fast they travel outward.	Dè cho luath ’s a thèid iad a-mach.
+How many torn bands per frame.	Cia mheud banna reubte gach frèam.
+How much the edges are lifted.	Dè cho mòr ’s a thogar na h-oirean.
+How closely spaced the rings are.	Dè cho dlùth ’s a tha na fàinneachan.
+How far out the darkening starts.	Dè cho fada a-mach ’s a thòisicheas an dubhadh.
+How strongly the outlines are drawn.	Dè cho làidir ’s a tharraingear na h-oirean.
+How many shades survive the quantise.	Cia mheud tuar a mhaireas às dèidh cuantanachaidh.
+How many spikes the field breaks into.	Cia mheud bior anns am bris an raon.
+How strongly the water bends the picture.	Dè cho làidir ’s a lùbas an t-uisge an dealbh.
+Pushes the rings in or out of the centre.	Putaidh na fàinneachan a-steach no a-mach às a’ mheadhan.
+How hard it is driven into its own limits.	Dè cho làidir ’s a dhràibhear e gu a chrìochan fhèin.
+Softens the fold so it ramps instead of creasing.	Bogaichidh am pasgadh gus an èirich e rèidh seach cromadh geur.
+Above halfway, the repeated piece plays backwards.	Os cionn a’ mheadhain, cluichidh am pìos ath-aithriseach air ais.
+How quickly the loop relaxes when nothing feeds it.	Dè cho luath ’s a shocraicheas an lùb gun bhiadhadh.
+How far the bright parts pull away from the surface.	Dè cho fad ’s a tharraingeas na pàirtean soilleir on uachdar.
+How big the room is. Small is a booth, large is a hall.	Meud an t-seòmair. Beag na bhothan, mòr na thalla.
+Apple keeps the Keynote format secret on purpose, a malicious lock-in tactic, so only Apple's own software can read it properly. Best route: open it in Keynote on iCloud.com (free, in any browser), choose Download a Copy > PDF, and import that PDF	Tha Apple a’ cumail fòrmat Keynote dìomhair a dh’aona-ghnothach, innleachd mhì-rùnach gus luchd-cleachdaidh a ghlasadh a-steach, ach am bi bathar-bog Apple fhèin a-mhàin ga leughadh ceart. An dòigh as fheàrr: fosgail e ann an Keynote air iCloud.com (an-asgaidh, ann am brabhsair sam bith), tagh Luchdaich lethbhreac > PDF, is ion-phortaich am PDF sin
+BROWSER CLICK: this browser backend cannot drive the page	BROWSER CLICK: chan urrainn don einnsean brabhsair seo an duilleag a stiùireadh
+BROWSER SCROLL: this browser backend cannot drive the page	BROWSER SCROLL: chan urrainn don einnsean brabhsair seo an duilleag a stiùireadh
+BROWSER SCROLLBAR: this browser backend cannot drive the page	BROWSER SCROLLBAR: chan urrainn don einnsean brabhsair seo an duilleag a stiùireadh
+BROWSER TYPE: this browser backend cannot type	BROWSER TYPE: chan urrainn don einnsean brabhsair seo sgrìobhadh
+BROWSER INTERACT: this browser backend has no hands-on mode	BROWSER INTERACT: chan eil modh eadar-obrachail aig an einnsean brabhsair seo
+BROWSER SCROLL: expected pixels (negative is up)	BROWSER SCROLL: tha dùil ri piogsail (àicheil suas)
+CHIP DUTY: this cue is an FDS synth, which has no duty	CHIP DUTY: is sintéisear FDS an cue seo, gun cho-mheas cuisle
+CHIP NOISE: this cue is an FDS synth, which has no noise	CHIP NOISE: is sintéisear FDS an cue seo, gun fhuaim-chnap
+CHIP VOICE: this cue is an FDS synth, which has no voice	CHIP VOICE: is sintéisear FDS an cue seo, gun roghainn gutha
+CHIP ENV: expected <attack> <release> in seconds	CHIP ENV: tha dùil ri <attack> <release> ann an diogan
+SCRIPTCUE: the selected cue is not a script cue	SCRIPTCUE: chan e cue sgriobt a tha sa cue thaghte
+MIDIFILE: the selected cue is not a midi file cue	MIDIFILE: chan e cue faidhle midi a tha sa cue thaghte
+MIC: select a mic cue first (MIC ADD makes one)	MIC: tagh cue micreofon an toiseach (nì MIC ADD fear)
+STING: select a tone cue first (TONECUE makes one)	STING: tagh cue tòna an toiseach (nì TONECUE fear)
+SUBTITLE CONVERT: destination must be .srt or .vtt	SUBTITLE CONVERT: feumaidh an ceann-uidhe a bhith .srt no .vtt
+How much the flame gutters frame to frame.	Dè cho mòr ’s a phriobas an lasair eadar frèamaichean.
+Rounds the tiles off, all the way to dots.	Cruinnichidh na leacan gus am bi iad nam puingean.
+Darkens the boundaries where crystals meet.	Dubhaidh na crìochan far an coinnich na criostalan.
+How big the crystals grow before they meet.	Dè cho mòr ’s a dh’fhàsas na criostalan mus coinnich iad.
+How far the sound throws each line sideways.	Dè cho fad ’s a thilgeas an fhuaim gach loidhne gu taobh.
+How much each shard turns on its own centre.	Dè cho mòr ’s a thionndaidheas gach spealg mun mheadhan aige fhèin.
+The brightness that decides black from white.	An soilleireachd a sgaras dubh bho gheal.
+How far each stroke is dragged along the grain.	Dè cho fad ’s a shlaodar gach stròc an cois na grànachd.
+How long a short stays closed, in VIDEO FRAMES.	Ùine dùnaidh geàrr-chuairt, ann am FRÈAMAICHEAN BHIDIO.
+The colour to change, round the wheel from red.	An dath ri atharrachadh, mun chuairt bho dhearg.
+How far each shard slides from where it belongs.	Dè cho fad ’s a shleamhnaicheas gach spealg às a àite.
+How gradually the key cuts in. Hard at the left.	Dè cho mean air mhean ’s a ghearras an iuchair a-steach. Cruaidh air a’ chlì.
+The bright net the waves focus onto the picture.	An lìon soilleir a chuireas na tuinn am fòcas air an dealbh.
+How fast the sand travels to the still lines.	Dè cho luath ’s a shiùbhlas a’ ghainmheach gu na loidhnichean sàmhach.
+AUDIOFX: expected OFF, BYPASS, or amount and parameters as percentages	AUDIOFX: tha dùil ri OFF, BYPASS no meud is paramadairean mar cheudadan
+BLEND PAIR: expected <other output number> <overlap in pixels>	BLEND PAIR: tha dùil ri <other output number> <overlap in pixels>
+expected one expression, three for colour, or four with alpha	tha dùil ri aon abairt, trì airson dath no ceithir le alfa
+MASK SET: expected INVERT, X, Y, SCALE, ROTATION, FEATHER, GROW or OPACITY and a number	MASK SET: tha dùil ri INVERT, X, Y, SCALE, ROTATION, FEATHER, GROW no OPACITY is àireamh
+MASK SHAPE: expected a shape (MASK SHAPES lists them)	MASK SHAPE: tha dùil ri cruth (nì MASK SHAPES liosta)
+MASTER DECK: expected a deck number and a cue number	MASTER DECK: tha dùil ri àireamh deic is àireamh cue
+TARGET CUE: expected a deck number and a cue number	TARGET CUE: tha dùil ri àireamh deic is àireamh cue
+MONITOR DECK: expected a playlist number or FOLLOW	MONITOR DECK: tha dùil ri àireamh liosta-cluiche no FOLLOW
+MONITOR ROOM: expected a playlist and ON or OFF	MONITOR ROOM: tha dùil ri liosta-cluiche is ON no OFF
+MULTIVIEW WINDOW REMOVE: expected a window number	MULTIVIEW WINDOW REMOVE: tha dùil ri àireamh uinneige
+MULTIVIEW WINDOW <n>: expected a source, or SAFE/METER/LABEL ON|OFF	MULTIVIEW WINDOW <n>: tha dùil ri tùs no SAFE/METER/LABEL ON|OFF
+NETCUE ADDRESS: expected an OSC path starting with /	NETCUE ADDRESS: tha dùil ri slighe OSC a thòisicheas le /
+OUTPUT AOI: expected a size like 256x256, or FULL	OUTPUT AOI: tha dùil ri meud mar 256x256 no FULL
+OUTPUTFX SET: expected an effect number and 0-100	OUTPUTFX SET: tha dùil ri àireamh buaidh is 0-100
+OUTPUT HDR WHITE: expected 80..500 nits (203 is BT.2408)	OUTPUT HDR WHITE: tha dùil ri 80..500 nit (is 203 BT.2408)
+PRELOAD: expected a position in seconds, OFF or STATUS	PRELOAD: tha dùil ri ionad ann an diogan, OFF no STATUS
+SCOPES SOURCE: expected PROGRAMME or an output number, 1-	SCOPES SOURCE: tha dùil ri PROGRAMME no àireamh toraidh, 1-
+STREAM ADD: expected a URL, e.g. srt://host:port	STREAM ADD: tha dùil ri URL, m.e. srt://host:port
+TEXTCUE SIZE: expected 1-100 (percent of the raster)	TEXTCUE SIZE: tha dùil ri 1-100 (ceudad an rastair)
+TUTORIAL SCREENS: expected a count, MIRRORED or REAL	TUTORIAL SCREENS: tha dùil ri àireamh, MIRRORED no REAL
+VIDEO OUTPUT LAYER: expected a layer number (1 is the base)	VIDEO OUTPUT LAYER: tha dùil ri àireamh fillidh (is 1 am bun)
+VIDEO OUTPUT LAYERWARP: expected OFF, MODE, or eight numbers clockwise from the top left	VIDEO OUTPUT LAYERWARP: tha dùil ri OFF, MODE no ochd àireamhan deiseal bhon oisean chlì gu h-àrd
+e.g. /cue/1/start	m.e. /cue/1/start
+e.g. 12.5	m.e. 12.5
+e.g. 192.168.1.50	m.e. 192.168.1.50
+e.g. 1=255, 10-14=64	m.e. 1=255, 10-14=64
+e.g. 90 3C 7F	m.e. 90 3C 7F
+port number (default 5510)	àireamh puirt (bun-roghainn 5510)
+port number (default 5511)	àireamh puirt (bun-roghainn 5511)
+port number (default 6454)	àireamh puirt (bun-roghainn 6454)
+port number (default 8090)	àireamh puirt (bun-roghainn 8090)
+port number (vMix uses 8088)	àireamh puirt (cleachdaidh vMix 8088)
+port number (vMix uses 8099)	àireamh puirt (cleachdaidh vMix 8099)
+WIDTHxHEIGHT (e.g. 2560x1080)	LEUDxÀIRDE (m.e. 2560x1080)
+WIDTHxHEIGHT (e.g. 5760x2160)	LEUDxÀIRDE (m.e. 5760x2160)
+pulse 25%	cuisle 25%
+edge ignite	lasadh oirean
+pythagorean	Pìotagorach
+purkinje	buaidh Purkinje
+Ouroboros	Uroboros
+Devamp	Fàg ath-aithris
+EDIT is off - press EDIT to type into the tracker	tha EDIT dheth - brùth EDIT gus sgrìobhadh san tracker
+encoder destination: _converted beside the show	ceann-uidhe còdaiche: _converted ri taobh an taisbeanaidh
+fetching the speech model - captions start when it arrives	a’ faighinn modail cainnte - tòisichidh fo-thiotalan nuair a ruigeas e
+format 2 files are a set of independent patterns, not a performance	tha faidhlichean fòrmat 2 nan seata phàtranan neo-eisimeileach, chan e cluich
+Target IP (or 255.255.255.255 to broadcast)	IP targaid (no 255.255.255.255 airson craoladh)
+the NDI runtime declined to start on this machine	dhiùlt àrainneachd ruith NDI tòiseachadh air a’ choimpiutair seo
+this cue has no known end to resolve into	chan eil crìoch aithnichte aig a’ cue seo airson fuasgladh
+update: cannot find this app bundle to replace	ùrachadh: chan fhaighear pasgan na h-aplacaid ri ath-chur
+update: could not start the install helper	ùrachadh: cha deach neach-cuideachaidh stàlaidh a thòiseachadh
+update: could not start the installer	ùrachadh: cha deach an stàlaichear a thòiseachadh
+update: could not write the install helper	ùrachadh: cha deach neach-cuideachaidh stàlaidh a sgrìobhadh
+update: not running from an AppImage	ùrachadh: chan eil a’ ruith à AppImage
+what the operator should be told when GO reaches here	na dh’innsear don obraiche nuair a ruigeas GO an seo
+Where to send transport (blank = broadcast)	Far an cuirear smachd cluiche (falamh = craoladh)
+Which switcher input Deckboy is (0 = not set)	Dè an t-ion-chur measgadair aig Deckboy (0 = gun suidheachadh)
+drag the panels to arrange the presenter screen	slaod na panailean gus sgrìn an taisbeanaiche a chur air dòigh
+SOURCE CAMERA: name the device	SOURCE CAMERA: ainmich an t-uidheam
+NETCUE ADDRESS: an OSC address must start with /	NETCUE ADDRESS: feumaidh seòladh OSC tòiseachadh le /
+TRACKER SET: a step cannot act on its own playlist	TRACKER SET: chan urrainn do cheum gnìomh a dhèanamh air an liosta aige fhèin
+TRACKER: there are no steps (TRACKER ADD makes one)	TRACKER: chan eil ceumannan ann (nì TRACKER ADD fear)
+#rrggbb -- the colour of the presenter screen	#rrggbb -- dath sgrìn an taisbeanaiche
+#rrggbb, or a name (red, teal...)	#rrggbb, no ainm (red, teal...)
+8+ characters; other machines send AUTH <passphrase> first. Empty = off	8+ caractaran; cuiridh coimpiutairean eile AUTH <passphrase> an toiseach. Falamh = dheth
+A command line, as a DASH button runs it. {value} is the knob's number, {note} the key.	Loidhne-àithne mar a ruitheas putan DASH i. Is {value} àireamh a’ chnapa, {note} an iuchair.
+A dark line between the tiles, like grout or an LED wall.	Loidhne dhorcha eadar leacan, mar altan no balla LED.
+a note number 0-127, LEARN to take the next note played, or empty for none	àireamh nòta 0-127, LEARN airson an ath nòta air a chluich, no falamh gun dad
+a plugin overran the audio thread and was bypassed — take it out of the chain	chaidh plugan thar ùine an t-snàithlein fuaime is chaidh a sheachnadh — thoir às an t-sreath e
+a video cue's duration comes from its file; still duration applies to stills, patterns and browsers	thig fad cue bhidio on fhaidhle; buinidh fad ìomhaigh do dh’ìomhaighean, pàtranan is brabhsairean
+Above halfway, a hard cut in the picture resets the loop to clean.	Os cionn a’ mheadhain, glanaidh gearradh geur san dealbh an lùb.
+can't move the active cue -- take another cue on this deck first	chan urrainnear an cue gnìomhach a ghluasad -- cluich cue eile air an deic seo an toiseach
+centred and full-frame - moves when the picture does	sa mheadhan is làn-fhrèam - gluaisidh leis an dealbh
+Chladni listens: the figure follows the pitch of the sound	Èistidh Chladni: leanaidh am pàtran àirde na fuaime
+click anywhere on any screen to take its colour. Esc cancels	briog àite sam bith air sgrìn sam bith gus a dath a ghabhail. Sguiridh Esc dheth
+click program or preview monitor to sample key color	briog air sgrìn prògraim no ro-sheallaidh gus dath iuchrach a thogail
+Copies of copies: none at the left, four at the right. Each one loses more.	Lethbhreacan de lethbhreacan: gin air a’ chlì, ceithir air an làimh dheis. Caillidh gach fear barrachd.
+could not create an OpenGL context for Spout receive	cha deach co-theacsa OpenGL a chruthachadh airson faighinn Spout
+could not create the offscreen window Spout receive needs	cha deach an uinneag far-sgrìn a tha a dhìth airson Spout a chruthachadh
+could not get a device context for Spout receive	cha deach co-theacsa uidheim fhaighinn airson Spout
+couldn't decode still image — unsupported format or corrupt file	cha deach an ìomhaigh a dhì-chòdachadh — fòrmat gun taic no faidhle millte
+DECKLINK: no DeckLink driver on this computer (Blackmagic Desktop Video)	DECKLINK: chan eil draibhear DeckLink air a’ choimpiutair seo (Blackmagic Desktop Video)
+DMXCUE LEVELS: nothing has been sent on that universe	DMXCUE LEVELS: cha deach dad a chur air a’ chruinne sin
+Glitch	Briseadh
+block glitch	briseadh bhlocaichean
+runtime unavailable	àrainneachd ruith nach eil ri fhaighinn
+relief	snaidheadh
+ENDACTION: only video and audio cues have an end action	ENDACTION: ’s ann aig cue bhidio is fuaime a-mhàin a tha gnìomh crìochnachaidh
+FX ADD: datamosh needs a file-backed video cue	FX ADD: feumaidh datamosh cue bhidio bho fhaidhle
+no video clock on this cue - nothing to lock to	gun ghleoc bhidio sa cue seo - gun dad ri sioncronachadh ris
+no picture on this cue - nothing to follow	gun dealbh sa cue seo - gun dad ri leantainn
+no picture on this cue - nothing to close the loop through	gun dealbh sa cue seo - gun dad gus an lùb a dhùnadh troimhe
+no picture on this cue - nothing decides where the playhead is	gun dealbh sa cue seo - gun dad a shocraicheas ionad a’ chinn-chluiche
+no picture - shorts run on a timer instead of on cuts	gun dealbh - ruithidh geàrr-chuairtean le tìmear seach gearraidhean
+normalize all: no file-backed audio in this deck	àbhaistich na h-uile: gun fhuaim bho fhaidhle san deic seo
+no masks yet: make one in a cue's MASK section	gun mhasgan fhathast: dèan fear ann an earrann MASK cue
+no filled shapes in it (paths, rectangles, circles, ellipses or polygons)	gun chruthan lìonta (slighean, ceart-cheàrnachan, cearcallan, eileapsan no ioma-cheàrnachan)
+no OpenGL pixel format available for Spout receive	gun fhòrmat piogsail OpenGL ri fhaighinn airson Spout
+only a MIDI note or an OSC address can take a cue	chan urrainn ach nòta MIDI no seòladh OSC cue a thòiseachadh
+phone control requires an 8+ character passphrase	feumaidh smachd fòin abairt-fhaire le 8+ caractaran
+network sharing and phone control require an 8+ character passphrase	feumaidh co-roinn lìonra is smachd fòin abairt-fhaire le 8+ caractaran
+WEBMONITOR PIN: network sharing and phone control require 8 or more characters	WEBMONITOR PIN: feumaidh co-roinn lìonra is smachd fòin 8 caractaran no barrachd
+set an 8+ character Web Monitor passphrase first	suidhich abairt-fhaire sgrìn-lìn le 8+ caractaran an toiseach
+WEBMONITOR QR: needs the monitor on and shared on the network	WEBMONITOR QR: feumaidh an sgrìn a bhith air is co-roinnte air an lìonra
+WEBMONITOR SOURCE: could not create the web output	WEBMONITOR SOURCE: cha deach toradh lìn a chruthachadh
+WEBMONITOR SOURCE: PROGRAMME or the number of an output that shows a picture	WEBMONITOR SOURCE: PROGRAMME no àireamh toraidh a sheallas dealbh
+OUTPROBE: that output has no compositor (is it on?)	OUTPROBE: chan eil co-dhèantair aig an toradh sin (a bheil e air?)
+OUTPUTFX ADD: four effects at most on one device	OUTPUTFX ADD: ceithir buaidhean aig a’ char as motha air uidheam
+over 16 MB: not a drawing to make a mask from	thar 16 MB: chan e dealbh a nì masg
+A worn or dirty head: softer, with noise that streaks along the lines.	Ceann caithte no salach: nas buige, le fuaim-chnap a shìneas an cois nan loidhnichean.
+A slow rocking of the viewpoint, which is what makes the depth read without glasses.	Luasgadh slaodach an t-seallaidh, a nì an doimhneachd follaiseach gun speuclairean.
+A slow sag in the supply, pulling the filter up and down like a dying battery.	Tuiteam slaodach san t-solar, a’ tarraing na criathraige suas is sìos mar bhataraidh a’ bàsachadh.
+An old deck: the picture wobbles, bends at the top of the frame and carries hum bars.	Seann deic: crathaidh an dealbh, lùbaidh aig mullach an fhrèam is bidh bannan dùrdain ann.
+An old tape loses bits of its oxide: dropouts flick white and repeat the line above, and the colour fizzes.	Caillidh seann teip pìosan ogsaid: priobaidh beàrnan geal, ath-aithrisidh an loidhne os an cionn is goilidh an dath.
+Below the middle narrows toward mono -- which is what a single PA cluster is. Above it widens.	Fon mheadhan caolaichidh gu aon-seanail, mar aon bhuidheann PA. Os a chionn leudaichidh.
+Centre is a straight line. Up bends it into an S -- darker shadows, brighter highlights, more contrast. Down flattens it.	Sa mheadhan tha loidhne dhìreach. Suas nì S: sgàilean nas duirche, solais nas soilleire, barrachd iomsgaradh. Sìos rèidhichidh i.
+Characters across. Fewer means bigger cells and less of the picture surviving, which is usually the point.	Caractaran tarsainn. Le nas lugha bidh ceallan nas motha is nas lugha den dealbh beò, mar as trice an t-amas.
+Characters to build the picture from, darkest first. Empty uses the chosen glyph set.	Caractaran gus an dealbh a thogail, an fheadhainn as duirche an toiseach. Falamh airson seata ghiofan taghte.
+Fine sensor noise at the bottom, chunky film at the top.	Fuaim-chnap mhìn mothaiche aig a’ bhonn, gràn film garbh aig a’ mhullach.
+From an even blur to a streak along the angle, like movement.	Bho dhoilleireachd chothromach gu srian an cois a’ cheàirn, mar ghluasad.
+Grain size: one pixel at the left, big blocky grains at the right.	Meud gràin: aon phiogsail air a’ chlì, gràinean mòra bloca air an làimh dheis.
+Grows or shrinks the echo each pass. Centre holds still.	Meudaichidh no lùghdaichidh am mac-talla gach cuairt. Cumaidh am meadhan na stad.
+How abruptly it arrives. Low is a soft cloud, high is a hard porthole.	Dè cho obann ’s a thig e. Ìosal na neul bog, àrd na uinneag chruaidh.
+How big the shards are. Small is frosted glass, large is a dropped plate.	Meud nan spealg. Beag mar ghlainne cheòthach, mòr mar phlàta briste.
+ASCII: use ON|OFF|TOGGLE | STATUS | INK | SET | SHUFFLE | PRESET [name|next|prev] | FONT | GLYPHS [chars] | CHAOS <0-1> | WOBBLE <0-1> | WOBBLEMODE [drift|flow|hue] | COLS <n> | GLITCH <a> <b> <c> [d] | PHRASES <a|b|c> | HOLD <seconds>	ASCII: cleachd ON|OFF|TOGGLE | STATUS | INK | SET | SHUFFLE | PRESET [name|next|prev] | FONT | GLYPHS [chars] | CHAOS <0-1> | WOBBLE <0-1> | WOBBLEMODE [drift|flow|hue] | COLS <n> | GLITCH <a> <b> <c> [d] | PHRASES <a|b|c> | HOLD <seconds>
+FX: use LIST | ADD <effect> [amount] | AMOUNT <n> <v> | PARAM <n> <A-F> <0-1> | CHOICE <n> <A|B> <name> | LFO <n> <A-G> ... | COPY | PASTE | CLEAR	FX: cleachd LIST | ADD <effect> [amount] | AMOUNT <n> <v> | PARAM <n> <A-F> <0-1> | CHOICE <n> <A|B> <name> | LFO <n> <A-G> ... | COPY | PASTE | CLEAR
+FX LFO: on, off, shape, rate, depth, zone, channel or cc	FX LFO: on, off, shape, rate, depth, zone, channel no cc
+GEOLFO: x, y, width, height, rotation, cropleft, cropright, croptop or cropbottom	GEOLFO: x, y, width, height, rotation, cropleft, cropright, croptop no cropbottom
+LFO: density, speed, warp, turn, centrex, centrey, grey or hue	LFO: density, speed, warp, turn, centrex, centrey, grey no hue
+MIDIMAP: LIST, ADD, SET, REMOVE, CLEAR, RESET, LEARN, LEARNED, PRESET or FEEDBACK	MIDIMAP: LIST, ADD, SET, REMOVE, CLEAR, RESET, LEARN, LEARNED, PRESET no FEEDBACK
+SLICE <n>: CROP, PLACE, CORNER, EDGE, MASK, SOURCE, ROTATE, FLIP, OPACITY, LFO, ON, OFF, LINEAR, PERSPECTIVE or NAME	SLICE <n>: CROP, PLACE, CORNER, EDGE, MASK, SOURCE, ROTATE, FLIP, OPACITY, LFO, ON, OFF, LINEAR, PERSPECTIVE no NAME
+VIDEO OUTPUT LAYERWARP MODE: linear or perspective	VIDEO OUTPUT LAYERWARP MODE: linear no perspective
+DASH SET: needs a command -- DASH SET <n> <label> | <command> [| <glyph>]	DASH SET: feum air àithne -- DASH SET <n> <label> | <command> [| <glyph>]
+ASCII HOLD: seconds, 0-60 (0 mutes the phrases)	ASCII HOLD: diogan, 0-60 (mùchaidh 0 na h-abairtean)
+AUDIOALSO ADD: that is already this deck's main device -- it would play twice	AUDIOALSO ADD: ’s e seo prìomh uidheam na deice mu thràth -- chluicheadh e dà uair
+DMXCUE SET: expected channel=level pairs, e.g. 1=255,10-14=64	DMXCUE SET: tha dùil ri càraidean seanail=ìre, m.e. 1=255,10-14=64
+DRAW COLOUR: #rrggbb, #rrggbbaa, a name, or 1-8 for the palette	DRAW COLOUR: #rrggbb, #rrggbbaa, ainm no 1-8 dhan phaileid
+DRAW STROKE: each point is x,y or x,y,pressure, in percent	DRAW STROKE: tha gach puing x,y no x,y,brùthadh, mar cheudadan
+DRAW TOOL: brush, erase, line, box, oval or fill	DRAW TOOL: brush, erase, line, box, oval no fill
+Enter playlist SMPTE FPS: 24 / 25 / 29.97 / 30	Cuir a-steach SMPTE FPS liosta: 24 / 25 / 29.97 / 30
+FX LFO wants <index> <slot> <on|off|shape> [value]	Feumaidh FX LFO <index> <slot> <on|off|shape> [value]
+HH:MM or HH:MM:SS on this computer's clock; empty for none	HH:MM no HH:MM:SS air gleoc a’ choimpiutair seo; falamh gun dad
+HH:MM:SS:FF of the timecode Deckboy is chasing; empty for none	HH:MM:SS:FF den chòd-ama a tha Deckboy a’ leantainn; falamh gun dad
+live captions are not installed here (deckboy-listen was not found)	chan eil fo-thiotalan beò stàlaichte (cha deach deckboy-listen a lorg)
+Lower Third added - put its playlist on a layer	Chaidh Lower Third a chur ris - cuir an liosta aige air filleadh
+macOS could not read the PDF	Cha deach aig macOS am PDF a leughadh
+MIC INPUT: expected SETTINGS, TEST or a device name (MIC LIST)	MIC INPUT: tha dùil ri SETTINGS, TEST no ainm uidheim (MIC LIST)
+MIDIFILE: expected PORT, or no argument to report it	MIDIFILE: tha dùil ri PORT, no gun argamaid gus aithris air
+MIDIIN OSC: an address, and optionally a number	MIDIIN OSC: seòladh is àireamh roghainneil
+MIDIMAP: that command is only accepted from this computer	MIDIMAP: cha ghabhar ris an àithne sin ach on choimpiutair seo
+MOTION ZONE ADD: the zone must fit inside the picture	MOTION ZONE ADD: feumaidh an sòn a bhith am broinn an deilbh
+How far it smears: up to a few percent of the picture.	Dè cho fad ’s a smàlas e: gu beagan cheudadan den dealbh.
+How fast the light walks around it. Zero holds it still.	Dè cho luath ’s a choisicheas an solas mun cuairt. Cumaidh neoni na stad e.
+How much of the push goes downward rather than sideways.	Dè an roinn den phutadh a thèid sìos seach gu taobh.
+How gently the change fades out at the edges of the band.	Dè cho bog ’s a sheargas an t-atharrachadh aig oirean a’ bhanna.
+How wide a band of colours either side of it changes too.	Leud a’ bhanna dathan gach taobh a dh’atharraicheas cuideachd.
+How fast the drips run. At the left the picture only sags.	Dè cho luath ’s a ruitheas na boinneagan. Air a’ chlì cha dèan an dealbh ach cromadh.
+Line pitch in pixels, so this reads at 4K as well as at 720.	Eadar-àm loidhne ann am piogsail, airson leughadh aig 4K cho math ri 720.
+How far back each skip jumps, from a stutter to half a second.	Dè cho fada air ais a leumas gach leum, bho stamag gu leth-diog.
+How far the two eyes disagree. Brightness is read as nearness.	Dè cho mòr ’s a tha an dà shùil eadar-dhealaichte. Leughar soilleireachd mar fhaisgeachd.
+How fast it closes. Slow enough not to chop the ends off words.	Dè cho luath ’s a dhùineas e. Slaodach gu leòr gun cinn nam faclan a ghearradh.
+How many times a skip repeats before the sound catches up again.	Cia mheud uair a thilleas leum mus glac an fhuaim suas a-rithist.
+How dark the dark lines go. All the way up is black between lines.	Dè cho dorcha ’s a thèid na loidhnichean dorcha. Aig a’ bhàrr tha dubh eadar loidhnichean.
+How fast the open slit crosses the picture. Slow smears a long moment across the frame.	Luaths an sgoltaidh fhosgailte tarsainn an deilbh. Slaodach smàlaidh mionaid fhada thar an fhrèam.
+How fast the wave travels. Faster spreads further in the same time and interferes more.	Luaths na tuinne. Nas luaithe sgaoilidh nas fhaide san aon ùine is bidh barrachd eadar-theachd ann.
+How fine the water is. Long ocean swell at one end, rain on a puddle at the other.	Mìnead an uisge. Sèid fhada chuain aig aon cheann, uisge air lòn aig a’ cheann eile.
+How irregular the growth is. Low gives an even honeycomb, high gives long shards.	Neo-riaghailteachd an fhàis. Ìosal nì cìr-mheala chothromach, àrd nì spealgan fada.
+How long the reaction runs each frame. Short is a stain, long is an organism.	Fad an fhreagairt gach frèam. Goirid na smal, fada na fhàs-bheairt.
+How much of the picture shows behind the lines. None at the left: lines on black.	Dè an roinn den dealbh a chithear air cùl nan loidhnichean. Gin air a’ chlì: loidhnichean air dubh.
+How much of the picture glows: only the brightest at the left, nearly everything at the right.	Dè an roinn den dealbh a dheàrrsas: dìreach an rud as soilleire air a’ chlì, cha mhòr a h-uile càil air an làimh dheis.
+How many places drip: a few big drips at the left, many thin ones at the right.	Cia mheud àite a shileas: beagan boinneagan mòra air a’ chlì, mòran caola air an làimh dheis.
+0 flows ALONG the edges, so colour orbits the shapes. 1 flows across them, which bleeds the picture into itself.	Sruthaidh 0 RI OIREAN, mun cuairt nan cumaidhean. Sruthaidh 1 tarsainn orra, a’ sgaoileadh na deilbh innte fhèin.
+ASCII WOBBLEMODE: drift | flow (follows luma) | hue (follows colour); no argument cycles	ASCII WOBBLEMODE: drift | flow (a’ leantainn soilleireachd) | hue (a’ leantainn dath); gun argamaid, cuairtich
+ASCII: the selected cue has no text mode (add the TEXT MODE effect, or select a video synth cue)	ASCII: chan eil modh teacsa aig a’ ghairm seo (cuir TEXT MODE ris no tagh gairm co-chur bhidio)
+Blueshift toward the direction of travel and redshift at the rim. Zero leaves the colour alone and it reads as a lens instead.	Gluasad gorm an taobh siubhail is dearg aig an oir. Aig neoni cumaidh e an dath, mar lionsa.
+Bright: bright things drip over the dark, as text and logos do. Whole picture: everything is wax, and the picture itself runs down in its own colours.	Soilleir: sileadh nithean soilleir thar dorchadas, mar theacsa is suaicheantasan. An dealbh gu lèir: tha a h-uile rud na chèir is a’ sileadh na dhathan fhèin.
+cannot read the file: if it lives in OneDrive or iCloud, open it once so it downloads, then import it	Cha ghabh am faidhle a leughadh: ma tha e ann an OneDrive no iCloud, fosgail e gus a luchdadh a-nuas, is ion-phortaich e
+Colour is recorded at a fraction of the detail: it smears sideways, lands late and its hue wanders.	Clàraichear dath le nas lugha mion-fhiosrachaidh: sgaoilidh e gu taobhach, thig e anmoch is caochlaidh an tuar.
+couldn't open a browser -- please report at github.com/Utopian-Academy/Deckboy/issues	Cha do dh’fhosgail am brabhsair — dèan aithris aig github.com/Utopian-Academy/Deckboy/issues
+DASH: LIST | <n> | SET <n> <label> | <command> | CLEAR <n>	DASH: LIST | <n> | SET <n> <leubail> | <àithne> | CLEAR <n>
+DATAMOSH on - preparing (long clip, watch Encoder tab)	DATAMOSH air — ag ullachadh (criomag fhada, faic taba a’ chòdaiche)
+DECODE --.-	DÌ-CHÒD. --.-
+DECODE OFF	DÌ-CHÒD. DHETH
+DECODE WARM	DÌ-CHÒD. BLÀTH
+did not finish in 3 minutes. It may be waiting on a prompt it cannot show (Protected View, sign-in, a repair). Open the deck there once, or export it as a PDF and import that	Cha do chrìochnaich e ann an 3 mionaidean. Dh’fhaodadh e bhith a’ feitheamh ri còmhradh falaichte (sealladh dìonta, clàradh a-steach, càradh). Fosgail an taisbeanadh an sin no às-phortaich mar PDF is ion-phortaich sin
+e.g. /stage/doors -- sent to Deckboy's OSC port; empty for none	m.e. /stage/doors — gu port OSC Deckboy; bàn airson gin
+e.g. 20:0 or client name	m.e. 20:0 no ainm cliaint
+FADE TO: a speed from 0.25 to 4 (0.5 is half speed, an octave down)	FADE TO: astar bho 0.25 gu 4 (0.5 leth-astar, ochdamh sìos)
+Flip across, upside down or both, or fold one half onto the other: right onto left, left onto right, bottom onto top, top onto bottom, or one corner into all four.	Tionndaidh tarsainn, bun-os-cionn no an dà chuid; no paisg deas air clì, clì air deas, bonn air bàrr, bàrr air bonn, no aon oisean sna ceithir
+forget my defaults? only NEW changes, this show keeps its settings: press again	Dìochuimhnich mo bhun-roghainnean? Chan atharraich ach NEW; cumaidh an taisbeanadh seo a roghainnean: brùth a-rithist
+full-frame and no picture - bends when the picture shrinks	làn-fhrèam is gun dealbh — lùbaidh nuair a chrìonas an dealbh
+How bright a pixel has to be before it lifts at all, so only the highlights spike.	Cho soilleir ’s a dh’fheumas piogsail a bhith mus èirich e; dìreach na solasan àrda
+How bright a pixel has to be to join a run. Lower catches more of the picture and the runs grow longer.	Soilleireachd gus ruith a dhèanamh. Nas ìsle, glacar barrachd dhen dealbh is fàsaidh na ruith nas fhaide
+How deep the picture is treated as being. The brightness becomes height and is lit from the side.	Doimhneachd na deilbh. Bidh soilleireachd na h-àirde le solas bhon taobh
+How faint a gradient still registers. High turns the quietest shading into visible structure.	Mothalachd do chaiseadan fann. Nochdaidh luach àrd structar san dubhar as laige
+How far away. Distance dulls the top and softens the difference between the ears.	Astar. Lùghdaichidh astar na triceadan àrda is an diofar eadar na cluasan
+How far back the chain listens. The picture is played through a delay, so this is the distance the damage is dragged across.	Dè cho fada air ais a dh’èisteas an t-slabhraidh. Thèid an dealbh tro dhàil; seo an t-astar thar an tèid am milleadh a shlaodadh
+How far the burn spreads off the edge, and how hot its colour runs.	Dè cho fada a sgaoileas an losgadh bhon oir is cho teth ’s a bhios a dhath
+How far the colour turns on each trip round the loop. This is the oil-slick: the trail walks through the spectrum instead of fading.	Tionndadh datha gach cuairt. Mar fhilm ola: thèid an lorg tron speactram an àite seargadh
+How far the picture stands out. Bright parts come forward, dark parts stay back. At the left it is flat.	Dè cho fada a sheasas an dealbh a-mach. Soilleir air adhart, dorcha air ais. Rèidh aig a’ chlì
+How far the picture swings the filter. The cue's own brightness opens and closes it, so a cut to black takes the top off the sound.	Buaidh na deilbh air a’ chriathrag. Fosglaidh is dùinidh soilleireachd na gairm i; gearradh gu dubh a’ toirt nan triceadan àrda às
+How far the top comes down as the end approaches. This is not a fade: the level is left alone.	Dè cho mòr a thuiteas na triceadan àrda faisg air a’ cheann. Cha searg an ìre fuaime
+How fast it settles away while held. At zero it holds indefinitely, which is what room tone under a held title wants.	Cho luath ’s a sheargas e fhad ’s a tha e ga chumail. Aig neoni mairidh e gun chrìoch, airson fuaim seòmair fo thiotal ga chumail
+How fast what has dripped hardens away. At the left the drips stay until the cue changes.	Cho luath ’s a chruadhaicheas na boinneagan às. Aig a’ chlì mairidh iad gus an atharraich a’ ghairm
+How hard it holds once it is working. Gentle at the bottom, a limiter at the top.	Cho teann ’s a chumas e nuair a bhios e ag obair. Socair aig a’ bhonn, cuingealaiche aig a’ bhàrr
+How hard the light gathers where the rays converge. This is the part that makes it read as water rather than as a wobble.	Dè cho làidir a chruinnicheas solas far an coinnich na gathan. Seo coltas uisge seach luasgadh
+How hard the moving parts throw sand. More shake clears the plate faster and makes the lines thinner.	Neart tilgeil gainmhich nam pàirtean gluasadach. Glanaidh barrachd crathaidh a’ phlàta nas luaithe is nì e loidhnichean nas taine
+How long a grain is, in VIDEO FRAMES. On a 23.976 clip one frame is 41.7ms, which is not a musical value and is exactly the point.	Faid gràinne ann am FRÈAMAICHEAN BHIDIO. Aig 23.976 tha frèam 41.7ms; chan e luach ciùil a th’ ann, a dh’aona ghnothach
+How long before the end it starts. The cue has to have a known length -- an open-ended one has no end to resolve into.	Dè cho fada ron cheann a thòisicheas e. Feumar faid aithnichte; chan eil ceann aig gairm gun chrìoch airson socrachadh ann
+How long it is allowed to run. More steps means the ripples have crossed and reflected more times.	Dè cho fada a ruitheas e. Le barrachd cheumannan bidh na tonnan air dol tarsainn is air ais barrachd thursan
+How long the old waves linger when the note changes. Left: they die at once. Right: they slosh for a while.	Dè cho fada a mhaireas seann tonnan nuair a dh’atharraicheas an nota. Aig a’ chlì bàsaichidh iad sa bhad; aig an deas mairidh iad greis
+How much each facet catches the light, which is what makes them read as faceted rather than as flat blobs.	Na ghlacas gach aghaidh de sholas, a’ toirt coltas aghaidhean seach cnapan rèidh
+How much its SIZE becomes distance. Shrink the picture and the sound goes away from you: the top comes off, the image narrows, the level drops.	Buaidh MEUD air astar. Crìon an dealbh is falbhaidh am fuaim bhuat: nas lugha tricead àrd, ìomhaigh nas cumhainge is ìre nas ìsle
+How much of the bent picture goes round again. High is where it stops being an echo and starts eating itself.	Na thilleas den dealbh lùbte dhan chuairt. Aig luach àrd tòisichidh am mac-talla ga ithe fhèin
+How much of the driver's movement the picture KEEPS. At zero it follows the driver frame by frame, which is a twitch. Wind it up and the motion accumulates, so the driver sculpts the picture over time and it holds the pose -- which is what puppetry means.	Na GHLÈIDHEAS an dealbh de ghluasad an draibheir. Aig neoni leanaidh i frèam air fhrèam le priobadh. Àrdaich is cruinnichidh gluasad: cumaidh an draibhear an dealbh thar ùine is gleidhidh i a seasamh, mar phupaid
+How much of the picture's position on the output is used. A PIP on the left sounds on the left -- and it is a placement, not a pan: the far ear gets the delay and the head shadow too.	Buaidh suidheachadh na deilbh air an às-chur. Cluinnear PIP clì air an taobh chlì; suidheachadh le dàil is sgàil a’ chinn don chluais as fhaide
+How much of the tail is kept going while the cue is held. Long enough to hide the splice in room tone, short enough not to smear a rhythm in it.	Na mhaireas den earball fhad ’s a chumar a’ ghairm. Fada gu leòr gus alt fuaim seòmair fhalach, goirid gu leòr gun ruitheam a sgaoileadh
+How much room comes up under it, so the sound settles into the cut instead of being severed.	Na chuirear de dh’fhuaim seòmair fodha gus an socraich am fuaim sa ghearradh seach briseadh
+How much the echo is distorted each pass. It compounds, so a little ripples and a lot melts the picture into itself.	Milleadh a’ mhac-talla gach turas. Cruinnichidh e: beagan a’ dèanamh chrith-thonnan, mòran a’ leaghadh na deilbh innte fhèin
+How much the material draws in towards each drip, so it runs as a thin neck with a heavier head.	Na tharraingeas an stuth a-steach gu gach boinneag, le amhaich thana is ceann nas truime
+How often its settings are corrupted. Corrupted far enough it oscillates on its own -- loud, but it cannot run away.	Cho tric ’s a mhillear na roghainnean. Ma mhillear gu leòr, crithidh e leis fhèin — àrd ach fo smachd
+How quickly the picture springs back to rest once the driver stops pushing it. Only does anything when memory is up.	Cho luath ’s a thilleas an dealbh gu fois nuair a stadas an draibhear. Chan obraich ach le cuimhne àrdaichte
+How quickly the room eats the top end. More damping is a softer, more furnished space.	Cho luath ’s a shluigeas an seòmar na triceadan àrda. Barrachd mùchaidh, rùm nas buige le barrachd àirneis
+How readily an edge catches. Low sets the whole picture alight, high only the hardest lines.	Cho furasta ’s a lasas oir. Ìosal, lasaidh an dealbh gu lèir; àrd, dìreach na loidhnichean as gèire
+How small a cut sets it off. With no picture it runs on a timer instead, and this is how often.	Dè cho beag ’s a dh’fhaodas gearradh a bhith gus a phiobrachadh. Gun dealbh, ruithidh e air tìmear; seo cho tric
+How strongly the finished picture pushes the bend. Pair it with a picture effect whose LFO is set to Audio and the two drive each other.	Neart buaidh na deilbh deise air an lùbadh. Paidhir ri buaidh deilbh le LFO air Audio is stiùiridh iad a chèile
+How wide a view is being compressed. Narrow is a punch down the middle, wide folds the whole frame into the centre.	Leud an t-seallaidh ga dhlùthadh. Cumhang: buille sa mheadhan. Leathann: paisg am frèam gu lèir dhan mheadhan
+INPUTMONITOR: a row count, OPEN, CLOSE, CLEAR, PAUSE or RESUME	INPUTMONITOR: àireamh shreathan, OPEN, CLOSE, CLEAR, PAUSE no RESUME
+IPv4 addresses or a.b.c.d/bits, comma separated; empty = only this computer	Seòlaidhean IPv4 no a.b.c.d/bits, air an sgaradh le cromagan; bàn = an coimpiutair seo a-mhàin
+key+fill ON, but no key device set (DECKLINK KEYFILL ON <device>)	key+fill ON, ach gun uidheam key suidhichte (DECKLINK KEYFILL ON <device>)
+Keynote could not export this file (it may need permission to be automated: System Settings > Privacy & Security > Automation)	Cha b’ urrainn do Keynote am faidhle às-phortadh (dh’fhaodadh cead fèin-obrachais a bhith a dhìth: Roghainnean an t-siostaim > Prìobhaideachd is tèarainteachd > Fèin-obrachadh)
+label | command | glyph      (empty label|command removes it)	leubail | àithne | samhla      (bheir leubail|àithne bàn air falbh e)
+Lift or cut, 12dB either way. The centre is flat, so a band that has just been added does nothing until this is moved.	Àrdaich no geàrr, 12dB gach taobh. Meadhan rèidh: cha dèan bann ùr càil gus an gluaisear seo
+Lifts the dark tones without moving pure black.	Àrdaichidh na tònaichean dorcha gun dubh fìor atharrachadh
+Light on the drips, as on something wet: a gloss where it faces the light, darker where it curls away.	Solas air na boinneagan mar rud fliuch: deàrrsadh ris an t-solas, nas dorcha far an lùb iad bhuaithe
+mic live on the default speakers - watch for feedback	mic beò air na glaodhairean bunaiteach — thoir an aire do dh’ais-bhiadhadh
+MIDIIN: NOTE <n> <vel>, NOTEOFF <n>, CC <c> <v>, PITCH <0-16383>, PRESSURE <v>, KEYPRESSURE <n> <v>, PROGRAM <n> or OSC <address> [<n>], then CH <1-16> if not channel 1	MIDIIN: NOTE <n> <vel>, NOTEOFF <n>, CC <c> <v>, PITCH <0-16383>, PRESSURE <v>, KEYPRESSURE <n> <v>, PROGRAM <n> no OSC <address> [<n>], an uair sin CH <1-16> mura h-eil e air seanail 1
+Moves the direction of travel off the centre of frame, so the picture rushes past rather than straight at you.	Gluaisidh taobh an t-siubhail bho mheadhan an fhrèama, gus an ruith an dealbh seachad ort seach dìreach thugad
+my defaults forgotten: NEW starts from factory settings, this show is unchanged	Chaidh mo bhun-roghainnean a dhìochuimhneachadh: tòisichidh NEW le roghainnean factaraidh; an taisbeanadh seo gun atharrachadh
+N=new  Enter/P=previous  O=open saved  E=examples  L=learn  1-	N=ùr  Enter/P=roimhe  O=fosgail sàbhailte  E=eisimpleirean  L=ionnsaich  1-
+ndi tally trigger on -- program tally takes the cue	piobrachadh NDI tally air — cuiridh PROGRAM tally a’ ghairm an gnìomh
+NEWSHOW: something is live or unsaved -- send NEWSHOW again within 2.5 s	NEWSHOW: tha rudeigin beò no gun sàbhaladh — cuir NEWSHOW a-rithist taobh a-staigh 2.5 s
+NMOS: discovery needs the remote network allowed	NMOS: feumaidh lorg cead don lìonra chèin
+NMOS: NOT registering - network is LOCAL ONLY (turn REMOTE ON to publish)	NMOS: GUN chlàradh — lìonra IONADAIL A-MHÀIN (REMOTE ON airson foillseachadh)
+NMOS: searching for a registry (mDNS)	NMOS: a’ lorg clàrlainn (mDNS)
+notestep: this cue's notes have no builds (separate them with a line of ---)	notestep: chan eil ceumannan aig nòtaichean na gairm (sgar le loidhne ---)
+nothing to mask here: select a cue, or change MASK ON	Chan eil càil ri mhasgadh: tagh gairm no atharraich MASK ON
+One knob for the whole balance: below the middle is darker, above it is brighter.	Aon smachd dhan chothromachadh gu lèir: fon mheadhan nas dorcha, os a chionn nas soilleire
+Only accept transport from this sender (blank = anyone)	Gabh ri smachd cluiche bhon t-seòladair seo a-mhàin (bàn = duine sam bith)
+opened github.com in your browser -- nothing is sent until you submit the report there	Dh’fhosgail github.com sa bhrabhsair — cha chuirear càil gus an cuir thu an aithris an sin
+Original: the picture pulled onto the figure. Sand: the picture as grains that are thrown off the moving parts and pour into each new figure. Fluid: the picture under water on the plate, bent and lit by its standing waves.	Tùsail: an dealbh air a tharraing air a’ chumadh. Gainmheach: gràinnean na deilbh gan tilgeil bho phàirtean gluasadach gu gach cumadh ùr. Lionn: an dealbh fon uisge air a’ phlàta, lùbte is soillsichte le tonnan seasmhach
+OUTPUT --.-	ÀS-CHUR --.-
+output effects bypassed: no effect and no limit on this device	Buaidhean às-chuir air an seachnadh: gun bhuaidh is gun chrìoch air an uidheam seo
+Output height in px - math ok: 1080x2, 2160/2, 540+30	Àirde às-chuir ann am px — gabhar ri àireamhachadh: 1080x2, 2160/2, 540+30
+OUTPUT WARM	ÀS-CHUR BLÀTH
+Output width in px - math ok: 1920x2, 3840/2, 960+64	Leud às-chuir ann am px — gabhar ri àireamhachadh: 1920x2, 3840/2, 960+64
+pair with a picture effect whose LFO is set to Audio	Paidhir ri buaidh deilbh le LFO air Audio
+paired phones removed: they need the QR code or the passphrase again	Fònaichean paidhirichte air an toirt air falbh: feumaidh iad an còd QR no an abairt-fhaire a-rithist
+PATCH: a level is dB from -48 to +6, or OFF	PATCH: ìre ann an dB bho -48 gu +6, no OFF
+PHONE LEVEL: removed -- a paired phone or the passphrase can do everything; BLACKOUT and RECORD are hold-to-fire on the phone	PHONE LEVEL: air a thoirt air falbh — nì fòn paidhirichte no an abairt-fhaire a h-uile rud; cum BLACKOUT is RECORD sìos air an fhòn
+phones need THE NETWORK: set 'Who can see it' first	Feumaidh fònaichean AN LÌONRA: suidhich 'Cò chì e' an toiseach
+PIP: retired -- scale a second deck over this one instead	PIP: air a leigeil dheth — sgèilich dàrna deic os cionn na tè seo
+pip: retired -- scale a second deck over this one instead	pip: air a leigeil dheth — sgèilich dàrna deic os cionn na tè seo
+Port the Node + Connection API serve on	Port far am fritheil Node + Connection API
+PowerPoint could not export this file (it may need permission to be automated: System Settings > Privacy & Security > Automation)	Cha b’ urrainn do PowerPoint am faidhle às-phortadh (dh’fhaodadh cead fèin-obrachais a bhith a dhìth: Roghainnean an t-siostaim > Prìobhaideachd is tèarainteachd > Fèin-obrachadh)
+PowerPoint could not open the file (it gave up waiting for it). If it is in OneDrive, right-click it and choose Always keep on this device, then import it again	Cha do dh’fhosgail PowerPoint am faidhle (sguir e a dh’fheitheamh). Ma tha e ann an OneDrive, briog deas is tagh 'Cum air an uidheam seo an-còmhnaidh', is ion-phortaich a-rithist
+presenter panel: expected <live|prev|next|notes> <x> <y> <w> <h> in percent	panail taisbeanaiche: an dùil ri <live|prev|next|notes> <x> <y> <w> <h> sa cheud
+presenter panel: the panel must fit on the screen (x+w and y+h no more than 100)	panail taisbeanaiche: feumaidh e freagairt air an sgrìn (x+w is y+h gun a dhol thar 100)
+preset: delivery | proxy | match | datamosh	ro-shuidheachadh: delivery | proxy | match | datamosh
+programme sound is always included; use WEBMONITOR OFF to stop the monitor	Tha fuaim prògraim an-còmhnaidh ann; cleachd WEBMONITOR OFF gus am monatair a stad
+PROXY 720p	LETHBHREAC 720p
+Pulls the bright tones down without moving pure white, so a hot highlight rolls off instead of clipping.	Lùghdaichidh na tònaichean soilleir gun gheal fìor atharrachadh, gus am bi solas làidir a’ seargadh seach ga ghearradh
+Registry URL (e.g. http://192.168.1.50:8010) - blank for mDNS	URL clàrlainn (m.e. http://192.168.1.50:8010) — bàn airson mDNS
+Rotates the reading, so straight lines wind into spirals rather than rings.	Tionndaidhidh an leughadh, gus an lùb loidhnichean dìreach nan snìomhain seach fàinneachan
+Rows lose sync and repeat one character, the way a real text screen breaks up. At 0 the grid is clean.	Caillidh sreathan sioncronachadh is ath-aithrisidh iad aon charactar, mar sgrìn teacsa bhriste. Aig 0 tha an cliath glan
+save failed - retrying; still open, use SAVE AS if needed	Dh’fhàillig sàbhaladh — a’ feuchainn a-rithist; fhathast fosgailte, cleachd SAVE AS ma bhios feum air
+saved as my defaults: NEW starts like this show, without the cues	Air a shàbhaladh mar mo bhun-roghainnean: tòisichidh NEW mar an taisbeanadh seo, gun ghairmean
+Seconds for new image/pattern/browser/Lower Third cues (0 = hold)	Diogan airson gairmean ùra deilbh/pàtrain/brabhsair/Lower Third (0 = cum)
+select a Draw cue first (SOURCE > MADE BY DECKBOY > Draw)	Tagh gairm Draw an toiseach (SOURCE > MADE BY DECKBOY > Draw)
+SLICE CORNER: TL, TR, BR or BL, then dx dy in percent of the output	SLICE CORNER: TL, TR, BR no BL, an uair sin dx dy sa cheud den às-chur
+SLICE EDGE: L, R, T or B, then 0-50 (% of the slice)	SLICE EDGE: L, R, T no B, an uair sin 0-50 (% den sliseag)
+SLICE GRID POINT: col row (from 1, on a grid that is on) then dx dy in percent	SLICE GRID POINT: col row (bho 1, air cliath a tha air), an uair sin dx dy sa cheud
+SLICE GRID: <cols> <rows> (2-9), OFF, SMOOTH ON|OFF, or POINT col row dx dy	SLICE GRID: <cols> <rows> (2-9), OFF, SMOOTH ON|OFF no POINT col row dx dy
+SLICE LFO: X, Y, ROTATION or OPACITY, then ON, OFF, SHAPE, RATE, DEPTH...	SLICE LFO: X, Y, ROTATION no OPACITY, an uair sin ON, OFF, SHAPE, RATE, DEPTH...
+SLICE ROTATE: IN (the crop) or OUT (the placed picture), then degrees	SLICE ROTATE: IN (am bàrradh) no OUT (an dealbh suidhichte), an uair sin ceuman
+SMPTE hh:mm:ss:ff or seconds (blank = 00:00:00:00)	SMPTE hh:mm:ss:ff no diogan (bàn = 00:00:00:00)
+something mellow appeared in SOURCE > MADE BY DECKBOY	Nochd rudeigin socair ann an SOURCE > MADE BY DECKBOY
+Something near the deck: a phone's buzz, a light dimmer's herringbone, a radio's slow bars.	Rudeigin faisg air an deic: dùrdan fòin, pàtran cnàimh-sgadain bho lùghdaiche solais, bannan slaodach rèidio
+Sorts the runs the other way, so they pour from light to dark.	Seòrsaichidh na ruith an rathad eile, bho shoilleir gu dorcha
+sound scopes: integrated loudness and true peak start again	Tomhasan fuaime: tòisichidh àirde cho-aonaichte is fìor bhinnean a-rithist
+SOURCE WINDOW: name the window, e.g. title:Firefox (or "desktop")	SOURCE WINDOW: ainmich an uinneag, m.e. title:Firefox (no "desktop")
+splitnotes: that cue's notes have no parts (separate them with a line of ---)	splitnotes: chan eil pàirtean aig nòtaichean na gairm (sgar le loidhne ---)
+STREAM --.-	SRUTH --.-
+STREAM ERR	SRUTH MEARACHD
+STREAM OFF	SRUTH DHETH
+Stream URL (srt://, rtmp://, rtsp://, udp://, or an http HLS .m3u8)	URL srutha (srt://, rtmp://, rtsp://, udp:// no http HLS .m3u8)
+STREAM WARM	SRUTH BLÀTH
+SYPHON / SPOUT TEXTURE SHARE	CO-ROINN INNEACH SYPHON / SPOUT
+Takes out everything brighter than this as well. Left takes out nothing.	Bheir air falbh gach rud nas soilleire na seo cuideachd. Aig a’ chlì cha toir e càil às
+Takes out everything darker than this, so what lies beneath shows through. Left takes out nothing.	Bheir air falbh gach rud nas dorcha, a’ nochdadh na tha fodha. Aig a’ chlì cha toir e càil às
+Tape speed: SP is the best picture, LP and EP fit more on a tape and lose detail and colour.	Astar teip: SP an dealbh as fheàrr; cumaidh LP is EP barrachd ach caillidh iad mion-fhiosrachadh is dath
+that key drives the desk - use F1-F10, F12 or the number pad	Tha an iuchair seo a’ stiùireadh a’ phuillt — cleachd F1-F10, F12 no am pada àireamhan
+The brightness that stays put. Everything above it reaches one way and everything below it the other.	An soilleireachd a sheasas fhathast. Thèid na tha os a chionn aon taobh, is na tha fodha an taobh eile
+The character of the growth: low is waves, then labyrinth, coral, worms, and holes at the top.	Nàdar an fhàis: tonnan aig a’ bhonn, an uair sin cuartan, corail, cnuimhean is tuill aig a’ bhàrr
+the clicker now spends note builds before advancing	Cleachdaidh am briogadair ceumannan nòtaichean mus gluais e air adhart
+The colour it becomes. Shading and brightness stay as they were, so a red shirt turns blue and keeps its folds.	An dath ùr. Mairidh dubhar is soilleireachd; tionndaidhidh lèine dhearg gorm gun a fillidhean a chall
+The distance that sits ON the screen. Either side of it comes forward or falls behind.	An t-astar AIR an sgrìn. Air gach taobh dheth thig e air adhart no tuitidh e air ais
+the file is empty (0 bytes): it may not have finished copying or saving	Tha am faidhle bàn (0 baidht): dh’fhaodadh lethbhreacadh no sàbhaladh a bhith gun chrìochnachadh
+The frequency it pivots around -- what counts as 'low' and 'high' for the tilt.	An tricead mun tionndaidh e — dè tha 'ìosal' is 'àrd' dhan chlaonadh
+The head drifting off the track: a band of noise rolls through the picture.	An ceann a’ gluasad far na slighe: roiligidh bann fuaim tron dealbh
+the installed NDI runtime is missing entry points this needs	Tha puingean inntrigidh riatanach a dhìth san àrainneachd NDI stàlaichte
+The level below which the source is closed. Set it under the quietest thing you want to hear.	An ìre fo an dùinear an tùs. Suidhich fo an rud as sàmhaiche a tha thu airson cluinntinn
+The level it starts working at. Lower catches more of the performance.	An ìre far an tòisich e. Glacaidh luach nas ìsle barrachd den chluich
+the playing step was removed - sequence stopped	Chaidh an ceum ga chluich a thoirt air falbh — stad an sreath
+The plugin's first four automatable controls, in its own order. Everything else it has keeps whatever the plugin was left set to.	A’ chiad ceithir smachdan fèin-obrachail aig a’ phlugan, na òrdugh fhèin. Cumaidh a h-uile rud eile na roghainnean mu dheireadh aige
+this file is only in OneDrive, and OneDrive is not running. Start OneDrive, or copy the file to this computer, then import it again	Chan eil am faidhle ach ann an OneDrive is chan eil OneDrive a’ ruith. Tòisich OneDrive no dèan lethbhreac dhan choimpiutair seo, is ion-phortaich a-rithist
+this presentation needs a password to open. Remove the password in PowerPoint (File > Info > Protect Presentation) or export it as a PDF, then import that	Feumaidh an taisbeanadh facal-faire. Thoir air falbh e ann am PowerPoint (Faidhle > Fiosrachadh > Dìon taisbeanadh) no às-phortaich mar PDF is ion-phortaich sin
+Tints the two directions apart, so light bending one way and the other are different colours instead of both being grey.	Cuiridh dathan eadar-dhealaichte air an dà thaobh, gus am bi solas lùbte gach taobh eadar-dhealaichte seach liath
+Turns the echo each pass, which winds the melt into a spiral.	Tionndaidhidh am mac-talla gach turas, a’ snìomh an leaghaidh na shnìomhan
+Turns the strokes across the grain instead of along it, which combs the picture apart rather than smoothing it.	Tionndaidhidh na stròcan tarsainn a’ ghràin, a’ cìreadh na deilbh às a chèile seach ga rèidheachadh
+Turns the whole arrangement, so the fold lines do not sit on the same part of the picture all night.	Tionndaidhidh an rèiteachadh gu lèir, gus nach bi na fillidhean san aon àite fad na h-oidhche
+Two is a mirror, twelve is a snowflake, and they are completely different pictures.	Tha dhà na sgàthan, dà-dheug na mhaoim-sneachda: dealbhan gu tur eadar-dhealaichte
+VIDEO OUTPUT ASSIGN: already on this output, or no such deck or output	VIDEO OUTPUT ASSIGN: air an às-chur seo mu thràth, no chan eil deic no às-chur mar sin ann
+VIDEO OUTPUT LAYER: this deck is not on this output, or it is already at that layer	VIDEO OUTPUT LAYER: chan eil an deic air an às-chur seo no tha i air an t-sreath seo mu thràth
+VIDEO OUTPUT UNASSIGN: this deck is not on this output, or it is the only thing on it	VIDEO OUTPUT UNASSIGN: chan eil an deic air an às-chur seo no ’s i an aon rud air
+WARP AT: open the editor (WARP EDIT) and select a point first	WARP AT: fosgail an deasaiche (WARP EDIT) is tagh puing an toiseach
+warp grid: expected <n>, <cols> <rows>, off, smooth or straight	warp grid: an dùil ri <n>, <cols> <rows>, off, smooth no straight
+warp point: that is a corner -- move it with WARP <corner> dx dy	warp point: ’s e oisean a tha sin — gluais le WARP <corner> dx dy
+WARP SELECT: expected TL, TR, BR, BL or a grid <col> <row>	WARP SELECT: an dùil ri TL, TR, BR, BL no cliath <col> <row>
+WEBMONITOR: STATUS | ON | OFF | CONTROL ON|OFF | SHARE ON|OFF | SOURCE PROGRAMME|<output> | QR [ON|OFF] | PORT <n> | PIN <pin>|OFF (sound is included)	WEBMONITOR: STATUS | ON | OFF | CONTROL ON|OFF | SHARE ON|OFF | SOURCE PROGRAMME|<output> | QR [ON|OFF] | PORT <n> | PIN <pin>|OFF (fuaim na bhroinn)
+what the patch and the cues call it (FOH, SUB, PRESS FEED)	An t-ainm sa cheangal is sna gairmean (FOH, SUB, PRESS FEED)
+Where highlights fold back through black. Low folds most of the picture, high folds only the brightest.	Far am paisg solasan àrda air ais tron dubh. Ìosal, a’ chuid as motha; àrd, dìreach na pàirtean as soilleire
+Where the band sits, 30Hz to 16kHz across the travel.	Suidheachadh a’ bhanna, bho 30Hz gu 16kHz thar a’ ghluasaid
+Where the fold sits: the middle at the left, toward the far edge to the right. Flips have no fold.	Àite na fillte: meadhan aig a’ chlì, faisg air an oir as fhaide aig an deas. Chan eil filleadh aig tionndaidhean
+Where the light stands, in degrees around the frame.	Àite an t-solais ann an ceuman mun fhrèam
+Where the source sits around the listener, all the way round. For headphones -- it is a timing and shading trick, not a pan.	Suidheachadh an tùis timcheall an èisteadair, làn chuairt. Airson fònaichean-cluaise: cleas tìm is dubhair seach panadh
+Where the top ends, 200Hz to 20kHz. Pull it down to take the harshness off a bright source.	Ceann nan triceadan àrda, 200Hz gu 20kHz. Lùghdaich gus cruas tùis shoilleir a thoirt às
+Which channel the curve acts on: all three, then red, green or blue on its own -- the way a colourist warms or cools one end of the picture.	Seanail na lùib: na trì, an uair sin dearg, uaine no gorm fa leth — mar a bhlàthaicheas no a dh’fhuaraicheas dathaiche aon cheann na deilbh
+Which way the knife edge lies. Only gradients ACROSS the edge show, so turning it swaps which features appear and which vanish.	Taobh oir na sgine. Chan fhaicear ach caiseadan TARSainn an oir; tionndaidh is atharraichidh na feartan a nochdas no a dh’fhalbhas
+Which way the streak runs: across at the left, upright in the middle, across again at the right.	Taobh na stiallach: tarsainn aig a’ chlì, dìreach sa mheadhan, tarsainn a-rithist aig an deas
+Widens the decision into a ramp, so edges keep their shape instead of jagging.	Leudaichidh an stairsneach na leathad, gus an glèidh oirean an cumadh gun fhiaclan
+window capture fell back to screen grab — update ffmpeg for exact window capture	Thill glacadh uinneige gu glacadh sgrìn — ùraich FFmpeg airson glacadh uinneige ceart
+Words to surface in the field, separated by | . One shows at a time, moving on the hold clock.	Faclan ri nochdadh san raon, sgaraichte le | . Aon aig an aon àm, ag atharrachadh air gleoc a’ chumail
+Zero is one noise value across all three channels, which reads as film. Higher gives each channel its own, which reads as video.	Aig neoni tha aon luach fuaim anns na trì seanailean, mar fhilm. Nas àirde tha a luach fhèin aig gach seanail, mar bhidio
+OUTPUT SPOUT: ON | OFF | TOGGLE | NAME <sender name>	OUTPUT SPOUT: ON | OFF | TOGGLE | NAME <AINM AN T-SE?LADAIR>
+STATUS | SHAPE <0-5> | PALETTE <0-3> | DENSITY|SPEED|WARP|CENTREX|CENTREY|GREY <0-100> | TURN|HUE <0-360> | LFO <control> <setting>	STATUS | SHAPE <0-5> | PALETTE <0-3> | DENSITY|SPEED|WARP|CENTREX|CENTREY|GREY <0-100> | TURN|HUE <0-360> | LFO <SMACHD> <ROGHAINN>
+Lens	Lionsa
+Prism	Prìosam
+Water	Uisge
+Lasers	Leusairean
+Pixels	Piogs.
+Listens	Èisteachd
+Mirrors	Sgàthanan
+Shimmer	Boillsgeadh
+FDS synth	Sint FDS
+Terrarium	Tearàrium
+(bypassed)	(seachnaichte)
+Second jet	Dàrna steall
+%, 1 to 100	%, 1 gu 100
+Panel angle	Ceàrn pannail
+Ripple size	Meud preabaidh
+Panels, 0-12	Pannalan, 0-12
+Seconds, 0-4	Diogan, 0-4
+Seconds, 0-8	Diogan, 0-8
+Top / bottom	Barr / bonn
+Amount 0-100%	Meud 0-100%
+ALSA MIDI Port	Port ALSA MIDI
+Degrees, 0-360	Ceuman, 0-360
+Terrarium Pico	Tearàrium Pico
+ASIOInit failed	Dh'fhàillig ASIOInit
+Hertz, 20-20000	Heirts, 20-20000
+Pixels, 64-2160	Piogsailean, 64-2160
+Pixels, 64-3840	Piogsailean, 64-3840
+Colour steps, 2-8	Ceuman datha, 2-8
+Degrees -180..180	Ceuman -180..180
+Palette turn, 0-1	Cuairt paileid, 0-1
+Size, %, 5 to 400	Meud, %, 5 gu 400
+Feature size, 0.1-8	Meud feart, 0.1-8
+Spiral size, 0.25-4	Meud snìomhain, 0.25-4
+Degrees, -360 to 360	Ceuman, -360 gu 360
+Spiral strength, 0-4	Neart snìomhain, 0-4
+0-100%, left to right	0-100%, clì gu deas
+0-100%, top to bottom	0-100%, barr gu bonn
+0-100%: laser speckle	0-100%: breacadh leusair
+Pixel sort amount, 0-1	Meud seòrsachaidh phiogsailean, 0-1
+Pitch in hertz, 20-8000	Àirde ann an heirts, 20-8000
+Frames a second, 1 to 60	Frèamaichean san diog, 1 gu 60
+Horizontal cells, 64-960	Ceallan còmhnard, 64-960
+select a lumia cue first	tagh cue Lumia an toiseach
+0 tube, 1 mandala, 2 none	0 tiùb, 1 mandala, 2 gin
+How big a blob grows, 0-1	Meud fàis bloib, 0-1
+0-100%: overall brightness	0-100%: soilleireachd iomlan
+FDS hardware gain range, 0-63	Raon buannachd bathair-chruaidh FDS, 0-63
+How hard it cuts, %, 0 to 100	Cruas gearraidh, %, 0 gu 100
+{1} (supports + - * / and ())	{1} (a' cur taic ri + - * / agus ())
+Master oscillator rate, 0.01-8	Luas a' phrìomh osgalair, 0.01-8
+Seconds the in move takes, 0-5	Diogan airson a' ghluasaid a-steach, 0-5
+0-100%: 0 holds the field still	0-100%: cumaidh 0 an raon na stad
+0-100%: how bright the water is	0-100%: soilleireachd an uisge
+0-100%: how far the field bends	0-100%: lùbadh an raoin
+0-100%: the whole picture turns	0-100%: tionndaidhidh an dealbh gu lèir
+Degrees per second, -720 to 720	Ceuman san diog, -720 gu 720
+Lumia (laser light and mirrors)	Lumia (solas leusair is sgàthanan)
+Seconds between retriggers, 0-8	Diogan eadar ath-phiobrachaidhean, 0-8
+Seconds the out move takes, 0-5	Diogan airson a' ghluasaid a-mach, 0-5
+0-100%: how fast the water moves	0-100%: luas gluasad an uisge
+0-100%: the halo round the lines	0-100%: an deàrrsadh timcheall nan loidhnichean
+How many are alive at once, 3-48	Cia mheud beò aig aon àm, 3-48
+Turbulence, 0 still to 3 boiling	Buaireas, 0 sàmhach gu 3 goil
+Birth, drift and fade rate, 0.1-3	Luas breith, fleòdraidh is seargaidh, 0.1-3
+How hard the audio drives it, 0-1	Neart buaidh an fhuaim, 0-1
+Scale of the whole graphic, 0.5-2	Sgèile a' ghrafaig gu lèir, 0.5-2
+0-100%: 0 broad, 100 fine and busy	0-100%: 0 leathann, 100 mìn is dùmhail
+Down, % of the height, -100 to 100	Sìos, % dhen àirde, -100 gu 100
+Thickness of the glowing edge, 0-1	Tiughad an oir dheàlraich, 0-1
+0-100%: how hard the lines are bent	0-100%: neart lùbadh nan loidhnichean
+0-100%: light lingers on the screen	0-100%: mairidh solas air an sgrìn
+Across, % of the width, -100 to 100	Tarsainn, % dhen leud, -100 gu 100
+% of the picture's height, 0.1 to 20	% de dh'àirde an deilbh, 0.1 gu 20
+0-100%: how far the colours fan apart	0-100%: sgaoileadh nan dathan
+Degrees round the colour wheel, 0-360	Ceuman air cuibhle nan dathan, 0-360
+Where the eye sits, 0 left to 1 right	Suidheachadh na sùla, 0 clì gu 1 deas
+Where the eye sits, 0 top to 1 bottom	Suidheachadh na sùla, 0 barr gu 1 bonn
+dBFS, -60 to 0 (-18 is EBU alignment)	dBFS, -60 gu 0 (-18 ìre iomraidh EBU)
+0-100%: how bright the laser lines are	0-100%: soilleireachd loidhnichean an leusair
+One LED tile's width in pixels, 8-8192	Leud aon leac LED ann am piogsailean, 8-8192
+0-100%: a second jet crossing the first	0-100%: dàrna steall a' dol tarsainn air a' chiad fhear
+Edge softness, % of the height, 0 to 25	Buige an oir, % dhen àirde, 0 gu 25
+One LED tile's height in pixels, 8-8192	Àirde aon leac LED ann am piogsailean, 8-8192
+0 classic, 1 fire, 2 ice, 3 neon, 4 mono	0 clasaigeach, 1 teine, 2 deigh, 3 neon, 4 aon-dath
+Modulator as a ratio of the note, 0.05-16	Mion-atharraiche mar cho-mheas dhen nòta, 0.05-16
+Scanlines, bloom and gun misalignment, 0-1	Loidhnichean sganaidh, deàrrsadh is mì-cho-thaobhadh ghunnaichean, 0-1
+0-100%: the round lens, barrel and dark rim	0-100%: lionsa cruinn, saobhadh baraille is oir dhorcha
+Block displacement and channel tearing, 0-1	Gluasad bhlocaichean is reubadh sheanalan, 0-1
+Internal resolution, 1 (chunky) to 5 (fine)	Dùmhlachd a-staigh, 1 (garbh) gu 5 (mìn)
+Seconds the finished drawing stays, 0 to 60	Diogan a mhaireas an dealbh deiseil, 0 gu 60
+0 rainbow + grey, 1 rainbow, 2 theme, 3 mono	0 bogha-froise + liath, 1 bogha-froise, 2 coltas, 3 aon-dath
+How readily neighbours merge, 0 (never) to 1	Furasdachd co-aonadh nàbaidhean, 0 (gu bràth) gu 1
+Turns the rim's colours round the wheel, 0-1	Cuairt dathan an oir mun chuibhle, 0-1
+drag to turn round it · wheel to come closer	slaod gus tionndadh mun cuairt · cuibhle gus tighinn nas fhaisge
+0-100%: 50 is 1x, 0 a quarter, 100 four times	0-100%: 's e 50 1x, 0 cairteal, 100 ceithir uiread
+How much of each frame feeds the next, 0-0.95	Na thèid de gach frèam dhan ath fhear, 0-0.95
+Per-frame zoom of the feedback path, 0.90-1.15	Sùm slighe na h-ais-bhiadhaidh gach frèam, 0.90-1.15
+Space under it, as a fraction of the frame, 0-0.8	Beàrn fodha mar chuibhreann dhen fhrèam, 0-0.8
+0 rgb, 1 rainbow, 2 floyd, 3 warm, 4 cool, 5 green	0 rgb, 1 bogha-froise, 2 floyd, 3 blàth, 4 fionnar, 5 uaine
+Edge out (+) or in (-), % of the height, -25 to 25	Oir a-mach (+) no a-steach (-), % dhen àirde, -25 gu 25
+0 zone, 1 twin, 2 flow, 3 saddle, 4 ripple, 5 shear	0 sòn, 1 càraid, 2 sruth, 3 dìollaid, 4 preabadh, 5 rùsgadh
+Seconds before it leaves by itself; 0 waits for OUT	Diogan mus fhalbh e leis fhèin; feithidh 0 ri OUT
+0-100%: how far each panel tilts from the one before	0-100%: claonadh gach pannail bhon fhear roimhe
+0-100%: the share of each band drawn as grey stripes	0-100%: cuibhreann gach bann air a tharraing mar stiallan liatha
+0 off, 1 on: the flow surges with the programme sound	0 dheth, 1 air: èiridh an sruth le fuaim PROGRAM
+0 off, 1 on: the top mirrors the bottom round a dark seam	0 dheth, 1 air: tha am barr a' sgàthanachadh a' bhuinn mu alt dorcha
+' (cues, position, look, effects, levels, routing, master)	' (cuean, ionad, coltas, èifeachdan, ìrean, slighe, maighstir)
+' -- try ADD, ON, OFF, ASSIGN, UNASSIGN, LAYER, HOST, TYPE, MIRROR or an output number	' -- feuch ADD, ON, OFF, ASSIGN, UNASSIGN, LAYER, HOST, TYPE, MIRROR no àireamh às-chuir
+BLEND ROW: expected <first output> <how many, 2 or more> <overlap in pixels>, with that many outputs	BLEND ROW: an dùil ri <a' chiad às-chur> <àireamh, 2 no barrachd> <tar-lùbadh ann am piogsailean>, leis an àireamh sin de dh'às-chuir
+SCREENS STAGE: STATUS, SET <what> <value> or APPLY	SCREENS STAGE: STATUS, SET <dè> <luach> no APPLY
+SCREENS STAGE SET: WIDTH|HEIGHT <m>, LUMENS, THROW, OVERLAP <%>, GAIN, COUNT, PIXELS <w> <h> or UNITS METRES|FEET	SCREENS STAGE SET: WIDTH|HEIGHT <m>, LUMENS, THROW, OVERLAP <%>, GAIN, COUNT, PIXELS <w> <h> no UNITS METRES|FEET
+LFO: flow, water, ripple, jet, prism, split, focus, shimmer, mirrors, angle, spin, lens, glow, bright or trail	LFO: flow, water, ripple, jet, prism, split, focus, shimmer, mirrors, angle, spin, lens, glow, bright no trail
+STATUS | PALETTE <0-5 or name> | MODE <0-2 or name> | TOPBOTTOM|LISTENS ON|OFF | FLOW|WATER|RIPPLE|JET|PRISM|SPLIT|FOCUS|SHIMMER|ANGLE|SPIN|LENS|GLOW|BRIGHT|TRAIL <0-100> | MIRRORS <0-12> | LFO <control> <setting>	STATUS | PALETTE <0-5 no ainm> | MODE <0-2 no ainm> | TOPBOTTOM|LISTENS ON|OFF | FLOW|WATER|RIPPLE|JET|PRISM|SPLIT|FOCUS|SHIMMER|ANGLE|SPIN|LENS|GLOW|BRIGHT|TRAIL <0-100> | MIRRORS <0-12> | LFO <smachd> <roghainn>
+Opacity	Teimhneachd
+opacity	teimhneachd
+PAD MODE: HOLD or LATCH	PAD MODE: HOLD no LATCH
+PAD ASSIGN: this cue does not have that control	PAD ASSIGN: chan eil an smachd sin aig a' chue seo
+PAD SET: x and y are numbers from 0 to 1 (y = 1 is the top)	PAD SET: 's e àireamhan eadar 0 is 1 a th' ann an x is y (tha y = 1 aig a' bharr)
+PAD ASSIGN: a control is OPACITY, FX<n>.AMOUNT, FX<n>.A to F, or NUM.<name> such as NUM.lumia.flow	PAD ASSIGN: 's e OPACITY, FX<n>.AMOUNT, FX<n>.A gu F, no NUM.<name> mar NUM.lumia.flow a th' ann an smachd
+PAD: expected PAD <deck> SET <x> <y> | RELEASE | MODE | ASSIGN | REMOVE | CHIP | LIST	PAD: an dùil ri PAD <deck> SET <x> <y> | RELEASE | MODE | ASSIGN | REMOVE | CHIP | LIST
+PAD: expected PAD <deck> SET <x> <y> | RELEASE | MODE HOLD|LATCH | ASSIGN <slot> <x> <y> | REMOVE <slot> | CHIP <slot> ON|OFF | LIST	PAD: an dùil ri PAD <deck> SET <x> <y> | RELEASE | MODE HOLD|LATCH | ASSIGN <slot> <x> <y> | REMOVE <slot> | CHIP <slot> ON|OFF | LIST
+QUANTISE: beat	CUANTACHADH: buille
+QUANTISE: 1 bar	CUANTACHADH: 1 tomhas
+QUANTISE: 2 bars	CUANTACHADH: 2 thomhas
+QUANTISE: 4 bars	CUANTACHADH: 4 tomhasan
+LINK: {1} peers	LINK: {1} com-pàirtichean
+left the Link session	dh'fhàg thu an seisean Link
+joined the Link session	chaidh thu dhan t-seisean Link
+TAKE waits for the bar: {1} s	Tha TAKE a' feitheamh ris an tomhas: {1} s
+TAKE waits for the beat: {1} s	Tha TAKE a' feitheamh ris a' bhuille: {1} s
+this build has no Ableton Link	chan eil Ableton Link sa togail seo
+VJ LINK: this build has no Ableton Link	VJ LINK: chan eil Ableton Link sa togail seo
+VJ QUANTISE: beat | 1 | 2 | 4 | off  (1, 2, 4 are bars)	VJ QUANTISE: beat | 1 | 2 | 4 | off  ('s e tomhasan a th' ann an 1, 2, 4)
+VJ: expected ON|OFF|TOGGLE|MIX <0-1>|BLEND <mode>|TAP|BPM <n>|CLOCK <on|off>|QUANTISE <beat|1|2|4|off>|LINK <on|off|status>|DECKS <a> <b>|STATUS	VJ: an dùil ri ON|OFF|TOGGLE|MIX <0-1>|BLEND <mode>|TAP|BPM <n>|CLOCK <on|off>|QUANTISE <beat|1|2|4|off>|LINK <on|off|status>|DECKS <a> <b>|STATUS
+Render	Reandaradh
+PNG frames	Frèamaichean PNG
+START RENDER	TÒISICH REANDARADH
+CANCEL RENDER	SGUIR DEN REANDARADH
+RENDER TO FILE	REANDARAICH GU FAIDHLE
+RENDER TO FILE...	REANDARAICH GU FAIDHLE...
+about {1} left	mu {1} air fhàgail
+render cancelled	sguireadh den reandaradh
+{1} frames in {2}	{1} frèamaichean ann an {2}
+the output's ({1})	an às-chuir ({1})
+From cue and to cue	Bhon chue is dhan chue
+ProRes 4444 (alpha)	ProRes 4444 (alfa)
+the playlist has no cues	chan eil cuean san liosta
+{1} frames, {2}, {3}x{4}	{1} frèamaichean, {2}, {3}x{4}
+the source made no picture	cha do chruthaich an tùs dealbh
+a render is already running	tha reandaradh a' dol mu thràth
+there is no playlist to render	chan eil liosta ann ri reandaradh
+there is no picture in that range	chan eil dealbh san raon sin
+RENDER CANCEL: nothing is rendering	RENDER CANCEL: chan eil dad ga reandaradh
+RENDER START: CUE, CUES a-b or OUTPUT	RENDER START: CUE, CUES a-b no OUTPUT
+RENDER START CUES: first-last, numbered from 1	RENDER START CUES: ciad-mu dheireadh, àireamhan bho 1
+the output's mask is not drawn by a render yet	chan eil reandaradh a' tarraing masg an às-chuir fhathast
+the output's slices are not drawn by a render yet	chan eil reandaradh a' tarraing sliseagan an às-chuir fhathast
+the output's crossfader is not drawn by a render yet	chan eil reandaradh a' tarraing crois-sheargadh an às-chuir fhathast
+RENDER START: needs a size, a rate, a codec and a file	RENDER START: feumar meud, reat, codec is faidhle
+RENDER START: size is 1080P, 4K or OUTPUT; codec is PRORES, H264 or PNG	RENDER START: 's e 1080P, 4K no OUTPUT am meud; 's e PRORES, H264 no PNG an codec
+frame {1} of {2} \xC2\xB7 {3} frames/s	frèam {1} de {2} \xC2\xB7 {3} frèamaichean/s
+out:--	a-mach:--

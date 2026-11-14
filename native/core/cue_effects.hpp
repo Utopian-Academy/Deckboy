@@ -1436,7 +1436,16 @@ inline void publishLfoClock(double seconds, double beats, double audio01) {
   std::lock_guard<std::mutex> lock(lfoClockMutex());
   lfoClockSlot() = {seconds, beats, audio01};
 }
+// A thread can take the clock for itself. RENDER TO FILE steps the show's time
+// by exact frames on its own worker thread, and the live loop keeps publishing
+// wall time on every tick: without a clock of its own the render would read
+// whichever of the two wrote last. Null on every thread but a render worker.
+inline const LfoClockSample*& lfoClockThreadOverride() {
+  static thread_local const LfoClockSample* clock = nullptr;
+  return clock;
+}
 inline LfoClockSample readLfoClock() {
+  if (const LfoClockSample* own = lfoClockThreadOverride()) return *own;
   std::lock_guard<std::mutex> lock(lfoClockMutex());
   return lfoClockSlot();
 }

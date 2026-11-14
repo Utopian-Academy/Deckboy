@@ -219,6 +219,7 @@
       const o = (state.outputs || []).find(x => x.index === Number(b.dataset.output));
       b.classList.toggle('on', !!(o && o.on));
     }
+    drawPad();
     el('anywhere').hidden = !state.anywhere;
     say('anywhere', state.anywhere ? `From anywhere (Tailscale): ${state.anywhere}` : '');
     enable();
@@ -281,6 +282,118 @@
     button.addEventListener('click', event => event.preventDefault());
     button.addEventListener('keydown', event => { if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); fire(); } });
   }
+
+  // ── X/Y PAD ────────────────────────────────────────────────────────────
+  // One finger, two controls. The page sends the point about a dozen times a
+  // second (one request in flight, the newest point wins), repeats it once a
+  // second while the finger rests, and lets go when the finger lifts, the touch
+  // is cancelled or the page is hidden. The desk lets go by itself if the phone
+  // goes quiet.
+  let padShape = '', padDown = false, padX = 0.5, padY = 0.5, padDirty = false, padFlight = null, padTimer = 0, padLastSend = 0;
+  const padDeck = () => state && (state.decks || []).find(d => d.index === deckIndex);
+  const padInfo = () => { const d = padDeck(); return d && d.pad; };
+  const padOn = () => { const p = padInfo(); return !!(p && p.chips.some(c => c.on && c.here)); };
+  const padErr = error => { say('result', error.message.replace(/^ERR remote: /, '')); el('result').classList.add('err'); };
+
+  function drawPad() {
+    const d = padDeck(), p = d && d.pad;
+    say('pad-title', `PAD · ${String((d && d.name) || `Deck ${deckIndex}`).toUpperCase()}`);
+    if (!p) return;
+    const live = p.chips.filter(c => c.on && c.here);
+    say('pad-xlab', live.length ? `X ${live[0].xl}${live.length > 1 ? ` +${live.length - 1}` : ''}` : 'X -');
+    say('pad-ylab', live.length ? `Y ${live[0].yl}` : 'Y -');
+    el('pad').classList.toggle('off', !live.length);
+    el('pad-hold').setAttribute('aria-pressed', String(!p.latch));
+    el('pad-latch').setAttribute('aria-pressed', String(p.latch));
+    el('pad-add').hidden = p.chips.length >= 8;
+    const shape = JSON.stringify([deckIndex, p.chips]);
+    if (shape !== padShape) {
+      padShape = shape;
+      el('pad-chips').replaceChildren(...p.chips.map(c => {
+        const b = document.createElement('button');
+        b.textContent = String(c.name || `Slot ${c.slot}`).toUpperCase();
+        b.setAttribute('aria-pressed', String(c.on && c.here));
+        if (!c.here) b.classList.add('gone');
+        tapOrHold(b, () => { buzz('tap'); send(`PAD ${deckIndex} CHIP ${c.slot} ${c.on ? 'OFF' : 'ON'}`); }, () => openPadEdit(c));
+        return b;
+      }));
+    }
+  }
+
+  function fillPadSelect(select, controls, value) {
+    select.replaceChildren(...controls.map(c => {
+      const o = document.createElement('option'); o.value = c.t; o.textContent = `${c.g}: ${c.l}`; return o;
+    }));
+    if (value && controls.some(c => c.t === value)) select.value = value;
+  }
+
+  function openPadEdit(chip) {
+    const p = padInfo(); if (!p) return;
+    const cs = p.controls;
+    const slot = chip ? chip.slot : p.chips.length + 1;
+    el('pad-edit').dataset.slot = String(slot);
+    say('pad-edit-title', chip ? `PAD CONTROL ${slot}` : 'NEW PAD CONTROL');
+    fillPadSelect(el('pad-ex'), cs, chip ? chip.x : (cs[1] || cs[0]).t);
+    fillPadSelect(el('pad-ey'), cs, chip ? chip.y : (cs[2] || cs[0]).t);
+    el('pad-remove').hidden = !chip;
+    el('pad-edit').hidden = false;
+    el('pad-ex').focus();
+  }
+
+  function padPump() {
+    if (!connected || padFlight) return;
+    const now = Date.now();
+    if (!padDirty && !(padDown && now - padLastSend > 1000)) return;
+    padDirty = false; padLastSend = now;
+    const command = `PAD ${deckIndex} SET ${padX.toFixed(3)} ${padY.toFixed(3)}`;
+    padFlight = request('/remote/command', command).then(() => el('result').classList.remove('err'), padErr)
+      .finally(() => { padFlight = null; });
+  }
+
+  async function padLetGo() {
+    if (!padDown) return;
+    padDown = false; padDirty = false;
+    clearInterval(padTimer); padTimer = 0;
+    const p = padInfo();
+    if (!p || !p.latch) el('pad-dot').hidden = true;
+    if (padFlight) { try { await padFlight; } catch { /* reported already */ } }
+    try { await request('/remote/command', `PAD ${deckIndex} RELEASE`); buzz('tap'); } catch (error) { padErr(error); }
+    refresh();
+  }
+
+  function padMove(event) {
+    const box = el('pad').getBoundingClientRect();
+    padX = Math.min(1, Math.max(0, (event.clientX - box.left) / box.width));
+    padY = Math.min(1, Math.max(0, 1 - (event.clientY - box.top) / box.height));
+    const dot = el('pad-dot');
+    dot.style.left = `${padX * 100}%`; dot.style.top = `${(1 - padY) * 100}%`; dot.hidden = false;
+    padDirty = true;
+  }
+
+  el('pad').addEventListener('pointerdown', event => {
+    if (!connected || !padOn()) { say('result', 'Put a control on the pad first: tap + EFFECT.'); return; }
+    event.preventDefault();
+    try { el('pad').setPointerCapture(event.pointerId); } catch { /* old browser */ }
+    padDown = true; buzz('tap'); padMove(event);
+    if (!padTimer) padTimer = setInterval(padPump, 70);
+    padPump();
+  });
+  el('pad').addEventListener('pointermove', event => { if (padDown) padMove(event); });
+  for (const type of ['pointerup', 'pointercancel', 'lostpointercapture']) el('pad').addEventListener(type, padLetGo);
+  el('pad').addEventListener('contextmenu', event => event.preventDefault());
+  document.addEventListener('visibilitychange', () => { if (document.hidden) padLetGo(); });
+  el('pad-hold').addEventListener('click', () => { buzz('tap'); send(`PAD ${deckIndex} MODE HOLD`); });
+  el('pad-latch').addEventListener('click', () => { buzz('tap'); send(`PAD ${deckIndex} MODE LATCH`); });
+  el('pad-add').addEventListener('click', () => { buzz('tap'); openPadEdit(null); });
+  el('pad-edit').addEventListener('submit', event => {
+    event.preventDefault();
+    send(`PAD ${deckIndex} ASSIGN ${el('pad-edit').dataset.slot} ${el('pad-ex').value} ${el('pad-ey').value}`);
+    el('pad-edit').hidden = true; padShape = '';
+  });
+  el('pad-remove').addEventListener('click', () => {
+    send(`PAD ${deckIndex} REMOVE ${el('pad-edit').dataset.slot}`); el('pad-edit').hidden = true; padShape = '';
+  });
+  el('pad-cancel').addEventListener('click', () => { el('pad-edit').hidden = true; });
 
   // Wiring.
   el('pin-form').addEventListener('submit', async event => {

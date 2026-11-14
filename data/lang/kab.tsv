@@ -3246,3 +3246,1262 @@ FX CHOICE: choice must be A or B	FX CHOICE: afran ilaq ad yili A neɣ B
 FX CHOICE: no effect at that index	FX CHOICE: ulac asemdu deg umatar-nni
 whole picture	tugna meṛṛa
 FX LFO: slot is A-D for the parameters, E for the amount, F and G for the fifth and sixth (or 0-6)	FX LFO: tallunt d A-D i yiɣewwaren, E i tanecta, F d G i wis-semmus d wis-sdis (neɣ 0-6)
+angle	tiɣmert
+Attack	Anekcum
+attack	anekcum
+Audio bitrate	Aktum n yimesli
+Audio reactivity	Tiririt i yimesli
+azimuth	tiɣmert n tnila
+Bands	Tisfifin
+bands	tisfifin
+base layer	tissi n uzadur
+BITRATE	AKTUM
+bits	ibiten
+black point	taneqqiḍt taberkant
+bleed	asuffeɣ n yini
+Blobs	Tibulliḍin
+block glitch	tuccḍa n yiḥedran
+block size	teɣzi n uḥedru
+blocks	iḥedran
+blur	asɣuma
+BOTH	I SIN
+bright	aceɛlal
+Brush opacity	taḍullest n umfezzu
+Brush size	teɣzi n umfezzu
+buzzer	anaqqar
+by brightness	s uceɛlal
+cancelled	yettwasefsex
+Canvas Height	Teɣzi n usayes
+Canvas View	Tamuɣli n usayes
+Canvas Width	Tehri n usayes
+catch	ṭṭef
+caustics	asdukkel n tafat
+Centre X	Alemmas X
+Centre Y	Alemmas Y
+channel skew	aknay n ubadu
+channel spread	asuffeɣ n yibuda
+character	asekkil
+chop	gzem
+CLASSIC	AMENSAY
+CLOCK	ASRAG
+coherence	amtawi
+colour bleed	asuffeɣ n yini
+colour drift	amuti n yini
+colour lag	aɛeṭṭel n yini
+colour replace	asemmeskel n yini
+columns	tigejda
+control 1	asenqed 1
+control 2	asenqed 2
+control 3	asenqed 3
+control 4	asenqed 4
+Control change	Abeddel n usenqed
+convergence	amlili
+copies	inɣalen
+corrupt	sexser
+corruption	axessar
+coupling	tuqqna
+crystallise	sbelreǧ
+Cue Notes	Tizmilin n cue
+curl detail	talqayt n uzzay
+curves	tizligin
+Custom Glyphs	Isekkilen udmawanen
+cut bright	gzem aceɛlal
+cut dark	gzem abruk
+cut reset	wennez s ugzam
+cutoff	talast n ugzam
+cuts	igzamen
+cyan	azegzaw afessas
+damage	axessar
+damping	asḍeɛɛef
+dark	abruk
+darkness	tillas
+deck age	taɣawsa n umeɣri
+Density	Taẓẓayt
+depth	talqayt
+depth split	abḍu n telqayt
+Destination Address	Tansa n tɣerwa
+Destination UDP port	Tabburt UDP n tɣerwa
+Detail	Talqayt
+diamond	amḍan
+distance	ameccaq
+DMX Channels	Ibuda DMX
+dots move	tineqqiḍin ttemutti
+Draw colour	Ini n wunuɣ
+drift	amuti
+drip	neqqeḍ
+drips	tineqqiḍin
+drive	aḍeyyer
+edges	iran
+empty	ilem
+extended	yettwasiɣzef
+EXTREME	AṬAS
+facet light	tafat n wudem
+falloff	aɣelluy
+falsecolour	ini arameɣtu
+feed rate	arured n usečči
+Feedback zoom	Asimɣur n tuɣalin
+field of view	annar n tmuɣli
+Fixture address	Tansa n usafag
+Fixture name	Isem n usafag
+Fixture universe	Amaḍal n usafag
+flash length	teɣzi n usideḍ
+flash to	sideḍ ɣer
+flicker	asider
+Flipbook rate	arured n ubeddel
+floor	adda
+Flow	Azḍam
+flow	azḍam
+focus	asaḍas
+fold	ḍḍef
+fold point	taneqqiḍt n uḍḍaf
+frames	tugniwin
+Frequency	Asnagar
+frequency	asnagar
+gap	tallunt
+gather	sdukkel
+Glitch	Tuccḍa
+glow	aceɛlal
+glyph set	tagrumma n yisekkilen
+gong	abendiṛ
+grain	aɛeqqa
+grain flow	azḍam n uɛeqqa
+grain size	teɣzi n uɛeqqa
+green split	abḍu n uzegzaw
+Grey	Aɣiɣdan
+grid	aferrug
+growl	aɣurru
+growth	timɣi
+head wear	aɣellu n uqerru
+heat	azɣal
+Height	Teɣzi
+Height (px)	Teɣzi (px)
+highlight roll	aḍḍaf n tafat
+histogram	amatar n yiswiren
+horizontal	aglawan
+ice	agris
+ink	asemmad
+interference	amseḍfer
+irregularity	tarukna
+jump	neggez
+just	amsasa
+kaleido	tisit n yiniten
+kaleidoscope	tisit n yiniten
+Key Color	Ini n tsarut
+Keyframe interval	Tallunt n tugna tasarut
+knee	afud
+knife angle	tiɣmert n umus
+leak	aflaḍ
+let go	serreḥ
+lift	ssali
+light	tafat
+light angle	tiɣmert n tafat
+lightspeed	arured n tafat
+line colour	ini n yizirig
+line glow	aceɛlal n yizirig
+Live Browser	Iminig usrid
+Live Source	Aɣbalu usrid
+LOAD NEXT	SALI WIN I D-ITEDDUN
+Lower Third - subtitle	Lower Third - azwel anadday
+Lower Third - title	Lower Third - azwel
+Lower Third Subtext	Aḍris anadday Lower Third
+Lower Third Title	Azwel Lower Third
+luma displace	amuti s tafat
+luma key	tasarut n tafat
+Mask opacity	Taḍullest n tgelmust
+Mask rotation	Tuzzya n tgelmust
+Mask scale	Taskala n tgelmust
+Mask X	Tagelmust X
+Mask Y	Tagelmust Y
+material	tanga
+meantone	imesli alemmas
+Media	Allalen
+Melt	Fsi
+melt	fsi
+memory	takatut
+midtones	initen ilemmasen
+Mod depth	Talqayt n usileɣ
+Mod ratio	Assaɣ n usileɣ
+moire	tira n umseḍfer
+mono	yiwen ubadu
+MONO L	YIWEN L
+MONO R	YIWEN R
+mosaic	azelij
+motion mosh	axessar n umuti
+motion puppet	tameẓẓuɣt n umuti
+motion trails	laterat n umuti
+MSC Cue Number	Uṭṭun n cue MSC
+music & sparkle	aẓawan & aceɛlal
+NDI Key Name	Isem n tsarut NDI
+NDI Name	Isem NDI
+NDI Source Name	Isem n uɣbalu NDI
+NEXT	WIN I D-ITEDDUN
+night eyes	allen n yiḍ
+NMC Port	Tabburt NMC
+NMC Source	Aɣbalu NMC
+NMC Target	Asaḍas NMC
+NMOS Interface Name	Isem n ugrudem NMOS
+NMOS Node Port	Tabburt n tkerrist NMOS
+NMOS Registry	Asekles NMOS
+noise	aseɣru
+not connected	ur yeqqin ara
+Note	Tazmilt
+Note off	Tazmilt texsi
+Note on	Tazmilt tcɛel
+off-axis	berra i ugellus
+offline	berra n uẓeṭṭa
+orbit speed	arured n tuzzya
+OSC Address	Tansa OSC
+Output Alpha	Alpha n tuffɣa
+Output Canvas	Asayes n tuffɣa
+Output Delay	Aɛeṭṭel n tuffɣa
+output fault	tuccḍa n tuffɣa
+Output name	Isem n tuffɣa
+Output Refresh	Asmaynu n tuffɣa
+overflow	aflali
+own playlist	tabdart-is
+parade	ibuda s udiz
+parallax	amgired n tmuɣli
+Payload	Agbur
+Percent 0-100	Afmiḍi 0-100
+phone	tiliɣri
+Phrases	Tifyar
+pinch	qres
+pink noise	aseɣru awardi
+PIP Target Cue	Cue asaḍas PIP
+pitch	taɣect
+pivot	agellus
+Pixel density	Taẓẓayt n yipiksilen
+pixel sort	asmizzwer n yipiksilen
+plasma	aplazma
+Playlist Start TC	TC n tazwara n tebdart
+Playlist Timebase	Azadur n wakud n tebdart
+Plugin	Azegrir
+polar warp	asezleg aqutban
+Portal	Tawwurt
+posterise	sɣerbel initen
+Practice show	Askan n ulmad
+PREVIOUS	WIN YEZWAR
+Program change	Abeddel n wahil
+Prompter script	Aḍris n usmekti
+pulse 25%	aneggez 25%
+QUALITY	TAƔARA
+radial zoom	asimɣur agensay
+radio	aradyu
+radius	azgen n uqdiam
+ramp	tasawent
+range	azilal
+ratio	assaɣ
+Raw bytes	Iṭamḍanen imeɣren
+Raw MIDI Bytes	Iṭamḍanen MIDI imeɣren
+reach	awaḍ
+recordings	iseklas
+recovering	yettarra-d
+refresh	smaynu
+Release	Asrureḥ
+release	asrureḥ
+relief	aberriz
+relight	ales asfeṭṭi
+Rename cue	Beddel isem n cue
+Rename fixture	Beddel isem n usafag
+Renumber Cues	Ales uṭṭunen n cues
+repeat width	tehri n wallus
+Replay hold	Tuṭṭfa n wallus
+resonance	amres
+Retrigger	Ales asenker
+reverse	tti
+rgb split	abḍu rgb
+Rim	Iri
+rings	tiwnisin
+ripple	tamḍelt
+rising	yettali
+rod bias	tanila n yiɣanimen
+room	taxxamt
+rot	arekti
+Rotation	Tuzzya
+rotation	tuzzya
+round	imdewweṛ
+sag	aɣelluy
+saw	amencar
+scanlines	izirigen n usmiḍen
+scope	asnagraw
+SCOPES	ISNAGRAWEN
+second mode	asker wis sin
+see through	wali seg daxel
+seed density	taẓẓayt n zerriɛa
+self	iman-is
+settle	ers
+shadow lift	asali n tili
+shake	zelzel
+shard size	teɣzi n ucqif
+sharpen	sseḍḥu
+sheen	asfufed
+sideways	ɣer tama
+slit scan	asmiḍen n tecreḍt
+slit width	tehri n tecreḍt
+Smear	Ssemmeḍ
+smear	ssemmeḍ
+softness	talmayt
+solarise	asfeṭṭi amutti
+spike count	amḍan n yisennanen
+spike length	teɣzi n yisennanen
+spin	zzi
+spinning	yettezzi
+spring	tazeɣda
+sprite sheet	taferkit n tugniwin
+Sprite spin	Tuzzya n tugna
+square	amkuẓ
+SRT latency	Aɛeṭṭel SRT
+SRT passphrase	Tafyirt n uɛeddi SRT
+SRT stream ID	Asulay n usuddem SRT
+Step length	Teɣzi n usurif
+steps	isurifen
+stereogram	tugna talqayant
+stiffness	taqurant
+sting	imesli awezlan
+strength	tazmert
+strobe	asider n tafat
+stroke	ajerriḍ
+SUBTLE	ALEQQAQ
+sway	asergigi
+sweep	ameḍḥi
+sweep speed	arured n umeḍḥi
+swell speed	arured n lemwaji
+symbols	izamulen
+system default	amezwer n unagraw
+system output	tuffɣa n unagraw
+tape	tasfift
+tape age	taɣawsa n tesfift
+tear width	tehri n uceṛṛeg
+temporal dither	aseɣru akudan
+test signal	azmul n usekyed
+text to send	aḍris ara yettwaznen
+threshold	amnar
+throw	asruruḥ
+tile size	teɣzi n uzelij
+tilt	aknay
+time	akud
+time cube	agasas n wakud
+Timer Message	Izen n usrag
+tint	tira n yini
+tint colour	ini n tira
+tracking	aḍfar
+trail	later
+transparent	afrawan
+triangle	akraḍ
+triple beep	kraḍ n yiseɣran
+Turn	Zzi
+turn	zzi
+Twist	Zleg
+twist	zleg
+unavailable	ulac-it
+vapor	abuxar
+vector	amsegri
+vertical	ubdid
+vertical bias	tanila tubdidt
+vibrato	asergigi n ṣṣut
+Video bitrate	Aktum n uvidyu
+Video dip fade	Tifsi n uvidyu s ubrik
+vignette	abruk n yiran
+wash out	ssefsus ini
+wave height	teɣzi n lemwaji
+wavefront	udem n lemwaji
+way	tanila
+wedges	tikwesmin
+white	amellal
+white noise	aseɣru amellal
+white point	taneqqiḍt tamellalt
+wire	amrar
+Zoom	Asimɣur
+zoom	asimɣur
+(choose cue)	(fren cue)
+(missing)	(ulac)
+(no slots)	(ulac imukan)
+(set media file)	(sbadu afaylu n umidya)
+(set url)	(sbadu url)
+A number	Amḍan
+A number, or blank for none	Amḍan, neɣ ilem i wulac
+additive	arnay
+alternating	s ubeddel
+amber	aɛenbar
+Add Browser Cue	Rnu cue n yiminig
+Add NDI Source Cue	Rnu cue n uɣbalu NDI
+Add Stream Cue	Rnu cue n usuddem
+Art-Net Destination	Tiɣerwa Art-Net
+ASCII 95 (density)	ASCII 95 (taẓẓayt)
+ASCII 95 (raw)	ASCII 95 (ameɣru)
+ASIO is off	ASIO yexsi
+ATEM Input	Anekcum ATEM
+Attach Lower Third	Qqen Lower Third
+Attach PIP Overlay	Qqen tissi PIP
+AUTO	AWURMAN
+auto (59.94 Hz)	awurman (59.94 Hz)
+band curve	tazligt n tesfift
+Browser Ready	Iminig yewjed
+built without ASIO support	yettwabna war tallelt ASIO
+built without NDI SDK headers	yettwabna war iqerra NDI SDK
+Companion/OSC Port	Tabburt Companion/OSC
+could not reach github	ur yezmir ara ad yaweḍ ɣer github
+could not read the PDF	ur yezmir ara ad yeɣer PDF
+could not start ffmpeg	ur yezmir ara ad yessenker ffmpeg
+could not start the PDF renderer	ur yezmir ara ad yessenker amsuneɣ PDF
+could not write the export script	ur yezmir ara ad yaru askript n usifeḍ
+couldn't open explorer	ur yezmir ara ad yeldi explorer
+couldn't open file manager	ur yezmir ara ad yeldi amsefrak n yifuyla
+couldn't open finder	ur yezmir ara ad yeldi finder
+Cue Goto	Ddu ɣer cue
+GOTO Cue	DDU ƔER cue
+Custom Output Raster	Aferrug udmawan n tuffɣa
+DECODE --.-	ASEKKES --.-
+DECODE OFF	ASEKKES YEXSI
+DECODE WARM	ASEKKES YEḤMA
+Default Cue Fade	Tifsi tamezwert n cue
+Default Non-Movie Duration	Tanzagt tamezwert war asaru
+display native	anasli n ugdil
+Display none	Ulac agdil
+driver refused to start	anubag yugi ad yekker
+empty expression	tanfalit tilemt
+export as .png or .svg	sifeḍ s .png neɣ .svg
+ffmpeg made no file	ffmpeg ur d-yegri ula d yiwen ufaylu
+ffmpeg stopped taking frames	ffmpeg yeḥbes aṭṭaf n tugniwin
+Find Cue	Af cue
+Find+Take Cue	Af+TAKE cue
+Fire at a time of day	Senker deg usrag n wass
+Fire at incoming timecode	Senker s utangud i d-ikecmen
+Fire on a MIDI note	Senker s tezmilt MIDI
+Fire on an OSC address	Senker s tansa OSC
+First channel (1-512)	Abadu amezwaru (1-512)
+flow (follows the picture)	azḍam (yeṭṭafar tugna)
+hh:mm:ss or seconds	hh:mm:ss neɣ tisinin
+Its name, number or id	Isem-is, uṭṭun-is neɣ id
+LibreOffice could not be run	ur yezmir ara ad yeddu LibreOffice
+LibreOffice produced no PDF	LibreOffice ur d-yegri ara PDF
+macOS could not read the PDF	macOS ur yezmir ara ad yeɣer PDF
+Name visible to receivers	Isem i d-ttwalin yimazzanen
+no colour	war ini
+no driver named	ulac anubag s yisem
+no mask made	ulac tagelmust yettwarnan
+no pages could be rendered	ur tezmir ara ad tettwasuneɣ ula d yiwet n tsebter
+no release found	ulac lqem yettwafen
+not on this output	mačči deg tuffɣa-agi
+not while a cue is playing	ala mi ara yetturar cue
+nothing drawn	ulac acu yettwarun
+opened in explorer	yeldi deg explorer
+opened in file manager	yeldi deg umsefrak n yifuyla
+paste your stream key here	senṭeḍ tasarut n usuddem dagi
+pdftoppm produced no pages	pdftoppm ur d-yegri ara tisebtar
+PowerPoint could not export this file	PowerPoint ur yezmir ara ad yessifeḍ afaylu-agi
+revealed in finder	yettwaskan deg finder
+runtime unavailable	anagraw n uselkem ulac-it
+size out of range	teɣzi berra n uzilal
+Source Ready	Aɣbalu yewjed
+Spout Sender Name	Isem n umazan Spout
+Stream URL	URL n usuddem
+stream restart needed	ilaq wallus n usuddem
+stream write failed	tira n usuddem ur teddi ara
+target cue is gone	cue asaḍas ulac-it
+targets nothing	ur yessaḍas acemma
+the document has no pages	isemmli ulac tisebtar
+the file is empty	afaylu d ilem
+the header is truncated	aqerru yettwagzem
+the NDI runtime is not installed	anagraw n uselkem NDI ur yettwasbed ara
+the PDF renderer produced no pages	amsuneɣ PDF ur d-yegri ara tisebtar
+the show plays through ASIO	askan yetturar s ASIO
+URL or local page path	URL neɣ abrid n tsebter tadigant
+What it runs	Acu i yesselkam
+Which cue	Anwa cue
+window hidden	asfaylu yeffer
+window minimized	asfaylu yettwasemẓi
+wrong display	agdil mačči d winna
+0-1 (supports + - * / and ())	0-1 (yesɛa + - * / akked ())
+0-100% (supports + - * / and ())	0-100% (yesɛa + - * / akked ())
+%, 1 to 100 (supports + - * / and ())	%, seg 1 ar 100 (yesɛa + - * / akked ())
+Amount 0-100% (supports + - * / and ())	Tasmekta 0-100% (yesɛa + - * / akked ())
+Degrees -180..180 (supports + - * / and ())	Tifesniyin -180..180 (yesɛa + - * / akked ())
+Degrees, -360 to 360 (supports + - * / and ())	Tifesniyin, seg -360 ar 360 (yesɛa + - * / akked ())
+Degrees, 0-360 (supports + - * / and ())	Tifesniyin, 0-360 (yesɛa + - * / akked ())
+Pixels (supports + - * / and ())	Ipiksilen (yesɛa + - * / akked ())
+Hertz, 20-20000 (supports + - * / and ())	Hertz, 20-20000 (yesɛa + - * / akked ())
+Colour steps, 2-8 (supports + - * / and ())	Isurifen n yini, 2-8 (yesɛa + - * / akked ())
+Frames a second, 1 to 60 (supports + - * / and ())	Tugniwin i tasint, seg 1 ar 60 (yesɛa + - * / akked ())
+Seconds (0-30)	Tisinin (0-30)
+Milliseconds 0-5000	Militasinin 0-5000
+milliseconds (40..2000)	militasinin (40..2000)
+Universe (0-63999)	Amaḍal (0-63999)
+X,Y offset in pixels	Amuti X,Y s yipiksilen
+a name for this step	isem i tseddart-a
+a playlist that is gone	tabdart n t?uri yettwakksen
+across the grain	s te?zi mgal i?uran
+add an output to scope it	rnu tuff?a akken ad tt-tesnime?
+an ASIO stream is already open	yeldi yakan usuddem ASIO
+another app is holding the pointer	asnas nni?en ye??ef aneqqa?
+channel count must be at least 1	ilaq ad yili u??un n yibuda d 1 ne? ugar
+comma outside a function call	tafrayt berra n usiwel n twuri
+driver reports no output channels	ame??a?ay yenna ulac ibuda n tuff?a
+escaped to windowed	yu?al ?er uskar n usfaylu
+fullscreen dropped	yeffe? seg ugdil a??uran
+How big each tile is.	Te?zi n yal ta?nacit.
+How closely spaced the rings are.	Amek mqaraben yizergan.
+How far a band can slide.	Ac?al yezmer uzag ad yezle?.
+How far out the darkening starts.	Anda tebda tissin n ??lam seg tlemmast.
+How far the glow spreads.	Ac?al yettwa??ay usfaw.
+How fast the surface moves.	Arured n umussu n tjumma.
+How fast they travel outward.	Arured n umussu-nsen ?er berra.
+How hard the short hits.	Tazmert n uneggez n umezruy.
+How many torn bands per frame.	Ac?al n yizagan yettwa?er?en deg ukatar.
+How much the edges are lifted.	Ac?al ttwasalayen yiran.
+How often it skips.	Ac?al n tikkal yettneggez.
+it could not be started	ur yezmir ara ad yebdu
+libX11 is not installed	libX11 ur yettwasbedd ara
+lost the session bus	iru? u?ris n t?imit
+no ASIO in this build	ulac ASIO deg lqem-a
+no X display to read	ulac agdil X ara d-ne??
+not a MIDI file (no MThd header)	ma??i d afaylu MIDI (ulac aqerru MThd)
+offset in percent of the picture	azag s watmideg n tugna
+only a background in it	ala agilal deg-s
+Paste the key from your platform	sen?e? tasarut seg t?er?ert-ik
+pixels (of the output raster)	ipiksilen (n u?e??a n tuff?a)
+Routing hint for the receiver	tamalit n ubrid i unemmas
+Save Warp Preset	Sekles a?anib n ussewwe?
+Sender source name	Isem n u?balu n umazan
+SOURCE CAMERA: name the device	SOURCE CAMERA: efk isem n yibenk
+Switcher IP address	Tansa IP n usenfal
+SYPHON / SPOUT TEXTURE SHARE	BE??U N TE?RI SYPHON / SPOUT
+SYPHON TEXTURE SHARE	BE??U N TE?RI SYPHON
+the desktop portal did not answer	tawwurt n tnarit ur d-terri ara
+the file has no playable events	afaylu ur yes?i ara tidyanin ara yettwa?ren
+the screen could not be read there	ur nezmir ara ad ne?? agdil din
+the time division is not readable	abe??u n wakud ur yettwa?ra ara
+this build has no X11 support	lqem-a ur isefrak ara X11
+UDP port for transport sync	Tawwurt UDP i umtawi n usiwe?
+unbalanced )	) ur yes?i ara amsasa
+web audio encoder cannot keep up	asnuga n umeslaw web ur izmir ara ad ye?fer
+Where the filter sits.	Anda yella umsizdeg.
+Which way it drips.	Ani?er i ireggel.
+AUDIOALSO: expected ADD <name>, REMOVE <name> or CLEAR	AUDIOALSO: yett?a??u ADD <name>, REMOVE <name> ne? CLEAR
+BROWSER KEY: expected Enter|Tab|Backspace|Escape	BROWSER KEY: yett?a??u Enter|Tab|Backspace|Escape
+BUGSWAT: expected START, SHOWME, SKIP, PLAY, EXIT or STATUS	BUGSWAT: yett?a??u START, SHOWME, SKIP, PLAY, EXIT ne? STATUS
+CAPTIONS LIVE: expected ON, OFF, STATUS or TEXT	CAPTIONS LIVE: yett?a??u ON, OFF, STATUS ne? TEXT
+CAPTIONS SOURCE: expected INPUT, DECK <n> or OUTPUT <n>	CAPTIONS SOURCE: yett?a??u INPUT, DECK <n> ne? OUTPUT <n>
+DMXCUE: expected NEW, SET, FADE, UNIVERSE, HOST, PORT, FIRE or BLACKOUT	DMXCUE: yett?a??u NEW, SET, FADE, UNIVERSE, HOST, PORT, FIRE ne? BLACKOUT
+ENDACTION: expected INHERIT, STOP, LOOP, HOLD or NEXT	ENDACTION: yett?a??u INHERIT, STOP, LOOP, HOLD ne? NEXT
+FADE CURVE: expected linear, ease-in, ease-out or s-curve	FADE CURVE: yett?a??u linear, ease-in, ease-out ne? s-curve
+LOWERSTYLE: expected none, fade, rise, slide, wipe or NEXT	LOWERSTYLE: yett?a??u none, fade, rise, slide, wipe ne? NEXT
+MASK ASSIGN: expected CUE, LAYER, OUTPUT or MATTE	MASK ASSIGN: yett?a??u CUE, LAYER, OUTPUT ne? MATTE
+MASK EXPORT: expected <id> <file.png|file.svg> [WxH]	MASK EXPORT: yett?a??u <id> <file.png|file.svg> [WxH]
+MATRIX SET: expected <source 1-2> <dest> <0-100>	MATRIX SET: yett?a??u <source 1-2> <dest> <0-100>
+MATRIX: expected SET <src> <dest> <0-100>, SEED or CLEAR	MATRIX: yett?a??u SET <src> <dest> <0-100>, SEED ne? CLEAR
+MESH: expected on|off|toggle|height|tilt|yaw|spin|grid	MESH: yett?a??u on|off|toggle|height|tilt|yaw|spin|grid
+MIC: expected ADD, LIST, INPUT, CHANNEL or GAIN	MIC: yett?a??u ADD, LIST, INPUT, CHANNEL ne? GAIN
+MIDICUE KIND: expected note-on, note-off, cc, program, msc-go, msc-stop, msc-resume or raw	MIDICUE KIND: yett?a??u note-on, note-off, cc, program, msc-go, msc-stop, msc-resume ne? raw
+MIDICUE: expected NEW, PORTS, PORT, KIND, CH, D1, D2, DEVICE, CUENUM, LIST, RAW or SEND	MIDICUE: yett?a??u NEW, PORTS, PORT, KIND, CH, D1, D2, DEVICE, CUENUM, LIST, RAW ne? SEND
+MULTIVIEW LAYOUT: expected GRID, BIG, BIGTOP or TWOTOP	MULTIVIEW LAYOUT: yett?a??u GRID, BIG, BIGTOP ne? TWOTOP
+MULTIVIEW WINDOW: expected PROGRAMME, DECK<n>, OUTPUT<n>, NEXT, CLOCK or EMPTY	MULTIVIEW WINDOW: yett?a??u PROGRAMME, DECK<n>, OUTPUT<n>, NEXT, CLOCK ne? EMPTY
+NETCUE: expected NEW, PROTO, HOST, PORT, ADDRESS, PAYLOAD or SEND	NETCUE: yett?a??u NEW, PROTO, HOST, PORT, ADDRESS, PAYLOAD ne? SEND
+OUTPROBE: expected <output> <x 0-1> <y 0-1>	OUTPROBE: yett?a??u <output> <x 0-1> <y 0-1>
+OUTPUT HDR: expected ON, OFF, AUTO, SIGNAL PQ|HLG, WHITE <nits> or STATUS	OUTPUT HDR: yett?a??u ON, OFF, AUTO, SIGNAL PQ|HLG, WHITE <nits> ne? STATUS
+OUTPUTFX ADD: expected hpf, lpf, tilt, comp or width	OUTPUTFX ADD: yett?a??u hpf, lpf, tilt, comp ne? width
+OUTPUTFX: expected ADD, SET, REMOVE, BYPASS, CLEAR or DEVICE	OUTPUTFX: yett?a??u ADD, SET, REMOVE, BYPASS, CLEAR ne? DEVICE
+OUTPUTS ADD: expected <name> CH <n> or CH <n>-<n+1>	OUTPUTS ADD: yett?a??u <name> CH <n> ne? CH <n>-<n+1>
+PATCH: expected <deck> <output> <dB> or OFF	PATCH: yett?a??u <deck> <output> <dB> ne? OFF
+PRESET: expected LIST, SAVE, RECALL, UPDATE, SCOPE, RENAME or DELETE	PRESET: yett?a??u LIST, SAVE, RECALL, UPDATE, SCOPE, RENAME ne? DELETE
+SCALEMODE: expected fit|fill|stretch|unscaled	SCALEMODE: yett?a??u fit|fill|stretch|unscaled
+SCOPES BIG: expected waveform, parade, vector, diamond, histogram, falsecolour, sound or off	SCOPES BIG: yett?a??u waveform, parade, vector, diamond, histogram, falsecolour, sound ne? off
+SCOPES: expected PROGRAM, SCOPES, BOTH, TOGGLE, BIG, FREEZE, MATRIX, SOURCE, STATS or SOUND	SCOPES: yett?a??u PROGRAM, SCOPES, BOTH, TOGGLE, BIG, FREEZE, MATRIX, SOURCE, STATS ne? SOUND
+SECTION: expected playback|metadata|geometry|key|audio|effects|timer|tone|synth	SECTION: yett?a??u playback|metadata|geometry|key|audio|effects|timer|tone|synth
+STING: expected ON, PITCH, LENGTH, SWEEP or BODY	STING: yett?a??u ON, PITCH, LENGTH, SWEEP ne? BODY
+TARGET VERB: expected start|stop|pause|resume|load|arm|disarm	TARGET VERB: yett?a??u start|stop|pause|resume|load|arm|disarm
+TEXTCUE ALIGN: expected left, centre or right	TEXTCUE ALIGN: yett?a??u left, centre ne? right
+TEXTCUE ANIM: expected none, fade, typewriter, scroll, crawl, pulse or wobble	TEXTCUE ANIM: yett?a??u none, fade, typewriter, scroll, crawl, pulse ne? wobble
+TEXTCUE: expected NEW, BODY, ANIM, SIZE, SPEED, ALIGN, CARD, LOWERNEW, LOWER, TITLE, SUB, LOOK, BAR, ACCENT, SCALE, WIGGLE, IN, OUTMOVE or OUT	TEXTCUE: yett?a??u NEW, BODY, ANIM, SIZE, SPEED, ALIGN, CARD, LOWERNEW, LOWER, TITLE, SUB, LOOK, BAR, ACCENT, SCALE, WIGGLE, IN, OUTMOVE ne? OUT
+TUTORIAL: expected START, SHOWME, SKIP, EXIT, STATUS or SCREENS	TUTORIAL: yett?a??u START, SHOWME, SKIP, EXIT, STATUS ne? SCREENS
+UPDATE: expected check|download|install|status	UPDATE: yett?a??u check|download|install|status
+VJ: expected ON|OFF|TOGGLE|MIX <0-1>|BLEND <mode>|TAP|BPM <n>|CLOCK <on|off>|QUANTISE <on|off>|DECKS <a> <b>|STATUS	VJ: yett?a??u ON|OFF|TOGGLE|MIX <0-1>|BLEND <mode>|TAP|BPM <n>|CLOCK <on|off>|QUANTISE <on|off>|DECKS <a> <b>|STATUS
+% of the picture's height, 0.1 to 20 (supports + - * / and ())	% n te?zi n tugna, 0.1 ar 20 (isefrak + - * / d ())
+-3 to 3: 0 holds, negative runs backwards (supports + - * / and ())	-3 ar 3: 0 ye?bes, u??un ibaw yeddu ?er deffir (isefrak + - * / d ())
+0-100%, left to right (supports + - * / and ())	0-100%, seg uzelma? ?er uyeffus (isefrak + - * / d ())
+0-100%, top to bottom (supports + - * / and ())	0-100%, seg ufella ?er wadda (isefrak + - * / d ())
+0-100%: 0 holds the field still (supports + - * / and ())	0-100%: 0 ye??ef igr ur yett?errik ara (isefrak + - * / d ())
+0-100%: 50 is 1x, 0 a quarter, 100 four times (supports + - * / and ())	0-100%: 50 d 1x, 0 d afus, 100 d ku? n tikkal (isefrak + - * / d ())
+0-100%: how far the field bends (supports + - * / and ())	0-100%: ac?al yettwa?wej yigr (isefrak + - * / d ())
+Across, % of the width, -100 to 100 (supports + - * / and ())	S tehri, % n tehri, -100 ar 100 (isefrak + - * / d ())
+Birth, drift and fade rate, 0.1-3 (supports + - * / and ())	Arured n tlalit, asle? d ufsay, 0.1-3 (isefrak + - * / d ())
+Block displacement and channel tearing, 0-1 (supports + - * / and ())	Asmussu n yi?edran d ucerre? n yibuda, 0-1 (isefrak + - * / d ())
+dBFS, -60 to 0 (-18 is EBU alignment) (supports + - * / and ())	dBFS, -60 ar 0 (-18 d amsasa EBU) (isefrak + - * / d ())
+Down, % of the height, -100 to 100 (supports + - * / and ())	D akessar, % n te?zi, -100 ar 100 (isefrak + - * / d ())
+Edge out (+) or in (-), % of the height, -25 to 25 (supports + - * / and ())	Iri ?er berra (+) ne? daxel (-), % n te?zi, -25 ar 25 (isefrak + - * / d ())
+Edge softness, % of the height, 0 to 25 (supports + - * / and ())	Talwi n yiri, % n te?zi, 0 ar 25 (isefrak + - * / d ())
+FDS hardware gain range, 0-63 (supports + - * / and ())	Azilal n usnerni n warrum FDS, 0-63 (isefrak + - * / d ())
+Feature size, 0.1-8 (supports + - * / and ())	Te?zi n tal?a, 0.1-8 (isefrak + - * / d ())
+Horizontal cells, 64-960 (supports + - * / and ())	Tixxamin s tehri, 64-960 (isefrak + - * / d ())
+How big a blob grows, 0-1 (supports + - * / and ())	Ac?al tetti??i t?eqqayt, 0-1 (isefrak + - * / d ())
+How hard it cuts, %, 0 to 100 (supports + - * / and ())	Ac?al yeqqes weq?a?, %, 0 ar 100 (isefrak + - * / d ())
+How hard the audio drives it, 0-1 (supports + - * / and ())	Ac?al t-id-yettawi umeslaw, 0-1 (isefrak + - * / d ())
+How many are alive at once, 3-48 (supports + - * / and ())	Ac?al i yeddren s yiwet n tikkelt, 3-48 (isefrak + - * / d ())
+How much of each frame feeds the next, 0-0.95 (supports + - * / and ())	Ac?al n yal akatar i d-yettaken i win i d-iteddun, 0-0.95 (isefrak + - * / d ())
+How readily neighbours merge, 0 (never) to 1 (supports + - * / and ())	Amek ara mlilen imja?en, 0 (wer?in) ar 1 (isefrak + - * / d ())
+Internal resolution, 1 (chunky) to 5 (fine) (supports + - * / and ())	Tabadut tagensant, 1 (tahrawant) ar 5 (taleqqaqt) (isefrak + - * / d ())
+Master oscillator rate, 0.01-8 (supports + - * / and ())	Arured n ussemhazz agejdan, 0.01-8 (isefrak + - * / d ())
+Modulator as a ratio of the note, 0.05-16 (supports + - * / and ())	Amlellay s waddad n tezlit, 0.05-16 (isefrak + - * / d ())
+One LED tile's height in pixels, 8-8192 (supports + - * / and ())	Te?zi n yiwet n te?nacit LED s yipiksilen, 8-8192 (isefrak + - * / d ())
+One LED tile's width in pixels, 8-8192 (supports + - * / and ())	Tehri n yiwet n te?nacit LED s yipiksilen, 8-8192 (isefrak + - * / d ())
+Palette turn, 0-1 (supports + - * / and ())	Tuzzya n tpali?t, 0-1 (isefrak + - * / d ())
+Per-frame zoom of the feedback path, 0.90-1.15 (supports + - * / and ())	Asim?ur n ubrid n u?al deg yal akatar, 0.90-1.15 (isefrak + - * / d ())
+Pitch in hertz, 20-8000 (supports + - * / and ())	Ta?ect s hertz, 20-8000 (isefrak + - * / d ())
+Pixel sort amount, 0-1 (supports + - * / and ())	Am?an n usmizzwer n yipiksilen, 0-1 (isefrak + - * / d ())
+Scale of the whole graphic, 0.5-2 (supports + - * / and ())	Taskala n wunu? akk, 0.5-2 (isefrak + - * / d ())
+Size, %, 5 to 400 (supports + - * / and ())	Te?zi, %, 5 ar 400 (isefrak + - * / d ())
+Spiral size, 0.25-4 (supports + - * / and ())	Te?zi n tgejdurt, 0.25-4 (isefrak + - * / d ())
+Spiral strength, 0-4 (supports + - * / and ())	Tazmert n tgejdurt, 0-4 (isefrak + - * / d ())
+Thickness of the glowing edge, 0-1 (supports + - * / and ())	Tuzert n yiri yettfe??i?en, 0-1 (isefrak + - * / d ())
+0-127; 127 is all-call	0-127; 127 d asiwel i me??a
+0-127; the domain the facility's clock runs on	0-127; ta?ult n usrag n us?ar
+10-79 characters, or empty for none	10-79 n yisekkilen, ne? d ilem i wulac
+8 zones already: click one to remove it first	8 n temna?in yakan: sit ?ef yiwet akken ad tt-tekkse? qbel
+8+ characters; letters and symbols are allowed	8+ n yisekkilen; isekkilen d yizamulen ttwaqeblen
+A command line, or blank for nothing	Izirig n tladna, ne? d ilem i wulac
+a step cannot fire the playlist it lives on	taseddart ur tezmir ara ad tessenkker tabdart ideg tella
+a target cannot target another target	asa?as ur yezmir ara ad yessewwe? ?er usa?as nni?en
+an IPv4 address, or 255.255.255.255 to broadcast	tansa IPv4, ne? 255.255.255.255 i uzuzer
+AUDIOALSO ADD: seven extra destinations is the limit	AUDIOALSO ADD: seb?a n t?erwa timernanin d talast
+AUDIOFX PLUGIN: this build has no plugin host	AUDIOFX PLUGIN: lqem-a ur yes?i ara asnefta? n isi?zaf
+BROWSER CLICK: this browser backend cannot drive the page	BROWSER CLICK: amsedday-a n yiminig ur yezmir ara ad isneddu asebter
+BROWSER INTERACT: this browser backend has no hands-on mode	BROWSER INTERACT: amsedday-a n yiminig ur yes?i ara askar amsamyag
+BROWSER SCROLL: expected pixels (negative is up)	BROWSER SCROLL: yett?a??u ipiksilen (ibaw d asawen)
+BROWSER TYPE: this browser backend cannot type	BROWSER TYPE: amsedday-a n yiminig ur yezmir ara ad yaru
+cancelled: the waiting cue is no longer in the playlist	yettwasefsex: taneccabt yettra??un ur telli ara deg tebdart n t?uri
+could not create an OpenGL context for Spout receive	ur nezmir ara ad d-nesnulfu asatal OpenGL i urmas Spout
+could not create the offscreen window Spout receive needs	ur nezmir ara ad d-nesnulfu asfaylu berra n ugdil i urmas Spout
+could not get a device context for Spout receive	ur nezmir ara ad d-nawi asatal n yibenk i urmas Spout
+driver would not create output buffers	ame??a?ay ur d-yesnulfa ara tiktin n tuff?a
+driver would not load (in use by another application?)	ame??a?ay ur d-yuli ara (asnas nni?en isseqdac-it?)
+driver would not report a buffer size	ame??a?ay ur d-yefki ara te?zi n tkatut
+driver would not report channel info	ame??a?ay ur d-yefki ara tal?ut n ubadu
+fetching the speech model - captions start when it arrives	asader n tmudemt n umeslay - iduzwilen ad bdun mi d-tewwe?
+four effects at most on one device: remove one first	ku? n isemda d afellay deg yiwen n yibenk: kkes yiwen qbel
+FX ADD: datamosh needs a file-backed video cue	FX ADD: datamosh yesra taneccabt n uvidyu seg ufaylu
+group presets became master cues: use MASTER	i?aniben n ugraw u?alen d tineccabin tigejdanin: seqdec MASTER
+live captions are not installed here (deckboy-listen was not found)	iduzwilen usligen ur ttwasbedden ara dagi (deckboy-listen ur yettwaf ara)
+Lower Third added - put its playlist on a layer	Lower Third yettwarna - err tabdart-is n t?uri ?ef tissi
+make a step first: a section starts at a step	snulfu taseddart qbel: amur yebda deg tseddart
+MASK PATH: a path needs at least three points	MASK PATH: abrid yesra xer?um kra? n tneqqi?in
+MATRIX SET: level is a percent from 0 to 100	MATRIX SET: aswir d atmideg seg 0 ar 100
+MIDIMAP: that command is only accepted from this computer	MIDIMAP: taladna-a tettwaqbel kan seg uselkim-a
+MOTION ZONE ADD: the zone must fit inside the picture	MOTION ZONE ADD: tamna?t ilaq ad tili daxel n tugna
+NETCUE ADDRESS: an OSC address must start with /	NETCUE ADDRESS: tansa OSC ilaq ad tebdu s /
+release has no build for this platform	lqem-a ur yes?i ara asbadu i t?er?ert-a
+SLICE ADD: already 16 slices on this output	SLICE ADD: 16 n yi?ricen yakan deg tuff?a-a
+still reading the last folder -- one at a time	mazal ta?uri n ukaram aneggaru -- yiwen s yiwen
+SUBTITLE CONVERT: destination must be .srt or .vtt	SUBTITLE CONVERT: asa?as ilaq ad yili .srt ne? .vtt
+SUBTITLE CONVERT: the cue has no caption file	SUBTITLE CONVERT: taneccabt ur tes?i ara afaylu n yiduzwilen
+the caption model has not been downloaded yet	tamudemt n yiduzwilen ur d-ters ara yakan
+the playing step was removed - sequence stopped	taseddart yetteddun tettwakkes - amse?fer ye?bes
+this cue has no known end to resolve into	taneccabt-a ur tes?i ara taggara yettwassnen i wakken ad tfak
+this output's renderer could not cut the mask	amsafar n tuff?a-a ur yezmir ara ad yeq?e? tagelmust
+TRACKER: there are no steps (TRACKER ADD makes one)	TRACKER: ulac tiseddarin (TRACKER ADD yesnulfu yiwet)
+unsaved changes will be lost: press new again	ibeddilen ur nettwasekles ara ad ru?en: sit ?ef amaynut tikkelt nni?en
+update: could not start the install helper	aleqqem: ur nezmir ara ad nessenker amalal n usebded
+update: could not start the installer	aleqqem: ur nezmir ara ad nessenker asebdad
+update: could not write the install helper	aleqqem: ur nezmir ara ad naru amalal n usebded
+update: not running from an AppImage	aleqqem: ur itteddu ara seg AppImage
+WEBMONITOR SOURCE: could not create the web output	WEBMONITOR SOURCE: ur nezmir ara ad d-nesnulfu tuff?a web
+zones cleared: Motion reads the whole picture	timna?in ttwasfe?ent: Amussu ye??ar tugna me??a
+BROWSER SCROLL: this browser backend cannot drive the page	BROWSER SCROLL: amsedday-a n yiminig ur yezmir ara ad isneddu asebter
+BROWSER SCROLLBAR: this browser backend cannot drive the page	BROWSER SCROLLBAR: amsedday-a n yiminig ur yezmir ara ad isneddu asebter
+Seconds, 0-4 (supports + - * / and ())	Tasinin, 0-4 (isefrak + - * / d ())
+Seconds, 0-8 (supports + - * / and ())	Tasinin, 0-8 (isefrak + - * / d ())
+Seconds between retriggers, 0-8 (supports + - * / and ())	Tasinin gar sin n usenker, 0-8 (isefrak + - * / d ())
+Seconds the finished drawing stays, 0 to 60 (supports + - * / and ())	Tasinin i yeqqim wunu? ifukken, 0 ar 60 (isefrak + - * / d ())
+Seconds the in move takes, 0-5 (supports + - * / and ())	Tasinin n umussu n unekcum, 0-5 (isefrak + - * / d ())
+Seconds the out move takes, 0-5 (supports + - * / and ())	Tasinin n umussu n tuff?a, 0-5 (isefrak + - * / d ())
+Seconds before it leaves by itself; 0 waits for OUT (supports + - * / and ())	Tasinin send ad yeffe? iman-is; 0 yettra??u OUT (isefrak + - * / d ())
+Pixels, 64-2160 (supports + - * / and ())	Ipiksilen, 64-2160 (isefrak + - * / d ())
+Pixels, 64-3840 (supports + - * / and ())	Ipiksilen, 64-3840 (isefrak + - * / d ())
+Space under it, as a fraction of the frame, 0-0.8 (supports + - * / and ())	Tallunt ddaw-s s u?ric n ukatar, 0-0.8 (isefrak + - * / d ())
+Where the eye sits, 0 left to 1 right (supports + - * / and ())	Anda tella ti?, 0 azelma? ar 1 ayeffus (isefrak + - * / d ())
+Where the eye sits, 0 top to 1 bottom (supports + - * / and ())	Anda tella ti?, 0 afella ar 1 adda (isefrak + - * / d ())
+Turbulence, 0 still to 3 boiling (supports + - * / and ())	Axerbuc, 0 d arsayan ar 3 yett?elli (isefrak + - * / d ())
+Turns the rim's colours round the wheel, 0-1 (supports + - * / and ())	Yessuzur initen n yiri ?ef rru?a, 0-1 (isefrak + - * / d ())
+port number (default 5510)	u??un n tewwurt (amezwer 5510)
+port number (default 5511)	u??un n tewwurt (amezwer 5511)
+port number (default 6454)	u??un n tewwurt (amezwer 6454)
+port number (default 8090)	u??un n tewwurt (amezwer 8090)
+port number (vMix uses 8088)	u??un n tewwurt (vMix iseqdac 8088)
+port number (vMix uses 8099)	u??un n tewwurt (vMix iseqdac 8099)
+e.g. /cue/1/start	amedya /cue/1/start
+e.g. 12.5	amedya 12.5
+e.g. 192.168.1.50	amedya 192.168.1.50
+e.g. 1=255, 10-14=64	amedya 1=255, 10-14=64
+e.g. 90 3C 7F	amedya 90 3C 7F
+A dark line between the tiles, like grout or an LED wall.	Izirig aberkan gar te?nacin, am l?ir ne? a?rab LED.
+Above halfway, a hard cut in the picture resets the loop to clean.	Nnig uzgen, aq?a? aquran deg tugna yessizdig tawen?a.
+Above halfway, the repeated piece plays backwards.	Nnig uzgen, a?ric yettu?alen yettu?al ?er deffir.
+Darkens the boundaries where crystals meet.	Yessiberik tilisa anda mlalen yibla?en.
+Fine sensor noise at the bottom, chunky film at the top.	Ddaw d asxerxec aleqqaq n uma??af, nnig d irden ihrawanen n ssinima.
+From an even blur to a streak along the angle, like movement.	Seg usem?i anemsasa ?er uzag ?ef te?mert, am umussu.
+Grain size: one pixel at the left, big blocky grains at the right.	Te?zi n yirden: yiwen n upiksil ?er uzelma?, irden ihrawanen ?er uyeffus.
+Grows or shrinks the echo each pass. Centre holds still.	Yessim?ur ne? yessim?i a?awan deg yal u?eddi. Tlemmast te??ef.
+How big the crystals grow before they meet.	Ac?al yim?uren yibla?en send ad mlilen.
+How big the room is. Small is a booth, large is a hall.	Te?zi n texxamt. Tame??yant d takabint, tameqqrant d anermis.
+How big the shards are. Small is frosted glass, large is a dropped plate.	Te?zi n yi?ricen. Ime??yanen am zz?a? usmid, imeqqranen am ??ebsi ye?lin.
+How dark the dark lines go. All the way up is black between lines.	Ac?al berriken yizirigen iberkanen. Afellay d aberkan gar yizirigen.
+How far each shard slides from where it belongs.	Ac?al yezle? yal a?ric seg wadeg-is.
+How far each stroke is dragged along the grain.	Ac?al yettwajbed yal a?erre? ?ef yirden.
+How far it smears: up to a few percent of the picture.	Ac?al yettwa??ay: ar kra n watmideg n tugna.
+How far the bright parts pull away from the surface.	Ac?al ttaba?aden yi?ricen ifawen ?ef tjumma.
+How far the sound throws each line sideways.	Ac?al yett?eggi umeslaw yal izirig ?er yidis.
+How far the two eyes disagree. Brightness is read as nearness.	Ac?al mxalafent snat n wallen. Tafat tettwa?ra am uqerreb.
+How fast it closes. Slow enough not to chop the ends off words.	Arured n umdal-is. S le?qel akken ur ttwaq?a?en ara yifyar n wawalen.
+How fast the drips run. At the left the picture only sags.	Arured n yiqet?u?en. ?er uzelma? tugna tett?u? kan.
+How fast the light walks around it. Zero holds it still.	Arured n tafat i d-ittezzi fell-as. Ilem ye??ef-itt.
+How fast the sand travels to the still lines.	Arured n rmel ?er yizirigen ur nett?errik ara.
+How gradually the key cuts in. Hard at the left.	Amek ad yebdu uq?a? n tsarut. Aquran ?er uzelma?.
+How hard it is driven into its own limits.	Ac?al yettwadegger ?er tilisa-s.
+How long a short stays closed, in VIDEO FRAMES.	Ac?al yett?imi umezruy yemedlen, s YIKATAREN N UVIDYU.
+How many shades survive the quantise.	Ac?al n yiswiren n yini i d-yeqqimen deffir uq?a?.
+How many spikes the field breaks into.	Ac?al n yixfawen i?ef yettbe??a yigr.
+How many times a skip repeats before the sound catches up again.	Ac?al n tikkal i d-yettu?al uneggez send ad d-ye?fer umeslaw.
+How much each shard turns on its own centre.	Ac?al yettuzzi yal a?ric ?ef tlemmast-is.
+How much of the push goes downward rather than sideways.	Ac?al n udegger i?u?en d akessar deg umkan n yidis.
+How much the flame gutters frame to frame.	Ac?al tettneggiz tmes seg ukatar ?er waye?.
+How quickly the loop relaxes when nothing feeds it.	Ac?al s zzerb i tettraxa twen?a mi ulac i tt-yett?eddin.
+How strongly the outlines are drawn.	Ac?al d i?ehden yizirigen n berra.
+How strongly the water bends the picture.	Ac?al i t?eww?en waman tugna.
+How wide a band of colours either side of it changes too.	Tehri n uzag n yiniten ?er yal idis i yettbeddilen ula d netta.
+Lifts the dark tones without moving pure black.	Yessalay initen imellalen n ??lam war ma ibeddel aberkan amsari.
+Pushes the rings in or out of the centre.	Yettdeggir izergan ?er daxel ne? berra n tlemmast.
+Rounds the tiles off, all the way to dots.	Yessizwer ti?nacin armi u?alent d tineqqi?in.
+Softens the fold so it ramps instead of creasing.	Yessilwi a?erref akken ad yali s le?qel deg umkan n tceqqirt.
+Sorts the runs the other way, so they pour from light to dark.	Yessismizzwer izagan s t?ara nni?en, seg tafat ?er ??lam.
+The bright net the waves focus onto the picture.	A?e??a afawan i d-ttjem?en yemwajen ?ef tugna.
+The brightness that decides black from white.	Tafawit i yeb?an aberkan d umellal.
+The colour to change, round the wheel from red.	Ini ara yettwabeddlen, ?ef rru?a seg uzegga?.
+Turns the echo each pass, which winds the melt into a spiral.	Yessuzur a?awan deg yal u?eddi, ayen yettarran asmelti d tagejdurt.
+OUTPUT --.-	TUFF?A --.-
+OUTPUT WARM	TUFF?A TETTWAHEGGI
+STREAM --.-	ASUDDEM --.-
+STREAM ERR	ASUDDEM TUCC?A
+STREAM OFF	ASUDDEM INSA
+STREAM WARM	ASUDDEM YETTWAHEGGI
+In time	Akud n unekcum
+Out time	Akud n tuff?a
+OSC Feedback Mirror Rate	Arured n usen?el n u?al OSC
+OSC Query HTTP Port	Tawwurt HTTP n OSC Query
+Key sender source name	Isem n u?balu n umazan n tsarut
+ST 2110 Destination	Asa?as ST 2110
+ST 2110 network interface	Agrudem n u?e??a ST 2110
+ST 2110 Port	Tawwurt ST 2110
+vMix HTTP Port	Tawwurt HTTP n vMix
+vMix TCP Port	Tawwurt TCP n vMix
+Web Monitor Connections	Tuqqniwin n ugdil web
+Web Monitor PIN	Tangalt PIN n ugdil web
+Web Monitor Port	Tawwurt n ugdil web
+Legacy Cue Link	Ase?wen aqbur n tneccabt
+Fireside	?er tmes
+hue turn	tuzzya n yini
+ferrofluid	aman imagna?isen
+dye advect	asuddem n yini
+edge ignite	asre? n yiri
+feedback bloom	afsay n u?al
+reaction bloom	afsay n tririt
+pythagorean	n Pythagore
+purkinje	n Purkinje
+schlieren	izirigen n usen?el
+audioprint	asiggez n umeslaw
+e.g. 20:0 or client name	amedya 20:0 ne? isem n umsa?
+Hz or AUTO (e.g. 60 or 59.94)	Hz ne? AUTO (amedya 60 ne? 59.94)
+kbps (32-512; 160 is a sane default)	kbps (32-512; 160 d amezwer iwulmen)
+Multicast group (e.g. 239.20.10.1)	Agraw Multicast (amedya 239.20.10.1)
+Prefix (optional). Example: Q	Azwir (d afrayan). Amedya: Q
+Prefix and optional start (example: Q 100)	Azwir d tazwara tafrayant (amedya: Q 100)
+WIDTHxHEIGHT (e.g. 2560x1080)	TEHRIxTE?ZI (amedya 2560x1080)
+WIDTHxHEIGHT (e.g. 5760x2160)	TEHRIxTE?ZI (amedya 5760x2160)
+position on the output raster, in pixels	adeg deg u?e??a n tuff?a, s yipiksilen
+seconds (1-10; most platforms want 2)	tasinin (1-10; tuget n t?er?ar sran 2)
+seconds this step holds before PLAY moves on	tasinin n we?bas n tseddart-a send PLAY ad ikemmel
+Leave empty to follow the live cue notes	E?? d ilem akken ad ye?fer tizmilin n tneccabt tusligt
+Target IP (or 255.255.255.255 to broadcast)	IP n usa?as (ne? 255.255.255.255 i uzuzer)
+MIDIFILE: the selected cue is not a midi file cue	MIDIFILE: taneccabt yettwafernen ma??i n ufaylu MIDI
+NETCUE: the selected cue is not a network cue	NETCUE: taneccabt yettwafernen ma??i n u?e??a
+SCRIPTCUE: the selected cue is not a script cue	SCRIPTCUE: taneccabt yettwafernen ma??i n uskript
+SYNTH: the selected cue is not a video synth	SYNTH: taneccabt yettwafernen ma??i n usentay n uvidyu
+TCCUE: the selected cue is not a timecode cue	TCCUE: taneccabt yettwafernen ma??i n tengalt n wakud
+TEXTCUE: the selected cue is not a text cue	TEXTCUE: taneccabt yettwafernen ma??i n u?ris
+Cue name (blank restores the file name)	Isem n tneccabt (ilem yerr-d isem n ufaylu)
+ASCII HOLD: seconds, 0-60 (0 mutes the phrases)	ASCII HOLD: tasinin, 0-60 (0 yessusum tifyar)
+AUDIOFX: expected OFF, BYPASS, or amount and parameters as percentages	AUDIOFX: yett?a??u OFF, BYPASS, ne? am?an d yi?ewwaren s watmideg
+CHIP ENV: expected <attack> <release> in seconds	CHIP ENV: yett?a??u <attack> <release> s tsinin
+DECKLINK: no DeckLink driver on this computer (Blackmagic Desktop Video)	DECKLINK: ulac ame??a?ay DeckLink deg uselkim-a (Blackmagic Desktop Video)
+DMXCUE LEVELS: nothing has been sent on that universe	DMXCUE LEVELS: ulac i yettwaznen deg ume?rad-nni
+downloading the caption model, then listening...	asader n tmudemt n yiduzwilen, syin asell...
+drag the panels to arrange the presenter screen	jbed i?ricen akken ad tesmizzwer? agdil n umsissen
+DRAW SIZE: 0.1-20 (% of the picture's height)	DRAW SIZE: 0.1-20 (% n te?zi n tugna)
+DRAW STROKE: each point is x,y or x,y,pressure, in percent	DRAW STROKE: yal taneqqi?t d x,y ne? x,y,pressure, s watmideg
+encoder destination: _converted beside the show	asa?as n usnuga: _converted ?er tama n uskan
+ENDACTION: only video and audio cues have an end action	ENDACTION: ala tineccabin n uvidyu d umeslaw i yes?an tigawt n taggara
+Enter playlist SMPTE FPS: 24 / 25 / 29.97 / 30	Sekcem SMPTE FPS n tebdart n t?uri: 24 / 25 / 29.97 / 30
+expected one expression, three for colour, or four with alpha	yett?a??u yiwet n tenfalit, kra? i yini, ne? ku? s alpha
+format 2 files are a set of independent patterns, not a performance	ifuyla n umasal 2 d agraw n wudmawen ilelliyen, ma??i d askan
+INPUTMONITOR: a row count, OPEN, CLOSE, CLEAR, PAUSE or RESUME	INPUTMONITOR: am?an n yizirigen, OPEN, CLOSE, CLEAR, PAUSE ne? RESUME
+MASTER DECK: expected a deck number and a cue number	MASTER DECK: yett?a??u u??un n tdekkt d wu??un n tneccabt
+MIDIIN OSC: an address, and optionally a number	MIDIIN OSC: tansa, d wu??un afrayan
+MONITOR DECK: expected a playlist number or FOLLOW	MONITOR DECK: yett?a??u u??un n tebdart n t?uri ne? FOLLOW
+MONITOR ROOM: expected a playlist and ON or OFF	MONITOR ROOM: yett?a??u tabdart n t?uri d ON ne? OFF
+MULTIVIEW WINDOW REMOVE: expected a window number	MULTIVIEW WINDOW REMOVE: yett?a??u u??un n usfaylu
+NETCUE ADDRESS: expected an OSC path starting with /	NETCUE ADDRESS: yett?a??u abrid OSC ara yebdun s /
+new show disarms all outputs: press new again	askan amaynut yessens akk tuff?iwin: sit ?ef amaynut tikkelt nni?en
+NMOS: discovery needs the remote network allowed	NMOS: tifin tesra tasiregt n u?e??a anmeggag
+NMOS: searching for a registry (mDNS)	NMOS: anadi ?ef ukalas (mDNS)
+no picture on this cue - nothing to follow	ulac tugna deg tneccabt-a - ulac ara ye?fer
+no picture on this cue - nothing to close the loop through	ulac tugna deg tneccabt-a - ulac s wacu ara nemdel tawen?a
+no video clock on this cue - nothing to lock to	ulac asrag n uvidyu deg tneccabt-a - ulac ?er wacu ara yeqqen
+normalize: selection has no file-backed audio	asemsawi: tafrant ur tes?i ara ameslaw seg ufaylu
+normalize all: no file-backed audio in this deck	asemsawi i me??a: ulac ameslaw seg ufaylu deg tdekkt-a
+only a MIDI note or an OSC address can take a cue	ala tazlit MIDI ne? tansa OSC i yezemren ad tessenkker taneccabt
+Only accept transport from this sender (blank = anyone)	Qbel asiwe? seg umazan-a kan (ilem = yal yiwen)
+OUTPROBE: that output has no compositor (is it on?)	OUTPROBE: tuff?a-nni ur tes?i ara amsuddes (teldi?)
+OUTPUTFX ADD: four effects at most on one device	OUTPUTFX ADD: ku? n isemda d afellay deg yiwen n yibenk
+OUTPUTFX SET: expected an effect number and 0-100	OUTPUTFX SET: yett?a??u u??un n usemdu d 0-100
+PATCH: a level is dB from -48 to +6, or OFF	PATCH: aswir d dB seg -48 ar +6, ne? OFF
+PORTS: expected an http port and a tcp port	PORTS: yett?a??u tawwurt http d tewwurt tcp
+PRELOAD: expected a position in seconds, OFF or STATUS	PRELOAD: yett?a??u adeg s tsinin, OFF ne? STATUS
+STING: select a tone cue first (TONECUE makes one)	STING: fren taneccabt n ta?ect qbel (TONECUE yesnulfu yiwet)
+STREAM ADD: expected a URL, e.g. srt://host:port	STREAM ADD: yett?a??u URL, amedya srt://host:port
+TARGET CUE: expected a deck number and a cue number	TARGET CUE: yett?a??u u??un n tdekkt d wu??un n tneccabt
+TEXTCUE SIZE: expected 1-100 (percent of the raster)	TEXTCUE SIZE: yett?a??u 1-100 (atmideg n u?e??a)
+Apple keeps the Keynote format secret on purpose, a malicious lock-in tactic, so only Apple's own software can read it properly. Best route: open it in Keynote on iCloud.com (free, in any browser), choose Download a Copy > PDF, and import that PDF	Apple ye??ef amasal Keynote d uffir s leb?i-s, d tixidas tucmitin n use?bes n yimseqdacen, ihi ala ase??an n Apple i izemren ad t-ye?? akken ilaq. Abrid yelhan: ldi-t deg Keynote ?ef iCloud.com (ba?el, deg yal iminig), fren Download a Copy > PDF, syin kter PDF-nni
+Keynote could not export this file (it may need permission to be automated: System Settings > Privacy & Security > Automation)	Keynote ur yezmir ara ad issife? afaylu-a (yezmer yesra tasiregt n usemres awurman: System Settings > Privacy & Security > Automation)
+cannot read the file: if it lives in OneDrive or iCloud, open it once so it downloads, then import it	ur nezmir ara ad ne?? afaylu: ma yella deg OneDrive ne? iCloud, ldi-t yiwet n tikkelt akken ad d-yers, syin kter-it
+the file is empty (0 bytes): it may not have finished copying or saving	afaylu d ilem (0 bytes): yezmer ur ifuk ara usen?el ne? usekles
+the installed NDI runtime is missing entry points this needs	anagraw NDI yettwasbedden xu??en-t yinekcam i yesra waya
+the NDI runtime declined to start on this machine	anagraw NDI yugi ad yebdu deg uselkim-a
+programme sound is always included; use WEBMONITOR OFF to stop the monitor	ameslaw PROGRAM yella yal tikkelt; seqdec WEBMONITOR OFF akken ad tse?bse? agdil
+phone control requires an 8+ character passphrase	asenqed s tili?ri yesra tifyar n u?eddi s 8+ n yisekkilen
+set an 8+ character Web Monitor passphrase first	sbadu qbel tifyar n u?eddi n ugdil web s 8+ n yisekkilen
+network sharing and phone control require an 8+ character passphrase	be??u deg u?e??a d usenqed s tili?ri sran tifyar n u?eddi s 8+ n yisekkilen
+paired phones removed: they need the QR code or the passphrase again	tili?riwin yeqqnen ttwakksent: srant tangalt QR ne? tifyar n u?eddi tikkelt nni?en
+WEBMONITOR QR: needs the monitor on and shared on the network	WEBMONITOR QR: yesra agdil yeldi yerna yettwab?a deg u?e??a
+WEBMONITOR SOURCE: PROGRAMME or the number of an output that shows a picture	WEBMONITOR SOURCE: PROGRAMME ne? u??un n tuff?a i d-yesskanayen tugna
+brightness moves the playhead (needs CPU frames)	tafawit tessmussu aqerru n t?uri (yesra ikataren CPU)
+centred and full-frame - moves when the picture does	deg tlemmast d ukatar a??uran - yett?errik mi tett?errik tugna
+follows this cue's own brightness (needs CPU frames)	ye?fer tafawit n tneccabt-a (yesra ikataren CPU)
+full-frame and no picture - bends when the picture shrinks	akatar a??uran war tugna - yett?ewwi? mi tem?i tugna
+mic live on the default speakers - watch for feedback	amikru uslig deg yimsisla imezwar - ?ader a?al n umeslaw
+motion on: the camera is read, never recorded	amussu yermed: takami?at tettwa?ra, ur tettwaklas ara
+no picture - shorts run on a timer instead of on cuts	ulac tugna - imezruyen teddun s usrag deg umkan n yiq?a?en
+no picture on this cue - nothing decides where the playhead is	ulac tugna deg tneccabt-a - ulac ara d-yefken adeg n uqerru n t?uri
+on the dashboard - Ctrl+D or the DASH button	deg tfelwit n usenqed - Ctrl+D ne? taqeffalt DASH
+output effects bypassed: no effect and no limit on this device	isemda n tuff?a ttwanegzen: ulac asemdu wala talast deg yibenk-a
+output recover failed: fullscreen unavailable	tiririt n tuff?a ur teddi ara: agdil a??uran ulac-it
+over 16 MB: not a drawing to make a mask from	ugar n 16 MB: ma??i d unu? i tgelmust
+Page Down / Page Up step the focused playlist	Page Down / Page Up seddun tabdart n t?uri yettwafernen
+pair with a picture effect whose LFO is set to Audio	qqen-it ?er usemdu n tugna s LFO ?er Umeslaw
+Port the Node + Connection API serve on	Tawwurt n ume?lu Node + Connection API
+recordings remux to MP4 when the take stops	asekles yettwa?awed deg MP4 mi ye?bes u?eddi
+Seconds for new image/pattern/browser/Lower Third cues (0 = hold)	Tasinin i tneccabin timaynutin n tugna/wudem/iminig/Lower Third (0 = ??ef)
+Seconds for new-cue fade in/out defaults	Tasinin imezwar n ufsay n unekcum/tuff?a n tneccabin timaynutin
+the background alpha belongs to a Lower Third	alpha n ugilal n Lower Third
+TRACKER SET: a step cannot act on its own playlist	TRACKER SET: taseddart ur tezmir ara ad texdem ?ef tebdart-is n t?uri
+VIDEO OUTPUT LAYER: expected a layer number (1 is the base)	VIDEO OUTPUT LAYER: yett?a??u u??un n tissi (1 d lsas)
+WARP AT: open the editor (WARP EDIT) and select a point first	WARP AT: ldi ama?rag (WARP EDIT) yerna fren taneqqi?t qbel
+what the operator should be told when GO reaches here	ayen ara d-yettwannan i umahal mi d-yewwe? GO dagi
+what the patch and the cues call it (FOH, SUB, PRESS FEED)	isem i as-fkan patch d tneccabin (FOH, SUB, PRESS FEED)
+Where to send transport (blank = broadcast)	Anda ara yettwazen usiwe? (ilem = azuzer)
+Which switcher input Deckboy is (0 = not set)	Anekcum n usenfal i Deckboy (0 = ur yettusbadu ara)
+DMXCUE FIXTURE: expected <name> <level%>|LEAVE [<colour>]	DMXCUE FIXTURE: yett?a??u <name> <level%>|LEAVE [<colour>]
+DMXCUE LFO: expected <name> LEVEL|COLOUR ON|OFF [<rate Hz>] [<depth %>]	DMXCUE LFO: yett?a??u <name> LEVEL|COLOUR ON|OFF [<rate Hz>] [<depth %>]
+FIXTURE ADD: expected <name> dimmer|rgb|rgbw|rgba|drgb|dcct <universe> [<address>]	FIXTURE ADD: yett?a??u <name> dimmer|rgb|rgbw|rgba|drgb|dcct <universe> [<address>]
+MASK ASSIGN: expected <id|NONE> CUE | LAYER <output> <playlist> | OUTPUT <n> | MATTE <n>	MASK ASSIGN: yett?a??u <id|NONE> CUE | LAYER <output> <playlist> | OUTPUT <n> | MATTE <n>
+MASK LFO: expected <id> <param> ON|OFF [rate Hz] [depth %]	MASK LFO: yett?a??u <id> <param> ON|OFF [rate Hz] [depth %]
+rectc: expected <hh:mm:ss:ff|timeofday> [df|ndf|auto]	rectc: yett?a??u <hh:mm:ss:ff|timeofday> [df|ndf|auto]
+presenter colour: expected BG|INK|ACCENT #rrggbb	presenter colour: yett?a??u BG|INK|ACCENT #rrggbb
+expected waveform|scope|lissajous|spectrum|level|cover	yett?a??u waveform|scope|lissajous|spectrum|level|cover
+TRACKER: expected GO, BACK, PLAY, STOP, STEP <n>, ADD, SET <step> <deck> <cue|STOP|FADE|VOLUME|OPACITY>, MUTE|SOLO <deck>, JUMP <step> <row>, SECTION <step> <name>, VIEW, LOOP or CLICKER	TRACKER: yett?a??u GO, BACK, PLAY, STOP, STEP <n>, ADD, SET <step> <deck> <cue|STOP|FADE|VOLUME|OPACITY>, MUTE|SOLO <deck>, JUMP <step> <row>, SECTION <step> <name>, VIEW, LOOP ne? CLICKER
+A worn or dirty head: softer, with noise that streaks along the lines.	Aqerru ye?fan ne? yumes: tugna talwit, s usxerxec ?ef yizirigen.
+A slow rocking of the viewpoint, which is what makes the depth read without glasses.	Amussu s le?qel n wadeg n twali, i d-yettaken talqayt war lne??a?at.
+A slow sag in the supply, pulling the filter up and down like a dying battery.	A?elluy s le?qel n use??i, yettjabbed amsizdeg d asawen d akessar am batri i ifukken.
+An old deck: the picture wobbles, bends at the top of the frame and carries hum bars.	Tadekkt taqburt: tugna tetthuzzu, tett?ewwi? nnig ukatar yerna tes?a izagan n u?enhen.
+An old tape loses bits of its oxide: dropouts flick white and repeat the line above, and the colour fizzes.	Tasfift taqburt tesruy i?ricen n uksid: ti?elliwin ttfe??i?ent d timellalin, tt?awadent izirig nnig, yerna ini yettxerxec.
+Copies of copies: none at the left, four at the right. Each one loses more.	In?alen n yin?alen: ulac ?er uzelma?, ku? ?er uyeffus. Yal yiwen yesruy ugar.
+How abruptly it arrives. Low is a soft cloud, high is a hard porthole.	Amek d-yettas s zzerb. Adday d asigna alwi, afellay d asfaylu azuran.
+How bright a pixel has to be before it lifts at all, so only the highlights spike.	Tafawit i yesra upiksil send ad yali, akken ala tafat tameqqrant ad teffe?.
+How deep the picture is treated as being. The brightness becomes height and is lit from the side.	Talqayt i yettunefken i tugna. Tafawit tettbeddil d te?zi, tafat tekkad-d seg yidis.
+How far away. Distance dulls the top and softens the difference between the ears.	Ac?al yeb?ed. Aneggeg yessim?i afellay d umgired gar yime??a?.
+How far back each skip jumps, from a stutter to half a second.	Ac?al yettu?al yal aneggez ?er deffir, seg u?e??el ar uzgen n tsint.
+How gently the change fades out at the edges of the band.	Amek yefsi ubeddel s le?qel deg yiran n uzag.
+How hard it holds once it is working. Gentle at the bottom, a limiter at the top.	Ac?al ye??ef mi yebda uxeddim. D alwi ddaw, d am?addad nnig.
+How irregular the growth is. Low gives an even honeycomb, high gives long shards.	Amek temxallaf tgemmi. Adday d a?erbal n tamment anemsasa, afellay d i?ricen ?ezzifen.
+How long it is allowed to run. More steps means the ripples have crossed and reflected more times.	Ac?al ad yeddu. Ugar n tseddarin d ugar n tikkal n umyager d u?al n yemwajen.
+How long the reaction runs each frame. Short is a stain, long is an organism.	Tanzagt n tririt deg yal akatar. Wezzil d tixme?t, ?ezzif d amuddir.
+How many places drip: a few big drips at the left, many thin ones at the right.	Ac?al n wudmawen i iregglen: drus n yiqet?u?en imeqqranen ?er uzelma?, a?as n yileqqaqen ?er uyeffus.
+How much of the picture glows: only the brightest at the left, nearly everything at the right.	Ac?al n tugna i yettfe??i?en: ala afawan mli? ?er uzelma?, qrib akk ?er uyeffus.
+How much of the picture shows behind the lines. None at the left: lines on black.	Ac?al n tugna i d-ittbanen deffir yizirigen. Ulac ?er uzelma?: izirigen ?ef uberkan.
+How quickly the room eats the top end. More damping is a softer, more furnished space.	Ac?al s zzerb i tettett texxamt afellay. Ugar n usem?i d amkan alwi s ugar n t?awsiwin.
+How readily an edge catches. Low sets the whole picture alight, high only the hardest lines.	Amek yettre? yiri. Adday yessare? tugna me??a, afellay ala izirigen iquranen.
+How wide a view is being compressed. Narrow is a punch down the middle, wide folds the whole frame into the centre.	Tehri n twali i yettwa??men. U?yiq d a?eggar deg tlemmast, ahrawan ye?erref akatar me??a ?er tlemmast.
+Line pitch in pixels, so this reads at 4K as well as at 720.	Aneggeg n yizirigen s yipiksilen, akken ad iban deg 4K am deg 720.
+The head drifting off the track: a band of noise rolls through the picture.	Aqerru yeffe? seg ubrid: azag n usxerxec yezzi deg tugna.
+Two is a mirror, twelve is a snowflake, and they are completely different pictures.	Sin d lemri, mraw d sin d afriwen n udfel, d tugniwin yemgaraden me??a.
+8+ characters; other machines send AUTH <passphrase> first. Empty = off	8+ n yisekkilen; timacinin-nniḍen ad aznent AUTH <passphrase> d amezwaru. D ilem = yensa
+A command line, as a DASH button runs it. {value} is the knob's number, {note} the key.	Iziri n tladna, akken i t-tesselkam tqeffalt DASH. {value} d azal n tqeffalt, {note} d tasarut.
+AUDIOALSO ADD: that is already this deck's main device -- it would play twice	AUDIOALSO ADD: d allal agejdan n udek-a yakan -- ad d-yeɣɣer snat n tikkal
+CHIP DUTY: this cue is an FDS synth, which has no duty	CHIP DUTY: asun-a d asintitizur FDS, ur yesɛi ara duty
+CHIP NOISE: this cue is an FDS synth, which has no noise	CHIP NOISE: asun-a d asintitizur FDS, ur yesɛi ara acewwel
+CHIP VOICE: this cue is an FDS synth, which has no voice	CHIP VOICE: asun-a d asintitizur FDS, ur yesɛi ara taɣect
+Chladni listens: the figure follows the pitch of the sound	Chladni isell: talɣa teṭṭafar aẓawan n ṣṣut
+DATAMOSH on - preparing (long clip, watch Encoder tab)	DATAMOSH yermed - aheyyi (taɣerɣert ɣezzifen, wali iccer n usettengal)
+Degrees per second, -720 to 720 (supports + - * / and ())	Tifessatin i tsint, -720 ar 720 (isefrak + - * / akked ())
+Degrees round the colour wheel, 0-360 (supports + - * / and ())	Tifessatin ɣef tewriqt n yini, 0-360 (isefrak + - * / akked ())
+EDIT is off - press EDIT to type into the tracker	EDIT yensa - senned EDIT i tira deg uḍfar
+HH:MM or HH:MM:SS on this computer's clock; empty for none	HH:MM neɣ HH:MM:SS deg usrag n uselkim-a; d ilem = ulac
+HH:MM:SS:FF of the timecode Deckboy is chasing; empty for none	HH:MM:SS:FF n tengalt n wakud i yeṭṭafar Deckboy; d ilem = ulac
+IPv4 addresses or a.b.c.d/bits, comma separated; empty = only this computer	Tansiwin IPv4 neɣ a.b.c.d/bits, ferreq s ticcert; d ilem = aselkim-a kan
+Iris	Tiṭṭ
+Lissajous (L/R phase)	Lissajous (amud L/R)
+MASK SHAPE: expected a shape (MASK SHAPES lists them)	MASK SHAPE: ilaq talɣa (MASK SHAPES ad tent-id-yesken)
+MIC INPUT: expected SETTINGS, TEST or a device name (MIC LIST)	MIC INPUT: ilaq SETTINGS, TEST neɣ isem n wallal (MIC LIST)
+MIC: select a mic cue first (MIC ADD makes one)	MIC: fren asun n usawaḍ amezwaru (MIC ADD ad d-yesnulfu yiwen)
+MIDIFILE: expected PORT, or no argument to report it	MIDIFILE: ilaq PORT, neɣ ulac aɣilif i wakken ad t-id-yesken
+NDI source name (e.g. LAPTOP (source 1))	Isem n uɣbalu NDI (amedya LAPTOP (aɣbalu 1))
+NEWSHOW: something is live or unsaved -- send NEWSHOW again within 2.5 s	NEWSHOW: yella wayen yellan deg usrid neɣ ur yettwasekles ara -- azen NEWSHOW tikkelt-nniḍen deg 2.5 s
+NIC address or name; empty = the default route	Tansa neɣ isem NIC; d ilem = abrid amezwer
+NIC name reported in interface_bindings (e.g. eth0)	Isem NIC i d-yettwammalen deg interface_bindings (amedya eth0)
+OUTPUT AOI: expected a size like 256x256, or FULL	OUTPUT AOI: ilaq teɣzi am 256x256, neɣ FULL
+OUTPUT HDR WHITE: expected 80..500 nits (203 is BT.2408)	OUTPUT HDR WHITE: ilaq 80..500 nits (203 d BT.2408)
+Output height in px - math ok: 1080x2, 2160/2, 540+30	Teɣzi n tuffɣa deg px - tasleḍt tezmer: 1080x2, 2160/2, 540+30
+Output width in px - math ok: 1920x2, 3840/2, 960+64	Tehri n tuffɣa deg px - tasleḍt tezmer: 1920x2, 3840/2, 960+64
+PIP: retired -- scale a second deck over this one instead	PIP: yettwakkes -- senɣes adek wis sin sufella n wa deg umkan-is
+Registry URL (e.g. http://192.168.1.50:8010) - blank for mDNS	URL n usekles (amedya http://192.168.1.50:8010) - eǧǧ d ilem i mDNS
+SCOPES SOURCE: expected PROGRAMME or an output number, 1-	SCOPES SOURCE: ilaq PROGRAMME neɣ amḍan n tuffɣa, 1-
+SMPTE hh:mm:ss:ff or seconds (blank = 00:00:00:00)	SMPTE hh:mm:ss:ff neɣ tisinin (d ilem = 00:00:00:00)
+SOURCE WINDOW: name the window, e.g. title:Firefox (or "desktop")	SOURCE WINDOW: semmi asfaylu, amedya title:Firefox (neɣ "desktop")
+Stream URL (srt://, rtmp://, rtsp://, udp://, or an http HLS .m3u8)	URL n usuddem (srt://, rtmp://, rtsp://, udp://, neɣ http HLS .m3u8)
+TSL Tally	Anamal TSL
+TUTORIAL SCREENS: expected a count, MIRRORED or REAL	TUTORIAL SCREENS: ilaq amḍan, MIRRORED neɣ REAL
+a note number 0-127, LEARN to take the next note played, or empty for none	Amḍan n tẓẓelt 0-127, LEARN i tuṭṭfa n tẓẓelt i d-iteddun, neɣ d ilem i ulac
+atem tally on -- set which input Deckboy is	Anamal ATEM yermed -- sbadu anekcum n Deckboy
+browser connections at once, 1-64 (default 8)	Tuqqniwin n yiminig deg yiwet n tikkelt, 1-64 (amezwer 8)
+can't move the active cue -- take another cue on this deck first	Ur tezmireḍ ara ad tesmuttiḍ asun urmid -- ssermed asun-nniḍen deg udek-a d amezwaru
+click anywhere on any screen to take its colour. Esc cancels	Sit anda tebɣiḍ deg ugdil i tuṭṭfa n yini-s. Esc ad yesfesx
+click program or preview monitor to sample key color	Sit deg ugdil PROGRAM neɣ n tmuɣli i ufran n yini n tsarut
+couldn't open a browser -- please report at github.com/Utopian-Academy/Deckboy/issues	Ur yezmir ara ad yeldi iminig -- azen aneqqis ɣer github.com/Utopian-Academy/Deckboy/issues
+e.g. /stage/doors -- sent to Deckboy's OSC port; empty for none	Amedya /stage/doors -- yettwazen ɣer tewwurt OSC n Deckboy; d ilem = ulac
+esc: control window - again to clear output	esc: asfaylu n usenqed - tikkelt-nniḍen i usfaḍ n tuffɣa
+milliseconds (20-8000; ~4x your RTT)	Tisinin tis waggut (20-8000; ~4x RTT-inek)
+ndi tally trigger on -- program tally takes the cue	Anamal n usekker NDI yermed -- anamal PROGRAM ad isekker asun
+nmos: network is LOCAL ONLY - not registering	nmos: aẓeṭṭa d ADIGAN KAN - ulac asekles
+no OpenGL pixel format available for Spout receive	Ulac amasal n upiksil OpenGL i tuṭṭfa Spout
+no masks yet: make one in a cue's MASK section	Ulac igelmamen yakan: snulfu-d yiwen deg uḥric MASK n usun
+nothing to mask here: select a cue, or change MASK ON	Ulac acu ara tɣummeḍ dagi: fren asun, neɣ beddel MASK ON
+phones need THE NETWORK: set 'Who can see it' first	Tiliɣriyin ḥwaǧent AẒEṬṬA: sbadu 'Anwa ara t-iwalan' d amezwaru
+pip: retired -- scale a second deck over this one instead	pip: yettwakkes -- senɣes adek wis sin sufella n wa deg umkan-is
+save failed - retrying; still open, use SAVE AS if needed	Asekles yecceḍ - aɛraḍ tikkelt-nniḍen; mazal yeldi, seqdec SAVE AS ma ilaq
+select a Draw cue first (SOURCE > MADE BY DECKBOY > Draw)	Fren asun n usuneɣ d amezwaru (SOURCE > MADE BY DECKBOY > Draw)
+something mellow appeared in SOURCE > MADE BY DECKBOY	Yella-d kra n talwit deg SOURCE > MADE BY DECKBOY
+sound scopes: integrated loudness and true peak start again	Isenqaden n ṣṣut: taɣect yedduklen d yixef n tidet bdan-d tikkelt-nniḍen
+that key drives the desk - use F1-F10, F12 or the number pad	Tasarut-nni tesnedday tafelwit - seqdec F1-F10, F12 neɣ taɣawsa n yimḍanen
+update: cannot find this app bundle to replace	Aleqqem: ur yezmir ara ad yaf akemmus n usnas-a i ubeddel
+0 classic, 1 fire, 2 ice, 3 neon, 4 mono (supports + - * / and ())	0 amensay, 1 times, 2 agris, 3 neon, 4 mono (isefrak + - * / akked ())
+0 flows ALONG the edges, so colour orbits the shapes. 1 flows across them, which bleeds the picture into itself.	0 yettazzal ƔEF yiran, yini yettdur i talɣiwin. 1 yettazzal s ubrid azuran, tugna tezzal deg yiman-is.
+0 rainbow + grey, 1 rainbow, 2 theme, 3 mono (supports + - * / and ())	0 asaren + aɣiɣdan, 1 asaren, 2 asentel, 3 mono (isefrak + - * / akked ())
+0 zone, 1 twin, 2 flow, 3 saddle, 4 ripple, 5 shear (supports + - * / and ())	0 tamnaḍt, 1 akniw, 2 azzal, 3 tabarda, 4 tamdeswelt, 5 agezzum (isefrak + - * / akked ())
+0-100%: the share of each band drawn as grey stripes (supports + - * / and ())	0-100%: aḥric n yal aḥzam yettwassuneɣ s yizirigen iɣiɣdanen (isefrak + - * / akked ())
+ASCII WOBBLEMODE: drift | flow (follows luma) | hue (follows colour); no argument cycles	ASCII WOBBLEMODE: drift | flow (yeṭṭafar tafat) | hue (yeṭṭafar ini); ulac aɣilif ad ibeddel s wannuz
+ASCII: the selected cue has no text mode (add the TEXT MODE effect, or select a video synth cue)	ASCII: asun yettwafernen ur yesɛi ara askar n uḍris (rnu asemdu TEXT MODE, neɣ fren asun n usintitizur n uvidyu)
+ASCII: use ON|OFF|TOGGLE | STATUS | INK | SET | SHUFFLE | PRESET [name|next|prev] | FONT | GLYPHS [chars] | CHAOS <0-1> | WOBBLE <0-1> | WOBBLEMODE [drift|flow|hue] | COLS <n> | GLITCH <a> <b> <c> [d] | PHRASES <a|b|c> | HOLD <seconds>	ASCII: seqdec ON|OFF|TOGGLE | STATUS | INK | SET | SHUFFLE | PRESET [name|next|prev] | FONT | GLYPHS [chars] | CHAOS <0-1> | WOBBLE <0-1> | WOBBLEMODE [drift|flow|hue] | COLS <n> | GLITCH <a> <b> <c> [d] | PHRASES <a|b|c> | HOLD <seconds>
+BLEND PAIR: expected <other output number> <overlap in pixels>	BLEND PAIR: ilaq <amḍan n tuffɣa-nniḍen> <amyeḍfer s yipiksilen>
+Below the middle narrows toward mono -- which is what a single PA cluster is. Above it widens.	Ddaw n tlemmast isemẓi ar mono -- am ugraw n yimsisliyen PA yiwen. Nnig-is isehri.
+Blueshift toward the direction of travel and redshift at the rim. Zero leaves the colour alone and it reads as a lens instead.	Abeddel ar unili s tnila n umutti d uzeggaɣ deg yiran. Ilem yeǧǧa ini akken yella, ad iban am tallunt.
+Bright: bright things drip over the dark, as text and logos do. Whole picture: everything is wax, and the picture itself runs down in its own colours.	Tafat: ayen iceɛlen yettqettir ɣef uberkan, am uḍris d yizamulen. Tugna akk: kulec d tament, tugna tessalay s yiniten-is.
+Centre is a straight line. Up bends it into an S -- darker shadows, brighter highlights, more contrast. Down flattens it.	Talemmast d ajerriḍ usrid. Nnig tekkes-d talɣa S -- tili taberkant, tafat tufrart, amgired ameqqran. Ddaw tesmeẓẓi-t.
+Characters across. Fewer means bigger cells and less of the picture surviving, which is usually the point.	Isekkilen s tehri. Drus n yisekkilen d tixxamin timeqqranin d drus n tugna i d-yeqqimen, d ayen i yettwanadin s umata.
+Characters to build the picture from, darkest first. Empty uses the chosen glyph set.	Isekkilen i lebni n tugna, aberkan d amezwaru. D ilem ad iseqdec agraw n yizamulen yettwafernen.
+Colour is recorded at a fraction of the detail: it smears sideways, lands late and its hue wanders.	Ini yettwasekles s kra n yiferdisen kan: yettazzal s idisan, yettaweḍ-d d aneggaru, yini-s yettbeddil.
+DASH SET: needs a command -- DASH SET <n> <label> | <command> [| <glyph>]	DASH SET: ilaq taladna -- DASH SET <n> <label> | <command> [| <glyph>]
+DMXCUE SET: expected channel=level pairs, e.g. 1=255,10-14=64	DMXCUE SET: ilaq tayugi channel=level, amedya 1=255,10-14=64
+DRAW COLOUR: #rrggbb, #rrggbbaa, a name, or 1-8 for the palette	DRAW COLOUR: #rrggbb, #rrggbbaa, isem, neɣ 1-8 i tfelwit n yiniten
+DRAW TOOL: brush, erase, line, box, oval or fill	DRAW TOOL: brush, erase, line, box, oval neɣ fill
+Devamp	Ffeɣ seg wannuz
+FADE TO: a speed from 0.25 to 4 (0.5 is half speed, an octave down)	FADE TO: arured seg 0.25 ar 4 (0.5 d azgen n urured, aktav ddaw)
+FADE WHAT: expected opacity, volume, dimmer, brightness, contrast, saturation, hue, effect, audiofx or speed	FADE WHAT: ilaq opacity, volume, dimmer, brightness, contrast, saturation, hue, effect, audiofx neɣ speed
+FX LFO wants <index> <slot> <on|off|shape> [value]	FX LFO yeḥwaǧ <index> <slot> <on|off|shape> [value]
+FX LFO: on, off, shape, rate, depth, zone, channel or cc	FX LFO: on, off, shape, rate, depth, zone, channel neɣ cc
+FX: use LIST | ADD <effect> [amount] | AMOUNT <n> <v> | PARAM <n> <A-F> <0-1> | CHOICE <n> <A|B> <name> | LFO <n> <A-G> ... | COPY | PASTE | CLEAR	FX: seqdec LIST | ADD <effect> [amount] | AMOUNT <n> <v> | PARAM <n> <A-F> <0-1> | CHOICE <n> <A|B> <name> | LFO <n> <A-G> ... | COPY | PASTE | CLEAR
+Fields per frame, 0-4 (1 = one field per rendered frame) (supports + - * / and ())	Urtiyen i tugna, 0-4 (1 = yiwen n wurti i yal tugna yettwassudsen) (isefrak + - * / akked ())
+Flip across, upside down or both, or fold one half onto the other: right onto left, left onto right, bottom onto top, top onto bottom, or one corner into all four.	Zzi s tehri, s uqelqul neɣ s sin, neɣ eḍwi azgen ɣef wayeḍ: afus ɣef zelmaḍ, zelmaḍ ɣef ufus, ddaw ɣef nnig, nnig ɣef ddaw, neɣ yiwet n tɣemmar deg ukkuẓ.
+GEOLFO: x, y, width, height, rotation, cropleft, cropright, croptop or cropbottom	GEOLFO: x, y, width, height, rotation, cropleft, cropright, croptop neɣ cropbottom
+How bright a pixel has to be to join a run. Lower catches more of the picture and the runs grow longer.	Acḥal n tafat ilaqen i upiksil ad yekcem deg uziri. Azal ameẓyan yeṭṭef ugar n tugna, izirigen ttuɣalen ɣezzifit.
+How faint a gradient still registers. High turns the quietest shading into visible structure.	Acḥal n ubeddel n tafat aẓiḍan i mazal yettban. Azal ameqqran yeskanay-d ula d tili tafessast.
+How far back the chain listens. The picture is played through a delay, so this is the distance the damage is dragged across.	Acḥal n wakud i tesla tkerrust ɣer deffir. Tugna tetturar s useɛḍel, d tagi i d teɣzi n ujerred n uxessar.
+How far the burn spreads off the edge, and how hot its colour runs.	Acḥal i yettwassaɣ ureɣ seg yiran, d acḥal i yesḥemmu yini-s.
+How far the colour turns on each trip round the loop. This is the oil-slick: the trail walks through the spectrum instead of fading.	Acḥal n wannuz n yini deg yal tikkelt n wannuz. D tagi i d taẓẓult n zzit: lateṛ yeḍfer asaren deg umkan n usfeḍ.
+How far the picture stands out. Bright parts come forward, dark parts stay back. At the left it is flat.	Acḥal i d-teffeɣ tugna. Aḥric aceɛlal yettas-d ɣer sdat, aberkan yeqqim deffir. Deg uzelmaḍ d tameflat.
+How far the picture swings the filter. The cue's own brightness opens and closes it, so a cut to black takes the top off the sound.	Acḥal i tesmutti tugna tastayt. Tafat n usun telli u tsekkar-itt, ihi agezzum ar uberkan yekkes ṣṣut ɛlayen.
+How far the top comes down as the end approaches. This is not a fade: the level is left alone.	Acḥal i yettader ṣṣut ɛlayen mi d-iqerreb taggara. Mačči d asfeḍ: aswir yeqqim akken yella.
+How fast it settles away while held. At zero it holds indefinitely, which is what room tone under a held title wants.	Arured n usfeḍ deg uḥbas. S yilem yeḥbes i lebda, am ṣṣut n texxamt ddaw n uzwel yeqqimen.
+How fast the open slit crosses the picture. Slow smears a long moment across the frame.	Arured n tmerna yeldin deg tugna. S leɛḍil ijerred taswiɛt ɣezzifen ɣef tugna akk.
+How fast the wave travels. Faster spreads further in the same time and interferes more.	Arured n umdeswel. Arured ameqqran yettwassaɣ ugar deg yiwen n wakud u yettemyekcam ugar.
+How fast what has dripped hardens away. At the left the drips stay until the cue changes.	Arured n useqqur d usfeḍ n wayen i d-iqettṛen. Deg uzelmaḍ tiqit qqiment ar ubeddel n usun.
+How fine the water is. Long ocean swell at one end, rain on a puddle at the other.	Acḥal meẓẓiyit yimdeswal n waman. Imdeswal ɣezzifen n yilel deg yiwet n tama, ageffur deg temda deg tayeḍ.
+How hard the light gathers where the rays converge. This is the part that makes it read as water rather than as a wobble.	Acḥal i tettjemmaɛ tafat anda mlalen yiẓerẓuren. D aya i t-yesbanen am waman deg umkan n uhezzan.
+How hard the moving parts throw sand. More shake clears the plate faster and makes the lines thinner.	Acḥal n tezmert i sseqḍaɛen yiḥricen imuttiyen ijdi. Ugar n uhezzan yesfaḍ tafelwit s zzerb u yesseḍraq izirigen.
+How long a grain is, in VIDEO FRAMES. On a 23.976 clip one frame is 41.7ms, which is not a musical value and is exactly the point.	Teɣzi n uɛeqqa, s TUGNIWIN N UVIDYU. Deg taɣerɣert 23.976, yiwet n tugna d 41.7ms, mačči d azal aẓawan, d aya i d iswi.
+How long before the end it starts. The cue has to have a known length -- an open-ended one has no end to resolve into.	Acḥal n wakud send taggara i yettnekker. Ilaq asun s teɣzi yettwassnen -- win ur yesɛin ara taggara ulac anda ara yefru.
+How long the old waves linger when the note changes. Left: they die at once. Right: they slosh for a while.	Acḥal n wakud qqimen yimdeswal iqburen mi tbeddel tẓẓelt. Zelmaḍ: mmetten din din. Afus: tthezzin kra n wakud.
+How much each facet catches the light, which is what makes them read as faceted rather than as flat blobs.	Acḥal i teṭṭef yal tama tafat, i wakken ad banent d tiɣemmar deg umkan n tlɣiwin timeflatin.
+How much its SIZE becomes distance. Shrink the picture and the sound goes away from you: the top comes off, the image narrows, the level drops.	Acḥal teqqen TEƔZI-s ɣer umecwar. Smeẓẓi tugna, ṣṣut yettbeɛɛid: ṣṣut ɛlayen yettader, tugna n ṣṣut teḍreq, aswir yettader.
+How much of the bent picture goes round again. High is where it stops being an echo and starts eating itself.	Acḥal n tugna yeknan i d-yettuɣalen. Deg wazal ameqqran ur d-yettuɣal ara d aṣṣeḍ, yettett iman-is.
+How much of the driver's movement the picture KEEPS. At zero it follows the driver frame by frame, which is a twitch. Wind it up and the motion accumulates, so the driver sculpts the picture over time and it holds the pose -- which is what puppetry means.	Acḥal n umutti n umaway i TETTAṬṬAF tugna. S yilem teṭṭafar-it tugna s tugna, d aneḥḥez. Snerni-t ad yemlil umutti, amaway ad yesseɣti tugna s wakud u ad teqqim deg umkan-is -- am uẓḍi n tmucuha.
+How much of the picture's position on the output is used. A PIP on the left sounds on the left -- and it is a placement, not a pan: the far ear gets the delay and the head shadow too.	Acḥal n wadeg n tugna deg tuffɣa i yettwasqedcen. PIP deg uzelmaḍ yessawal deg uzelmaḍ -- d asers, mačči d pan: ula d ameẓẓuɣ ibeɛden yeṭṭef aɛeṭṭel d tili n uqerru.
+How much of the tail is kept going while the cue is held. Long enough to hide the splice in room tone, short enough not to smear a rhythm in it.	Acḥal n taggara n ṣṣut i yeqqimen deg uḥbas n usun. Ɣezzif akken ad ifer aẓeṭṭa n ṣṣut n texxamt, wezzil akken ur yessebzeg ara aẓawan.
+How much room comes up under it, so the sound settles into the cut instead of being severed.	Acḥal n ṣṣut n texxamt i d-yettalin ddaw-as, i wakken ṣṣut ad yeqqim deg ugezzum deg umkan ad yegzem dγa.
+How much the echo is distorted each pass. It compounds, so a little ripples and a lot melts the picture into itself.	Acḥal i yettusexser uṣṣeḍ deg yal tikkelt. Yettemlil, kra d imdeswal, ugar yesfsi tugna deg yiman-is.
+How much the material draws in towards each drip, so it runs as a thin neck with a heavier head.	Acḥal i tettagem tilɣa ar yal tiqqit, i wakken ad tezzel s uɛenqiq awezlan d uqerru ẓẓayen.
+How often its settings are corrupted. Corrupted far enough it oscillates on its own -- loud, but it cannot run away.	Acḥal n tikkal ttxessiren yiɣewwaren. Ma xessren aṭas ad tthezzin s yiman-nsen -- ṣṣut ɛlayen, maca ur izmir ara ad yeflet.
+How quickly the picture springs back to rest once the driver stops pushing it. Only does anything when memory is up.	Arured n tuɣalin n tugna ar uḥbas mi yeḥbes umaway ad tt-ideg. Ixeddem kan mi yella ummekti ɛlayen.
+How small a cut sets it off. With no picture it runs on a timer instead, and this is how often.	Acḥal meẓẓiy agezzum i t-yessekren. Ma ulac tugna yetturar s umsizwer n wakud, d tagi i d tifrat.
+How strongly the finished picture pushes the bend. Pair it with a picture effect whose LFO is set to Audio and the two drive each other.	Acḥal n tezmert i s tesdeggir tugna yemden aseɣti. Qqen-it ɣer usemdu n tugna s LFO ɣef Ameslaw, ad myesdeggren sin.
+LFO: density, speed, warp, turn, centrex, centrey, grey or hue	LFO: density, speed, warp, turn, centrex, centrey, grey neɣ hue
+Lift or cut, 12dB either way. The centre is flat, so a band that has just been added does nothing until this is moved.	Snerni neɣ senɣes, 12dB i yal tama. Talemmast d tameflat, aḥzam amaynut ur ixeddem ara alamma tesmuttiḍ aya.
+Light on the drips, as on something wet: a gloss where it faces the light, darker where it curls away.	Tafat ɣef teqqit, am wayen yebzeg: abririq deg tama n tafat, aberkan anda yettuneḍ ɣer deffir.
+MASK SET: expected INVERT, X, Y, SCALE, ROTATION, FEATHER, GROW or OPACITY and a number	MASK SET: ilaq INVERT, X, Y, SCALE, ROTATION, FEATHER, GROW neɣ OPACITY d umḍan
+MIDIIN: NOTE <n> <vel>, NOTEOFF <n>, CC <c> <v>, PITCH <0-16383>, PRESSURE <v>, KEYPRESSURE <n> <v>, PROGRAM <n> or OSC <address> [<n>], then CH <1-16> if not channel 1	MIDIIN: NOTE <n> <vel>, NOTEOFF <n>, CC <c> <v>, PITCH <0-16383>, PRESSURE <v>, KEYPRESSURE <n> <v>, PROGRAM <n> neɣ OSC <address> [<n>], syen CH <1-16> ma mačči d abadu 1
+MIDIMAP: LIST, ADD, SET, REMOVE, CLEAR, RESET, LEARN, LEARNED, PRESET or FEEDBACK	MIDIMAP: LIST, ADD, SET, REMOVE, CLEAR, RESET, LEARN, LEARNED, PRESET neɣ FEEDBACK
+MULTIVIEW WINDOW <n>: expected a source, or SAFE/METER/LABEL ON|OFF	MULTIVIEW WINDOW <n>: ilaq aɣbalu, neɣ SAFE/METER/LABEL ON|OFF
+Moves the direction of travel off the centre of frame, so the picture rushes past rather than straight at you.	Yesmutti tanila n umutti seg tlemmast n tugna, i wakken tugna ad tɛeddi seg yidis-ik deg umkan ad d-tas srid ɣur-k.
+N=new  Enter/P=previous  O=open saved  E=examples  L=learn  1-	N=amaynut  Enter/P=uzwir  O=ldi asekles  E=imedyaten  L=lmed  1-
+NMOS: NOT registering - network is LOCAL ONLY (turn REMOTE ON to publish)	NMOS: UR YETTUSEKLAS ARA - aẓeṭṭa d ADIGAN KAN (ssermed REMOTE ON i usuffeɣ)
+OUTPUT SPOUT: ON | OFF | TOGGLE | NAME <sender name>	OUTPUT SPOUT: ON | OFF | TOGGLE | NAME <isem n umazan>
+One knob for the whole balance: below the middle is darker, above it is brighter.	Yiwet n tqeffalt i umwazan akk: ddaw n tlemmast d aberkan, nnig d aceɛlal.
+Original: the picture pulled onto the figure. Sand: the picture as grains that are thrown off the moving parts and pour into each new figure. Fluid: the picture under water on the plate, bent and lit by its standing waves.	Aneṣli: tugna yettwajebden ɣef talɣa. Ijdi: tugna d iɛeqqayen yettuseḍqen seg yiḥricen imuttiyen u ttezzalen deg yal talɣa tamaynut. Aman: tugna ddaw n waman ɣef tfelwit, tesɣiḍ u tceɛɛel s yimdeswal-is ibedden.
+PHONE LEVEL: removed -- a paired phone or the passphrase can do everything; BLACKOUT and RECORD are hold-to-fire on the phone	PHONE LEVEL: yettwakkes -- tiliɣri iqqnen neɣ awal uffir zemren ad xedmen kulec; BLACKOUT d RECORD ilaq aḥbas n tqeffalt deg tiliɣri
+PowerPoint could not export this file (it may need permission to be automated: System Settings > Privacy & Security > Automation)	PowerPoint ur yezmir ara ad issufeɣ afaylu-a (yezmer ad yeḥwaǧ tasiregt n uselkem awurman: Iɣewwaren n unagraw > Tabaḍnit d teɣlist > Awurman)
+PowerPoint could not open the file (it gave up waiting for it). If it is in OneDrive, right-click it and choose Always keep on this device, then import it again	PowerPoint ur yezmir ara ad yeldi afaylu (yeḥbes araǧu). Ma yella deg OneDrive, sit s ufus u fren Sekles yal tikelt deg wallal-a, syen kter-it tikkelt-nniḍen
+Pulls the bright tones down without moving pure white, so a hot highlight rolls off instead of clipping.	Yesnuzul ini aceɛlal war abeddel n umlal azeddgan, i wakken tafat tɛedda s leɛḍil deg umkan n ugezzum.
+Rotates the reading, so straight lines wind into spirals rather than rings.	Yezzi taɣuri, izirigen usriden ttuɣalen d tizelɣiwin deg umkan n twinas.
+Rows lose sync and repeat one character, the way a real text screen breaks up. At 0 the grid is clean.	Izirigen sruḥuyen amtawi u ttaɣalen ɣer yiwen n usekkil, am uxessar n ugdil n uḍris n tidet. S 0 tazelɣa tezdeg.
+SLICE <n>: CROP, PLACE, CORNER, EDGE, MASK, SOURCE, ROTATE, FLIP, OPACITY, LFO, ON, OFF, LINEAR, PERSPECTIVE or NAME	SLICE <n>: CROP, PLACE, CORNER, EDGE, MASK, SOURCE, ROTATE, FLIP, OPACITY, LFO, ON, OFF, LINEAR, PERSPECTIVE neɣ NAME
+SLICE CORNER: TL, TR, BR or BL, then dx dy in percent of the output	SLICE CORNER: TL, TR, BR neɣ BL, syen dx dy s tefrayt n tuffɣa
+SLICE EDGE: L, R, T or B, then 0-50 (% of the slice)	SLICE EDGE: L, R, T neɣ B, syen 0-50 (% n uḥric)
+SLICE GRID POINT: col row (from 1, on a grid that is on) then dx dy in percent	SLICE GRID POINT: col row (seg 1, deg tẓeṭṭa iremden) syen dx dy s tefrayt
+SLICE GRID: <cols> <rows> (2-9), OFF, SMOOTH ON|OFF, or POINT col row dx dy	SLICE GRID: <cols> <rows> (2-9), OFF, SMOOTH ON|OFF, neɣ POINT col row dx dy
+SLICE LFO: X, Y, ROTATION or OPACITY, then ON, OFF, SHAPE, RATE, DEPTH...	SLICE LFO: X, Y, ROTATION neɣ OPACITY, syen ON, OFF, SHAPE, RATE, DEPTH...
+SLICE ROTATE: IN (the crop) or OUT (the placed picture), then degrees	SLICE ROTATE: IN (agezzum) neɣ OUT (tugna yersen), syen tifessatin
+Scanlines, bloom and gun misalignment, 0-1 (supports + - * / and ())	Izirigen n usken, tafat yettwassaɣen d yimeẓriyen ur nmeɣran ara, 0-1 (isefrak + - * / akked ())
+Something near the deck: a phone's buzz, a light dimmer's herringbone, a radio's slow bars.	Kra ɣer tama n udek: aẓenẓen n tiliɣri, izirigen n usenqed n tafat, iḥzamen s leɛḍil n rradyu.
+Takes out everything brighter than this as well. Left takes out nothing.	Yekkes daɣen ayen akk iceɛlen ugar n waya. Deg uzelmaḍ ur yekkes acemma.
+Takes out everything darker than this, so what lies beneath shows through. Left takes out nothing.	Yekkes ayen akk iberkanen ugar n waya, ad iban wayen yellan ddaw. Deg uzelmaḍ ur yekkes acemma.
+Tape speed: SP is the best picture, LP and EP fit more on a tape and lose detail and colour.	Arured n tesfift: SP d tugna yelhan akk, LP d EP sekcamen ugar deg tesfift maca sruḥuyen iferdisen d yini.
+The brightness that stays put. Everything above it reaches one way and everything below it the other.	Tafat i yeqqimen. Ayen akk yellan nnig-s yeẓẓel ɣer yiwet n tnila, ayen ddaw-s ɣer tayeḍ.
+The character of the growth: low is waves, then labyrinth, coral, worms, and holes at the top.	Talɣa n unerni: ddaw d imdeswal, syen d aẓeṭṭa, lmerǧan, iḍuḍan d yiseɣwan deg ufella.
+The colour it becomes. Shading and brightness stay as they were, so a red shirt turns blue and keeps its folds.	Ini i tettuɣal. Tili d tafat qqiment, ihi aqendur azeggaɣ yettuɣal d anili u yeṭṭef iḍewlan-is.
+The distance that sits ON the screen. Either side of it comes forward or falls behind.	Amecwar i yellan ƔEF ugdil. Deg yal tama yettas-d ɣer sdat neɣ yettuɣal ɣer deffir.
+The frequency it pivots around -- what counts as 'low' and 'high' for the tilt.	Talɣut i d-yettuzzin fell-as -- ayen i d 'ddaw' d 'nnig' i usenneḍ.
+The level below which the source is closed. Set it under the quietest thing you want to hear.	Aswir ddaw-s ara yettekkar uɣbalu. Sers-it ddaw n wayen yesɛan ṣṣut afessas akk i tebɣiḍ ad tesleḍ.
+The level it starts working at. Lower catches more of the performance.	Aswir anda ara yebdu axeddim. Azal ameẓyan yeṭṭef ugar n wurar.
+The plugin's first four automatable controls, in its own order. Everything else it has keeps whatever the plugin was left set to.	Ukkuẓ n yisenqaden imezwura iwurmanen n uzegrir, s umseḍfer-is. Ayen-nniḍen yeṭṭef iɣewwaren ineggura n uzegrir.
+Tints the two directions apart, so light bending one way and the other are different colours instead of both being grey.	Yesmgirid ini n snat n tnila, tafat yekknen deg yal tnila tesɛa ini-nniḍen deg umkan n uɣiɣdan i snat.
+Turns the strokes across the grain instead of along it, which combs the picture apart rather than smoothing it.	Yezzi izirigen ɣef uɛeqqa deg umkan ad t-ḍefren, iferreq tugna am umšan deg umkan n ulwiɣ.
+Turns the whole arrangement, so the fold lines do not sit on the same part of the picture all night.	Yezzi tuddsa akk, i wakken izirigen n uḍewwal ur qqimen ara deg yiwen n wadeg n tugna iḍ akk.
+VIDEO OUTPUT ASSIGN: already on this output, or no such deck or output	VIDEO OUTPUT ASSIGN: yella yakan deg tuffɣa-a, neɣ ulac adek neɣ tuffɣa-nni
+VIDEO OUTPUT LAYER: this deck is not on this output, or it is already at that layer	VIDEO OUTPUT LAYER: adek-a ur yelli ara deg tuffɣa-a, neɣ yella yakan deg tissi-nni
+VIDEO OUTPUT LAYERWARP MODE: linear or perspective	VIDEO OUTPUT LAYERWARP MODE: linear neɣ perspective
+VIDEO OUTPUT LAYERWARP: expected OFF, MODE, or eight numbers clockwise from the top left	VIDEO OUTPUT LAYERWARP: ilaq OFF, MODE, neɣ ṭam n yimḍanen s tnila n usrag seg ufella azelmaḍ
+VIDEO OUTPUT UNASSIGN: this deck is not on this output, or it is the only thing on it	VIDEO OUTPUT UNASSIGN: adek-a ur yelli ara deg tuffɣa-a, neɣ d netta kan i yellan
+WARP SELECT: expected TL, TR, BR, BL or a grid <col> <row>	WARP SELECT: ilaq TL, TR, BR, BL neɣ tazeṭṭa <col> <row>
+WEBMONITOR PIN: network sharing and phone control require 8 or more characters	WEBMONITOR PIN: beṭṭu n uẓeṭṭa d usenqed n tiliɣri ḥwaǧen 8 n yisekkilen neɣ ugar
+WEBMONITOR: STATUS | ON | OFF | CONTROL ON|OFF | SHARE ON|OFF | SOURCE PROGRAMME|<output> | QR [ON|OFF] | PORT <n> | PIN <pin>|OFF (sound is included)	WEBMONITOR: STATUS | ON | OFF | CONTROL ON|OFF | SHARE ON|OFF | SOURCE PROGRAMME|<output> | QR [ON|OFF] | PORT <n> | PIN <pin>|OFF (ṣṣut yella)
+Where highlights fold back through black. Low folds most of the picture, high folds only the brightest.	Anda ara ttuɣalen yiḥricen iceɛlen s uberkan. Azal ameẓyan yeḍwi tugna s umata, ameqqran yeḍwi kan aceɛlal akk.
+Where the band sits, 30Hz to 16kHz across the travel.	Anda yella uḥzam, seg 30Hz ar 16kHz deg umecwar.
+Where the fold sits: the middle at the left, toward the far edge to the right. Flips have no fold.	Anda yella uḍewwal: talemmast deg uzelmaḍ, ar yiran ibeɛden deg ufus. Tuzzya ur tesɛi ara aḍewwal.
+Where the light stands, in degrees around the frame.	Anda tebna tafat, s tfessatin i d-yezzin i tugna.
+Where the source sits around the listener, all the way round. For headphones -- it is a timing and shading trick, not a pan.	Anda yella uɣbalu i d-yezzin i win isellen, ɣef wannuz akk. I yimesfliden -- d taḥraymit n wakud d tili, mačči d pan.
+Where the top ends, 200Hz to 20kHz. Pull it down to take the harshness off a bright source.	Anda yekfa ṣṣut ɛlayen, 200Hz ar 20kHz. Senɣes-it i tukksa n ṣṣut aquran seg uɣbalu aceɛlal.
+Which channel the curve acts on: all three, then red, green or blue on its own -- the way a colourist warms or cools one end of the picture.	Anwa abadu i tɛedda teẓrigt: tlata, syen azeggaɣ, azegzaw neɣ anili iman-is -- am win n yiniten i yesḥemmu neɣ yessismiḍ yiwet n tama n tugna.
+Which way the knife edge lies. Only gradients ACROSS the edge show, so turning it swaps which features appear and which vanish.	Anida tella tnila n yiri n tfriwt. Kan ibeddilen i yeɛdlen s AZURAN n yiri i d-yettbanen, ihi tuzzya tbeddel iferdisen i d-yettbanen d wid yettɣaben.
+Which way the streak runs: across at the left, upright in the middle, across again at the right.	Tanila n uziri: s tehri deg uzelmaḍ, s teɣzi deg tlemmast, s tehri tikkelt-nniḍen deg ufus.
+Widens the decision into a ramp, so edges keep their shape instead of jagging.	Yessehri tilist ar tseddart s leɛḍil, i wakken iran ad ṭṭfen talɣa-nsen deg umkan n tuɣmas.
+Words to surface in the field, separated by | . One shows at a time, moving on the hold clock.	Awalen ara d-ibanen deg wurti, ferqen s | . Yiwen kan i d-yettbanen, yettbeddil s usrag n uḥbas.
+Zero is one noise value across all three channels, which reads as film. Higher gives each channel its own, which reads as video.	Ilem d yiwen n wazal n ucewwel i tlata n yibuda, yettban am usaru. Azal ameqqran yettak i yal abadu acewwel-is, yettban am uvidyu.
+a plugin overran the audio thread and was bypassed — take it out of the chain	Azegrir yesseɛda akud n lxiḍ n ṣṣut u yettwazgel -- kkes-it seg tkerrust
+a video cue's duration comes from its file; still duration applies to stills, patterns and browsers	Teɣzi n usun n uvidyu tekkad seg ufaylu-s; teɣzi n tugna tettwaḥbesen i tugniwin, udlifen d yiminigen
+couldn't decode still image — unsupported format or corrupt file	Ur yezmir ara ad yefk tugna tarusridt -- amasal ur yettwasefrak ara neɣ afaylu yexser
+did not finish in 3 minutes. It may be waiting on a prompt it cannot show (Protected View, sign-in, a repair). Open the deck there once, or export it as a PDF and import that	Ur yemmid ara deg 3 n tsedatin. Yezmer yettraǧu asteqsi ur yezmir ara ad t-id-yesken (tamuɣli yettwaḥerzen, anekcum, aseɣti). Ldi asali din yiwet n tikkelt, neɣ suffeɣ-it d PDF u kter-it
+forget my defaults? only NEW changes, this show keeps its settings: press again	Ad yettu imezwar-iyi? NEW kan i yettbeddilen, asali-a yeṭṭef iɣewwaren-is: senned tikkelt-nniḍen
+key+fill ON, but no key device set (DECKLINK KEYFILL ON <device>)	key+fill ON, maca ulac allal n key yettwasbadun (DECKLINK KEYFILL ON <device>)
+label | command | glyph      (empty label|command removes it)	tabzimt | taladna | azamul      (tabzimt|taladna tilemt tekkes-it)
+my defaults forgotten: NEW starts from factory settings, this show is unchanged	Imezwar-iyi ttwattun: NEW yettnekker s yiɣewwaren n tɣawsa, asali-a ur ibeddel ara
+no filled shapes in it (paths, rectangles, circles, ellipses or polygons)	Ulac talɣiwin yeččuren deg-s (iberdan, isnan, tiwinas, tilɣiwin tizwarin neɣ ugtenranen)
+notestep: this cue's notes have no builds (separate them with a line of ---)	notestep: tizmilin n usun-a ur sɛint ara tisurifin (bḍu-tent s uziri ---)
+opened github.com in your browser -- nothing is sent until you submit the report there	Yeldi github.com deg yiminig-ik -- ulac ara yettwaznen alamma tuzneḍ aneqqis din
+presenter panel: expected <live|prev|next|notes> <x> <y> <w> <h> in percent	tafelwit n umeskan: ilaq <live|prev|next|notes> <x> <y> <w> <h> s tefrayt
+presenter panel: the panel must fit on the screen (x+w and y+h no more than 100)	tafelwit n umeskan: ilaq ad teddu deg ugdil (x+w d y+h ur ɛeddan ara 100)
+preset: delivery | proxy | match | datamosh	preset: fren delivery | proxy | match | datamosh
+saved as my defaults: NEW starts like this show, without the cues	Yettwasekles d imezwar-iyi: NEW yettnekker am usali-a, war isunen
+splitnotes: that cue's notes have no parts (separate them with a line of ---)	splitnotes: tizmilin n usun-nni ur sɛint ara iḥricen (bḍu-tent s uziri ---)
+the clicker now spends note builds before advancing	Taqeffalt n usali tessemras tisurifin n tezmilin send ad tɛeddi
+this file is only in OneDrive, and OneDrive is not running. Start OneDrive, or copy the file to this computer, then import it again	Afaylu-a yella deg OneDrive kan, OneDrive ur ixeddem ara. Sekker OneDrive, neɣ nɣel afaylu ɣer uselkim-a, syen kter-it tikkelt-nniḍen
+this presentation needs a password to open. Remove the password in PowerPoint (File > Info > Protect Presentation) or export it as a PDF, then import that	Asali-a yeḥwaǧ awal uffir i ulday. Kkes awal uffir deg PowerPoint (Afaylu > Talɣut > Mesten asali) neɣ suffeɣ-it d PDF, syen kter-it
+warp grid: expected <n>, <cols> <rows>, off, smooth or straight	warp grid: ilaq <n>, <cols> <rows>, off, smooth neɣ straight
+warp point: that is a corner -- move it with WARP <corner> dx dy	warp point: d tiɣmert -- smutti-tt s WARP <corner> dx dy
+window capture fell back to screen grab — update ffmpeg for exact window capture	Tuṭṭfa n usfaylu tuɣal ar tuṭṭfa n ugdil -- leqqem FFmpeg i tuṭṭfa tusridt n usfaylu
+Lens	Tamlalt
+Prism	Aprizm
+Water	Aman
+Lasers	Ilaziren
+Pixels	Ipiksilen
+Listens	Isell
+Mirrors	Tisitiwin
+Shimmer	Asfeǧǧeǧ
+Terrarium	Aqerrab n teẓgi
+(bypassed)	(yettwazgel)
+Second jet	Asuffeɣ wis sin
+%, 1 to 100	%, 1 ar 100
+Panel angle	Tiɣmert n tfelwit
+Ripple size	Teɣzi n temwaj
+Panels, 0-12	Tifelwin, 0-12
+Seconds, 0-4	Tasinin, 0-4
+Seconds, 0-8	Tasinin, 0-8
+Top / bottom	Afella / adda
+Amount 0-100%	Tasmekta 0-100%
+ALSA MIDI Port	Tawwurt ALSA MIDI
+Degrees, 0-360	Tifesniyin, 0-360
+Terrarium Pico	Aqerrab n teẓgi Pico
+ASIOInit failed	ASIOInit ur yeddi ara
+Pixels, 64-2160	Ipiksilen, 64-2160
+Pixels, 64-3840	Ipiksilen, 64-3840
+Colour steps, 2-8	Isurifen n yini, 2-8
+Degrees -180..180	Tifesniyin -180..180
+Palette turn, 0-1	Tuzzya n ugalis, 0-1
+Size, %, 5 to 400	Teɣzi, %, 5 ar 400
+Feature size, 0.1-8	Teɣzi n talɣa, 0.1-8
+Spiral size, 0.25-4	Teɣzi n tewriqt, 0.25-4
+Degrees, -360 to 360	Tifesniyin, -360 ar 360
+Spiral strength, 0-4	Tazmert n tewriqt, 0-4
+0-100%, left to right	0-100%, seg uzelmaḍ ɣer uyeffus
+0-100%, top to bottom	0-100%, seg ufella ɣer wadda
+0-100%: laser speckle	0-100%: tineqqiḍin n lazur
+Pixel sort amount, 0-1	Tasmekta n usmizzwer n ipiksilen, 0-1
+Pitch in hertz, 20-8000	Taɣect s hertz, 20-8000
+Frames a second, 1 to 60	Tugniwin di tasint, 1 ar 60
+Horizontal cells, 64-960	Tixxamin tiglawayin, 64-960
+select a lumia cue first	fren taneccabt lumia uqbel
+0 tube, 1 mandala, 2 none	0 ajɛub, 1 mandala, 2 ulac
+How big a blob grows, 0-1	Teɣzi ara yaweḍ uɛeqqa, 0-1
+0-100%: overall brightness	0-100%: tafat tamatut
+FDS hardware gain range, 0-63	Azilal n usnerni n wallal FDS, 0-63
+How hard it cuts, %, 0 to 100	Tazmert n ugzam, %, 0 ar 100
+{1} (supports + - * / and ())	{1} (yesɛa + - * / akked ())
+Master oscillator rate, 0.01-8	Arured n umseḍru agejdan, 0.01-8
+Seconds the in move takes, 0-5	Tasinin n unekcum, 0-5
+0-100%: 0 holds the field still	0-100%: 0 yeṭṭef urti ur yettḥerrik ara
+0-100%: how bright the water is	0-100%: tafat n waman
+0-100%: how far the field bends	0-100%: acḥal yettwennay wurti
+0-100%: the whole picture turns	0-100%: tugna merra tettuzzuy
+Degrees per second, -720 to 720	Tifesniyin di tasint, -720 ar 720
+Lumia (laser light and mirrors)	Lumia (tafat n lazur d tsitiwin)
+Seconds between retriggers, 0-8	Tasinin gar usekker, 0-8
+Seconds the out move takes, 0-5	Tasinin n tuffɣa, 0-5
+0-100%: how fast the water moves	0-100%: arured n waman
+0-100%: the halo round the lines	0-100%: tafat i d-yezzin i yizirigen
+How many are alive at once, 3-48	Acḥal i yettidiren ɣef yiwet, 3-48
+Turbulence, 0 still to 3 boiling	Axelxel, 0 d arsbiḍ ar 3 d aɣelli
+Birth, drift and fade rate, 0.1-3	Arured n tlalit, amussu d ufsay, 0.1-3
+How hard the audio drives it, 0-1	Tazmert n umeslaw fell-as, 0-1
+Scale of the whole graphic, 0.5-2	Taskala n wunuɣ merra, 0.5-2
+0-100%: 0 broad, 100 fine and busy	0-100%: 0 hraw, 100 rqiq yerna yeččur
+Down, % of the height, -100 to 100	D adda, % n teɣzi, -100 ar 100
+Thickness of the glowing edge, 0-1	Tuzert n yiri yettfeǧǧiǧen, 0-1
+0-100%: how hard the lines are bent	0-100%: tazmert n uwennay n yizirigen
+0-100%: light lingers on the screen	0-100%: tafat teqqim ɣef ugdil
+Across, % of the width, -100 to 100	S teɣzi, % n tehri, -100 ar 100
+% of the picture's height, 0.1 to 20	% n teɣzi n tugna, 0.1 ar 20
+0-100%: how far the colours fan apart	0-100%: acḥal i mfarrazen yiniten
+Degrees round the colour wheel, 0-360	Tifesniyin ɣef tewriqt n yini, 0-360
+Where the eye sits, 0 left to 1 right	Anida i tella tiṭ, 0 azelmaḍ ar 1 ayeffus
+Where the eye sits, 0 top to 1 bottom	Anida i tella tiṭ, 0 afella ar 1 adda
+dBFS, -60 to 0 (-18 is EBU alignment)	dBFS, -60 ar 0 (-18 d asgaddi EBU)
+0-100%: how bright the laser lines are	0-100%: tafat n yizirigen n lazur
+One LED tile's width in pixels, 8-8192	Tehri n yiwet n tfelwit LED s ipiksilen, 8-8192
+0-100%: a second jet crossing the first	0-100%: asuffeɣ wis sin yezger amezwaru
+Edge softness, % of the height, 0 to 25	Alewwaɣ n yiri, % n teɣzi, 0 ar 25
+One LED tile's height in pixels, 8-8192	Teɣzi n yiwet n tfelwit LED s ipiksilen, 8-8192
+0 classic, 1 fire, 2 ice, 3 neon, 4 mono	0 amensay, 1 times, 2 agris, 3 neon, 4 yiwen yini
+Modulator as a ratio of the note, 0.05-16	Amseḍru s umḍan n tneqqiṭ n ṣṣut, 0.05-16
+Scanlines, bloom and gun misalignment, 0-1	Izirigen n uskan, tafat d uzlag n yimazzanen, 0-1
+0-100%: the round lens, barrel and dark rim	0-100%: tamlalt tawurant, abuqal d yiri aberkan
+Block displacement and channel tearing, 0-1	Amussu n yiḥedran d weččir n yibuda, 0-1
+Internal resolution, 1 (chunky) to 5 (fine)	Tabadut tagensant, 1 (hraw) ar 5 (rqiq)
+Seconds the finished drawing stays, 0 to 60	Tasinin ara yeqqim wunuɣ yemmden, 0 ar 60
+0 rainbow + grey, 1 rainbow, 2 theme, 3 mono	0 arc-en-ciel + aɣiɣi, 1 arc-en-ciel, 2 asentel, 3 yiwen yini
+How readily neighbours merge, 0 (never) to 1	Acḥal isehhel umyerni n yimjaṛen, 0 (werǧin) ar 1
+Turns the rim's colours round the wheel, 0-1	Isezzay initen n yiri ɣef tewriqt, 0-1
+drag to turn round it · wheel to come closer	zuɣer i tuzzya fell-as · tewriqt i uẓẓal
+0-100%: 50 is 1x, 0 a quarter, 100 four times	0-100%: 50 d 1x, 0 d aẓun wis ukkuẓ, 100 ukkuẓ n tikal
+How much of each frame feeds the next, 0-0.95	Amur n yal tugna i yettɛeddin ɣer tin i d-iteddun, 0-0.95
+Per-frame zoom of the feedback path, 0.90-1.15	Asimɣur n ubrid n tuɣalin i yal tugna, 0.90-1.15
+Space under it, as a fraction of the frame, 0-0.8	Tallunt ddaw-as, d amur n tugna, 0-0.8
+0 rgb, 1 rainbow, 2 floyd, 3 warm, 4 cool, 5 green	0 rgb, 1 arc-en-ciel, 2 floyd, 3 aḥmayan, 4 asemmaḍ, 5 azegzaw
+Edge out (+) or in (-), % of the height, -25 to 25	Iri ɣer berra (+) neɣ s daxel (-), % n teɣzi, -25 ar 25
+SCREENS STAGE: STATUS, SET <what> <value> or APPLY	SCREENS STAGE: STATUS, SET <what> <value> neɣ APPLY
+0 zone, 1 twin, 2 flow, 3 saddle, 4 ripple, 5 shear	0 tamnaḍt, 1 akniw, 2 azzel, 3 tabarda, 4 tamwajt, 5 azlag
+Seconds before it leaves by itself; 0 waits for OUT	Tasinin uqbel ad yeffeɣ iman-is; 0 yettraǧu OUT
+0-100%: how far each panel tilts from the one before	0-100%: acḥal teẓẓel yal tafelwit ɣef tin yezrin
+0-100%: the share of each band drawn as grey stripes	0-100%: amur n yal tasfift s yizirigen iɣiɣanen
+0 off, 1 on: the flow surges with the programme sound	0 insa, 1 yermed: azzel yettali s ṣṣut n wahil
+0 off, 1 on: the top mirrors the bottom round a dark seam	0 insa, 1 yermed: afella yeskan adda ɣef teɣriq taberkant
+' (cues, position, look, effects, levels, routing, master)	' (tineccabin, adeg, udem, isemda, iswiren, abrid, agejdan)
+' -- try ADD, ON, OFF, ASSIGN, UNASSIGN, LAYER, HOST, TYPE, MIRROR or an output number	' -- ɛreḍ ADD, ON, OFF, ASSIGN, UNASSIGN, LAYER, HOST, TYPE, MIRROR neɣ amḍan n tuffɣa
+BLEND ROW: expected <first output> <how many, 2 or more> <overlap in pixels>, with that many outputs	BLEND ROW: yetturaǧu <first output> <how many, 2 or more> <overlap in pixels>, s umḍan-a n tuffɣiwin
+LFO: flow, water, ripple, jet, prism, split, focus, shimmer, mirrors, angle, spin, lens, glow, bright or trail	LFO: flow, water, ripple, jet, prism, split, focus, shimmer, mirrors, angle, spin, lens, glow, bright neɣ trail
+SCREENS STAGE SET: WIDTH|HEIGHT <m>, LUMENS, THROW, OVERLAP <%>, GAIN, COUNT, PIXELS <w> <h> or UNITS METRES|FEET	SCREENS STAGE SET: WIDTH|HEIGHT <m>, LUMENS, THROW, OVERLAP <%>, GAIN, COUNT, PIXELS <w> <h> neɣ UNITS METRES|FEET
+Opacity	Taduli
+opacity	taduli
+FDS synth	Asuddus FDS
+PROXY 720p	TANGALT 720p
+out:--	tuffɣa:--
+PAD MODE: HOLD or LATCH	PAD MODE: HOLD neɣ LATCH
+PAD ASSIGN: this cue does not have that control	PAD ASSIGN: taneccabt-a ur tesɛi ara asenqed-nni
+PAD SET: x and y are numbers from 0 to 1 (y = 1 is the top)	PAD SET: x d y d imḍanen seg 0 ar 1 (y = 1 d afella)
+PAD: expected PAD <deck> SET <x> <y> | RELEASE | MODE | ASSIGN | REMOVE | CHIP | LIST	PAD: yetturaǧu PAD <deck> SET <x> <y> | RELEASE | MODE | ASSIGN | REMOVE | CHIP | LIST
+PAD ASSIGN: a control is OPACITY, FX<n>.AMOUNT, FX<n>.A to F, or NUM.<name> such as NUM.lumia.flow	PAD ASSIGN: asenqed d OPACITY, FX<n>.AMOUNT, FX<n>.A ar F, neɣ NUM.<name> am NUM.lumia.flow
+PAD: expected PAD <deck> SET <x> <y> | RELEASE | MODE HOLD|LATCH | ASSIGN <slot> <x> <y> | REMOVE <slot> | CHIP <slot> ON|OFF | LIST	PAD: yetturaǧu PAD <deck> SET <x> <y> | RELEASE | MODE HOLD|LATCH | ASSIGN <slot> <x> <y> | REMOVE <slot> | CHIP <slot> ON|OFF | LIST
+STATUS | PALETTE <0-5 or name> | MODE <0-2 or name> | TOPBOTTOM|LISTENS ON|OFF | FLOW|WATER|RIPPLE|JET|PRISM|SPLIT|FOCUS|SHIMMER|ANGLE|SPIN|LENS|GLOW|BRIGHT|TRAIL <0-100> | MIRRORS <0-12> | LFO <control> <setting>	STATUS | PALETTE <0-5 neɣ isem> | MODE <0-2 neɣ isem> | TOPBOTTOM|LISTENS ON|OFF | FLOW|WATER|RIPPLE|JET|PRISM|SPLIT|FOCUS|SHIMMER|ANGLE|SPIN|LENS|GLOW|BRIGHT|TRAIL <0-100> | MIRRORS <0-12> | LFO <control> <setting>
+Render	Asuffeɣ
+PNG frames	Tugniwin PNG
+START RENDER	SEKKER ASUFFEƔ
+CANCEL RENDER	SEFSEX ASUFFEƔ
+QUANTISE: beat	ASEMẒI: aḍebsi
+RENDER TO FILE	SUFFEƔ ƔER UFAYLU
+about {1} left	yeqqim azal n {1}
+LINK: {1} peers	LINK: {1} n yimdukal
+QUANTISE: 1 bar	ASEMẒI: 1 n tmeẓri
+QUANTISE: 2 bars	ASEMẒI: 2 n tmeẓriwin
+QUANTISE: 4 bars	ASEMẒI: 4 n tmeẓriwin
+render cancelled	asuffeɣ yettwasefsex
+RENDER TO FILE...	SUFFEƔ ƔER UFAYLU...
+{1} frames in {2}	{1} n tugniwin di {2}
+the output's ({1})	n tuffɣa ({1})
+From cue and to cue	Taneccabt n tazwara d tin n taggara
+left the Link session	yeffeɣ seg tɣimit Link
+joined the Link session	yekcem ɣer tɣimit Link
+the playlist has no cues	tabdart n tɣuri ur tesɛi ara tineccabin
+the source made no picture	aɣbalu ur d-yesnulfa ara tugna
+a render is already running	asuffeɣ la iteddu yakan
+TAKE waits for the bar: {1} s	TAKE yettraǧu tameẓrit: {1} s
+TAKE waits for the beat: {1} s	TAKE yettraǧu aḍebsi: {1} s
+there is no playlist to render	ulac tabdart n tɣuri i usuffeɣ
+this build has no Ableton Link	lqem-a ur yesɛi ara Ableton Link
+there is no picture in that range	ulac tugna deg uzilal-nni
+RENDER CANCEL: nothing is rendering	RENDER CANCEL: ulac asuffeɣ iteddun
+{1} frames, {2}, {3}x{4}	{1} n tugniwin, {2}, {3}x{4}
+RENDER START: CUE, CUES a-b or OUTPUT	RENDER START: CUE, CUES a-b neɣ OUTPUT
+frame {1} of {2} \xC2\xB7 {3} frames/s	tugna {1} seg {2} \xC2\xB7 {3} tugniwin/s
+RENDER START CUES: first-last, numbered from 1	RENDER START CUES: amezwaru-aneggaru, uṭṭunen seg 1
+the output's mask is not drawn by a render yet	asuffeɣ ur yettunuɣ ara yakan tagelmust n tuffɣa
+the output's slices are not drawn by a render yet	asuffeɣ ur yettunuɣ ara yakan iḥricen n tuffɣa
+the output's crossfader is not drawn by a render yet	asuffeɣ ur yettunuɣ ara yakan amsefsay n tuffɣa
+RENDER START: needs a size, a rate, a codec and a file	RENDER START: yeḥwaǧ teɣzi, arured, akudik d ufaylu
+VJ QUANTISE: beat | 1 | 2 | 4 | off  (1, 2, 4 are bars)	VJ QUANTISE: beat | 1 | 2 | 4 | off  (1, 2, 4 d timeẓriwin)
+RENDER START: size is 1080P, 4K or OUTPUT; codec is PRORES, H264 or PNG	RENDER START: teɣzi d 1080P, 4K neɣ OUTPUT; akudik d PRORES, H264 neɣ PNG
+VJ: expected ON|OFF|TOGGLE|MIX <0-1>|BLEND <mode>|TAP|BPM <n>|CLOCK <on|off>|QUANTISE <beat|1|2|4|off>|LINK <on|off|status>|DECKS <a> <b>|STATUS	VJ: yetturaǧu ON|OFF|TOGGLE|MIX <0-1>|BLEND <mode>|TAP|BPM <n>|CLOCK <on|off>|QUANTISE <beat|1|2|4|off>|LINK <on|off|status>|DECKS <a> <b>|STATUS
+VJ LINK: this build has no Ableton Link	VJ LINK: lqem-a ur yesɛi ara Ableton Link
