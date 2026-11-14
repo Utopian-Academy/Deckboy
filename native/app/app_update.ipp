@@ -461,6 +461,7 @@
     // The MIDI map first: a knob's frame of values becomes one command here.
     serviceMidiMap();
     processRemoteCommands();
+    padWatchdog();
     refreshNmcSyncState();
     refreshNdiTriggerBridgeState();
     refreshLtcCaptureState();

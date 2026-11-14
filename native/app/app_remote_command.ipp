@@ -5795,6 +5795,10 @@
       failRemoteCommand("CODE: use GET | SET <expression> | EDIT");
       return;
     }
+    if (command == "PAD") {
+      handlePadCommand(parts);
+      return;
+    }
     if (command == "FX") {
       // Effect stack over the wire. Added because the effect stack could only
       // be driven by clicking, which meant the RUNTIME path -- adding an effect

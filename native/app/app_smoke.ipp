@@ -4676,6 +4676,99 @@
       i18n::setLanguage("en", noData, err);
     }
 
+    // ── THE X/Y PAD ────────────────────────────────────────────────────────
+    // Assign two controls, move the finger, let go: HOLD springs back, LATCH
+    // stays, a point outside 0-1 is refused, and the phone may send the verb.
+    {
+      App app;
+      app.showSplashOverlay_ = false;
+      app.showStartupDialog_ = false;
+      app.project_.decks = {Deck {}, Deck {}};
+      Cue bars;
+      bars.kind = CueKind::Pattern;
+      bars.path = "pattern://bars";
+      bars.id = "pad-bars";
+      bars.name = "Bars";
+      deckboy::effects::CueEffect glow;
+      glow.kind = deckboy::effects::CueEffectKind::Glow;
+      glow.amount = 0.8f; glow.paramA = 0.25f; glow.paramB = 0.75f;
+      deckboy::effects::CueEffect blur;
+      blur.kind = deckboy::effects::CueEffectKind::Blur;
+      blur.paramA = 0.4f;
+      bars.effects = {glow, blur};
+      app.project_.decks[0].cues = {bars};
+      app.project_.decks[0].selectedIndex = 0;
+      app.project_.focusedDeckIndex = 1;
+      app.addLumiaCue();
+      app.project_.focusedDeckIndex = 0;
+      app.project_.decks[1].selectedIndex = 0;
+      const auto run = [&](const std::string& line) {
+        app.handleRemoteCommand(line);
+        return app.remoteCommandError_.empty();
+      };
+      const auto closeTo = [](double a, double b) { return std::fabs(a - b) < 1e-4; };
+      auto& fx = app.project_.decks[0].cues[0].effects;
+      expect(!run("PAD 1 SET 0.5 0.5"), "PAD refuses a point while nothing is on the pad");
+      expect(run("PAD 1 ASSIGN 1 FX1.A FX1.B") && app.remoteCommandDetail_.find("x ") != std::string::npos,
+             "PAD ASSIGN puts two effect sliders on the axes");
+      expect(!run("PAD 1 ASSIGN 1 FX9.A FX1.B") && !run("PAD 1 ASSIGN 1 NOPE FX1.B") &&
+             !run("PAD 1 ASSIGN 5 FX1.A FX1.B") && !run("PAD 9 LIST"),
+             "PAD refuses a missing effect, an unknown control, a slot out of order and a missing deck");
+      expect(run("PAD 1 SET 0.2 0.9") && closeTo(fx[0].paramA, 0.2) && closeTo(fx[0].paramB, 0.9),
+             "PAD SET moves the x control with x and the y control with y");
+      expect(run("PAD 1 SET 1 0") && closeTo(fx[0].paramA, 1.0) && closeTo(fx[0].paramB, 0.0), "the pad's corners reach each end of a slider");
+      expect(!run("PAD 1 SET 1.5 0.5") && !run("PAD 1 SET -0.1 0.5") && !run("PAD 1 SET abc 0.5") && !run("PAD 1 SET 0.5") &&
+             closeTo(fx[0].paramA, 1.0),
+             "PAD SET refuses a number out of range, a word and a missing number, and changes nothing");
+      expect(run("PAD 1 RELEASE") && closeTo(fx[0].paramA, 0.25) && closeTo(fx[0].paramB, 0.75),
+             "HOLD: letting go springs both controls back to where they were");
+      expect(run("PAD 1 RELEASE") && app.remoteCommandDetail_ == "nothing held", "a second release does nothing");
+      expect(run("PAD 1 MODE LATCH") && run("PAD 1 SET 0.6 0.1") && run("PAD 1 RELEASE") &&
+             closeTo(fx[0].paramA, 0.6) && closeTo(fx[0].paramB, 0.1), "LATCH: letting go leaves the controls where they are");
+      expect(run("PAD 1 MODE HOLD") && run("PAD 1 SET 0.9 0.9") && run("PAD 1 RELEASE") &&
+             closeTo(fx[0].paramA, 0.6) && closeTo(fx[0].paramB, 0.1), "HOLD again: the next gesture returns to the latched values");
+      // Stacked chips, the amount, and the deck's opacity.
+      expect(run("PAD 1 ASSIGN 2 OPACITY FX2.A") && run("PAD 1 MODE HOLD") && app.project_.decks[0].playlistOpacity == 1.0f,
+             "a second chip can use the deck's opacity");
+      expect(run("PAD 1 SET 0.4 0.7") && closeTo(app.project_.decks[0].playlistOpacity, 0.4) && closeTo(fx[1].paramA, 0.7) &&
+             closeTo(fx[0].paramA, 0.4) && closeTo(fx[0].paramB, 0.7), "stacked chips all follow the one finger");
+      expect(run("PAD 1 RELEASE") && closeTo(app.project_.decks[0].playlistOpacity, 1.0) && closeTo(fx[1].paramA, 0.4) &&
+             closeTo(fx[0].paramA, 0.6), "release restores every stacked control");
+      expect(run("PAD 1 CHIP 2 OFF") && run("PAD 1 SET 0.3 0.3") && closeTo(app.project_.decks[0].playlistOpacity, 1.0) &&
+             run("PAD 1 RELEASE"), "a chip that is off leaves its controls alone");
+      expect(run("PAD 1 REMOVE 2") && run("PAD 1 LIST") && app.remoteCommandDetail_.find("2 ") == std::string::npos,
+             "PAD REMOVE takes a chip off the pad");
+      // A control that does not move for 4 s is let go.
+      expect(run("PAD 1 SET 0.9 0.9") && closeTo(fx[0].paramA, 0.9), "the finger is down again");
+      if (SDL_GetTicks() < kPadSilenceMs + 200) SDL_Delay(static_cast<Uint32>(kPadSilenceMs + 200 - SDL_GetTicks()));
+      app.pads_[0].lastSetMs = SDL_GetTicks() - kPadSilenceMs - 100;
+      app.padWatchdog();
+      expect(!app.pads_[0].engaged && closeTo(fx[0].paramA, 0.6), "a phone that goes quiet with a finger down is let go");
+      // A generated source's numbers, by the inspector's own table.
+      expect(run("PAD 2 ASSIGN 1 NUM.lumia.flow NUM.lumia.prism") && run("PAD 2 SET 0.5 1") &&
+             closeTo(app.project_.decks[1].cues[0].lumia.flow, 0.5) && closeTo(app.project_.decks[1].cues[0].lumia.prism, 1.0),
+             "a source's numbers (Lumia flow and prism) go on the axes");
+      expect(run("PAD 2 RELEASE") && closeTo(app.project_.decks[1].cues[0].lumia.flow, LumiaSettings {}.flow),
+             "...and spring back");
+      expect(!run("PAD 2 ASSIGN 1 NUM.lumia.palette NUM.lumia.prism") && !run("PAD 1 ASSIGN 1 NUM.lumia.flow FX1.A"),
+             "a picker is not a pad axis, and a source the cue is not is refused");
+      // The phone's allow-list, and the page's state.
+      expect(App::webRemoteCommandAllowed("PAD 1 SET 0.5 0.5") && App::webRemoteCommandAllowed("PAD 2 RELEASE") &&
+             App::webRemoteCommandAllowed("PAD 1 ASSIGN 3 FX1.A NUM.lumia.flow") && App::webRemoteCommandAllowed("PAD 1 MODE LATCH") &&
+             App::webRemoteCommandAllowed("PAD 1 CHIP 2 OFF") && App::webRemoteCommandAllowed("PAD 1 REMOVE 2"),
+             "a paired phone may send the PAD verbs");
+      expect(!App::webRemoteCommandAllowed("PAD 1 SET 0.5") && !App::webRemoteCommandAllowed("PAD 1 ASSIGN 1 FX1.A;x FX1.B") &&
+             !App::webRemoteCommandAllowed("PAD 1 SET -1 0.5") && !App::webRemoteCommandAllowed("PAD 1 NOPE") &&
+             !App::webRemoteCommandAllowed("PAD x SET 0.5 0.5") && !App::webRemoteCommandAllowed("PAD 1 MODE FAST"),
+             "...and nothing else shaped like it");
+      std::ostringstream stateJson;
+      app.padStateJson(stateJson, 0);
+      const std::string stateText = stateJson.str();
+      expect(stateText.find("\"controls\"") != std::string::npos && stateText.find("FX1.AMOUNT") != std::string::npos &&
+             stateText.find("OPACITY") != std::string::npos,
+             "the phone's state lists what can go on the pad");
+    }
+
     std::cout << "smoke failures: " << failures << '\n';
     return failures == 0 ? 0 : 1;
   }

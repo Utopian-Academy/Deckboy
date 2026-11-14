@@ -171,7 +171,7 @@ struct NumericParamSpec {
   double step = 0.0;
 };
 
-const NumericParamSpec* numericParamSpec(NumericParam id) {
+const NumericParamSpec* numericParamSpec(NumericParam id) const {
   switch (id) {
     case NumericParam::SwirlSpeed: {
       static const NumericParamSpec s {"swirl.speed", "Speed", "-3 to 3: 0 holds, negative runs backwards", -3, 3, 2, false, 0.1};
@@ -568,7 +568,7 @@ const NumericParamSpec* numericParamSpec(NumericParam id) {
 // Read the live value. Returns false when the selected cue does not carry it,
 // which is how a stale row (the selection changed mid-click) is refused rather
 // than writing into the wrong cue.
-bool readNumericParam(const Cue& cue, NumericParam id, double& out) {
+bool readNumericParam(const Cue& cue, NumericParam id, double& out) const {
   const VideoSynthSettings& v = cue.videoSynth;
   switch (id) {
     case NumericParam::SwirlSpeed:

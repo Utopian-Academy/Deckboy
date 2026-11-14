@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+### Phone remote
+- New **PAD** on the phone page: drag one finger on a square and two controls move together, such as an effect's glow and blur, a deck's opacity, or Lumia's flow and prism. Stack several effects on the pad and they all follow. **HOLD** springs every control back when you let go; **LATCH** leaves them where you left them. It uses the same pairing and passphrase as the rest of the page, and the desk lets go by itself if the phone goes quiet. Companion: `PAD <deck> SET <x 0-1> <y 0-1>`, `PAD <deck> RELEASE`, `PAD <deck> MODE HOLD|LATCH`, `PAD <deck> ASSIGN <slot> <X> <Y>` (a control is `OPACITY`, `FX<n>.AMOUNT`, `FX<n>.A` to `F`, or `NUM.<name>` such as `NUM.lumia.flow`), `PAD <deck> REMOVE <slot>`, `PAD <deck> CHIP <slot> ON|OFF` and `PAD <deck> LIST`.
+
 ### Sources
 - New source: **Lumia**. Laser light through moving water, a prism and a tube of mirrors, like the light-art machines of the 1960s and 70s. Controls in four groups: water (flow, water, ripple size, second jet), prism (lasers, prism, split, focus, shimmer), mirrors (tube, mandala or none; 0 to 12 mirrors, panel angle, top / bottom, spin) and light (lens, glow, brightness, trail). Every number has an LFO, and it can listen to the programme sound. Add it from SOURCE > MADE BY DECKBOY. Companion: `LUMIA`.
 - Lumia is made on the graphics card when every output can draw it there. Tested on Direct3D 11, Direct3D 12 and Vulkan; the Metal (macOS) version is written but not yet run. Only the small trace of light is worked out on the CPU, so a 4K output costs about what a 1080p one does: 1080p 12 ms and 4K 18 ms a frame at most, from 16 ms and 31 ms. A grade, a key or effects on the cue keep it on the CPU, as before. `DECKBOY_CPU_SOURCES=1` keeps every source on the CPU.
