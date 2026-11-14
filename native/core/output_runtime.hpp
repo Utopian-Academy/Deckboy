@@ -470,6 +470,9 @@ struct OutputRuntime {
   // What a deck's effects left on the GPU, drawn again while its frame has
   // not changed. Present only while the GPU path is the one in use.
   std::map<int, SDL_Texture*> layerGpuFxTextures;
+  // A source made on the card: its desk copy as it comes back (runGpuSource,
+  // readGpuSourceDesk), handed to the deck's engine for the desk.
+  std::vector<std::uint8_t> gpuSourceDesk;
   // What that result was of. A transition needs the outgoing look as PIXELS,
   // so when the cue changes it is read back once (layerLookFrames' job on the
   // CPU path, which keeps the pixels every frame).

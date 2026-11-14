@@ -793,6 +793,13 @@ struct D3DSlot : SlotBase {
   ID3D11UnorderedAccessView* lumiaUav[5] = {};
   int lumiaW = 0, lumiaH = 0;
   std::uint64_t lumiaMoment = 0;
+  // Its desk copy: drawn small, read back through two staging textures in
+  // turn so a read never waits on the frame being drawn.
+  D3DBuf desk;
+  ID3D11Texture2D* deskStaging[2] = {};
+  std::uint64_t deskMoment[2] = {};
+  bool deskBusy[2] = {};
+  int deskNext = 0;
 };
 
 void releaseBuf(D3DBuf& b) {
@@ -857,6 +864,13 @@ struct GpuEffects {
     SDL_GPUBuffer* lumiaBuf[5] = {};
     int lumiaW = 0, lumiaH = 0;
     std::uint64_t lumiaMoment = 0;
+    // Its desk copy (see the Direct3D 11 slot), read back behind fences.
+    SDL_GPUTexture* deskTex = nullptr;
+    int deskW = 0, deskH = 0;
+    SDL_GPUTransferBuffer* deskDown[2] = {};
+    SDL_GPUFence* deskFence[2] = {};
+    std::uint64_t deskMoment[2] = {};
+    int deskNext = 0;
   };
   std::map<int, SdlSlot> sdlSlots;
 #endif
@@ -967,6 +981,8 @@ void d3d11Destroy(GpuEffects* g) {
       releaseCom(s.lumiaUav[b]);
       releaseCom(s.lumiaBuf[b]);
     }
+    releaseBuf(s.desk);
+    for (auto*& t : s.deskStaging) releaseCom(t);
     if (s.display) SDL_DestroyTexture(s.display);
   }
   g->d3dSlots.clear();
@@ -1270,6 +1286,15 @@ void sdlReleaseSlot(GpuEffects* g, GpuEffects::SdlSlot& s) {
   }
   s.lumiaW = s.lumiaH = 0;
   s.lumiaMoment = 0;
+  if (s.deskTex) SDL_ReleaseGPUTexture(g->gpu, s.deskTex);
+  s.deskTex = nullptr;
+  s.deskW = s.deskH = 0;
+  for (int k = 0; k < 2; ++k) {
+    if (s.deskFence[k]) SDL_ReleaseGPUFence(g->gpu, s.deskFence[k]);
+    s.deskFence[k] = nullptr;
+    if (s.deskDown[k]) SDL_ReleaseGPUTransferBuffer(g->gpu, s.deskDown[k]);
+    s.deskDown[k] = nullptr;
+  }
   if (s.display) SDL_DestroyTexture(s.display);
   s.display = nullptr;
 }
@@ -2127,13 +2152,50 @@ SDL_Texture* d3d11Source(GpuEffects* g, int slotIndex, const SourcePlan& plan) {
   for (int b = 0; b < LB_COUNT; ++b) uavs[1 + b] = slot.lumiaUav[b];
   g->context->CSSetUnorderedAccessViews(0, 1 + LB_COUNT, uavs, nullptr);
   g->context->CSSetConstantBuffers(0, 1, &g->constants);
-  for (const LumiaPass& pass : lumiaPasses(plan, trace, fresh)) {
+  std::vector<LumiaPass> passes = lumiaPasses(plan, trace, fresh);
+  // The desk's copy: the draw again, small, into its own texture.
+  const bool desk = plan.deskW >= 2 && plan.deskH >= 2 && makeBuf(g->device, slot.desk, plan.deskW, plan.deskH);
+  if (desk) {
+    LumiaPass deskPass = passes.back();
+    deskPass.params.width = static_cast<std::uint32_t>(plan.deskW);
+    deskPass.params.height = static_cast<std::uint32_t>(plan.deskH);
+    deskPass.groupsX = (plan.deskW + 7) / 8;
+    deskPass.groupsY = (plan.deskH + 7) / 8;
+    passes.push_back(deskPass);
+  }
+  for (std::size_t k = 0; k < passes.size(); ++k) {
+    const LumiaPass& pass = passes[k];
+    if (desk && k + 1 == passes.size()) g->context->CSSetUnorderedAccessViews(0, 1, &slot.desk.uav, nullptr);
     D3D11_MAPPED_SUBRESOURCE mapped {};
     if (FAILED(g->context->Map(g->constants, 0, D3D11_MAP_WRITE_DISCARD, 0, &mapped))) return nullptr;
     std::memcpy(mapped.pData, &pass.params, sizeof(Params));
     g->context->Unmap(g->constants, 0);
     g->context->CSSetShader(g->shaders[pass.entry], nullptr, 0);
     g->context->Dispatch(static_cast<UINT>(pass.groupsX), static_cast<UINT>(pass.groupsY), 1);
+  }
+  if (desk) {
+    ID3D11Texture2D*& staging = slot.deskStaging[slot.deskNext];
+    if (staging) {
+      D3D11_TEXTURE2D_DESC have {};
+      staging->GetDesc(&have);
+      if (static_cast<int>(have.Width) != plan.deskW || static_cast<int>(have.Height) != plan.deskH) {
+        releaseCom(staging);
+      }
+    }
+    if (!staging) {
+      D3D11_TEXTURE2D_DESC sd {};
+      slot.desk.tex->GetDesc(&sd);
+      sd.Usage = D3D11_USAGE_STAGING;
+      sd.BindFlags = 0;
+      sd.CPUAccessFlags = D3D11_CPU_ACCESS_READ;
+      g->device->CreateTexture2D(&sd, nullptr, &staging);
+    }
+    if (staging) {
+      g->context->CopyResource(staging, slot.desk.tex);
+      slot.deskMoment[slot.deskNext] = plan.moment;
+      slot.deskBusy[slot.deskNext] = true;
+      slot.deskNext ^= 1;
+    }
   }
   ID3D11UnorderedAccessView* none[1 + LB_COUNT] = {};
   g->context->CSSetUnorderedAccessViews(0, 1 + LB_COUNT, none, nullptr);
@@ -2234,19 +2296,141 @@ SDL_Texture* sdlSource(GpuEffects* g, int slotIndex, const SourcePlan& plan) {
     SDL_DispatchGPUCompute(cp, static_cast<Uint32>(pass.groupsX), static_cast<Uint32>(pass.groupsY), 1);
     SDL_EndGPUComputePass(cp);
   }
+  // The desk's copy: the draw again, small, then downloaded behind a fence.
+  bool desk = plan.deskW >= 2 && plan.deskH >= 2;
+  const int k = slot.deskNext;
+  if (desk && (!slot.deskTex || slot.deskW != plan.deskW || slot.deskH != plan.deskH)) {
+    if (slot.deskTex) SDL_ReleaseGPUTexture(g->gpu, slot.deskTex);
+    for (auto*& d : slot.deskDown) {
+      if (d) SDL_ReleaseGPUTransferBuffer(g->gpu, d);
+      d = nullptr;
+    }
+    SDL_GPUTextureCreateInfo info {};
+    info.type = SDL_GPU_TEXTURETYPE_2D;
+    info.format = SDL_GPU_TEXTUREFORMAT_R8G8B8A8_UNORM;
+    info.usage = SDL_GPU_TEXTUREUSAGE_SAMPLER | SDL_GPU_TEXTUREUSAGE_COMPUTE_STORAGE_WRITE;
+    info.width = static_cast<Uint32>(plan.deskW);
+    info.height = static_cast<Uint32>(plan.deskH);
+    info.layer_count_or_depth = 1;
+    info.num_levels = 1;
+    slot.deskTex = SDL_CreateGPUTexture(g->gpu, &info);
+    slot.deskW = slot.deskTex ? plan.deskW : 0;
+    slot.deskH = slot.deskTex ? plan.deskH : 0;
+  }
+  // A read-back still in flight in this buffer: skip the copy this frame.
+  if (desk && slot.deskFence[k]) desk = false;
+  if (desk && slot.deskTex && !slot.deskDown[k]) {
+    SDL_GPUTransferBufferCreateInfo info {};
+    info.usage = SDL_GPU_TRANSFERBUFFERUSAGE_DOWNLOAD;
+    info.size = static_cast<Uint32>(plan.deskW) * static_cast<Uint32>(plan.deskH) * 4;
+    slot.deskDown[k] = SDL_CreateGPUTransferBuffer(g->gpu, &info);
+  }
+  desk = desk && slot.deskTex && slot.deskDown[k];
+  if (desk) {
+    LumiaPass deskPass = lumiaPasses(plan, false, false).back();
+    deskPass.params.width = static_cast<std::uint32_t>(plan.deskW);
+    deskPass.params.height = static_cast<std::uint32_t>(plan.deskH);
+    SDL_GPUStorageTextureReadWriteBinding smallOut {};
+    smallOut.texture = slot.deskTex;
+    smallOut.cycle = false;
+    SDL_GPUComputePass* cp = SDL_BeginGPUComputePass(cmd, &smallOut, 1, bufs, LB_COUNT);
+    SDL_BindGPUComputePipeline(cp, g->pipelines[E_SOURCE]);
+    SDL_BindGPUComputeSamplers(cp, 0, views, 2);
+    SDL_PushGPUComputeUniformData(cmd, 0, &deskPass.params, sizeof(Params));
+    SDL_DispatchGPUCompute(cp, static_cast<Uint32>((plan.deskW + 7) / 8), static_cast<Uint32>((plan.deskH + 7) / 8),
+                           1);
+    SDL_EndGPUComputePass(cp);
+  }
   SDL_GPUCopyPass* copy = SDL_BeginGPUCopyPass(cmd);
   SDL_GPUTextureLocation from {};
   from.texture = slot.buf[ALT];
   SDL_GPUTextureLocation to {};
   to.texture = displayTex;
   SDL_CopyGPUTextureToTexture(copy, &from, &to, static_cast<Uint32>(w), static_cast<Uint32>(h), 1, false);
+  if (desk) {
+    SDL_GPUTextureRegion region {};
+    region.texture = slot.deskTex;
+    region.w = static_cast<Uint32>(plan.deskW);
+    region.h = static_cast<Uint32>(plan.deskH);
+    region.d = 1;
+    SDL_GPUTextureTransferInfo into {};
+    into.transfer_buffer = slot.deskDown[k];
+    SDL_DownloadFromGPUTexture(copy, &region, &into);
+  }
   SDL_EndGPUCopyPass(copy);
-  if (!SDL_SubmitGPUCommandBuffer(cmd)) return nullptr;
+  if (desk) {
+    SDL_GPUFence* fence = SDL_SubmitGPUCommandBufferAndAcquireFence(cmd);
+    if (!fence) return nullptr;
+    slot.deskFence[k] = fence;
+    slot.deskMoment[k] = plan.moment;
+    slot.deskNext ^= 1;
+  } else if (!SDL_SubmitGPUCommandBuffer(cmd)) {
+    return nullptr;
+  }
   if (trace) slot.lumiaMoment = plan.moment;
   return display;
 }
 #endif
 }  // namespace
+
+bool readGpuSourceDesk(GpuEffects* g, int slotIndex, std::vector<std::uint8_t>& rgba, int& w, int& h,
+                       std::uint64_t& moment) {
+  if (!g) return false;
+#ifdef _WIN32
+  if (g->device) {
+    auto it = g->d3dSlots.find(slotIndex);
+    if (it == g->d3dSlots.end()) return false;
+    D3DSlot& slot = it->second;
+    // The newer copy first (the one written last), then the older.
+    for (const int k : {slot.deskNext ^ 1, slot.deskNext}) {
+      if (!slot.deskBusy[k] || !slot.deskStaging[k]) continue;
+      D3D11_MAPPED_SUBRESOURCE mapped {};
+      if (g->context->Map(slot.deskStaging[k], 0, D3D11_MAP_READ, D3D11_MAP_FLAG_DO_NOT_WAIT, &mapped) != S_OK) {
+        continue;   // still drawing: never wait for it
+      }
+      D3D11_TEXTURE2D_DESC desc {};
+      slot.deskStaging[k]->GetDesc(&desc);
+      w = static_cast<int>(desc.Width);
+      h = static_cast<int>(desc.Height);
+      rgba.resize(static_cast<std::size_t>(w) * h * 4);
+      for (int y = 0; y < h; ++y) {
+        std::memcpy(rgba.data() + static_cast<std::size_t>(y) * w * 4,
+                    static_cast<const std::uint8_t*>(mapped.pData) + static_cast<std::size_t>(y) * mapped.RowPitch,
+                    static_cast<std::size_t>(w) * 4);
+      }
+      g->context->Unmap(slot.deskStaging[k], 0);
+      moment = slot.deskMoment[k];
+      slot.deskBusy[0] = slot.deskBusy[1] = false;   // the older one is stale now
+      return true;
+    }
+    return false;
+  }
+#endif
+#if SDL_VERSION_ATLEAST(3, 4, 0)
+  if (g->gpu) {
+    auto it = g->sdlSlots.find(slotIndex);
+    if (it == g->sdlSlots.end()) return false;
+    GpuEffects::SdlSlot& slot = it->second;
+    bool got = false;
+    for (const int k : {slot.deskNext, slot.deskNext ^ 1}) {   // oldest first; the newer wins
+      if (!slot.deskFence[k] || !SDL_QueryGPUFence(g->gpu, slot.deskFence[k])) continue;
+      SDL_ReleaseGPUFence(g->gpu, slot.deskFence[k]);
+      slot.deskFence[k] = nullptr;
+      const void* mapped = SDL_MapGPUTransferBuffer(g->gpu, slot.deskDown[k], false);
+      if (!mapped) continue;
+      w = slot.deskW;
+      h = slot.deskH;
+      rgba.resize(static_cast<std::size_t>(w) * h * 4);
+      std::memcpy(rgba.data(), mapped, rgba.size());
+      SDL_UnmapGPUTransferBuffer(g->gpu, slot.deskDown[k]);
+      moment = slot.deskMoment[k];
+      got = true;
+    }
+    return got;
+  }
+#endif
+  return false;
+}
 
 SDL_Texture* runGpuSource(GpuEffects* g, int slot, const SourcePlan& plan) {
   if (!g || plan.kind == SourcePlan::None || plan.width < 2 || plan.height < 2 || plan.srcW < 2 ||
@@ -2440,6 +2624,8 @@ void releaseGpuEffectsSlot(GpuEffects* g, int slot) {
       releaseCom(it->second.lumiaUav[b]);
       releaseCom(it->second.lumiaBuf[b]);
     }
+    releaseBuf(it->second.desk);
+    for (auto*& t : it->second.deskStaging) releaseCom(t);
     if (it->second.display) SDL_DestroyTexture(it->second.display);
     g->d3dSlots.erase(it);
   }

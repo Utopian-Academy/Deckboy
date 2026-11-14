@@ -127,6 +127,10 @@ class MediaEngine {
   // The desk's small picture of a source made on the card, at frame's size
   // (set by the caller), traced on the CPU at a quarter of the rays.
   static void buildGpuSourceDeskPicture(DecodedFrame& frame, const Cue& cue, double animTime);
+  // The desk's copy an output drew on the card and read back (any thread).
+  // While one is recent, rebuildPatternFrame shows it instead of tracing a
+  // picture on the CPU.
+  void offerGpuSourceDesk(const std::vector<std::uint8_t>& rgba, int w, int h, std::uint64_t moment);
   // Callback to tap decoded audio samples (for waveform display / VU meter).
   using AudioTapCallback = std::function<void(const std::vector<std::int16_t>&)>;
   // Optional resolver to transform cue paths before decode (e.g. relative→absolute).
@@ -1975,6 +1979,11 @@ class MediaEngine {
   bool forcePixelFrames_ = false;
   bool effectsOnGpu_ = false;
   bool sourcesOnGpu_ = false;
+  std::mutex gpuDeskMutex_;
+  std::vector<std::uint8_t> gpuDeskPixels_;
+  int gpuDeskW_ = 0, gpuDeskH_ = 0;
+  std::uint64_t gpuDeskMoment_ = 0;
+  int gpuDeskFromCard_ = -1;   // last frame's source of the desk picture, logged when it changes
 
   // -- State: browser capture --------------------------------------------------
   bool isBrowserCapturing_ = false;          // browser backend is sending frames

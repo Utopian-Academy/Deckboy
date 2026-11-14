@@ -4847,9 +4847,27 @@ void MediaEngine::rebuildPatternFrame(const Cue& cue, double wallSeconds) {
     if (planGpuSource(cue, animTime, fallbackW, fallbackH, *plan)) {
       const int sw = std::min(fallbackW, 640);
       const int sh = std::max(1, static_cast<int>(std::lround(static_cast<double>(fallbackH) * sw / fallbackW)));
+      plan->deskW = sw;
+      plan->deskH = sh;
       displayFrame_->width = sw;
       displayFrame_->height = sh;
-      buildGpuSourceDeskPicture(*displayFrame_, cue, animTime);
+      // The outputs' own copy, read back from the card a frame or two late,
+      // while it is recent; the CPU traces one only when none is coming back
+      // (no output drawing it yet, or a card that has stopped).
+      bool fromCard = false;
+      {
+        std::lock_guard<std::mutex> lock(gpuDeskMutex_);
+        if (gpuDeskW_ == sw && gpuDeskH_ == sh && gpuDeskMoment_ != 0 && plan->moment >= gpuDeskMoment_ &&
+            plan->moment - gpuDeskMoment_ <= 8) {
+          displayFrame_->pixels = gpuDeskPixels_;
+          fromCard = true;
+        }
+      }
+      if (!fromCard) buildGpuSourceDeskPicture(*displayFrame_, cue, animTime);
+      if (gpuDeskFromCard_ != (fromCard ? 1 : 0)) {
+        gpuDeskFromCard_ = fromCard ? 1 : 0;
+        std::cerr << "gpu-sources: desk picture " << (fromCard ? "from the card" : "traced on the CPU") << std::endl;
+      }
       displayFrame_->format = FramePixelFormat::RGBA32;
       displayFrame_->colorspace = SDL_COLORSPACE_SRGB;
       displayFrame_->logicalWidth = fallbackW;
@@ -13821,6 +13839,15 @@ void buildLumiaAt(DecodedFrame& frame, double animTime, const LumiaSettings& bas
 
 void buildLumia(DecodedFrame& frame, double animTime, const LumiaSettings& base, const std::string& cueId) {
   buildLumiaAt(frame, animTime, base, cueId, frame.height >= 600 ? 2 : 1);
+}
+
+void MediaEngine::offerGpuSourceDesk(const std::vector<std::uint8_t>& rgba, int w, int h, std::uint64_t moment) {
+  std::lock_guard<std::mutex> lock(gpuDeskMutex_);
+  if (moment < gpuDeskMoment_ && gpuDeskW_ == w && gpuDeskH_ == h) return;   // an older copy, late
+  gpuDeskPixels_ = rgba;
+  gpuDeskW_ = w;
+  gpuDeskH_ = h;
+  gpuDeskMoment_ = moment;
 }
 
 void MediaEngine::buildGpuSourceDeskPicture(DecodedFrame& frame, const Cue& cue, double animTime) {

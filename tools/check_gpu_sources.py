@@ -180,6 +180,10 @@ def main():
     sizes = re.findall(r"layer 1 (\d+)x(\d+) ", gpu_log)
     expect(bool(sizes) and int(sizes[-1][0]) <= 640, "the desk picture is the small one", str(sizes[-1:]))
     expect("sources made on the card on" not in cpu_log, "DECKBOY_CPU_SOURCES=1 keeps it on the CPU")
+    # The desk's picture comes back from the card once an output draws it;
+    # the CPU traces one only until then.
+    desk = re.findall(r"gpu-sources: desk picture (from the card|traced on the CPU)", gpu_log)
+    expect(bool(desk) and desk[-1] == "from the card", "the desk's picture comes from the card", str(desk[-3:]))
     for name, snap in (("card", gpu_snap), ("cpu", cpu_snap)):
         expect(snap.exists(), "the %s output was captured" % name)
     if gpu_snap.exists() and cpu_snap.exists():

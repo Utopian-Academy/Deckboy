@@ -122,6 +122,10 @@ struct SourcePlan {
   int srcW = 0, srcH = 0;        // the traced source
   std::uint64_t moment = 0;      // a new number for each moment to trace
   bool reset = false;            // the trail starts afresh (a new cue, a scrub)
+  // The desk's copy (0: none): the same moment drawn again at this size and
+  // read back without waiting -- the desk's preview, scopes and Web Monitor
+  // take it from readGpuSourceDesk a frame or two later.
+  int deskW = 0, deskH = 0;
   // The trace (planGpuSource has the layout): ti water rays across, down;
   // prism rays across, down, beams; blur radii prism, water. tf the ripple
   // size, the water's bend and five phases, the jet, the thresholds and
@@ -138,6 +142,11 @@ struct SourcePlan {
 // The picture, in a texture owned by `g` and valid until the next run for the
 // same slot. Null on any failure: the caller then draws the CPU picture.
 SDL_Texture* runGpuSource(GpuEffects* g, int slot, const SourcePlan& plan);
+// The newest desk copy whose read-back has finished, RGBA w x h, and the
+// moment it shows. Never waits: false when none has finished since the last
+// call.
+bool readGpuSourceDesk(GpuEffects* g, int slot, std::vector<std::uint8_t>& rgba, int& w, int& h,
+                       std::uint64_t& moment);
 
 // Compile the Direct3D 11 shaders now, on any thread, so the first effect does
 // not. The app calls it on a background thread at launch.

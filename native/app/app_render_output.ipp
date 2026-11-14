@@ -4745,6 +4745,15 @@
         // nothing to apply here. On failure the small picture below stands in.
         outputRuntime->layerGpuFxTextures[sourceDeckIndex] = made;
         drewOnGpu = true;
+        // Its desk copy, when one has come back: the desk's picture, with no
+        // trace on the CPU.
+        int deskW = 0, deskH = 0;
+        std::uint64_t deskMoment = 0;
+        if (sourceFrame->gpuSource->deskW > 0 && sourceRuntime && sourceRuntime->mediaEngine &&
+            deckboy::gpu::readGpuSourceDesk(outputRuntime->gpuEffects, sourceDeckIndex, outputRuntime->gpuSourceDesk,
+                                            deskW, deskH, deskMoment)) {
+          sourceRuntime->mediaEngine->offerGpuSourceDesk(outputRuntime->gpuSourceDesk, deskW, deskH, deskMoment);
+        }
         outputRuntime->layerLookFrames.erase(sourceDeckIndex);
         auto& gpuLook = outputRuntime->layerGpuLooks[sourceDeckIndex];
         gpuLook.key = cuePreviewCacheKey(*sourceCue);
