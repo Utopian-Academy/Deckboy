@@ -3574,6 +3574,17 @@ shake	sacudi
 shard size	tamaño di fragmento
 sharpen	haci skerpi
 sheen	lustro
+lumps	bultonan
+refraction	refraccion
+reform	rehaci
+gloss	brio
+liquid	liquido
+How fast the picture sags. At the left it barely moves.	Con lihe e portret ta baha. Na banda robes e casi no ta move.
+How big the lumps in the surface are: fine ripples at the left, fat blobs at the right.	E tama?o di e bultonan riba e superficie: olanan fini na robes, bultonan grandi na drechi.
+How much the picture bends through the lumps, as through thick glass.	Cuanto e portret ta dobla door di e bultonan, manera door di glas diki.
+How fast the melt reforms into the live picture. At the left what has melted stays.	Con lihe e parti smelt ta bira e portret bibo atrobe. Na robes loke a smelt ta keda.
+The gloss: white highlights and rainbow oil-slick colour on the lumps and rims.	E brio: reflehonan blanco y colornan di regenboog manera un capa di azeta riba e bultonan y randnan.
+Bright: bright things drip over the dark, as text and logos do. Whole picture: everything is wax, and the picture itself runs down in its own colours. Liquid: the picture turns to glossy molten plastic, sagging in lumps with rainbow highlights, and what moves leaves melting ghosts.	Cla: cosnan cla ta gota riba e scuro, manera texto y logo. Henter imagen: tur cos ta was, y e imagen mes ta corre abou den su propio colornan. Liquido: e portret ta bira plastic smelt cu brio, ta baha den bultonan cu refleho di regenboog, y loke ta move ta laga fantasmanan cu ta smelt.
 sideways	di banda
 slit scan	scan di rendija
 slit width	hanchura di rendija
@@ -4637,3 +4648,19 @@ scopes - the picture scopes	scopes - e scopenan di e portret
 MULTIVIEW WINDOW: expected PROGRAMME, DECK<n>, OUTPUT<n>, NEXT, CLOCK, SCOPES or EMPTY	MULTIVIEW WINDOW: ta spera PROGRAMME, DECK<n>, OUTPUT<n>, NEXT, CLOCK, SCOPES of EMPTY
 VIDEO OUTPUT ADD: WINDOW | STREAM | MULTIVIEW | PRESENTER | PROMPTER | SCOPES	VIDEO OUTPUT ADD: ta spera WINDOW | STREAM | MULTIVIEW | PRESENTER | PROMPTER | SCOPES
 every output shows the scopes - add one that shows the programme	tur salida ta mustra e medidornan - agrega un cu ta mustra e programa
+Voice	Voz
+voice	voz
+SOUNDS	SONIDONAN
+voice cue added	cue di voz agregá
+VOICE BREATH: expected 0-100	VOICE BREATH: ta spera 0-100
+VOICE SIZE: expected 0.8-1.25	VOICE SIZE: ta spera 0.8-1.25
+VOICE PITCH: expected 50-400 Hz	VOICE PITCH: ta spera 50-400 Hz
+VOICE MODE: expected WORDS or SOUNDS	VOICE MODE: ta spera WORDS of SOUNDS
+VOICE SAY: expected the words to say	VOICE SAY: ta spera e palabranan pa bisa
+The length of the throat. 0.8 is a child, 1.25 a giant.	E largura di garganta. 0.8 ta un mucha, 1.25 un gigante.
+Airiness of the voice: 0 is pressed and hard, 100 a whisper.	Aire den e voz: 0 ta primí i duru, 100 un susurro.
+VOICE: select a Voice cue first (VOICE SAY <text> makes one)	VOICE: scoge un cue di voz prome (VOICE SAY <text> ta crea un)
+VOICE: expected SAY, CHARACTER, MODE, PITCH, SIZE, BREATH or STATUS	VOICE: ta spera SAY, CHARACTER, MODE, PITCH, SIZE, BREATH of STATUS
+Who talks: one of the sixteen lesson characters, or CUSTOM to set the voice by hand.	Ken ta papia: un di e dieseis caracter di les, of PERSONALISA pa pone e voz cu man.
+The speaking pitch. Steps in semitones: about 100 Hz is a deep voice, 220 Hz a high one.	E tono di papia. Pasonan den semitono: mas o menos 100 Hz ta un voz hundu, 220 Hz un voz haltu.
+WORDS speaks the text. SOUNDS has the speaker say their own noises instead, one per word, keeping the punctuation.	PALABRANAN ta pronunsia e texto. SONIDONAN ta laga esun cu ta papia bisa su mes sonidonan, un pa palabra, i ta warda e puntuacion.

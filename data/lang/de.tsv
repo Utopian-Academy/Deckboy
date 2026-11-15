@@ -3589,6 +3589,17 @@ shake	Zittern
 shard size	Splittergröße
 sharpen	Schärfen
 sheen	Schimmer
+lumps	Klumpen
+refraction	Brechung
+reform	R?ckkehr
+gloss	Glanz
+liquid	fl?ssig
+How fast the picture sags. At the left it barely moves.	Wie schnell das Bild absackt. Ganz links bewegt es sich kaum.
+How big the lumps in the surface are: fine ripples at the left, fat blobs at the right.	Wie gro? die Klumpen auf der Oberfl?che sind: links feine Wellen, rechts dicke Blasen.
+How much the picture bends through the lumps, as through thick glass.	Wie stark sich das Bild durch die Klumpen biegt, wie durch dickes Glas.
+How fast the melt reforms into the live picture. At the left what has melted stays.	Wie schnell die Schmelze wieder zum Livebild wird. Ganz links bleibt Geschmolzenes erhalten.
+The gloss: white highlights and rainbow oil-slick colour on the lumps and rims.	Der Glanz: wei?e Glanzlichter und regenbogenfarbener ?lfilm auf Klumpen und R?ndern.
+Bright: bright things drip over the dark, as text and logos do. Whole picture: everything is wax, and the picture itself runs down in its own colours. Liquid: the picture turns to glossy molten plastic, sagging in lumps with rainbow highlights, and what moves leaves melting ghosts.	Hell: Helles tropft über Dunkles, wie Text und Logos. Ganzes Bild: alles ist Wachs; das Bild selbst läuft in seinen Farben herab. Fl?ssig: Das Bild wird zu gl?nzendem, geschmolzenem Kunststoff, der in Klumpen mit Regenbogenglanz absackt; Bewegungen hinterlassen schmelzende Geisterbilder.
 sideways	seitwärts
 slit scan	Schlitzscan
 slit width	Schlitzbreite
@@ -4628,3 +4639,21 @@ scopes - the picture scopes	scopes - die Bild-Scopes
 MULTIVIEW WINDOW: expected PROGRAMME, DECK<n>, OUTPUT<n>, NEXT, CLOCK, SCOPES or EMPTY	MULTIVIEW WINDOW: erwartet PROGRAMME, DECK<n>, OUTPUT<n>, NEXT, CLOCK, SCOPES oder EMPTY
 VIDEO OUTPUT ADD: WINDOW | STREAM | MULTIVIEW | PRESENTER | PROMPTER | SCOPES	VIDEO OUTPUT ADD: erwartet WINDOW | STREAM | MULTIVIEW | PRESENTER | PROMPTER | SCOPES
 every output shows the scopes - add one that shows the programme	Jeder Ausgang zeigt die Messgeräte - füge einen hinzu, der das Programm zeigt
+Voice	Stimme
+voice	Stimme
+SOUNDS	LAUTE
+voice cue added	Stimm-Cue hinzugefügt
+VOICE BREATH: expected 0-100	VOICE BREATH: erwartet 0-100
+VOICE SIZE: expected 0.8-1.25	VOICE SIZE: erwartet 0.8-1.25
+VOICE PITCH: expected 50-400 Hz	VOICE PITCH: erwartet 50-400 Hz
+VOICE MODE: expected WORDS or SOUNDS	VOICE MODE: erwartet WORDS oder SOUNDS
+VOICE SAY: expected the words to say	VOICE SAY: erwartet die zu sprechenden Wörter
+The length of the throat. 0.8 is a child, 1.25 a giant.	Die Länge der Kehle. 0.8 ist ein Kind, 1.25 ein Riese.
+DASH: LIST | <n> | SET <n> <label> | <command> | CLEAR <n>	DASH: LIST | <n> | SET <n> <Bezeichnung> | <Befehl> | CLEAR <n>
+Airiness of the voice: 0 is pressed and hard, 100 a whisper.	Luftigkeit der Stimme: 0 ist gepresst und hart, 100 ein Flüstern.
+VOICE: select a Voice cue first (VOICE SAY <text> makes one)	VOICE: zuerst einen Stimm-Cue wählen (VOICE SAY <text> erstellt einen)
+VOICE: expected SAY, CHARACTER, MODE, PITCH, SIZE, BREATH or STATUS	VOICE: erwartet SAY, CHARACTER, MODE, PITCH, SIZE, BREATH oder STATUS
+Who talks: one of the sixteen lesson characters, or CUSTOM to set the voice by hand.	Wer spricht: eines der sechzehn Zeichen aus den Lektionen, oder EIGENE, um die Stimme von Hand einzustellen.
+The speaking pitch. Steps in semitones: about 100 Hz is a deep voice, 220 Hz a high one.	Die Tonhöhe beim Sprechen. Schritte in Halbtönen: etwa 100 Hz ist eine tiefe Stimme, 220 Hz eine hohe.
+WORDS speaks the text. SOUNDS has the speaker say their own noises instead, one per word, keeping the punctuation.	WÖRTER spricht den Text. LAUTE lässt den Sprecher stattdessen eigene Laute sagen, einen pro Wort, mit erhaltener Zeichensetzung.
+STATUS | SHAPE <0-5> | PALETTE <0-3> | DENSITY|SPEED|WARP|CENTREX|CENTREY|GREY <0-100> | TURN|HUE <0-360> | LFO <control> <setting>	STATUS | SHAPE <0-5> | PALETTE <0-3> | DENSITY|SPEED|WARP|CENTREX|CENTREY|GREY <0-100> | TURN|HUE <0-360> | LFO <Regler> <Einstellung>

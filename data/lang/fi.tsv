@@ -3706,6 +3706,17 @@ shake	tärinä
 shard size	sirpalekoko
 sharpen	terävöitys
 sheen	hohde
+lumps	m?ykyt
+refraction	taitto
+reform	palauta
+gloss	kiilto
+liquid	neste
+How fast the picture sags. At the left it barely moves.	Kuinka nopeasti kuva valuu. Vasemmalla se tuskin liikkuu.
+How big the lumps in the surface are: fine ripples at the left, fat blobs at the right.	Pinnan m?ykkyjen koko: vasemmalla hienoja v?reit?, oikealla paksuja paakkuja.
+How much the picture bends through the lumps, as through thick glass.	Kuinka paljon kuva taittuu m?ykkyjen l?pi kuin paksun lasin l?pi.
+How fast the melt reforms into the live picture. At the left what has melted stays.	Kuinka nopeasti sulanut kuva palautuu el?v?ksi kuvaksi. Vasemmalla sulanut j?? paikalleen.
+The gloss: white highlights and rainbow oil-slick colour on the lumps and rims.	Kiilto: valkoiset heijastukset ja ?ljykalvon sateenkaariv?rit m?ykyiss? ja reunoilla.
+Bright: bright things drip over the dark, as text and logos do. Whole picture: everything is wax, and the picture itself runs down in its own colours. Liquid: the picture turns to glossy molten plastic, sagging in lumps with rainbow highlights, and what moves leaves melting ghosts.	Kirkkaat: kirkkaat kohteet valuvat tummien päälle, kuten teksti ja logot. Koko kuva: kaikki on vahaa ja kuva valuu omissa väreissään. Neste: kuva muuttuu kiilt?v?ksi sulaksi muoviksi ja valuu sateenkaaren v?reiss? hohtavina m?ykkyin?; liike j?tt?? sulavia haamukuvia.
 sideways	sivuttain
 size out of range	koko alueen ulkopuolella
 slit scan	rakoskannaus
@@ -4657,3 +4668,19 @@ scopes - the picture scopes	scopes - kuvan skoopit
 MULTIVIEW WINDOW: expected PROGRAMME, DECK<n>, OUTPUT<n>, NEXT, CLOCK, SCOPES or EMPTY	MULTIVIEW WINDOW: odotetaan PROGRAMME, DECK<n>, OUTPUT<n>, NEXT, CLOCK, SCOPES tai EMPTY
 VIDEO OUTPUT ADD: WINDOW | STREAM | MULTIVIEW | PRESENTER | PROMPTER | SCOPES	VIDEO OUTPUT ADD: odotetaan WINDOW | STREAM | MULTIVIEW | PRESENTER | PROMPTER | SCOPES
 every output shows the scopes - add one that shows the programme	kaikki ulostulot näyttävät kuvan mittarit - lisää ulostulo, joka näyttää ohjelman
+Voice	Ääni
+voice	ääni
+SOUNDS	ÄÄNIEFEKTIT
+voice cue added	äänicue lisätty
+VOICE BREATH: expected 0-100	VOICE BREATH: odotetaan 0-100
+VOICE SIZE: expected 0.8-1.25	VOICE SIZE: odotetaan 0.8-1.25
+VOICE PITCH: expected 50-400 Hz	VOICE PITCH: odotetaan 50-400 Hz
+VOICE MODE: expected WORDS or SOUNDS	VOICE MODE: odotetaan SANAT tai ÄÄNIEFEKTIT
+VOICE SAY: expected the words to say	VOICE SAY: odotetaan sanat, jotka sanotaan
+The length of the throat. 0.8 is a child, 1.25 a giant.	Kurkun pituus. 0.8 on lapsi, 1.25 jättiläinen.
+Airiness of the voice: 0 is pressed and hard, 100 a whisper.	Äänen ilmavuus: 0 on puristettu ja kova, 100 kuiskaus.
+VOICE: select a Voice cue first (VOICE SAY <text> makes one)	VOICE: valitse ensin äänicue (VOICE SAY <teksti> luo sen)
+VOICE: expected SAY, CHARACTER, MODE, PITCH, SIZE, BREATH or STATUS	VOICE: odotetaan SAY, CHARACTER, MODE, PITCH, SIZE, BREATH tai STATUS
+Who talks: one of the sixteen lesson characters, or CUSTOM to set the voice by hand.	Kuka puhuu: yksi kuudestatoista oppituntien luonteesta, tai OMA asettaaksesi äänen käsin.
+The speaking pitch. Steps in semitones: about 100 Hz is a deep voice, 220 Hz a high one.	Puheen sävelkorkeus. Askeleet puolisävelaskelina: noin 100 Hz on matala ääni, 220 Hz korkea.
+WORDS speaks the text. SOUNDS has the speaker say their own noises instead, one per word, keeping the punctuation.	SANAT puhuu tekstin. ÄÄNIEFEKTIT saa puhujan sanomaan sen sijaan omia äänenpartensa, yksi sanaa kohden, välimerkit säilyttäen.

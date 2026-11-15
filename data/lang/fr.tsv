@@ -3573,6 +3573,17 @@ shake	secousse
 shard size	taille des éclats
 sharpen	netteté
 sheen	reflet
+lumps	bosses
+refraction	r?fraction
+reform	reformer
+gloss	?clat
+liquid	liquide
+How fast the picture sags. At the left it barely moves.	La vitesse ? laquelle l'image s'affaisse. ? gauche, elle bouge ? peine.
+How big the lumps in the surface are: fine ripples at the left, fat blobs at the right.	La taille des bosses de la surface : fines rides ? gauche, grosses masses ? droite.
+How much the picture bends through the lumps, as through thick glass.	La d?formation de l'image ? travers les bosses, comme ? travers du verre ?pais.
+How fast the melt reforms into the live picture. At the left what has melted stays.	La vitesse ? laquelle la mati?re fondue redevient l'image en direct. ? gauche, ce qui a fondu reste.
+The gloss: white highlights and rainbow oil-slick colour on the lumps and rims.	L'?clat : reflets blancs et couleurs iris?es de nappe d'huile sur les bosses et les bords.
+Bright: bright things drip over the dark, as text and logos do. Whole picture: everything is wax, and the picture itself runs down in its own colours. Liquid: the picture turns to glossy molten plastic, sagging in lumps with rainbow highlights, and what moves leaves melting ghosts.	Clair : les éléments clairs coulent sur le sombre, comme les textes et logos. Image entière : tout est cire et l'image coule dans ses propres couleurs. Liquide : l'image devient du plastique fondu brillant, s'affaisse en bosses aux reflets arc-en-ciel et tout mouvement laisse des fant?mes qui fondent.
 sideways	latéral
 slit scan	balayage à fente
 slit width	largeur de fente
@@ -4596,3 +4607,20 @@ scopes - the picture scopes	scopes - les scopes de l'image
 MULTIVIEW WINDOW: expected PROGRAMME, DECK<n>, OUTPUT<n>, NEXT, CLOCK, SCOPES or EMPTY	MULTIVIEW WINDOW : attendu PROGRAMME, DECK<n>, OUTPUT<n>, NEXT, CLOCK, SCOPES ou EMPTY
 VIDEO OUTPUT ADD: WINDOW | STREAM | MULTIVIEW | PRESENTER | PROMPTER | SCOPES	VIDEO OUTPUT ADD: attendu WINDOW | STREAM | MULTIVIEW | PRESENTER | PROMPTER | SCOPES
 every output shows the scopes - add one that shows the programme	toutes les sorties affichent les instruments de mesure - ajoutez-en une qui affiche le programme
+Voice	Voix
+voice	voix
+SOUNDS	SONS
+voice cue added	cue de voix ajouté
+VOICE BREATH: expected 0-100	VOICE BREATH : attendu 0-100
+VOICE SIZE: expected 0.8-1.25	VOICE SIZE : attendu 0.8-1.25
+VOICE PITCH: expected 50-400 Hz	VOICE PITCH : attendu 50-400 Hz
+VOICE MODE: expected WORDS or SOUNDS	VOICE MODE : attendu MOTS ou SONS
+VOICE SAY: expected the words to say	VOICE SAY : attendu : les mots à dire
+The length of the throat. 0.8 is a child, 1.25 a giant.	La longueur de la gorge. 0.8 est un enfant, 1.25 un géant.
+DASH: LIST | <n> | SET <n> <label> | <command> | CLEAR <n>	DASH : LIST | <n> | SET <n> <libellé> | <commande> | CLEAR <n>
+Airiness of the voice: 0 is pressed and hard, 100 a whisper.	Souffle de la voix : 0 est serrée et dure, 100 un murmure.
+VOICE: select a Voice cue first (VOICE SAY <text> makes one)	VOICE : sélectionnez d'abord un cue de voix (VOICE SAY <texte> en crée un)
+VOICE: expected SAY, CHARACTER, MODE, PITCH, SIZE, BREATH or STATUS	VOICE : attendu SAY, CHARACTER, MODE, PITCH, SIZE, BREATH ou STATUS
+Who talks: one of the sixteen lesson characters, or CUSTOM to set the voice by hand.	Qui parle : un des seize caractères des leçons, ou PERSONNALISÉ pour régler la voix à la main.
+The speaking pitch. Steps in semitones: about 100 Hz is a deep voice, 220 Hz a high one.	La hauteur de la voix parlée. Pas en demi-tons : environ 100 Hz est une voix grave, 220 Hz une aiguë.
+WORDS speaks the text. SOUNDS has the speaker say their own noises instead, one per word, keeping the punctuation.	MOTS prononce le texte. SONS fait dire au personnage ses propres bruits à la place, un par mot, en gardant la ponctuation.

@@ -3558,6 +3558,17 @@ shake	drżenie
 shard size	rozmiar odłamka
 sharpen	wyostrzenie
 sheen	połysk
+lumps	grudki
+refraction	refrakcja
+reform	odtw?rz
+gloss	po?ysk
+liquid	ciecz
+How fast the picture sags. At the left it barely moves.	Jak szybko obraz opada. Po lewej niemal si? nie porusza.
+How big the lumps in the surface are: fine ripples at the left, fat blobs at the right.	Rozmiar grudek na powierzchni: drobne fale po lewej, du?e bry?y po prawej.
+How much the picture bends through the lumps, as through thick glass.	Jak mocno obraz za?amuje si? przez grudki, jak przez grube szk?o.
+How fast the melt reforms into the live picture. At the left what has melted stays.	Jak szybko stopiony obraz wraca do obrazu na ?ywo. Po lewej to, co si? stopi?o, pozostaje.
+The gloss: white highlights and rainbow oil-slick colour on the lumps and rims.	Po?ysk: bia?e odblaski i t?czowe barwy jak na warstwie oleju na grudkach i kraw?dziach.
+Bright: bright things drip over the dark, as text and logos do. Whole picture: everything is wax, and the picture itself runs down in its own colours. Liquid: the picture turns to glossy molten plastic, sagging in lumps with rainbow highlights, and what moves leaves melting ghosts.	Jasne: jasne elementy ściekają po ciemnych, jak tekst i logo. Cały obraz: wszystko jest woskiem, a obraz spływa we własnych kolorach. Ciecz: obraz zmienia si? w l?ni?cy stopiony plastik, opada grudkami z t?czowymi odblaskami, a ruch pozostawia topniej?ce widma.
 sideways	w bok
 slit scan	skan szczelinowy
 slit width	szerokość szczeliny
@@ -4628,3 +4639,22 @@ scopes - the picture scopes	skopy - skopy obrazu
 MULTIVIEW WINDOW: expected PROGRAMME, DECK<n>, OUTPUT<n>, NEXT, CLOCK, SCOPES or EMPTY	MULTIVIEW WINDOW: oczekiwano PROGRAMME, DECK<n>, OUTPUT<n>, NEXT, CLOCK, SCOPES lub EMPTY
 VIDEO OUTPUT ADD: WINDOW | STREAM | MULTIVIEW | PRESENTER | PROMPTER | SCOPES	VIDEO OUTPUT ADD: oczekiwano WINDOW | STREAM | MULTIVIEW | PRESENTER | PROMPTER | SCOPES
 every output shows the scopes - add one that shows the programme	każde wyjście pokazuje mierniki obrazu - dodaj takie, które pokazuje program
+Voice	Głos
+voice	głos
+SOUNDS	DŹWIĘKI
+voice cue added	dodano cue głosu
+VOICE BREATH: expected 0-100	VOICE BREATH: oczekiwano 0-100
+VOICE SIZE: expected 0.8-1.25	VOICE SIZE: oczekiwano 0.8-1.25
+VOICE PITCH: expected 50-400 Hz	VOICE PITCH: oczekiwano 50-400 Hz
+VOICE MODE: expected WORDS or SOUNDS	VOICE MODE: oczekiwano SŁOWA lub DŹWIĘKI
+VOICE SAY: expected the words to say	VOICE SAY: oczekiwano tekstu do wypowiedzenia
+DASH SET: <n> <label> | <command> [| <glyph>]	DASH SET: <n> <etykieta> | <polecenie> [| <symbol>]
+The length of the throat. 0.8 is a child, 1.25 a giant.	Długość gardła. 0.8 to dziecko, 1.25 olbrzym.
+DASH: LIST | <n> | SET <n> <label> | <command> | CLEAR <n>	DASH: LIST | <n> | SET <n> <etykieta> | <polecenie> | CLEAR <n>
+Airiness of the voice: 0 is pressed and hard, 100 a whisper.	Przydech głosu: 0 to głos ściśnięty i twardy, 100 to szept.
+VOICE: select a Voice cue first (VOICE SAY <text> makes one)	VOICE: najpierw wybierz cue Głos (VOICE SAY <text> tworzy nowy)
+VOICE: expected SAY, CHARACTER, MODE, PITCH, SIZE, BREATH or STATUS	VOICE: oczekiwano SAY, CHARACTER, MODE, PITCH, SIZE, BREATH lub STATUS
+Who talks: one of the sixteen lesson characters, or CUSTOM to set the voice by hand.	Kto mówi: jeden z szesnastu znaków lekcji albo WŁASNY, by ustawić głos ręcznie.
+The speaking pitch. Steps in semitones: about 100 Hz is a deep voice, 220 Hz a high one.	Wysokość tonu mowy. Kroki co półton: ok. 100 Hz to głos niski, 220 Hz wysoki.
+WORDS speaks the text. SOUNDS has the speaker say their own noises instead, one per word, keeping the punctuation.	SŁOWA wypowiadają tekst. DŹWIĘKI każą mówcy wydawać własne odgłosy zamiast słów, po jednym na słowo, z zachowaniem interpunkcji.
+STATUS | SHAPE <0-5> | PALETTE <0-3> | DENSITY|SPEED|WARP|CENTREX|CENTREY|GREY <0-100> | TURN|HUE <0-360> | LFO <control> <setting>	STATUS | SHAPE <0-5> | PALETTE <0-3> | DENSITY|SPEED|WARP|CENTREX|CENTREY|GREY <0-100> | TURN|HUE <0-360> | LFO <kontrolka> <ustawienie>

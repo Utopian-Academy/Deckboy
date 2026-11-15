@@ -3529,6 +3529,17 @@ shake	اهتزاز
 shard size	حجم الشظايا
 sharpen	زيادة الحدة
 sheen	لمعان
+lumps	???
+refraction	??????
+reform	????
+gloss	????
+liquid	????
+How fast the picture sags. At the left it barely moves.	???? ???? ??????. ??? ?????? ?????? ?????.
+How big the lumps in the surface are: fine ripples at the left, fat blobs at the right.	??? ??? ?????: ?????? ????? ??? ?????? ???? ???? ??? ??????.
+How much the picture bends through the lumps, as through thick glass.	????? ?????? ?????? ??? ?????? ??? ??? ???? ????.
+How fast the melt reforms into the live picture. At the left what has melted stays.	???? ???? ??????? ??? ?????? ?????. ??? ?????? ???? ?? ???.
+The gloss: white highlights and rainbow oil-slick colour on the lumps and rims.	??????: ???????? ????? ?????? ??? ??? ????? ??? ??? ????? ???????.
+Bright: bright things drip over the dark, as text and logos do. Whole picture: everything is wax, and the picture itself runs down in its own colours. Liquid: the picture turns to glossy molten plastic, sagging in lumps with rainbow highlights, and what moves leaves melting ghosts.	ساطع: تسيل العناصر الساطعة فوق الداكنة كالنص والشعارات. الصورة كلها: كل شيء شمع، وتسـيل الصورة بألوانها. ????: ????? ?????? ??? ??????? ????? ????? ????? ?? ??? ????????? ??? ???? ????? ?????? ??????? ????.
 sideways	جانبي
 slit scan	مسح الشق
 slit width	عرض الشق
@@ -4674,3 +4685,19 @@ scopes - the picture scopes	scopes - أدوات قياس الصورة
 MULTIVIEW WINDOW: expected PROGRAMME, DECK<n>, OUTPUT<n>, NEXT, CLOCK, SCOPES or EMPTY	MULTIVIEW WINDOW: المتوقع PROGRAMME, DECK<n>, OUTPUT<n>, NEXT, CLOCK, SCOPES أو EMPTY
 VIDEO OUTPUT ADD: WINDOW | STREAM | MULTIVIEW | PRESENTER | PROMPTER | SCOPES	VIDEO OUTPUT ADD: المتوقع: WINDOW | STREAM | MULTIVIEW | PRESENTER | PROMPTER | SCOPES
 every output shows the scopes - add one that shows the programme	كل المخارج تعرض أدوات القياس - أضف مخرجًا يعرض البرنامج
+Voice	صوت
+voice	صوت
+SOUNDS	أصوات
+voice cue added	تمت إضافة كيو صوتي
+VOICE BREATH: expected 0-100	VOICE BREATH: المتوقع: 0-100
+VOICE SIZE: expected 0.8-1.25	VOICE SIZE: المتوقع: 0.8-1.25
+VOICE PITCH: expected 50-400 Hz	VOICE PITCH: المتوقع: 50-400 Hz
+VOICE MODE: expected WORDS or SOUNDS	VOICE MODE: المتوقع: WORDS أو SOUNDS
+VOICE SAY: expected the words to say	VOICE SAY: المتوقع: الكلمات المراد قولها
+The length of the throat. 0.8 is a child, 1.25 a giant.	طول الحلق. 0.8 طفل و1.25 عملاق.
+Airiness of the voice: 0 is pressed and hard, 100 a whisper.	هوائية الصوت: 0 مضغوط وقاسٍ، 100 همس.
+VOICE: select a Voice cue first (VOICE SAY <text> makes one)	VOICE: اختر كيو صوت أولاً (VOICE SAY <text> ينشئ واحداً)
+VOICE: expected SAY, CHARACTER, MODE, PITCH, SIZE, BREATH or STATUS	VOICE: المتوقع: SAY أو CHARACTER أو MODE أو PITCH أو SIZE أو BREATH أو STATUS
+Who talks: one of the sixteen lesson characters, or CUSTOM to set the voice by hand.	من يتكلم: أحد المحارف الستة عشر في الدروس، أو مخصص لضبط الصوت يدويًا.
+The speaking pitch. Steps in semitones: about 100 Hz is a deep voice, 220 Hz a high one.	طبقة صوت الكلام. الخطوات بأنصاف النغمات: نحو 100 Hz صوت عميق، و220 Hz صوت عالٍ.
+WORDS speaks the text. SOUNDS has the speaker say their own noises instead, one per word, keeping the punctuation.	كلمات تنطق النص. أصوات تجعل المتحدث يقول أصواته الخاصة بدلًا من ذلك، واحدًا لكل كلمة، مع الإبقاء على علامات الترقيم.

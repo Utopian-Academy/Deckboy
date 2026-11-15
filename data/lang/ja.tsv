@@ -3483,6 +3483,17 @@ shake	揺れ
 shard size	破片サイズ
 sharpen	シャープ
 sheen	光沢
+lumps	??
+refraction	??
+reform	??
+gloss	??
+liquid	??
+How fast the picture sags. At the left it barely moves.	?????????????????????????
+How big the lumps in the surface are: fine ripples at the left, fat blobs at the right.	????????????????????????????????
+How much the picture bends through the lumps, as through thick glass.	??????????????????????????????
+How fast the melt reforms into the live picture. At the left what has melted stays.	????????????????????????????????
+The gloss: white highlights and rainbow oil-slick colour on the lumps and rims.	??????????????????????????????
+Bright: bright things drip over the dark, as text and logos do. Whole picture: everything is wax, and the picture itself runs down in its own colours. Liquid: the picture turns to glossy molten plastic, sagging in lumps with rainbow highlights, and what moves leaves melting ghosts.	明部：文字やロゴのように明るい部分が暗部へ垂れます。全体：すべてが蝋となり、映像が自身の色で流れ落ちます。 ??????????????????????????????????????????????????????????
 sideways	横方向
 slit scan	スリットスキャン
 slit width	スリット幅
@@ -4658,3 +4669,19 @@ scopes - the picture scopes	scopes - 映像スコープ
 MULTIVIEW WINDOW: expected PROGRAMME, DECK<n>, OUTPUT<n>, NEXT, CLOCK, SCOPES or EMPTY	MULTIVIEW WINDOW: PROGRAMME、DECK<n>、OUTPUT<n>、NEXT、CLOCK、SCOPES、EMPTYのいずれかを指定
 VIDEO OUTPUT ADD: WINDOW | STREAM | MULTIVIEW | PRESENTER | PROMPTER | SCOPES	VIDEO OUTPUT ADD: 必要な形式: WINDOW | STREAM | MULTIVIEW | PRESENTER | PROMPTER | SCOPES
 every output shows the scopes - add one that shows the programme	すべての出力に測定器が表示されています - 番組映像を表示する出力を追加してください
+Voice	音色
+voice	音色
+SOUNDS	サウンド
+voice cue added	音色キューを追加しました
+VOICE BREATH: expected 0-100	VOICE BREATH: 0-100を指定
+VOICE SIZE: expected 0.8-1.25	VOICE SIZE: 0.8-1.25を指定
+VOICE PITCH: expected 50-400 Hz	VOICE PITCH: 50-400 Hzを指定
+VOICE MODE: expected WORDS or SOUNDS	VOICE MODE: WORDS または SOUNDS を指定
+VOICE SAY: expected the words to say	VOICE SAY: 話す単語を指定
+The length of the throat. 0.8 is a child, 1.25 a giant.	喉の長さ。0.8は子ども、1.25は巨人。
+Airiness of the voice: 0 is pressed and hard, 100 a whisper.	音色の息っぽさ。0は押し込めた硬い声、100はささやき。
+VOICE: select a Voice cue first (VOICE SAY <text> makes one)	VOICE: 先に音色キューを選択してください（VOICE SAY <テキスト> で作成）
+VOICE: expected SAY, CHARACTER, MODE, PITCH, SIZE, BREATH or STATUS	VOICE: SAY、CHARACTER、MODE、PITCH、SIZE、BREATH または STATUS を指定
+Who talks: one of the sixteen lesson characters, or CUSTOM to set the voice by hand.	話者：16種類のレッスン文字から1つ選ぶか、カスタムで音色を手動設定します。
+The speaking pitch. Steps in semitones: about 100 Hz is a deep voice, 220 Hz a high one.	話すピッチ。ステップは半音単位：約100 Hzは低い声、220 Hzは高い声。
+WORDS speaks the text. SOUNDS has the speaker say their own noises instead, one per word, keeping the punctuation.	単語はテキストを読み上げます。サウンドは話者が代わりに自分の音を出します。単語ごとに1つで、句読点はそのままです。

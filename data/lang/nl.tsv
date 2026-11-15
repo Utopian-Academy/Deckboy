@@ -3544,6 +3544,17 @@ shake	schudden
 shard size	scherfgrootte
 sharpen	verscherpen
 sheen	glans
+lumps	bulten
+refraction	breking
+reform	herstel
+gloss	glans
+liquid	vloeibaar
+How fast the picture sags. At the left it barely moves.	Hoe snel het beeld uitzakt. Links beweegt het nauwelijks.
+How big the lumps in the surface are: fine ripples at the left, fat blobs at the right.	Hoe groot de bulten in het oppervlak zijn: fijne rimpels links, dikke klodders rechts.
+How much the picture bends through the lumps, as through thick glass.	Hoe sterk het beeld door de bulten vervormt, zoals door dik glas.
+How fast the melt reforms into the live picture. At the left what has melted stays.	Hoe snel het gesmolten beeld terugkeert naar het livebeeld. Links blijft wat gesmolten is staan.
+The gloss: white highlights and rainbow oil-slick colour on the lumps and rims.	De glans: witte lichtvlekken en regenboogkleuren als een oliefilm op de bulten en randen.
+Bright: bright things drip over the dark, as text and logos do. Whole picture: everything is wax, and the picture itself runs down in its own colours. Liquid: the picture turns to glossy molten plastic, sagging in lumps with rainbow highlights, and what moves leaves melting ghosts.	Helder: heldere delen druipen over donkere, zoals tekst en logo's. Heel beeld: alles is was en het beeld druipt in zijn eigen kleuren. Vloeibaar: het beeld wordt glanzend gesmolten plastic, zakt uit in bulten met regenboogglans en alles wat beweegt laat smeltende spookbeelden achter.
 sideways	zijwaarts
 slit scan	spleetscan
 slit width	spleetbreedte
@@ -4598,3 +4609,22 @@ scopes - the picture scopes	scopes - de beeldscopes
 MULTIVIEW WINDOW: expected PROGRAMME, DECK<n>, OUTPUT<n>, NEXT, CLOCK, SCOPES or EMPTY	MULTIVIEW WINDOW: verwacht PROGRAMME, DECK<n>, OUTPUT<n>, NEXT, CLOCK, SCOPES of EMPTY
 VIDEO OUTPUT ADD: WINDOW | STREAM | MULTIVIEW | PRESENTER | PROMPTER | SCOPES	VIDEO OUTPUT ADD: verwacht WINDOW | STREAM | MULTIVIEW | PRESENTER | PROMPTER | SCOPES
 every output shows the scopes - add one that shows the programme	elke uitgang toont de beeldmeters - voeg er een toe die het programma toont
+Voice	Stem
+voice	stem
+SOUNDS	GELUIDEN
+voice cue added	stemcue toegevoegd
+VOICE BREATH: expected 0-100	VOICE BREATH: verwacht 0-100
+VOICE SIZE: expected 0.8-1.25	VOICE SIZE: verwacht 0.8-1.25
+VOICE PITCH: expected 50-400 Hz	VOICE PITCH: verwacht 50-400 Hz
+VOICE MODE: expected WORDS or SOUNDS	VOICE MODE: verwacht WORDS of SOUNDS
+VOICE SAY: expected the words to say	VOICE SAY: verwacht de te zeggen woorden
+DASH SET: <n> <label> | <command> [| <glyph>]	DASH SET: <n> <label> | <commando> [| <symbool>]
+The length of the throat. 0.8 is a child, 1.25 a giant.	De lengte van de keel. 0.8 is een kind, 1.25 een reus.
+DASH: LIST | <n> | SET <n> <label> | <command> | CLEAR <n>	DASH: LIST | <n> | SET <n> <label> | <commando> | CLEAR <n>
+Airiness of the voice: 0 is pressed and hard, 100 a whisper.	Luchtigheid van de stem: 0 is geperst en hard, 100 een fluistering.
+VOICE: select a Voice cue first (VOICE SAY <text> makes one)	VOICE: kies eerst een stemcue (VOICE SAY <text> maakt er een)
+VOICE: expected SAY, CHARACTER, MODE, PITCH, SIZE, BREATH or STATUS	VOICE: verwacht SAY, CHARACTER, MODE, PITCH, SIZE, BREATH of STATUS
+Who talks: one of the sixteen lesson characters, or CUSTOM to set the voice by hand.	Wie praat: een van de zestien lestekens, of EIGEN om de stem met de hand in te stellen.
+The speaking pitch. Steps in semitones: about 100 Hz is a deep voice, 220 Hz a high one.	De toonhoogte van het spreken. Stappen in halve tonen: ongeveer 100 Hz is een diepe stem, 220 Hz een hoge.
+WORDS speaks the text. SOUNDS has the speaker say their own noises instead, one per word, keeping the punctuation.	WOORDEN spreekt de tekst uit. GELUIDEN laat de spreker in plaats daarvan eigen geluiden maken, één per woord, met behoud van de leestekens.
+STATUS | SHAPE <0-5> | PALETTE <0-3> | DENSITY|SPEED|WARP|CENTREX|CENTREY|GREY <0-100> | TURN|HUE <0-360> | LFO <control> <setting>	STATUS | SHAPE <0-5> | PALETTE <0-3> | DENSITY|SPEED|WARP|CENTREX|CENTREY|GREY <0-100> | TURN|HUE <0-360> | LFO <besturing> <instelling>

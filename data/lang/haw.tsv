@@ -3549,6 +3549,17 @@ shake	haʻalulu
 shard size	nui ʻāpana haki
 sharpen	hoʻomōakāka
 sheen	hinuhinu
+lumps	pu?u
+refraction	h?k?
+reform	ho?i
+gloss	??linolino
+liquid	wai
+How fast the picture sags. At the left it barely moves.	Ka wikiwiki o ka h??ule m?lie ?ana o ke ki?i. Ma ka hema loa, ?ane?ane ?a?ole ia e ne?e.
+How big the lumps in the surface are: fine ripples at the left, fat blobs at the right.	Ka nui o n? pu?u ma ka ?ili: n? ?ale li?ili?i ma ka hema, n? pu?u nunui ma ka ??kau.
+How much the picture bends through the lumps, as through thick glass.	Ka nui o ka pi?o ?ana o ke ki?i ma o n? pu?u, e like me ke aniani m?noanoa.
+How fast the melt reforms into the live picture. At the left what has melted stays.	Ka wikiwiki o ka ho?i ?ana o ke ki?i hehee i ke ki?i ola. Ma ka hema loa, mau ka mea i hehee.
+The gloss: white highlights and rainbow oil-slick colour on the lumps and rims.	Ka ??linolino: n? kiko m?lamalama ke?oke?o a me n? waiho?olu?u ?nuenue e like me ka ?ili ?aila ma n? pu?u a me n? lihi.
+Bright: bright things drip over the dark, as text and logos do. Whole picture: everything is wax, and the picture itself runs down in its own colours. Liquid: the picture turns to glossy molten plastic, sagging in lumps with rainbow highlights, and what moves leaves melting ghosts.	Mālamalama: kulu nā mea mālamalama ma luna o ka pouli, e like me ke kikokikona a me nā hōʻailona. Kiʻi holoʻokoʻa: he piula nā mea a pau, a kahe ke kiʻi i lalo me kona mau kala. Wai: lilo ke ki?i i palakiko hehee ??linolino, e h??ule ana i mau pu?u me ka m?lamalama ?nuenue; waiho n? mea ne?e i n? ki?i ?uhane e hehee ana.
 sideways	i ka ʻaoʻao
 slit scan	nānā moku
 slit width	ākea moku
@@ -4622,3 +4633,19 @@ scopes - the picture scopes	scopes - nā ana kiʻi
 MULTIVIEW WINDOW: expected PROGRAMME, DECK<n>, OUTPUT<n>, NEXT, CLOCK, SCOPES or EMPTY	MULTIVIEW WINDOW: pono ʻo PROGRAMME, DECK<n>, OUTPUT<n>, NEXT, CLOCK, SCOPES a i ʻole EMPTY
 VIDEO OUTPUT ADD: WINDOW | STREAM | MULTIVIEW | PRESENTER | PROMPTER | SCOPES	VIDEO OUTPUT ADD: e hoʻokomo i WINDOW | STREAM | MULTIVIEW | PRESENTER | PROMPTER | SCOPES
 every output shows the scopes - add one that shows the programme	hōʻike nā puka a pau i nā ana kiʻi - hoʻohui i kekahi e hōʻike ana i ka papahana
+Voice	Leo
+voice	leo
+SOUNDS	NĀ KANI
+voice cue added	Ua hoʻohui ʻia ka cue leo
+VOICE BREATH: expected 0-100	VOICE BREATH: e hoʻokomo i 0-100
+VOICE SIZE: expected 0.8-1.25	VOICE SIZE: e hoʻokomo i 0.8-1.25
+VOICE PITCH: expected 50-400 Hz	VOICE PITCH: e hoʻokomo i 50-400 Hz
+VOICE MODE: expected WORDS or SOUNDS	VOICE MODE: e hoʻokomo i WORDS a i ʻole SOUNDS
+VOICE SAY: expected the words to say	VOICE SAY: e hoʻokomo i nā huaʻōlelo e ʻōlelo ai
+The length of the throat. 0.8 is a child, 1.25 a giant.	Ka lōʻihi o ka ʻāʻī. He keiki ka 0.8, he kanaka nunui ka 1.25.
+Airiness of the voice: 0 is pressed and hard, 100 a whisper.	Ka makani o ka leo: ʻo ka 0 he pili a paʻakikī, ʻo ka 100 he hāwanawana.
+VOICE: select a Voice cue first (VOICE SAY <text> makes one)	VOICE: koho mua i cue leo (hana ʻo VOICE SAY <huaʻōlelo> i hoʻokahi)
+VOICE: expected SAY, CHARACTER, MODE, PITCH, SIZE, BREATH or STATUS	VOICE: e hoʻokomo i SAY, CHARACTER, MODE, PITCH, SIZE, BREATH a i ʻole STATUS
+Who talks: one of the sixteen lesson characters, or CUSTOM to set the voice by hand.	Ka mea e ʻōlelo ana: hoʻokahi o nā huapalapala haʻawina he ʻumikumamāono, a i ʻole PONOʻĪ e hoʻonoho i ka leo me ka lima.
+The speaking pitch. Steps in semitones: about 100 Hz is a deep voice, 220 Hz a high one.	Ke kiʻekiʻe leo ʻōlelo. Nā ʻanuʻu ma nā semitone: ma kahi o 100 Hz he leo hohonu, ʻo 220 Hz he leo kiʻekiʻe.
+WORDS speaks the text. SOUNDS has the speaker say their own noises instead, one per word, keeping the punctuation.	NĀ HUAʻŌLELO e ʻōlelo i ka huaʻōlelo. ʻO NĀ KANI, ʻo ka mea ʻōlelo ponoʻī kāna mau leo ponoʻī, hoʻokahi no kēlā me kēia huaʻōlelo, me ka mālama i nā hōʻailona kiko.

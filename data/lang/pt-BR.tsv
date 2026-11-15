@@ -3554,6 +3554,17 @@ shake	tremor
 shard size	tamanho do fragmento
 sharpen	nitidez
 sheen	lustro
+lumps	grumos
+refraction	refra??o
+reform	refazer
+gloss	brilho
+liquid	l?quido
+How fast the picture sags. At the left it barely moves.	A velocidade com que a imagem cede. ? esquerda ela quase n?o se move.
+How big the lumps in the surface are: fine ripples at the left, fat blobs at the right.	O tamanho dos grumos na superf?cie: ondula??es finas ? esquerda, volumes grossos ? direita.
+How much the picture bends through the lumps, as through thick glass.	Quanto a imagem se deforma atrav?s dos grumos, como atrav?s de vidro grosso.
+How fast the melt reforms into the live picture. At the left what has melted stays.	A velocidade com que o derretido volta ? imagem ao vivo. ? esquerda o que derreteu permanece.
+The gloss: white highlights and rainbow oil-slick colour on the lumps and rims.	O brilho: reflexos brancos e cores de arco-?ris como uma pel?cula de ?leo nos grumos e bordas.
+Bright: bright things drip over the dark, as text and logos do. Whole picture: everything is wax, and the picture itself runs down in its own colours. Liquid: the picture turns to glossy molten plastic, sagging in lumps with rainbow highlights, and what moves leaves melting ghosts.	Claro: partes claras escorrem sobre o escuro, como texto e logos. Imagem inteira: tudo é cera e a imagem escorre nas próprias cores. L?quido: a imagem vira pl?stico derretido brilhante, cede em grumos com reflexos de arco-?ris e o que se move deixa fantasmas derretendo.
 sideways	lateral
 slit scan	varredura de fenda
 slit width	largura da fenda
@@ -4619,3 +4630,22 @@ scopes - the picture scopes	scopes - os scopes da imagem
 MULTIVIEW WINDOW: expected PROGRAMME, DECK<n>, OUTPUT<n>, NEXT, CLOCK, SCOPES or EMPTY	MULTIVIEW WINDOW: esperado PROGRAMME, DECK<n>, OUTPUT<n>, NEXT, CLOCK, SCOPES ou EMPTY
 VIDEO OUTPUT ADD: WINDOW | STREAM | MULTIVIEW | PRESENTER | PROMPTER | SCOPES	VIDEO OUTPUT ADD: esperado WINDOW | STREAM | MULTIVIEW | PRESENTER | PROMPTER | SCOPES
 every output shows the scopes - add one that shows the programme	todas as saídas mostram os instrumentos de medição - adicione uma que mostre o programa
+Voice	Voz
+voice	voz
+SOUNDS	SONS
+voice cue added	cue de voz adicionado
+VOICE BREATH: expected 0-100	VOICE BREATH: esperado 0-100
+VOICE SIZE: expected 0.8-1.25	VOICE SIZE: esperado 0.8-1.25
+VOICE PITCH: expected 50-400 Hz	VOICE PITCH: esperado 50-400 Hz
+VOICE MODE: expected WORDS or SOUNDS	VOICE MODE: esperado PALAVRAS ou SONS
+VOICE SAY: expected the words to say	VOICE SAY: esperado o texto a falar
+DASH SET: <n> <label> | <command> [| <glyph>]	DASH SET: <n> <rótulo> | <comando> [| <símbolo>]
+The length of the throat. 0.8 is a child, 1.25 a giant.	O comprimento da garganta. 0.8 é uma criança, 1.25 um gigante.
+DASH: LIST | <n> | SET <n> <label> | <command> | CLEAR <n>	DASH: LIST | <n> | SET <n> <rótulo> | <comando> | CLEAR <n>
+Airiness of the voice: 0 is pressed and hard, 100 a whisper.	Ar na voz: 0 é apertada e dura, 100 é um sussurro.
+VOICE: select a Voice cue first (VOICE SAY <text> makes one)	VOICE: selecione primeiro um cue de Voz (VOICE SAY <text> cria um)
+VOICE: expected SAY, CHARACTER, MODE, PITCH, SIZE, BREATH or STATUS	VOICE: esperado SAY, CHARACTER, MODE, PITCH, SIZE, BREATH ou STATUS
+Who talks: one of the sixteen lesson characters, or CUSTOM to set the voice by hand.	Quem fala: um dos dezesseis caracteres da lição, ou PERSONALIZADO para definir a voz manualmente.
+The speaking pitch. Steps in semitones: about 100 Hz is a deep voice, 220 Hz a high one.	A altura da fala. Passos em semitons: cerca de 100 Hz é uma voz grave, 220 Hz uma aguda.
+WORDS speaks the text. SOUNDS has the speaker say their own noises instead, one per word, keeping the punctuation.	PALAVRAS fala o texto. SONS faz o falante dizer os próprios ruídos no lugar, um por palavra, mantendo a pontuação.
+STATUS | SHAPE <0-5> | PALETTE <0-3> | DENSITY|SPEED|WARP|CENTREX|CENTREY|GREY <0-100> | TURN|HUE <0-360> | LFO <control> <setting>	STATUS | SHAPE <0-5> | PALETTE <0-3> | DENSITY|SPEED|WARP|CENTREX|CENTREY|GREY <0-100> | TURN|HUE <0-360> | LFO <controle> <ajuste>

@@ -3673,6 +3673,17 @@ shake	hristingur
 shard size	brotastærð
 sharpen	skerping
 sheen	gljái
+lumps	kekkir
+refraction	lj?sbrot
+reform	endurm?t
+gloss	glj?i
+liquid	v?kvi
+How fast the picture sags. At the left it barely moves.	Hve hratt myndin s?gur. Lengst til vinstri hreyfist h?n varla.
+How big the lumps in the surface are: fine ripples at the left, fat blobs at the right.	St?r? kekkjanna ? yfirbor?inu: f?nar g?rur til vinstri, st?rar klessur til h?gri.
+How much the picture bends through the lumps, as through thick glass.	Hve miki? myndin sveigist gegnum kekkina, eins og gegnum ?ykkt gler.
+How fast the melt reforms into the live picture. At the left what has melted stays.	Hve hratt br??in ver?ur aftur a? lifandi myndinni. Til vinstri helst ?a? sem hefur br??na?.
+The gloss: white highlights and rainbow oil-slick colour on the lumps and rims.	Glj?inn: hv?tir lj?sblettir og regnbogalitir eins og ol?ubr?k ? kekkjum og br?num.
+Bright: bright things drip over the dark, as text and logos do. Whole picture: everything is wax, and the picture itself runs down in its own colours. Liquid: the picture turns to glossy molten plastic, sagging in lumps with rainbow highlights, and what moves leaves melting ghosts.	Bjart: bjartir hlutir leka yfir dökka, svo sem texti og merki. Öll myndin: allt er vax og myndin rennur niður í eigin litum. V?kvi: myndin ver?ur a? glj?andi br??nu plasti, s?gur ? kekkjum me? regnbogaglampa og ?a? sem hreyfist skilur eftir br??nandi draugamyndir.
 sideways	til hliðar
 size out of range	stærð utan marka
 slit scan	raufskönnun
@@ -4653,3 +4664,19 @@ scopes - the picture scopes	scopes - myndmælar
 MULTIVIEW WINDOW: expected PROGRAMME, DECK<n>, OUTPUT<n>, NEXT, CLOCK, SCOPES or EMPTY	MULTIVIEW WINDOW: vænst er PROGRAMME, DECK<n>, OUTPUT<n>, NEXT, CLOCK, SCOPES eða EMPTY
 VIDEO OUTPUT ADD: WINDOW | STREAM | MULTIVIEW | PRESENTER | PROMPTER | SCOPES	VIDEO OUTPUT ADD: vænst er WINDOW | STREAM | MULTIVIEW | PRESENTER | PROMPTER | SCOPES
 every output shows the scopes - add one that shows the programme	öll úttök sýna myndmælitækin - bættu við einu sem sýnir dagskrána
+Voice	Rödd
+voice	rödd
+SOUNDS	HLJÓÐ
+voice cue added	Rödd-cue bætt við
+VOICE BREATH: expected 0-100	VOICE BREATH: vænst er 0-100
+VOICE SIZE: expected 0.8-1.25	VOICE SIZE: vænst er 0.8-1.25
+VOICE PITCH: expected 50-400 Hz	VOICE PITCH: vænst er 50-400 Hz
+VOICE MODE: expected WORDS or SOUNDS	VOICE MODE: vænst er WORDS eða SOUNDS
+VOICE SAY: expected the words to say	VOICE SAY: vænst er orðanna sem á að segja
+The length of the throat. 0.8 is a child, 1.25 a giant.	Lengd hálsins. 0.8 er barn, 1.25 risi.
+Airiness of the voice: 0 is pressed and hard, 100 a whisper.	Loft í röddinni: 0 er þrengd og hörð, 100 hvísl.
+VOICE: select a Voice cue first (VOICE SAY <text> makes one)	VOICE: veldu fyrst Rödd-cue (VOICE SAY <texti> býr það til)
+VOICE: expected SAY, CHARACTER, MODE, PITCH, SIZE, BREATH or STATUS	VOICE: vænst er SAY, CHARACTER, MODE, PITCH, SIZE, BREATH eða STATUS
+Who talks: one of the sixteen lesson characters, or CUSTOM to set the voice by hand.	Hver talar: eitt af sextán eðlum lexíunnar, eða EIGIÐ til að stilla röddina í höndunum.
+The speaking pitch. Steps in semitones: about 100 Hz is a deep voice, 220 Hz a high one.	Tónhæð talrödd. Skref í hálftónum: um 100 Hz er djúp rödd, 220 Hz há.
+WORDS speaks the text. SOUNDS has the speaker say their own noises instead, one per word, keeping the punctuation.	ORÐ segir textann. HLJÓÐ lætur þann sem talar segja eigin hljóð í staðinn, eitt fyrir hvert orð, og greinarmerki haldast.

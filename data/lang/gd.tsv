@@ -3704,6 +3704,17 @@ shake	crathadh
 shard size	meud spealg
 sharpen	geuraich
 sheen	lìomh
+lumps	cnapan
+refraction	ath-fhilleadh
+reform	ath-chruth
+gloss	de?rrsadh
+liquid	leaghan
+How fast the picture sags. At the left it barely moves.	Cho luath ?s a bhios an dealbh a? s?oladh s?os. Air an l?imh chl? cha mh?r nach gluais e.
+How big the lumps in the surface are: fine ripples at the left, fat blobs at the right.	Meud nan cnapan air an uachdar: cr?itean beaga air an l?imh chl?, cnapan m?ra air an l?imh dheis.
+How much the picture bends through the lumps, as through thick glass.	Na tha an dealbh a? l?badh tro na cnapan, mar tro ghlainne thiugh.
+How fast the melt reforms into the live picture. At the left what has melted stays.	Cho luath ?s a thilleas an leaghadh dhan dealbh bhe?. Air an l?imh chl? fuirichidh na leagh.
+The gloss: white highlights and rainbow oil-slick colour on the lumps and rims.	An de?rrsadh: solais gheala agus dathan bogha-froise mar fhilm ola air na cnapan is na h-oirean.
+Bright: bright things drip over the dark, as text and logos do. Whole picture: everything is wax, and the picture itself runs down in its own colours. Liquid: the picture turns to glossy molten plastic, sagging in lumps with rainbow highlights, and what moves leaves melting ghosts.	Soilleir: sileadh nithean soilleir thar dorchadas, mar theacsa is suaicheantasan. An dealbh gu lèir: tha a h-uile rud na chèir is a’ sileadh na dhathan fhèin. Leaghan: tionndaidhidh an dealbh gu plastaig leaghte gleansach, a? s?oladh na chnapan le de?rrsadh bogha-froise; f?gaidh na ghluaiseas taibhsean a? leaghadh.
 sideways	gu taobh
 size out of range	meud taobh a-muigh raoin
 slit scan	sganadh sgoltaidh
@@ -4655,3 +4666,19 @@ scopes - the picture scopes	scopes - na scopes airson an deilbh
 MULTIVIEW WINDOW: expected PROGRAMME, DECK<n>, OUTPUT<n>, NEXT, CLOCK, SCOPES or EMPTY	MULTIVIEW WINDOW: tha dùil ri PROGRAMME, DECK<n>, OUTPUT<n>, NEXT, CLOCK, SCOPES no EMPTY
 VIDEO OUTPUT ADD: WINDOW | STREAM | MULTIVIEW | PRESENTER | PROMPTER | SCOPES	VIDEO OUTPUT ADD: tha dùil ri WINDOW | STREAM | MULTIVIEW | PRESENTER | PROMPTER | SCOPES
 every output shows the scopes - add one that shows the programme	tha gach às-chur a' sealltainn nam meatairean - cuir fear ris a sheallas am prògram
+Voice	Guth
+voice	guth
+SOUNDS	FUAIMEAN
+voice cue added	cue gutha air a chur ris
+VOICE BREATH: expected 0-100	VOICE BREATH: tha dùil ri 0-100
+VOICE SIZE: expected 0.8-1.25	VOICE SIZE: tha dùil ri 0.8-1.25
+VOICE PITCH: expected 50-400 Hz	VOICE PITCH: tha dùil ri 50-400 Hz
+VOICE MODE: expected WORDS or SOUNDS	VOICE MODE: tha dùil ri FACLAN no FUAIMEAN
+VOICE SAY: expected the words to say	VOICE SAY: tha dùil ri na faclan ri ràdh
+The length of the throat. 0.8 is a child, 1.25 a giant.	Faid an sgòrnain. 0.8 na phàiste, 1.25 na fhuamhaire.
+Airiness of the voice: 0 is pressed and hard, 100 a whisper.	Anail na gutha: 0 teann is cruaidh, 100 cagair.
+VOICE: select a Voice cue first (VOICE SAY <text> makes one)	VOICE: tagh cue gutha an toiseach (nì VOICE SAY <teacsa> fear)
+VOICE: expected SAY, CHARACTER, MODE, PITCH, SIZE, BREATH or STATUS	VOICE: tha dùil ri SAY, CHARACTER, MODE, PITCH, SIZE, BREATH no STATUS
+Who talks: one of the sixteen lesson characters, or CUSTOM to set the voice by hand.	Cò a tha a' bruidhinn: fear de na sia caractaran deug nan leasan, no GNÀTHAICHTE gus an guth a shuidheachadh le làimh.
+The speaking pitch. Steps in semitones: about 100 Hz is a deep voice, 220 Hz a high one.	Àirde tòna na cainnte. Ceumannan ann an letheach-thònaichean: tha mu 100 Hz na ghuth domhainn, 220 Hz na fhear àrd.
+WORDS speaks the text. SOUNDS has the speaker say their own noises instead, one per word, keeping the punctuation.	Bruidhnidh FACLAN an teacsa. Le FUAIMEAN canaidh an neach-labhairt na fuaimean aige fhèin na àite, aon airson gach facal, a' cumail na puingeachd.

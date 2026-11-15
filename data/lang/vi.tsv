@@ -3578,6 +3578,17 @@ shake	rung
 shard size	cỡ mảnh
 sharpen	làm nét
 sheen	óng
+lumps	u c?c
+refraction	kh?c x?
+reform	t?i t?o
+gloss	b?ng
+liquid	ch?t l?ng
+How fast the picture sags. At the left it barely moves.	T?c ?? ?nh ch?y x?. ? ??u tr?i ?nh g?n nh? kh?ng chuy?n ??ng.
+How big the lumps in the surface are: fine ripples at the left, fat blobs at the right.	K?ch th??c c?c u c?c tr?n b? m?t: g?n nh? b?n tr?i, kh?i l?n b?n ph?i.
+How much the picture bends through the lumps, as through thick glass.	M?c ?? ?nh b? b? cong qua c?c u c?c, nh? qua k?nh d?y.
+How fast the melt reforms into the live picture. At the left what has melted stays.	T?c ?? ph?n tan ch?y tr? l?i th?nh ?nh tr?c ti?p. ? ??u tr?i ph?n ?? tan v?n gi? nguy?n.
+The gloss: white highlights and rainbow oil-slick colour on the lumps and rims.	?? b?ng: ?nh tr?ng v? m?u c?u v?ng nh? m?ng d?u tr?n c?c u c?c v? m?p.
+Bright: bright things drip over the dark, as text and logos do. Whole picture: everything is wax, and the picture itself runs down in its own colours. Liquid: the picture turns to glossy molten plastic, sagging in lumps with rainbow highlights, and what moves leaves melting ghosts.	Sáng: vùng sáng chảy trên vùng tối, như chữ và logo. Toàn hình: mọi thứ là sáp, hình tự chảy xuống với màu riêng. Ch?t l?ng: ?nh bi?n th?nh nh?a n?ng ch?y b?ng lo?ng, ch?y x? th?nh c?c kh?i c? ?nh c?u v?ng; v?t chuy?n ??ng ?? l?i b?ng ma ?ang tan.
 sideways	sang bên
 slit scan	quét khe
 slit width	rộng khe
@@ -4645,3 +4656,19 @@ scopes - the picture scopes	scope - các scope của hình ảnh
 MULTIVIEW WINDOW: expected PROGRAMME, DECK<n>, OUTPUT<n>, NEXT, CLOCK, SCOPES or EMPTY	MULTIVIEW WINDOW: cần PROGRAMME, DECK<n>, OUTPUT<n>, NEXT, CLOCK, SCOPES hoặc EMPTY
 VIDEO OUTPUT ADD: WINDOW | STREAM | MULTIVIEW | PRESENTER | PROMPTER | SCOPES	VIDEO OUTPUT ADD: cần WINDOW | STREAM | MULTIVIEW | PRESENTER | PROMPTER | SCOPES
 every output shows the scopes - add one that shows the programme	mọi đầu ra đều hiển thị máy đo hình ảnh - thêm một đầu ra hiển thị chương trình
+Voice	Giọng
+voice	giọng
+SOUNDS	ÂM THANH
+voice cue added	đã thêm cue giọng
+VOICE BREATH: expected 0-100	VOICE BREATH: cần 0-100
+VOICE SIZE: expected 0.8-1.25	VOICE SIZE: cần 0.8-1.25
+VOICE PITCH: expected 50-400 Hz	VOICE PITCH: cần 50-400 Hz
+VOICE MODE: expected WORDS or SOUNDS	VOICE MODE: cần TỪ hoặc ÂM THANH
+VOICE SAY: expected the words to say	VOICE SAY: cần văn bản để nói
+The length of the throat. 0.8 is a child, 1.25 a giant.	Độ dài của cổ họng. 0.8 là trẻ con, 1.25 là người khổng lồ.
+Airiness of the voice: 0 is pressed and hard, 100 a whisper.	Độ hơi của giọng: 0 là nén và cứng, 100 là thì thầm.
+VOICE: select a Voice cue first (VOICE SAY <text> makes one)	VOICE: chọn cue Giọng trước (VOICE SAY <text> tạo một cue)
+VOICE: expected SAY, CHARACTER, MODE, PITCH, SIZE, BREATH or STATUS	VOICE: cần SAY, CHARACTER, MODE, PITCH, SIZE, BREATH hoặc STATUS
+Who talks: one of the sixteen lesson characters, or CUSTOM to set the voice by hand.	Ai nói: một trong mười sáu ký tự của bài học, hoặc TÙY CHỈNH để đặt giọng bằng tay.
+The speaking pitch. Steps in semitones: about 100 Hz is a deep voice, 220 Hz a high one.	Cao độ khi nói. Mỗi bước là một nửa cung: khoảng 100 Hz là giọng trầm, 220 Hz là giọng cao.
+WORDS speaks the text. SOUNDS has the speaker say their own noises instead, one per word, keeping the punctuation.	TỪ nói đúng văn bản. ÂM THANH để người nói phát ra âm thanh riêng của họ thay vào đó, mỗi từ một âm, giữ nguyên dấu câu.

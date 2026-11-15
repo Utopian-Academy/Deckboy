@@ -3605,6 +3605,17 @@ shake	Zartiri
 shard size	Kiskarasa
 sharpen	Kormiri
 sheen	Kisluma
+lumps	pataku
+refraction	vekadori
+reform	novveki
+gloss	lumaluma
+liquid	fluo
+How fast the picture sags. At the left it barely moves.	Veka niratiri zaro sa. En leva veka tiri kiso.
+How big the lumps in the surface are: fine ripples at the left, fat blobs at the right.	Sa de ranapataku: kisoranku en leva, gropataku en destra.
+How much the picture bends through the lumps, as through thick glass.	Veka dori en pataku sa, dop en gro mirapata.
+How fast the melt reforms into the live picture. At the left what has melted stays.	Fluveka novveki en novtokveka zaro sa. En leva fluveka guri.
+The gloss: white highlights and rainbow oil-slick colour on the lumps and rims.	Lumaluma: blanolumaku so ranlumaku de olealuma en pataku so ranaku.
+Bright: bright things drip over the dark, as text and logos do. Whole picture: everything is wax, and the picture itself runs down in its own colours. Liquid: the picture turns to glossy molten plastic, sagging in lumps with rainbow highlights, and what moves leaves melting ghosts.	Lumo: lumopataku dripi sur niropata, holaveka so holamarka dop. Tamveka: ala esa vaksa, veka flui nira en se lumasetaku. Fluo: veka seti en lumo fluplastaka, niratiri en ranlumo pataku; tiripataku halani fluvekaku.
 sideways	Ranadoro
 slit scan	Kisranamiri
 slit width	Kisranasa
@@ -4671,3 +4682,19 @@ scopes - the picture scopes	scope - talamiraku sov veka
 MULTIVIEW WINDOW: expected PROGRAMME, DECK<n>, OUTPUT<n>, NEXT, CLOCK, SCOPES or EMPTY	MULTIVIEW WINDOW: peni PROGRAMME, DECK<n>, OUTPUT<n>, NEXT, CLOCK, SCOPES o EMPTY
 VIDEO OUTPUT ADD: WINDOW | STREAM | MULTIVIEW | PRESENTER | PROMPTER | SCOPES	VIDEO OUTPUT ADD: peni WINDOW | STREAM | MULTIVIEW | PRESENTER | PROMPTER | SCOPES
 every output shows the scopes - add one that shows the programme	Ala senadoraku veki vekamirajanaku - lani una so veki koraveka
+Voice	Holsona
+voice	holsona
+SOUNDS	SONAKU
+voice cue added	holsona veka novi
+VOICE BREATH: expected 0-100	VOICE BREATH: peni 0-100
+VOICE SIZE: expected 0.8-1.25	VOICE SIZE: peni 0.8-1.25
+VOICE PITCH: expected 50-400 Hz	VOICE PITCH: peni 50-400 Hz
+VOICE MODE: expected WORDS or SOUNDS	VOICE MODE: peni WORDS o SOUNDS
+VOICE SAY: expected the words to say	VOICE SAY: peni holaku
+The length of the throat. 0.8 is a child, 1.25 a giant.	Toka sov sonapata. 0.8 kiso, 1.25 tamo.
+Airiness of the voice: 0 is pressed and hard, 100 a whisper.	Lufa sov holsona: 0 kluo, 100 kissona.
+VOICE: select a Voice cue first (VOICE SAY <text> makes one)	VOICE: piki holsona veka muna (VOICE SAY <text> novi una)
+VOICE: expected SAY, CHARACTER, MODE, PITCH, SIZE, BREATH or STATUS	VOICE: peni SAY, CHARACTER, MODE, PITCH, SIZE, BREATH o STATUS
+Who talks: one of the sixteen lesson characters, or CUSTOM to set the voice by hand.	Wia soni: una sov 16 holakora hola, o KORASOVO go seti holsona.
+The speaking pitch. Steps in semitones: about 100 Hz is a deep voice, 220 Hz a high one.	Sonasa sov soni. Patakaku sov semitona: 100 Hz niro holsona, 220 Hz lumo holsona.
+WORDS speaks the text. SOUNDS has the speaker say their own noises instead, one per word, keeping the punctuation.	HOLAKU soni hola. SONAKU: wia soni mi sonaku, una go hola, gur punkta.

@@ -3555,6 +3555,17 @@ shake	scuotimento
 shard size	dimensione scheggia
 sharpen	nitidezza
 sheen	lucentezza
+lumps	grumi
+refraction	rifrazione
+reform	riforma
+gloss	lucido
+liquid	liquido
+How fast the picture sags. At the left it barely moves.	Quanto velocemente cede l'immagine. A sinistra si muove appena.
+How big the lumps in the surface are: fine ripples at the left, fat blobs at the right.	La grandezza dei grumi sulla superficie: piccole increspature a sinistra, grossi rigonfiamenti a destra.
+How much the picture bends through the lumps, as through thick glass.	Quanto l'immagine si deforma attraverso i grumi, come attraverso un vetro spesso.
+How fast the melt reforms into the live picture. At the left what has melted stays.	Quanto velocemente il fuso torna all'immagine dal vivo. A sinistra ci? che ? fuso rimane.
+The gloss: white highlights and rainbow oil-slick colour on the lumps and rims.	La lucentezza: riflessi bianchi e colori iridescenti da velo d'olio sui grumi e sui bordi.
+Bright: bright things drip over the dark, as text and logos do. Whole picture: everything is wax, and the picture itself runs down in its own colours. Liquid: the picture turns to glossy molten plastic, sagging in lumps with rainbow highlights, and what moves leaves melting ghosts.	Chiaro: le parti chiare colano sullo scuro, come testo e loghi. Intera immagine: tutto è cera e l'immagine cola nei propri colori. Liquido: l'immagine diventa plastica fusa lucida, cede in grumi dai riflessi arcobaleno e ci? che si muove lascia fantasmi che si sciolgono.
 sideways	laterale
 slit scan	scansione a fessura
 slit width	larghezza fessura
@@ -4624,3 +4635,22 @@ scopes - the picture scopes	scopes - i monitor di segnale dell'immagine
 MULTIVIEW WINDOW: expected PROGRAMME, DECK<n>, OUTPUT<n>, NEXT, CLOCK, SCOPES or EMPTY	MULTIVIEW WINDOW: previsto PROGRAMME, DECK<n>, OUTPUT<n>, NEXT, CLOCK, SCOPES o EMPTY
 VIDEO OUTPUT ADD: WINDOW | STREAM | MULTIVIEW | PRESENTER | PROMPTER | SCOPES	VIDEO OUTPUT ADD: previsto WINDOW | STREAM | MULTIVIEW | PRESENTER | PROMPTER | SCOPES
 every output shows the scopes - add one that shows the programme	tutte le uscite mostrano gli strumenti di misura - aggiungine una che mostri il programma
+Voice	Voce
+voice	voce
+SOUNDS	SUONI
+voice cue added	cue voce aggiunto
+VOICE BREATH: expected 0-100	VOICE BREATH: previsto 0-100
+VOICE SIZE: expected 0.8-1.25	VOICE SIZE: previsto 0.8-1.25
+VOICE PITCH: expected 50-400 Hz	VOICE PITCH: previsto 50-400 Hz
+VOICE MODE: expected WORDS or SOUNDS	VOICE MODE: previsto WORDS o SOUNDS
+VOICE SAY: expected the words to say	VOICE SAY: previste le parole da dire
+DASH SET: <n> <label> | <command> [| <glyph>]	DASH SET: <n> <etichetta> | <comando> [| <glifo>]
+The length of the throat. 0.8 is a child, 1.25 a giant.	La lunghezza della gola. 0.8 è un bambino, 1.25 un gigante.
+DASH: LIST | <n> | SET <n> <label> | <command> | CLEAR <n>	DASH: LIST | <n> | SET <n> <etichetta> | <comando> | CLEAR <n>
+Airiness of the voice: 0 is pressed and hard, 100 a whisper.	Quanto è soffiata la voce: 0 è compressa e dura, 100 un sussurro.
+VOICE: select a Voice cue first (VOICE SAY <text> makes one)	VOICE: seleziona prima un cue Voce (VOICE SAY <testo> ne crea uno)
+VOICE: expected SAY, CHARACTER, MODE, PITCH, SIZE, BREATH or STATUS	VOICE: previsto SAY, CHARACTER, MODE, PITCH, SIZE, BREATH o STATUS
+Who talks: one of the sixteen lesson characters, or CUSTOM to set the voice by hand.	Chi parla: uno dei sedici caratteri delle lezioni, oppure PERSONALIZZATO per impostare la voce a mano.
+The speaking pitch. Steps in semitones: about 100 Hz is a deep voice, 220 Hz a high one.	L'altezza del parlato. Passi in semitoni: circa 100 Hz è una voce profonda, 220 Hz una acuta.
+WORDS speaks the text. SOUNDS has the speaker say their own noises instead, one per word, keeping the punctuation.	PAROLE pronuncia il testo. SUONI fa dire a chi parla i propri rumori, uno per parola, mantenendo la punteggiatura.
+STATUS | SHAPE <0-5> | PALETTE <0-3> | DENSITY|SPEED|WARP|CENTREX|CENTREY|GREY <0-100> | TURN|HUE <0-360> | LFO <control> <setting>	STATUS | SHAPE <0-5> | PALETTE <0-3> | DENSITY|SPEED|WARP|CENTREX|CENTREY|GREY <0-100> | TURN|HUE <0-360> | LFO <controllo> <impostazione>

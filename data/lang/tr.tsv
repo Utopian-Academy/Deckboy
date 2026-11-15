@@ -3670,6 +3670,17 @@ shake	sarsıntı
 shard size	parça boyutu
 sharpen	keskinleştir
 sheen	parıltı
+lumps	topak
+refraction	k?r?lma
+reform	yenile
+gloss	parlak
+liquid	s?v?
+How fast the picture sags. At the left it barely moves.	G?r?nt?n?n ne h?zla sarkt???. Solda neredeyse hi? hareket etmez.
+How big the lumps in the surface are: fine ripples at the left, fat blobs at the right.	Y?zeydeki topaklar?n boyutu: solda ince dalgalar, sa?da iri yumrular.
+How much the picture bends through the lumps, as through thick glass.	G?r?nt?n?n topaklardan ge?erken, kal?n camdan ge?er gibi ne kadar b?k?ld???.
+How fast the melt reforms into the live picture. At the left what has melted stays.	Eriyen g?r?nt?n?n canl? g?r?nt?ye ne h?zla d?nd???. Solda eriyen k?s?m kal?r.
+The gloss: white highlights and rainbow oil-slick colour on the lumps and rims.	Parlakl?k: topaklarda ve kenarlarda beyaz yans?malar ve ya? tabakas? gibi g?kku?a?? renkleri.
+Bright: bright things drip over the dark, as text and logos do. Whole picture: everything is wax, and the picture itself runs down in its own colours. Liquid: the picture turns to glossy molten plastic, sagging in lumps with rainbow highlights, and what moves leaves melting ghosts.	Parlak: yazı ve logo gibi açık alanlar koyuların üstüne damlar. Tüm görüntü: her şey mumdur; görüntü kendi renkleriyle aşağı akar. S?v?: g?r?nt? parlak erimi? plasti?e d?n???r, g?kku?a?? yans?mal? topaklar halinde sarkar ve hareket edenler eriyen hayalet izleri b?rak?r.
 sideways	yana
 size out of range	boyut aralık dışında
 slit scan	yarık tarama
@@ -4652,3 +4663,19 @@ scopes - the picture scopes	skoplar - görüntü skopları
 MULTIVIEW WINDOW: expected PROGRAMME, DECK<n>, OUTPUT<n>, NEXT, CLOCK, SCOPES or EMPTY	MULTIVIEW WINDOW: PROGRAMME, DECK<n>, OUTPUT<n>, NEXT, CLOCK, SCOPES veya EMPTY beklenir
 VIDEO OUTPUT ADD: WINDOW | STREAM | MULTIVIEW | PRESENTER | PROMPTER | SCOPES	VIDEO OUTPUT ADD: beklenen: WINDOW | STREAM | MULTIVIEW | PRESENTER | PROMPTER | SCOPES
 every output shows the scopes - add one that shows the programme	tüm çıkışlar görüntü ölçerlerini gösteriyor - programı gösteren bir çıkış ekleyin
+Voice	Ses
+voice	ses
+SOUNDS	SESLER
+voice cue added	ses cue'su eklendi
+VOICE BREATH: expected 0-100	VOICE BREATH: beklenen 0-100
+VOICE SIZE: expected 0.8-1.25	VOICE SIZE: beklenen 0.8-1.25
+VOICE PITCH: expected 50-400 Hz	VOICE PITCH: beklenen 50-400 Hz
+VOICE MODE: expected WORDS or SOUNDS	VOICE MODE: beklenen SÖZCÜKLER veya SESLER
+VOICE SAY: expected the words to say	VOICE SAY: beklenen, söylenecek sözcükler
+The length of the throat. 0.8 is a child, 1.25 a giant.	Boğazın uzunluğu. 0.8 bir çocuk, 1.25 bir dev.
+Airiness of the voice: 0 is pressed and hard, 100 a whisper.	Sesin soluklu olma derecesi: 0 sıkışık ve sert, 100 fısıltı.
+VOICE: select a Voice cue first (VOICE SAY <text> makes one)	VOICE: önce bir Ses cue seçin (VOICE SAY <text> bir tane oluşturur)
+VOICE: expected SAY, CHARACTER, MODE, PITCH, SIZE, BREATH or STATUS	VOICE: beklenen SAY, CHARACTER, MODE, PITCH, SIZE, BREATH veya STATUS
+Who talks: one of the sixteen lesson characters, or CUSTOM to set the voice by hand.	Kim konuşur: on altı ders karakterinden biri ya da sesi elle ayarlamak için ÖZEL.
+The speaking pitch. Steps in semitones: about 100 Hz is a deep voice, 220 Hz a high one.	Konuşma perdesi. Adımlar yarım ton: yaklaşık 100 Hz kalın, 220 Hz tiz bir ses.
+WORDS speaks the text. SOUNDS has the speaker say their own noises instead, one per word, keeping the punctuation.	SÖZCÜKLER metni söyler. SESLER ise konuşanın sözcükler yerine kendi seslerini çıkarmasını sağlar, her sözcük için bir ses, noktalama korunur.

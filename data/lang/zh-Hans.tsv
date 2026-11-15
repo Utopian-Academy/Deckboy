@@ -3481,6 +3481,17 @@ shake	抖动
 shard size	碎片大小
 sharpen	锐化
 sheen	光泽
+lumps	??
+refraction	??
+reform	??
+gloss	??
+liquid	??
+How fast the picture sags. At the left it barely moves.	?????????????????
+How big the lumps in the surface are: fine ripples at the left, fat blobs at the right.	?????????????????????????
+How much the picture bends through the lumps, as through thick glass.	?????????????????????
+How fast the melt reforms into the live picture. At the left what has melted stays.	??????????????????????????????
+The gloss: white highlights and rainbow oil-slick colour on the lumps and rims.	???????????????????????
+Bright: bright things drip over the dark, as text and logos do. Whole picture: everything is wax, and the picture itself runs down in its own colours. Liquid: the picture turns to glossy molten plastic, sagging in lumps with rainbow highlights, and what moves leaves melting ghosts.	亮部：文字、标志等亮处滴落到暗处。整幅画面：一切变成蜡，画面以自身颜色流下。 ??????????????????????????????????????????????
 sideways	横向
 slit scan	狭缝扫描
 slit width	狭缝宽度
@@ -4658,3 +4669,19 @@ scopes - the picture scopes	示波器——画面示波器
 MULTIVIEW WINDOW: expected PROGRAMME, DECK<n>, OUTPUT<n>, NEXT, CLOCK, SCOPES or EMPTY	MULTIVIEW WINDOW：应为 节目、DECK<n>、OUTPUT<n>、下一个、时钟、示波器 或 空
 VIDEO OUTPUT ADD: WINDOW | STREAM | MULTIVIEW | PRESENTER | PROMPTER | SCOPES	VIDEO OUTPUT ADD：窗口 | 推流 | 多画面 | PRESENTER | 提词器 | 示波器
 every output shows the scopes - add one that shows the programme	所有输出都在显示测量仪 - 请添加一个显示节目画面的输出
+Voice	音色
+voice	音色
+SOUNDS	声音
+voice cue added	已添加音色 cue
+VOICE BREATH: expected 0-100	VOICE BREATH: 所需格式：0-100
+VOICE SIZE: expected 0.8-1.25	VOICE SIZE: 所需格式：0.8-1.25
+VOICE PITCH: expected 50-400 Hz	VOICE PITCH: 所需格式：50-400 Hz
+VOICE MODE: expected WORDS or SOUNDS	VOICE MODE: 所需格式：WORDS 或 SOUNDS
+VOICE SAY: expected the words to say	VOICE SAY: 所需格式：要说的词语
+The length of the throat. 0.8 is a child, 1.25 a giant.	喉咙的长度。0.8 是孩子，1.25 是巨人。
+Airiness of the voice: 0 is pressed and hard, 100 a whisper.	声音的气息感：0 为紧而硬，100 为耳语。
+VOICE: select a Voice cue first (VOICE SAY <text> makes one)	VOICE: 请先选择音色 cue（VOICE SAY <text> 可创建）
+VOICE: expected SAY, CHARACTER, MODE, PITCH, SIZE, BREATH or STATUS	VOICE: 所需格式：SAY, CHARACTER, MODE, PITCH, SIZE, BREATH 或 STATUS
+Who talks: one of the sixteen lesson characters, or CUSTOM to set the voice by hand.	谁在说话：十六个课程字符之一，或选择自定义以手动设置音色。
+The speaking pitch. Steps in semitones: about 100 Hz is a deep voice, 220 Hz a high one.	说话的音高。以半音为步进：约 100 Hz 为低沉的声音，220 Hz 为高亢的声音。
+WORDS speaks the text. SOUNDS has the speaker say their own noises instead, one per word, keeping the punctuation.	词语朗读文字。声音则让说话者发出自己的声响，每个词一个，并保留标点。

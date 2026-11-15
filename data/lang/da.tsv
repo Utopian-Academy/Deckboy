@@ -3580,6 +3580,17 @@ shake	rystelse
 shard size	skårstørrelse
 sharpen	skarphed
 sheen	skær
+lumps	klumper
+refraction	brydning
+reform	gendan
+gloss	glans
+liquid	flydende
+How fast the picture sags. At the left it barely moves.	Hvor hurtigt billedet synker sammen. Til venstre bev?ger det sig n?sten ikke.
+How big the lumps in the surface are: fine ripples at the left, fat blobs at the right.	Hvor store klumperne i overfladen er: fine krusninger til venstre, tykke buler til h?jre.
+How much the picture bends through the lumps, as through thick glass.	Hvor meget billedet b?jes gennem klumperne, som gennem tykt glas.
+How fast the melt reforms into the live picture. At the left what has melted stays.	Hvor hurtigt det smeltede gendannes som livebilledet. Til venstre bliver det smeltede st?ende.
+The gloss: white highlights and rainbow oil-slick colour on the lumps and rims.	Glansen: hvide h?jlys og regnbuefarver som en oliefilm p? klumper og kanter.
+Bright: bright things drip over the dark, as text and logos do. Whole picture: everything is wax, and the picture itself runs down in its own colours. Liquid: the picture turns to glossy molten plastic, sagging in lumps with rainbow highlights, and what moves leaves melting ghosts.	Lyst: lyse ting drypper over mørke, som tekst og logoer. Hele billedet: alt er voks, og billedet løber ned i sine egne farver. Flydende: billedet bliver til blank smeltet plast, der synker i klumper med regnbueglans, og det, der bev?ger sig, efterlader smeltende sp?gelsesbilleder.
 sideways	sidelæns
 slit scan	spalteskanning
 slit width	spaltebredde
@@ -4613,3 +4624,21 @@ scopes - the picture scopes	scopes - billedets scopes
 MULTIVIEW WINDOW: expected PROGRAMME, DECK<n>, OUTPUT<n>, NEXT, CLOCK, SCOPES or EMPTY	MULTIVIEW WINDOW: forventede PROGRAMME, DECK<n>, OUTPUT<n>, NEXT, CLOCK, SCOPES eller EMPTY
 VIDEO OUTPUT ADD: WINDOW | STREAM | MULTIVIEW | PRESENTER | PROMPTER | SCOPES	VIDEO OUTPUT ADD: forventer WINDOW | STREAM | MULTIVIEW | PRESENTER | PROMPTER | SCOPES
 every output shows the scopes - add one that shows the programme	alle udgange viser billedmålerne - tilføj en, der viser programmet
+Voice	Stemme
+voice	stemme
+SOUNDS	LYDE
+voice cue added	stemme-cue tilføjet
+VOICE BREATH: expected 0-100	VOICE BREATH: forventer 0-100
+VOICE SIZE: expected 0.8-1.25	VOICE SIZE: forventer 0.8-1.25
+VOICE PITCH: expected 50-400 Hz	VOICE PITCH: forventer 50-400 Hz
+VOICE MODE: expected WORDS or SOUNDS	VOICE MODE: forventer WORDS eller SOUNDS
+VOICE SAY: expected the words to say	VOICE SAY: forventer de ord, der skal siges
+The length of the throat. 0.8 is a child, 1.25 a giant.	Halsens længde. 0.8 er et barn, 1.25 en kæmpe.
+DASH: LIST | <n> | SET <n> <label> | <command> | CLEAR <n>	DASH: LIST | <n> | SET <n> <etiket> | <kommando> | CLEAR <n>
+Airiness of the voice: 0 is pressed and hard, 100 a whisper.	Stemmens luftighed: 0 er presset og hård, 100 en hvisken.
+VOICE: select a Voice cue first (VOICE SAY <text> makes one)	VOICE: vælg først en stemme-cue (VOICE SAY <text> opretter en)
+VOICE: expected SAY, CHARACTER, MODE, PITCH, SIZE, BREATH or STATUS	VOICE: forventer SAY, CHARACTER, MODE, PITCH, SIZE, BREATH eller STATUS
+Who talks: one of the sixteen lesson characters, or CUSTOM to set the voice by hand.	Hvem taler: et af de seksten tegn i lektionerne, eller EGEN for at indstille stemmen manuelt.
+The speaking pitch. Steps in semitones: about 100 Hz is a deep voice, 220 Hz a high one.	Talens tonehøjde. Trin i halvtoner: omkring 100 Hz er en dyb stemme, 220 Hz en høj.
+WORDS speaks the text. SOUNDS has the speaker say their own noises instead, one per word, keeping the punctuation.	ORD siger teksten. LYDE får taleren i stedet til at sige sine egne lyde, én pr. ord, med tegnsætningen bevaret.
+STATUS | SHAPE <0-5> | PALETTE <0-3> | DENSITY|SPEED|WARP|CENTREX|CENTREY|GREY <0-100> | TURN|HUE <0-360> | LFO <control> <setting>	STATUS | SHAPE <0-5> | PALETTE <0-3> | DENSITY|SPEED|WARP|CENTREX|CENTREY|GREY <0-100> | TURN|HUE <0-360> | LFO <kontrol> <indstilling>

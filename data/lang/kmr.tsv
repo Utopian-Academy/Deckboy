@@ -3475,6 +3475,17 @@ shake	lerizîn
 shard size	mezinahiya perçeyê
 sharpen	tûjkirin
 sheen	birq
+lumps	gir?k
+refraction	?ikestin
+reform	veavakirin
+gloss	birq
+liquid	?il
+How fast the picture sags. At the left it barely moves.	Lezahiya daketina w?ney?. Li ?ep? hema hema nalive.
+How big the lumps in the surface are: fine ripples at the left, fat blobs at the right.	Mezinahiya gir?k?n r?y?: p?l?n h?r li ?ep?, kom?n mezin li rast?.
+How much the picture bends through the lumps, as through thick glass.	W?ne di nav gir?kan re ?iqas diqeli?e, wek di nav cam? st?r re.
+How fast the melt reforms into the live picture. At the left what has melted stays.	Lezahiya vegera w?neya heland? bo w?neya zind?. Li ?ep? ya heland? dim?ne.
+The gloss: white highlights and rainbow oil-slick colour on the lumps and rims.	Birq: ronahiy?n sp? ? reng?n keskesor? wek tebeqeya r?n? li ser gir?k ? k?l?yan.
+Bright: bright things drip over the dark, as text and logos do. Whole picture: everything is wax, and the picture itself runs down in its own colours. Liquid: the picture turns to glossy molten plastic, sagging in lumps with rainbow highlights, and what moves leaves melting ghosts.	Ronahî: tiştên ronahî wek nivîs û logo li ser tarîtiyê dilopin. Hemû wêne: her tişt mûm e û bi rengên xwe dadikeve. ?il: w?ne dibe plast?ka heland? ya birqok, bi gir?k?n keskesor? dadikeve ? ti?t? dilive ?op?n xeyal? y?n dihelin dih?le.
 sideways	ber bi kêlekê
 slit scan	skana şikê
 slit width	firehiya şikê
@@ -4651,3 +4662,19 @@ scopes - the picture scopes	scope - scopeyên wêneyê
 MULTIVIEW WINDOW: expected PROGRAMME, DECK<n>, OUTPUT<n>, NEXT, CLOCK, SCOPES or EMPTY	MULTIVIEW WINDOW: PROGRAMME, DECK<n>, OUTPUT<n>, NEXT, CLOCK, SCOPES an EMPTY tê hêvîkirin
 VIDEO OUTPUT ADD: WINDOW | STREAM | MULTIVIEW | PRESENTER | PROMPTER | SCOPES	VIDEO OUTPUT ADD: Forma bendewar: WINDOW | STREAM | MULTIVIEW | PRESENTER | PROMPTER | SCOPES
 every output shows the scopes - add one that shows the programme	hemû derketin pîvanên wêneyê nîşan didin - yekê zêde bikin ku bernameyê nîşan bide
+Voice	Deng
+voice	deng
+SOUNDS	DENG
+voice cue added	cueya dengê hat zêdekirin
+VOICE BREATH: expected 0-100	VOICE BREATH: 0-100 pêwîst e
+VOICE SIZE: expected 0.8-1.25	VOICE SIZE: 0.8-1.25 pêwîst e
+VOICE PITCH: expected 50-400 Hz	VOICE PITCH: 50-400 Hz pêwîst e
+VOICE MODE: expected WORDS or SOUNDS	VOICE MODE: WORDS an SOUNDS pêwîst e
+VOICE SAY: expected the words to say	VOICE SAY: peyvên ku bêne gotin pêwîst in
+The length of the throat. 0.8 is a child, 1.25 a giant.	Dirêjahiya qirikê. 0.8 zarok e, 1.25 dêw e.
+Airiness of the voice: 0 is pressed and hard, 100 a whisper.	Hewayîbûna dengê: 0 pêçayî û req e, 100 pistepist e.
+VOICE: select a Voice cue first (VOICE SAY <text> makes one)	VOICE: pêşî cueyek Deng hilbijêre (VOICE SAY <text> yekê çêdike)
+VOICE: expected SAY, CHARACTER, MODE, PITCH, SIZE, BREATH or STATUS	VOICE: SAY, CHARACTER, MODE, PITCH, SIZE, BREATH an STATUS pêwîst e
+Who talks: one of the sixteen lesson characters, or CUSTOM to set the voice by hand.	Kî diaxive: yek ji şazdeh tîpên dersê, an TAYBET ji bo ku dengê bi destî diyar bikî.
+The speaking pitch. Steps in semitones: about 100 Hz is a deep voice, 220 Hz a high one.	Bilindahiya dengê ya axaftinê. Gav bi nîvton in: nêzîkî 100 Hz dengekî kûr e, 220 Hz yekî bilind e.
+WORDS speaks the text. SOUNDS has the speaker say their own noises instead, one per word, keeping the punctuation.	PEYV nivîsê dixwîne. DENG dihêle ku axêver li şûna wê dengên xwe yên taybet bêje, yek ji bo her peyvê, û xalbendiyê diparêze.

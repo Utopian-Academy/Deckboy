@@ -3581,6 +3581,17 @@ shake	nyakazisa
 shard size	usayizi wocezu
 sharpen	lola
 sheen	ukucwebezela
+lumps	izigaxa
+refraction	ukuphambuka
+reform	buyisa
+gloss	cwebezela
+liquid	uketshezi
+How fast the picture sags. At the left it barely moves.	Ijubane isithombe esigoba ngalo siye phansi. Ngakwesobunxele asinyakazi cishe.
+How big the lumps in the surface are: fine ripples at the left, fat blobs at the right.	Ubukhulu bezigaxa ebusweni: amagagasi amancane ngakwesobunxele, izigaxa ezinkulu ngakwesokudla.
+How much the picture bends through the lumps, as through thick glass.	Izinga isithombe esigoba ngalo sidlula ezigaxeni, njengasengilazini ewugqinsi.
+How fast the melt reforms into the live picture. At the left what has melted stays.	Ijubane okuncibilikile okubuyela ngalo esithombeni esibukhoma. Ngakwesobunxele okuncibilikile kuyasala.
+The gloss: white highlights and rainbow oil-slick colour on the lumps and rims.	Ukucwebezela: ukukhanya okumhlophe nemibala yothingo njengongqimba lwamafutha ezigaxeni nasemaphethelweni.
+Bright: bright things drip over the dark, as text and logos do. Whole picture: everything is wax, and the picture itself runs down in its own colours. Liquid: the picture turns to glossy molten plastic, sagging in lumps with rainbow highlights, and what moves leaves melting ghosts.	Okukhanyayo: izinto ezikhanyayo ziconsela ebumnyameni, njengombhalo namalogo. Isithombe sonke: konke kuyi-wax, isithombe sigelezela phansi ngemibala yaso. Uketshezi: isithombe siphenduka ipulasitiki encibilikile ecwebezelayo, sigobe sibe izigaxa ezinemibala yothingo, kuthi okunyakazayo kushiye imifanekiso eyizipoki encibilikayo.
 sideways	eceleni
 slit scan	ukuskena ngembobo
 slit width	ububanzi bembobo
@@ -4646,3 +4657,19 @@ scopes - the picture scopes	ama-scope - ama-scope esithombe
 MULTIVIEW WINDOW: expected PROGRAMME, DECK<n>, OUTPUT<n>, NEXT, CLOCK, SCOPES or EMPTY	MULTIVIEW WINDOW: kulindelwe uhlelo, DECK<n>, OUTPUT<n>, OKULANDELAYO, IWASHI, IZILINGANISI noma akunalutho
 VIDEO OUTPUT ADD: WINDOW | STREAM | MULTIVIEW | PRESENTER | PROMPTER | SCOPES	VIDEO OUTPUT ADD: IWINDI | SAKAZA | MULTIVIEW | PRESENTER | ISIKHUMBUZI | IZILINGANISI
 every output shows the scopes - add one that shows the programme	konke okuphumayo kukhombisa izilinganisi zesithombe - engeza okukodwa okukhombisa uhlelo
+Voice	Izwi
+voice	izwi
+SOUNDS	IMISINDO
+voice cue added	i-cue yezwi ingeziwe
+VOICE BREATH: expected 0-100	VOICE BREATH: kulindelwe 0-100
+VOICE SIZE: expected 0.8-1.25	VOICE SIZE: kulindelwe 0.8-1.25
+VOICE PITCH: expected 50-400 Hz	VOICE PITCH: kulindelwe 50-400 Hz
+VOICE MODE: expected WORDS or SOUNDS	VOICE MODE: kulindelwe WORDS noma SOUNDS
+VOICE SAY: expected the words to say	VOICE SAY: kulindelwe amagama okufanele akhulunywe
+The length of the throat. 0.8 is a child, 1.25 a giant.	Ubude bomphimbo. 0.8 yingane, 1.25 yisiqhwaga.
+Airiness of the voice: 0 is pressed and hard, 100 a whisper.	Ukuphefumula kwezwi: 0 kucindezelekile futhi kuqinile, 100 kuwukuhlebeza.
+VOICE: select a Voice cue first (VOICE SAY <text> makes one)	VOICE: khetha i-cue yezwi kuqala (VOICE SAY <umbhalo> iyayakha)
+VOICE: expected SAY, CHARACTER, MODE, PITCH, SIZE, BREATH or STATUS	VOICE: kulindelwe SAY, CHARACTER, MODE, PITCH, SIZE, BREATH noma STATUS
+Who talks: one of the sixteen lesson characters, or CUSTOM to set the voice by hand.	Ubani okhulumayo: oyedwa kuzinhlamvu eziyishumi nesithupha zesifundo, noma OKWAKHO ukuze usethe izwi ngesandla.
+The speaking pitch. Steps in semitones: about 100 Hz is a deep voice, 220 Hz a high one.	Ukuphakama kwephimbo lokukhuluma. Izinyathelo zingama-semitone: cishe ama-100 Hz iyizwi elijulile, ama-220 Hz iyizwi eliphakeme.
+WORDS speaks the text. SOUNDS has the speaker say their own noises instead, one per word, keeping the punctuation.	AMAGAMA akhuluma umbhalo. IMISINDO yenza isikhulumi senze imisindo yaso esikhundleni, oyodwa ngegama ngalinye, kugcinwe izimpawu zokuphumula.

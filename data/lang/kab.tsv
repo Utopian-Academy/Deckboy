@@ -3581,6 +3581,17 @@ shake	zelzel
 shard size	teɣzi n ucqif
 sharpen	sseḍḥu
 sheen	asfufed
+lumps	ti?eqqayin
+refraction	are??u
+reform	ales tal?a
+gloss	asfufed
+liquid	amengan
+How fast the picture sags. At the left it barely moves.	Arured s wayes tugna tettader. Deg uzelma tett?errik cwi? kan.
+How big the lumps in the surface are: fine ripples at the left, fat blobs at the right.	Te?zi n t?eqqayin n wudem: timdesrin time?yanin deg uzelma, ti?eqqayin timoqranin deg uyeffus.
+How much the picture bends through the lumps, as through thick glass.	Ac?al tettwalu? tugna s t?eqqayin, amzun s zzaj aquran.
+How fast the melt reforms into the live picture. At the left what has melted stays.	Arured s wayes ayen yefsin yu?al d tugna tudirt. Deg uzelma ayen yefsin yeqqim.
+The gloss: white highlights and rainbow oil-slick colour on the lumps and rims.	Asfufed: tiftilin timellalin d yiniten n teslit n un?ar am u?ar n zzit ?ef t?eqqayin d yiran.
+Bright: bright things drip over the dark, as text and logos do. Whole picture: everything is wax, and the picture itself runs down in its own colours. Liquid: the picture turns to glossy molten plastic, sagging in lumps with rainbow highlights, and what moves leaves melting ghosts.	Tafat: ayen iceɛlen yettqettir ɣef uberkan, am uḍris d yizamulen. Tugna akk: kulec d tament, tugna tessalay s yiniten-is. Amengan: tugna tettbeddil d plastik yefsin yesfufuden, tettader d ti?eqqayin s yiniten n teslit n un?ar; ayen yett?erriken yetta??a izumal yettfessin.
 sideways	ɣer tama
 slit scan	asmiḍen n tecreḍt
 slit width	tehri n tecreḍt
@@ -4645,3 +4656,19 @@ scopes - the picture scopes	scopes - isnagrawen n tugna
 MULTIVIEW WINDOW: expected PROGRAMME, DECK<n>, OUTPUT<n>, NEXT, CLOCK, SCOPES or EMPTY	MULTIVIEW WINDOW: ilaq PROGRAMME, DECK<n>, OUTPUT<n>, NEXT, CLOCK, SCOPES neɣ EMPTY
 VIDEO OUTPUT ADD: WINDOW | STREAM | MULTIVIEW | PRESENTER | PROMPTER | SCOPES	VIDEO OUTPUT ADD: ilaq WINDOW | STREAM | MULTIVIEW | PRESENTER | PROMPTER | SCOPES
 every output shows the scopes - add one that shows the programme	yal tuffɣa tesskanay imesɣalen - rnu yiwet i yeskanayen ahil
+Voice	Taɣect
+voice	taɣect
+SOUNDS	IMESLIYEN
+voice cue added	cue n taɣect yettwarnu
+VOICE BREATH: expected 0-100	VOICE BREATH: yettraǧu 0-100
+VOICE SIZE: expected 0.8-1.25	VOICE SIZE: yettraǧu 0.8-1.25
+VOICE PITCH: expected 50-400 Hz	VOICE PITCH: yettraǧu 50-400 Hz
+VOICE MODE: expected WORDS or SOUNDS	VOICE MODE: yettraǧu WORDS neɣ SOUNDS
+VOICE SAY: expected the words to say	VOICE SAY: yettraǧu awalen ara yettwaqqaren
+The length of the throat. 0.8 is a child, 1.25 a giant.	Teɣzi n ugerjum. 0.8 d aqcic, 1.25 d ameqqran aṭas.
+Airiness of the voice: 0 is pressed and hard, 100 a whisper.	Ayen yellan d asemmiḍ deg taɣect: 0 d aẓẓer yeḥman, 100 d asusru.
+VOICE: select a Voice cue first (VOICE SAY <text> makes one)	VOICE: fren cue n taɣect uqbel (VOICE SAY <aḍris> ad d-yesnulfu yiwen)
+VOICE: expected SAY, CHARACTER, MODE, PITCH, SIZE, BREATH or STATUS	VOICE: yettraǧu SAY, CHARACTER, MODE, PITCH, SIZE, BREATH neɣ STATUS
+Who talks: one of the sixteen lesson characters, or CUSTOM to set the voice by hand.	Anwa i d-yettmeslayen: yiwen seg mraw d sḍis n yisekkilen n tmsirin, neɣ UDMAWAN akken ad tesbaduḍ taɣect s ufus.
+The speaking pitch. Steps in semitones: about 100 Hz is a deep voice, 220 Hz a high one.	Taɣect n usawal. Isurifen s semitone: ɣef 100 Hz d taɣect n ddaw, 220 Hz d taɣect n ufella.
+WORDS speaks the text. SOUNDS has the speaker say their own noises instead, one per word, keeping the punctuation.	AWALEN yettmeslay aḍris. IMESLIYEN yessawal imesliyen-is, yiwen i yal awal, ma yeqqim ɣef tinqiḍin.

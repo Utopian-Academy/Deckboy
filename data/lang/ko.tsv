@@ -3480,6 +3480,17 @@ shake	흔들림
 shard size	파편 크기
 sharpen	선명하게
 sheen	윤기
+lumps	???
+refraction	??
+reform	??
+gloss	??
+liquid	??
+How fast the picture sags. At the left it barely moves.	??? ??? ?????. ?? ???? ?? ???? ????.
+How big the lumps in the surface are: fine ripples at the left, fat blobs at the right.	?? ???? ?????. ??? ???, ???? ?? ??????.
+How much the picture bends through the lumps, as through thick glass.	??? ??? ???? ???? ?? ??? ???? ?????.
+How fast the melt reforms into the live picture. At the left what has melted stays.	?? ??? ??? ???? ???? ?????. ?? ???? ?? ??? ????.
+The gloss: white highlights and rainbow oil-slick colour on the lumps and rims.	??: ???? ????? ? ?????? ??? ?? ????? ????.
+Bright: bright things drip over the dark, as text and logos do. Whole picture: everything is wax, and the picture itself runs down in its own colours. Liquid: the picture turns to glossy molten plastic, sagging in lumps with rainbow highlights, and what moves leaves melting ghosts.	밝은 부분: 글자나 로고처럼 밝은 것이 어두운 곳으로 흐릅니다. 전체 영상: 모두 밀랍이 되어 원래 색으로 흘러내립니다. ??: ??? ?? ?? ?? ?????? ??? ???? ???? ???, ???? ?? ????? ??? ????.
 sideways	옆으로
 slit scan	슬릿 스캔
 slit width	슬릿 폭
@@ -4656,3 +4667,19 @@ scopes - the picture scopes	scopes - 영상 스코프
 MULTIVIEW WINDOW: expected PROGRAMME, DECK<n>, OUTPUT<n>, NEXT, CLOCK, SCOPES or EMPTY	MULTIVIEW WINDOW: PROGRAMME, DECK<n>, OUTPUT<n>, NEXT, CLOCK, SCOPES 또는 EMPTY 필요
 VIDEO OUTPUT ADD: WINDOW | STREAM | MULTIVIEW | PRESENTER | PROMPTER | SCOPES	VIDEO OUTPUT ADD: 필요한 형식: WINDOW | STREAM | MULTIVIEW | PRESENTER | PROMPTER | SCOPES
 every output shows the scopes - add one that shows the programme	모든 출력이 영상 계측기를 표시합니다 - 프로그램 영상을 표시하는 출력을 추가하세요
+Voice	음색
+voice	음색
+SOUNDS	소리
+voice cue added	음색 큐 추가됨
+VOICE BREATH: expected 0-100	VOICE BREATH: 필요한 값: 0-100
+VOICE SIZE: expected 0.8-1.25	VOICE SIZE: 필요한 값: 0.8-1.25
+VOICE PITCH: expected 50-400 Hz	VOICE PITCH: 필요한 값: 50-400 Hz
+VOICE MODE: expected WORDS or SOUNDS	VOICE MODE: 필요한 값: WORDS 또는 SOUNDS
+VOICE SAY: expected the words to say	VOICE SAY: 말할 단어 필요
+The length of the throat. 0.8 is a child, 1.25 a giant.	목의 길이. 0.8은 아이, 1.25는 거인.
+Airiness of the voice: 0 is pressed and hard, 100 a whisper.	음색의 바람 소리 정도: 0은 눌린 딱딱한 소리, 100은 속삭임.
+VOICE: select a Voice cue first (VOICE SAY <text> makes one)	VOICE: 먼저 음색 큐를 선택하세요(VOICE SAY <text>로 생성)
+VOICE: expected SAY, CHARACTER, MODE, PITCH, SIZE, BREATH or STATUS	VOICE: 필요한 형식: SAY, CHARACTER, MODE, PITCH, SIZE, BREATH 또는 STATUS
+Who talks: one of the sixteen lesson characters, or CUSTOM to set the voice by hand.	말하는 쪽: 수업 문자 16개 중 하나, 또는 사용자 지정으로 음색을 직접 설정.
+The speaking pitch. Steps in semitones: about 100 Hz is a deep voice, 220 Hz a high one.	말하는 피치. 단계는 반음 단위: 약 100 Hz는 낮은 음색, 220 Hz는 높은 음색.
+WORDS speaks the text. SOUNDS has the speaker say their own noises instead, one per word, keeping the punctuation.	단어는 텍스트를 말합니다. 소리는 대신 화자가 자기만의 소리를 내며, 단어마다 하나씩, 문장 부호는 그대로 둡니다.

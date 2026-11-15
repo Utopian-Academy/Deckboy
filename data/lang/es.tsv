@@ -3594,6 +3594,17 @@ shake	sacudida
 shard size	tamaño de fragmento
 sharpen	enfocar
 sheen	lustre
+lumps	bultos
+refraction	refracci?n
+reform	reformar
+gloss	brillo
+liquid	l?quido
+How fast the picture sags. At the left it barely moves.	Qu? tan r?pido se hunde la imagen. A la izquierda apenas se mueve.
+How big the lumps in the surface are: fine ripples at the left, fat blobs at the right.	El tama?o de los bultos de la superficie: ondas finas a la izquierda, masas gruesas a la derecha.
+How much the picture bends through the lumps, as through thick glass.	Cu?nto se deforma la imagen al pasar por los bultos, como a trav?s de un cristal grueso.
+How fast the melt reforms into the live picture. At the left what has melted stays.	Qu? tan r?pido lo derretido vuelve a formar la imagen en vivo. A la izquierda lo derretido permanece.
+The gloss: white highlights and rainbow oil-slick colour on the lumps and rims.	El brillo: reflejos blancos y colores de arco?ris, como una pel?cula de aceite, en bultos y bordes.
+Bright: bright things drip over the dark, as text and logos do. Whole picture: everything is wax, and the picture itself runs down in its own colours. Liquid: the picture turns to glossy molten plastic, sagging in lumps with rainbow highlights, and what moves leaves melting ghosts.	Brillante: lo claro gotea sobre lo oscuro, como texto y logos. Imagen completa: todo es cera y la imagen escurre con sus propios colores. L?quido: la imagen se vuelve pl?stico fundido brillante, se hunde en bultos con reflejos de arco?ris y lo que se mueve deja rastros fantasma que se derriten.
 sideways	lateral
 slit scan	barrido de ranura
 slit width	ancho de ranura
@@ -4627,3 +4638,20 @@ scopes - the picture scopes	scopes - los scopes de la imagen
 MULTIVIEW WINDOW: expected PROGRAMME, DECK<n>, OUTPUT<n>, NEXT, CLOCK, SCOPES or EMPTY	MULTIVIEW WINDOW: se espera PROGRAMME, DECK<n>, OUTPUT<n>, NEXT, CLOCK, SCOPES o EMPTY
 VIDEO OUTPUT ADD: WINDOW | STREAM | MULTIVIEW | PRESENTER | PROMPTER | SCOPES	VIDEO OUTPUT ADD: se espera WINDOW | STREAM | MULTIVIEW | PRESENTER | PROMPTER | SCOPES
 every output shows the scopes - add one that shows the programme	todas las salidas muestran los instrumentos de medida - añade una que muestre el programa
+Voice	Voz
+voice	voz
+SOUNDS	SONIDOS
+voice cue added	cue de voz añadido
+VOICE BREATH: expected 0-100	VOICE BREATH: se espera 0-100
+VOICE SIZE: expected 0.8-1.25	VOICE SIZE: se espera 0.8-1.25
+VOICE PITCH: expected 50-400 Hz	VOICE PITCH: se espera 50-400 Hz
+VOICE MODE: expected WORDS or SOUNDS	VOICE MODE: se espera PALABRAS o SONIDOS
+VOICE SAY: expected the words to say	VOICE SAY: se esperan las palabras a decir
+The length of the throat. 0.8 is a child, 1.25 a giant.	El largo de la garganta. 0.8 es un niño, 1.25 un gigante.
+DASH: LIST | <n> | SET <n> <label> | <command> | CLEAR <n>	DASH: LIST | <n> | SET <n> <etiqueta> | <comando> | CLEAR <n>
+Airiness of the voice: 0 is pressed and hard, 100 a whisper.	Aire de la voz: 0 es apretada y dura, 100 un susurro.
+VOICE: select a Voice cue first (VOICE SAY <text> makes one)	VOICE: selecciona primero un cue de voz (VOICE SAY <texto> crea uno)
+VOICE: expected SAY, CHARACTER, MODE, PITCH, SIZE, BREATH or STATUS	VOICE: se espera SAY, CHARACTER, MODE, PITCH, SIZE, BREATH o STATUS
+Who talks: one of the sixteen lesson characters, or CUSTOM to set the voice by hand.	Quién habla: uno de los dieciséis caracteres de las lecciones, o PERSONALIZADO para definir la voz a mano.
+The speaking pitch. Steps in semitones: about 100 Hz is a deep voice, 220 Hz a high one.	El tono del habla. Pasos en semitonos: unos 100 Hz son una voz grave, 220 Hz una aguda.
+WORDS speaks the text. SOUNDS has the speaker say their own noises instead, one per word, keeping the punctuation.	PALABRAS dice el texto. SONIDOS hace que el hablante diga sus propios ruidos en su lugar, uno por palabra, conservando la puntuación.
