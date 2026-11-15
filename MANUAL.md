@@ -159,11 +159,12 @@ choice is not final; the list remembers it, and a tab switches. It is always at
 | Warp, blend and slices | Prof. Video | a corner pin, two soft edges, the Screens window, three slices | the haunted lighthouse, with Keeper Rook |
 | Transitions | Prof. Video | an iris and a shatter, each with a time | the space-opera trailer, with Optimus Primetime |
 | Sound | Prof. Video | an audio effect, a bend, and where the patch lives | the robot DJs, with Deft Funk |
+| Datamosh | Prof. Video | why a good mosh starts with a well-made source clip, DATAMOSH on a clip with seven hard cuts, the moshable copy | STAIRLIFT's music video, with Caroline Polkadot |
 | Reading the scopes | Prof. Video | an output on, the waveform, the vectorscope, false colour | The Signal Files: is the glow a craft? |
 | Out of the building | Prof. Video | the Devices page, and NDI where this computer has it | (a plain lesson) |
 | Motion: Bug Swat | Prof. Video | the game (see Motion) | a handheld, and bugs |
 | GO from anywhere | Dr. Pixel | a cue number, GOTO (Ctrl+G), a hotkey from TRIGGERS, where Companion, MIDI and OSC connect | the game show, with Donna Wheel |
-| Words on screen | Dr. Pixel | a layer, a Lower Third with a name on it, a title card with a key-green backdrop | the kaiju weather report, with June O'Neil |
+| Words on screen | Dr. Pixel | a layer, the SOURCE picker, a Lower Third with a name on it, a title card with a key-green backdrop | the kaiju weather report, with June O'Neil |
 | Keeping time | Dr. Pixel | a stage timer counting down, held, and a presenter view | a grand day out, with Wallis and Grommet |
 | Two playlists and TAKE ALL | Dr. Pixel | a second playlist as a layer, and TAKE ALL changing both on one beat | the magic show, with Turnip Top |
 | When it goes wrong | Dr. Pixel | BLACK and back, PANIC, and getting the show back | the cooking show, with Chef Bork |
@@ -2226,7 +2227,8 @@ deck's programme, or everything an output plays. Turn it on in
 | **Lines** / **Position** / **Size** | One to three rolling lines, along the bottom or the top, 75-150% of the cue-caption size |
 | **Keep a transcript (.srt)** | Everything shown, with times, in Deckboy's `captions` folder |
 
-Words appear about two seconds after they are said. The newest are grey
+Words appear about a second after they are said (1.1-1.4 s with the base
+English model, the engine on 8 threads; a slower computer is slower). The newest are grey
 until the engine is sure of them, then white: a word at the edge of what it
 has heard is often wrong ("queue" for "cue") until the next second arrives.
 After six seconds of silence the captions clear. The status line under the
@@ -3144,8 +3146,18 @@ inspector says "made by Deckboy" in place of a pattern picker.
   card, in the ISF format (`.fs` files; see isf.video). SOURCE > MADE BY
   DECKBOY lists **Shader (.fs)...**, which asks for a file, then **Shader:
   <name>** for each shader Deckboy ships and each one in your own shader
-  folder. Deckboy ships five: **deckboy_plasma**, **deckboy_lava_lamp**,
-  **deckboy_starfield**, **deckboy_scanline_sunset** and **deckboy_pixel_rain**.
+  folder. Deckboy ships six: **deckboy_plasma**, **deckboy_lava_lamp**,
+  **deckboy_starfield**, **deckboy_scanline_sunset**, **deckboy_pixel_rain**
+  and **deckboy_dream_machine**.
+
+  **deckboy_dream_machine** is Brion Gysin's Dream Machine (1961): a paper
+  cylinder with cut-outs turns on a record player round a lamp. **view** picks
+  **the machine** (the drum, its light sweeping the room) or **eyes closed**
+  (what sitters saw through their eyelids: a red field and patterns that bloom
+  on each flash). At the original 78 **rpm** with 8 **cut-outs a turn** the
+  light flashes about ten times a second. **Warning:** flicker at 3 to 30
+  flashes a second can bring on seizures in people with photosensitive
+  epilepsy. Warn the audience before you use it, or turn **flicker** down.
 
   The cue's inspector has a **SHADER** section. It names the file, says what the
   shader is, and has three buttons: **LOAD .FS** (pick another file),

@@ -386,10 +386,37 @@ def spec_strings():
     return found
 
 
+def shader_strings():
+    """The shipped shaders' own text: the description, input labels and choice names.
+
+    They come from the .fs files' JSON headers, not from source, so no scan of
+    the C++ saw them and every shipped shader drew English in every language
+    (found 2026-11-14)."""
+    import json
+    found = {}
+    folder = os.path.join(os.path.dirname(HERE), "data", "shaders")
+    for name in sorted(os.listdir(folder)) if os.path.isdir(folder) else []:
+        if not name.endswith(".fs"):
+            continue
+        text = open(os.path.join(folder, name), encoding="utf-8").read()
+        start, end = text.find("/*{"), text.find("}*/")
+        if start < 0 or end < 0:
+            continue
+        head = json.loads(text[start + 2:end + 1])
+        where = "data/shaders/" + name
+        if head.get("DESCRIPTION"):
+            found.setdefault(head["DESCRIPTION"], where)
+        for inp in head.get("INPUTS", []):
+            for s in [inp.get("LABEL", "")] + list(inp.get("LABELS", [])):
+                if isinstance(s, str) and label_ok(s):
+                    found.setdefault(s, where)
+    return found
+
+
 def variable_strings():
     """Every string that reaches the screen through a variable, not a draw call."""
     found = {}
-    for part in (table_strings(), error_strings(), spec_strings()):
+    for part in (table_strings(), error_strings(), spec_strings(), shader_strings()):
         for s, where in part.items():
             found.setdefault(s, where)
     return found

@@ -5978,7 +5978,9 @@
           // Wrapped prose steps by a line of text, not by a control row.
           const int proseH = (fontSmall_ ? TTF_GetFontHeight(fontSmall_) : uiScaled(14)) + uiScaled(2);
           if (shader && !shader->description.empty()) {
-            for (const auto& line : wrapForWidth(fontSmall_, shader->description, textW)) {
+            // Translated WHOLE, before wrapping (lessonText): a wrapped half-sentence
+            // matches no catalogue line, so it drew English in every language.
+            for (const auto& line : wrapForWidth(fontSmall_, lessonText(shader->description), textW)) {
               drawTextSafe(controlRenderer_, fontSmall_, SDL_Rect {textX, shY, textW, proseH}, line, pal.fgSoft);
               shY += proseH;
             }

@@ -1590,7 +1590,7 @@
     // James, 2026-11-14: "a how to data mosh lesson ... with guest ... parody
     // of chairlift ... the teachers should emphasize a good mosh starts with
     // a well made source clip". The clip ships in data/lessons (mosh_reel.mp4,
-    // seven hard cuts from public-domain films; see data/lessons/CREDITS.md).
+    // nine hard cuts from public-domain films, each on a bar of the theme; see data/lessons/CREDITS.md).
     {
       LessonDef l;
       l.id = "datamosh";
@@ -1639,11 +1639,11 @@
          std::function<bool()> {}, nullptr, [] { return SDL_Rect {}; }, nullptr},
         {"THE SOURCE CLIP", nullptr,
          "A good mosh starts with a well-made source clip. Moshing a dull clip only makes a smudge.",
-         "What it needs: hard CUTS, a bright busy picture before each cut, and big steady MOTION after it. This clip has seven.",
+         "What it needs: hard CUTS, a bright busy picture before each cut, and big steady MOTION after it. This clip has nine, one on each bar of the music.",
          "CAROLINE POLKADOT", "We shot it ourselves. In 1895. With the Lumière brothers. Long story.",
          std::function<bool()> {}, nullptr, [] { return SDL_Rect {}; }, nullptr},
         {"WATCH THE CUTS", "ENTER",
-         "TAKE the music video and watch it once. Count the cuts: train, samurai, dancer, the dive, the dive backwards, the kiss, the train.",
+         "TAKE the music video and watch it once. Count the cuts. Each one lands on the beat: train, samurai, dancer, the dive, the dive backwards, the kiss.",
          "Every cut starts with a KEYFRAME: a whole picture. Every frame after it is only the changes. Datamosh throws the keyframe away.",
          "CAROLINE POLKADOT", "The train is the chorus. The samurai is the bridge. The kiss is the key change.",
          [this, isReel] { return lessonCueLive(isReel); },
@@ -2200,7 +2200,7 @@
       l.id = "words";
       l.videoTrack = false;
       l.title = "Words on screen";
-      l.about = "A Lower Third with a name on it, then a title card with a key-green backdrop.";
+      l.about = "The SOURCE picker: a Lower Third with a name on it, then a title card with a key-green backdrop.";
       l.show = "The kaiju weather report, with June O'Neil";
       l.setup = [this] {
         lessonAddCodeCue("Weather map",
