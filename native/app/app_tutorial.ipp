@@ -70,6 +70,7 @@
     int praiseIndex = 0;
     SDL_Rect cardRect {};
     SDL_Rect showMeRect {};
+    SDL_Rect voiceRect {};    // VOICE: CHIP / EXPERIMENTAL / OFF, bottom left
     SDL_Rect skipRect {};
     SDL_Rect exitRect {};
     SDL_Rect targetRect {};
@@ -133,7 +134,7 @@
   static const TutorialLine& tutorialLine(int step) {
     static const TutorialLine kLines[kTutorialSteps] = {
       {"HELLO", nullptr,
-       "Dobar den, skapi. I am Dr. Pixel. Five minutes, and you will run a show. Less, if you listen to me.",
+       "Dobar den, skapi. I am Dr. Pixel. Five minutes, and you will run a show. Less, if you listen to me. Our voices change on the VOICE button, bottom left.",
        "And I'm Professor Video. Synths first, then video. Mostly video now. Press START and we'll patch... we'll begin."},
       {"TURN THE OUTPUT ON", nullptr,
        "Skapi, the screen is empty. Don't keep them waiting. Open MENU and make OUTPUT OFF say OUTPUT ON. Aide!",
@@ -212,6 +213,7 @@
     std::string language;
     std::string theme;
     double uiScale = 0.0;
+    int lessonVoice = 0;   // CHIP / WORDS / OFF / SOUNDS: a lesson speaks as the desk does
   };
 
   // False, with the reason, when the desk cannot be lent as it stands.
@@ -243,11 +245,18 @@
     loan.language = project_.language;
     loan.theme = project_.theme;
     loan.uiScale = project_.uiScale;
+    loan.lessonVoice = project_.lessonVoice;
     return true;
   }
 
   // A practice show, once open, in the operator's language, colours and size.
   void dressPracticeLikeDesk(const DeskLoan& loan) {
+    // The voice lives in the show too; a practice show started fresh spoke
+    // CHIP whatever the desk was set to (found by check_lesson_voice.py).
+    if (project_.lessonVoice != loan.lessonVoice) {
+      project_.lessonVoice = loan.lessonVoice;
+      markProjectDirty();
+    }
     if (project_.language == loan.language && project_.theme == loan.theme && project_.uiScale == loan.uiScale) {
       return;
     }
@@ -263,7 +272,12 @@
   void handDeskBack(const DeskLoan& loan) {
     std::error_code ec;
     if (loan.returnTo.empty() || !fs::exists(loan.returnTo, ec)) return;
+    const int voiceChosen = project_.lessonVoice;   // chosen on a lesson card: it sticks
     openProjectFromPath(loan.returnTo);
+    if (project_.lessonVoice != voiceChosen) {
+      project_.lessonVoice = voiceChosen;
+      markProjectDirty();
+    }
     // The desk handed back as it was lent: outputs the lesson switched on go
     // off, outputs that were on come back on (opening a show disarms them,
     // so each is re-armed, fullscreen or not as it was), and BLACK goes back
@@ -1047,6 +1061,10 @@
       }
       return true;
     }
+    if (pointInRect(x, y, tutorial_.voiceRect)) {
+      setLessonVoice(nextLessonVoice());
+      return true;
+    }
     if (pointInRect(x, y, tutorial_.skipRect)) {
       if (tutorial_.step + 1 < tutorialStepCount()) {
         enterTutorialStep(nextTutorialStep());
@@ -1198,7 +1216,8 @@
     // Talking: the mouth opens and shuts every 90 ms while the line is said.
     const bool talking = speaking && SDL_GetTicks() < tutorial_.babbleUntilMs &&
                          tutorial_.babbleIsPixel == pixelTeacher;
-    const bool mouthOpen = talking && ((animationNow_ / 90) % 2) == 0;
+    const bool mouthOpen = talking && (lessonVoiceIsTract() ? teacherTractMouthOpen()
+                                                                   : ((animationNow_ / 90) % 2) == 0);
     if (pixelTeacher || cute) {
       if (blinking) {
         for (int c = 0; c < 16; ++c) {
@@ -1350,14 +1369,107 @@
     return at;
   }
 
+  // ── The Experimental voice (James 2026-11-14) ─────────────────────────────
+  // core/vocal_tract.hpp says the line; it is rendered on a worker thread
+  // (about 15 ms of work per second of speech) and queued when it is ready,
+  // so the desk never waits. The mouths follow the tract's lips.
+  struct TractLine {
+    std::atomic<bool> ready {false};
+    deckboy::voice::Spoken spoken;
+  };
+  std::shared_ptr<TractLine> teacherTract_, guestTract_;
+  bool teacherTractQueued_ = true, guestTractQueued_ = true;
+  Uint64 teacherTractStartMs_ = 0;
+
+  // 0 CHIP, 1 EXPERIMENTAL: WORDS, 2 OFF, 3 EXPERIMENTAL: SOUNDS (the numbers
+  // are saved in shows; SOUNDS came last). The button steps CHIP, WORDS,
+  // SOUNDS, OFF.
+  static const char* lessonVoiceName(int v) {
+    return v == 1 ? "EXPERIMENTAL: WORDS" : v == 3 ? "EXPERIMENTAL: SOUNDS" : v == 2 ? "OFF" : "CHIP";
+  }
+  const char* lessonVoiceName() const { return lessonVoiceName(project_.lessonVoice); }
+  bool lessonVoiceIsTract() const { return project_.lessonVoice == 1 || project_.lessonVoice == 3; }
+  int nextLessonVoice() const {
+    switch (project_.lessonVoice) {
+      case 0: return 1;
+      case 1: return 3;
+      case 3: return 2;
+      default: return 0;
+    }
+  }
+
+  void setLessonVoice(int v) {
+    project_.lessonVoice = std::clamp(v, 0, 3);
+    markProjectDirty();
+    triggerToast(deckboy::core::i18n::format("lesson voices: {1}", {deckboy::core::i18n::translate(lessonVoiceName())}));
+    // Said again in the new voice, so the choice is heard at once.
+    tutorial_.pixelBabbled.clear();
+    tutorial_.videoBabbled.clear();
+    guestLineSeen_.clear();
+  }
+
+  static std::shared_ptr<TractLine> renderTractLine(const std::string& who, const std::string& line, bool sounds) {
+    auto out = std::make_shared<TractLine>();
+    std::thread([out, who, line, sounds] {
+      const std::string said = sounds ? deckboy::voice::onomatopoeia(who, line) : line;
+      out->spoken = deckboy::voice::speak(said, deckboy::voice::castVoice(who), kAudioRate);
+      out->ready.store(true);
+    }).detach();
+    return out;
+  }
+
+  // Queue a rendered line on the UI stream (16-bit stereo), as queueDmgPattern does.
+  bool queueTractLine(const TractLine& t) {
+    if (!project_.uiSoundsEnabled || !uiAudioStream_ || t.spoken.samples.empty()) return false;
+    SDL_ClearAudioStream(uiAudioStream_);
+    // 0.5: as loud as the chip voices it stands in for, by ear on the meters.
+    std::vector<std::int16_t> pcm(t.spoken.samples.size() * 2u);
+    for (std::size_t i = 0; i < t.spoken.samples.size(); ++i) {
+      const auto s = static_cast<std::int16_t>(std::lround(std::clamp(t.spoken.samples[i] * 0.5f, -1.0f, 1.0f) * 32767.0f));
+      pcm[i * 2u] = pcm[i * 2u + 1u] = s;
+    }
+    if (const char* capture = std::getenv("DECKBOY_UI_SOUND_CAPTURE"); capture && *capture) {
+      if (std::FILE* f = std::fopen(capture, "ab")) {
+        std::fwrite(pcm.data(), sizeof(std::int16_t), pcm.size(), f);
+        std::fclose(f);
+      }
+    }
+    SDL_PutAudioStreamData(uiAudioStream_, pcm.data(), static_cast<int>(pcm.size() * sizeof(std::int16_t)));
+    deckboySetAudioPaused(uiAudioStream_, false);
+    return true;
+  }
+
+  static int tractLineMs(const TractLine& t) {
+    return static_cast<int>(t.spoken.samples.size() * 1000 / static_cast<std::size_t>(kAudioRate));
+  }
+
+  // Is the teacher's mouth open now? The tract's lips, a frame at a time.
+  bool teacherTractMouthOpen() const {
+    if (!lessonVoiceIsTract() || !teacherTract_ || !teacherTractQueued_ || !teacherTract_->ready.load()) return false;
+    const Uint64 now = SDL_GetTicks();
+    if (now < teacherTractStartMs_) return false;
+    const std::size_t frame = static_cast<std::size_t>((now - teacherTractStartMs_) * 60 / 1000);
+    const auto& m = teacherTract_->spoken.mouth;
+    return frame < m.size() && m[frame] > 0.35f;
+  }
+
   void tutorialBabble(bool pixel, const std::string& line) {
     if (!tutorial_.active) return;
+    if (lessonVoiceIsTract()) {
+      teacherTract_ = renderTractLine(pixel ? "DR. PIXEL" : "PROF. VIDEO", line, project_.lessonVoice == 3);
+      teacherTractQueued_ = false;
+      tutorial_.babbleIsPixel = pixel;
+      // Until it is ready and queued, the guest waits behind a line of unknown
+      // length: hold it for now and let serviceGuestBabble start it.
+      tutorial_.babbleUntilMs = SDL_GetTicks() + 60000;
+      return;
+    }
     BabbleVoice voice;
     voice.base = pixel ? 659.25 : 329.63;   // E5, E4
     std::vector<DmgNote> notes;
     const int at = babbleNotes(voice, line, 0, notes);
     if (notes.empty()) return;
-    queueDmgPattern(notes, 0.09f);
+    if (project_.lessonVoice == 0) queueDmgPattern(notes, 0.09f);   // OFF: the mouths still move
     tutorial_.babbleUntilMs = SDL_GetTicks() + static_cast<Uint64>(at);
     tutorial_.babbleIsPixel = pixel;
   }
@@ -1418,6 +1530,13 @@
       guestTalkFromMs_ = guestTalkUntilMs_ = 0;
       return;
     }
+    if (lessonVoiceIsTract()) {
+      guestTract_ = renderTractLine(name, line, project_.lessonVoice == 3);
+      guestTractQueued_ = false;
+      guestPendingNotes_.clear();
+      guestTalkFromMs_ = guestTalkUntilMs_ = 0;
+      return;
+    }
     // HELD, NOT QUEUED NOW. Queuing a pattern clears whatever the synth is
     // playing, so a guest queued with the teacher's line cut the teacher off
     // mid-sentence. The notes wait in guestPendingNotes_ and go out when the
@@ -1433,13 +1552,33 @@
 
   // Sends the guest's held line once its moment comes.
   void serviceGuestBabble() {
+    // The Experimental voice: the teacher's line goes out when it is ready,
+    // the guest's 250 ms after the teacher has finished.
+    if (lessonVoiceIsTract()) {
+      if (!tutorial_.active) return;
+      const Uint64 now = SDL_GetTicks();
+      if (teacherTract_ && !teacherTractQueued_ && teacherTract_->ready.load()) {
+        teacherTractQueued_ = true;
+        queueTractLine(*teacherTract_);
+        teacherTractStartMs_ = now;
+        tutorial_.babbleUntilMs = now + static_cast<Uint64>(tractLineMs(*teacherTract_));
+      }
+      const bool teacherDone = teacherTractQueued_ && now >= tutorial_.babbleUntilMs + 250;
+      if (guestTract_ && !guestTractQueued_ && guestTract_->ready.load() && teacherDone) {
+        guestTractQueued_ = true;
+        queueTractLine(*guestTract_);
+        guestTalkFromMs_ = now;
+        guestTalkUntilMs_ = now + static_cast<Uint64>(tractLineMs(*guestTract_));
+      }
+      return;
+    }
     if (guestPendingNotes_.empty()) return;
     if (!tutorial_.active) {
       guestPendingNotes_.clear();
       return;
     }
     if (SDL_GetTicks() < guestPendingAtMs_) return;
-    queueDmgPattern(guestPendingNotes_, 0.09f);
+    if (project_.lessonVoice == 0) queueDmgPattern(guestPendingNotes_, 0.09f);
     guestPendingNotes_.clear();
   }
 
@@ -1800,6 +1939,19 @@
     }
     Primitives::drawFramedPanel(controlRenderer_, tutorial_.exitRect, pal.dark, pal.deep, pal.mid);
     drawCenteredText(controlRenderer_, fontBase_, exitLabel, pal.light, tutorial_.exitRect);
+    // How the characters speak, on every card (the first card's line points
+    // at it). Left-aligned, away from the step's own buttons; small.
+    {
+      const std::string label = deckboy::core::i18n::format("VOICE: {1}", {deckboy::core::i18n::translate(lessonVoiceName())});
+      const int vw = std::max(uiScaled(96), measuredTextWidth(fontSmall_, label.c_str()) + uiScaled(20));
+      tutorial_.voiceRect = SDL_Rect {card.x + pad, y, std::min(vw, bx - card.x - pad - uiScaled(10)), buttonH};
+      if (tutorial_.voiceRect.w > uiScaled(40)) {
+        Primitives::drawFramedPanel(controlRenderer_, tutorial_.voiceRect, pal.dark, pal.deep, pal.mid);
+        drawCenteredTextSafe(controlRenderer_, fontSmall_, tutorial_.voiceRect, label, pal.light, /*localise=*/false);
+      } else {
+        tutorial_.voiceRect = SDL_Rect {};
+      }
+    }
     // Act three: Rat Dad walks along the top of the card, right to left, and
     // leaves with the glass.
     if (rakia && !rakiaDry && rakiaT >= 8.0) {

@@ -4640,3 +4640,8 @@ How fast the colours drift round the wheel. At the left they hold still.	ڕەن�
 Fine stripes after every edge, the ring of a bent filter. They shift the colour too.	هێڵی ورد دوای هەر لێوارێک، زرینگەی فلتەرێکی چەماوە. ڕەنگیش دەگۆڕن.
 How many brightness bands become colours: two loud slabs at the left, a busy rainbow at the right.	چەند باندی ڕووناکی دەبنە ڕەنگ: دوو پارچەی بەرز لە چەپ، پەلکەزێڕینەیەکی قەرەباڵغ لە ڕاست.
 How coarse the colour is: at the left it follows every edge, at the right it floods past them in blocks.	ڕەنگەکە چەند زبرە: لە چەپ شوێن هەموو لێوارێک دەکەوێت، لە ڕاست بە بلۆک بەسەریاندا دەڕژێت.
+VOICE: {1}	دەنگ: {1}
+Lesson voices	دەنگەکانی وانە
+lesson voices: {1}	دەنگەکانی وانە: {1}
+EXPERIMENTAL: SOUNDS	تاقیکارانە: دەنگەکان
+LESSONS VOICE: CHIP, WORDS, SOUNDS or OFF	LESSONS VOICE: CHIP, WORDS, SOUNDS یان OFF

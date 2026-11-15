@@ -159,7 +159,7 @@ choice is not final; the list remembers it, and a tab switches. It is always at
 | Warp, blend and slices | Prof. Video | a corner pin, two soft edges, the Screens window, three slices | the haunted lighthouse, with Keeper Rook |
 | Transitions | Prof. Video | an iris and a shatter, each with a time | the space-opera trailer, with Optimus Primetime |
 | Sound | Prof. Video | an audio effect, a bend, and where the patch lives | the robot DJs, with Deft Funk |
-| Datamosh | Prof. Video | why a good mosh starts with a well-made source clip, DATAMOSH on a clip with seven hard cuts, the moshable copy | STAIRLIFT's music video, with Caroline Polkadot |
+| Datamosh | Prof. Video | why a good mosh starts with a well-made source clip, DATAMOSH on a clip whose hard cuts land on the beat, the moshable copy | STAIRLIFT's music video, with Caroline Polkadot |
 | Reading the scopes | Prof. Video | an output on, the waveform, the vectorscope, false colour | The Signal Files: is the glow a craft? |
 | Out of the building | Prof. Video | the Devices page, and NDI where this computer has it | (a plain lesson) |
 | Motion: Bug Swat | Prof. Video | the game (see Motion) | a handheld, and bugs |
@@ -178,8 +178,22 @@ SHOW ME, SKIP, Esc, and it picks up where you stopped. A finished lesson is
 ticked DONE in the list. In a lesson with no show, the desk's own face drops
 into a corner now and then with something to say.
 
-Over the network: `LESSONS [OPEN|CLOSE|START <id>|TRACK PIXEL|VIDEO|LIST]`; the
-ids are `effects`, `draw`, `masks`, `warp`, `transitions`, `scopes`, `sound`, `outside`, `bugswat`, `layers`, `go`, `words`, `timers`, `presets`, `wrong`, `road` and `multiview`. A running lesson is
+**How the characters speak.** The **VOICE** button at the bottom left of every
+lesson card (and **Lesson voices** in MENU, beside Sound effects) steps through:
+
+| Voice | What you hear |
+|-------|---------------|
+| **CHIP** | Each character in the little Game Boy synth, a note for each letter. The default |
+| **EXPERIMENTAL: WORDS** | A simulated vocal tract (glottis, tongue, lips, nose) reads the line aloud, each character with their own pitch, mouth size and breath. It reads any language: letters it has no rule for are given a sound, so the line keeps its shape |
+| **EXPERIMENTAL: SOUNDS** | The same voice, but each character says their own sounds instead of the words ("rada rada rada", "gopiki kupiki"), one for each word, still rising on a question |
+| **OFF** | Nothing. The mouths still move |
+
+The Experimental voice is new and rough at the edges. Its model is Pink
+Trombone's (Neil Thapen, MIT licence). The choice is kept in the show and
+carries into every lesson.
+
+Over the network: `LESSONS [OPEN|CLOSE|START <id>|TRACK PIXEL|VIDEO|VOICE CHIP|WORDS|SOUNDS|OFF|LIST]`; the
+ids are `effects`, `draw`, `masks`, `warp`, `transitions`, `sound`, `datamosh`, `scopes`, `outside`, `bugswat`, `layers`, `go`, `words`, `timers`, `presets`, `wrong`, `road` and `multiview`. A running lesson is
 driven with the `TUTORIAL` verbs.
 
 Deckboy refuses to start twice, so a stray double-click cannot take a second

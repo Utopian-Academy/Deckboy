@@ -4607,3 +4607,8 @@ How fast the colours drift round the wheel. At the left they hold still.	Wie sch
 Fine stripes after every edge, the ring of a bent filter. They shift the colour too.	Feine Streifen nach jeder Kante, das Klingeln eines verbogenen Filters. Sie verschieben auch die Farbe.
 How many brightness bands become colours: two loud slabs at the left, a busy rainbow at the right.	Wie viele Helligkeitsbänder zu Farben werden: links zwei grelle Blöcke, rechts ein geschäftiger Regenbogen.
 How coarse the colour is: at the left it follows every edge, at the right it floods past them in blocks.	Wie grob die Farbe ist: links folgt sie jeder Kante, rechts flutet sie in Blöcken darüber hinweg.
+VOICE: {1}	STIMME: {1}
+Lesson voices	Lektionsstimmen
+lesson voices: {1}	Lektionsstimmen: {1}
+EXPERIMENTAL: SOUNDS	EXPERIMENTELL: KLÄNGE
+LESSONS VOICE: CHIP, WORDS, SOUNDS or OFF	LESSONS VOICE: CHIP, WORDS, SOUNDS oder OFF

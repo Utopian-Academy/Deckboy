@@ -4636,3 +4636,8 @@ How fast the colours drift round the wheel. At the left they hold still.	Kuinka 
 Fine stripes after every edge, the ring of a bent filter. They shift the colour too.	Hienoja raitoja jokaisen reunan jälkeen, väännetyn suodattimen kellotus. Ne siirtävät myös väriä.
 How many brightness bands become colours: two loud slabs at the left, a busy rainbow at the right.	Montako kirkkauskaistaa muuttuu väreiksi: kaksi voimakasta laattaa vasemmalla, vilkas sateenkaari oikealla.
 How coarse the colour is: at the left it follows every edge, at the right it floods past them in blocks.	Kuinka karkea väri on: vasemmalla se seuraa jokaista reunaa, oikealla se tulvii niiden yli lohkoina.
+VOICE: {1}	ÄÄNI: {1}
+Lesson voices	Oppituntien äänet
+lesson voices: {1}	oppituntien äänet: {1}
+EXPERIMENTAL: SOUNDS	KOKEELLINEN: ÄÄNIEFEKTIT
+LESSONS VOICE: CHIP, WORDS, SOUNDS or OFF	OPPITUNTIEN ÄÄNI: CHIP, SANAT, ÄÄNIEFEKTIT tai POIS

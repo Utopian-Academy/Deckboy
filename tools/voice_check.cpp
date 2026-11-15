@@ -53,6 +53,21 @@ int main(int argc, char** argv) {
     writeWav(argv[5], holdShape(t, vp, 0.8, rate), rate);
     return 0;
   }
+  // --say <character> <text> <out.wav> [pitch Hz] [speed]: one line, for music
+  // and listening. With a pitch it is sung on that one note, robot-flat (no
+  // melody, no vibrato), as the robot DJs chant.
+  if (argc >= 5 && std::strcmp(argv[1], "--say") == 0) {
+    VoiceParams vp = castVoice(argv[2]);
+    if (argc >= 6) {
+      vp.pitchHz = std::atof(argv[5]);
+      vp.melody = 0.0;
+      vp.vibrato = 0.0;
+      vp.swoop = 0.0;
+    }
+    if (argc >= 7) vp.speed = std::atof(argv[6]);
+    writeWav(argv[4], speak(argv[3], vp, rate).samples, rate);
+    return 0;
+  }
   const std::string out = argc > 1 ? argv[1] : "";
   int failures = 0;
 
@@ -98,6 +113,45 @@ int main(int argc, char** argv) {
                 ok ? "ok" : "FAIL", name, secs, rms, peak, jump, gaps, sp.mouth.size());
     if (!ok) ++failures;
     if (!out.empty()) writeWav(out + "/" + fileName(name) + ".wav", sp.samples, rate);
+  }
+
+  // Any language: a line in another script says something (it used to say
+  // nothing: the spelling rules skipped every letter outside English).
+  const char* scripts[][2] = {
+    {"japanese", "\xE3\x81\x93\xE3\x82\x93\xE3\x81\xAB\xE3\x81\xA1\xE3\x81\xAF\xE3\x80\x81\xE3\x82\xB9\xE3\x82\xAD\xE3\x83\x91\xE3\x80\x82"},
+    {"arabic", "\xD9\x85\xD8\xB1\xD8\xAD\xD8\xA8\xD8\xA7 \xD8\xA8\xD9\x83\xD9\x85 \xD9\x81\xD9\x8A \xD8\xA7\xD9\x84\xD8\xB9\xD8\xB1\xD8\xB6"},
+    {"russian", "\xD0\x9F\xD1\x80\xD0\xB8\xD0\xB2\xD0\xB5\xD1\x82, \xD1\x81\xD0\xBA\xD0\xB0\xD0\xBF\xD0\xB8!"},
+    {"spanish", "\xC2\xBF" "D\xC3\xB3nde est\xC3\xA1 la se\xC3\xB1" "al? Ma\xC3\xB1" "ana."},
+  };
+  for (const auto& s : scripts) {
+    const Spoken sp = speak(s[1], castVoice("PROF. VIDEO"), rate);
+    double e = 0;
+    for (float v : sp.samples) e += static_cast<double>(v) * v;
+    const double rms = sp.samples.empty() ? 0 : std::sqrt(e / sp.samples.size());
+    const bool ok = rms > 0.02 && sp.samples.size() > static_cast<std::size_t>(rate / 2);
+    std::printf("%-6s any language: %-9s %.2f s  rms %.3f\n", ok ? "ok" : "FAIL", s[0],
+                static_cast<double>(sp.samples.size()) / rate, rms);
+    if (!ok) ++failures;
+    if (!out.empty()) writeWav(out + "/language_" + s[0] + ".wav", sp.samples, rate);
+  }
+  // SOUNDS: each character's own onomatopoeias, one per word, punctuation kept.
+  {
+    const std::string line = "Count the cuts. Each one lands on the beat?";
+    const std::string said = onomatopoeia("COACH MARV", line);
+    const bool words = said.find("rada") != std::string::npos && said.find('?') != std::string::npos &&
+                       said.find('.') != std::string::npos;
+    int count = 0;
+    bool in = false;
+    for (char c : said) { const bool l = std::isalpha(static_cast<unsigned char>(c)) != 0; if (l && !in) ++count; in = l; }
+    const bool ok = words && count == 9;
+    std::printf("%-6s sounds: \"%s\" (%d words for 9)\n", ok ? "ok" : "FAIL", said.c_str(), count);
+    if (!ok) ++failures;
+    if (!out.empty()) {
+      for (const char* who : {"DR. PIXEL", "PROF. VIDEO", "JUNE O'NEIL", "CHEF BORK", "CAROLINE POLKADOT"}) {
+        const Spoken sp = speak(onomatopoeia(who, line), castVoice(who), rate);
+        writeWav(out + "/sounds_" + fileName(who) + ".wav", sp.samples, rate);
+      }
+    }
   }
 
   if (!out.empty()) {

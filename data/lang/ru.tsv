@@ -4640,3 +4640,8 @@ How fast the colours drift round the wheel. At the left they hold still.	Ско�
 Fine stripes after every edge, the ring of a bent filter. They shift the colour too.	Тонкие полосы после каждого края — звон изогнутого фильтра. Они ещё и сдвигают цвет.
 How many brightness bands become colours: two loud slabs at the left, a busy rainbow at the right.	Сколько полос яркости становится цветами: слева две резкие плиты, справа пёстрая радуга.
 How coarse the colour is: at the left it follows every edge, at the right it floods past them in blocks.	Насколько грубый цвет: слева он следует за каждым краем, справа заливает их блоками.
+VOICE: {1}	ГОЛОС: {1}
+Lesson voices	Голоса уроков
+lesson voices: {1}	голоса уроков: {1}
+EXPERIMENTAL: SOUNDS	ЭКСПЕРИМЕНТАЛЬНО: ЗВУКИ
+LESSONS VOICE: CHIP, WORDS, SOUNDS or OFF	ГОЛОС УРОКОВ: CHIP, СЛОВА, ЗВУКИ или ВЫКЛ

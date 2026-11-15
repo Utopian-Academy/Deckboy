@@ -4637,3 +4637,8 @@ How fast the colours drift round the wheel. At the left they hold still.	色が�
 Fine stripes after every edge, the ring of a bent filter. They shift the colour too.	すべてのエッジの後に出る細い縞。曲げたフィルターのリンギング。色もずらします。
 How many brightness bands become colours: two loud slabs at the left, a busy rainbow at the right.	色になる明るさのバンド数：左端は強い2枚の帯、右端は賑やかな虹。
 How coarse the colour is: at the left it follows every edge, at the right it floods past them in blocks.	色の粗さ：左端ではすべてのエッジに追従し、右端ではブロック状にエッジを越えてあふれます。
+VOICE: {1}	音色: {1}
+Lesson voices	レッスンの音色
+lesson voices: {1}	レッスンの音色: {1}
+EXPERIMENTAL: SOUNDS	実験的: サウンド
+LESSONS VOICE: CHIP, WORDS, SOUNDS or OFF	レッスン音色: CHIP、単語、サウンド、またはオフ

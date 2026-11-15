@@ -4639,3 +4639,8 @@ How fast the colours drift round the wheel. At the left they hold still.	Кол�
 Fine stripes after every edge, the ring of a bent filter. They shift the colour too.	Фини ивици след всеки ръб, звънене на огънат филтър. Те също променят цвета.
 How many brightness bands become colours: two loud slabs at the left, a busy rainbow at the right.	Колко ленти яркост стават цветове: две плътни плоскости вляво, пъстра дъга вдясно.
 How coarse the colour is: at the left it follows every edge, at the right it floods past them in blocks.	Колко груб е цветът: вляво следва всеки ръб, вдясно ги залива на блокове.
+VOICE: {1}	ГЛАС: {1}
+Lesson voices	Гласове за уроците
+lesson voices: {1}	гласове за уроците: {1}
+EXPERIMENTAL: SOUNDS	ЕКСПЕРИМЕНТАЛНО: ЗВУЦИ
+LESSONS VOICE: CHIP, WORDS, SOUNDS or OFF	LESSONS VOICE: CHIP, WORDS, SOUNDS или OFF

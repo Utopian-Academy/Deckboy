@@ -4631,3 +4631,8 @@ How fast the colours drift round the wheel. At the left they hold still.	Renkler
 Fine stripes after every edge, the ring of a bent filter. They shift the colour too.	Her kenardan sonra ince şeritler, bükülmüş filtrenin çınlaması. Rengi de kaydırırlar.
 How many brightness bands become colours: two loud slabs at the left, a busy rainbow at the right.	Kaç parlaklık bandı renge dönüşür: solda iki gür blok, sağda yoğun bir gökkuşağı.
 How coarse the colour is: at the left it follows every edge, at the right it floods past them in blocks.	Rengin ne kadar iri olduğu: solda her kenarı izler, sağda bloklar halinde onların ötesine taşar.
+VOICE: {1}	SES: {1}
+Lesson voices	Ders sesleri
+lesson voices: {1}	ders sesleri: {1}
+EXPERIMENTAL: SOUNDS	DENEYSEL: SESLER
+LESSONS VOICE: CHIP, WORDS, SOUNDS or OFF	DERS SESİ: CHIP, SÖZCÜKLER, SESLER veya KAPALI

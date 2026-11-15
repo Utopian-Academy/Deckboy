@@ -4575,3 +4575,8 @@ How fast the colours drift round the wheel. At the left they hold still.	Vitesse
 Fine stripes after every edge, the ring of a bent filter. They shift the colour too.	Fines rayures après chaque bord, les oscillations d’un filtre détourné. Elles décalent aussi la couleur.
 How many brightness bands become colours: two loud slabs at the left, a busy rainbow at the right.	Combien de bandes de luminosité deviennent des couleurs : deux aplats francs à gauche, un arc-en-ciel chargé à droite.
 How coarse the colour is: at the left it follows every edge, at the right it floods past them in blocks.	Grossièreté de la couleur : à gauche elle suit chaque bord, à droite elle les déborde en blocs.
+VOICE: {1}	VOIX : {1}
+Lesson voices	Voix des leçons
+lesson voices: {1}	voix des leçons : {1}
+EXPERIMENTAL: SOUNDS	EXPÉRIMENTAL : SONS
+LESSONS VOICE: CHIP, WORDS, SOUNDS or OFF	VOIX DES LEÇONS : CHIP, MOTS, SONS ou NON

@@ -85,6 +85,8 @@ def collect():
     faces_at = lessons_src.index("static const GuestFace kFaces[] = {")
     faces_end = lessons_src.index("if (!name) return nullptr;", faces_at)
     guest_names = set(re.findall(r'\{"([^"]+)",\s*\{', lessons_src[faces_at:faces_end]))
+    # The teachers are cast by name for the Experimental voice (castVoice).
+    guest_names |= {"DR. PIXEL", "PROF. VIDEO"}
 
     def add(text):
         text = unescape(text)

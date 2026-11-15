@@ -4637,3 +4637,8 @@ How fast the colours drift round the wheel. At the left they hold still.	色彩�
 Fine stripes after every edge, the ring of a bent filter. They shift the colour too.	每條邊緣後出現細條紋，即彎曲濾波器的振鈴。同時也會改變顏色。
 How many brightness bands become colours: two loud slabs at the left, a busy rainbow at the right.	有多少個亮度頻帶變成顏色：最左為兩大塊濃烈色塊，最右為繁複的彩虹。
 How coarse the colour is: at the left it follows every edge, at the right it floods past them in blocks.	顏色的粗細程度：最左跟隨每條邊緣，最右則成區塊地漫過邊緣。
+VOICE: {1}	音色: {1}
+Lesson voices	課程音色
+lesson voices: {1}	課程音色: {1}
+EXPERIMENTAL: SOUNDS	實驗性: 聲音
+LESSONS VOICE: CHIP, WORDS, SOUNDS or OFF	課程音色: CHIP、詞語、聲音或關

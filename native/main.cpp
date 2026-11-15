@@ -96,6 +96,7 @@
 #include "core/caption_formats.hpp"
 #include "core/captioning.hpp"
 #include "core/live_captions.hpp"
+#include "core/vocal_tract.hpp"
 #include "core/hdr_to_sdr.hpp"
 #include "core/test_card.hpp"
 #include "core/system_browser.hpp"
@@ -10226,6 +10227,7 @@ class App {
   // dropdown toggled the tips. Named here so audit_actions can see them.
   static constexpr int kSettingsActionHoverTipsToggle = 883;
   static constexpr int kSettingsActionMiamiCursorToggle = 884;
+  static constexpr int kSettingsActionLessonVoice = 60200;   // CHIP / EXPERIMENTAL / OFF
   static constexpr int kSettingsActionBeastModeToggle = 885;
   // The MIDI map page (app_midi_map.ipp). 1100-1179: the page's controls,
   // then one per visible table row from kSettingsActionMidiMapRowBase.

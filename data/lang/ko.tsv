@@ -4635,3 +4635,8 @@ How fast the colours drift round the wheel. At the left they hold still.	색이 
 Fine stripes after every edge, the ring of a bent filter. They shift the colour too.	모든 가장자리 뒤에 생기는 가는 줄무늬로, 휘어진 필터의 링잉입니다. 색도 함께 이동합니다.
 How many brightness bands become colours: two loud slabs at the left, a busy rainbow at the right.	밝기 대역 중 색이 되는 개수: 왼쪽은 강렬한 두 덩어리, 오른쪽은 복잡한 무지개.
 How coarse the colour is: at the left it follows every edge, at the right it floods past them in blocks.	색의 거칠기: 왼쪽은 모든 가장자리를 따르고, 오른쪽은 블록 단위로 가장자리를 넘어 번집니다.
+VOICE: {1}	음색: {1}
+Lesson voices	수업 음색
+lesson voices: {1}	수업 음색: {1}
+EXPERIMENTAL: SOUNDS	실험적: 소리
+LESSONS VOICE: CHIP, WORDS, SOUNDS or OFF	레슨 음색: CHIP, 단어, 소리 또는 꺼짐

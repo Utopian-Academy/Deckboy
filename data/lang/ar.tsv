@@ -4653,3 +4653,8 @@ How fast the colours drift round the wheel. At the left they hold still.	سرع�
 Fine stripes after every edge, the ring of a bent filter. They shift the colour too.	خطوط دقيقة بعد كل حافة، رنين مرشح منحنٍ. تغيّر اللون أيضا.
 How many brightness bands become colours: two loud slabs at the left, a busy rainbow at the right.	عدد نطاقات السطوع التي تصبح ألوانا: كتلتان صارختان يسارا، وقوس قزح مزدحم يمينا.
 How coarse the colour is: at the left it follows every edge, at the right it floods past them in blocks.	مدى خشونة اللون: يسارا يتبع كل حافة، ويمينا يفيض فوقها في كتل.
+VOICE: {1}	الصوت: {1}
+Lesson voices	أصوات الدروس
+lesson voices: {1}	أصوات الدروس: {1}
+EXPERIMENTAL: SOUNDS	تجريبي: الأصوات
+LESSONS VOICE: CHIP, WORDS, SOUNDS or OFF	LESSONS VOICE: CHIP, WORDS, SOUNDS أو OFF

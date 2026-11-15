@@ -1138,6 +1138,11 @@
       SDL_Rect sfxBtn = settingsRow(appX, appW, appY, sRowH, "Sound effects", sGap);
       drawPillToggle(sfxBtn, project_.uiSoundsEnabled, "ON", "OFF");
       settingsBtns_.push_back({sfxBtn, 201, "sfx_toggle"});
+      // How the lesson characters speak. Beside the sound effects: the same
+      // kind of choice, and the same button is on every lesson card.
+      SDL_Rect voiceBtn = settingsRow(appX, appW, appY, sRowH, "Lesson voices", sGap);
+      drawUIValueControl(voiceBtn, lessonVoiceName());
+      settingsBtns_.push_back({voiceBtn, kSettingsActionLessonVoice, "lesson_voice"});
       // Hover tips. Beside SFX because they are the same kind of decision:
       // helpful while you are learning the desk, noise once you know it.
       SDL_Rect tipsBtn = settingsRow(appX, appW, appY, sRowH, "Hover tips", sGap);
@@ -5293,6 +5298,8 @@
       } else if (sb.action == 201) {
         project_.uiSoundsEnabled = !project_.uiSoundsEnabled;
         markProjectDirty();
+      } else if (sb.action == kSettingsActionLessonVoice) {
+        setLessonVoice(nextLessonVoice());
       } else if (sb.action == kSettingsActionHoverTipsToggle) {
         project_.hoverTipsEnabled = !project_.hoverTipsEnabled;
         triggerToast(project_.hoverTipsEnabled ? "hover tips on" : "hover tips off");

@@ -4607,3 +4607,8 @@ How fast the colours drift round the wheel. At the left they hold still.	Jak szy
 Fine stripes after every edge, the ring of a bent filter. They shift the colour too.	Drobne prążki za każdą krawędzią, dzwonienie wygiętego filtra. Przesuwają też kolor.
 How many brightness bands become colours: two loud slabs at the left, a busy rainbow at the right.	Ile pasm jasności zmienia się w kolory: po lewej dwa mocne bloki, po prawej gęsta tęcza.
 How coarse the colour is: at the left it follows every edge, at the right it floods past them in blocks.	Jak gruby jest kolor: po lewej podąża za każdą krawędzią, po prawej wylewa się poza nie blokami.
+VOICE: {1}	GŁOS: {1}
+Lesson voices	Głosy lekcji
+lesson voices: {1}	głosy lekcji: {1}
+EXPERIMENTAL: SOUNDS	EKSPERYMENTALNE: DŹWIĘKI
+LESSONS VOICE: CHIP, WORDS, SOUNDS or OFF	GŁOS LEKCJI: CHIP, SŁOWA, DŹWIĘKI lub WYŁ.

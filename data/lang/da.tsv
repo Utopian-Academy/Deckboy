@@ -4592,3 +4592,8 @@ How fast the colours drift round the wheel. At the left they hold still.	Hvor hu
 Fine stripes after every edge, the ring of a bent filter. They shift the colour too.	Fine striber efter hver kant, ringen fra et bøjet filter. De forskyder også farven.
 How many brightness bands become colours: two loud slabs at the left, a busy rainbow at the right.	Hvor mange lysstyrkebånd der bliver til farver: to kraftige blokke til venstre, en travl regnbue til højre.
 How coarse the colour is: at the left it follows every edge, at the right it floods past them in blocks.	Hvor grov farven er: til venstre følger den hver kant, til højre oversvømmer den dem i blokke.
+VOICE: {1}	STEMME: {1}
+Lesson voices	Lektionsstemmer
+lesson voices: {1}	lektionsstemmer: {1}
+EXPERIMENTAL: SOUNDS	EKSPERIMENTELT: LYDE
+LESSONS VOICE: CHIP, WORDS, SOUNDS or OFF	LESSONS VOICE: CHIP, WORDS, SOUNDS eller OFF

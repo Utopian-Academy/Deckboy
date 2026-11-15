@@ -483,6 +483,132 @@ inline std::vector<Target> phonemes(const std::string& text, double speed) {
 
 }  // namespace detail
 
+// ANY LANGUAGE (James 2026-11-14: "actually trying to read the words in any
+// language"). The spelling rules know English letters; everything else used to
+// be skipped, so a line in Japanese or Arabic said nothing. Now accented Latin
+// loses its accent, and every other letter becomes a sound picked from its
+// code point: syllable scripts (kana, hangul, Chinese) a consonant and a vowel
+// each, alphabets one letter each. It is not those languages' sounds; it is a
+// cartoon voice that says something with the shape of the line.
+inline std::string romanize(const std::string& text) {
+  std::string out;
+  std::size_t i = 0;
+  while (i < text.size()) {
+    const unsigned char c = static_cast<unsigned char>(text[i]);
+    if (c < 0x80) { out += static_cast<char>(c); ++i; continue; }
+    // decode one UTF-8 code point
+    std::uint32_t cp = 0;
+    int extra = c >= 0xF0 ? 3 : c >= 0xE0 ? 2 : c >= 0xC0 ? 1 : 0;
+    cp = extra == 3 ? (c & 0x07u) : extra == 2 ? (c & 0x0Fu) : extra == 1 ? (c & 0x1Fu) : 0u;
+    ++i;
+    for (int k = 0; k < extra && i < text.size(); ++k, ++i) cp = (cp << 6) | (static_cast<unsigned char>(text[i]) & 0x3Fu);
+    if (extra == 0) continue;
+    // Latin with accents (Latin-1 Supplement and Extended-A): the base letter.
+    if (cp >= 0xC0 && cp <= 0x17F) {
+      static const char kBase[] =  // U+00C0..U+017F: each letter's base, from Unicode's decompositions
+        "AAAAAAACEEEEIIIIDNOOOOO OUUUUYTsaaaaaaaceeeeiiiidnooooo ouuuuyty"
+        "AaAaAaCcCcCcCcDdDdEeEeEeEeEeGgGgGgGgHhHhIiIiIiIiIiIiJjKkkLlLlLlL"
+        "lLlNnNnNnnNnOoOoOoOoRrRrRrSsSsSsSsTtTtTtUuUuUuUuUuUuWwYyYZzZzZzs";      // 140-17F
+      const std::size_t k = cp - 0xC0;
+      if (k < sizeof(kBase) - 1) {
+        const char b = kBase[k];
+        if (std::isalpha(static_cast<unsigned char>(b))) out += b;
+        else out += ' ';
+      }
+      continue;
+    }
+    // Punctuation and spaces that end a phrase or a word, in other scripts.
+    if (cp == 0x3002 || cp == 0xFF0E || cp == 0x0964 || cp == 0x06D4) { out += ". "; continue; }   // 。．। ۔
+    if (cp == 0x3001 || cp == 0xFF0C || cp == 0x060C) { out += ", "; continue; }                    // 、，،
+    if (cp == 0xFF1F || cp == 0x061F) { out += "? "; continue; }                                    // ？ ؟
+    if (cp == 0xFF01) { out += "! "; continue; }
+    if (cp == 0x3000 || cp == 0x00A0 || (cp >= 0x2000 && cp <= 0x206F)) { out += ' '; continue; }
+    std::uint32_t h = cp * 2654435761u;
+    h ^= h >> 15;
+    static const char kCons[] = "bdgklmnprstvzh";
+    static const char kVow[] = "aeiou";
+    const bool syllabic = (cp >= 0x3040 && cp <= 0x30FF) || (cp >= 0x4E00 && cp <= 0x9FFF) ||
+                          (cp >= 0xAC00 && cp <= 0xD7AF) || (cp >= 0x3400 && cp <= 0x4DBF);
+    if (syllabic) {
+      out += kCons[h % 14];
+      out += kVow[(h >> 8) % 5];
+      // Chinese and Japanese write no spaces: a word gap every few syllables.
+      if ((h >> 12) % 3 == 0) out += ' ';
+    } else {
+      // an alphabet: vowels about two letters in five, as in most
+      out += (h >> 8) % 5 < 2 ? kVow[(h >> 3) % 5] : kCons[h % 14];
+    }
+  }
+  return out;
+}
+
+// SOUNDS (James 2026-11-14: "differetn distinctive onomatopoeias per character
+// ('Boo pee boo, Rada rada rada, Gopiki Kupiki Gulikiki')"). Each character
+// says their own sounds instead of the words: one sound per word of the line,
+// the line's punctuation kept, so a question still rises and a full stop still
+// rests.
+inline const std::vector<std::string>& characterSounds(const std::string& name) {
+  static const std::vector<std::string> kPixel = {"pika", "pixi", "bip", "zibi", "pikapik"};
+  static const std::vector<std::string> kVideo = {"boo", "pee", "boo", "beepoo", "boopee"};
+  static const std::vector<std::string> kMarv = {"rada", "rada", "rada", "radada", "ra"};
+  static const std::vector<std::string> kJune = {"gopiki", "kupiki", "gulikiki", "piki"};
+  static const std::vector<std::string> kTurnip = {"wubba", "lubba", "wub", "bubba"};
+  static const std::vector<std::string> kBork = {"bork", "flork", "hurdy", "smorgy", "bork"};
+  static const std::vector<std::string> kDonna = {"zoom", "zip", "zappa", "zoomzoom"};
+  static const std::vector<std::string> kRook = {"hrmm", "dooom", "grum", "hrooom"};
+  static const std::vector<std::string> kBrandt = {"tak", "tak", "kotak", "tik"};
+  static const std::vector<std::string> kHollis = {"tok", "tiki", "toktok", "tik"};
+  static const std::vector<std::string> kSalty = {"blub", "glub", "sloosh", "blubba"};
+  static const std::vector<std::string> kOptimus = {"vrooom", "kshhh", "brrm", "vroom"};
+  static const std::vector<std::string> kWallis = {"mimi", "momo", "mimo", "mumi"};
+  static const std::vector<std::string> kCaroline = {"lalalee", "doobee", "shalala", "oooh", "lala"};
+  static const std::vector<std::string> kHaila = {"beep", "boop", "bleep", "bloop"};
+  static const std::vector<std::string> kJinkley = {"jinka", "jinkalinka", "jink", "dinka"};
+  static const std::vector<std::string> kAnyone = {"blah", "bleh", "bloo", "blah"};
+  if (name == "DR. PIXEL") return kPixel;
+  if (name == "PROF. VIDEO") return kVideo;
+  if (name == "COACH MARV") return kMarv;
+  if (name == "JUNE O'NEIL") return kJune;
+  if (name == "TURNIP TOP") return kTurnip;
+  if (name == "CHEF BORK") return kBork;
+  if (name == "DONNA WHEEL") return kDonna;
+  if (name == "KEEPER ROOK") return kRook;
+  if (name == "AGENT BRANDT") return kBrandt;
+  if (name == "AGENT HOLLIS") return kHollis;
+  if (name == "MR. SALTY") return kSalty;
+  if (name == "OPTIMUS PRIMETIME") return kOptimus;
+  if (name == "WALLIS") return kWallis;
+  if (name == "CAROLINE POLKADOT") return kCaroline;
+  if (name == "LT. HAILA") return kHaila;
+  if (name == "ENSIGN JINKLEY") return kJinkley;
+  return kAnyone;
+}
+
+inline std::string onomatopoeia(const std::string& name, const std::string& text) {
+  const std::vector<std::string>& sounds = characterSounds(name);
+  const std::string plain = romanize(text);
+  std::string out;
+  std::size_t word = 0;
+  bool inWord = false;
+  std::uint32_t h = 2166136261u;
+  for (char c : text) h = (h ^ static_cast<unsigned char>(c)) * 16777619u;
+  for (char c : plain) {
+    const bool letter = std::isalnum(static_cast<unsigned char>(c)) != 0;
+    if (letter && !inWord) {
+      // Mostly in order, now and then one out of turn, so it is not a loop.
+      h = h * 1664525u + 1013904223u;
+      const std::size_t pick = ((h >> 24) % 4 == 0) ? (h >> 8) % sounds.size() : word % sounds.size();
+      if (!out.empty() && out.back() != ' ') out += ' ';
+      out += sounds[pick];
+      ++word;
+    }
+    if (!letter && (c == '.' || c == ',' || c == '?' || c == '!' || c == ';' || c == ':')) out += c;
+    if (!letter && c == ' ') out += ' ';
+    inWord = letter;
+  }
+  return out;
+}
+
 // Mouth openness 0..1 for each 1/60 s, for a face that moves with the voice.
 struct Spoken {
   std::vector<float> samples;   // mono
@@ -492,7 +618,7 @@ struct Spoken {
 inline Spoken speak(const std::string& text, const VoiceParams& vp, int rate = 48000) {
   using namespace detail;
   Spoken out;
-  std::vector<Target> ph = phonemes(text, vp.speed);
+  std::vector<Target> ph = phonemes(romanize(text), vp.speed);
   if (ph.empty()) return out;
 
   // The pitch line: each phrase starts high and falls; a hashed wobble per

@@ -3595,8 +3595,17 @@
         return;
       }
       chooseLessonsTrack(who == "VIDEO");
+    } else if (arg == "VOICE") {
+      const std::string which = parts.size() > 2 ? toUpper(parts[2]) : std::string();
+      const int v = which == "CHIP" ? 0 : (which == "WORDS" || which == "EXPERIMENTAL") ? 1
+                  : which == "SOUNDS" ? 3 : which == "OFF" ? 2 : -1;
+      if (v < 0) {
+        failRemoteCommand("LESSONS VOICE: CHIP, WORDS, SOUNDS or OFF");
+        return;
+      }
+      setLessonVoice(v);
     } else if (arg != "LIST" && arg != "STATUS") {
-      failRemoteCommand("LESSONS: expected OPEN, CLOSE, START <id>, TRACK PIXEL|VIDEO, LIST or STATUS");
+      failRemoteCommand("LESSONS: expected OPEN, CLOSE, START <id>, TRACK PIXEL|VIDEO, VOICE CHIP|WORDS|SOUNDS|OFF, LIST or STATUS");
       return;
     }
     const LessonsProgress p = readLessonsProgress();

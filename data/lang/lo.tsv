@@ -4622,3 +4622,8 @@ How fast the colours drift round the wheel. At the left they hold still.	ສີ�
 Fine stripes after every edge, the ring of a bent filter. They shift the colour too.	ລາຍເສັ້ນລະອຽດຫຼັງທຸກຂອບ, ການສັ່ນສະທ້ອນຂອງຟິວເຕີທີ່ບິດ. ມັນປ່ຽນສີນຳ.
 How many brightness bands become colours: two loud slabs at the left, a busy rainbow at the right.	ຈຳນວນແຖບຄວາມສະຫວ່າງທີ່ກາຍເປັນສີ: ສອງກ້ອນໃຫຍ່ທາງຊ້າຍ, ສາຍຮຸ້ງຫຼາຍແຖບທາງຂວາ.
 How coarse the colour is: at the left it follows every edge, at the right it floods past them in blocks.	ສີຫຍາບປານໃດ: ທາງຊ້າຍຕາມທຸກຂອບ, ທາງຂວາໄຫຼຜ່ານຂອບເປັນກ້ອນ.
+VOICE: {1}	ສຽງ: {1}
+Lesson voices	ສຽງບົດຮຽນ
+lesson voices: {1}	ສຽງບົດຮຽນ: {1}
+EXPERIMENTAL: SOUNDS	ທົດລອງ: ສຽງ
+LESSONS VOICE: CHIP, WORDS, SOUNDS or OFF	ສຽງບົດຮຽນ: CHIP, ຄຳ, ສຽງ ຫຼື ປິດ

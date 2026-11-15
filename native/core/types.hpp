@@ -2789,6 +2789,10 @@ struct Project {
   // that pairs with kSuperDeckboySpanningUi (constants.hpp).
   bool advancedOutputMode = false;
   bool uiSoundsEnabled = true;     // play UI sound effects (navigate, take, etc.)
+  // How the lesson characters speak (James 2026-11-14): 0 the chip voices,
+  // 1 the "Experimental voice" reading the words (core/vocal_tract.hpp),
+  // 2 silent, 3 the Experimental voice in each character's own sounds.
+  int lessonVoice = 0;
   bool hoverTipsEnabled = true;    // show the little explainer under the pointer
   bool miamiCursorEnabled = true;  // Deckboy's own pointer, not the system arrow
   // Browser cues hide their scrollbars by default. A scrollbar is chrome, and

@@ -4640,3 +4640,8 @@ How fast the colours drift round the wheel. At the left they hold still.	Шви�
 Fine stripes after every edge, the ring of a bent filter. They shift the colour too.	Тонкі смуги після кожного краю — дзвін зігнутого фільтра. Вони теж зсувають колір.
 How many brightness bands become colours: two loud slabs at the left, a busy rainbow at the right.	Скільки смуг яскравості стають кольорами: ліворуч дві різкі плити, праворуч строката веселка.
 How coarse the colour is: at the left it follows every edge, at the right it floods past them in blocks.	Наскільки грубий колір: ліворуч він іде за кожним краєм, праворуч заливає їх блоками.
+VOICE: {1}	ГОЛОС: {1}
+Lesson voices	Голоси уроків
+lesson voices: {1}	голоси уроків: {1}
+EXPERIMENTAL: SOUNDS	ЕКСПЕРИМЕНТАЛЬНО: ЗВУКИ
+LESSONS VOICE: CHIP, WORDS, SOUNDS or OFF	ГОЛОС УРОКІВ: CHIP, СЛОВА, ЗВУКИ або ВИМ

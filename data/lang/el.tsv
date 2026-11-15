@@ -4633,3 +4633,8 @@ How fast the colours drift round the wheel. At the left they hold still.	Πόσ�
 Fine stripes after every edge, the ring of a bent filter. They shift the colour too.	Λεπτές ρίγες μετά από κάθε ακμή, το κουδούνισμα ενός λυγισμένου φίλτρου. Μετατοπίζουν και το χρώμα.
 How many brightness bands become colours: two loud slabs at the left, a busy rainbow at the right.	Πόσες ζώνες φωτεινότητας γίνονται χρώματα: δύο έντονες πλάκες αριστερά, ένα πολύβουο ουράνιο τόξο δεξιά.
 How coarse the colour is: at the left it follows every edge, at the right it floods past them in blocks.	Πόσο χονδρό είναι το χρώμα: αριστερά ακολουθεί κάθε ακμή, δεξιά πλημμυρίζει πάνω τους σε μπλοκ.
+VOICE: {1}	ΦΩΝΗ: {1}
+Lesson voices	Φωνές μαθημάτων
+lesson voices: {1}	φωνές μαθημάτων: {1}
+EXPERIMENTAL: SOUNDS	ΠΕΙΡΑΜΑΤΙΚΟ: ΗΧΟΙ
+LESSONS VOICE: CHIP, WORDS, SOUNDS or OFF	LESSONS VOICE: CHIP, WORDS, SOUNDS ή OFF

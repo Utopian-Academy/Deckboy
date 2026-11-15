@@ -134,6 +134,7 @@
 - The new Dr. Pixel and Prof. Video splash panels are now drawn with smooth scaling instead of nearest-neighbour scaling, which made uneven blocks on large screens.
 
 ### Lesson voices
+- New: the **Experimental voice**. A simulated vocal tract reads the lesson characters' lines aloud, each with their own pitch, mouth size and breath, in any language; or, as **EXPERIMENTAL: SOUNDS**, each character says their own sounds instead of the words ("rada rada rada", "gopiki kupiki gulikiki"). The **VOICE** button on every lesson card steps CHIP, EXPERIMENTAL: WORDS, EXPERIMENTAL: SOUNDS, OFF; also **Lesson voices** in MENU and `LESSONS VOICE CHIP|WORDS|SOUNDS|OFF`. The mouths move with the voice. Based on Pink Trombone's model (MIT licence).
 - The guests in the lessons now have voices of their own, in the same little Game Boy synth as Dr. Pixel and Prof. Video: the lighthouse keeper low and slow, the coach gruff, the chef bouncing between octaves. A guest waits for the teacher to finish, and stage directions like *raises an eyebrow* are not spoken.
 - The robot DJs speak in chopped, synthy syllables on the Game Boy's wave channel, which the synth now has: a high voice and a low one.
 
