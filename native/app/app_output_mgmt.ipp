@@ -4404,7 +4404,11 @@
     const auto tap = previewTapOutputIndex(/*allowOff=*/true);
     if (!tap || *tap < 0 || *tap >= static_cast<int>(project_.outputs.size())) return -1;
     const OutputTarget& out = project_.outputs[static_cast<std::size_t>(*tap)];
-    if (out.enabled || normalizeOutputType(out.outputType) == "stream") return -1;
+    // An output that shows the scopes is not the programme: the desk's
+    // monitor keeps its own picture (and nothing would arm the analyser for
+    // it while it is off).
+    const std::string type = normalizeOutputType(out.outputType);
+    if (out.enabled || type == "stream" || type == "scopes") return -1;
     return *tap;
   }
 

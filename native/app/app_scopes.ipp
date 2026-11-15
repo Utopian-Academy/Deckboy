@@ -179,9 +179,23 @@
   }
 
   // The programme -- the output the audience sees -- unless SOURCE picked one.
+  // NEVER an output that shows the scopes: with one output set to SCOPES the
+  // programme fallback chose that very output, and the scopes measured a
+  // picture of themselves (review of scopes-1113, 2026-11-14). -1 when every
+  // output shows the scopes.
+  bool outputShowsScopes(int index) const {
+    return index >= 0 && index < static_cast<int>(project_.outputs.size()) &&
+           normalizeOutputType(project_.outputs[static_cast<std::size_t>(index)].outputType) == "scopes";
+  }
   int scopesOutputIndex() const {
-    if (scopesSource_ >= 0 && scopesSource_ < static_cast<int>(project_.outputs.size())) return scopesSource_;
-    return std::max(0, primaryProgrammeOutputIndex(-1));
+    const int count = static_cast<int>(project_.outputs.size());
+    if (scopesSource_ >= 0 && scopesSource_ < count && !outputShowsScopes(scopesSource_)) return scopesSource_;
+    const int programme = primaryProgrammeOutputIndex(-1);
+    if (programme >= 0 && !outputShowsScopes(programme)) return programme;
+    for (int i = 0; i < count; ++i) {
+      if (!outputShowsScopes(i)) return i;
+    }
+    return count > 0 ? -1 : 0;
   }
 
   std::string scopesSourceLabel() const {
@@ -191,7 +205,12 @@
 
   void cycleScopesSource() {
     const int count = static_cast<int>(project_.outputs.size());
-    scopesSource_ = scopesSource_ < 0 ? (count > 0 ? 0 : -1) : scopesSource_ + 1 >= count ? -1 : scopesSource_ + 1;
+    // PROGRAMME, then each output that is not itself showing the scopes.
+    int next = scopesSource_;
+    do {
+      next = next < 0 ? (count > 0 ? 0 : -1) : next + 1 >= count ? -1 : next + 1;
+    } while (next >= 0 && outputShowsScopes(next));
+    scopesSource_ = next;
     releaseScopesCapture();
     triggerToast("scopes: " + scopesSourceLabel() + " (" + outputLabel(scopesOutputIndex()) + ")");
   }
@@ -1092,14 +1111,15 @@
     const SDL_Rect footer {area.x, area.y + area.h - footerH, area.w, footerH};
     scopesDrawHdr_ = outcome.hdr;
     const int source = scopesOutputIndex();
-    const bool matches = result && source < static_cast<int>(project_.outputs.size()) &&
-      outcome.outputId == project_.outputs[source].outputId;
+    const bool matches = result && source >= 0 && source < static_cast<int>(project_.outputs.size()) &&
+      outcome.outputId == project_.outputs[static_cast<std::size_t>(source)].outputId;
     if (sound) {
       drawSoundPanel(body);   // the playlist's sound, so no output need be armed
     } else if (!matches) {
       const std::string why = project_.outputs.empty()
         ? std::string("add an output to scope it")
-        : "waiting for " + outputLabel(scopesOutputIndex()) + " - arm it to scope its signal";
+        : source < 0 ? std::string("every output shows the scopes - add one that shows the programme")
+        : "waiting for " + outputLabel(source) + " - arm it to scope its signal";
       drawCenteredTextSafe(controlRenderer_, fontSmall_, body, why, kScopeLabel);
     } else if (scopesBig_ >= 0) {
       const int panel = scopesBig_;
@@ -1230,8 +1250,8 @@
   // NDI send that mirrors the output draws it the same way on its own renderer.
   // At most about 25 times a second, and at most 1600 pixels wide: the scopes
   // themselves update more slowly than that on a 4K frame.
-  // The scopes as a picture, not as the desk's monitor: every panel, no
-  // buttons, whatever the monitor is set to. The desk may be drawing its own
+  // The scopes as a picture, not as the desk's monitor: no buttons, and the
+  // panels the desk shows (all of them, or the one SCOPES BIG enlarged). The desk may be drawing its own
   // scopes this frame, so its hit rectangles and its view are put back.
   void drawScopesDisplay(const SDL_Rect& area) {
     SDL_Rect panels[kScopePanelCount];
@@ -1254,8 +1274,10 @@
 
   struct ScopesBridge { SDL_Texture* shown = nullptr; Uint64 atMs = 0; int w = 0; int h = 0; };
   std::map<std::string, ScopesBridge> scopesBridges_;
-  SDL_Texture* scopesBridgeTarget_ = nullptr;
-  int scopesBridgeTargetW_ = 0, scopesBridgeTargetH_ = 0;
+  // The desk-side target each size is drawn into, one per size: a single
+  // shared one was destroyed and remade on every redraw (about 25 a second)
+  // once two consumers of different sizes showed the scopes.
+  std::map<std::pair<int, int>, SDL_Texture*> scopesBridgeTargets_;
 
   void renderScopesIntoOutput(int outputIndex, const SDL_Rect& bounds) {
     OutputRuntime* runtime = runtimeForOutput(outputIndex);
@@ -1275,19 +1297,16 @@
       bridge.w = cw;
       bridge.h = ch;
       bridge.atMs = now;
-      if (!scopesBridgeTarget_ || scopesBridgeTargetW_ != cw || scopesBridgeTargetH_ != ch) {
-        if (scopesBridgeTarget_) SDL_DestroyTexture(scopesBridgeTarget_);
-        scopesBridgeTarget_ = deckboyCreateTexture(controlRenderer_, SDL_PIXELFORMAT_RGBA32,
-                                                   SDL_TEXTUREACCESS_TARGET, cw, ch);
-        scopesBridgeTargetW_ = cw;
-        scopesBridgeTargetH_ = ch;
+      SDL_Texture*& target = scopesBridgeTargets_[{cw, ch}];
+      if (!target) {
+        target = deckboyCreateTexture(controlRenderer_, SDL_PIXELFORMAT_RGBA32, SDL_TEXTUREACCESS_TARGET, cw, ch);
       }
-      if (scopesBridgeTarget_) {
+      if (target) {
         SDL_Texture* savedTarget = SDL_GetRenderTarget(controlRenderer_);
         SDL_Rect savedClip {};
         const bool hadClip = SDL_RenderClipEnabled(controlRenderer_);
         if (hadClip) SDL_GetRenderClipRect(controlRenderer_, &savedClip);
-        SDL_SetRenderTarget(controlRenderer_, scopesBridgeTarget_);
+        SDL_SetRenderTarget(controlRenderer_, target);
         SDL_SetRenderClipRect(controlRenderer_, nullptr);
         drawScopesDisplay(SDL_Rect {0, 0, cw, ch});
         SDL_Surface* got = SDL_RenderReadPixels(controlRenderer_, nullptr);

@@ -1118,6 +1118,12 @@
       app.handleRemoteCommand("VIDEO OUTPUT TYPE SCOPES");
       expect(normalizeOutputType(app.project_.outputs[0].outputType) == "scopes",
              "VIDEO OUTPUT TYPE SCOPES sets the focused output");
+      // Every output now shows the scopes: they must not measure themselves.
+      expect(app.scopesOutputIndex() == -1 && !app.scopesWatching(0) && !app.scopesWatching(scopesOut),
+             "the scopes never measure an output that shows the scopes");
+      app.project_.outputs[0].outputType = "window";
+      expect(app.scopesOutputIndex() == 0, "...and measure the one that shows the programme");
+      app.project_.outputs[0].outputType = "scopes";
       app.handleRemoteCommand("MULTIVIEW WINDOW ADD");
       app.handleRemoteCommand("MULTIVIEW WINDOW " + std::to_string(app.project_.multiviewTiles.size()) + " SCOPES");
       expect(!app.project_.multiviewTiles.empty() && app.project_.multiviewTiles.back().source == "scopes" &&
