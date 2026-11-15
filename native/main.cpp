@@ -7131,7 +7131,51 @@ class App {
     // decay curve, the harmonic weighting -- is what MAKES it a sting rather
     // than a tone, and a control for each would be a synthesiser, which is
     // the FDS voice next door.
-    if (cue.tone.waveform == ToneWaveform::Sting) {
+    if (cue.tone.waveform == ToneWaveform::Voice) {
+      // ── THE VOICE: WORDS, WHO SAYS THEM, AND HOW ──────────────────────
+      // Text is edited inline (a long line is ellipsised in the row). The
+      // three numbers exist only for CUSTOM: a cast character brings its
+      // own, and a control that does nothing for the current speaker is
+      // worse than none, so they are not drawn.
+      rowY = inspDrawEditableRow(ix, rowY, "text",
+                                 cue.tone.voiceText.empty() ? std::string("(nothing)") : cue.tone.voiceText,
+                                 QuickAction::VoiceText,
+                                 "What the cue says. Any language: it is spelled out as sounds. "
+                                 "The cue ends when the speech does.",
+                                 cue.tone.voiceText.empty() ? pal.mid : pal.deep);
+      rowY = inspDrawChoiceRow(ix, rowY, "speaker", cue.tone.voiceCharacter,
+                               QuickAction::VoiceCharacter,
+                               "Who talks: one of the sixteen lesson characters, or CUSTOM "
+                               "to set the voice by hand.");
+      inspDrawQuickRow(ix, rowY, "says", QuickAction::VoiceModeToggle,
+                       cue.tone.voiceSounds ? "SOUNDS" : "WORDS",
+                       QuickAction::VoiceModeToggle, QuickAction::VoiceModeToggle,
+                       true, cue.tone.voiceSounds,
+                       "WORDS speaks the text. SOUNDS has the speaker say their own "
+                       "noises instead, one per word, keeping the punctuation.");
+      rowY += ix.rowStep;
+      if (cue.tone.voiceCharacter == "CUSTOM") {
+        inspDrawQuickRow(ix, rowY, "pitch", QuickAction::VoicePitchDec,
+                         std::to_string(static_cast<int>(std::lround(cue.tone.voicePitchHz))) + " Hz",
+                         QuickAction::VoicePitchInc, QuickAction::ToggleLoop,
+                         false, false,
+                         "The speaking pitch. Steps in semitones: about 100 Hz is a deep "
+                         "voice, 220 Hz a high one.");
+        rowY += ix.rowStep;
+        inspDrawQuickRow(ix, rowY, "size", QuickAction::VoiceSizeDec,
+                         fmtFloat(cue.tone.voiceSize, 2) + "x",
+                         QuickAction::VoiceSizeInc, QuickAction::ToggleLoop,
+                         false, false,
+                         "The length of the throat. 0.8 is a child, 1.25 a giant.");
+        rowY += ix.rowStep;
+        inspDrawQuickRow(ix, rowY, "breath", QuickAction::VoiceBreathDec,
+                         std::to_string(static_cast<int>(std::lround(cue.tone.voiceBreath * 100.0))) + "%",
+                         QuickAction::VoiceBreathInc, QuickAction::ToggleLoop,
+                         false, false,
+                         "Airiness of the voice: 0 is pressed and hard, 100 a whisper.");
+        rowY += ix.rowStep;
+      }
+    } else if (cue.tone.waveform == ToneWaveform::Sting) {
       inspDrawQuickRow(ix, rowY, "pitch", QuickAction::StingPitchDec,
                        std::to_string(static_cast<int>(cue.tone.stingPitchHz)) + " Hz",
                        QuickAction::StingPitchInc, QuickAction::ToggleLoop,

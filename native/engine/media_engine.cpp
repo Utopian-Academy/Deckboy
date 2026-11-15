@@ -66,6 +66,9 @@ void deckboy::engine::DrmPrimeImporterDeleter::operator()(DrmPrimeImporter* impo
 #include "engine/gpu_effects.hpp"   // gpuEffectsSupportStack
 #include "core/cue_helpers.hpp"       // isSourceCueKind, resolvedCueEndAction
 #include "core/io_utils.hpp"          // readExact, readSome (pipe I/O)
+#include "core/vocal_tract.hpp"       // the VOICE waveform
+#include <deque>
+#include <thread>
 #include "core/pattern_helpers.hpp"   // normalizePatternTypeId, patternTypeIsAnimated
 #include "core/paths.hpp"             // dataDir, for the bundled face
 #include "render/text_shaper.hpp"     // frame text: bidi, fallback faces, one baseline
@@ -455,6 +458,30 @@ void MediaEngine::loadCue(const Cue* cue, bool autoplay, double transitionSecond
     // finishes, and whatever the cue's end action says then happens.
     stingElapsed_ = 0.0;
     stingPhase_ = 0.0;
+    voicePos_ = 0;
+    voiceAttached_ = false;
+    voiceJob_.reset();
+    voiceKey_.clear();
+    if (cue->kind == CueKind::Tone && cue->tone.waveform == ToneWaveform::Voice) {
+      // A VOICE ENDS BY ITSELF, when the speech does. A cached line is ready
+      // now and gives its length here; a new one is rendered on a worker
+      // thread, and the cue holds (silent, no length) until it is -- then
+      // pumpToneAudio takes it up and starts it from the beginning.
+      beginVoice(*cue);
+      if (!voiceAttached_) {
+        duration_ = 0.0;
+      }
+      currentPosition_ = 0.0;
+      pausedPosition_ = 0.0;
+      playbackStartPosition_ = 0.0;
+      playbackClockStart_ = std::chrono::steady_clock::now();
+      state_ = autoplay ? TransportState::Playing : TransportState::Paused;
+      if (audioStream_) {
+        setOutputPaused(!autoplay);
+      }
+      rebuildToneFrame(*cue);
+      return;
+    }
     if (cue->kind == CueKind::Tone && cue->tone.waveform == ToneWaveform::Sting) {
       duration_ = std::clamp(cue->tone.stingSeconds, 0.05, 10.0);
       currentPosition_ = 0.0;
@@ -1135,6 +1162,7 @@ void MediaEngine::stop(bool clearVisual) {
     if (activeCue_->kind == CueKind::Tone) {
       stingElapsed_ = 0.0;   // reracked: a sting starts again from its strike
       stingPhase_ = 0.0;
+      voicePos_ = 0;         // and a voice from its first word
       if (audioStream_ != nullptr) {
         setOutputPaused(true);
         clearAudio();
@@ -12051,8 +12079,143 @@ double MediaEngine::fdsNextSample(const ToneSettings& tone, double dt) {
   return sample * chipEnvelope(tone, dt);
 }
 
+// ---------------------------------------------------------------------------
+// THE VOICE WAVEFORM
+//
+// speak() takes tens to hundreds of milliseconds for a line, so it never runs
+// where audio is generated. A line is rendered on a worker thread, once per
+// (text, speaker, mode, voice), and kept in a small process-wide cache: a
+// retake, or a second cue with the same words, is instant. The worker owns
+// only its VoiceRender (a shared_ptr), never the engine or the cache, so an
+// engine going away mid-render is harmless.
+// ---------------------------------------------------------------------------
+namespace {
+
+constexpr std::size_t kVoiceMaxChars = 600;   // bounds the render time of one line
+constexpr std::size_t kVoiceCacheLines = 16;
+
+struct VoiceCache {
+  std::mutex mutex;
+  std::map<std::string, std::shared_ptr<VoiceRender>> lines;
+  std::deque<std::string> order;   // oldest first
+};
+
+VoiceCache& voiceCache() {
+  static VoiceCache cache;
+  return cache;
+}
+
+std::string voiceText(const ToneSettings& t) {
+  return t.voiceText.size() > kVoiceMaxChars ? t.voiceText.substr(0, kVoiceMaxChars) : t.voiceText;
+}
+
+// Everything that changes what is said. The three custom numbers count only
+// for CUSTOM, so turning them on a cast character does not re-render.
+std::string voiceKeyFor(const ToneSettings& t) {
+  std::string key = voiceText(t);
+  key += '\x1f';
+  key += t.voiceCharacter;
+  key += t.voiceSounds ? "\x1f" "S" : "\x1f" "W";
+  if (t.voiceCharacter == "CUSTOM") {
+    char numbers[96];
+    std::snprintf(numbers, sizeof(numbers), "\x1f%.3f/%.3f/%.3f", t.voicePitchHz, t.voiceSize,
+                  t.voiceBreath);
+    key += numbers;
+  }
+  return key;
+}
+
+deckboy::voice::VoiceParams voiceParamsFor(const ToneSettings& t) {
+  if (t.voiceCharacter != "CUSTOM") {
+    return deckboy::voice::castVoice(t.voiceCharacter);
+  }
+  deckboy::voice::VoiceParams vp;
+  vp.pitchHz = std::clamp(t.voicePitchHz, 50.0, 400.0);
+  vp.tractScale = std::clamp(t.voiceSize, 0.8, 1.25);
+  vp.tenseness = 1.0 - std::clamp(t.voiceBreath, 0.0, 1.0);
+  return vp;
+}
+
+std::shared_ptr<VoiceRender> voiceRenderFor(const ToneSettings& t) {
+  const std::string key = voiceKeyFor(t);
+  VoiceCache& cache = voiceCache();
+  auto job = std::make_shared<VoiceRender>();
+  {
+    std::lock_guard<std::mutex> lock(cache.mutex);
+    const auto found = cache.lines.find(key);
+    if (found != cache.lines.end()) return found->second;
+    cache.lines[key] = job;
+    cache.order.push_back(key);
+    // Forget the oldest FINISHED lines; one still rendering stays, because an
+    // engine is waiting on it.
+    for (std::size_t i = 0; cache.lines.size() > kVoiceCacheLines && i < cache.order.size();) {
+      const auto it = cache.lines.find(cache.order[i]);
+      if (it != cache.lines.end() && it->second != job && it->second->ready.load()) {
+        cache.lines.erase(it);
+        cache.order.erase(cache.order.begin() + static_cast<std::ptrdiff_t>(i));
+      } else {
+        ++i;
+      }
+    }
+  }
+  const std::string text = voiceText(t);
+  const bool sounds = t.voiceSounds;
+  const std::string who = t.voiceCharacter;
+  const deckboy::voice::VoiceParams vp = voiceParamsFor(t);
+  std::thread([job, text, sounds, who, vp] {
+    const std::string said = sounds ? deckboy::voice::onomatopoeia(who, text) : text;
+    deckboy::voice::Spoken spoken = deckboy::voice::speak(said, vp, kAudioRate);
+    // Peak to 1, so the cue's level means the same for every voice; the
+    // playback gain (pumpToneAudio) sets how loud speech is from there.
+    float peak = 0.0f;
+    for (float v : spoken.samples) peak = std::max(peak, std::abs(v));
+    if (peak > 1e-6f) {
+      const float scale = 1.0f / peak;
+      for (float& v : spoken.samples) v *= scale;
+    }
+    job->samples = std::move(spoken.samples);
+    job->ready.store(true, std::memory_order_release);
+  }).detach();
+  return job;
+}
+
+}  // namespace
+
+void MediaEngine::beginVoice(const Cue& cue) {
+  voiceKey_ = voiceKeyFor(cue.tone);
+  voiceJob_ = voiceRenderFor(cue.tone);
+  voiceAttached_ = false;
+  voicePos_ = 0;
+  if (voiceJob_->ready.load(std::memory_order_acquire)) attachVoice();
+}
+
+// The speech is ready: its length is the cue's, and it starts from the top.
+void MediaEngine::attachVoice() {
+  voiceAttached_ = true;
+  voicePos_ = 0;
+  // A line that says nothing (no speakable text) still ends, at once.
+  duration_ = std::max(0.05, static_cast<double>(voiceJob_->samples.size()) / kAudioRate);
+  currentPosition_ = 0.0;
+  pausedPosition_ = 0.0;
+  playbackStartPosition_ = 0.0;
+  playbackClockStart_ = std::chrono::steady_clock::now();
+}
+
+double MediaEngine::voiceSeconds() const {
+  return voiceAttached_ && voiceJob_ ? static_cast<double>(voiceJob_->samples.size()) / kAudioRate : 0.0;
+}
+
 void MediaEngine::pumpToneAudio(const Cue& cue, double aheadSeconds) {
   if (cue.kind != CueKind::Tone) return;
+
+  if (cue.tone.waveform == ToneWaveform::Voice) {
+    // Words changed on a live cue (inspector or VOICE SAY): say the new ones.
+    if (!voiceJob_ || voiceKey_ != voiceKeyFor(cue.tone)) beginVoice(cue);
+    if (!voiceAttached_) {
+      if (!voiceJob_->ready.load(std::memory_order_acquire)) return;   // silent until it is
+      attachVoice();
+    }
+  }
 
   const int channels = std::max(2, audioDeviceChannels_.load(std::memory_order_relaxed));
   // Keep roughly a fifth of a second queued. Enough that a slow frame cannot
@@ -12125,6 +12288,18 @@ void MediaEngine::pumpToneAudio(const Cue& cue, double aheadSeconds) {
         const double attack = std::min(1.0, stingElapsed_ / 0.008);
         sample *= attack * std::exp(-3.2 * t);
         stingElapsed_ += dt;
+        break;
+      }
+      case ToneWaveform::Voice: {
+        // The rendered speech, peak 1, read at the cue's own clock. Level is
+        // the SPEECH level: peak = level + 12 dB, so the -18 dBFS default
+        // peaks at -6 dBFS, a normal speaking level (RMS near -24 dBFS).
+        // The ceiling stays where every tone's is (-1 dBFS).
+        if (voiceJob_ && voicePos_ < voiceJob_->samples.size()) {
+          const double linear = amplitude / 32767.0;
+          const double gain = std::min(3.981071705534972, 0.8912509381337456 / std::max(1e-9, linear));
+          sample = static_cast<double>(voiceJob_->samples[voicePos_++]) * gain;
+        }
         break;
       }
       case ToneWaveform::Fds:
@@ -12261,6 +12436,8 @@ void MediaEngine::rebuildToneFrame(const Cue& cue) {
     case ToneWaveform::Sweep:    name = "SWEEP"; break;
     case ToneWaveform::Identify: name = "IDENTIFY"; break;
     case ToneWaveform::Fds:      name = "FDS SYNTH"; break;
+    case ToneWaveform::Sting:    name = "STING"; break;
+    case ToneWaveform::Voice:    name = "VOICE"; break;
     default: break;
   }
   char levelText[48];
@@ -12275,6 +12452,8 @@ void MediaEngine::rebuildToneFrame(const Cue& cue) {
     char sw[48];
     std::snprintf(sw, sizeof(sw), "%.0f-%.0f Hz", cue.tone.sweepLowHz, cue.tone.sweepHighHz);
     detail = sw;
+  } else if (cue.tone.waveform == ToneWaveform::Voice) {
+    detail = cue.tone.voiceCharacter + (cue.tone.voiceSounds ? " SOUNDS" : "");
   } else if (cue.tone.waveform == ToneWaveform::Identify) {
     detail = "CH " + std::to_string(toneIdentifyChannel_ + 1);
   } else if (cue.tone.channel >= 0) {

@@ -2782,7 +2782,7 @@
           // Moire fields went in, only two of five checks were bumped, and the
           // other three trimmed nothing but Moire -- passing without testing
           // the show they were named for.
-          constexpr int kAfterTrackerFields = 46;   // + direction, its copy, key, length
+          constexpr int kAfterTrackerFields = 56;   // + direction, its copy, key, length, the voice and the sting (ten)
           // A show from immediately before the fixture patch (one tail field
           // fewer) keeps its mic channel and has no fixture levels.
           {
@@ -2933,7 +2933,7 @@
         // the spine and trimming 3 stopped reaching preWaitSeconds -- the test
         // failed loudly, which is the only reason this comment exists rather
         // than a silent hole in the backward-compatibility check.
-        constexpr int kSpineTailFields = 139;  // preWait, postWait, continue, masters,
+        constexpr int kSpineTailFields = 149;  // preWait, postWait, continue, masters,
                                               // target id/deck/verb, armed, panel w/h,
                                               // fade secs/to/what/curve/stop,
                                               // fireside view, overlay lower-third
@@ -2948,7 +2948,7 @@
                                               // the backdrop, lock to screen, the mask,
                                               // a tone's oscillators, a drawing, alpha,
                                               // the twenty Lumia fields, a shader's values,
-                                              // the direction and its copy (four)
+                                              // the direction and its copy (four), the voice and the sting (ten)
         {
           std::ifstream in(smokePath);
           std::ostringstream older;
@@ -4979,6 +4979,103 @@
                  normalizePatternTypeId("pattern://isf:C:/Some Dir/My_Shader.fs") == "isf",
                "a shader cue's path keeps its case and its underscores");
       }
+    }
+
+    // ── THE VOICE SOURCE ───────────────────────────────────────────────────
+    // A Tone cue that speaks typed text. Its words, speaker and mode go in
+    // the show with the Sting's four settings (which were never saved), an
+    // old show loads with the defaults, and the verbs refuse what they cannot
+    // do rather than clamp.
+    {
+      App app;
+      app.showSplashOverlay_ = false;
+      app.showStartupDialog_ = false;
+      app.project_.decks = {Deck {}};
+      const auto run = [&](const std::string& line) {
+        app.handleRemoteCommand(line);
+        return app.remoteCommandError_.empty();
+      };
+      expect(run("VOICE SAY Hello there, world") && app.project_.decks[0].cues.size() == 1 &&
+             app.project_.decks[0].cues[0].tone.waveform == ToneWaveform::Voice &&
+             app.project_.decks[0].cues[0].tone.voiceText == "Hello there, world" &&
+             app.project_.decks[0].cues[0].name == "Voice: Hello there, world",
+             "VOICE SAY makes a Voice cue when none is selected, named from its words");
+      expect(run("VOICE SAY Second line") && app.project_.decks[0].cues.size() == 1 &&
+             app.project_.decks[0].cues[0].tone.voiceText == "Second line" &&
+             app.project_.decks[0].cues[0].name == "Voice: Second line",
+             "...and sets the words of the selected one, the name following");
+      expect(!run("VOICE SAY") && !run("VOICE NOPE") && !run("VOICE CHARACTER NOBODY") &&
+             !run("VOICE MODE LOUD") && !run("VOICE PITCH 900") && !run("VOICE SIZE 2") &&
+             !run("VOICE BREATH -1") && !run("VOICE PITCH abc"),
+             "VOICE refuses missing words, unknown verbs and speakers, and numbers out of range");
+      expect(run("VOICE CHARACTER chef bork") && app.project_.decks[0].cues[0].tone.voiceCharacter == "CHEF BORK",
+             "VOICE CHARACTER takes a cast name in any case");
+      expect(run("VOICE MODE SOUNDS") && app.project_.decks[0].cues[0].tone.voiceSounds &&
+             run("VOICE MODE WORDS") && !app.project_.decks[0].cues[0].tone.voiceSounds,
+             "VOICE MODE switches between WORDS and SOUNDS");
+      expect(run("VOICE CHARACTER CUSTOM") && run("VOICE PITCH 200") && run("VOICE SIZE 0.9") && run("VOICE BREATH 70"),
+             "CUSTOM takes its three numbers");
+      expect(run("VOICE STATUS") && app.remoteCommandDetail_.find("Second line") != std::string::npos &&
+             app.remoteCommandDetail_.find("CUSTOM") != std::string::npos,
+             "VOICE STATUS says what is said and by whom");
+
+      // The show file: the words (with a tab and an accent in them), the
+      // speaker, and the Sting's settings.
+      const std::string spoken = "Caf\xC3\xA9\tbar, two\nlines";
+      Cue& saved = app.project_.decks[0].cues[0];
+      saved.tone.voiceText = spoken;
+      Cue sting = saved;
+      sting.id = "smoke-sting";
+      sting.name = "A sting";
+      sting.tone = ToneSettings {};
+      sting.tone.waveform = ToneWaveform::Sting;
+      sting.tone.stingPitchHz = 523.0;
+      sting.tone.stingSeconds = 1.5;
+      sting.tone.stingSweepSemitones = -5.0;
+      sting.tone.stingBody = 0.8;
+      app.project_.decks[0].cues.push_back(sting);
+      const fs::path voicePath = fs::temp_directory_path() / "deckboy-smoke-voice.deckboy";
+      expect(saveProject(voicePath, app.project_), "a show with a voice cue and a sting saves");
+      Project back = loadProject(voicePath);
+      expect(!back.decks.empty() && back.decks[0].cues.size() == 2, "the voice show loads");
+      if (!back.decks.empty() && back.decks[0].cues.size() == 2) {
+        const ToneSettings& v = back.decks[0].cues[0].tone;
+        expect(v.waveform == ToneWaveform::Voice && v.voiceText == spoken &&
+               v.voiceCharacter == "CUSTOM" && !v.voiceSounds && v.voicePitchHz == 200.0 &&
+               std::fabs(v.voiceSize - 0.9) < 1e-9 && std::fabs(v.voiceBreath - 0.7) < 1e-9,
+               "a Voice cue's words, speaker and custom voice survive a save");
+        const ToneSettings& g = back.decks[0].cues[1].tone;
+        expect(g.waveform == ToneWaveform::Sting && g.stingPitchHz == 523.0 && g.stingSeconds == 1.5 &&
+               g.stingSweepSemitones == -5.0 && std::fabs(g.stingBody - 0.8) < 1e-9,
+               "a Sting's four settings survive a save (they never did)");
+      }
+      // An old show: cut the ten new fields off each cue record.
+      {
+        std::ifstream in(voicePath);
+        std::ostringstream cut;
+        std::string line;
+        while (std::getline(in, line)) {
+          if (line.rfind("cue\t", 0) == 0) {
+            for (int i = 0; i < 10; ++i) {
+              const std::size_t tab = line.rfind('\t');
+              if (tab != std::string::npos) line.erase(tab);
+            }
+          }
+          cut << line << '\n';
+        }
+        in.close();
+        std::ofstream out(voicePath, std::ios::trunc);
+        out << cut.str();
+      }
+      Project old = loadProject(voicePath);
+      expect(!old.decks.empty() && old.decks[0].cues.size() == 2 &&
+             old.decks[0].cues[0].tone.waveform == ToneWaveform::Voice &&
+             old.decks[0].cues[0].tone.voiceText == ToneSettings {}.voiceText &&
+             old.decks[0].cues[0].tone.voiceCharacter == "PROF. VIDEO" &&
+             old.decks[0].cues[1].tone.stingPitchHz == 440.0 && old.decks[0].cues[1].tone.stingSeconds == 0.75,
+             "a show saved before these fields loads with the defaults");
+      std::error_code removeError;
+      fs::remove(voicePath, removeError);
     }
 
     // ── THE X/Y PAD ────────────────────────────────────────────────────────

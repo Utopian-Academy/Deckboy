@@ -9936,6 +9936,115 @@
       failRemoteCommand("STING: expected ON, PITCH, LENGTH, SWEEP or BODY");
       return;
     }
+    if (command == "VOICE") {
+      // VOICE SAY <text>             -> the selected Voice cue says this; with no Voice cue selected, make one
+      // VOICE CHARACTER <name>|CUSTOM, VOICE MODE WORDS|SOUNDS
+      // VOICE PITCH <hz> | SIZE <x> | BREATH <0-100>   (CUSTOM's three numbers)
+      // VOICE STATUS                 -> what it says, who says it, and whether the speech is ready
+      const std::string sub = parts.size() > 1 ? toUpper(parts[1]) : std::string();
+      auto rest = [&](std::size_t from) {
+        std::string joined;
+        for (std::size_t i = from; i < parts.size(); ++i) joined += (i > from ? " " : "") + parts[i];
+        return joined;
+      };
+      Cue* cue = selectedCueMutable();
+      const bool isVoice = cue && cue->kind == CueKind::Tone && cue->tone.waveform == ToneWaveform::Voice;
+      if (sub == "SAY") {
+        const std::string text = rest(2);
+        if (text.empty()) {
+          failRemoteCommand("VOICE SAY: expected the words to say");
+          return;
+        }
+        if (isVoice) {
+          setVoiceText(*cue, text);
+          remoteCommandDetail_ = "voice says: " + text;
+        } else {
+          addVoiceCue(text);
+          remoteCommandDetail_ = "voice cue " + std::to_string(focusedDeck().cues.size());
+        }
+        return;
+      }
+      if (sub == "STATUS" || sub.empty()) {
+        if (!isVoice) {
+          failRemoteCommand("VOICE: select a Voice cue first (VOICE SAY <text> makes one)");
+          return;
+        }
+        const ToneSettings& t = cue->tone;
+        std::string speech = "not playing";
+        const Deck& deck = focusedDeck();
+        const MediaEngine* engine = focusedMediaEngine();
+        if (engine && deck.activeIndex == deck.selectedIndex && engine->activeCue() &&
+            engine->activeCue()->kind == CueKind::Tone) {
+          char buf[64];
+          std::snprintf(buf, sizeof(buf), "ready, %.2f s", engine->voiceSeconds());
+          speech = engine->voiceReady() ? std::string(buf) : std::string("rendering");
+        }
+        remoteCommandDetail_ = std::string("\"") + t.voiceText + "\" | " + t.voiceCharacter + " | " +
+                               (t.voiceSounds ? "SOUNDS" : "WORDS") + " | " + speech;
+        return;
+      }
+      if (!isVoice) {
+        failRemoteCommand("VOICE: select a Voice cue first (VOICE SAY <text> makes one)");
+        return;
+      }
+      ToneSettings& t = cue->tone;
+      if (sub == "CHARACTER") {
+        const std::string name = voiceCastMatch(rest(2));
+        if (name.empty()) {
+          std::string list;
+          for (const std::string& n : voiceCastNames()) list += (list.empty() ? "" : ", ") + n;
+          failRemoteCommand("VOICE CHARACTER: expected one of " + list);
+          return;
+        }
+        t.voiceCharacter = name;
+        markProjectDirty();
+        remoteCommandDetail_ = name;
+        return;
+      }
+      if (sub == "MODE") {
+        const std::string mode = parts.size() > 2 ? toUpper(parts[2]) : std::string();
+        if (mode != "WORDS" && mode != "SOUNDS") {
+          failRemoteCommand("VOICE MODE: expected WORDS or SOUNDS");
+          return;
+        }
+        t.voiceSounds = mode == "SOUNDS";
+        markProjectDirty();
+        remoteCommandDetail_ = mode;
+        return;
+      }
+      if (sub == "PITCH" || sub == "SIZE" || sub == "BREATH") {
+        auto parsed = parseNumber(2);
+        if (!parsed) {
+          failRemoteCommand("VOICE " + sub + ": expected a number");
+          return;
+        }
+        // Refused, not clamped (see MASTERVOL).
+        if (sub == "PITCH") {
+          if (*parsed < 50.0 || *parsed > 400.0) {
+            failRemoteCommand("VOICE PITCH: expected 50-400 Hz");
+            return;
+          }
+          t.voicePitchHz = *parsed;
+        } else if (sub == "SIZE") {
+          if (*parsed < 0.8 || *parsed > 1.25) {
+            failRemoteCommand("VOICE SIZE: expected 0.8-1.25");
+            return;
+          }
+          t.voiceSize = *parsed;
+        } else {
+          if (*parsed < 0.0 || *parsed > 100.0) {
+            failRemoteCommand("VOICE BREATH: expected 0-100");
+            return;
+          }
+          t.voiceBreath = *parsed / 100.0;
+        }
+        markProjectDirty();
+        remoteCommandDetail_ = parts[2];
+        return;
+      }
+      failRemoteCommand("VOICE: expected SAY, CHARACTER, MODE, PITCH, SIZE, BREATH or STATUS");
+      return;
+    }
     if (command == "MIC") {
       // MIC                          -> the selected mic cue: input, level, latency
       // MIC ADD [device|TEST]        -> a mic cue (TEST: the built-in test signal)
