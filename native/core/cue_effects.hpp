@@ -1566,7 +1566,7 @@ inline std::vector<const char*> cueEffectChoiceOptions(CueEffectKind kind, int w
   switch (kind) {
     case CueEffectKind::Melt:
       if (which == 0) return {"down", "up", "sideways"};
-      if (which == 1) return {"bright", "whole picture"};
+      if (which == 1) return {"bright", "whole picture", "liquid"};
       break;
     case CueEffectKind::Tape:
       if (which == 0) return {"SP", "LP", "EP"};
@@ -1581,7 +1581,9 @@ inline const char* cueEffectChoiceTip(CueEffectKind kind, int which) {
   if (kind == CueEffectKind::Melt && which == 0) return "Which way it drips.";
   if (kind == CueEffectKind::Melt && which == 1) {
     return "Bright: bright things drip over the dark, as text and logos do. Whole picture: everything "
-           "is wax, and the picture itself runs down in its own colours.";
+           "is wax, and the picture itself runs down in its own colours. Liquid: the picture turns to "
+           "glossy molten plastic, sagging in lumps with rainbow highlights, and what moves leaves "
+           "melting ghosts.";
   }
   if (kind == CueEffectKind::Tape && which == 0) {
     return "Tape speed: SP is the best picture, LP and EP fit more on a tape and lose detail and colour.";
@@ -1599,7 +1601,9 @@ inline void applyCueEffectArrivalDefaults(CueEffect& fx) {
   fx.paramA = 0.5f;
   switch (fx.kind) {
     case CueEffectKind::Melt:
-      fx.paramA = 0.5f; fx.paramB = 0.35f; fx.paramC = 0.6f; fx.paramD = 0.04f; fx.paramE = 0.6f;
+      // Liquid first (James 2026-11-14, a melt plugin's promo as THE reference).
+      fx.choiceB = 2;
+      fx.paramA = 0.5f; fx.paramB = 0.4f; fx.paramC = 0.5f; fx.paramD = 0.3f; fx.paramE = 0.7f;
       break;
     case CueEffectKind::Tape:
       fx.paramA = 0.3f; fx.paramB = 0.3f; fx.paramC = 0.2f; fx.paramD = 0.3f; fx.paramE = 0.4f; fx.paramF = 0.0f;
@@ -1625,6 +1629,16 @@ inline const char* cueEffectParamLabelFor(const CueEffect& fx, int which) {
       default: return nullptr;
     }
   }
+  if (fx.kind == CueEffectKind::Melt && fx.choiceB == 2) {
+    switch (which) {
+      case 0: return "flow";
+      case 1: return "lumps";
+      case 2: return "refraction";
+      case 3: return "reform";
+      case 4: return "gloss";
+      default: return nullptr;
+    }
+  }
   if (fx.kind == CueEffectKind::Melt) {
     if (which == 4) return "sheen";
     if (which == 5) return nullptr;
@@ -1641,6 +1655,16 @@ inline const char* cueEffectParamLabelFor(const CueEffect& fx, int which) {
 }
 
 inline const char* cueEffectParamTipFor(const CueEffect& fx, int which) {
+  if (fx.kind == CueEffectKind::Melt && fx.choiceB == 2) {
+    switch (which) {
+      case 0: return "How fast the picture sags. At the left it barely moves.";
+      case 1: return "How big the lumps in the surface are: fine ripples at the left, fat blobs at the right.";
+      case 2: return "How much the picture bends through the lumps, as through thick glass.";
+      case 3: return "How fast the melt reforms into the live picture. At the left what has melted stays.";
+      case 4: return "The gloss: white highlights and rainbow oil-slick colour on the lumps and rims.";
+      default: break;
+    }
+  }
   if (fx.kind == CueEffectKind::Melt && which == 4) {
     return "Light on the drips, as on something wet: a gloss where it faces the light, "
            "darker where it curls away.";
@@ -1756,6 +1780,28 @@ namespace detail {
 
 inline std::uint8_t clamp8(double v) {
   return static_cast<std::uint8_t>(std::clamp(v, 0.0, 255.0));
+}
+
+// MELT's LIQUID surface at one point, from the height's slope across (hx) and
+// down (hy) and the height itself (h): out = nx, ny (the bend), spec, irW (how
+// much rainbow), iri r g b. gpu_effects.hlsl meltLiquidSurface is the same.
+inline void meltLiquidSurface(double hx, double hy, double h, double t, double gloss, double out[7]) {
+  const double nx = std::clamp(hx * 10.0, -1.5, 1.5), ny = std::clamp(hy * 10.0, -1.5, 1.5);
+  const double len = std::sqrt(nx * nx + ny * ny + 1.0);
+  const double nnx = -nx / len, nny = -ny / len, nz = 1.0 / len;
+  const double lx = -0.3499, ly = -0.5997, lz = 0.7197;   // the light, from the upper left, normalised
+  const double ndl = nnx * lx + nny * ly + nz * lz;
+  const double rz = 2.0 * ndl * nz - lz;
+  const double spec = std::pow(std::max(0.0, rz), 24.0) * gloss;
+  const double fres = 1.0 - nz;
+  const double film = h * 1.6 + (nx + ny) * 0.12 + t * 0.05;
+  out[0] = nx;
+  out[1] = ny;
+  out[2] = spec;
+  out[3] = std::clamp(std::max(0.0, fres - 0.25) * 0.8 * gloss + spec * 0.6, 0.0, 0.35);
+  out[4] = 0.5 + 0.5 * std::cos(6.283185307179586 * (film + 0.0));
+  out[5] = 0.5 + 0.5 * std::cos(6.283185307179586 * (film + 0.33));
+  out[6] = 0.5 + 0.5 * std::cos(6.283185307179586 * (film + 0.67));
 }
 
 // CIRCUIT BEND's per-frame numbers, shared with the GPU plan
@@ -6565,6 +6611,13 @@ inline void applyCueEffectStack(std::vector<std::uint8_t>& pixels,
         const double hold = 1.0 - pD * 0.08;
         const double pinch = pC * 6.0 * across / 480.0;
         const bool wholePicture = fx.choiceB == 1;
+        // LIQUID (James 2026-11-14, with a melt plugin's promo as the
+        // reference): the whole picture sags under a SMOOTH flow field --
+        // nothing is per column, so nothing can tear into vertical walls --
+        // and reforms slowly into the live picture, so what moves leaves
+        // melting ghosts. The look is in the show pass below.
+        const bool liquid = fx.choiceB == 2;
+        const double reform = 0.02 + pD * 0.2;
         static thread_local std::vector<std::uint16_t> nextBuf;
         nextBuf.resize(kcount * 3);
         // RAW POINTERS into the worker threads: a thread_local named inside
@@ -6584,8 +6637,39 @@ inline void applyCueEffectStack(std::vector<std::uint8_t>& pixels,
               toXY(std::max(0, a - 1), b, ax, ay);
               const std::size_t up = (static_cast<std::size_t>(ay) * KW + ax) * 3;
               const double m = (keptC[up] + keptC[up + 1] + keptC[up + 2]) / (3.0 * 65535.0);
+              if (liquid) {
+                const double fa = a, fb = b;
+                const double flowN = 0.5 + 0.5 * (std::sin(fb * freq * 0.35 + fa * freq * 0.2 + t * 0.4) * 0.6 +
+                                                  std::sin(fb * freq * 0.9 - fa * freq * 0.15 - t * 0.3) * 0.4);
+                const double lv = pA * (0.12 + 0.8 * flowN) * (0.4 + 0.6 * std::min(1.0, m * 2.0));
+                const double side = pA * 0.35 * std::sin(fa * freq * 0.5 + fb * freq * 0.27 + t * 0.7);
+                const double sa = std::clamp(a - lv * unitAlong, 0.0, along - 1.001);
+                const double sb = std::clamp(b - side, 0.0, across - 1.001);
+                const int ia = static_cast<int>(sa), ib = static_cast<int>(sb);
+                const double wa = sa - ia, wb = sb - ib;
+                int t00x, t00y, t01x, t01y, t10x, t10y, t11x, t11y;
+                toXY(ia, ib, t00x, t00y);
+                toXY(ia, ib + 1, t01x, t01y);
+                toXY(ia + 1, ib, t10x, t10y);
+                toXY(ia + 1, ib + 1, t11x, t11y);
+                for (int c = 0; c < 3; ++c) {
+                  auto at = [&](int xx, int yy) { return static_cast<double>(keptC[(static_cast<std::size_t>(yy) * KW + xx) * 3 + c]); };
+                  const double moved = (at(t00x, t00y) * (1 - wb) + at(t01x, t01y) * wb) * (1 - wa) +
+                                       (at(t10x, t10y) * (1 - wb) + at(t11x, t11y) * wb) * wa;
+                  const double now = shrunk(kx, ky, c);
+                  next[o + c] = static_cast<std::uint16_t>(std::clamp(moved + (now - moved) * reform, 0.0, 65535.0));
+                }
+                continue;
+              }
               const double v = speedP[b] * (0.35 + 0.65 * std::min(1.0, m * 2.0));
-              const double bs = b - slopeP[b] * pinch;
+              // THE PINCH, PER FRAME AND ONLY WHERE IT FALLS (James 2026-11-14:
+              // "melt isnt melting properly and creating weird solid vertical
+              // lines"). It drew every row sideways towards each drip by the
+              // whole pinch, every frame, moving or not; summed over frames the
+              // picture folded into hard vertical walls between drips. Now a
+              // fraction of a pixel a frame, scaled by how fast the material
+              // here is falling: it still narrows a running drip into a neck.
+              const double bs = b - std::clamp(slopeP[b] * pinch * 0.12 * std::min(1.0, v), -0.3, 0.3);
               // Where the moved material comes from: the four taps and their
               // weights, worked out once for the three channels (keptAt's
               // arithmetic, in its order).
@@ -6646,6 +6730,65 @@ inline void applyCueEffectStack(std::vector<std::uint8_t>& pixels,
         // The gloss and the shade depend only on the kept pixel, which four
         // output pixels share: worked out once each, in a pass over the kept
         // picture (the same arithmetic, so the same bytes).
+        if (liquid) {
+          // THE LIQUID SURFACE: height from the melted picture's brightness,
+          // blurred into lumps ("lumps"); its slope bends the picture
+          // ("refraction") and lights it -- a white highlight and thin-film
+          // rainbow colour on the slopes and rims ("gloss"). Per kept pixel
+          // (nearest), as bendMain-style shaders do it per output pixel.
+          const int R = std::max(1, static_cast<int>(std::lround((0.008 + pB * 0.04) * KW)));
+          const int hs = R;
+          const double refr = pC * KW * 0.012;
+          auto KL = [&](int xx, int yy) {
+            xx = std::clamp(xx, 0, KW - 1); yy = std::clamp(yy, 0, KH - 1);
+            const std::uint16_t* q = show + (static_cast<std::size_t>(yy) * KW + xx) * 3;
+            return (static_cast<double>(q[0]) + q[1] + q[2]) / (3.0 * 65535.0);
+          };
+          auto Lb = [&](int xx, int yy) {
+            return (KL(xx, yy) + KL(xx - hs, yy) + KL(xx + hs, yy) + KL(xx, yy - hs) + KL(xx, yy + hs)) / 5.0;
+          };
+          static thread_local std::vector<double> surf;   // nx, ny, spec, irW, iri r g b per kept pixel
+          surf.resize(kcount * 7);
+          double* surfP = surf.data();
+          detail::parallelRows(KH, KW * 30, [&](int k0, int k1) {
+            for (int ky = k0; ky < k1; ++ky) {
+              for (int kx = 0; kx < KW; ++kx) {
+                double s[7];
+                detail::meltLiquidSurface(Lb(kx + R, ky) - Lb(kx - R, ky), Lb(kx, ky + R) - Lb(kx, ky - R),
+                                          Lb(kx, ky), t, sheen, s);
+                std::copy(s, s + 7, surfP + (static_cast<std::size_t>(ky) * KW + kx) * 7);
+              }
+            }
+          });
+          detail::parallelRows(H, W * 6, [&](int r0, int r1) {
+            for (int y = r0; y < r1; ++y) {
+              std::uint8_t* row = pixels.data() + static_cast<std::size_t>(y) * W * 4;
+              const double gyk = std::min(KH - 1.001, y * 0.5);
+              for (int x = 0; x < W; ++x) {
+                const double gxk = std::min(KW - 1.001, x * 0.5);
+                const int kx = static_cast<int>(gxk), ky = static_cast<int>(gyk);
+                const double* s = surfP + (static_cast<std::size_t>(ky) * KW + kx) * 7;
+                const double sx = std::clamp(gxk + s[0] * refr, 0.0, KW - 1.001);
+                const double sy = std::clamp(gyk + s[1] * refr, 0.0, KH - 1.001);
+                const int ix = static_cast<int>(sx), iy = static_cast<int>(sy);
+                const double fx3 = sx - ix, fy3 = sy - iy;
+                std::uint8_t* p = row + static_cast<std::size_t>(x) * 4;
+                for (int c = 0; c < 3; ++c) {
+                  auto K = [&](int xx, int yy) {
+                    xx = std::min(xx, KW - 1); yy = std::min(yy, KH - 1);
+                    return static_cast<double>(show[(static_cast<std::size_t>(yy) * KW + xx) * 3 + c]) / 257.0;
+                  };
+                  const double refracted = (K(ix, iy) * (1 - fx3) + K(ix + 1, iy) * fx3) * (1 - fy3) +
+                                           (K(ix, iy + 1) * (1 - fx3) + K(ix + 1, iy + 1) * fx3) * fy3;
+                  const double col = refracted * (1.0 - s[3]) + s[4 + c] * 255.0 * s[3] * 0.95 + s[2] * 255.0 * 0.9;
+                  const int out = detail::clamp8(col);
+                  p[c] = static_cast<std::uint8_t>(p[c] + (((out - p[c]) * a256) >> 8));
+                }
+              }
+            }
+          });
+          break;
+        }
         static thread_local std::vector<double> specBuf, shadeBuf;
         specBuf.resize(kcount);
         shadeBuf.resize(kcount);

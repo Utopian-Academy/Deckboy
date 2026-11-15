@@ -876,10 +876,20 @@ void meltStepMain(uint3 id : SV_DispatchThreadID) {
   const float m = (up.r + up.g + up.b) / (3.0 * 255.0);
   const float v = meltSpeed(b) * (0.35 + 0.65 * min(1.0, m * 2.0));
   const float slope = (meltSpeed(min(i3 - 1, b + 1)) - meltSpeed(max(0, b - 1))) * 0.5;
-  const float3 moved = meltKeptAt(float(a) - v * f2, float(b) - slope * f4);
+  // The pinch per frame and only where it falls (cue_effects.hpp, Melt).
+  const float3 moved = meltKeptAt(float(a) - v * f2, float(b) - clamp(slope * f4 * 0.12 * min(1.0, v), -0.3, 0.3));
   const float3 now = meltShrunk(kx, ky);
   float3 next;
-  if (i1 != 0) {
+  if (i1 == 2) {
+    // Liquid: a smooth flow field, then reform towards the live picture.
+    const float fa = float(a), fb = float(b);
+    const float flowN = 0.5 + 0.5 * (sin(fb * f3 * 0.35 + fa * f3 * 0.2 + f1 * 0.4) * 0.6 +
+                                     sin(fb * f3 * 0.9 - fa * f3 * 0.15 - f1 * 0.3) * 0.4);
+    const float lv = pA * (0.12 + 0.8 * flowN) * (0.4 + 0.6 * min(1.0, m * 2.0));
+    const float side = pA * 0.35 * sin(fa * f3 * 0.5 + fb * f3 * 0.27 + f1 * 0.7);
+    const float3 lm = meltKeptAt(fa - lv * f2, fb - side);
+    next = lm + (now - lm) * (0.02 + pD * 0.2);
+  } else if (i1 == 1) {
     // Whole picture: in a channel the picture flows down in its own colours.
     const float w = min(1.0, v * 1.5);
     const float3 settled = moved + (now - moved) * (1.0 - f5);
@@ -891,6 +901,31 @@ void meltStepMain(uint3 id : SV_DispatchThreadID) {
   const float3 d = float3(meltDither(id.xy, 0u), meltDither(id.xy, 1u), meltDither(id.xy, 2u));
   put(id.xy, float4(clamp(round(next + d), 0.0, 255.0), 255.0));
 }
+float meltKL(int xx, int yy) {
+  xx = clamp(xx, 0, int(auxW) - 1); yy = clamp(yy, 0, int(auxH) - 1);
+  const float3 q = aux.Load(int3(xx, yy, 0)).rgb * 255.0;
+  return (q.r + q.g + q.b) / (3.0 * 255.0);
+}
+float meltLb(int xx, int yy, int hs) {
+  return (meltKL(xx, yy) + meltKL(xx - hs, yy) + meltKL(xx + hs, yy) + meltKL(xx, yy - hs) + meltKL(xx, yy + hs)) / 5.0;
+}
+// cue_effects.hpp detail::meltLiquidSurface, line for line.
+void meltLiquidSurface(float hx, float hy, float h, float t, float gloss, out float s[7]) {
+  const float nx = clamp(hx * 10.0, -1.5, 1.5), ny = clamp(hy * 10.0, -1.5, 1.5);
+  const float len = sqrt(nx * nx + ny * ny + 1.0);
+  const float nnx = -nx / len, nny = -ny / len, nz = 1.0 / len;
+  const float lx = -0.3499, ly = -0.5997, lz = 0.7197;
+  const float ndl = nnx * lx + nny * ly + nz * lz;
+  const float rz = 2.0 * ndl * nz - lz;
+  const float spec = pow(max(0.0, rz), 24.0) * gloss;
+  const float fres = 1.0 - nz;
+  const float film = h * 1.6 + (nx + ny) * 0.12 + t * 0.05;
+  s[0] = nx; s[1] = ny; s[2] = spec;
+  s[3] = clamp(max(0.0, fres - 0.25) * 0.8 * gloss + spec * 0.6, 0.0, 0.35);
+  s[4] = 0.5 + 0.5 * cos(6.283185307179586 * (film + 0.0));
+  s[5] = 0.5 + 0.5 * cos(6.283185307179586 * (film + 0.33));
+  s[6] = 0.5 + 0.5 * cos(6.283185307179586 * (film + 0.67));
+}
 [numthreads(8, 8, 1)]
 void meltShowMain(uint3 id : SV_DispatchThreadID) {
   if (id.x >= width || id.y >= height) return;
@@ -898,6 +933,25 @@ void meltShowMain(uint3 id : SV_DispatchThreadID) {
   const int KW = int(auxW), KH = int(auxH);
   const float gxk = min(float(KW) - 1.001, float(x) * 0.5), gyk = min(float(KH) - 1.001, float(y) * 0.5);
   const int kx = int(gxk), ky = int(gyk);
+  if (i1 == 2) {
+    const int R = i2, hs = i2;
+    float s[7];
+    meltLiquidSurface(meltLb(kx + R, ky, hs) - meltLb(kx - R, ky, hs), meltLb(kx, ky + R, hs) - meltLb(kx, ky - R, hs),
+                      meltLb(kx, ky, hs), f1, f0, s);
+    const float sx = clamp(gxk + s[0] * f4, 0.0, float(KW) - 1.001), sy = clamp(gyk + s[1] * f4, 0.0, float(KH) - 1.001);
+    const int ix = int(sx), iy = int(sy);
+    const float fx3 = sx - float(ix), fy3 = sy - float(iy);
+    const float3 q00 = aux.Load(int3(ix, iy, 0)).rgb * 255.0, q10 = aux.Load(int3(min(KW - 1, ix + 1), iy, 0)).rgb * 255.0;
+    const float3 q01 = aux.Load(int3(ix, min(KH - 1, iy + 1), 0)).rgb * 255.0;
+    const float3 q11 = aux.Load(int3(min(KW - 1, ix + 1), min(KH - 1, iy + 1), 0)).rgb * 255.0;
+    const float3 refracted = (q00 * (1.0 - fx3) + q10 * fx3) * (1.0 - fy3) + (q01 * (1.0 - fx3) + q11 * fx3) * fy3;
+    const float3 col = refracted * (1.0 - s[3]) + float3(s[4], s[5], s[6]) * 255.0 * s[3] * 0.95 + s[2] * 255.0 * 0.9;
+    const int3 lvv = int3(clamp(col, 0.0, 255.0));
+    const uint4 lo = texel(x, y);
+    const int la = int(round(amt * 256.0));
+    put(id.xy, float4(float3(int3(lo.rgb) + (((lvv - int3(lo.rgb)) * la) >> 8)), float(lo.a)));
+    return;
+  }
   const float fx = gxk - float(kx), fy = gyk - float(ky);
   const float3 k00 = aux.Load(int3(kx, ky, 0)).rgb * 255.0, k10 = aux.Load(int3(min(KW - 1, kx + 1), ky, 0)).rgb * 255.0;
   const float3 k01 = aux.Load(int3(kx, min(KH - 1, ky + 1), 0)).rgb * 255.0;

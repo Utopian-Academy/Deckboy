@@ -1810,7 +1810,12 @@ Chladni has three **styles**:
 draws in towards each channel (**pinch**), so a drip is a thin neck with a heavier head, and drips run in
 surges. **Set** is how fast what has run hardens away; at zero it stays. **Material**: *bright* lets bright
 things drip over the dark, which suits text, logos and graphics; *whole picture* makes everything wax, so
-the picture itself runs down in its own colours. **Direction** is down, up or sideways.
+the picture itself runs down in its own colours; *liquid* (what a new Melt starts on) turns the picture
+into glossy molten plastic: it sags in rounded lumps, bends through them like thick glass, catches white
+highlights and oil-slick rainbow colour on the lumps and rims, and whatever moves leaves melting ghosts.
+In *liquid* the five controls are **flow** (how fast it sags), **lumps** (fine ripples to fat blobs),
+**refraction**, **reform** (how fast the melt turns back into the live picture) and **gloss**.
+**Direction** is down, up or sideways.
 
 **Tape** is VHS from its causes. Each control is a condition of the tape or the deck, and the faults
 follow: **tape age** gives dropouts (a white flick, then a streak of the line above) and colour fizz;

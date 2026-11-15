@@ -107,7 +107,9 @@ EFFECTS = [
 PASSES = {"feedback": 12, "feedback_bloom": 12, "scotopic": 6, "melt": 40,
           # Chladni's Sand and Fluid carry the plate from frame to frame; a
           # control's effect builds up over the frames, as it does on stage.
-          "chladni@sand": 30, "chladni@fluid": 30}
+          "chladni@sand": 30, "chladni@fluid": 30, "melt@liquid": 40}
+# A variant whose parameters only exist under a choice: the choices to render it with.
+VARIANT_CHOICES = {"melt@liquid": (0, 2)}
 
 # Effects that look different from one frame to the next on an unchanging
 # picture -- mirroring cueEffectKindAnimates in cue_effects.hpp, which the
@@ -210,6 +212,7 @@ PARAM_SLOTS = {
     # chladniStyle). A key "token@variant" dumps "token" from its PARAM_BASE
     # row; None is a slot the style does not use.
     "chladni@sand":    ["mode", "second mode", "flow", "shake", None, "grain"],
+    "melt@liquid":     ["flow", "lumps", "refraction", "reform", "gloss"],
     "chladni@fluid":   ["mode", "second mode", "wave height", "light", None, "settle"],
     "wavefront":       ["stiffness", "steps", "damping", "relief"],
     "crystallise":     ["grain size", "facet light", "irregularity", "edges"],
@@ -258,6 +261,7 @@ PARAM_BASE = {
     # Sand and Fluid are chosen by slot E. Grain starts at 0.3 (5 px) so
     # moving it has whole grains to change; settle starts at 0.4.
     "chladni@sand": [0.25, 0.5, 0.5, 0.5, 0.5, 0.3],
+    "melt@liquid": [0.5, 0.4, 0.5, 0.3, 0.7, 0.0],
     # Melt and Tape start where they arrive (applyCueEffectArrivalDefaults):
     # at neutral, Melt has no sheen and Tape no wear to change.
     "melt": [0.5, 0.35, 0.6, 0.04, 0.6, 0.0],
@@ -334,6 +338,8 @@ def check_params(exe, src, base, work):
         out = os.path.join(work, "param.ppm")
         # Slots E and F come after the colour, which stays empty here.
         spec = "%s:0.9:%g:%g:%g:%g::%g:%g" % ((token.split("@")[0],) + tuple(params))
+        if token in VARIANT_CHOICES:
+            spec += ":%d:%d" % VARIANT_CHOICES[token]
         subprocess.run([exe, "--effect-dump", spec, src, out, str(frame),
                         str(PASSES.get(token, 1))], capture_output=True)
         return raster(out) if os.path.exists(out) else b""
@@ -433,7 +439,7 @@ def check_params(exe, src, base, work):
 
 
 # An effect's CHOICES (cueEffectChoiceLabel): how many options each has.
-CHOICES = {"melt": [3, 2], "tape": [3, 4]}
+CHOICES = {"melt": [3, 3], "tape": [3, 4]}
 
 
 def check_choices(exe, src, work):

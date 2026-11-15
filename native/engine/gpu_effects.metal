@@ -781,10 +781,19 @@ kernel void meltStepMain(ARGS) {
   const float m = (up.r + up.g + up.b) / (3.0f * 255.0f);
   const float v = meltSpeed(p, b) * (0.35f + 0.65f * min(1.0f, m * 2.0f));
   const float slope = (meltSpeed(p, min(p.i3 - 1, b + 1)) - meltSpeed(p, max(0, b - 1))) * 0.5f;
-  const float3 moved = meltKeptAt(aux, p, float(a) - v * p.f2, float(b) - slope * p.f4);
+  const float3 moved = meltKeptAt(aux, p, float(a) - v * p.f2,
+                                  float(b) - clamp(slope * p.f4 * 0.12f * min(1.0f, v), -0.3f, 0.3f));
   const float3 now = meltShrunk(src, p, kx, ky);
   float3 next;
-  if (p.i1 != 0) {
+  if (p.i1 == 2) {
+    const float fa = float(a), fb = float(b);
+    const float flowN = 0.5f + 0.5f * (sin(fb * p.f3 * 0.35f + fa * p.f3 * 0.2f + p.f1 * 0.4f) * 0.6f +
+                                       sin(fb * p.f3 * 0.9f - fa * p.f3 * 0.15f - p.f1 * 0.3f) * 0.4f);
+    const float lv = p.pA * (0.12f + 0.8f * flowN) * (0.4f + 0.6f * min(1.0f, m * 2.0f));
+    const float side = p.pA * 0.35f * sin(fa * p.f3 * 0.5f + fb * p.f3 * 0.27f + p.f1 * 0.7f);
+    const float3 lm = meltKeptAt(aux, p, fa - lv * p.f2, fb - side);
+    next = lm + (now - lm) * (0.02f + p.pD * 0.2f);
+  } else if (p.i1 == 1) {
     const float w = min(1.0f, v * 1.5f);
     const float3 settled = moved + (now - moved) * (1.0f - p.f5);
     next = now + (settled - now) * w;
@@ -794,12 +803,59 @@ kernel void meltStepMain(ARGS) {
   const float3 d = float3(meltDither(id, p.frame, 0u), meltDither(id, p.frame, 1u), meltDither(id, p.frame, 2u));
   put(dst, id, float4(clamp(round(next + d), 0.0f, 255.0f), 255.0f));
 }
+static float meltKL(SRC aux, constant Params& p, int xx, int yy) {
+  xx = clamp(xx, 0, int(p.auxW) - 1); yy = clamp(yy, 0, int(p.auxH) - 1);
+  const float3 q = aux.read(uint2(xx, yy)).rgb * 255.0f;
+  return (q.r + q.g + q.b) / (3.0f * 255.0f);
+}
+static float meltLb(SRC aux, constant Params& p, int xx, int yy, int hs) {
+  return (meltKL(aux, p, xx, yy) + meltKL(aux, p, xx - hs, yy) + meltKL(aux, p, xx + hs, yy) +
+          meltKL(aux, p, xx, yy - hs) + meltKL(aux, p, xx, yy + hs)) / 5.0f;
+}
+// cue_effects.hpp detail::meltLiquidSurface, line for line.
+static void meltLiquidSurface(float hx, float hy, float h, float t, float gloss, thread float* s) {
+  const float nx = clamp(hx * 10.0f, -1.5f, 1.5f), ny = clamp(hy * 10.0f, -1.5f, 1.5f);
+  const float len = sqrt(nx * nx + ny * ny + 1.0f);
+  const float nnx = -nx / len, nny = -ny / len, nz = 1.0f / len;
+  const float lx = -0.3499f, ly = -0.5997f, lz = 0.7197f;
+  const float ndl = nnx * lx + nny * ly + nz * lz;
+  const float rz = 2.0f * ndl * nz - lz;
+  const float spec = pow(max(0.0f, rz), 24.0f) * gloss;
+  const float fres = 1.0f - nz;
+  const float film = h * 1.6f + (nx + ny) * 0.12f + t * 0.05f;
+  s[0] = nx; s[1] = ny; s[2] = spec;
+  s[3] = clamp(max(0.0f, fres - 0.25f) * 0.8f * gloss + spec * 0.6f, 0.0f, 0.35f);
+  s[4] = 0.5f + 0.5f * cos(6.283185307179586f * (film + 0.0f));
+  s[5] = 0.5f + 0.5f * cos(6.283185307179586f * (film + 0.33f));
+  s[6] = 0.5f + 0.5f * cos(6.283185307179586f * (film + 0.67f));
+}
 kernel void meltShowMain(ARGS) {
   if (id.x >= p.width || id.y >= p.height) return;
   const int x = int(id.x), y = int(id.y);
   const int KW = int(p.auxW), KH = int(p.auxH);
   const float gxk = min(float(KW) - 1.001f, float(x) * 0.5f), gyk = min(float(KH) - 1.001f, float(y) * 0.5f);
   const int kx = int(gxk), ky = int(gyk);
+  if (p.i1 == 2) {
+    const int R = p.i2, hs = p.i2;
+    float s[7];
+    meltLiquidSurface(meltLb(aux, p, kx + R, ky, hs) - meltLb(aux, p, kx - R, ky, hs),
+                      meltLb(aux, p, kx, ky + R, hs) - meltLb(aux, p, kx, ky - R, hs),
+                      meltLb(aux, p, kx, ky, hs), p.f1, p.f0, s);
+    const float sx = clamp(gxk + s[0] * p.f4, 0.0f, float(KW) - 1.001f);
+    const float sy = clamp(gyk + s[1] * p.f4, 0.0f, float(KH) - 1.001f);
+    const int ix = int(sx), iy = int(sy);
+    const float fx3 = sx - float(ix), fy3 = sy - float(iy);
+    const float3 q00 = aux.read(uint2(ix, iy)).rgb * 255.0f, q10 = aux.read(uint2(min(KW - 1, ix + 1), iy)).rgb * 255.0f;
+    const float3 q01 = aux.read(uint2(ix, min(KH - 1, iy + 1))).rgb * 255.0f;
+    const float3 q11 = aux.read(uint2(min(KW - 1, ix + 1), min(KH - 1, iy + 1))).rgb * 255.0f;
+    const float3 refracted = (q00 * (1.0f - fx3) + q10 * fx3) * (1.0f - fy3) + (q01 * (1.0f - fx3) + q11 * fx3) * fy3;
+    const float3 col = refracted * (1.0f - s[3]) + float3(s[4], s[5], s[6]) * 255.0f * s[3] * 0.95f + s[2] * 255.0f * 0.9f;
+    const int3 lvv = int3(clamp(col, 0.0f, 255.0f));
+    const uint4 lo = texel(src, x, y);
+    const int la = int(round(p.amt * 256.0f));
+    put(dst, id, float4(float3(int3(lo.rgb) + (((lvv - int3(lo.rgb)) * la) >> 8)), float(lo.a)));
+    return;
+  }
   const float fx = gxk - float(kx), fy = gyk - float(ky);
   const float3 k00 = aux.read(uint2(kx, ky)).rgb * 255.0f, k10 = aux.read(uint2(min(KW - 1, kx + 1), ky)).rgb * 255.0f;
   const float3 k01 = aux.read(uint2(kx, min(KH - 1, ky + 1))).rgb * 255.0f;

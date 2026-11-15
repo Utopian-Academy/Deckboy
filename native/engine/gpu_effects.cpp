@@ -483,7 +483,7 @@ bool planEffect(std::vector<Pass>& plan, const fx::CueEffect& e, int w, int h, c
       p.srcW = static_cast<std::uint32_t>(w);
       p.srcH = static_cast<std::uint32_t>(h);
       p.i0 = dir;
-      p.i1 = e.choiceB == 1 ? 1 : 0;
+      p.i1 = std::clamp(e.choiceB, 0, 2);   // 0 bright, 1 whole picture, 2 liquid
       p.i2 = along;
       p.i3 = across;
       p.f1 = static_cast<float>(t);
@@ -510,6 +510,9 @@ bool planEffect(std::vector<Pass>& plan, const fx::CueEffect& e, int w, int h, c
       q.auxW = static_cast<std::uint32_t>(KW);
       q.auxH = static_cast<std::uint32_t>(KH);
       q.f0 = static_cast<float>(pE);
+      // Liquid's surface: the lump radius (kept px) and the refraction.
+      q.i2 = std::max(1, static_cast<int>(std::lround((0.008 + pB * 0.04) * KW)));
+      q.f4 = static_cast<float>(pC * KW * 0.012);
       Pass show;
       show.entry = E_MELT_SHOW;
       show.params = q;
