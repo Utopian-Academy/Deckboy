@@ -160,7 +160,7 @@
 - Fixed: with no output on, the program monitor showed a cut where the transition should be. It now shows the transition the output would draw. This also made transitions look broken in the Transitions lesson, which runs with the output off.
 - STATUS reports the transition the output draws, as `outgoing=<style>@<percent>` per playlist.
 
-### Companion module 1.0.11
+### Companion module 1.0.10
 - New actions: a video cue's direction (forward, reverse or bounce); DATAMOSH on the selected cue; Ableton Link (join, leave or toggle); VJ quantise to the next beat or the next 1, 2 or 4 bars; Shader (load a `.fs` file, set an input, give an input an LFO); Lumia (set any control, give a control an LFO); Voice (say a text, the character, WORDS or SOUNDS, pitch, size and breath); live captions (on or off, what they listen to, which outputs show them, lines and size, make captions for a cue) and subtitles on the live cue; the phone's PAD (set, let go, HOLD or LATCH, what it moves); Render to file (open, close, cancel); edge blend for a row of projectors.
 - Multiview windows can show the Scopes.
 - Shader's load action works only when Companion runs on the Deckboy computer: Deckboy does not read a file path from another computer.
