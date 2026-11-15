@@ -53,6 +53,11 @@ def lessons(db):
     return dict(re.findall(r"(\w+):(done|started|new)", reply)), reply
 
 
+def ndi_names(text):
+    return [(row[11], row[13]) for line in text.splitlines()
+            if (row := line.split("\t"))[0] == "output_target" and len(row) > 13]
+
+
 def walk(db, lesson, work, keep, stop_at=None):
     """SHOW ME through every step; returns the steps that would not pass."""
     stuck = []
@@ -116,6 +121,12 @@ def run(exe, work, keep):
             step, count, reply = step_of(db)
             note("%s starts on step 1 of %s" % (lesson, count), step == 1 and count and count >= 4, reply)
             note("...in its own practice show", (state / ("lesson-%s.deckboy" % lesson)).exists())
+            if lesson == "outside":
+                practice_names = ndi_names((state / "lesson-outside.deckboy").read_text())
+                note("practice NDI names are separate from the operator's", bool(practice_names) and
+                     all(fill.startswith("Deckboy Lesson - outside - ") and key == fill + " Key"
+                         for fill, key in practice_names) and
+                     set(practice_names).isdisjoint(ndi_names(before)), practice_names)
             stuck = walk(db, lesson, work, keep)
             note("every step passed by what SHOW ME did (%d steps)" % count, not stuck, stuck)
             step, count, reply = step_of(db)
@@ -126,6 +137,8 @@ def run(exe, work, keep):
                  reply)
             db.send("LESSONS CLOSE")
             after = db.saved()
+            if lesson == "outside":
+                note("the operator's NDI names are handed back unchanged", ndi_names(after) == ndi_names(before))
             motion = lambda t: next((l for l in t.splitlines() if l.startswith("motion\t")), "")
             note("the operator's show is handed back as it was", motion(after) == motion(before) and
                  "Nebula ahead" not in after and "Look two" not in after and "Contestant" not in after and "Weather map" not in after and "The trunk" not in after and "souffle" not in after and "The planet" not in after and "The beat" not in after and "office PC" not in after and "evidence #2" not in after and "The replay" not in after and "The rocket" not in after and "capsule" not in after and "Saucer" not in after and "Student work" not in after and "STAIRLIFT" not in after and "ghost" not in after.lower(),

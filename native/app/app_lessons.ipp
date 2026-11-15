@@ -3105,6 +3105,7 @@
     {
       LessonDef l;
       l.id = "outside";
+      l.practiceVersion = 2;
       l.videoTrack = true;
       l.title = "Out of the building";
       l.about = "Where NDI, SDI and ST 2110 live, and NDI switched on where this computer has it.";
@@ -3348,6 +3349,16 @@
         return refuse("could not start the practice show");
       }
       currentProjectFile_ = practice;
+      // Practice senders have their own network names, just as their show
+      // files have their own paths. Keep the namespace stable on resume and
+      // separate for each state directory (including isolated test runs).
+      const std::string ndiNamespace = "Deckboy Lesson - " + std::string(def->id) + " - " +
+                                       std::to_string(std::hash<fs::path> {}(practice));
+      for (std::size_t i = 0; i < project_.outputs.size(); ++i) {
+        OutputTarget& output = project_.outputs[i];
+        output.ndiSourceName = ndiNamespace + " - " + std::to_string(i + 1);
+        output.ndiKeySourceName = output.ndiSourceName + " Key";
+      }
       if (def->setup) def->setup();
       if (!saveProjectNow(false)) {
         handDeskBack(loan);
