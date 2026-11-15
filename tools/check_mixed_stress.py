@@ -59,8 +59,10 @@ CLIPS = [
     ("qtrle alpha 640x360", "qtrle_alpha.mov",
      SRC.format(w=640, h=360, r=30) + ",format=argb,geq=r='r(X,Y)':g='g(X,Y)':b='b(X,Y)':a='if(lt(X,320),255,96)'",
      ["-c:v", "qtrle", "-pix_fmt", "argb"]),
-    ("mpeg2 480i29.97", "mpeg2_480i.ts", SRC.format(w=720, h=480, r="30000/1001"),
-     ["-c:v", "mpeg2video", "-flags", "+ilme+ildct", "-top", "1", "-b:v", "6M", "-c:a", "mp2"]),
+    # Top field first through setfield: the -top option is deprecated in
+    # ffmpeg 8 and gone from 9.
+    ("mpeg2 480i29.97", "mpeg2_480i.ts", SRC.format(w=720, h=480, r="30000/1001") + ",setfield=tff",
+     ["-c:v", "mpeg2video", "-flags", "+ilme+ildct", "-b:v", "6M", "-c:a", "mp2"]),
     ("mjpeg 1080p29.97", "mjpeg_1080p.avi", SRC.format(w=1920, h=1080, r="30000/1001"),
      ["-c:v", "mjpeg", "-q:v", "4", "-pix_fmt", "yuvj420p"]),
     ("h264 portrait 1080x1920 23.976", "portrait_2398.mp4", SRC.format(w=1080, h=1920, r="24000/1001"),

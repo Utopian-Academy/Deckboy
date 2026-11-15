@@ -6507,15 +6507,19 @@
       else if (id == "gif")                        add({"-vf", "fps=12,scale=480:-1:flags=lanczos", "-loop", "0"});
       else if (id == "datamosh")
         // Regular keyframes stay in the FILE for seeking; the decoder drops
-        // them at playback. -vsync cfr keeps this frame-for-frame swappable
-        // with the original.
+        // them at playback. -fps_mode cfr keeps this frame-for-frame swappable
+        // with the original. The three moshable copies DEINTERLACE frames that
+        // are flagged interlaced (yadif deint=interlaced leaves progressive
+        // ones alone, one frame out per frame in): a smear dragged across two
+        // fields combs.
         add({"-preset", "medium", "-crf", "18", "-bf", "0", "-sc_threshold", "0",
-             "-refs", "1", "-g", "120", "-pix_fmt", "yuv420p", "-vsync", "cfr"});
+             "-refs", "1", "-g", "120", "-pix_fmt", "yuv420p", "-fps_mode", "cfr",
+             "-vf", "yadif=deint=interlaced"});
       else if (id == "datamosh_classic")
         // MPEG-4 ASP has no deblocking to soften the blocks, which is the
         // whole point of this variant.
         add({"-qscale:v", "3", "-bf", "0", "-sc_threshold", "0", "-g", "120",
-             "-pix_fmt", "yuv420p", "-vsync", "cfr"});
+             "-pix_fmt", "yuv420p", "-fps_mode", "cfr", "-vf", "yadif=deint=interlaced"});
       else if (id == "datamosh_extreme")
         // Two knobs over CLASSIC, both of which the operator can SEE:
         //   -g 24    one keyframe per ~second instead of per five, so a fresh
@@ -6529,7 +6533,7 @@
         // keyframe and drops the rest, so a file with only one keyframe has
         // nothing to drop and does not mosh at all.
         add({"-qscale:v", "8", "-bf", "0", "-sc_threshold", "0", "-g", "24",
-             "-pix_fmt", "yuv420p", "-vsync", "cfr"});
+             "-pix_fmt", "yuv420p", "-fps_mode", "cfr", "-vf", "yadif=deint=interlaced"});
       else if (id == "hap")                        add({"-format", "hap", "-chunks", "4"});
       else if (id == "hap_alpha")                  add({"-format", "hap_alpha", "-chunks", "4"});
       else if (id == "hap_q")                      add({"-format", "hap_q", "-chunks", "4"});
@@ -6568,7 +6572,10 @@
         }
         stripArg(a, "-vf");
         a.push_back("-vf");
-        a.push_back(existing.empty() ? scale : (scale + "," + existing));
+        // Deinterlacing comes BEFORE any scaling: a scaler mixes the fields.
+        const bool deinterlaceFirst = existing.rfind("yadif", 0) == 0;
+        a.push_back(existing.empty() ? scale
+                    : deinterlaceFirst ? (existing + "," + scale) : (scale + "," + existing));
       }
     }
 
@@ -7092,14 +7099,14 @@
         //   -g 120         regular keyframes for SEEKING only; the decoder
         //                  drops them at playback, so this is seek granularity,
         //                  not an effect parameter
-        //   -vsync cfr     the moshed copy must stay frame-for-frame
+        //   -fps_mode cfr  the moshed copy must stay frame-for-frame
         //                  interchangeable with the original, or swapping
         //                  between them shifts sync
         // libx264 ONLY: NVENC ignores or constrains refs/scenecut and injects
         // its own IDR frames, which would quietly undo all of this.
         return { build({"-c:v", "libx264", "-preset", "medium", "-crf", "18",
                         "-bf", "0", "-sc_threshold", "0", "-refs", "1", "-g", "120",
-                        "-pix_fmt", "yuv420p", "-vsync", "cfr",
+                        "-pix_fmt", "yuv420p", "-fps_mode", "cfr",
                         "-c:a", "aac", "-b:a", "192k"}) };
       case EncoderPreset::Proxy:
         return { build({"-c:v", "libx264", "-preset", "veryfast", "-crf", "26",

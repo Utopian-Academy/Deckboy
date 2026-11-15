@@ -1820,6 +1820,8 @@ jobs:
           if ($LASTEXITCODE -ne 0) { throw "a datamosh cut without a keyframe" }
           python tools/check_midi_file_synth.py --exe build\Release\Deckboy.exe
           if ($LASTEXITCODE -ne 0) { throw "a MIDI file to Deckboy's synth failed" }
+          python tools/check_render_datamosh.py --exe build\Release\Deckboy.exe
+          if ($LASTEXITCODE -ne 0) { throw "Render to file did not draw DATAMOSH or Direction" }
           python tools/check_draw.py --exe build\Release\Deckboy.exe
           if ($LASTEXITCODE -ne 0) { throw "the Draw source failed" }
           python tools/check_slices.py --exe build\Release\Deckboy.exe

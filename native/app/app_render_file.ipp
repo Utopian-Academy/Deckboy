@@ -24,6 +24,10 @@
 // geometry LFOs, text mode, the motion puppet and Audioprint, masks, slices, a
 // layer's corner pin and the output's crossfader. Not drawn at all: sound.
 // Transitions between cues and an output's layers ARE drawn (see RenderLayerRunner).
+// So are DATAMOSH and Direction (reverse, bounce): a render reads the copy the
+// live deck plays -- the moshed one with its later keyframes dropped, as live
+// playback withholds them, or the reversed one -- and refuses a cue whose copy
+// is not made yet. (Before 0.99.428 a render quietly read the original forwards.)
 // ============================================================================
 
   // ---- What a job is made of ------------------------------------------------
@@ -121,6 +125,17 @@
         break;
       default:
         return cueKindLabel(cue.kind) + " cues cannot be drawn by frames yet";
+    }
+    if (cue.kind == CueKind::Video) {
+      std::error_code ec;
+      if (cue.playDirection != kCueForward &&
+          !(cueDirectionCopyFits(cue) && fs::exists(fs::u8path(cue.directionPath), ec))) {
+        return "its reversed copy is not made yet (it is made in the background; wait for it)";
+      }
+      if (cue.datamoshEnabled && cue.playDirection == kCueForward &&
+          (cue.moshPath.empty() || !fs::exists(fs::u8path(cue.moshPath), ec))) {
+        return "DATAMOSH: its moshable copy is not made yet (wait for it)";
+      }
     }
     if (!cue.maskId.empty()) return "its mask is not drawn by a render yet";
     if (std::fabs(cue.outputRotationDegrees) > 0.001f) return "its rotation is not drawn by a render yet";
@@ -460,6 +475,41 @@
     bool opened = false;
     Cue cue;
     ChildProcess decoder;
+    std::string moshTemp;   // the moshed copy with its later keyframes dropped (prepareMosh)
+
+    void dropMoshTemp() {
+      if (moshTemp.empty()) return;
+      std::error_code ec;
+      fs::remove(fs::u8path(moshTemp), ec);
+      moshTemp.clear();
+    }
+
+    // THE MOSH A LIVE DECK PLAYS, as a file: the moshable copy from the
+    // keyframe at or before the cue's in point, with every later keyframe
+    // dropped (live playback withholds them the same way). `offset` is how far
+    // past that keyframe the in point lies.
+    bool prepareMosh(const std::string& copy, double in, std::string& out, double& offset) {
+      double keyAt = 0.0;
+      const ProcessCapture keys = runCaptured({"ffprobe", "-v", "error", "-select_streams", "v:0", "-skip_frame",
+                                               "nokey", "-show_entries", "frame=pts_time", "-of", "csv=p=0", copy},
+                                              120000);
+      std::istringstream lines(keys.output);
+      for (std::string line; std::getline(lines, line);) {
+        char* end = nullptr;
+        const double at = std::strtod(line.c_str(), &end);
+        if (end != line.c_str() && at <= in + 1e-6) keyAt = std::max(keyAt, at);
+      }
+      out = (fs::temp_directory_path() / ("deckboy-" + cue.id + "-mosh.avi")).string();
+      char from[32];
+      std::snprintf(from, sizeof from, "%.6f", keyAt);
+      const ProcessCapture made = runCaptured({"ffmpeg", "-v", "error", "-y", "-ss", from, "-i", copy, "-map", "0:v:0",
+                                               "-c:v", "copy", "-bsf:v", "noise=drop=key*gt(n\\,0)", "-an", out},
+                                              600000);
+      std::error_code ec;
+      if (!made.ok() || !fs::exists(fs::u8path(out), ec)) return false;
+      offset = std::max(0.0, in - keyAt);
+      return true;
+    }
     RenderBytes src, still, held, outCanvas;
     DecodedFrame pattern;
     std::vector<std::vector<std::uint8_t>> effectState;
@@ -486,14 +536,32 @@
       isImage = cue.kind == CueKind::Image;
       if (isVideo || isImage) {
         std::vector<std::string> dec = {"ffmpeg", "-v", "error"};
-        if (isVideo && cue.inPointSeconds > 0.0) {
+        // What the live deck plays: a reversed or bounced copy (its trimmed
+        // range already, so from its start), else the moshed copy, else the file.
+        std::string readPath = cue.path;
+        double seekTo = isVideo ? cue.inPointSeconds : 0.0;
+        std::error_code ec;
+        if (isVideo && cueDirectionCopyFits(cue) && fs::exists(fs::u8path(cue.directionPath), ec)) {
+          readPath = cue.directionPath;
+          seekTo = 0.0;
+        } else if (isVideo && cue.datamoshEnabled && !cue.moshPath.empty() &&
+                   fs::exists(fs::u8path(cue.moshPath), ec)) {
+          double offset = 0.0;
+          if (!prepareMosh(cue.moshPath, cue.inPointSeconds, moshTemp, offset)) {
+            error = "could not prepare the moshed picture of " + cue.name;
+            return false;
+          }
+          readPath = moshTemp;
+          seekTo = offset;
+        }
+        if (seekTo > 0.0) {
           char at[32];
-          std::snprintf(at, sizeof at, "%.6f", cue.inPointSeconds);
+          std::snprintf(at, sizeof at, "%.6f", seekTo);
           dec.push_back("-ss");
           dec.push_back(at);
         }
         dec.push_back("-i");
-        dec.push_back(cue.path);
+        dec.push_back(readPath);
         std::string filter;
         if (isVideo) {
           const double speed = std::clamp(cue.playbackSpeed, 0.1, 4.0);
@@ -600,6 +668,7 @@
         prevIndex = static_cast<std::uint64_t>(local - 1);
         havePrev = true;
         decoder.stop();
+        dropMoshTemp();
         ++seg;
         local = 0;
         opened = false;
@@ -819,7 +888,10 @@
       job.done.store(g + 1);
     }
     deckboy::effects::lfoClockThreadOverride() = nullptr;
-    for (auto& r : runners) r->decoder.stop();
+    for (auto& r : runners) {
+      r->decoder.stop();
+      r->dropMoshTemp();
+    }
     if (job.cancel.load()) {
       encoder.stop();
       std::error_code gone;
