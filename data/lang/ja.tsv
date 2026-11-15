@@ -4682,3 +4682,4 @@ TAKE the music video and watch it once. Count the cuts. Each one lands on the be
 CHIP ADD: expected NES or FDS	CHIP ADD: NESまたはFDSを指定
 MIDI file to DECKBOY SYNTH: no synth is live. Put a synth cue live on another playlist	MIDIファイルからDECKBOY SYNTHへ: 本番中のシンセキューがありません。別のプレイリストでシンセキューを本番にしてください
 Which MIDI output this file plays to, or DECKBOY SYNTH: the synth cue live on another playlist and any video synth. Step past the end for the first one available	このMIDIファイルの演奏先のMIDI出力、またはDECKBOY SYNTH（別のプレイリストで本番中のシンセキューと、すべてのビデオシンセ）。末尾を越えると最初の空きを使用
+The rat left a napkin, skapi. It says: "A fortress stands in the rocks above Baba's town. The locals just call it 'the fortress', in their own language. Type that word where Deckboy talks about itself."	ネズミがナプキンを置いていったよ、skapi。こう書いてある：「ババの町の上の岩山に要塞が建っている。地元の人は、自分たちの言葉でただ『要塞』と呼ぶ。Deckboyが自分について語る場所に、その言葉を入力してね。」
