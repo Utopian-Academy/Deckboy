@@ -455,6 +455,13 @@ importantly, what each feature deliberately does not do.
 - A media browser in the terminal: browse folders, filter by typing and add clips
   without leaving the keyboard, shared with the desk's own browser
 
+**Deckboy Pocket (iOS and Android):**
+
+- Deckboy on a phone or tablet: build and run a show from the touch screen, and
+  play it to a screen over USB-C HDMI, AirPlay or NDI
+- A backup machine that fits in your pocket: carry the show, take over if the
+  main computer stops
+
 **Web Monitor and network:**
 
 - A Web Monitor at full resolution and the right shape
