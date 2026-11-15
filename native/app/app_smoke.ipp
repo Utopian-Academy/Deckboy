@@ -767,6 +767,9 @@
       expect(hex == "e63d0d4397383e34cb0a8c23f037b0449bb12a9adb3e532637e2c19671a3c7539eab94bd8778f603" &&
                std::all_of(back.begin(), back.end(), [](std::uint8_t v) { return v == 0; }),
              "the SHA-256 keystream matches hashlib's and undoes itself");
+      expect(Sha256::hex(deckboy::core::sha256Stretched("abc", 3)) ==
+               "f2a778f1a6ed3d5bc59a5d79104c598f3f07093f240ca4e91333fb09ed4f36da",
+             "a stretched SHA-256 (three rounds) matches hashlib's");
       // A letter typed on any layout, in Latin letters: Bulgarian, Russian
       // and Greek capitals and small letters, a Latin capital, and a digit.
       expect(sealedLatinFor(0x0449) == "sht" && sealedLatinFor(0x0416) == "zh" && sealedLatinFor(0x044E) == "yu" &&

@@ -2228,6 +2228,33 @@
         size_t pos = minPos + static_cast<size_t>(nextRand() % static_cast<uint32_t>(span + 1));
         startupBootLog_.insert(startupBootLog_.begin() + pos, kBootWhimsyPool[whimsyIdx[i]]);
       }
+      // THE RAKIA LEAVES A TRAIL (James, 2026-11-15: "occasionally alluded or
+      // hinted towards in the bootup scroll list"). About one boot in four, one
+      // line: once a glass has been poured, how many of them; before that, one
+      // of four sideways remarks. Decoration only, like the lines around it.
+      // Secret: never in CHANGES, the manual or the site.
+      if (nextRand() % 4 == 0) {
+        const LessonsProgress hunt = readLessonsProgress();
+        std::string hint;
+        if (!hunt.glasses.empty()) {
+          int total = 1;   // the tour
+          for (const LessonDef& def : lessonDefs()) total += def.game ? 0 : 1;
+          const int poured = std::min(total, static_cast<int>(hunt.glasses.size()));
+          hint = "counting rakia glasses... " + std::to_string(poured) + " of " + std::to_string(total);
+        } else {
+          static const char* kHints[] = {
+            "rat dad... out for rakia",
+            "napkins... 1 missing",
+            "pinging belogradchik... no reply",
+            "baba's rakia... 47% vol, sealed",
+          };
+          hint = kHints[nextRand() % 4];
+        }
+        const size_t minPos = 7;
+        const size_t span = startupBootLog_.size() - minPos;
+        const size_t pos = minPos + static_cast<size_t>(nextRand() % static_cast<uint32_t>(span + 1));
+        startupBootLog_.insert(startupBootLog_.begin() + static_cast<std::ptrdiff_t>(pos), hint);
+      }
       // ONCE IN A WHILE, THE CONSOLE ANSWERS DIFFERENTLY.
       //
       // Not a new joke line — a line the operator has read a hundred times,

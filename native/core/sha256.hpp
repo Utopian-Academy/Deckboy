@@ -144,6 +144,19 @@ class Sha256 {
   std::size_t used_ = 0;
 };
 
+// SHA-256 of `text`, then of that digest again, `rounds` times in all: a
+// deliberately slow hash, so that guessing what was hashed costs real time
+// per guess.
+inline Sha256::Digest sha256Stretched(const std::string& text, int rounds) {
+  Sha256 s;
+  Sha256::Digest d = Sha256::of(text);
+  for (int i = 1; i < rounds; ++i) {
+    s.update(d.data(), d.size());
+    d = s.digest();
+  }
+  return d;
+}
+
 // XOR `size` bytes at `data` in place with the keystream SHA-256(key || nonce
 // || n), n the 32-byte block's number as a little-endian 64-bit integer. Its
 // own inverse. Each file has its own nonce, so two files sealed with one key

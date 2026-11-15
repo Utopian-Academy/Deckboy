@@ -2124,9 +2124,7 @@
           unlockTabletopSource();
           return;
         }
-        if (noteSealedKey(key)) {
-          return;
-        }
+        noteSealedKey(key);
       } else if (!keyRepeat) {
         tabletopCodeIndex_ = 0;
         sealedTyped_.clear();

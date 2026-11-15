@@ -18,7 +18,6 @@ checked -- they are where this knowledge belongs.
 Run:  python tools/audit_spoilers.py
 """
 
-import hashlib
 import re
 import sys
 from pathlib import Path
@@ -65,17 +64,8 @@ FORBIDDEN = [
     (r"sealed.{0,40}(splash|panel|art)|(splash|panel|art).{0,40}sealed", "names the sealed splash art"),
 ]
 
-# THE ANSWER ITSELF, without writing it here: every word of a published file
-# is hashed the way the About page hashes what is typed into it, and compared
-# with the hash the app checks (noteSealedKey, native/app/app_tutorial.ipp).
-SEALED_CHECK = "03bae87a1ba148104970f3249dcfc1afddc12a19a0bc2915e49b4136e23572a2"
-
-
-def prints_sealed_answer(text):
-    for word in set(re.findall(r"[a-z]{4,16}", text.lower())):
-        if hashlib.sha256(("deckboy:sealed-check:v1:" + word).encode()).hexdigest() == SEALED_CHECK:
-            return True
-    return False
+# The answer to the lesson riddle is not checked here: a hash of it in a
+# public file would be a fast way to guess it. A private check covers it.
 
 # What must never appear in the front door, on top of the above. The manual
 # listed Terrarium among the test patterns as "a hidden ecosystem simulation,
@@ -100,8 +90,6 @@ def check_text(text):
     for pattern, why in FORBIDDEN + FRONT_DOOR_FORBIDDEN:
         if re.search(pattern, text, re.IGNORECASE):
             problems.append(why)
-    if prints_sealed_answer(text):
-        problems.append("prints the answer to a hidden riddle")
     return problems
 
 
@@ -120,9 +108,6 @@ def main() -> int:
                     print(f"{path.name}:{lineno}: {why}")
                     print(f"    {line.strip()[:100]}")
                     problems += 1
-            if prints_sealed_answer(line):
-                print(f"{path.name}:{lineno}: prints the answer to a hidden riddle")
-                problems += 1
     print()
     print(f"published files scanned: {scanned}   spoilers: {problems}")
     if problems:

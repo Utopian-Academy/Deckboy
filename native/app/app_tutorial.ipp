@@ -1980,10 +1980,12 @@
 
   // ── The napkin's answer (noteRakiaGlass, app_lessons.ipp) ───────────────
   // The About page listens for it, as it does for the Tabletop code. The
-  // source holds only SHA-256 of the answer; the panels' key is derived from
-  // the answer, so neither the answer nor the panels can be read from the
-  // repo or the install. A sealed file is "DBSEAL1\0", an 8-byte nonce, then
-  // the JPEG XORed with sha256Keystream (core/sha256.hpp).
+  // source holds only a STRETCHED hash of the answer (sha256Stretched, so a
+  // guess costs real time), and the panels' key is derived from the answer,
+  // so neither the answer nor the panels can be read from the repo or the
+  // install (James, 2026-11-15: "hopefully even datamining cant find"). A
+  // sealed file is "DBSEAL1\0", an 8-byte nonce, then the JPEG XORed with
+  // sha256Keystream (core/sha256.hpp).
 
   // A letter of the keyboard's own layout, in Latin letters: a-z as they
   // are, Cyrillic and Greek written out (Bulgarian spelling first, so
@@ -2049,25 +2051,53 @@
     }
     sealedTyped_ += latin;
     if (sealedTyped_.size() > 16) sealedTyped_.erase(0, sealedTyped_.size() - 16);
-    // Every ending from 4 to 16 letters, so the source does not give away
-    // the answer's length.
-    static const char* kCheck = "03bae87a1ba148104970f3249dcfc1afddc12a19a0bc2915e49b4136e23572a2";
-    for (std::size_t n = 4; n <= sealedTyped_.size(); ++n) {
-      const std::string tail = sealedTyped_.substr(sealedTyped_.size() - n);
-      if (deckboy::core::Sha256::hex(deckboy::core::Sha256::of("deckboy:sealed-check:v1:" + tail)) == kCheck) {
+    sealedCheckDueMs_ = now + 350;   // checked once the typing pauses (serviceSealedCheck)
+    return false;
+  }
+
+  // The check is slow on purpose, so it runs on a worker once the typing
+  // pauses, over every ending from 4 to 16 letters -- so the source does not
+  // give away the answer's length either. About a second of one core.
+  static constexpr int kSealedRounds = 200000;
+  struct SealedFind {
+    std::string answer;
+    deckboy::core::Sha256::Digest key {};
+  };
+  std::future<SealedFind> sealedCheck_;
+  Uint64 sealedCheckDueMs_ = 0;
+
+  void serviceSealedCheck() {
+    if (sealedCheck_.valid() && sealedCheck_.wait_for(std::chrono::seconds(0)) == std::future_status::ready) {
+      const SealedFind found = sealedCheck_.get();
+      if (!found.answer.empty()) {
         sealedTyped_.clear();
-        unsealPanels(tail);
-        return true;
+        unsealPanels(found.key);
       }
     }
-    return false;
+    if (sealedCheckDueMs_ == 0 || SDL_GetTicks() < sealedCheckDueMs_ || sealedCheck_.valid()) return;
+    sealedCheckDueMs_ = 0;
+    if (sealedTyped_.size() < 4) return;
+    const std::string typed = sealedTyped_;
+    sealedCheck_ = std::async(std::launch::async, [typed]() {
+      using deckboy::core::Sha256;
+      using deckboy::core::sha256Stretched;
+      static const char* kCheck = "aea64648603fc8dd83b5ed7430d9f7b49bee59a0166f7bfee5486275a4a4a121";
+      SealedFind found;
+      for (std::size_t n = 4; n <= typed.size(); ++n) {
+        const std::string tail = typed.substr(typed.size() - n);
+        if (Sha256::hex(sha256Stretched("deckboy:sealed-check:v2:" + tail, kSealedRounds)) == kCheck) {
+          found.answer = tail;
+          found.key = sha256Stretched("deckboy:sealed-key:v2:" + tail, kSealedRounds);
+          break;
+        }
+      }
+      return found;
+    });
   }
 
   // Open the sealed panels into stateDir()/sealed, where refreshSplashAsset
   // adds them to the splash pool, and show one now on its own.
-  void unsealPanels(const std::string& answer) {
-    using deckboy::core::Sha256;
-    const Sha256::Digest key = Sha256::of("deckboy:sealed-key:v1:" + answer);
+  void unsealPanels(const deckboy::core::Sha256::Digest& key) {
     const fs::path from = uiPackRoot_ / "splash" / "sealed";
     const fs::path to = Paths::stateDir() / "sealed";
     std::error_code ec;
