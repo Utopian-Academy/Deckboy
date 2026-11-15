@@ -39,28 +39,27 @@ operator finds it, and how you find it again.
 
 [Release notes and downloads](https://github.com/Utopian-Academy/Deckboy/releases/tag/v0.99.428)
 
-<img src="docs/images/readme/release-428/melt.gif" width="49%" alt="Melt in its liquid look: a street scene turns to glossy molten plastic with a rainbow sheen"> <img src="docs/images/readme/release-428/circuit-bend.gif" width="49%" alt="Circuit Bend on a street scene: brightness turned into loud false colours that drift">
+<img src="docs/images/perf/four-layers.gif" width="49%" alt="Four picture-in-picture layers in four codecs, each with its own effect, recorded at 1080p while the app held 60 frames a second"> <img src="docs/images/perf/decoder-effects.gif" width="49%" alt="A 4K 10-bit HEVC clip with eight effects, recorded at 1080p while the app held 58 frames a second">
 
-<sub>Melt and Circuit Bend in 0.99.428. Footage: [Tears of Steel](https://mango.blender.org/), Blender Foundation, [CC BY 3.0](https://creativecommons.org/licenses/by/3.0/).</sub>
+<sub>Recorded by Deckboy itself at 1080p. Left: four layers in H.264, HEVC, ProRes and MJPEG, each with its own effect and an LFO, at 60 fps. Right: a 4K 10-bit HEVC clip under eight effects at 58 fps.</sub>
 
+- **Effects on the graphics card.** 25 picture effects, the shatter, portal, clouds and ghastly
+  transitions, and the new Melt and Circuit Bend all run on the GPU, and a layer's effects run at the
+  size it is drawn. On a 4K output, eight effects on a 4K clip went from 130 ms to 8 ms a frame; a 4K
+  base with four layers and effects on every one holds 60 fps. On Windows the video stays on the card
+  the whole way.
+- **A lighter desk.** The desk monitor shows the whole composite, drawn on the graphics card: a 1080p
+  show with effects went from 276% to 38% of a processor core. Live captions keep about a second
+  behind the speaker, half the delay they had.
 - **The Experimental voice.** The lesson characters can now really talk. A simulated vocal tract
   (glottis, tongue, lips, nose) reads each line in any language, or, set to SOUNDS, says each
-  character's own nonsense words instead. The **Voice** source does the same for any text you type,
-  on a cue of its own.
-- **Melt goes liquid.** The picture turns to glossy molten plastic: it sags in round lumps, bends like
-  thick glass, shines with an oil-slick rainbow, and anything that moves leaves melting ghosts.
-- **Circuit Bend.** A video enhancer with its wires crossed, as an effect on any cue and as a source of
-  its own: loud false colours that drift, colour that floods past the edges, ringing stripes and sync
-  tears.
-- **Shaders as a source.** Run ISF shaders (the `.fs` files of isf.video) on the graphics card, with
-  every input on a slider and an LFO. Deckboy ships seven, among them a Dream Machine and a lava lamp.
-- **Lumia, Tape and direction.** Laser light through moving water as a source; VHS from its causes as an
-  effect; and any clip can play in reverse or bounce.
+  character's own nonsense words instead. The **Voice** source does the same for any text you type.
+- **New looks.** Melt goes liquid (glossy molten plastic with an oil-slick sheen and melting ghosts);
+  Circuit Bend crosses the wires of a video enhancer; Tape is VHS from its causes; ISF shaders run as
+  sources (Deckboy ships seven, among them a Dream Machine); Lumia is laser light through moving water;
+  and any clip can play in reverse or bounce.
 - **Scopes on an output.** Send the waveform, vectorscope and parade to a screen, over NDI, or into a
   multiview window.
-- **Faster.** The desk monitor shows the whole composite, drawn on the graphics card (a 1080p show with
-  effects went from 276% to 38% of a processor core). Live captions now keep about a second behind the
-  speaker, half the delay they had.
 - **Also new:** Render to file, Ableton Link and quantised takes, the STAGE projection planner, a
   Rainbow Road theme that turns slowly round the colour wheel, and songs of their own for the Sound and
   Datamosh lessons.
