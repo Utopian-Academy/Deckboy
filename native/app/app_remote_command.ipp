@@ -7821,7 +7821,11 @@
               return " target=" + std::to_string(r.x) + "," + std::to_string(r.y) + "," +
                      std::to_string(r.w) + "x" + std::to_string(r.h) +
                      " card=" + std::to_string(c.x) + "," + std::to_string(c.y) + "," +
-                     std::to_string(c.w) + "x" + std::to_string(c.h);
+                     std::to_string(c.w) + "x" + std::to_string(c.h) +
+                     " pixel=" + std::to_string(tutorial_.pixelPortraitRect.x) + "," +
+                     std::to_string(tutorial_.pixelPortraitRect.y) + "," +
+                     std::to_string(tutorial_.pixelPortraitRect.w) + "x" +
+                     std::to_string(tutorial_.pixelPortraitRect.h);
             }() +
             " says: " + tutorialPixelSays()
         : std::string("off");
@@ -9976,7 +9980,8 @@
         if (engine && deck.activeIndex == deck.selectedIndex && engine->activeCue() &&
             engine->activeCue()->kind == CueKind::Tone) {
           char buf[64];
-          std::snprintf(buf, sizeof(buf), "ready, %.2f s", engine->voiceSeconds());
+          std::snprintf(buf, sizeof(buf), "ready, %.2f s, made to %.2f s", engine->voiceSeconds(),
+                        engine->voiceSaidSeconds());
           speech = engine->voiceReady() ? std::string(buf) : std::string("rendering");
         }
         remoteCommandDetail_ = std::string("\"") + t.voiceText + "\" | " + t.voiceCharacter + " | " +

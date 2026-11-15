@@ -739,6 +739,35 @@
         failures += 1;
       }
     };
+    // SHA-256 (core/sha256.hpp): the FIPS 180-4 examples (one block, two
+    // blocks, and a million bytes fed in pieces), then the keystream against
+    // a vector made with Python's hashlib.
+    {
+      using deckboy::core::Sha256;
+      Sha256 million;
+      const std::string piece(1000, 'a');
+      for (int i = 0; i < 1000; ++i) million.update(piece);
+      expect(Sha256::hex(Sha256::of("abc")) == "ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad" &&
+               Sha256::hex(Sha256::of("")) == "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855" &&
+               Sha256::hex(Sha256::of("abcdbcdecdefdefgefghfghighijhijkijkljklmklmnlmnomnopnopq")) ==
+                 "248d6a61d20638b8e5c026930c3e6039a33ce45964ff2167f6ecedd419db06c1" &&
+               Sha256::hex(million.digest()) == "cdc76e5c9914fb9281a1c7e284d73e67f1809a48a497200e046d39ccc7112cd0",
+             "SHA-256 gives the FIPS 180-4 digests");
+      const Sha256::Digest key = Sha256::of("deckboy keystream test");
+      const std::uint8_t nonce[8] = {0, 1, 2, 3, 4, 5, 6, 7};
+      std::vector<std::uint8_t> bytes(40, 0);
+      deckboy::core::sha256Keystream(key, nonce, sizeof(nonce), bytes.data(), bytes.size());
+      std::string hex;
+      for (const std::uint8_t v : bytes) {
+        hex += "0123456789abcdef"[v >> 4];
+        hex += "0123456789abcdef"[v & 15];
+      }
+      std::vector<std::uint8_t> back = bytes;
+      deckboy::core::sha256Keystream(key, nonce, sizeof(nonce), back.data(), back.size());
+      expect(hex == "e63d0d4397383e34cb0a8c23f037b0449bb12a9adb3e532637e2c19671a3c7539eab94bd8778f603" &&
+               std::all_of(back.begin(), back.end(), [](std::uint8_t v) { return v == 0; }),
+             "the SHA-256 keystream matches hashlib's and undoes itself");
+    }
     // A CONVERTER THAT HANGS IS STOPPED. A slide import on Gigantor sat on its
     // card for ever (2026-10-30); runCaptured's time limit is what ends any
     // such wait now, so it is proved here on a child that would sleep 30 s.

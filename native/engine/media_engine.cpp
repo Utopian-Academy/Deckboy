@@ -1229,6 +1229,17 @@ void MediaEngine::seek(double seconds, bool clearVisualFrame) {
     clearTexture();
   }
   clearAudio();
+  // A TONE'S OWN POSITION FOLLOWS THE CLOCK. A loop restarts through here
+  // (restartLoopFromTop), and the speech and the sting kept their place: a
+  // looped Voice line ("shoo be doo wop") was said once, then the cue went
+  // round in silence; a looped sting struck once.
+  if (activeCue_->kind == CueKind::Tone) {
+    stingElapsed_ = clamped;
+    stingPhase_ = 0.0;
+    if (voiceAttached_ && voiceJob_) {
+      voicePos_ = std::min(voiceJob_->samples.size(), static_cast<std::size_t>(clamped * kAudioRate));
+    }
+  }
   if (activeCue_->kind == CueKind::Pattern) {
     loadPatternFrame(*activeCue_);
     state_ = TransportState::Paused;
@@ -12199,6 +12210,10 @@ void MediaEngine::attachVoice() {
   pausedPosition_ = 0.0;
   playbackStartPosition_ = 0.0;
   playbackClockStart_ = std::chrono::steady_clock::now();
+}
+
+double MediaEngine::voiceSaidSeconds() const {
+  return static_cast<double>(voicePos_) / kAudioRate;
 }
 
 double MediaEngine::voiceSeconds() const {

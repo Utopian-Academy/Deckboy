@@ -2027,6 +2027,7 @@
 
   void renderSplashOverlay() {
     if (!showSplashOverlay_) {
+      splashArtOnly_ = false;
       return;
     }
     int width = 0;
@@ -2065,10 +2066,13 @@
       if (ensureUiImageLoaded(uiSplashArt_) && uiSplashArt_.texture) {
         SDL_SetTextureScaleMode(uiSplashArt_.texture, SDL_SCALEMODE_LINEAR);
       }
-      drawUiImageCover(uiSplashArt_, artRect, tint ? 235 : 220);
+      drawUiImageCover(uiSplashArt_, artRect, splashArtOnly_ ? 255 : (tint ? 235 : 220));
       if (tint && uiSplashArt_.texture) {
         SDL_SetTextureColorMod(uiSplashArt_.texture, 255, 255, 255);
       }
+    }
+    if (splashArtOnly_) {
+      return;   // an opened panel: the art alone, no card over it
     }
 
     // ── Framed card — the green golden box, centred over the art ──

@@ -490,6 +490,7 @@ class MediaEngine {
   // voiceReady() is for tests and the STATUS reply.
   bool voiceReady() const { return voiceAttached_; }
   double voiceSeconds() const;
+  double voiceSaidSeconds() const;   // how far the speech has been made (a loop takes it back)
 
   // ── MIC CUE ────────────────────────────────────────────────────────────
   // A live input read on a thread of its own, straight from the device in
@@ -786,6 +787,10 @@ class MediaEngine {
   // caller testing activeDecodeDevice() would call a zero-copy frame a CPU
   // one -- and the bench would have reported the new path as the old one.
   bool activeDecodeZeroCopy() const { return activeDecodeZeroCopy_; }
+  // Whether the running decode is the moshed one (keyframes withheld). A cue
+  // taken before its copy was ready plays the clean file until it is taken
+  // again; the Datamosh lesson asks this so it waits for the real thing.
+  bool decodingDatamosh() const { return activeDecodeDatamosh_; }
   bool consumeDecodeStall();
 
   // A cue that should have had sound and got none. Returns the reason ONCE,

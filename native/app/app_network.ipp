@@ -1533,6 +1533,8 @@
     if (verb == "MASK" && parts.size() > 1 && toUpper(parts[1]) == "EXPORT") return true;
     // Reads a file at a path the caller names.
     if (verb == "MASK" && parts.size() > 1 && toUpper(parts[1]) == "IMPORT") return true;
+    // Reads a file at a path the caller names, and its reply says what was in it.
+    if (verb == "SHADER" && parts.size() > 1 && toUpper(parts[1]) == "LOAD") return true;
     if (verb == "DRAW" && parts.size() > 1 && toUpper(parts[1]) == "SAVE") return true;
     if (verb == "RENDER" && parts.size() > 1 && toUpper(parts[1]) == "START") return true;
     // Test input into the Screens window, like CLICK into the desk.

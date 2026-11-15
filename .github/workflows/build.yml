@@ -1816,6 +1816,8 @@ jobs:
           if ($LASTEXITCODE -ne 0) { throw "bug swat failed" }
           python tools/check_lessons.py --exe build\Release\Deckboy.exe
           if ($LASTEXITCODE -ne 0) { throw "the lessons failed" }
+          python tools/check_datamosh_cuts.py --exe build\Release\Deckboy.exe
+          if ($LASTEXITCODE -ne 0) { throw "a datamosh cut without a keyframe" }
           python tools/check_draw.py --exe build\Release\Deckboy.exe
           if ($LASTEXITCODE -ne 0) { throw "the Draw source failed" }
           python tools/check_slices.py --exe build\Release\Deckboy.exe

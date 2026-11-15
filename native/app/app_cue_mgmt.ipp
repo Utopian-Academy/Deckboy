@@ -7293,6 +7293,69 @@
     }
   }
 
+  static bool formatIsDatamosh(const std::string& id) {
+    return id == "datamosh" || id == "datamosh_classic" || id == "datamosh_extreme";
+  }
+
+  // A MOSH NEEDS A KEYFRAME AT EVERY CUT. Playback withholds keyframes, so a
+  // cut smears only where the moshable copy HAS one -- and the encoders' own
+  // scene detection keeps one at some cuts and codes the rest as frames that
+  // repair themselves: 6 of the 11 cuts on the Datamosh lesson's reel smeared,
+  // the other 5 cut clean (James 2026-11-15: "the moshing in v2 is
+  // inconsistent. this is meant to be a showcase"). So the cuts are found
+  // first, and the encode puts a keyframe on each.
+  //
+  // A cut is a frame whose scene-change score (ffmpeg's select filter: how far
+  // the picture is from the one before, 0 to 1) is over 0.20, at least 0.15 s
+  // after the last. Measured on both lesson reels: every hard cut scored 0.21
+  // to 0.87; the only other frames over 0.20 were a cut's second frame, which
+  // the spacing drops. Run 160 px wide, so it costs about one decode.
+  // Returns "t1,t2,..." in seconds for -force_key_frames; empty when there are
+  // none, ffmpeg cannot run, or the job is cancelled.
+  static std::string findHardCuts(const std::string& src, const std::shared_ptr<std::atomic<bool>>& cancel) {
+    std::vector<std::string> args {"ffmpeg", "-nostdin", "-hide_banner", "-loglevel", "error", "-i", src,
+                                   "-an", "-sn", "-dn",
+                                   "-vf", "scale=160:-2,select=gt(scene\\,0.20),metadata=print:file=-",
+                                   "-f", "null", "-"};
+    ChildProcess proc;
+    if (!spawnPipeProcess(proc, args)) return {};
+    std::string cuts, pending;
+    std::array<char, 4096> chunk {};
+    double last = -1.0;
+    int count = 0;
+    while (true) {
+      if (cancel->load()) {
+        proc.stop();
+        return {};
+      }
+      const int n = readSome(proc.readFd, chunk.data(), chunk.size());
+      if (n <= 0) break;
+      pending.append(chunk.data(), static_cast<std::size_t>(n));
+      std::size_t nl;
+      while ((nl = pending.find('\n')) != std::string::npos) {
+        const std::string line = pending.substr(0, nl);
+        pending.erase(0, nl + 1);
+        const std::size_t at = line.find("pts_time:");
+        if (line.rfind("frame:", 0) != 0 || at == std::string::npos) continue;
+        const double t = std::atof(line.c_str() + at + 9);
+        // Not the opening frame (a keyframe anyway), not a cut's second
+        // frame, and a ceiling so the command line stays well inside 32 KB.
+        if (t < 0.05 || (last >= 0.0 && t - last < 0.15) || count >= 2000) continue;
+        // -force_key_frames keys the first frame AT OR AFTER the time, so the
+        // time goes in a millisecond early: "%.3f" rounded 11.416667 up to
+        // 11.417 and keyed the frame after the cut, which then did not smear.
+        char buf[32];
+        std::snprintf(buf, sizeof(buf), "%.4f", std::max(0.0, t - 0.001));
+        if (!cuts.empty()) cuts += ',';
+        cuts += buf;
+        last = t;
+        ++count;
+      }
+    }
+    proc.stop();
+    return cuts;
+  }
+
   // Takes an index rather than a reference: ConversionJob is declared further
   // down the class body than this include, so it cannot name the type in a
   // parameter list (function bodies are fine - they are a complete-class
@@ -7312,8 +7375,10 @@
       return;
     }
     const auto attempts = attemptsForJob(job.formatId, srcStr, dstStr);
+    const bool moshCuts = formatIsDatamosh(job.formatId);
     job.state = ConversionState::Running;
-    job.future = std::async(std::launch::async, [dstStr, progress, cancel, totalSeconds, attempts]() -> bool {
+    job.future = std::async(std::launch::async,
+                            [srcStr, dstStr, progress, cancel, totalSeconds, attempts, moshCuts]() -> bool {
       auto produced = [&]() {
         std::error_code e;
         return fs::exists(dstStr, e) && fs::file_size(dstStr, e) > 1024;
@@ -7361,12 +7426,29 @@
         proc.stop();
       };
 
+      // A datamosh copy gets a keyframe on every hard cut (findHardCuts). The
+      // periodic ones stay, so a clip with no cuts still moshes.
+      std::vector<std::vector<std::string>> runs = attempts;
+      if (moshCuts) {
+        progress->store(-1.0);
+        const std::string cuts = findHardCuts(srcStr, cancel);
+        if (cancel->load()) {
+          return false;
+        }
+        if (!cuts.empty()) {
+          for (auto& args : runs) {
+            args.insert(args.end() - 1, "-force_key_frames");
+            args.insert(args.end() - 1, cuts);
+          }
+        }
+      }
+
       // Try each attempt for this preset in turn; keep the first that lands.
-      for (std::size_t a = 0; a < attempts.size(); ++a) {
+      for (std::size_t a = 0; a < runs.size(); ++a) {
         if (a > 0) {
           progress->store(-1.0);   // a fallback restarts from zero
         }
-        runEncode(attempts[a]);
+        runEncode(runs[a]);
         if (cancel->load()) {
           return false;
         }

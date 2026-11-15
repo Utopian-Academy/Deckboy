@@ -54,6 +54,10 @@
     const char* about;        // one line in the list
     const char* show;         // the practice show's story, or "" for a plain lesson
     bool game = false;        // Bug Swat: the list starts the game instead
+    // Raise it when the practice show changes (new media, new cues): a
+    // lesson left half-way in an older practice show starts again in a new
+    // one. The Sound lesson's tone became the song in 2.
+    int practiceVersion = 1;
     std::function<void()> setup;   // builds the practice show the first time
     std::vector<LessonStep> steps;
   };
@@ -62,6 +66,7 @@
   bool lessonsListOpen_ = false;
   bool lessonsTrackVideo_ = true;    // whom the operator follows: the list's open column
   int lessonCount_ = 0;              // a step's baseline, set by its enter
+  bool lessonTakeWhenReady_ = false;   // SHOW ME came before the moshable copy (Datamosh)
   Uint64 lessonHeldSinceMs_ = 0;     // when a step's result first held (the magic show)
   SDL_Rect lessonsCardRect_ {}, lessonsPixelTabRect_ {}, lessonsVideoTabRect_ {}, lessonsBasicsRect_ {},
            lessonsCloseRect_ {};
@@ -97,6 +102,8 @@
     bool trackChosen = false;
     std::set<std::string> done;
     std::map<std::string, int> at;   // lesson id -> step it was left on
+    std::set<std::string> glasses;   // "tour" and lesson ids: where a rakia was poured (noteRakiaGlass)
+    std::map<std::string, int> practice;   // lesson id -> practiceVersion its practice show was built for
   };
 
   LessonsProgress readLessonsProgress() const {
@@ -117,6 +124,13 @@
         std::string id;
         int step = 0;
         if (in >> id >> step) p.at[id] = std::max(0, step);
+      } else if (word == "practice") {
+        std::string id;
+        int version = 1;
+        if (in >> id >> version) p.practice[id] = version;
+      } else if (word == "glass") {
+        std::string id;
+        if (in >> id) p.glasses.insert(id);
       }
     }
     return p;
@@ -130,6 +144,8 @@
     if (p.trackChosen) out << "track " << (p.trackVideo ? "video" : "pixel") << '\n';
     for (const auto& id : p.done) out << "done " << id << '\n';
     for (const auto& [id, step] : p.at) out << "at " << id << ' ' << step << '\n';
+    for (const auto& [id, version] : p.practice) out << "practice " << id << ' ' << version << '\n';
+    for (const auto& id : p.glasses) out << "glass " << id << '\n';
   }
 
   void markLessonDone(const std::string& id) {
@@ -137,6 +153,32 @@
     p.done.insert(id);
     p.at.erase(id);
     writeLessonsProgress(p);
+  }
+
+  // THE NAPKIN (James, 2026-11-15: two "EXTREMELY DIFFICULT TO UNLOCK" splash
+  // panels). A rakia poured in the tour and in every lesson but the game
+  // makes act three Rat Dad's napkin: a riddle whose answer, typed on the
+  // About page, opens the sealed panels (unsealPanels). Secret like the
+  // rakia: never in CHANGES, the manual or the site.
+  void noteRakiaGlass() {
+    std::string id = "tour";
+    if (tutorial_.lesson > 0) {
+      const LessonDef* def = lessonDef(tutorial_.lesson - 1);
+      if (!def || def->game) return;
+      id = def->id;
+    }
+    LessonsProgress p = readLessonsProgress();
+    p.glasses.insert(id);
+    writeLessonsProgress(p);
+    tutorial_.rakiaNapkin = rakiaGlassesComplete(p);
+  }
+
+  bool rakiaGlassesComplete(const LessonsProgress& p) {
+    if (!p.glasses.count("tour")) return false;
+    for (const LessonDef& def : lessonDefs()) {
+      if (!def.game && !p.glasses.count(def.id)) return false;
+    }
+    return true;
   }
 
   void chooseLessonsTrack(bool video) {
@@ -1589,11 +1631,13 @@
     // ── Prof. Video: Datamosh (STAIRLIFT's music video) ──────────────────
     // James, 2026-11-14: "a how to data mosh lesson ... with guest ... parody
     // of chairlift ... the teachers should emphasize a good mosh starts with
-    // a well made source clip". The clip ships in data/lessons (mosh_reel.mp4,
-    // eleven hard cuts from Blender's open-licensed short films, each on a bar of the theme; see data/lessons/CREDITS.md).
+    // a well made source clip". The clip ships in data/lessons (mosh_reel.mp4:
+    // eleven hard cuts of NASA launches, balloons and drop tests and a roller
+    // coaster ride, each on a bar of the theme; see data/lessons/CREDITS.md).
     {
       LessonDef l;
       l.id = "datamosh";
+      l.practiceVersion = 2;   // the NASA reel
       l.videoTrack = true;
       l.title = "Datamosh";
       l.about = "Smear one shot into the next: the clip that moshes well, the effect, and the wait for it.";
@@ -1623,6 +1667,21 @@
         std::error_code ec;
         return fs::exists(fs::u8path(cue->moshPath), ec);
       };
+      // The reel on air is the MOSHED decode. Taken before its copy was ready,
+      // it plays the clean file, and the step passed anyway once the copy
+      // existed: the student never saw a mosh, and on a slow machine (CI's
+      // Windows runner, 2026-11-14) the reel had ended before the copy was
+      // ready, so the step never passed at all.
+      auto moshing = [this, isReel] {
+        for (int d = 0; d < static_cast<int>(project_.decks.size()); ++d) {
+          const Deck& deck = project_.decks[static_cast<std::size_t>(d)];
+          if (deck.activeIndex < 0 || deck.activeIndex >= static_cast<int>(deck.cues.size())) continue;
+          if (!isReel(deck.cues[static_cast<std::size_t>(deck.activeIndex)])) continue;
+          const MediaEngine* engine = mediaEngineForDeck(d);
+          return engine != nullptr && engine->decodingDatamosh();
+        }
+        return false;
+      };
       auto openEffects = [this, isReel] {
         int d = -1;
         const int i = lessonFindCue(isReel, &d);
@@ -1640,18 +1699,18 @@
         {"THE SOURCE CLIP", nullptr,
          "A good mosh starts with a well-made source clip. Moshing a dull clip only makes a smudge.",
          "What it needs: hard CUTS, a bright busy picture before each cut, and big steady MOTION after it. This clip has eleven, one on each bar of the music.",
-         "CAROLINE POLKADOT", "We shot it ourselves. A llama, a flying squirrel and a barn that is also a rocket. Long story.",
+         "CAROLINE POLKADOT", "Rockets, balloons and a roller coaster. The rockets are public domain. The feelings are ours.",
          std::function<bool()> {}, nullptr, [] { return SDL_Rect {}; }, nullptr},
         {"WATCH THE CUTS", "ENTER",
-         "TAKE the music video and watch it once. Count the cuts. Each one lands on the beat: the barn, the Ferris wheel, the llama, the bunny, the squirrel.",
+         "TAKE the music video and watch it once. Count the cuts. Each one lands on the beat: the rocket, the balloon, the coaster, the capsule, the jet.",
          "Every cut starts with a KEYFRAME: a whole picture. Every frame after it is only the changes. Datamosh throws the keyframe away.",
-         "CAROLINE POLKADOT", "The barn is the chorus. The squirrel is the bridge. The pram is the key change.",
+         "CAROLINE POLKADOT", "The rocket is the chorus. The balloon is the bridge. The coaster is the key change.",
          [this, isReel] { return lessonCueLive(isReel); },
          [this, isReel] { lessonTake(isReel); },
          [this, isReel] { return lessonTakeTarget(isReel); }, nullptr},
         {"THE EFFECT", nullptr,
          "In EFFECTS, + adds one: choose DATAMOSH.",
-         "With no keyframe, the next shot's changes land on the LAST shot's picture. The rocket barn drags the Ferris wheel into the sky.",
+         "With no keyframe, the next shot's changes land on the LAST shot's picture. The rocket's fire smears into the balloon's sky.",
          "CAROLINE POLKADOT", "Yes. Break it. Break it like you mean it.",
          [reel] {
            const Cue* cue = reel();
@@ -1669,10 +1728,16 @@
          prepared, nullptr, [] { return SDL_Rect {}; }, nullptr},
         {"MOSH", "ENTER",
          "It is ready. TAKE it from the top and watch each cut smear into the next.",
-         "The shuttle smears through the Ferris wheel, and the squirrel drags the grass across the sky.",
+         "The coaster rolls through the capsule, and the capsule splashes down on the coaster.",
          "CAROLINE POLKADOT", "THAT is the video. That is literally what it looked like in my head.",
-         [this, isReel, prepared] {
-           if (!prepared() || !lessonCueLive(isReel)) {
+         [this, isReel, prepared, moshing] {
+           // SHOW ME pressed while the copy was still being made takes the
+           // reel the moment it is ready, so the mosh is what plays.
+           if (lessonTakeWhenReady_ && prepared()) {
+             lessonTakeWhenReady_ = false;
+             lessonTake(isReel);
+           }
+           if (!prepared() || !lessonCueLive(isReel) || !moshing()) {
              lessonHeldSinceMs_ = 0;
              return false;
            }
@@ -1680,9 +1745,18 @@
            if (lessonHeldSinceMs_ == 0) lessonHeldSinceMs_ = now;
            return now - lessonHeldSinceMs_ >= 3000;
          },
-         [this, isReel] { lessonTake(isReel); },
+         [this, isReel, prepared] {
+           if (prepared()) {
+             lessonTake(isReel);
+           } else {
+             lessonTakeWhenReady_ = true;
+           }
+         },
          [this, isReel] { return lessonTakeTarget(isReel); },
-         [this] { lessonHeldSinceMs_ = 0; }},
+         [this] {
+           lessonHeldSinceMs_ = 0;
+           lessonTakeWhenReady_ = false;
+         }},
         {"YOUR OWN CLIPS", nullptr,
          "For your own: shoot or cut for it. Hard cuts, loud colour, then one big move: a pan, a zoom, someone running at the lens.",
          "Avoid slow fades and still talking heads: no motion means nothing to drag, and a fade is already a gentle mosh.",
@@ -2883,6 +2957,7 @@
     {
       LessonDef l;
       l.id = "sound";
+      l.practiceVersion = 2;   // "Around the Mix", not the tone
       l.videoTrack = true;
       l.title = "Sound";
       l.about = "An audio effect on a cue, a bend that damages it beautifully, and where the patch lives.";
@@ -3256,7 +3331,11 @@
     int step = 0;
     const auto at = progress.at.find(def->id);
     std::error_code ec;
-    if (at != progress.at.end() && at->second > 0 && fs::exists(practice, ec)) {
+    // A practice show from before practiceVersion existed counts as 1.
+    const auto built = progress.practice.find(def->id);
+    const int builtFor = built != progress.practice.end() ? built->second : 1;
+    if (at != progress.at.end() && at->second > 0 && builtFor >= def->practiceVersion &&
+        fs::exists(practice, ec)) {
       openProjectFromPath(practice);
       if (!fs::equivalent(currentProjectFile_, practice, ec) || ec) {
         handDeskBack(loan);
@@ -3274,6 +3353,10 @@
         handDeskBack(loan);
         return refuse("could not write the practice show to " + practice.parent_path().string());
       }
+      LessonsProgress p = readLessonsProgress();
+      p.practice[def->id] = def->practiceVersion;
+      p.at.erase(def->id);
+      writeLessonsProgress(p);
     }
     dressPracticeLikeDesk(loan);
     showStartupDialog_ = false;

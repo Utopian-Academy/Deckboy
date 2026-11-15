@@ -102,6 +102,7 @@
 #include "core/system_browser.hpp"
 #include "engine/media_engine.hpp"
 #include "core/isf_cue.hpp"
+#include "core/sha256.hpp"
 #include "engine/stage_timings.hpp"
 #include "engine/hap_decoder.hpp"
 #include "engine/gpu_readback.hpp"
@@ -9804,6 +9805,8 @@ class App {
     gather(uiPackRoot_ / "splash" / "cycle", gray);
     gather(uiPackRoot_ / "splash" / "cycle_color", colour);
     gather(uiPackRoot_ / "splash" / "cycle_true", trueColour);
+    // Panels the napkin's answer opened (unsealPanels), shown as made.
+    gather(Paths::stateDir() / "sealed", trueColour);
 
     // The branded wordmark splash joins the rotation rather than being a
     // special case that suppressed it. This is also what keeps the Mascot
@@ -11879,6 +11882,7 @@ class App {
   Uint64 pendingNewShowConfirmUntilMs_ = 0;
   bool showStartupDialog_ = false;
   bool showSplashOverlay_ = true;
+  bool splashArtOnly_ = false;   // the overlay is only the art: an opened panel (unsealPanels)
   Uint64 splashStartedAt_ = 0;
   SDL_Rect startupLoadBtn_ {};
   SDL_Rect startupNewBtn_ {};
@@ -12340,6 +12344,9 @@ class App {
   int konamiIndex_ = 0;                // progress through the Konami sequence (easter egg)
   int tabletopCodeIndex_ = 0;
   Uint64 tabletopCodeLastKeyMs_ = 0;
+  std::string sealedTyped_;   // the About page's last letters, for the napkin's answer (app_tutorial.ipp)
+  Uint64 sealedTypedAtMs_ = 0;
+  int sealedShown_ = 0;
   std::vector<std::string> startupBootLog_;  // splash boot-console lines (built once per boot)
   std::vector<Uint64> startupBootLogAtMs_;   // per-line randomized reveal times (ms from splash start)
   int companionPort_ = 5510;

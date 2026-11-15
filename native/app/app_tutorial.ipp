@@ -91,6 +91,7 @@
     Uint64 pixelClickAtMs = 0;
     Uint64 rakiaAtMs = 0;       // when the last one was poured
     int rakiaPoured = 0;
+    bool rakiaNapkin = false;   // this pour's act three is Rat Dad's napkin (noteRakiaGlass)
     Uint64 profCuteUntilMs = 0;
     int profCuteQuip = 0;
   };
@@ -1079,6 +1080,7 @@
         tutorial_.pixelClicks = 0;
         tutorial_.rakiaAtMs = now;
         ++tutorial_.rakiaPoured;
+        if (tutorial_.rakiaPoured <= 2) noteRakiaGlass();
         playUiSound(UiSoundEffect::Take);
       }
       return true;
@@ -1698,10 +1700,12 @@
     // THE JOKE: a click on the Professor shows the cuter him for a moment,
     // and he has something to say about it.
     // The rakia: twelve seconds of it, in three acts. Twice a session; after
-    // that Dr. Pixel cuts everyone off.
+    // that Dr. Pixel cuts everyone off. Once a glass has been poured in the
+    // tour and in every lesson, act three is Rat Dad's napkin instead, and it
+    // stays up long enough to read.
     const double rakiaT = tutorial_.rakiaAtMs ? (SDL_GetTicks() - tutorial_.rakiaAtMs) / 1000.0 : 1e9;
     const bool rakiaDry = tutorial_.rakiaPoured > 2;
-    const bool rakia = rakiaT < (rakiaDry ? 4.0 : 12.0);
+    const bool rakia = rakiaT < (rakiaDry ? 4.0 : (tutorial_.rakiaNapkin ? 30.0 : 12.0));
     if (rakia && rakiaDry) {
       pixelSays = "No more rakia. The rat has a problem.";
     } else if (rakia && rakiaT < 4.0) {
@@ -1710,6 +1714,9 @@
     } else if (rakia && rakiaT < 8.0) {
       pixelSays = "*shakes head* That means one more.";
       videoSays = "I love you all. I love the oscillator. I love the OUTPUT. It's video. I know. I KNOW.";
+    } else if (rakia && tutorial_.rakiaNapkin) {
+      pixelSays = "The rat left a napkin, skapi. It says: \"Above Baba's town, the rocks keep a fortress. The town just calls it 'the fortress', in its own words. Type that word where Deckboy talks about itself.\"";
+      videoSays = "A riddle, on a napkin. Is the rat a professor now?";
     } else if (rakia) {
       pixelSays = "...and the rat took the rakia. Every time, skapi. Every single time.";
       videoSays = "Was that a rat? In a hat? With a pizza?";
@@ -1777,7 +1784,8 @@
     }
     // Rakia sways the card: gently at first, then less gently.
     if (rakia && !rakiaDry) {
-      const double sway = std::min(1.0, rakiaT / 3.0) * (rakiaT > 10.0 ? (12.0 - rakiaT) / 2.0 : 1.0);
+      // Still after twelve seconds, so the napkin can be read.
+      const double sway = std::min(1.0, rakiaT / 3.0) * (rakiaT > 10.0 ? std::max(0.0, (12.0 - rakiaT) / 2.0) : 1.0);
       cardX += static_cast<int>(std::sin(rakiaT * 2.6) * uiScaled(8) * sway);
       cardY += static_cast<int>(std::sin(rakiaT * 1.3) * uiScaled(3) * sway);
     }
@@ -1954,7 +1962,7 @@
     }
     // Act three: Rat Dad walks along the top of the card, right to left, and
     // leaves with the glass.
-    if (rakia && !rakiaDry && rakiaT >= 8.0) {
+    if (rakia && !rakiaDry && rakiaT >= 8.0 && rakiaT < 12.0) {
       const int cell = std::max(2, uiScaled(3));
       const int ratW = kRatDadW * cell;
       const int ratH = kRatDadH * cell;
@@ -1968,4 +1976,77 @@
       Primitives::fillRect(controlRenderer_, SDL_Rect {glass.x + cell / 2, glass.y + cell, cell * 2, cell * 2},
                            SDL_Color {250, 225, 150, 255});
     }
+  }
+
+  // ── The napkin's answer (noteRakiaGlass, app_lessons.ipp) ───────────────
+  // The About page listens for it, as it does for the Tabletop code. The
+  // source holds only SHA-256 of the answer; the panels' key is derived from
+  // the answer, so neither the answer nor the panels can be read from the
+  // repo or the install. A sealed file is "DBSEAL1\0", an 8-byte nonce, then
+  // the JPEG XORed with sha256Keystream (core/sha256.hpp).
+
+  bool noteSealedKey(SDL_Keycode key) {
+    const Uint64 now = SDL_GetTicks();
+    if (now - sealedTypedAtMs_ > 2000) sealedTyped_.clear();
+    sealedTypedAtMs_ = now;
+    if (key < SDLK_A || key > SDLK_Z) {
+      sealedTyped_.clear();
+      return false;
+    }
+    sealedTyped_.push_back(static_cast<char>('a' + (key - SDLK_A)));
+    if (sealedTyped_.size() > 16) sealedTyped_.erase(0, sealedTyped_.size() - 16);
+    // Every ending from 4 to 16 letters, so the source does not give away
+    // the answer's length.
+    static const char* kCheck = "03bae87a1ba148104970f3249dcfc1afddc12a19a0bc2915e49b4136e23572a2";
+    for (std::size_t n = 4; n <= sealedTyped_.size(); ++n) {
+      const std::string tail = sealedTyped_.substr(sealedTyped_.size() - n);
+      if (deckboy::core::Sha256::hex(deckboy::core::Sha256::of("deckboy:sealed-check:v1:" + tail)) == kCheck) {
+        sealedTyped_.clear();
+        unsealPanels(tail);
+        return true;
+      }
+    }
+    return false;
+  }
+
+  // Open the sealed panels into stateDir()/sealed, where refreshSplashAsset
+  // adds them to the splash pool, and show one now on its own.
+  void unsealPanels(const std::string& answer) {
+    using deckboy::core::Sha256;
+    const Sha256::Digest key = Sha256::of("deckboy:sealed-key:v1:" + answer);
+    const fs::path from = uiPackRoot_ / "splash" / "sealed";
+    const fs::path to = Paths::stateDir() / "sealed";
+    std::error_code ec;
+    fs::create_directories(to, ec);
+    std::vector<fs::path> opened;
+    for (const auto& entry : fs::directory_iterator(from, ec)) {
+      if (!entry.is_regular_file() || toLower(entry.path().extension().string()) != ".bin") continue;
+      std::ifstream in(entry.path(), std::ios::binary);
+      std::vector<std::uint8_t> bytes((std::istreambuf_iterator<char>(in)), std::istreambuf_iterator<char>());
+      static const char kMagic[8] = {'D', 'B', 'S', 'E', 'A', 'L', '1', '\0'};
+      constexpr std::size_t kHead = 16;   // magic + nonce
+      if (bytes.size() < kHead + 4 || std::memcmp(bytes.data(), kMagic, sizeof(kMagic)) != 0) continue;
+      deckboy::core::sha256Keystream(key, bytes.data() + 8, 8, bytes.data() + kHead, bytes.size() - kHead);
+      if (bytes[kHead] != 0xFF || bytes[kHead + 1] != 0xD8) continue;   // not a JPEG: a damaged file
+      const fs::path out = to / (entry.path().stem().string() + ".jpg");
+      std::ofstream file(out, std::ios::binary | std::ios::trunc);
+      file.write(reinterpret_cast<const char*>(bytes.data() + kHead), static_cast<std::streamsize>(bytes.size() - kHead));
+      if (file.good()) opened.push_back(out);
+    }
+    if (opened.empty()) {
+      triggerToast("could not write to " + to.string(), ToastKind::Warning, kToastReadableMs);
+      return;
+    }
+    std::sort(opened.begin(), opened.end());
+    const fs::path& show = opened[static_cast<std::size_t>(sealedShown_++) % opened.size()];
+    if (uiSplashArt_.path != show) {
+      releaseUiImage(uiSplashArt_);
+      uiSplashArt_.path = show;
+    }
+    ensureUiImageLoaded(uiSplashArt_);
+    splashTintStrength_ = 0.0f;
+    splashArtOnly_ = true;
+    splashStartedAt_ = 0;   // no boot timer: it stays until a click or a key
+    settingsOpen_ = false;
+    showSplashOverlay_ = true;
   }

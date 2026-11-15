@@ -10,7 +10,8 @@ moving the card on. Then:
     finished lesson DONE
   - each lesson ran in its own practice show, and the operator's show is
     handed back as it was
-  - a lesson left half way picks up at the same step
+  - a lesson left half way picks up at the same step, unless an older
+    Deckboy built its practice show (practiceVersion): then it starts again
 
 Every window hidden, sound to the dummy driver.
 
@@ -198,6 +199,24 @@ def run(exe, work, keep):
         db.send("LESSONS START masks")
         step, _, reply = step_of(db)
         note("...and starts again on the step it was left on (3)", step == 3, reply)
+        db.send("TUTORIAL EXIT")
+
+        # A practice show from an older Deckboy is built again: 0.99.427's
+        # Sound lesson played a tone, and its practice show has no song.
+        print("  an older practice show is built again")
+        db.send("LESSONS START sound")
+        walk(db, "sound", work, None, stop_at=2)
+        db.send("TUTORIAL EXIT")
+        db.send("LESSONS START sound")
+        step, _, reply = step_of(db)
+        note("the Sound lesson picks up on step 2 in its own practice show", step == 2, reply)
+        db.send("TUTORIAL EXIT")
+        old = [line for line in (state / "lessons.txt").read_text().splitlines()
+               if not line.startswith("practice sound")]
+        (state / "lessons.txt").write_text("".join(line + "\n" for line in old))
+        db.send("LESSONS START sound")
+        step, _, reply = step_of(db)
+        note("...but one built by an older Deckboy starts again on step 1", step == 1, reply)
         db.send("TUTORIAL EXIT")
 
         for bad in ("LESSONS START banana", "LESSONS TRACK DOG", "LESSONS WOBBLE"):
