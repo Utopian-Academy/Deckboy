@@ -4636,3 +4636,5 @@ Lesson voices	Ders sesleri
 lesson voices: {1}	ders sesleri: {1}
 EXPERIMENTAL: SOUNDS	DENEYSEL: SESLER
 LESSONS VOICE: CHIP, WORDS, SOUNDS or OFF	DERS SESİ: CHIP, SÖZCÜKLER, SESLER veya KAPALI
+scopes - the picture scopes	skoplar - görüntü skopları
+MULTIVIEW WINDOW: expected PROGRAMME, DECK<n>, OUTPUT<n>, NEXT, CLOCK, SCOPES or EMPTY	MULTIVIEW WINDOW: PROGRAMME, DECK<n>, OUTPUT<n>, NEXT, CLOCK, SCOPES veya EMPTY beklenir

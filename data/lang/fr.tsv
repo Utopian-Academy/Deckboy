@@ -4580,3 +4580,5 @@ Lesson voices	Voix des leçons
 lesson voices: {1}	voix des leçons : {1}
 EXPERIMENTAL: SOUNDS	EXPÉRIMENTAL : SONS
 LESSONS VOICE: CHIP, WORDS, SOUNDS or OFF	VOIX DES LEÇONS : CHIP, MOTS, SONS ou NON
+scopes - the picture scopes	scopes - les scopes de l'image
+MULTIVIEW WINDOW: expected PROGRAMME, DECK<n>, OUTPUT<n>, NEXT, CLOCK, SCOPES or EMPTY	MULTIVIEW WINDOW : attendu PROGRAMME, DECK<n>, OUTPUT<n>, NEXT, CLOCK, SCOPES ou EMPTY

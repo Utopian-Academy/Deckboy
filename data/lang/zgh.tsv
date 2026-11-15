@@ -4656,3 +4656,6 @@ Lesson voices	ⵜⵉⵖⵓⵛⴰⵏ ⵏ ⵉⵙⵍⵎⴰⴷⵏ
 lesson voices: {1}	ⵜⵉⵖⵓⵛⴰⵏ ⵏ ⵉⵙⵍⵎⴰⴷⵏ: {1}
 EXPERIMENTAL: SOUNDS	ⴰⵙⵏⵜⵍ: ⵉⵙⵙⵓⵜⵏ
 LESSONS VOICE: CHIP, WORDS, SOUNDS or OFF	ⵜⴰⵖⵓⵛⵜ ⵏ ⵜⵉⵎⵙⵉⵔⵉⵏ: CHIP, ⴰⵡⴰⵍⵏ, ⵉⵙⵙⵓⵜⵏ ⵏⵖ ⵉⵅⵙⴰ
+scopes - the picture scopes	ⵉⵙⵏⴰⴳⵔⴰⵡⵏ - ⵉⵙⵏⴰⴳⵔⴰⵡⵏ ⵏ ⵜⵡⵍⴰⴼⵜ
+VIDEO OUTPUT ADD: WINDOW | STREAM | MULTIVIEW | PRESENTER | PROMPTER | SCOPES	VIDEO OUTPUT ADD: ⴰⵙⴰⵜⵎ | ⴰⵙⵓⴷⴷⵎ | MULTIVIEW | PRESENTER | ⴰⵎⵙⵖⴰⵔⵓ | ⵉⵙⵏⴰⴳⵔⴰⵡⵏ
+MULTIVIEW WINDOW: expected PROGRAMME, DECK<n>, OUTPUT<n>, NEXT, CLOCK, SCOPES or EMPTY	MULTIVIEW WINDOW: ⵜⵜⴰⵔⴰⵊⵓ ⴰⵀⵉⵍ, DECK<n>, OUTPUT<n>, ⵡⵉⵏ ⴷ ⵉⴷⴷⵏ, ⴰⵙⵔⴰⴳ, ⵉⵙⵏⴰⴳⵔⴰⵡⵏ ⵏⵖ ⵉⵍⵎ

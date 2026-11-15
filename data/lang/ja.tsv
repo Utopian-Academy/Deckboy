@@ -4642,3 +4642,5 @@ Lesson voices	レッスンの音色
 lesson voices: {1}	レッスンの音色: {1}
 EXPERIMENTAL: SOUNDS	実験的: サウンド
 LESSONS VOICE: CHIP, WORDS, SOUNDS or OFF	レッスン音色: CHIP、単語、サウンド、またはオフ
+scopes - the picture scopes	scopes - 映像スコープ
+MULTIVIEW WINDOW: expected PROGRAMME, DECK<n>, OUTPUT<n>, NEXT, CLOCK, SCOPES or EMPTY	MULTIVIEW WINDOW: PROGRAMME、DECK<n>、OUTPUT<n>、NEXT、CLOCK、SCOPES、EMPTYのいずれかを指定

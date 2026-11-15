@@ -4638,3 +4638,5 @@ Lesson voices	Φωνές μαθημάτων
 lesson voices: {1}	φωνές μαθημάτων: {1}
 EXPERIMENTAL: SOUNDS	ΠΕΙΡΑΜΑΤΙΚΟ: ΗΧΟΙ
 LESSONS VOICE: CHIP, WORDS, SOUNDS or OFF	LESSONS VOICE: CHIP, WORDS, SOUNDS ή OFF
+scopes - the picture scopes	scopes - τα σκόουπ της εικόνας
+MULTIVIEW WINDOW: expected PROGRAMME, DECK<n>, OUTPUT<n>, NEXT, CLOCK, SCOPES or EMPTY	MULTIVIEW WINDOW: αναμένεται PROGRAMME, DECK<n>, OUTPUT<n>, NEXT, CLOCK, SCOPES ή EMPTY

@@ -4629,3 +4629,5 @@ Lesson voices	Giọng bài học
 lesson voices: {1}	giọng bài học: {1}
 EXPERIMENTAL: SOUNDS	THỬ NGHIỆM: ÂM THANH
 LESSONS VOICE: CHIP, WORDS, SOUNDS or OFF	GIỌNG BÀI HỌC: CHIP, TỪ, ÂM THANH hoặc TẮT
+scopes - the picture scopes	scope - các scope của hình ảnh
+MULTIVIEW WINDOW: expected PROGRAMME, DECK<n>, OUTPUT<n>, NEXT, CLOCK, SCOPES or EMPTY	MULTIVIEW WINDOW: cần PROGRAMME, DECK<n>, OUTPUT<n>, NEXT, CLOCK, SCOPES hoặc EMPTY

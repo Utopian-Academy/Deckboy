@@ -1326,12 +1326,13 @@
   }
 
   // What a window that is not a playlist or the programme shows.
-  enum class MultiviewFeed { None, Programme, Deck, Output, Next, Clock, Missing };
+  enum class MultiviewFeed { None, Programme, Deck, Output, Next, Clock, Scopes, Missing };
 
   MultiviewFeed multiviewTileFeed(const MultiviewTile& tile) const {
     if (tile.source.empty()) return MultiviewFeed::None;
     if (tile.source == "next") return MultiviewFeed::Next;
     if (tile.source == "clock") return MultiviewFeed::Clock;
+    if (tile.source == "scopes") return MultiviewFeed::Scopes;
     if (tile.source.rfind("output:", 0) == 0) {
       return multiviewTileOutput(tile) >= 0 ? MultiviewFeed::Output : MultiviewFeed::Missing;
     }
@@ -1339,6 +1340,15 @@
     if (d == -1) return MultiviewFeed::Programme;
     if (d >= 0) return MultiviewFeed::Deck;
     return MultiviewFeed::Missing;
+  }
+
+  // A window that shows the picture scopes: asked for, or an output that is
+  // itself set to SCOPES (its stack of playlists is not what it carries).
+  bool multiviewTileIsScopes(const MultiviewTile& tile) const {
+    if (tile.source == "scopes") return true;
+    const int o = tile.source.rfind("output:", 0) == 0 ? multiviewTileOutput(tile) : -1;
+    return o >= 0 && o < static_cast<int>(project_.outputs.size()) &&
+           normalizeOutputType(project_.outputs[static_cast<std::size_t>(o)].outputType) == "scopes";
   }
 
   // The cue the "next" window shows: what GO plays next on the focused
@@ -1361,6 +1371,7 @@
         return "OUT " + std::to_string(o + 1) + "  " + toUpper(outputLabel(o));
       }
       case MultiviewFeed::Clock:     return "CLOCK";
+      case MultiviewFeed::Scopes:    return "SCOPES";
       case MultiviewFeed::Next: {
         int cue = -1;
         const Cue* next = multiviewNextCue(nullptr, &cue);

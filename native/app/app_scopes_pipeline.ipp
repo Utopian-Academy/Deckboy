@@ -489,7 +489,7 @@
       return "OUTPUT OFF";
     if (!outcome.result || outcome.outputId != project_.outputs[index].outputId) return "WAITING";
     if (scopesFrozen_) return "FROZEN";
-    if (monitorView_ == MonitorView::Program) return "HIDDEN";
+    if (monitorView_ == MonitorView::Program && !scopesShownOnOutput() && !multiviewHasScopesWindow()) return "HIDDEN";
     const Uint64 seen = std::max(outcome.capturedNs, scopesConfirmedNs_);
     if (outcome.generation != scopesGeneration_.load() || SDL_GetTicksNS() - seen > 500000000ULL)
       return "STALE";

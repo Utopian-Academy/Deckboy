@@ -4644,3 +4644,5 @@ Lesson voices	पाठ वॉइस
 lesson voices: {1}	पाठ वॉइस: {1}
 EXPERIMENTAL: SOUNDS	प्रायोगिक: ध्वनियाँ
 LESSONS VOICE: CHIP, WORDS, SOUNDS or OFF	पाठ वॉइस: CHIP, शब्द, ध्वनियाँ या बंद
+scopes - the picture scopes	scopes - चित्र स्कोप
+MULTIVIEW WINDOW: expected PROGRAMME, DECK<n>, OUTPUT<n>, NEXT, CLOCK, SCOPES or EMPTY	MULTIVIEW WINDOW: PROGRAMME, DECK<n>, OUTPUT<n>, NEXT, CLOCK, SCOPES या EMPTY अपेक्षित है

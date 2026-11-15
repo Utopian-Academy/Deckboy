@@ -4658,3 +4658,5 @@ Lesson voices	أصوات الدروس
 lesson voices: {1}	أصوات الدروس: {1}
 EXPERIMENTAL: SOUNDS	تجريبي: الأصوات
 LESSONS VOICE: CHIP, WORDS, SOUNDS or OFF	LESSONS VOICE: CHIP, WORDS, SOUNDS أو OFF
+scopes - the picture scopes	scopes - أدوات قياس الصورة
+MULTIVIEW WINDOW: expected PROGRAMME, DECK<n>, OUTPUT<n>, NEXT, CLOCK, SCOPES or EMPTY	MULTIVIEW WINDOW: المتوقع PROGRAMME, DECK<n>, OUTPUT<n>, NEXT, CLOCK, SCOPES أو EMPTY

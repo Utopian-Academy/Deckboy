@@ -347,6 +347,7 @@
     }
     sourceRow("next", "the next cue (what GO plays)");
     sourceRow("clock", "the time of day");
+    sourceRow("scopes", "the picture scopes");
     sourceRow("", "nothing - leave it empty");
 
     // -- THE BELLS AND WHISTLES, PER WINDOW ------------------------------
@@ -1230,6 +1231,7 @@
     if (type == "multiview") return "Multiview (" + where + ")";
     if (type == "presenter") return "Presenter view (" + where + ")";
     if (type == "prompter") return "Prompter (" + where + ")";
+    if (type == "scopes") return "Scopes (" + where + ")";
     if (sourceOutputIndex == primaryProgrammeOutputIndex(-1)) return "Programme (" + where + ")";
     return where + "  " + outputLabel(sourceOutputIndex);
   }

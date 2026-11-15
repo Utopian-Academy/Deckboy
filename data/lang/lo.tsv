@@ -4627,3 +4627,5 @@ Lesson voices	ສຽງບົດຮຽນ
 lesson voices: {1}	ສຽງບົດຮຽນ: {1}
 EXPERIMENTAL: SOUNDS	ທົດລອງ: ສຽງ
 LESSONS VOICE: CHIP, WORDS, SOUNDS or OFF	ສຽງບົດຮຽນ: CHIP, ຄຳ, ສຽງ ຫຼື ປິດ
+scopes - the picture scopes	scope - scope ຂອງຮູບ
+MULTIVIEW WINDOW: expected PROGRAMME, DECK<n>, OUTPUT<n>, NEXT, CLOCK, SCOPES or EMPTY	MULTIVIEW WINDOW: ຕ້ອງການ PROGRAMME, DECK<n>, OUTPUT<n>, NEXT, CLOCK, SCOPES ຫຼື EMPTY

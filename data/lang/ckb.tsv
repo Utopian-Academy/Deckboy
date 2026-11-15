@@ -4645,3 +4645,5 @@ Lesson voices	دەنگەکانی وانە
 lesson voices: {1}	دەنگەکانی وانە: {1}
 EXPERIMENTAL: SOUNDS	تاقیکارانە: دەنگەکان
 LESSONS VOICE: CHIP, WORDS, SOUNDS or OFF	LESSONS VOICE: CHIP, WORDS, SOUNDS یان OFF
+scopes - the picture scopes	scopes - scopeـەکانی وێنە
+MULTIVIEW WINDOW: expected PROGRAMME, DECK<n>, OUTPUT<n>, NEXT, CLOCK, SCOPES or EMPTY	MULTIVIEW WINDOW: چاوەڕوانکراو PROGRAMME, DECK<n>, OUTPUT<n>, NEXT, CLOCK, SCOPES یان EMPTY

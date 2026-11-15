@@ -3274,11 +3274,12 @@
           outputTypeLabel == "presenter" ? "PRESENTER VIEW"
             : outputTypeLabel == "multiview" ? "MULTIVIEW"
             : outputTypeLabel == "prompter" ? "PROMPTER"
+            : outputTypeLabel == "scopes" ? "SCOPES"
             : (outputTypeLabel == "stream" ? "STREAM" : "PROGRAMME"),
           "settings.output_type");
         settingsBtns_.push_back({typeBtn, kSettingsActionOutputTypeCycle,
                                  "Programme picture, a presenter view for the "
-                                 "operator, a prompter for the talent, or a stream"});
+                                 "operator, a prompter for the talent, the picture scopes, or a stream"});
         // WHAT A STREAM CARRIES. A stream, a recording or the Web Monitor is a
         // destination; this is the picture it is given -- programme, the
         // multiview, a presenter view, any other output.
@@ -7287,6 +7288,7 @@
            {"multiview", "MULTIVIEW (every playlist)"},
            {"presenter", "PRESENTER VIEW"},
            {"prompter", "PROMPTER"},
+           {"scopes", "SCOPES (picture scopes)"},
            {"stream", "STREAM"}},
           normalizeOutputType(focusedOutput().outputType),
           [this](const std::string& value) {
@@ -7297,6 +7299,7 @@
                          (value == "presenter" ? std::string("presenter view")
                           : value == "prompter" ? std::string("prompter (the talent's screen)")
                           : value == "multiview" ? std::string("multiview - every playlist")
+                          : value == "scopes"   ? std::string("scopes - the picture scopes")
                           : value == "stream"   ? std::string("stream")
                                                 : std::string("programme")));
           });

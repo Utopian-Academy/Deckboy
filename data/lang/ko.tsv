@@ -4640,3 +4640,5 @@ Lesson voices	수업 음색
 lesson voices: {1}	수업 음색: {1}
 EXPERIMENTAL: SOUNDS	실험적: 소리
 LESSONS VOICE: CHIP, WORDS, SOUNDS or OFF	레슨 음색: CHIP, 단어, 소리 또는 꺼짐
+scopes - the picture scopes	scopes - 영상 스코프
+MULTIVIEW WINDOW: expected PROGRAMME, DECK<n>, OUTPUT<n>, NEXT, CLOCK, SCOPES or EMPTY	MULTIVIEW WINDOW: PROGRAMME, DECK<n>, OUTPUT<n>, NEXT, CLOCK, SCOPES 또는 EMPTY 필요

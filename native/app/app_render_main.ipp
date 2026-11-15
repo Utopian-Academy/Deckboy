@@ -546,7 +546,10 @@
                                next ? next->name : std::string("nothing follows"), pal.fgSoft);
         }
       }
-      if (feed == MultiviewFeed::Output && pic.w > 0 && pic.h > 0) {
+      if (multiviewTileIsScopes(tile0) && pic.w > 0 && pic.h > 0) {
+        // The scopes themselves, small: every panel, no buttons.
+        drawScopesDisplay(pic);
+      } else if (feed == MultiviewFeed::Output && pic.w > 0 && pic.h > 0) {
         drawMultiviewOutputStack(multiviewTileOutput(tile0), pic);
       } else if (feed == MultiviewFeed::Clock && pic.w > 0 && pic.h > 0) {
         Primitives::fillRect(controlRenderer_, pic, SDL_Color {0, 0, 0, 255});

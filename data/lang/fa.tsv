@@ -4656,3 +4656,5 @@ Lesson voices	صداهای درس
 lesson voices: {1}	صداهای درس: {1}
 EXPERIMENTAL: SOUNDS	آزمایشی: جلوه‌های صوتی
 LESSONS VOICE: CHIP, WORDS, SOUNDS or OFF	صدای درس‌ها: CHIP، واژه‌ها، جلوه‌های صوتی یا خاموش
+scopes - the picture scopes	scopes - اسکوپ‌های تصویر
+MULTIVIEW WINDOW: expected PROGRAMME, DECK<n>, OUTPUT<n>, NEXT, CLOCK, SCOPES or EMPTY	MULTIVIEW WINDOW: قالب مورد انتظار: PROGRAMME, DECK<n>, OUTPUT<n>, NEXT, CLOCK, SCOPES یا EMPTY

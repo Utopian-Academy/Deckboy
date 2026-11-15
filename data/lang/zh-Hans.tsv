@@ -4642,3 +4642,6 @@ Lesson voices	课程音色
 lesson voices: {1}	课程音色: {1}
 EXPERIMENTAL: SOUNDS	实验性: 声音
 LESSONS VOICE: CHIP, WORDS, SOUNDS or OFF	课程音色: CHIP、词语、声音或关
+scopes - the picture scopes	示波器——画面示波器
+VIDEO OUTPUT ADD: WINDOW | STREAM | MULTIVIEW | PRESENTER | PROMPTER | SCOPES	VIDEO OUTPUT ADD：窗口 | 推流 | 多画面 | PRESENTER | 提词器 | 示波器
+MULTIVIEW WINDOW: expected PROGRAMME, DECK<n>, OUTPUT<n>, NEXT, CLOCK, SCOPES or EMPTY	MULTIVIEW WINDOW：应为 节目、DECK<n>、OUTPUT<n>、下一个、时钟、示波器 或 空

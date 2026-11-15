@@ -4597,3 +4597,5 @@ Lesson voices	Lektionsstemmer
 lesson voices: {1}	lektionsstemmer: {1}
 EXPERIMENTAL: SOUNDS	EKSPERIMENTELT: LYDE
 LESSONS VOICE: CHIP, WORDS, SOUNDS or OFF	LESSONS VOICE: CHIP, WORDS, SOUNDS eller OFF
+scopes - the picture scopes	scopes - billedets scopes
+MULTIVIEW WINDOW: expected PROGRAMME, DECK<n>, OUTPUT<n>, NEXT, CLOCK, SCOPES or EMPTY	MULTIVIEW WINDOW: forventede PROGRAMME, DECK<n>, OUTPUT<n>, NEXT, CLOCK, SCOPES eller EMPTY

@@ -4641,3 +4641,5 @@ Lesson voices	Oppituntien äänet
 lesson voices: {1}	oppituntien äänet: {1}
 EXPERIMENTAL: SOUNDS	KOKEELLINEN: ÄÄNIEFEKTIT
 LESSONS VOICE: CHIP, WORDS, SOUNDS or OFF	OPPITUNTIEN ÄÄNI: CHIP, SANAT, ÄÄNIEFEKTIT tai POIS
+scopes - the picture scopes	scopes - kuvan skoopit
+MULTIVIEW WINDOW: expected PROGRAMME, DECK<n>, OUTPUT<n>, NEXT, CLOCK, SCOPES or EMPTY	MULTIVIEW WINDOW: odotetaan PROGRAMME, DECK<n>, OUTPUT<n>, NEXT, CLOCK, SCOPES tai EMPTY

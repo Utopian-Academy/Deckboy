@@ -448,7 +448,7 @@ importantly, what each feature deliberately does not do.
 
 **Scopes:**
 
-- Scopes on the desk, on any output and over NDI
+- Each scopes screen picks its own source and panel (they share one setting now)
 
 **Deckboy Mini:**
 

@@ -4639,3 +4639,5 @@ Lesson voices	Guthan nan leasan
 lesson voices: {1}	guthan nan leasan: {1}
 EXPERIMENTAL: SOUNDS	DEUCHAINNEACH: FUAIMEAN
 LESSONS VOICE: CHIP, WORDS, SOUNDS or OFF	GUTH NAN LEASAN: CHIP, FACLAN, FUAIMEAN no DHETH
+scopes - the picture scopes	scopes - na scopes airson an deilbh
+MULTIVIEW WINDOW: expected PROGRAMME, DECK<n>, OUTPUT<n>, NEXT, CLOCK, SCOPES or EMPTY	MULTIVIEW WINDOW: tha dùil ri PROGRAMME, DECK<n>, OUTPUT<n>, NEXT, CLOCK, SCOPES no EMPTY

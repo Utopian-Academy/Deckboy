@@ -294,6 +294,34 @@ def main():
                    f"{Path(clip).name}: full raster scoped ({f.get('ms')} ms)", reply)
             print("     " + reply, flush=True)
             snap(f"clip{n + 1}")
+        # Scopes on an output of their own, with the desk's monitor on the
+        # programme: the output must draw the panels and arm the analyser.
+        expect(command(port, "TAKE 2").startswith("OK"), "TAKE the bars for the scopes output")
+        command(port, "SCOPES PROGRAM")
+        command(port, "SCOPES FREEZE OFF")
+        expect(command(port, "VIDEO OUTPUT ADD SCOPES").startswith("OK"), "VIDEO OUTPUT ADD SCOPES")
+        expect(command(port, "VIDEO OUTPUT ON").startswith("OK"), "the scopes output goes on")
+        time.sleep(3.0)
+        reply, f = fresh_stats(port)
+        expect("frame" in f and f.get("state") != "hidden",
+               "the analyser runs for a scopes output while the desk shows the programme", reply)
+        shot = work / "scopes-output.bmp"
+        command(port, f"OUTSNAP {shot} 2")
+        time.sleep(2.0)
+        img = Image.open(shot).convert("RGB")
+        px = img.getdata()
+        black = sum(1 for r, g, b in px if (r, g, b) == (8, 10, 8))
+        trace = sum(1 for r, g, b in px if g > 200 and r < 200 and b < 200)
+        expect(black > len(px) * 0.5, "the scopes output is drawn on scope black", f"{black}/{len(px)}")
+        expect(trace > 50, "the scopes output shows a trace", str(trace))
+        img.save(work / "scopes-output.png")
+        # A multiview window can show the scopes on the desk's MULTI monitor.
+        command(port, "MULTIVIEW ON")
+        command(port, "MULTIVIEW WINDOW ADD")
+        expect(command(port, "MULTIVIEW WINDOW 2 SCOPES").startswith("OK"), "MULTIVIEW WINDOW 2 SCOPES")
+        expect(command(port, "MULTIVIEW WINDOW 2 NOSUCH").startswith("ERR"), "an unknown multiview feed is refused")
+        time.sleep(2.0)
+        snap("multiview-scopes")
     finally:
         app.kill()
         app.wait(timeout=10)

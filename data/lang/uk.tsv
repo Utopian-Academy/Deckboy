@@ -4645,3 +4645,5 @@ Lesson voices	Голоси уроків
 lesson voices: {1}	голоси уроків: {1}
 EXPERIMENTAL: SOUNDS	ЕКСПЕРИМЕНТАЛЬНО: ЗВУКИ
 LESSONS VOICE: CHIP, WORDS, SOUNDS or OFF	ГОЛОС УРОКІВ: CHIP, СЛОВА, ЗВУКИ або ВИМ
+scopes - the picture scopes	скопи - скопи зображення
+MULTIVIEW WINDOW: expected PROGRAMME, DECK<n>, OUTPUT<n>, NEXT, CLOCK, SCOPES or EMPTY	MULTIVIEW WINDOW: очікується PROGRAMME, DECK<n>, OUTPUT<n>, NEXT, CLOCK, SCOPES або EMPTY

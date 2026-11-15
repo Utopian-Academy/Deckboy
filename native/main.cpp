@@ -3083,13 +3083,20 @@ std::string normalizeOutputType(std::string outputType) {
   if (outputType == "multiview" || outputType == "multi") {
     return "multiview";
   }
+  // SCOPES is the same trick a fourth time: a screen that shows the picture
+  // scopes (waveform, parade, vectorscope, diamond, histogram) of the
+  // programme, so a colourist or a camera shader has them on a display of
+  // their own, and so NDI, a stream or the Web Monitor can carry them.
+  if (outputType == "scopes" || outputType == "scope") {
+    return "scopes";
+  }
   return "window";
 }
 
 // True for anything that lives in a window on a display, whatever it draws.
 bool outputTypeIsWindowed(const std::string& outputType) {
   return outputType == "window" || outputType == "presenter" ||
-         outputType == "prompter";
+         outputType == "prompter" || outputType == "scopes";
 }
 
 std::string normalizeOutputColorSpace(std::string colorSpace) {

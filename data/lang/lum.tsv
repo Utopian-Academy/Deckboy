@@ -4655,3 +4655,5 @@ Lesson voices	Holakora sonakana
 lesson voices: {1}	holakora sonakana: {1}
 EXPERIMENTAL: SOUNDS	TESTO: SONAKU
 LESSONS VOICE: CHIP, WORDS, SOUNDS or OFF	HUPAKU SONAKANA: CHIP, HOLAKU, SONAKU o VAP
+scopes - the picture scopes	scope - talamiraku sov veka
+MULTIVIEW WINDOW: expected PROGRAMME, DECK<n>, OUTPUT<n>, NEXT, CLOCK, SCOPES or EMPTY	MULTIVIEW WINDOW: peni PROGRAMME, DECK<n>, OUTPUT<n>, NEXT, CLOCK, SCOPES o EMPTY

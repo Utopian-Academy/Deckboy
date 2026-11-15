@@ -4637,3 +4637,5 @@ Lesson voices	Raddir lexía
 lesson voices: {1}	raddir lexía: {1}
 EXPERIMENTAL: SOUNDS	TILRAUN: HLJÓÐ
 LESSONS VOICE: CHIP, WORDS, SOUNDS or OFF	RÖDD LEXÍU: CHIP, ORÐ, HLJÓÐ EÐA AF
+scopes - the picture scopes	scopes - myndmælar
+MULTIVIEW WINDOW: expected PROGRAMME, DECK<n>, OUTPUT<n>, NEXT, CLOCK, SCOPES or EMPTY	MULTIVIEW WINDOW: vænst er PROGRAMME, DECK<n>, OUTPUT<n>, NEXT, CLOCK, SCOPES eða EMPTY
