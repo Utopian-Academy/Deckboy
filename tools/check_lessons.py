@@ -144,6 +144,27 @@ def run(exe, work, keep):
                  "Nebula ahead" not in after and "Look two" not in after and "Contestant" not in after and "Weather map" not in after and "The trunk" not in after and "souffle" not in after and "The planet" not in after and "The beat" not in after and "office PC" not in after and "evidence #2" not in after and "The replay" not in after and "The rocket" not in after and "capsule" not in after and "Saucer" not in after and "Student work" not in after and "STAIRLIFT" not in after and "ghost" not in after.lower(),
                  (motion(before), motion(after)))
 
+        print("  NDI practice names survive resume and older shows are rebuilt")
+        db.send("LESSONS START outside")
+        walk(db, "outside", work, None, stop_at=3)
+        outside_file = state / "lesson-outside.deckboy"
+        practice_names = ndi_names(outside_file.read_text())
+        db.send("TUTORIAL EXIT")
+        db.send("LESSONS START outside")
+        step, _, reply = step_of(db)
+        note("NDI practice resumes with the same sender names", step == 3 and
+             ndi_names(outside_file.read_text()) == practice_names, reply)
+        db.send("TUTORIAL EXIT")
+        progress = (state / "lessons.txt").read_text().splitlines()
+        (state / "lessons.txt").write_text("\n".join(
+            "practice outside 1" if line.startswith("practice outside ") else line
+            for line in progress) + "\n")
+        db.send("LESSONS START outside")
+        step, _, reply = step_of(db)
+        note("an older NDI practice show starts fresh", step == 1, reply)
+        note("...and its sender names remain separate", ndi_names(outside_file.read_text()) == practice_names)
+        db.send("TUTORIAL EXIT")
+
         # James, 2026-11-07: the lessons never said to select the new
         # playlist. The + leaves playlist 1 focused, so a cue added straight
         # after it landed in playlist 1 and the step passed anyway.
