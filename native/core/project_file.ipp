@@ -1101,6 +1101,18 @@ void writeProjectRecords(std::ostream& output, const Project& project) {
         << '\t' << escapeField(cue.directionPath)
         << '\t' << escapeField(cue.directionKey)
         << '\t' << cue.directionSeconds
+        // vs + 196..205: a VOICE cue's words and speaker, then the Sting's
+        // four settings, which were never saved before.
+        << '\t' << escapeField(cue.tone.voiceText)
+        << '\t' << escapeField(cue.tone.voiceCharacter)
+        << '\t' << (cue.tone.voiceSounds ? 1 : 0)
+        << '\t' << cue.tone.voicePitchHz
+        << '\t' << cue.tone.voiceSize
+        << '\t' << cue.tone.voiceBreath
+        << '\t' << cue.tone.stingPitchHz
+        << '\t' << cue.tone.stingSeconds
+        << '\t' << cue.tone.stingSweepSemitones
+        << '\t' << cue.tone.stingBody
         << '\n';
   };
   for (size_t deckIndex = 0; deckIndex < project.decks.size(); ++deckIndex) {
@@ -2955,6 +2967,20 @@ Project loadProject(const fs::path& projectFile,
           cue.directionPath = safeString(fields, vs + 193);
           cue.directionKey = safeString(fields, vs + 194);
           cue.directionSeconds = std::max(0.0, safeDouble(fields, vs + 195, 0.0));
+        }
+        if (fields.size() >= static_cast<std::size_t>(vs + 206)) {
+          // The defaults stand for a show saved before these existed.
+          cue.tone.voiceText = safeString(fields, vs + 196);
+          cue.tone.voiceCharacter = safeString(fields, vs + 197);
+          if (cue.tone.voiceCharacter.empty()) cue.tone.voiceCharacter = "PROF. VIDEO";
+          cue.tone.voiceSounds = safeBool(fields, vs + 198, false);
+          cue.tone.voicePitchHz = std::clamp(safeDouble(fields, vs + 199, 140.0), 50.0, 400.0);
+          cue.tone.voiceSize = std::clamp(safeDouble(fields, vs + 200, 1.0), 0.8, 1.25);
+          cue.tone.voiceBreath = std::clamp(safeDouble(fields, vs + 201, 0.4), 0.0, 1.0);
+          cue.tone.stingPitchHz = std::clamp(safeDouble(fields, vs + 202, 440.0), 20.0, 12000.0);
+          cue.tone.stingSeconds = std::clamp(safeDouble(fields, vs + 203, 0.75), 0.05, 10.0);
+          cue.tone.stingSweepSemitones = std::clamp(safeDouble(fields, vs + 204, 7.0), -24.0, 24.0);
+          cue.tone.stingBody = std::clamp(safeDouble(fields, vs + 205, 0.45), 0.0, 1.0);
         }
       }
       // A MASTER CUE HAS NO PATH, and this gate would have dropped it on load

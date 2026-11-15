@@ -340,6 +340,40 @@
         refreshAllLiveCueRuntimes();
         return;
       }
+      case QuickAction::VoiceText:      openVoiceTextEditor(); return;
+      case QuickAction::VoiceCharacter: openVoiceCharacterList(); return;
+      case QuickAction::VoiceModeToggle:
+      case QuickAction::VoicePitchDec:
+      case QuickAction::VoicePitchInc:
+      case QuickAction::VoiceSizeDec:
+      case QuickAction::VoiceSizeInc:
+      case QuickAction::VoiceBreathDec:
+      case QuickAction::VoiceBreathInc: {
+        Cue* cue = selectedCueMutable();
+        if (!cue || cue->kind != CueKind::Tone || cue->tone.waveform != ToneWaveform::Voice) {
+          return;
+        }
+        ToneSettings& t = cue->tone;
+        switch (action) {
+          case QuickAction::VoiceModeToggle: t.voiceSounds = !t.voiceSounds; break;
+          // Semitones, as the sting's pitch steps.
+          case QuickAction::VoicePitchDec:
+            t.voicePitchHz = std::clamp(t.voicePitchHz / 1.059463, 50.0, 400.0); break;
+          case QuickAction::VoicePitchInc:
+            t.voicePitchHz = std::clamp(t.voicePitchHz * 1.059463, 50.0, 400.0); break;
+          case QuickAction::VoiceSizeDec:
+            t.voiceSize = std::clamp(std::round((t.voiceSize - 0.05) * 100.0) / 100.0, 0.8, 1.25); break;
+          case QuickAction::VoiceSizeInc:
+            t.voiceSize = std::clamp(std::round((t.voiceSize + 0.05) * 100.0) / 100.0, 0.8, 1.25); break;
+          case QuickAction::VoiceBreathDec:
+            t.voiceBreath = std::clamp(std::round((t.voiceBreath - 0.05) * 100.0) / 100.0, 0.0, 1.0); break;
+          default:
+            t.voiceBreath = std::clamp(std::round((t.voiceBreath + 0.05) * 100.0) / 100.0, 0.0, 1.0); break;
+        }
+        // The live cue re-speaks by itself (the engine keys on what it says).
+        markProjectDirty();
+        return;
+      }
       case QuickAction::MultiviewToggle:
         project_.multiviewMode = project_.multiviewMode ? 0 : 1;
         if (project_.multiviewMode == 0) {

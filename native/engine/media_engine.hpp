@@ -100,6 +100,14 @@ struct DrmPrimeImporterDeleter { void operator()(DrmPrimeImporter* importer) con
 }
 #endif
 
+// One rendered line of speech, shared between the engine and the process-wide
+// cache. A worker thread fills `samples` and then sets `ready`; nothing
+// touches `samples` before that.
+struct VoiceRender {
+  std::atomic<bool> ready{false};
+  std::vector<float> samples;   // mono, kAudioRate, peak normalised to 1
+};
+
 class MediaEngine {
  public:
   void setForcePixelFrames(bool on) { forcePixelFrames_ = on; }
@@ -473,6 +481,15 @@ class MediaEngine {
   // rendering a fixed block, so the tone is continuous no matter how the frame
   // rate wanders.
   void pumpToneAudio(const Cue& cue, double aheadSeconds = 0.2);   // how far ahead to fill
+
+  // The VOICE waveform. A Voice cue ends by itself, when the speech does.
+  // The speech is rendered once per (text, speaker, mode, voice) on a worker
+  // thread and cached for the whole process, so a retake is instant. Until
+  // it is ready the cue is silent and has no length; when it is, the cue
+  // starts from its beginning and takes the speech's length as its duration.
+  // voiceReady() is for tests and the STATUS reply.
+  bool voiceReady() const { return voiceAttached_; }
+  double voiceSeconds() const;
 
   // ── MIC CUE ────────────────────────────────────────────────────────────
   // A live input read on a thread of its own, straight from the device in
@@ -1340,6 +1357,15 @@ class MediaEngine {
   // The sting's own clock and phase. Advanced on the audio thread, reset when
   // the cue is taken -- see loadCue.
   double stingElapsed_ = 0.0;
+  // The Voice cue's speech: the shared render (the cache owns it too), the key
+  // it was made for, whether this engine has taken it up yet, and where in it
+  // the audio feed is. Main thread only.
+  std::shared_ptr<VoiceRender> voiceJob_;
+  std::string voiceKey_;
+  bool voiceAttached_ = false;
+  std::size_t voicePos_ = 0;
+  void beginVoice(const Cue& cue);
+  void attachVoice();
   double stingPhase_ = 0.0;
   double toneSweepSeconds_ = 0.0;
   int toneIdentifyChannel_ = 0;

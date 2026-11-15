@@ -3252,7 +3252,7 @@ html,body{width:100%;height:100%;overflow:hidden}
     // without something saying so.
     if (upper == "HELP ALL" || upper == "HELP FULL" || upper == "?? ") {
       sendSnapshot(
-        "DECKBOY_0.01 every verb (401)\n"
+        "DECKBOY_0.01 every verb (402)\n"
         "ADDTIMER ALLGO ALLPAUSE ALLPLAY ALLSTOP ALLTAKE ANIM ANIMATION ARM AUDITION\n"
         "ARTNET ARTNETEVENT ARTNETPORT ART_NET_PORT ASCII ATEM ATEMEVENT\n"
         "ATEMTRIGGER AUDIO AUDIOCUE AUDIOENABLED AUDIOFX AUDIOGAIN AUDIOMONO\n"
@@ -3297,7 +3297,7 @@ html,body{width:100%;height:100%;overflow:hidden}
         "TIMECODELTC TIMECODEMARK TIMEOVERLAY TIMER TIMERCUE TOGGLE\n"
         "TRANSITION TRANSITIONSTYLE TRANSITIONTONEXT TRIM TRIMIN TRIMOUT\n"
         "TUTORIAL TRACKER SEQUENCE GEOLFO UNDO REDO TRIGGER MIDINOTE MIDIMAP MIDIIN OSCTRIGGER MEMOCUE MEMO DEVAMP CAPTIONS MEDIAMTX AUDIOTRACK MIC FIXTURE VIDEODIP\n"
-        "UPDATE VIDEO VIEW VJ VMIX VOLUME WARP WATCH WEBMONITOR WIDTH WINDOWSOURCE XFADE\n"
+        "UPDATE VIDEO VIEW VJ VMIX VOICE VOLUME WARP WATCH WEBMONITOR WIDTH WINDOWSOURCE XFADE\n"
         "cue indices are 1-based; every command answers OK or ERR.\n"
       );
       return true;
@@ -3476,6 +3476,8 @@ html,body{width:100%;height:100%;overflow:hidden}
         "         [DEVICE <name>] (effects on the device before the limiter)\n"
         "mic: MIC | MIC ADD [<device>|TEST] | MIC LIST | MIC INPUT SETTINGS|TEST|<device>\n"
         "     MIC CHANNEL L|R|STEREO | MIC GAIN <dB> (a live input as a cue on a deck)\n"
+        "voice: VOICE SAY <text> | VOICE CHARACTER <name>|CUSTOM | VOICE MODE WORDS|SOUNDS | VOICE STATUS\n"
+        "       VOICE PITCH <50-400 Hz> | SIZE <0.8-1.25> | BREATH <0-100> (CUSTOM only); a Voice cue speaks the text and ends by itself\n"
         "scopes: SCOPES [PROGRAM|SCOPES|BOTH|TOGGLE] | SCOPES BIG waveform|parade|vector|diamond|histogram|\n"
         "        falsecolour|sound|OFF | SCOPES FREEZE [ON|OFF] | SCOPES MATRIX 709|2020\n"
         "        SCOPES SOURCE PROGRAMME|<n> | SCOPES STATS (the programme output, full raster; HDR in nits)\n"

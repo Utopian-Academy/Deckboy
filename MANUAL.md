@@ -266,6 +266,7 @@ down to give the height back.
 | **Audio** | An audio-only file with a waveform lane |
 | **Mic** | A live microphone or line input, played through the deck with its fades, routing and audio effects (see Mic cue under §17) |
 | **Tone** | A generated audio test tone, with optional on-screen diagnostics — and, with a chip selected, a playable 2A03 or FDS voice driven from MIDI or the computer keyboard |
+| **Voice** | A Tone cue that speaks typed text with Deckboy's vocal-tract voice, and ends by itself when the speech does (see below) |
 | **Timer** | A stage/speaker countdown with its own clock, thresholds, chimes and messages. Set its **backdrop** to **transparent** and use **GEOMETRY** to put the clock in a corner of the programme as a layer |
 | **Video Synth** | Generated picture — oscillators, feedback, glitch stack, text mode, sprite sets |
 | **Code** | A live-coded picture: an expression evaluated per pixel, edited while it runs (see §14a). It is a Pattern cue underneath, so anything true of patterns is true of it |
@@ -286,6 +287,26 @@ to other equipment, when they are taken (*v0.99.373 and later.*; see §9b):
 
 All of them are on the `SOURCE` menu.
 
+**Voice.** SOURCE > MADE BY DECKBOY > **Voice (typed text, spoken)** adds a Tone
+cue whose signal is speech, made by the same talking vocal tract as the lesson
+characters. In its inspector, **text** opens an inline editor for what it says
+(any language: other scripts are spelled out as sounds), **speaker** picks one
+of the sixteen lesson characters or CUSTOM, and **says** switches between
+WORDS (the text) and SOUNDS (the speaker's own noises, one per word, with the
+punctuation kept so a question still rises). CUSTOM adds **pitch** (50 to 400
+Hz), **size** (the length of the throat, 0.8 a child to 1.25 a giant) and
+**breath** (0 pressed to 100% a whisper). Like a Sting, a Voice cue ends by
+itself: its length is the length of the speech, and its end action says what
+happens next. A new line is made on a worker thread; the cue is silent for a
+moment and then starts from its beginning. Lines are kept in memory, so a
+retake of the same words in the same voice starts at once. **level** is the
+speech level: the peak sits 12 dB above it, so the default -18 dBFS peaks near
+-6 dBFS, a normal speaking level. It never goes above -1 dBFS. The audio
+effects chain works on it as on other tones. The cue is named from its words.
+Companion: `VOICE SAY <text>` (sets the selected Voice cue, or adds one),
+`VOICE CHARACTER <name>|CUSTOM`, `VOICE MODE WORDS|SOUNDS`, `VOICE PITCH <Hz>`,
+`VOICE SIZE <0.8-1.25>`, `VOICE BREATH <0-100>` and `VOICE STATUS`.
+
 ---
 
 ## 6. Importing & Adding Cues
@@ -295,7 +316,7 @@ All of them are on the `SOURCE` menu.
 - **Add a source cue:** the SOURCE menu has four parts. LIVE PICTURE adds a
   window, camera, Syphon/Spout, browser, stream or NDI source. MADE BY DECKBOY
   adds everything Deckboy makes itself: Fireside, Portal, Swirl, Moire, Lumia, Shaders (ISF .fs files), Video Synth,
-  Code, Text, Lower Third, Stage Timer and the 2A03 and FDS synths. TEST
+  Code, Text, Lower Third, Stage Timer, the 2A03 and FDS synths and Voice. TEST
   SIGNALS adds a test pattern or a test tone, and CUES THAT DO THINGS adds the
   cues that act on the show rather than putting a picture up.
 - **Add a pattern:** press `P` or use the PATTERN menu for the test cards and

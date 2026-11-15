@@ -1008,7 +1008,10 @@ enum class ToneWaveform {
              // signal, and a usable emergency synth. The token stays "Fds" so
              // shows saved before the 2A03 merge still load.
   Sting,     // A short musical gesture for a walk-up: struck, swept and
-             // decayed. The only waveform here that ENDS by itself.
+             // decayed. Ends by itself.
+  Voice,     // Typed text, spoken by the vocal-tract voice (core/vocal_tract).
+             // Ends by itself, when the speech does. APPENDED: the integer is
+             // saved in shows.
 };
 
 // THE READER HAS TO KNOW THIS NUMBER, and it did not. The loader clamped the
@@ -1020,7 +1023,7 @@ enum class ToneWaveform {
 //
 // Anything that turns an int back into one of these clamps to this, never to
 // a literal.
-inline constexpr int kToneWaveformCount = 7;
+inline constexpr int kToneWaveformCount = 8;
 
 // ---------------------------------------------------------------------------
 // FDS wavetable voice.
@@ -1143,6 +1146,17 @@ struct ToneSettings {
   double stingSeconds = 0.75;       // the whole gesture
   double stingSweepSemitones = 7.0; // + rises, - falls, 0 is a struck note
   double stingBody = 0.45;          // 0 a pure sine, 1 a bright stack
+
+  // ── THE VOICE ─────────────────────────────────────────────────────────
+  // Only meaningful when waveform == ToneWaveform::Voice. The character is a
+  // castVoice() name, or "CUSTOM" to use the three numbers below. SOUNDS
+  // says the character's onomatopoeia instead of the words.
+  std::string voiceText = "Hello. This is Deckboy.";
+  std::string voiceCharacter = "PROF. VIDEO";
+  bool voiceSounds = false;
+  double voicePitchHz = 140.0;      // CUSTOM: the speaking pitch
+  double voiceSize = 1.0;           // CUSTOM: tract scale, 0.8 child .. 1.25 giant
+  double voiceBreath = 0.4;         // CUSTOM: 0 pressed .. 1 breathy (tenseness = 1 - breath)
 
   // On-screen display. These are DIAGNOSTIC first and decorative second --
   // each one answers a question an engineer actually asks during a check.
@@ -3954,7 +3968,14 @@ enum class QuickAction {
   IsfToggle,
   IsfChoicePrev,
   IsfChoiceNext,
-  IsfColour
+  IsfColour,
+  // A Voice tone cue (appended: remote QUICK ids must not move).
+  VoiceText,              // edit the words
+  VoiceCharacter,         // open the list of speakers
+  VoiceModeToggle,        // WORDS <-> SOUNDS
+  VoicePitchDec, VoicePitchInc,
+  VoiceSizeDec, VoiceSizeInc,
+  VoiceBreathDec, VoiceBreathInc
 };
 
 // ---------------------------------------------------------------------------

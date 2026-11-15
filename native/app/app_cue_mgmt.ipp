@@ -3195,6 +3195,11 @@
       {0, 0, 0, 0},
       [this]() { addSynthCue(SynthChip::Fds); }
     });
+    contextItems_.push_back({
+      "  Voice (typed text, spoken)",
+      {0, 0, 0, 0},
+      [this]() { addVoiceCue(); }
+    });
     // TEST SIGNALS: what a rig is lined up with, picture and sound together.
     // The pattern arrives as Pocket Test, like the PATTERN button's; which
     // card or chart it is, is chosen in its inspector. The tone is the audio
@@ -3629,6 +3634,7 @@
       case ToneWaveform::Identify: return "identify";
       case ToneWaveform::Fds:      return "FDS synth";
       case ToneWaveform::Sting:    return "sting";
+      case ToneWaveform::Voice:    return "voice";
       default:                     return "sine";
     }
   }
@@ -3842,6 +3848,112 @@
     markProjectDirty();
     triggerToast(std::string("tone: ") + toneWaveformLabel(cue->tone.waveform));
     playUiSound(UiSoundEffect::Toggle);
+  }
+
+  // ── THE VOICE SOURCE ──────────────────────────────────────────────────
+  // The sixteen cast characters (vocal_tract.hpp castVoice) and CUSTOM.
+  static const std::vector<std::string>& voiceCastNames() {
+    static const std::vector<std::string> names = {
+      "DR. PIXEL", "PROF. VIDEO", "COACH MARV", "JUNE O'NEIL", "TURNIP TOP", "CHEF BORK",
+      "DONNA WHEEL", "KEEPER ROOK", "AGENT BRANDT", "AGENT HOLLIS", "MR. SALTY",
+      "OPTIMUS PRIMETIME", "WALLIS", "CAROLINE POLKADOT", "LT. HAILA", "ENSIGN JINKLEY",
+      "CUSTOM"};
+    return names;
+  }
+
+  // A speaker's name as typed, matched without regard to case; empty if none.
+  static std::string voiceCastMatch(const std::string& typed) {
+    std::string wanted = typed;
+    for (char& c : wanted) c = static_cast<char>(std::toupper(static_cast<unsigned char>(c)));
+    for (const std::string& name : voiceCastNames()) {
+      if (name == wanted) return name;
+    }
+    return std::string();
+  }
+
+  // A cue's name from what it says: the first words, kept short.
+  static std::string voiceCueName(const std::string& text) {
+    std::string t;
+    for (char c : text) t += (c == '\t' || c == '\n' || c == '\r') ? ' ' : c;
+    while (!t.empty() && t.front() == ' ') t.erase(t.begin());
+    constexpr std::size_t kMax = 28;
+    if (t.size() > kMax) {
+      t.resize(kMax);
+      while (!t.empty() && (static_cast<unsigned char>(t.back()) & 0xC0) == 0x80) t.pop_back();  // not mid-character
+      t += "...";
+    }
+    return t.empty() ? std::string("Voice") : "Voice: " + t;
+  }
+
+  Cue makeVoiceCue(const std::string& text) {
+    auto [rasterW, rasterH] = outputRenderSizeForOutput(project_.focusedOutputIndex);
+    Cue cue;
+    cue.kind = CueKind::Tone;
+    cue.path = "tone://";
+    cue.tone.waveform = ToneWaveform::Voice;
+    cue.tone.voiceText = text;
+    cue.name = voiceCueName(text);
+    cue.width = rasterW;
+    cue.height = rasterH;
+    cue.color = {120, 90, 140, 255};
+    cue.formatName = "generated";
+    Deck& deck = focusedDeckMutable();
+    applyDeckDefaultsToCue(cue, deck);
+    // It ENDS when the speech does (the engine gives it that length); Stop
+    // says what happens then, and the operator can change it like any cue's.
+    cue.pauseOnLastFrame = true;
+    cue.stillDurationSeconds = 0.0;
+    cue.endAction = CueEndAction::Stop;
+    cue.hasAudio = true;   // as the other tone cues: the audio chain attaches to it
+    return cue;
+  }
+
+  void addVoiceCue(const std::string& text = "Hello. This is Deckboy.") {
+    Cue cue = makeVoiceCue(text);
+    Deck& deck = focusedDeckMutable();
+    deck.cues.push_back(cue);
+    deck.selectedIndex = static_cast<int>(deck.cues.size()) - 1;
+    deck.selectedIndices.clear();   // the new cue alone
+    onSelectionChanged();
+    triggerToast("voice cue added");
+    playUiSound(UiSoundEffect::Import);
+  }
+
+  // Set what the selected Voice cue says. The name follows the words while it
+  // still carries the name the old words gave it (an operator's own name stays).
+  void setVoiceText(Cue& cue, const std::string& text) {
+    const bool followsText = cue.name == voiceCueName(cue.tone.voiceText);
+    cue.tone.voiceText = text;
+    if (followsText) cue.name = voiceCueName(text);
+    markProjectDirty();
+  }
+
+  void openVoiceTextEditor() {
+    Cue* sel = selectedToneCueMutable();
+    if (!sel || sel->tone.waveform != ToneWaveform::Voice) return;
+    openInlineTextEditor("voice.text", "Voice", "What the cue says:", sel->tone.voiceText,
+                         [this](const std::string& value) {
+      Cue* c = selectedToneCueMutable();
+      if (c && c->tone.waveform == ToneWaveform::Voice) setVoiceText(*c, value);
+    });
+  }
+
+  void openVoiceCharacterList() {
+    Cue* sel = selectedToneCueMutable();
+    if (!sel || sel->tone.waveform != ToneWaveform::Voice) return;
+    SDL_Rect anchor = lastInlineEditorAnchorRect_;
+    for (const auto& qb : quickButtons_) {
+      if (qb.action == QuickAction::VoiceCharacter && qb.rect.w > anchor.w) anchor = qb.rect;
+    }
+    std::vector<std::pair<std::string, std::string>> choices;
+    for (const std::string& name : voiceCastNames()) choices.emplace_back(name, name);
+    openDropdown("voice.character", anchor, choices, sel->tone.voiceCharacter,
+                 [this](const std::string& name) {
+      Cue* c = selectedToneCueMutable();
+      if (!c || c->tone.waveform != ToneWaveform::Voice) return;
+      c->tone.voiceCharacter = name;
+      markProjectDirty();
+    });
   }
 
   // Frequency steps in THIRD-OCTAVES rather than a fixed number of Hz. 100Hz
