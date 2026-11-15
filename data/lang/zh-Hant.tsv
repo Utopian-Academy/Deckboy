@@ -1075,22 +1075,16 @@ Datamosh breaks a video on purpose: one shot smears into the next, and the colou
 We wanted it to look like a memory of a dream of a ride on an escalator.	??????????????????????
 THE SOURCE CLIP	????
 A good mosh starts with a well-made source clip. Moshing a dull clip only makes a smudge.	??????????????????????????????
-What it needs: hard CUTS, a bright busy picture before each cut, and big steady MOTION after it. This clip has seven.	???????????????????????????????????????????????
-We shot it ourselves. In 1895. With the Lumière brothers. Long story.	???????1895????????????????
 WATCH THE CUTS	????
-TAKE the music video and watch it once. Count the cuts: train, samurai, dancer, the dive, the dive backwards, the kiss, the train.	?TAKE???????????????????????????????????????????
 Every cut starts with a KEYFRAME: a whole picture. Every frame after it is only the changes. Datamosh throws the keyframe away.	??????????????????????????????????????????
-The train is the chorus. The samurai is the bridge. The kiss is the key change.	??????????????????
 THE EFFECT	??
 In EFFECTS, + adds one: choose DATAMOSH.	?????+???????????DATAMOSH?
-With no keyframe, the next shot's changes land on the LAST shot's picture. The train drags the samurai along the track.	???????????????????????????????????????
 Yes. Break it. Break it like you mean it.	???????????????
 THE WAIT	??
 Deckboy makes a moshable copy first: the same clip encoded without the extras that would repair the damage. A few seconds.	Deckboy??????????????????????????????????????????
 This is the other half of a good source: a copy made FOR moshing. The Encoder tab shows it working.	?????????????????????????????????
 Like waiting for the tour bus. But the tour bus is a codec.	??????????????????????
 It is ready. TAKE it from the top and watch each cut smear into the next.	??????TAKE?????????????????????
-The train slides through the samurai's moon, and the dancer's silks drag across the sea.	????????????????????
 THAT is the video. That is literally what it looked like in my head.	????????????????????
 YOUR OWN CLIPS	?????
 For your own: shoot or cut for it. Hard cuts, loud colour, then one big move: a pan, a zoom, someone running at the lens.	?????????????????????????????????????????????????????
@@ -1098,17 +1092,10 @@ Avoid slow fades and still talking heads: no motion means nothing to drag, and a
 Thank you, Deckboy. We are calling the album 'Keyframe Not Found'.	????Deckboy????????'Keyframe Not Found'?
 Still making the copy. Hum something. Anything.	??????????????????
 The SOURCE picker: a Lower Third with a name on it, then a title card with a key-green backdrop.	SOURCE 選擇器：一條有名字的 Lower Third，然後一張去背綠底的標題字卡。
-What it needs: hard CUTS, a bright busy picture before each cut, and big steady MOTION after it. This clip has nine, one on each bar of the music.	需要的是：硬切，每次切換前明亮、內容豐富的畫面，以及切換後大幅而穩定的運動。這個片段有九次切換，音樂的每個小節一次。
-TAKE the music video and watch it once. Count the cuts. Each one lands on the beat: train, samurai, dancer, the dive, the dive backwards, the kiss.	用 TAKE 播放音樂影片，看一遍。數一數切換。每一次都落在節拍上：火車、武士、舞者、跳水、倒放的跳水、接吻。
 Dobar den, skapi. I am Dr. Pixel. Five minutes, and you will run a show. Less, if you listen to me. Our voices change on the VOICE button, bottom left.	多巴爾·登，斯卡皮。我是像素博士。五分鐘，你就能主控一場演出。聽我的，用不到五分鐘。 左下角的 VOICE 按鈕可以切換我們的聲音。
 EXPERIMENTAL: WORDS	實驗性: 文字
 EXPERIMENTAL: SOUNDS	實驗性: 聲音
 What it needs: hard CUTS, a bright busy picture before each cut, and big steady MOTION after it. This clip has eleven, one on each bar of the music.	需要的是：硬切，每次切換前明亮、內容豐富的畫面，以及切換後大幅而穩定的運動。這個片段有十一次切換，音樂的每個小節一次。
-We shot it ourselves. A llama, a flying squirrel and a barn that is also a rocket. Long story.	我們自己拍的。一隻羊駝、一隻鼯鼠，還有一座兼任火箭的穀倉。說來話長。
-TAKE the music video and watch it once. Count the cuts. Each one lands on the beat: the barn, the Ferris wheel, the llama, the bunny, the squirrel.	用 TAKE 播放音樂影片，看一遍。數一數切換。每一次都落在節拍上： 穀倉、摩天輪、羊駝、小兔子、鼯鼠。
-The barn is the chorus. The squirrel is the bridge. The pram is the key change.	穀倉是副歌。鼯鼠是橋段。嬰兒車是轉調。
-With no keyframe, the next shot's changes land on the LAST shot's picture. The rocket barn drags the Ferris wheel into the sky.	沒有關鍵影格，下一鏡頭的變化就會落在上一鏡頭的畫面上。火箭穀倉把摩天輪拖上了天。
-The shuttle smears through the Ferris wheel, and the squirrel drags the grass across the sky.	太空梭拖著殘影穿過摩天輪，鼯鼠把草地拖過天空。
 Deft Funk - 'Around the Mix'	靈巧放克 - ‘Around the Mix’
 The song is selected. In its AUDIO EFFECTS section, + adds one. Try the delay.	歌曲已被選取。在它的AUDIO EFFECTS區塊，按+新增。試試delay。
 # --- end of tutorials ---
@@ -4685,3 +4672,11 @@ VOICE: expected SAY, CHARACTER, MODE, PITCH, SIZE, BREATH or STATUS	VOICE: 所�
 Who talks: one of the sixteen lesson characters, or CUSTOM to set the voice by hand.	誰在說話：十六個課程字元之一，或選擇自訂以手動設定音色。
 The speaking pitch. Steps in semitones: about 100 Hz is a deep voice, 220 Hz a high one.	說話的音高。以半音為步進：約 100 Hz 為低沉的聲音，220 Hz 為高亢的聲音。
 WORDS speaks the text. SOUNDS has the speaker say their own noises instead, one per word, keeping the punctuation.	詞語朗讀文字。聲音則讓說話者發出自己的聲響，每個詞一個，並保留標點。
+could not write to {1}	無法寫入 {1}
+A riddle, on a napkin. Is the rat a professor now?	餐巾紙上的謎語。老鼠現在成教授了嗎？
+The rocket is the chorus. The balloon is the bridge. The coaster is the key change.	火箭是副歌。氣球是橋段。過山車是轉調。
+The coaster rolls through the capsule, and the capsule splashes down on the coaster.	過山車穿過膠囊，膠囊濺落在過山車上。
+Rockets, balloons and a roller coaster. The rockets are public domain. The feelings are ours.	火箭、氣球和一輛過山車。火箭屬於公有領域。感情是我們的。
+With no keyframe, the next shot's changes land on the LAST shot's picture. The rocket's fire smears into the balloon's sky.	沒有關鍵影格，下一個鏡頭的變化會落在上一個鏡頭的畫面上。火箭的火焰會拖進氣球的天空裡。
+TAKE the music video and watch it once. Count the cuts. Each one lands on the beat: the rocket, the balloon, the coaster, the capsule, the jet.	TAKE 這支音樂影片，看一次。數一數切割。每一次都落在節拍上：火箭、氣球、過山車、膠囊、噴射機。
+The rat left a napkin, skapi. It says: "Above Baba's town, the rocks keep a fortress. The town just calls it 'the fortress', in its own words. Type that word where Deckboy talks about itself."	老鼠留下了一張餐巾紙，skapi。上面說：「在 Baba 的小鎮上方，岩石守著一座堡壘。小鎮只是用自己的話叫它『堡壘』。把那個字輸入到 Deckboy 談論自身的地方。」

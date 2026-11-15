@@ -2034,7 +2034,8 @@
       if (file.good()) opened.push_back(out);
     }
     if (opened.empty()) {
-      triggerToast("could not write to " + to.string(), ToastKind::Warning, kToastReadableMs);
+      triggerToast(deckboy::core::i18n::format("could not write to {1}", {to.string()}), ToastKind::Warning,
+                   kToastReadableMs);
       return;
     }
     std::sort(opened.begin(), opened.end());
