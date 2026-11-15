@@ -11901,6 +11901,36 @@ bool MediaEngine::hasInstrumentPlugin() const {
   return false;
 }
 
+std::vector<float> MediaEngine::renderSynthOffline(const ToneSettings& tone, std::vector<OfflineNote> notes,
+                                                   double seconds) {
+  std::sort(notes.begin(), notes.end(), [](const OfflineNote& a, const OfflineNote& b) { return a.start < b.start; });
+  const std::size_t total = static_cast<std::size_t>(std::max(0.0, seconds) * kAudioRate);
+  std::vector<float> out(total, 0.0f);
+  const double dt = 1.0 / static_cast<double>(kAudioRate);
+  std::size_t next = 0;
+  const OfflineNote* held = nullptr;
+  double heldUntil = -1.0;
+  for (std::size_t i = 0; i < total; ++i) {
+    const double t = static_cast<double>(i) * dt;
+    while (next < notes.size() && notes[next].start <= t) {
+      held = &notes[next++];
+      heldUntil = held->start + held->length;
+      synthNoteOn(held->hz, held->velocity);
+    }
+    if (held && t >= heldUntil) {
+      synthNoteOff(chipNoteHz_);
+      held = nullptr;
+    }
+    if (held && held->hzEnd > 0.0 && held->length > 0.0) {
+      const double p = std::clamp((t - held->start) / held->length, 0.0, 1.0);
+      chipNoteHz_ = held->hz * std::pow(held->hzEnd / held->hz, p);   // a glide in pitch, not in Hz
+    }
+    const double s = tone.synth.chip == SynthChip::Nes ? nesNextSample(tone, dt) : fdsNextSample(tone, dt);
+    out[i] = static_cast<float>(s);
+  }
+  return out;
+}
+
 void MediaEngine::synthNoteOn(double hz, int velocity) {
   if (hz <= 0.0) return;
   sendNoteToPlugins(true, hz, velocity);

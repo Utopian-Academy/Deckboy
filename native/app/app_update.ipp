@@ -1706,12 +1706,34 @@
 
     ensureOutputRuntimesSynced();
 
+    // THE MONITOR WITH EVERY OUTPUT OFF. The monitor is the programme, taken
+    // from an output's finished composite -- but only while that output is
+    // on, and a lesson, a show being built, or anyone checking a cue before
+    // the doors open has every output off. The monitor then drew only the
+    // focused playlist, on the CPU: a Lower Third over the weather map showed
+    // as a Lower Third over nothing, and its look cost 7-10 ms of the desk's
+    // frame at p95 (2026-11-14). Now the output's own compositor still runs,
+    // small and with nothing sent anywhere, and the monitor is taken from it.
+    const int monitorOnly = drawControl ? monitorOnlyOutputIndex() : monitorOnlyOutput_;
+    monitorOnlyOutput_ = monitorOnly;
+    if (monitorOnly != monitorOnlyLogged_) {
+      monitorOnlyLogged_ = monitorOnly;
+      std::cerr << "monitor: " << (monitorOnly >= 0 ? "drawn by output " + std::to_string(monitorOnly + 1) +
+                                                        "'s compositor (the output is off)"
+                                                    : std::string("from an output that is on, or the playlist alone"))
+                << std::endl;
+    }
     for (int outputIndex = 0; outputIndex < static_cast<int>(project_.outputs.size()); ++outputIndex) {
       if (!project_.outputs[outputIndex].enabled) {
         // Disabling an output must also stop its EGRESS, not just black its
         // window — this is the path STOP RECORDING takes.
         stopEgressForDisabledOutput(outputIndex);
         clearDisabledOutputWindow(outputIndex);
+        if (outputIndex == monitorOnly) {
+          renderOutputWindow(outputIndex, /*monitorOnly=*/true);
+        } else if (OutputRuntime* idle = runtimeForOutput(outputIndex); idle && idle->previewTapSerial != 0) {
+          releaseOutputPreviewTap(*idle);
+        }
         continue;
       }
       renderOutputWindow(outputIndex);

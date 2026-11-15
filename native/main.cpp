@@ -12121,6 +12121,8 @@ class App {
   // UI vsync is dropped while anything is being recorded or streamed, so the
   // programme output alone paces the loop (see App::render).
   int controlVsyncApplied_ = 1;
+  int monitorOnlyLogged_ = -2;   // the monitor-only output last logged (render loop)
+  int monitorOnlyOutput_ = -1;   // the switched-off output drawing the monitor, or -1
   Uint64 lastControlDrawMs_ = 0;
   Uint64 selectionChangedAt_ = 0;
   bool uiProfileEnabled_ = false;
@@ -13544,7 +13546,7 @@ constexpr const char* kCliModeFlags[] = {
   "--pattern-bench", "--pattern-dump", "--code-dump", "--code-check",
   "--effect-dump", "--gpu-effect-dump", "--effect-bench", "--image-check", "--transition-dump", "--gpu-transition-dump", "--gpu-source-dump",
   "--lower-third-bench",
-  "--decode-bench", "--ltc-generate", "--audio-fx-check", "--mtc-check", "--colour-check",
+  "--decode-bench", "--ltc-generate", "--synth-render", "--audio-fx-check", "--mtc-check", "--colour-check",
   "--hap-probe", "--asio-probe", "--asio-tone", "--sheet-probe", "--timer-dump",
   "--motion-probe", "--pdf-probe", "--pdf-render", "--pptx-notes", "--atem-probe",
   "--devices", "--plugins", "--plugin-chain-check", "--check-update", "--font-check",
@@ -13906,6 +13908,104 @@ int runDeckboyCliMode(const std::string& mode, const std::vector<std::string>& o
     // Optional plugin name or id. With none it takes the first that loads,
     // which is what makes this runnable on a machine nobody has described.
     return App::runPluginChainCheck(ops.empty() ? std::string() : ops[0]);
+  }
+  // --synth-render <score.tsv> <out-dir>: Deckboy's chip synth playing a
+  // score offline, one 32-bit float WAV per voice. A score line is either
+  //   voice <name> <key=value>...    chip=nes|fds nes=pulse|triangle|noise
+  //                                  duty=eighth|quarter|half|threequarter short=0|1
+  //                                  carrier=sine|triangle|pulse25|saw|additive
+  //                                  mod=off|ramp|square|vibrato|growl depth=<0-63> ratio=<x>
+  //                                  attack=<s> release=<s> quantise=0|1
+  //   note <voice> <start s> <length s> <hz> <velocity> [hz at the end]
+  // and # starts a comment. The track's length is the last note's end plus
+  // two seconds of tails.
+  if (mode == "--synth-render") {
+    if (ops.size() < 2) return missing("<score.tsv> <out-dir>");
+    std::ifstream in(dbfs::u8path(ops[0]));
+    if (!in) {
+      std::fprintf(stderr, "synth-render: cannot read %s\n", ops[0].c_str());
+      return 2;
+    }
+    std::map<std::string, ToneSettings> voices;
+    std::map<std::string, std::vector<MediaEngine::OfflineNote>> notes;
+    std::vector<std::string> order;
+    double end = 0.0;
+    std::string line;
+    int lineNo = 0;
+    while (std::getline(in, line)) {
+      ++lineNo;
+      if (const auto hash = line.find('#'); hash != std::string::npos) line.erase(hash);
+      std::istringstream words(line);
+      std::string kind;
+      if (!(words >> kind)) continue;
+      if (kind == "voice") {
+        std::string name;
+        words >> name;
+        ToneSettings tone;
+        tone.waveform = ToneWaveform::Fds;
+        std::string kv;
+        while (words >> kv) {
+          const auto eq = kv.find('=');
+          if (eq == std::string::npos) continue;
+          const std::string k = kv.substr(0, eq), v = kv.substr(eq + 1);
+          auto& s = tone.synth;
+          if (k == "chip") s.chip = v == "nes" ? SynthChip::Nes : SynthChip::Fds;
+          else if (k == "nes") s.nesVoice = v == "triangle" ? NesVoice::Triangle : v == "noise" ? NesVoice::Noise : NesVoice::Pulse;
+          else if (k == "duty") s.nesDuty = v == "eighth" ? NesDuty::Eighth : v == "quarter" ? NesDuty::Quarter
+                                          : v == "threequarter" ? NesDuty::ThreeQuarter : NesDuty::Half;
+          else if (k == "short") s.nesNoiseShort = v == "1";
+          else if (k == "quantise") s.nesQuantise = v != "0";
+          else if (k == "carrier") s.carrier = v == "triangle" ? FdsCarrier::Triangle : v == "pulse25" ? FdsCarrier::Pulse25
+                                             : v == "saw" ? FdsCarrier::Saw : v == "additive" ? FdsCarrier::Additive : FdsCarrier::Sine;
+          else if (k == "mod") s.modulator = v == "off" ? FdsModulator::Off : v == "square" ? FdsModulator::Square
+                                           : v == "vibrato" ? FdsModulator::Vibrato : v == "growl" ? FdsModulator::Growl : FdsModulator::Ramp;
+          else if (k == "depth") s.modDepth = std::clamp(std::atoi(v.c_str()), 0, 63);
+          else if (k == "ratio") s.modRatio = std::atof(v.c_str());
+          else if (k == "attack") s.attackSeconds = std::atof(v.c_str());
+          else if (k == "release") s.releaseSeconds = std::atof(v.c_str());
+        }
+        if (!voices.count(name)) order.push_back(name);
+        voices[name] = tone;
+      } else if (kind == "note") {
+        std::string name;
+        MediaEngine::OfflineNote n;
+        if (!(words >> name >> n.start >> n.length >> n.hz >> n.velocity)) {
+          std::fprintf(stderr, "synth-render: line %d is not a note\n", lineNo);
+          return 2;
+        }
+        words >> n.hzEnd;
+        if (!voices.count(name)) {
+          std::fprintf(stderr, "synth-render: line %d plays voice '%s', which has no voice line\n", lineNo, name.c_str());
+          return 2;
+        }
+        end = std::max(end, n.start + n.length);
+        notes[name].push_back(n);
+      }
+    }
+    const double seconds = end + 2.0;
+    std::error_code ec;
+    dbfs::create_directories(dbfs::u8path(ops[1]), ec);
+    for (const std::string& name : order) {
+      MediaEngine engine(nullptr, nullptr);
+      const std::vector<float> pcm = engine.renderSynthOffline(voices[name], notes[name], seconds);
+      const std::string path = (dbfs::u8path(ops[1]) / (name + ".wav")).string();
+      std::FILE* f = std::fopen(path.c_str(), "wb");
+      if (!f) {
+        std::fprintf(stderr, "synth-render: cannot write %s\n", path.c_str());
+        return 1;
+      }
+      // A WAV of 32-bit floats, mono, at kAudioRate.
+      const std::uint32_t dataBytes = static_cast<std::uint32_t>(pcm.size() * sizeof(float));
+      auto u32 = [f](std::uint32_t v) { std::fwrite(&v, 4, 1, f); };
+      auto u16 = [f](std::uint16_t v) { std::fwrite(&v, 2, 1, f); };
+      std::fwrite("RIFF", 1, 4, f); u32(36 + dataBytes); std::fwrite("WAVE", 1, 4, f);
+      std::fwrite("fmt ", 1, 4, f); u32(16); u16(3); u16(1); u32(kAudioRate); u32(kAudioRate * 4); u16(4); u16(32);
+      std::fwrite("data", 1, 4, f); u32(dataBytes);
+      std::fwrite(pcm.data(), sizeof(float), pcm.size(), f);
+      std::fclose(f);
+      std::printf("synth-render: %s, %zu notes, %.2f s\n", path.c_str(), notes[name].size(), seconds);
+    }
+    return 0;
   }
   if (mode == "--audio-fx-check") {
     // Optional token: one effect, for when a change is being made to it.

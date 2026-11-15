@@ -6440,7 +6440,10 @@
     }
   }
 
-  void renderOutputWindow(int outputIndex) {
+  // monitorOnly: the output is switched off and its composite is drawn only
+  // for the desk's monitor -- small, never presented to a screen, never sent
+  // anywhere (see the render loop in app_update.ipp).
+  void renderOutputWindow(int outputIndex, bool monitorOnly = false) {
     if (outputIndex < 0 || outputIndex >= static_cast<int>(project_.outputs.size())) {
       return;
     }
@@ -6451,13 +6454,13 @@
     }
     if (!runtime->gpuTransitionSlots.empty()) sweepGpuTransitionSlots(*runtime);
     const OutputTarget& output = project_.outputs[outputIndex];
-    if (!output.enabled) {
+    if (!output.enabled && !monitorOnly) {
       if (outputIndex == scopesOutputIndex() && scopesCaptureRenderer_) releaseScopesCapture();
       // Egress teardown for a disabled output happens in the render loop (see
       // stopEgressForDisabledOutput) -- this function is never called for one.
       return;
     }
-    runtime->blackedWhileDisabled = false;  // active again — re-black on next disable
+    if (!monitorOnly) runtime->blackedWhileDisabled = false;  // active again — re-black on next disable
     OutputBackendRuntimeRoute backendRoute = resolveOutputBackendRuntimeRoute(outputIndex);
     std::string outputType = normalizeOutputType(output.outputType);
     bool streamType = outputType == "stream";
@@ -6487,7 +6490,9 @@
 
     int width = 0;
     int height = 0;
-    if (!streamType && runtime->outputWindow) {
+    if (monitorOnly) {
+      std::tie(width, height) = monitorOnlyRenderSize(compositionOutputIndex);
+    } else if (!streamType && runtime->outputWindow) {
       SDL_GetWindowSize(runtime->outputWindow, &width, &height);
     } else {
       auto [rasterW, rasterH] = outputRenderSizeForOutput(compositionOutputIndex);
@@ -6507,7 +6512,7 @@
       targetCompositorH = canvasH;
     }
     // A recording that reads another output's composite draws nothing itself.
-    {
+    if (!monitorOnly) {
       const int programme = egressProgrammeSource(outputIndex);
       if (runtime->egressProgrammeLogged != programme) {
         runtime->egressProgrammeLogged = programme;
@@ -6565,7 +6570,7 @@
     // one reads THIS compositor, so when one mirrors this output the
     // programme is drawn first, handed to it, and the card painted over.
     std::vector<int> hdrRecordingsOfThis;
-    if (output.outputTestCardEnabled && runtime->hdr) {
+    if (output.outputTestCardEnabled && runtime->hdr && !monitorOnly) {
       for (int i = 0; i < static_cast<int>(outputRuntimes_.size()); ++i) {
         if (i != outputIndex && outputRuntimes_[static_cast<std::size_t>(i)].streamHdr &&
             hdrRecordingSource(i) == outputIndex) {
@@ -6849,17 +6854,20 @@
     }
     if (usingCompositor) {
       SDL_SetRenderTarget(runtime->outputRenderer, nullptr);
-      if (!streamType) {
+      if (!streamType && !monitorOnly) {
         SDL_SetRenderDrawColor(runtime->outputRenderer, 0, 0, 0, 255);
         SDL_RenderClear(runtime->outputRenderer);
         presentOutputCompositorToWindow(outputIndex, width, height);
       }
     }
-    bool streamRouteActive = output.streamEnabled && backendRoute.streamSupported;
-    bool ndiRouteActive = (output.ndiEnabled || output.ndiKeyEnabled) && backendRoute.ndiSupported;
-    bool deckLinkRouteActive = output.deckLinkEnabled && backendRoute.deckLinkSupported;
-    bool spoutRouteActive = output.spoutEnabled && backendRoute.spoutSupported;
-    if (output.streamEnabled && !backendRoute.streamSupported) {
+    // A monitor-only pass sends nothing anywhere: every route is off.
+    bool streamRouteActive = !monitorOnly && output.streamEnabled && backendRoute.streamSupported;
+    bool ndiRouteActive = !monitorOnly && (output.ndiEnabled || output.ndiKeyEnabled) && backendRoute.ndiSupported;
+    bool deckLinkRouteActive = !monitorOnly && output.deckLinkEnabled && backendRoute.deckLinkSupported;
+    bool spoutRouteActive = !monitorOnly && output.spoutEnabled && backendRoute.spoutSupported;
+    if (monitorOnly) {
+      // Not this output's health: it is off, and only the monitor is drawing.
+    } else if (output.streamEnabled && !backendRoute.streamSupported) {
       setOutputHealthState(outputIndex, OutputHealthState::Error, "stream backend unavailable");
     } else if ((output.ndiEnabled || output.ndiKeyEnabled) && !backendRoute.ndiSupported) {
       setOutputHealthState(outputIndex, OutputHealthState::Error, "ndi backend unavailable");
@@ -6874,18 +6882,18 @@
     }
     // ST 2110 needs no SDK, so it has no "supported" gate — the socket either
     // opens or it reports why.
-    bool st2110RouteActive = output.st2110Enabled;
+    bool st2110RouteActive = !monitorOnly && output.st2110Enabled;
     // A browser watching this output on the web monitor needs the picture
     // too -- but only while one is: an idle monitor costs nothing.
-    const bool webMonitorRouteActive = webMonitorWatching(outputIndex);
+    const bool webMonitorRouteActive = !monitorOnly && webMonitorWatching(outputIndex);
     // Scopes have their own full-raster tap (see app_scopes_pipeline.ipp).
-    const bool scopesRouteActive = scopesWatching(outputIndex);
+    const bool scopesRouteActive = !monitorOnly && scopesWatching(outputIndex);
     // On an HDR output they read the float compositor instead, not this frame.
     const bool scopesReadHdr = scopesRouteActive && scopesReadsHdr(outputIndex, *runtime);
     const bool egressForOthers =
       streamRouteActive || ndiRouteActive || deckLinkRouteActive || spoutRouteActive ||
       st2110RouteActive || webMonitorRouteActive ||
-      std::clamp(output.outputDelayMs, 0, 5000) > 0;
+      (!monitorOnly && std::clamp(output.outputDelayMs, 0, 5000) > 0);
     const bool scopesWireCapture = scopesRouteActive && runtime->hdr && !scopesReadHdr;
     const bool needsEgressCapture = egressForOthers || scopesWireCapture;
     // THE OUTPUT'S OWN RATE unless a clip says otherwise. This was a flat 30,
@@ -6930,8 +6938,9 @@
       runtime->delayFrames.clear();
     }
     // Recordings that read this output's composite rather than drawing their
-    // own (egressProgrammeSource): captured here, from this very picture.
-    if (usingCompositor) {
+    // own (egressProgrammeSource): captured here, from this very picture --
+    // never from a monitor-only pass, which is small.
+    if (usingCompositor && !monitorOnly) {
       for (int i = 0; i < static_cast<int>(outputRuntimes_.size()); ++i) {
         if (i == outputIndex || egressProgrammeSource(i) != outputIndex) continue;
         OutputRuntime& recording = outputRuntimes_[static_cast<std::size_t>(i)];
@@ -6988,7 +6997,7 @@
       shutdownOutputSt2110(*runtime);
     }
     const Uint64 afterTapNs = SDL_GetTicksNS();
-    if (!outputSnapPath_.empty() && outputIndex == outputSnapIndex_ && !streamType) {
+    if (!outputSnapPath_.empty() && outputIndex == outputSnapIndex_ && !streamType && !monitorOnly) {
       if (SDL_Surface* shot = SDL_RenderReadPixels(runtime->outputRenderer, nullptr)) {
         const std::string& path = outputSnapPath_;
         if (path.size() > 4 && path.compare(path.size() - 4, 4, ".f32") == 0) {
@@ -7017,6 +7026,20 @@
     // output on the GPU renderer, createOffscreenGpuRenderer) presents only
     // to hand its frame to the GPU. Either way the frame is on the GPU after
     // this, and the recording's and the monitor's reads of it go out.
+    if (monitorOnly) {
+      // NOTHING TO PRESENT: the window is hidden, and Windows holds a hidden
+      // window's presents to about 22 a second, which would hold the desk
+      // with it. Direct3D 11 needs no present -- the monitor's readback copies
+      // and flushes by itself. SDL's GPU renderer (macOS and Linux) sends its
+      // work to the GPU only at a present, so there it presents the hidden
+      // window as a stream output does, and the readback follows.
+      const char* backend = SDL_GetRendererName(runtime->outputRenderer);
+      if (!backend || std::strcmp(backend, "direct3d11") != 0) {
+        presentTraced(runtime->outputRenderer, "monitor", outputIndex);
+        deckboy::gpu::readbacksAfterPresent(runtime->outputRenderer);
+      }
+      return;
+    }
     if (!streamType || SDL_GetRenderWindow(runtime->outputRenderer) == nullptr) {
       if (!streamType) paceBeforePresent(runtime->outputWindow);
       presentTraced(runtime->outputRenderer, "out", outputIndex);

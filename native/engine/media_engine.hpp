@@ -580,6 +580,19 @@ class MediaEngine {
   // single 2A03 pulse channel plays one note, and pretending otherwise would
   // be a synth wearing a chip's clothes.
   void synthNoteOn(double hz, int velocity);
+  // THE SYNTH, OFFLINE (--synth-render): one voice of a Tone cue's chip synth
+  // playing a list of notes, rendered sample-exact at kAudioRate into mono
+  // floats. The same oscillators, envelope and output stage as a Tone cue on
+  // air; only the clock is the sample count instead of the audio device. A
+  // note may glide from hz to hzEnd over its length (a kick's pitch drop).
+  struct OfflineNote {
+    double start = 0.0;    // seconds
+    double length = 0.0;   // seconds the key is held; the release follows
+    double hz = 440.0;
+    double hzEnd = 0.0;    // 0 = no glide
+    int velocity = 100;
+  };
+  std::vector<float> renderSynthOffline(const ToneSettings& tone, std::vector<OfflineNote> notes, double seconds);
   // THE VIDEO SYNTH, PLAYED (James, 2026-11-05: "obviously the synths should
   // be MIDI keyboard playable too"). A key's pitch sets the pattern's spatial
   // frequency -- an octave up doubles it, middle C is the scale as set -- and

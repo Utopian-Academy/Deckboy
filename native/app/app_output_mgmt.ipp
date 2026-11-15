@@ -4392,7 +4392,38 @@
 
   // Which output the control window's program monitor mirrors: the focused
   // deck's primary output, when that output is actually compositing.
-  std::optional<int> previewTapOutputIndex() {
+  // The switched-off output whose composite the monitor shows, or -1: the
+  // focused playlist's output, when it is off. DECKBOY_CPU_PREVIEW=1 keeps the
+  // old monitor (the focused playlist alone, its look on the CPU), to compare.
+  int monitorOnlyOutputIndex() {
+    static const bool cpuPreview = [] {
+      const char* e = std::getenv("DECKBOY_CPU_PREVIEW");
+      return e && *e && *e != '0';
+    }();
+    if (cpuPreview) return -1;
+    const auto tap = previewTapOutputIndex(/*allowOff=*/true);
+    if (!tap || *tap < 0 || *tap >= static_cast<int>(project_.outputs.size())) return -1;
+    const OutputTarget& out = project_.outputs[static_cast<std::size_t>(*tap)];
+    if (out.enabled || normalizeOutputType(out.outputType) == "stream") return -1;
+    return *tap;
+  }
+
+  // How big a switched-off output composites for the monitor: its own shape,
+  // no larger than 1280x720. The monitor shows at most 640x360 of it, and the
+  // effects and sources size themselves from what is drawn.
+  std::pair<int, int> monitorOnlyRenderSize(int outputIndex) {
+    auto [w, h] = outputRenderSizeForOutput(outputIndex);
+    w = std::max(1, w);
+    h = std::max(1, h);
+    const double scale = std::min({1.0, 1280.0 / w, 720.0 / h});
+    return {std::max(2, static_cast<int>(std::lround(w * scale)) & ~1),
+            std::max(2, static_cast<int>(std::lround(h * scale)) & ~1)};
+  }
+
+  // allowOff: also answer with an output that is switched off (the monitor-
+  // only pass asks this way). Otherwise an output that is off taps only while
+  // the monitor-only pass is drawing it (monitorOnlyOutput_).
+  std::optional<int> previewTapOutputIndex(bool allowOff = false) {
     // AN AUDITIONED DECK IS NOT ON ITS OUTPUT, so its output's composite is
     // black and tapping it would show the operator the nothing that the room
     // is correctly seeing. Refusing the tap drops the preview to the decoder
@@ -4426,7 +4457,7 @@
     if (outputIndex < 0 || outputIndex >= static_cast<int>(project_.outputs.size())) {
       return std::nullopt;
     }
-    if (!project_.outputs[outputIndex].enabled) {
+    if (!project_.outputs[outputIndex].enabled && !allowOff && outputIndex != monitorOnlyOutput_) {
       return std::nullopt;
     }
     return outputIndex;
