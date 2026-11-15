@@ -102,6 +102,8 @@ NOT_PROSE = re.compile(r"^[\s\W\d]*$")     # punctuation, spacing, digits only
 def is_prose(s):
     """Is this a phrase a translator should be given?"""
     t = s.strip()
+    if len(t) >= 32 and re.fullmatch(r"[0-9a-fA-F]+", t):
+        return False                       # machine digests, not language
     if len(t) < 3:
         return False                       # "GO", "VU", "dB": glyphs, not prose
     if NOT_PROSE.match(t):
@@ -592,8 +594,44 @@ def gate(write):
     return 1
 
 
+def self_test():
+    """Data stays out of translation; ordinary labels and errors stay in."""
+    import unittest
+    from unittest import mock
+
+    class ProseChecks(unittest.TestCase):
+        def test_machine_digests(self):
+            for size in (32, 40, 64, 96, 128):
+                for pair in ("a1", "AF", "bC"):
+                    with self.subTest(size=size, pair=pair):
+                        self.assertFalse(is_prose(pair * (size // 2)))
+
+        def test_hexadecimal_words_are_still_labels(self):
+            for word in ("face", "dead", "beef", "decaf", "Fade"):
+                with self.subTest(word=word):
+                    self.assertTrue(is_prose(word))
+
+        def test_digest_inside_a_message_is_still_prose(self):
+            self.assertTrue(is_prose("File check failed: " + "a1" * 32))
+
+        def test_error_scan_retains_operator_text(self):
+            source = ('static const char* kDigest = "' + "a1" * 32 + '";\n'
+                      'static const char* kReady = "ready";\n'
+                      'error = "Unable to open the selected file";\n')
+            with mock.patch.object(sys.modules[__name__], "source_files",
+                                   return_value=iter([("example.cpp", "native/app/example.cpp", source)])):
+                self.assertEqual(set(error_strings()),
+                                 {"ready", "Unable to open the selected file"})
+
+    result = unittest.TextTestRunner(verbosity=2).run(
+        unittest.defaultTestLoader.loadTestsFromTestCase(ProseChecks))
+    return 0 if result.wasSuccessful() else 1
+
+
 def main():
     ap = argparse.ArgumentParser()
+    ap.add_argument("--self-test", action="store_true",
+                    help="check that data is excluded without losing interface text")
     ap.add_argument("--missing", action="store_true",
                     help="list the drawn strings no catalogue translates")
     ap.add_argument("--top", type=int, default=25)
@@ -602,6 +640,8 @@ def main():
     ap.add_argument("--write-baseline", action="store_true",
                     help="record today's gaps as the baseline the gate allows")
     args = ap.parse_args()
+    if args.self_test:
+        return self_test()
     if args.gate or args.write_baseline:
         return gate(args.write_baseline)
 

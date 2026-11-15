@@ -231,7 +231,9 @@ jobs:
       # string a full catalogue lacks that is not kept English on purpose
       # (tools/i18n_keep_english.txt) and not in tools/i18n_baseline.txt fails.
       - name: New interface text is translated in every full language
-        run: python3 tools/audit_i18n.py --gate
+        run: |
+          python3 tools/audit_i18n.py --self-test
+          python3 tools/audit_i18n.py --gate
 
       - name: Face speech covers every full catalogue and keeps command names
         run: python3 tools/check_face_translations.py
