@@ -28,13 +28,13 @@ computer under **Settings → Network → Trusted controllers**.
 - **Outputs:** on/off, fullscreen, send to display, Clear, Blackout, PANIC
 - **Show:** Take all playlists, run a dashboard tile (and the sequence on it), run or stop a sequence
 - **Find:** set token, next, previous, take match
-- **VJ:** VJ mode, crossfader, blend mode, tap tempo, tempo, quantised takes, deck assignment
+- **VJ:** VJ mode, crossfader, blend mode, tap tempo, tempo, quantised takes (the next beat, or the next 1, 2 or 4 bars), Ableton Link, deck assignment
 - **Effects:** add, amount, parameter (A to F), parameter LFO, choice (Melt's direction and
-  material, Tape's speed and interference, by name), colour (with Companion's colour picker: a
+  material, which includes `liquid`, and Tape's speed and interference, by name), colour (with Companion's colour picker: a
   strobe's flash, the edges line, or the hue Colour and Colour Replace use; Deckboy 0.99.423 or later),
   clear the chain; copy or paste a chain.
   An effect is added by its name: `levels`, `curves`, `colour`, `colour_replace`, `blur`,
-  `sharpen`, `glow`, `mirror`, `mosaic`, `edges`, `luma_key`, `strobe`, `melt`, `tape`, and the rest listed in the
+  `sharpen`, `glow`, `mirror`, `mosaic`, `edges`, `luma_key`, `strobe`, `melt`, `tape`, `circuit_bend`, and the rest listed in the
   manual under Per-Cue Effects
 - **Audio effects:** add, amount, bypass, remove, clear the chain
 - **Sources:** code source expression; video synth text mode, glyphs and phrases
@@ -44,7 +44,7 @@ computer under **Settings → Network → Trusted controllers**.
 Deck actions take a **Deck** number. `0` means whichever deck has focus; a button that names its
 deck always acts on that deck, and leaves focus where it was.
 
-New for Deckboy 0.99.425 and later:
+New for Deckboy 0.99.425 and later (Multiview windows can also show the Scopes):
 
 - **Multiview:** on or off, the layout, and what each window shows.
 - **Motion:** on or off.
@@ -54,6 +54,23 @@ New for Deckboy 0.99.425 and later:
 - **Draw:** undo, clear, and how the drawing plays.
 - **MIDI map:** add a ready-made map for a controller.
 - **Lessons** and **Bug Swat:** open the lesson list, or start the game.
+
+New for Deckboy 0.99.428:
+
+- **Direction:** play the selected video cue forward, in reverse, or bounce. Reverse and bounce play a copy that Deckboy makes first.
+- **Datamosh:** flip the Datamosh look on the selected cue.
+- **VJ Ableton Link:** join, leave or toggle the Link session. VJ quantise now waits for the next beat, or 1, 2 or 4 bars.
+- **Shader:** load a `.fs` (ISF) file as a cue (only when Companion runs on the Deckboy computer), set an input of the selected shader cue, or give a number input an LFO.
+- **Lumia:** set any control of the selected Lumia cue, or give a slider an LFO.
+- **Voice:** make the selected Voice cue say a text, pick its character, words or sounds, and set pitch, size and breath for the `CUSTOM` character.
+- **Captions:** live captions on or off, what they listen to, which outputs show them, lines and size. Make captions for the selected cue. Subtitles on the live cue on or off.
+- **Pad:** the phone's X/Y pad. Put it at a point, let go, hold or latch, and set which controls it moves.
+- **Render to file:** open or close the Render window, or cancel a running render. Deckboy starts a render only from its own computer, so there is no Start action.
+- **Edge blend:** set a whole row of projectors in one press.
+
+Some commands work only on the Deckboy computer itself, for safety: `RENDER START`, `SUBTITLE CONVERT`, `SHADER LOAD`, and the test commands (`CLICK`, `KEY`, `TYPE`, and others). The **Custom command** action cannot run them from another computer.
+
+Deckboy does not report Link, Direction, Pad or Shader state in its status line yet, so these have actions but no feedbacks or variables.
 
 ### Feedbacks
 

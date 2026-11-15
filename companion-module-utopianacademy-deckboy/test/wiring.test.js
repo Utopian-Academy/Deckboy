@@ -657,3 +657,63 @@ test('effect colour sends FX COLOUR as hex', async () => {
 	await built.fx_colour.callback({ options: { index: '', slot: 'own', colour: 0xff0000 } })
 	assert.deepEqual(self.sent, [], 'no colour, or no effect number, sends nothing')
 })
+
+test('the 0.99.428 actions send the commands the app documents', async () => {
+	const self = stubInstance()
+	const built = buildActions(self)
+	const run = (id, options) => built[id].callback({ options })
+	await run('direction', { deck: 0, direction: 'reverse' })
+	await run('datamosh', { deck: 0 })
+	await run('vj_link', { state: 'on' })
+	await run('vj_quantise', { state: '2' })
+	await run('shader_load', { path: 'C:/shaders/a.fs' })
+	await run('shader_set', { input: 'speed', value: '0.5' })
+	await run('shader_lfo', { input: 'speed', what: 'rate', value: '2' })
+	await run('lumia_set', { control: 'palette', value: 'ice' })
+	await run('lumia_lfo', { control: 'flow', what: 'on', value: '' })
+	await run('voice_say', { text: 'Hello there' })
+	await run('voice_character', { name: 'CUSTOM' })
+	await run('voice_mode', { mode: 'sounds' })
+	await run('voice_shape', { what: 'pitch', value: 120 })
+	await run('captions_live', { state: 'on' })
+	await run('captions_source', { source: 'deck', number: 2 })
+	await run('captions_show', { output: 1, state: 'off' })
+	await run('captions_layout', { what: 'size', value: 120 })
+	await run('subtitles', { state: 'toggle' })
+	await run('pad_set', { deck: 1, x: 0.25, y: 0.75 })
+	await run('pad_release', { deck: 1 })
+	await run('pad_mode', { deck: 1, mode: 'latch' })
+	await run('pad_assign', { deck: 1, slot: 1, x: 'OPACITY', y: 'FX1.AMOUNT' })
+	await run('pad_slot', { deck: 1, slot: 1, what: 'off' })
+	await run('pad_slot', { deck: 1, slot: 1, what: 'remove' })
+	await run('render_control', { what: 'cancel' })
+	await run('blend_row', { first: 1, count: 3, overlap: 200 })
+	assert.deepEqual(self.sent, [
+		'DIRECTION REVERSE',
+		'DATAMOSH',
+		'VJ LINK ON',
+		'VJ QUANTISE 2',
+		'SHADER LOAD C:/shaders/a.fs',
+		'SHADER SET speed 0.5',
+		'SHADER LFO speed RATE 2',
+		'LUMIA PALETTE ice',
+		'LUMIA LFO FLOW ON',
+		'VOICE SAY Hello there',
+		'VOICE CHARACTER CUSTOM',
+		'VOICE MODE SOUNDS',
+		'VOICE PITCH 120',
+		'CAPTIONS LIVE ON',
+		'CAPTIONS SOURCE DECK 2',
+		'CAPTIONS SHOW 1 OFF',
+		'CAPTIONS SIZE 120',
+		'SUBTITLE TOGGLE',
+		'PAD 1 SET 0.25 0.75',
+		'PAD 1 RELEASE',
+		'PAD 1 MODE LATCH',
+		'PAD 1 ASSIGN 1 OPACITY FX1.AMOUNT',
+		'PAD 1 CHIP 1 OFF',
+		'PAD 1 REMOVE 1',
+		'RENDER CANCEL',
+		'VIDEO BLEND ROW 1 3 200',
+	])
+})

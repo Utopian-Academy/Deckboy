@@ -9,6 +9,14 @@
 
 import { MAX_DECKS, MAX_OUTPUTS } from './variables.js'
 
+// The Lumia controls LUMIA takes by name (native/app/app_remote_command.ipp).
+const LUMIA_CONTROLS = [
+	'palette', 'mode', 'topbottom', 'listens', 'flow', 'water', 'ripple', 'jet', 'prism', 'split',
+	'focus', 'shimmer', 'mirrors', 'angle', 'spin', 'lens', 'glow', 'bright', 'trail',
+]
+// Two choices and two switches have no oscillator.
+const LUMIA_NO_LFO = ['palette', 'mode', 'topbottom', 'listens']
+
 export function buildActions(self) {
 	const send = (cmd) => self.sendCommand(cmd)
 
@@ -78,6 +86,37 @@ export function buildActions(self) {
 		options: [deckOption],
 		callback: async ({ options }) => withDeck(options, command),
 	})
+
+	// The oscillator settings every LFO verb shares (FX LFO, LUMIA LFO, SHADER LFO).
+	const lfoSettingOption = () => ({
+		type: 'dropdown',
+		disableAutoExpression: true,
+		label: 'Setting',
+		id: 'what',
+		default: 'on',
+		choices: [
+			{ id: 'on', label: 'On' },
+			{ id: 'off', label: 'Off' },
+			{ id: 'shape', label: 'Shape' },
+			{ id: 'rate', label: 'Rate (Hz)' },
+			{ id: 'depth', label: 'Depth' },
+			{ id: 'phase', label: 'Phase' },
+			{ id: 'sync', label: 'Follow the tempo' },
+			{ id: 'beats', label: 'Cycle length in beats' },
+		],
+	})
+	const onOffOption = () => ({
+		type: 'dropdown',
+		disableAutoExpression: true,
+		label: 'State',
+		id: 'state',
+		default: 'on',
+		choices: [
+			{ id: 'on', label: 'On' },
+			{ id: 'off', label: 'Off' },
+		],
+	})
+	const padDeckOption = () => ({ type: 'number', label: 'Deck', id: 'deck', default: 1, min: 1, max: MAX_DECKS, asInteger: true })
 
 	return {
 		take: simple('Take (cue selected cue live)', 'TAKE'),
@@ -468,16 +507,21 @@ export function buildActions(self) {
 		},
 		vj_quantise: {
 			name: 'VJ quantised takes',
-			description: 'Hold takes until the next beat, so what you do lands on the music.',
+			description:
+				'Hold takes until the next beat, or the next 1, 2 or 4 bars, so what you do lands on the music. On keeps the length that was set.',
 			options: [
 				{
 					type: 'dropdown',
 					disableAutoExpression: true,
-					label: 'State',
+					label: 'Wait for',
 					id: 'state',
 					default: 'on',
 					choices: [
-						{ id: 'on', label: 'On' },
+						{ id: 'on', label: 'On (keep the length)' },
+						{ id: 'beat', label: 'The next beat' },
+						{ id: '1', label: 'The next bar' },
+						{ id: '2', label: 'The next 2 bars' },
+						{ id: '4', label: 'The next 4 bars' },
 						{ id: 'off', label: 'Off' },
 					],
 				},
@@ -590,7 +634,7 @@ export function buildActions(self) {
 		fx_choice: {
 			name: 'Effect choice',
 			description:
-				"An effect's setting from a list, by name: Melt direction (down, up, sideways) and material (bright, whole picture); Tape speed (SP, LP, EP) and interference (none, phone, dimmer, radio). Needs the Deckboy release with Melt and Tape.",
+				"An effect's setting from a list, by name: Melt direction (down, up, sideways) and material (bright, whole picture, liquid); Tape speed (SP, LP, EP) and interference (none, phone, dimmer, radio). Needs the Deckboy release with Melt and Tape.",
 			options: [
 				{ type: 'number', label: 'Effect number', id: 'index', default: 1, min: 1, max: 32, asInteger: true },
 				{
@@ -893,6 +937,7 @@ export function buildActions(self) {
 						{ id: 'output', label: 'Output' },
 						{ id: 'next', label: 'Next cue' },
 						{ id: 'clock', label: 'Clock' },
+						{ id: 'scopes', label: 'Scopes' },
 						{ id: 'empty', label: 'Empty' },
 					],
 				},
@@ -1134,6 +1179,420 @@ export function buildActions(self) {
 			description: 'Plays in a practice show, then gives your show back unchanged.',
 			options: [],
 			callback: () => send('BUGSWAT START'),
+		},
+
+		// -- Direction, Datamosh, Link ----------------------------------------
+		direction: {
+			name: 'Direction: forward, reverse or bounce',
+			description:
+				'For the selected video file cue. Reverse and bounce play a copy that Deckboy makes first. The cue shows when the copy is ready.',
+			options: [
+				deckOption,
+				{
+					type: 'dropdown',
+					disableAutoExpression: true,
+					label: 'Direction',
+					id: 'direction',
+					default: 'forward',
+					choices: [
+						{ id: 'forward', label: 'Forward' },
+						{ id: 'reverse', label: 'Reverse' },
+						{ id: 'bounce', label: 'Bounce (forward, then back)' },
+					],
+				},
+			],
+			callback: async ({ options }) => withDeck(options, `DIRECTION ${choice(options.direction, 'forward')}`),
+		},
+		datamosh: {
+			name: 'Datamosh: flip it on the selected cue',
+			description: 'Turns the Datamosh look on or off for the selected cue. Each press flips it.',
+			options: [deckOption],
+			callback: async ({ options }) => withDeck(options, 'DATAMOSH'),
+		},
+		vj_link: {
+			name: 'VJ Ableton Link',
+			description: 'Join the Ableton Link session. The tempo and the bars then come from Link.',
+			options: [
+				{
+					type: 'dropdown',
+					disableAutoExpression: true,
+					label: 'State',
+					id: 'state',
+					default: 'on',
+					choices: [
+						{ id: 'on', label: 'On' },
+						{ id: 'off', label: 'Off' },
+						{ id: 'toggle', label: 'Toggle' },
+					],
+				},
+			],
+			callback: ({ options }) => send(`VJ LINK ${choice(options.state, 'on')}`),
+		},
+
+		// -- Shader cue (ISF) -------------------------------------------------
+		shader_load: {
+			name: 'Shader: load a .fs file',
+			description:
+				'Makes a shader cue from an ISF file. Give the path on the Deckboy computer. Works only when Companion runs on that computer: Deckboy refuses a file path from another one.',
+			options: [{ type: 'textinput', label: 'Path to the .fs file', id: 'path', default: '', useVariables: true }],
+			callback: async ({ options }) => {
+				const path = String(options.path ?? '').trim()
+				if (path.length > 0) send(`SHADER LOAD ${path}`)
+			},
+		},
+		shader_set: {
+			name: 'Shader: set an input',
+			description:
+				'For the selected shader cue. A number is just the number. A colour is #rrggbb, or r g b [a] from 0 to 1. A choice is its label. A point is x y.',
+			options: [
+				{ type: 'textinput', label: 'Input name', id: 'input', default: '', useVariables: true },
+				{ type: 'textinput', label: 'Value', id: 'value', default: '0.5', useVariables: true },
+			],
+			callback: async ({ options }) => {
+				const input = String(options.input ?? '').trim()
+				const value = String(options.value ?? '').trim()
+				if (input.length > 0 && value.length > 0) send(`SHADER SET ${input} ${value}`)
+			},
+		},
+		shader_lfo: {
+			name: 'Shader: input LFO',
+			description: 'Hand a number input of the selected shader cue to an oscillator.',
+			options: [
+				{ type: 'textinput', label: 'Input name', id: 'input', default: '', useVariables: true },
+				lfoSettingOption(),
+				{ type: 'textinput', label: 'Value (blank for on/off)', id: 'value', default: '', useVariables: true },
+			],
+			callback: async ({ options }) => {
+				const input = String(options.input ?? '').trim()
+				const value = String(options.value ?? '').trim()
+				if (input.length > 0) send(`SHADER LFO ${input} ${choice(options.what, 'on')}${value ? ' ' + value : ''}`)
+			},
+		},
+
+		// -- Lumia ------------------------------------------------------------
+		lumia_set: {
+			name: 'Lumia: set a control',
+			description:
+				'For the selected Lumia cue. Sliders take 0 to 100. Mirrors take 0 to 12. Palette takes 0 to 5 or a name. Mode takes 0 to 2 or a name. Top/bottom and Listens take on or off.',
+			options: [
+				{
+					type: 'dropdown',
+					disableAutoExpression: true,
+					label: 'Control',
+					id: 'control',
+					default: 'flow',
+					choices: LUMIA_CONTROLS.map((id) => ({ id, label: id[0].toUpperCase() + id.slice(1) })),
+				},
+				{ type: 'textinput', label: 'Value', id: 'value', default: '50', useVariables: true },
+			],
+			callback: async ({ options }) => {
+				const value = String(options.value ?? '').trim()
+				if (value.length > 0) send(`LUMIA ${choice(options.control, 'flow')} ${value}`)
+			},
+		},
+		lumia_lfo: {
+			name: 'Lumia: control LFO',
+			description: 'Hand a slider of the selected Lumia cue to an oscillator.',
+			options: [
+				{
+					type: 'dropdown',
+					disableAutoExpression: true,
+					label: 'Control',
+					id: 'control',
+					default: 'flow',
+					choices: LUMIA_CONTROLS.filter((id) => !LUMIA_NO_LFO.includes(id)).map((id) => ({
+						id,
+						label: id[0].toUpperCase() + id.slice(1),
+					})),
+				},
+				lfoSettingOption(),
+				{ type: 'textinput', label: 'Value (blank for on/off)', id: 'value', default: '', useVariables: true },
+			],
+			callback: async ({ options }) => {
+				const value = String(options.value ?? '').trim()
+				send(`LUMIA LFO ${choice(options.control, 'flow')} ${choice(options.what, 'on')}${value ? ' ' + value : ''}`)
+			},
+		},
+
+		// -- Voice ------------------------------------------------------------
+		voice_say: {
+			name: 'Voice: say this text',
+			description: 'The selected Voice cue says this text. With no Voice cue selected, Deckboy makes one.',
+			options: [{ type: 'textinput', label: 'Text', id: 'text', default: '', useVariables: true }],
+			callback: async ({ options }) => {
+				const text = String(options.text ?? '').trim()
+				if (text.length > 0) send(`VOICE SAY ${text}`)
+			},
+		},
+		voice_character: {
+			name: 'Voice: character',
+			description: 'Use the name of a character, or CUSTOM. Deckboy lists the names if it does not know yours.',
+			options: [
+				{ type: 'textinput', label: 'Character name or CUSTOM', id: 'name', default: 'CUSTOM', useVariables: true },
+			],
+			callback: async ({ options }) => {
+				const name = String(options.name ?? '').trim()
+				if (name.length > 0) send(`VOICE CHARACTER ${name}`)
+			},
+		},
+		voice_mode: {
+			name: 'Voice: words or sounds',
+			options: [
+				{
+					type: 'dropdown',
+					disableAutoExpression: true,
+					label: 'Mode',
+					id: 'mode',
+					default: 'words',
+					choices: [
+						{ id: 'words', label: 'Words' },
+						{ id: 'sounds', label: 'Sounds' },
+					],
+				},
+			],
+			callback: ({ options }) => send(`VOICE MODE ${choice(options.mode, 'words')}`),
+		},
+		voice_shape: {
+			name: 'Voice: pitch, size or breath (CUSTOM character)',
+			description: 'Pitch takes 50 to 400 Hz. Size takes 0.8 to 1.25. Breath takes 0 to 100.',
+			options: [
+				{
+					type: 'dropdown',
+					disableAutoExpression: true,
+					label: 'Setting',
+					id: 'what',
+					default: 'pitch',
+					choices: [
+						{ id: 'pitch', label: 'Pitch (Hz)' },
+						{ id: 'size', label: 'Size' },
+						{ id: 'breath', label: 'Breath' },
+					],
+				},
+				{ type: 'number', label: 'Value', id: 'value', default: 120, min: 0, max: 400, step: 0.01 },
+			],
+			callback: ({ options }) => {
+				const value = number(options.value, 'Value')
+				if (value !== null) send(`VOICE ${choice(options.what, 'pitch')} ${value}`)
+			},
+		},
+
+		// -- Captions ---------------------------------------------------------
+		captions_live: {
+			name: 'Live captions: on / off',
+			options: [onOffOption()],
+			callback: ({ options }) => send(`CAPTIONS LIVE ${choice(options.state, 'on')}`),
+		},
+		captions_source: {
+			name: 'Live captions: what they listen to',
+			description: 'The audio input, a playlist, or an output. The number is used only for a playlist or an output.',
+			options: [
+				{
+					type: 'dropdown',
+					disableAutoExpression: true,
+					label: 'Source',
+					id: 'source',
+					default: 'input',
+					choices: [
+						{ id: 'input', label: 'Audio input' },
+						{ id: 'deck', label: 'Playlist' },
+						{ id: 'output', label: 'Output' },
+					],
+				},
+				{ type: 'number', label: 'Playlist or output number', id: 'number', default: 1, min: 1, max: 64, asInteger: true },
+			],
+			callback: ({ options }) => {
+				const source = choice(options.source, 'input')
+				if (source === 'INPUT') return send('CAPTIONS SOURCE INPUT')
+				const which = number(options.number, 'Playlist or output number', { integer: true })
+				if (which !== null) send(`CAPTIONS SOURCE ${source} ${which}`)
+			},
+		},
+		captions_show: {
+			name: 'Live captions: show on an output',
+			options: [
+				{ type: 'number', label: 'Output', id: 'output', default: 1, min: 1, max: MAX_OUTPUTS, asInteger: true },
+				onOffOption(),
+			],
+			callback: ({ options }) => {
+				const output = number(options.output, 'Output', { integer: true })
+				if (output !== null) send(`CAPTIONS SHOW ${output} ${choice(options.state, 'on')}`)
+			},
+		},
+		captions_layout: {
+			name: 'Live captions: lines or size',
+			description: 'Lines take 1 to 3. Size takes 50 to 200 (percent).',
+			options: [
+				{
+					type: 'dropdown',
+					disableAutoExpression: true,
+					label: 'Setting',
+					id: 'what',
+					default: 'lines',
+					choices: [
+						{ id: 'lines', label: 'Lines (1 to 3)' },
+						{ id: 'size', label: 'Size (50 to 200 %)' },
+					],
+				},
+				{ type: 'number', label: 'Value', id: 'value', default: 2, min: 1, max: 200, asInteger: true },
+			],
+			callback: ({ options }) => {
+				const value = number(options.value, 'Value', { integer: true })
+				if (value !== null) send(`CAPTIONS ${choice(options.what, 'lines')} ${value}`)
+			},
+		},
+		captions_generate: {
+			name: 'Captions: make them for the selected cue',
+			description: 'Deckboy listens to the cue and writes the captions. A model name is optional.',
+			options: [{ type: 'textinput', label: 'Model (blank for the default)', id: 'model', default: '', useVariables: true }],
+			callback: async ({ options }) => {
+				const model = String(options.model ?? '').trim()
+				send(`CAPTIONS GENERATE${model ? ' ' + model : ''}`)
+			},
+		},
+		subtitles: {
+			name: 'Subtitles on the live cue: on / off / toggle',
+			options: [
+				{
+					type: 'dropdown',
+					disableAutoExpression: true,
+					label: 'State',
+					id: 'state',
+					default: 'toggle',
+					choices: [
+						{ id: 'on', label: 'On' },
+						{ id: 'off', label: 'Off' },
+						{ id: 'toggle', label: 'Toggle' },
+					],
+				},
+			],
+			callback: ({ options }) => send(`SUBTITLE ${choice(options.state, 'toggle')}`),
+		},
+
+		// -- Pad (the phone's X/Y pad) ---------------------------------------
+		pad_set: {
+			name: 'Pad: put the pad at a point',
+			description: 'X and Y take 0 to 1. Y = 1 is the top. At least one control must be on the pad.',
+			options: [padDeckOption(), { type: 'number', label: 'X', id: 'x', default: 0.5, min: 0, max: 1, step: 0.01 }, { type: 'number', label: 'Y', id: 'y', default: 0.5, min: 0, max: 1, step: 0.01 }],
+			callback: ({ options }) => {
+				const deck = number(options.deck, 'Deck', { integer: true })
+				const x = number(options.x, 'X')
+				const y = number(options.y, 'Y')
+				if (deck !== null && x !== null && y !== null) send(`PAD ${deck} SET ${x} ${y}`)
+			},
+		},
+		pad_release: {
+			name: 'Pad: let go',
+			options: [padDeckOption()],
+			callback: ({ options }) => {
+				const deck = number(options.deck, 'Deck', { integer: true })
+				if (deck !== null) send(`PAD ${deck} RELEASE`)
+			},
+		},
+		pad_mode: {
+			name: 'Pad: hold or latch',
+			description: 'Hold: the values spring back when you let go. Latch: they stay.',
+			options: [
+				padDeckOption(),
+				{
+					type: 'dropdown',
+					disableAutoExpression: true,
+					label: 'Mode',
+					id: 'mode',
+					default: 'hold',
+					choices: [
+						{ id: 'hold', label: 'Hold' },
+						{ id: 'latch', label: 'Latch' },
+					],
+				},
+			],
+			callback: ({ options }) => {
+				const deck = number(options.deck, 'Deck', { integer: true })
+				if (deck !== null) send(`PAD ${deck} MODE ${choice(options.mode, 'hold')}`)
+			},
+		},
+		pad_assign: {
+			name: 'Pad: assign controls to a slot',
+			description:
+				'A control is OPACITY, FX<n>.AMOUNT, FX<n>.A to FX<n>.F, or NUM.<name> (for example NUM.lumia.flow). Use an existing slot, or the next free one.',
+			options: [
+				padDeckOption(),
+				{ type: 'number', label: 'Slot', id: 'slot', default: 1, min: 1, max: 16, asInteger: true },
+				{ type: 'textinput', label: 'X control', id: 'x', default: 'OPACITY', useVariables: true },
+				{ type: 'textinput', label: 'Y control', id: 'y', default: 'FX1.AMOUNT', useVariables: true },
+			],
+			callback: async ({ options }) => {
+				const deck = number(options.deck, 'Deck', { integer: true })
+				const slot = number(options.slot, 'Slot', { integer: true })
+				const x = String(options.x ?? '').trim()
+				const y = String(options.y ?? '').trim()
+				if (deck !== null && slot !== null && x && y) send(`PAD ${deck} ASSIGN ${slot} ${x} ${y}`)
+			},
+		},
+		pad_slot: {
+			name: 'Pad: slot on / off / remove',
+			options: [
+				padDeckOption(),
+				{ type: 'number', label: 'Slot', id: 'slot', default: 1, min: 1, max: 16, asInteger: true },
+				{
+					type: 'dropdown',
+					disableAutoExpression: true,
+					label: 'Action',
+					id: 'what',
+					default: 'on',
+					choices: [
+						{ id: 'on', label: 'Follow the pad' },
+						{ id: 'off', label: 'Leave the pad' },
+						{ id: 'remove', label: 'Remove the slot' },
+					],
+				},
+			],
+			callback: ({ options }) => {
+				const deck = number(options.deck, 'Deck', { integer: true })
+				const slot = number(options.slot, 'Slot', { integer: true })
+				if (deck === null || slot === null) return
+				const what = choice(options.what, 'on')
+				send(what === 'REMOVE' ? `PAD ${deck} REMOVE ${slot}` : `PAD ${deck} CHIP ${slot} ${what}`)
+			},
+		},
+
+		// -- Render to file (START works only on the Deckboy computer) --------
+		render_control: {
+			name: 'Render to file: open window / cancel',
+			description:
+				'Deckboy starts a render only from its own computer. From here you can open or close the Render window there, or cancel a running render.',
+			options: [
+				{
+					type: 'dropdown',
+					disableAutoExpression: true,
+					label: 'Action',
+					id: 'what',
+					default: 'dialog',
+					choices: [
+						{ id: 'dialog', label: 'Open the Render window' },
+						{ id: 'close', label: 'Close the Render window' },
+						{ id: 'cancel', label: 'Cancel the running render' },
+					],
+				},
+			],
+			callback: ({ options }) => send(`RENDER ${choice(options.what, 'dialog')}`),
+		},
+
+		// -- Edge blend for a row of projectors ------------------------------
+		blend_row: {
+			name: 'Edge blend: a row of projectors',
+			description:
+				'Sets the picture area and the edge blend of a row of outputs, left to right. Each output overlaps the next by this many projector pixels.',
+			options: [
+				{ type: 'number', label: 'First output', id: 'first', default: 1, min: 1, max: MAX_OUTPUTS, asInteger: true },
+				{ type: 'number', label: 'How many outputs (2 or more)', id: 'count', default: 2, min: 2, max: MAX_OUTPUTS, asInteger: true },
+				{ type: 'number', label: 'Overlap (projector pixels)', id: 'overlap', default: 200, min: 1, max: 4000, asInteger: true },
+			],
+			callback: ({ options }) => {
+				const first = number(options.first, 'First output', { integer: true })
+				const count = number(options.count, 'How many outputs', { integer: true })
+				const overlap = number(options.overlap, 'Overlap', { integer: true })
+				if (first !== null && count !== null && overlap !== null) send(`VIDEO BLEND ROW ${first} ${count} ${overlap}`)
+			},
 		},
 
 		custom: {
