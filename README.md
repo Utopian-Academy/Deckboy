@@ -66,7 +66,7 @@ operator finds it, and how you find it again.
 - **Known issue (Windows):** when two screens run at different refresh rates, for example 59.94 Hz and
   60 Hz, an output drops or repeats a frame about every 15 seconds. Deckboy warns you when this
   happens. For now, set the screens to the same rate
-  ([how](MANUAL.md#screens-at-different-refresh-rates)).
+  ([how](MANUAL.md#screens-at-different-refresh-rates)). Fixing it is first on the [roadmap](#roadmap).
 
 ### A closer look
 
@@ -394,6 +394,11 @@ importantly, what each feature deliberately does not do.
 ---
 
 ## Roadmap
+
+**Fixing first:**
+
+- Screens at different refresh rates on Windows: every output keeps its own screen's clock, so a
+  59.94 Hz projector beside a 60 Hz desk never drops or repeats a frame (today's known issue)
 
 **Audio, next:**
 
