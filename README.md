@@ -35,29 +35,35 @@ Free and open source, for Windows, macOS and Linux.
 **If Deckboy is useful to you, ⭐ star this repository** (top right): it is how the next
 operator finds it, and how you find it again.
 
-### New in 0.99.425
+### What's new in 0.99.428
 
-[Release notes and downloads](https://github.com/Utopian-Academy/Deckboy/releases/tag/v0.99.425)
+[Release notes and downloads](https://github.com/Utopian-Academy/Deckboy/releases/tag/v0.99.428)
 
-<img src="docs/images/readme/release-425/feathered-mask.gif" width="49%" alt="A feathered heart mask on a playing clip"> <img src="docs/images/readme/release-425/draw-replay.gif" width="49%" alt="A drawing that replays on a layer above a playing clip">
+<img src="docs/images/readme/release-428/melt.gif" width="49%" alt="Melt in its liquid look: a street scene turns to glossy molten plastic with a rainbow sheen"> <img src="docs/images/readme/release-428/circuit-bend.gif" width="49%" alt="Circuit Bend on a street scene: brightness turned into loud false colours that drift">
 
-<sub>Masks and Draw in 0.99.425. Footage: [Tears of Steel](https://mango.blender.org/), Blender Foundation, [CC BY 3.0](https://creativecommons.org/licenses/by/3.0/).</sub>
+<sub>Melt and Circuit Bend in 0.99.428. Footage: [Tears of Steel](https://mango.blender.org/), Blender Foundation, [CC BY 3.0](https://creativecommons.org/licenses/by/3.0/).</sub>
 
-- **MIDI map.** Run any Deckboy command from any MIDI controller or OSC message. Press LEARN, then
-  move a knob or press a key to connect it. The lights on the controller follow the show. Ready-made
-  maps are included for the KORG nanoKONTROL2, Novation Launch Control XL, AKAI APC mini mk2 and AKAI
-  APC40 mkII.
-- **Masks.** Cut the picture to a shape: a circle, a heart, a star, or a shape that you draw with the
-  pen. Put a mask on one cue, one playlist or a whole output. You can make its edges soft, move it
-  over time, and import or export it as an SVG file.
-- **Slices.** Send different parts of the picture to different places on an output, for LED walls and
-  screens of unusual shapes. Drag each slice into place in the new Screens window.
-- **Draw.** Draw on the picture with a mouse or a pen. Save the drawing as a still or as a video with
-  transparency, or replay it as it was drawn.
-- **Motion.** A camera can control Deckboy: movement in front of it changes any control that you
-  choose. Bug Swat, a short game, teaches you how.
-- **Also new:** seventeen more lessons, a Chladni effect that follows the pitch of the sound, a motion
-  trails effect, new multiview layouts, Vietnamese, Lao and Papiamento (Aruba), and Beast mode.
+- **The Experimental voice.** The lesson characters can now really talk. A simulated vocal tract
+  (glottis, tongue, lips, nose) reads each line in any language, or, set to SOUNDS, says each
+  character's own nonsense words instead. The **Voice** source does the same for any text you type,
+  on a cue of its own.
+- **Melt goes liquid.** The picture turns to glossy molten plastic: it sags in round lumps, bends like
+  thick glass, shines with an oil-slick rainbow, and anything that moves leaves melting ghosts.
+- **Circuit Bend.** A video enhancer with its wires crossed, as an effect on any cue and as a source of
+  its own: loud false colours that drift, colour that floods past the edges, ringing stripes and sync
+  tears.
+- **Shaders as a source.** Run ISF shaders (the `.fs` files of isf.video) on the graphics card, with
+  every input on a slider and an LFO. Deckboy ships seven, among them a Dream Machine and a lava lamp.
+- **Lumia, Tape and direction.** Laser light through moving water as a source; VHS from its causes as an
+  effect; and any clip can play in reverse or bounce.
+- **Scopes on an output.** Send the waveform, vectorscope and parade to a screen, over NDI, or into a
+  multiview window.
+- **Faster.** The desk monitor shows the whole composite, drawn on the graphics card (a 1080p show with
+  effects went from 276% to 38% of a processor core). Live captions now keep about a second behind the
+  speaker, half the delay they had.
+- **Also new:** Render to file, Ableton Link and quantised takes, the STAGE projection planner, a
+  Rainbow Road theme that turns slowly round the colour wheel, and songs of their own for the Sound and
+  Datamosh lessons.
 - **Known issue (Windows):** when two screens run at different refresh rates, for example 59.94 Hz and
   60 Hz, an output drops or repeats a frame about every 15 seconds. Deckboy warns you when this
   happens. For now, set the screens to the same rate

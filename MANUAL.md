@@ -3196,9 +3196,9 @@ inspector says "made by Deckboy" in place of a pattern picker.
   card, in the ISF format (`.fs` files; see isf.video). SOURCE > MADE BY
   DECKBOY lists **Shader (.fs)...**, which asks for a file, then **Shader:
   <name>** for each shader Deckboy ships and each one in your own shader
-  folder. Deckboy ships six: **deckboy_plasma**, **deckboy_lava_lamp**,
-  **deckboy_starfield**, **deckboy_scanline_sunset**, **deckboy_pixel_rain**
-  and **deckboy_dream_machine**.
+  folder. Deckboy ships seven: **deckboy_plasma**, **deckboy_lava_lamp**,
+  **deckboy_starfield**, **deckboy_scanline_sunset**, **deckboy_pixel_rain**,
+  **deckboy_dream_machine** and **deckboy_circuit_bend**.
 
   **deckboy_dream_machine** is Brion Gysin's Dream Machine (1961): a paper
   cylinder with cut-outs turns on a record player round a lamp. **view** picks
