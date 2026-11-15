@@ -719,6 +719,9 @@ Still making the copy. Hum something. Anything.	????? ???????? ????? ??????. ???
 The SOURCE picker: a Lower Third with a name on it, then a title card with a key-green backdrop.	هەڵبژێری SOURCE: Lower Third بە ناوێکەوە، پاشان کارتی ناونیشان بە باکگراوندی سەوزی key.
 What it needs: hard CUTS, a bright busy picture before each cut, and big steady MOTION after it. This clip has nine, one on each bar of the music.	پێویستییەکانی: بڕینی لەناکاو، وێنەیەکی ڕوون و پڕوردەکاری پێش هەر بڕینێک و جووڵەیەکی گەورە و جێگیر دوای ئەوە. ئەم کلیپە نۆ بڕینی هەیە، یەکێک لە هەر میزانێکی مۆسیقادا.
 TAKE the music video and watch it once. Count the cuts. Each one lands on the beat: train, samurai, dancer, the dive, the dive backwards, the kiss.	بە TAKE ڤیدیۆی مۆسیقاکە پەخش بکە و جارێک سەیری بکە. بڕینەکان بژمێرە. هەریەکەیان لەگەڵ لێدانێک دەکەوێت: شەمەندەفەر، سامورای، سەماکەر، بازدانە ناو ئاوەکە، هەمان بازدان بە پێچەوانەوە، ماچەکە.
+Dobar den, skapi. I am Dr. Pixel. Five minutes, and you will run a show. Less, if you listen to me. Our voices change on the VOICE button, bottom left.	Dobar den، سکاپی. ڕۆژباش! من دکتۆر پیکسڵم. پێنج خولەک، و شانۆیەک بەڕێوە دەبەیت. کەمتر، ئەگەر گوێم لێ بگریت. دەنگەکانمان بە دوگمەی VOICE لە خوارەوە لای چەپ دەگۆڕدرێن.
+EXPERIMENTAL: WORDS	تاقیکاری: وشەکان
+EXPERIMENTAL: SOUNDS	تاقیکارانە: دەنگەکان
 # --- end of tutorials ---
 >LIVE	>ڕاستەوخۆ
 NO	نەخێر
@@ -4609,6 +4612,8 @@ cut-outs a turn	کون لە سووڕێک
 cylinder	لوولە
 dust behind	تۆز لە پشت
 eyes closed	چاو داخراو
+A circuit-bent video enhancer with nothing plugged in: it makes its own picture and bends it. Brightness becomes a few loud colours that drift, the colour floods past edges in blocks, edges ring in fine stripes and the sync tears. The CIRCUIT BEND effect does the same to any cue.	باشکەری ڤیدیۆ بە بازنەی دەستکاریکراو کە هیچ شتێکی پێوە نەبەستراوە: وێنەی خۆی دروست دەکات و دەیشێوێنێت. ڕووناکی دەبێتە چەند ڕەنگێکی توند کە دەجووڵێن، ڕەنگ بە شێوەی بلۆک لە لێوارەکان دەڕژێتە دەرەوە، لێوارەکان بە هێڵی باریک دەزرنگێنەوە و هاوکاتی دەدڕێت. کاریگەری CIRCUIT BEND هەمان کار بە هەر کیوێک دەکات.
+colour bars	پەتی ڕەنگ
 gooey	چەسپناکی
 how many	چەند
 lamp	چرا
@@ -4643,7 +4648,8 @@ How coarse the colour is: at the left it follows every edge, at the right it flo
 VOICE: {1}	دەنگ: {1}
 Lesson voices	دەنگەکانی وانە
 lesson voices: {1}	دەنگەکانی وانە: {1}
-EXPERIMENTAL: SOUNDS	تاقیکارانە: دەنگەکان
 LESSONS VOICE: CHIP, WORDS, SOUNDS or OFF	LESSONS VOICE: CHIP, WORDS, SOUNDS یان OFF
 scopes - the picture scopes	scopes - scopeـەکانی وێنە
 MULTIVIEW WINDOW: expected PROGRAMME, DECK<n>, OUTPUT<n>, NEXT, CLOCK, SCOPES or EMPTY	MULTIVIEW WINDOW: چاوەڕوانکراو PROGRAMME, DECK<n>, OUTPUT<n>, NEXT, CLOCK, SCOPES یان EMPTY
+VIDEO OUTPUT ADD: WINDOW | STREAM | MULTIVIEW | PRESENTER | PROMPTER | SCOPES	VIDEO OUTPUT ADD: چاوەڕوانکراو: WINDOW | STREAM | MULTIVIEW | PRESENTER | PROMPTER | SCOPES
+every output shows the scopes - add one that shows the programme	هەموو دەرچوونەکان ئامرازەکانی پێوانە پیشان دەدەن - یەکێک زیاد بکە کە بەرنامەکە پیشان بدات

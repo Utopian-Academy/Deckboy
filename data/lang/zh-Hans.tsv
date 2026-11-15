@@ -1100,6 +1100,9 @@ Still making the copy. Hum something. Anything.	??????????????????
 The SOURCE picker: a Lower Third with a name on it, then a title card with a key-green backdrop.	SOURCE 选择器：一条带名字的 Lower Third，然后一张抠像绿底的标题卡。
 What it needs: hard CUTS, a bright busy picture before each cut, and big steady MOTION after it. This clip has nine, one on each bar of the music.	需要的是：硬切，每次切换前明亮、内容丰富的画面，以及切换后大幅而稳定的运动。这个片段有九次切换，音乐的每个小节一次。
 TAKE the music video and watch it once. Count the cuts. Each one lands on the beat: train, samurai, dancer, the dive, the dive backwards, the kiss.	用 TAKE 播放音乐视频，看一遍。数一数切换。每一次都落在节拍上：火车、武士、舞者、跳水、倒放的跳水、接吻。
+Dobar den, skapi. I am Dr. Pixel. Five minutes, and you will run a show. Less, if you listen to me. Our voices change on the VOICE button, bottom left.	多巴尔·登，斯卡皮。我是像素博士。五分钟，你就能主控一场演出。听我的，用不了五分钟。 左下角的 VOICE 按钮可以切换我们的声音。
+EXPERIMENTAL: WORDS	实验性: 文字
+EXPERIMENTAL: SOUNDS	实验性: 声音
 # --- end of tutorials ---
 Splash	启动画面
 Beast mode	野兽模式
@@ -4606,6 +4609,8 @@ cut-outs a turn	每圈孔数
 cylinder	圆筒
 dust behind	后方尘埃
 eyes closed	闭眼
+A circuit-bent video enhancer with nothing plugged in: it makes its own picture and bends it. Brightness becomes a few loud colours that drift, the colour floods past edges in blocks, edges ring in fine stripes and the sync tears. The CIRCUIT BEND effect does the same to any cue.	一台电路被改造、没有接入任何信号的视频增强器：它生成自己的画面，再把画面扭曲。亮度变成几种不断漂移的刺眼色彩，颜色以块状溢出边缘，边缘出现细条纹振铃，同步也被撕裂。CIRCUIT BEND 效果可对任意提示执行同样的处理。
+colour bars	彩条
 gooey	黏稠
 how many	数量
 lamp	灯
@@ -4640,8 +4645,8 @@ How coarse the colour is: at the left it follows every edge, at the right it flo
 VOICE: {1}	音色: {1}
 Lesson voices	课程音色
 lesson voices: {1}	课程音色: {1}
-EXPERIMENTAL: SOUNDS	实验性: 声音
 LESSONS VOICE: CHIP, WORDS, SOUNDS or OFF	课程音色: CHIP、词语、声音或关
 scopes - the picture scopes	示波器——画面示波器
-VIDEO OUTPUT ADD: WINDOW | STREAM | MULTIVIEW | PRESENTER | PROMPTER | SCOPES	VIDEO OUTPUT ADD：窗口 | 推流 | 多画面 | PRESENTER | 提词器 | 示波器
 MULTIVIEW WINDOW: expected PROGRAMME, DECK<n>, OUTPUT<n>, NEXT, CLOCK, SCOPES or EMPTY	MULTIVIEW WINDOW：应为 节目、DECK<n>、OUTPUT<n>、下一个、时钟、示波器 或 空
+VIDEO OUTPUT ADD: WINDOW | STREAM | MULTIVIEW | PRESENTER | PROMPTER | SCOPES	VIDEO OUTPUT ADD：窗口 | 推流 | 多画面 | PRESENTER | 提词器 | 示波器
+every output shows the scopes - add one that shows the programme	所有输出都在显示测量仪 - 请添加一个显示节目画面的输出

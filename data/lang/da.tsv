@@ -1091,6 +1091,9 @@ Still making the copy. Hum something. Anything.	Kopien bliver stadig lavet. Nyn 
 The SOURCE picker: a Lower Third with a name on it, then a title card with a key-green backdrop.	SOURCE-vælgeren: en Lower Third med et navn, så et titelkort med en keygrøn baggrund.
 What it needs: hard CUTS, a bright busy picture before each cut, and big steady MOTION after it. This clip has nine, one on each bar of the music.	Det kræver: hårde KLIP, et lyst og livligt billede før hvert klip og stor, jævn BEVÆGELSE efter det. Dette klip har ni klippunkter, ét i hver takt i musikken.
 TAKE the music video and watch it once. Count the cuts. Each one lands on the beat: train, samurai, dancer, the dive, the dive backwards, the kiss.	Start musikvideoen med TAKE, og se den én gang. Tæl klippene. Hvert af dem falder på slaget: tog, samurai, danser, dykket, dykket baglæns, kysset.
+Dobar den, skapi. I am Dr. Pixel. Five minutes, and you will run a show. Less, if you listen to me. Our voices change on the VOICE button, bottom left.	Dobar den, skapi. Jeg er doktor Pixel. Fem minutter, og du kører et show. Færre, hvis du hører efter. Vores stemmer skifter du på VOICE-knappen nederst til venstre.
+EXPERIMENTAL: WORDS	EKSPERIMENTELT: ORD
+EXPERIMENTAL: SOUNDS	EKSPERIMENTELT: LYDE
 # --- end of tutorials ---
 Splash	Startskærm
 Beast mode	Bæstetilstand
@@ -4561,6 +4564,8 @@ cut-outs a turn	huller pr. omgang
 cylinder	cylinderform
 dust behind	støv bagved
 eyes closed	lukkede øjne
+A circuit-bent video enhancer with nothing plugged in: it makes its own picture and bends it. Brightness becomes a few loud colours that drift, the colour floods past edges in blocks, edges ring in fine stripes and the sync tears. The CIRCUIT BEND effect does the same to any cue.	En videoforbedrer med ændret kredsløb og intet tilsluttet: den laver sit eget billede og forvrænger det. Lysstyrken bliver til nogle få skrigende farver, der driver, farven flyder i blokke ud over kanterne, kanterne ringer i fine striber, og synkroniseringen rives itu. Effekten CIRCUIT BEND gør det samme ved enhver cue.
+colour bars	farvebjælker
 gooey	sejhed
 how many	hvor mange
 lamp	lyskilde
@@ -4595,7 +4600,8 @@ How coarse the colour is: at the left it follows every edge, at the right it flo
 VOICE: {1}	STEMME: {1}
 Lesson voices	Lektionsstemmer
 lesson voices: {1}	lektionsstemmer: {1}
-EXPERIMENTAL: SOUNDS	EKSPERIMENTELT: LYDE
 LESSONS VOICE: CHIP, WORDS, SOUNDS or OFF	LESSONS VOICE: CHIP, WORDS, SOUNDS eller OFF
 scopes - the picture scopes	scopes - billedets scopes
 MULTIVIEW WINDOW: expected PROGRAMME, DECK<n>, OUTPUT<n>, NEXT, CLOCK, SCOPES or EMPTY	MULTIVIEW WINDOW: forventede PROGRAMME, DECK<n>, OUTPUT<n>, NEXT, CLOCK, SCOPES eller EMPTY
+VIDEO OUTPUT ADD: WINDOW | STREAM | MULTIVIEW | PRESENTER | PROMPTER | SCOPES	VIDEO OUTPUT ADD: forventer WINDOW | STREAM | MULTIVIEW | PRESENTER | PROMPTER | SCOPES
+every output shows the scopes - add one that shows the programme	alle udgange viser billedmålerne - tilføj en, der viser programmet

@@ -1110,6 +1110,9 @@ Still making the copy. Hum something. Anything.	?? ???? ?????? ??? ???????. ????
 The SOURCE picker: a Lower Third with a name on it, then a title card with a key-green backdrop.	منتقي SOURCE: شريط Lower Third عليه اسم، ثم بطاقة عنوان بخلفية خضراء للكروما.
 What it needs: hard CUTS, a bright busy picture before each cut, and big steady MOTION after it. This clip has nine, one on each bar of the music.	ما يحتاجه: قطعات حادة، وصورة ساطعة مليئة بالتفاصيل قبل كل قطع، وحركة كبيرة وثابتة بعده. في هذا المقطع تسع قطعات، واحدة في كل مازورة من الموسيقى.
 TAKE the music video and watch it once. Count the cuts. Each one lands on the beat: train, samurai, dancer, the dive, the dive backwards, the kiss.	شغّل الفيديو الموسيقي عبر TAKE وشاهده مرة. عُدّ القطعات. تقع كل واحدة على النبضة: القطار، الساموراي، الراقصة، الغطسة، الغطسة بالعكس، القبلة.
+Dobar den, skapi. I am Dr. Pixel. Five minutes, and you will run a show. Less, if you listen to me. Our voices change on the VOICE button, bottom left.	دوبار دن، سكابي. أنا الدكتورة بكسل. خمس دقائق وستدير عرضًا. أقل، إن استمعت إليّ. تتغير أصواتنا بزر VOICE أسفل اليسار.
+EXPERIMENTAL: WORDS	تجريبي: كلمات
+EXPERIMENTAL: SOUNDS	تجريبي: الأصوات
 # --- end of tutorials ---
 Splash	شاشة البداية
 Beast mode	وضع الوحش
@@ -4622,6 +4625,8 @@ cut-outs a turn	فتحات لكل دورة
 cylinder	الأسطوانة
 dust behind	غبار خلفي
 eyes closed	عينان مغمضتان
+A circuit-bent video enhancer with nothing plugged in: it makes its own picture and bends it. Brightness becomes a few loud colours that drift, the colour floods past edges in blocks, edges ring in fine stripes and the sync tears. The CIRCUIT BEND effect does the same to any cue.	محسّن فيديو بدارة معدّلة لا شيء موصول به: يصنع صورته بنفسه ويشوّهها. يتحول السطوع إلى بضعة ألوان صارخة تنجرف، ويفيض اللون خارج الحواف على هيئة كتل، وترنّ الحواف بخطوط دقيقة ويتمزق التزامن. يفعل تأثير CIRCUIT BEND الشيء نفسه بأي إشارة.
+colour bars	أشرطة الألوان
 gooey	اللزوجة
 how many	العدد
 lamp	المصباح
@@ -4656,7 +4661,8 @@ How coarse the colour is: at the left it follows every edge, at the right it flo
 VOICE: {1}	الصوت: {1}
 Lesson voices	أصوات الدروس
 lesson voices: {1}	أصوات الدروس: {1}
-EXPERIMENTAL: SOUNDS	تجريبي: الأصوات
 LESSONS VOICE: CHIP, WORDS, SOUNDS or OFF	LESSONS VOICE: CHIP, WORDS, SOUNDS أو OFF
 scopes - the picture scopes	scopes - أدوات قياس الصورة
 MULTIVIEW WINDOW: expected PROGRAMME, DECK<n>, OUTPUT<n>, NEXT, CLOCK, SCOPES or EMPTY	MULTIVIEW WINDOW: المتوقع PROGRAMME, DECK<n>, OUTPUT<n>, NEXT, CLOCK, SCOPES أو EMPTY
+VIDEO OUTPUT ADD: WINDOW | STREAM | MULTIVIEW | PRESENTER | PROMPTER | SCOPES	VIDEO OUTPUT ADD: المتوقع: WINDOW | STREAM | MULTIVIEW | PRESENTER | PROMPTER | SCOPES
+every output shows the scopes - add one that shows the programme	كل المخارج تعرض أدوات القياس - أضف مخرجًا يعرض البرنامج

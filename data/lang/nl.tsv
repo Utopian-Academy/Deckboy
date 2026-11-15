@@ -1094,6 +1094,9 @@ Still making the copy. Hum something. Anything.	De kopie wordt nog gemaakt. Neur
 The SOURCE picker: a Lower Third with a name on it, then a title card with a key-green backdrop.	De SOURCE-kiezer: een Lower Third met een naam, dan een titelkaart met een groene keyachtergrond.
 What it needs: hard CUTS, a bright busy picture before each cut, and big steady MOTION after it. This clip has nine, one on each bar of the music.	Wat je nodig hebt: harde KNIPPEN, een helder, druk beeld voor elke knip en een grote, gelijkmatige BEWEGING erna. Deze clip heeft negen knippen, één in elke maat van de muziek.
 TAKE the music video and watch it once. Count the cuts. Each one lands on the beat: train, samurai, dancer, the dive, the dive backwards, the kiss.	Start de videoclip met TAKE en bekijk hem één keer. Tel de knippen. Elke knip valt op de beat: trein, samoerai, danseres, de duik, de duik achteruit, de kus.
+Dobar den, skapi. I am Dr. Pixel. Five minutes, and you will run a show. Less, if you listen to me. Our voices change on the VOICE button, bottom left.	Dobar den, skapi. Ik ben dokter Pixel. Vijf minuten en jij draait een show. Minder, als je naar me luistert. Onze stemmen verander je met de VOICE-knop linksonder.
+EXPERIMENTAL: WORDS	EXPERIMENTEEL: WOORDEN
+EXPERIMENTAL: SOUNDS	EXPERIMENTEEL: GELUIDEN
 # --- end of tutorials ---
 Splash	Startscherm
 Beast mode	Beestmodus
@@ -4547,6 +4550,8 @@ cut-outs a turn	gaten per ronde
 cylinder	cilinder
 dust behind	stof erachter
 eyes closed	ogen dicht
+A circuit-bent video enhancer with nothing plugged in: it makes its own picture and bends it. Brightness becomes a few loud colours that drift, the colour floods past edges in blocks, edges ring in fine stripes and the sync tears. The CIRCUIT BEND effect does the same to any cue.	Een videoverbeteraar met een verbogen schakeling waarop niets is aangesloten: hij maakt zijn eigen beeld en vervormt het. Helderheid wordt een paar felle kleuren die afdrijven, kleur stroomt in blokken over randen heen, randen trillen na in fijne strepen en de synchronisatie scheurt. Het effect CIRCUIT BEND doet hetzelfde met elke cue.
+colour bars	kleurenbalken
 gooey	stroperig
 how many	hoeveel
 lamp	lichtbron
@@ -4580,7 +4585,8 @@ How coarse the colour is: at the left it follows every edge, at the right it flo
 VOICE: {1}	STEM: {1}
 Lesson voices	Lesstemmen
 lesson voices: {1}	lesstemmen: {1}
-EXPERIMENTAL: SOUNDS	EXPERIMENTEEL: GELUIDEN
 LESSONS VOICE: CHIP, WORDS, SOUNDS or OFF	LESSEN STEM: CHIP, WOORDEN, GELUIDEN of UIT
 scopes - the picture scopes	scopes - de beeldscopes
 MULTIVIEW WINDOW: expected PROGRAMME, DECK<n>, OUTPUT<n>, NEXT, CLOCK, SCOPES or EMPTY	MULTIVIEW WINDOW: verwacht PROGRAMME, DECK<n>, OUTPUT<n>, NEXT, CLOCK, SCOPES of EMPTY
+VIDEO OUTPUT ADD: WINDOW | STREAM | MULTIVIEW | PRESENTER | PROMPTER | SCOPES	VIDEO OUTPUT ADD: verwacht WINDOW | STREAM | MULTIVIEW | PRESENTER | PROMPTER | SCOPES
+every output shows the scopes - add one that shows the programme	elke uitgang toont de beeldmeters - voeg er een toe die het programma toont

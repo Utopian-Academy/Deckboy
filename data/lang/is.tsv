@@ -1095,6 +1095,9 @@ Still making the copy. Hum something. Anything.	Enn a? gera afriti?. Humma?u eit
 The SOURCE picker: a Lower Third with a name on it, then a title card with a key-green backdrop.	SOURCE-valið: Lower Third með nafni, svo titilspjald með grænum lyklunarbakgrunni.
 What it needs: hard CUTS, a bright busy picture before each cut, and big steady MOTION after it. This clip has nine, one on each bar of the music.	Það sem þarf: skörp KLIPP, björt og annasöm mynd fyrir hvert klipp og stór, jöfn HREYFING á eftir. Þessi klippa hefur níu klipp, eitt í hverjum takti tónlistarinnar.
 TAKE the music video and watch it once. Count the cuts. Each one lands on the beat: train, samurai, dancer, the dive, the dive backwards, the kiss.	Ýttu á TAKE fyrir tónlistarmyndbandið og horfðu á það einu sinni. Teldu klippin. Hvert þeirra lendir á slagi: lest, samúræi, dansari, dýfan, dýfan aftur á bak, kossinn.
+Dobar den, skapi. I am Dr. Pixel. Five minutes, and you will run a show. Less, if you listen to me. Our voices change on the VOICE button, bottom left.	Dobar den, skapi. Ég er doktor Pixel. Fimm mínútur og þú stýrir sýningu. Styttra, ef þú hlustar á mig. Raddirnar okkar breytast með VOICE-hnappnum neðst til vinstri.
+EXPERIMENTAL: WORDS	TILRAUN: ORÐ
+EXPERIMENTAL: SOUNDS	TILRAUN: HLJÓÐ
 # --- end of tutorials ---
 Splash	Upphafsskjár
 Beast mode	Skrímslahamur
@@ -4601,6 +4604,8 @@ cut-outs a turn	op á snúning
 cylinder	hólkur
 dust behind	ryk að baki
 eyes closed	lokuð augu
+A circuit-bent video enhancer with nothing plugged in: it makes its own picture and bends it. Brightness becomes a few loud colours that drift, the colour floods past edges in blocks, edges ring in fine stripes and the sync tears. The CIRCUIT BEND effect does the same to any cue.	Myndbætir með breyttri rafrás og ekkert tengt við: hann býr til sína eigin mynd og aflagar hana. Birta verður að fáeinum æpandi litum sem reka, liturinn flæðir í blokkum yfir brúnir, brúnir óma í fínum röndum og samstillingin rifnar. Áhrifin CIRCUIT BEND gera það sama við hvaða cue sem er.
+colour bars	litastikur
 gooey	seigja
 how many	hve margir
 lamp	lampi
@@ -4635,7 +4640,8 @@ How coarse the colour is: at the left it follows every edge, at the right it flo
 VOICE: {1}	RÖDD: {1}
 Lesson voices	Raddir lexía
 lesson voices: {1}	raddir lexía: {1}
-EXPERIMENTAL: SOUNDS	TILRAUN: HLJÓÐ
 LESSONS VOICE: CHIP, WORDS, SOUNDS or OFF	RÖDD LEXÍU: CHIP, ORÐ, HLJÓÐ EÐA AF
 scopes - the picture scopes	scopes - myndmælar
 MULTIVIEW WINDOW: expected PROGRAMME, DECK<n>, OUTPUT<n>, NEXT, CLOCK, SCOPES or EMPTY	MULTIVIEW WINDOW: vænst er PROGRAMME, DECK<n>, OUTPUT<n>, NEXT, CLOCK, SCOPES eða EMPTY
+VIDEO OUTPUT ADD: WINDOW | STREAM | MULTIVIEW | PRESENTER | PROMPTER | SCOPES	VIDEO OUTPUT ADD: vænst er WINDOW | STREAM | MULTIVIEW | PRESENTER | PROMPTER | SCOPES
+every output shows the scopes - add one that shows the programme	öll úttök sýna myndmælitækin - bættu við einu sem sýnir dagskrána

@@ -1098,6 +1098,9 @@ Still making the copy. Hum something. Anything.	?? ???? ??? ??. ??? ???? ?. ????
 The SOURCE picker: a Lower Third with a name on it, then a title card with a key-green backdrop.	SOURCE 선택기: 이름이 들어간 Lower Third, 그다음 크로마키 초록 배경의 타이틀 카드.
 What it needs: hard CUTS, a bright busy picture before each cut, and big steady MOTION after it. This clip has nine, one on each bar of the music.	필요한 건 하드 컷, 각 컷 직전의 밝고 복잡한 화면, 그리고 그 뒤의 크고 일정한 움직임입니다. 이 클립에는 음악의 각 마디마다 하나씩, 아홉 개의 컷이 있습니다.
 TAKE the music video and watch it once. Count the cuts. Each one lands on the beat: train, samurai, dancer, the dive, the dive backwards, the kiss.	뮤직비디오를 TAKE하고 한 번 보세요. 컷을 세어 보세요. 모두 박자에 맞습니다: 기차, 사무라이, 댄서, 다이빙, 거꾸로 다이빙, 키스.
+Dobar den, skapi. I am Dr. Pixel. Five minutes, and you will run a show. Less, if you listen to me. Our voices change on the VOICE button, bottom left.	도바르 덴, 스카피. 나는 픽셀 박사야. 5분이면 쇼를 운영할 수 있어. 내 말을 잘 들으면 더 빨리. 우리 목소리는 왼쪽 아래 VOICE 버튼으로 바꿀 수 있어.
+EXPERIMENTAL: WORDS	실험적: 단어
+EXPERIMENTAL: SOUNDS	실험적: 소리
 # --- end of tutorials ---
 Splash	시작 화면
 Beast mode	야수 모드
@@ -4604,6 +4607,8 @@ cut-outs a turn	회전당 구멍
 cylinder	원통
 dust behind	뒤쪽 먼지
 eyes closed	눈 감음
+A circuit-bent video enhancer with nothing plugged in: it makes its own picture and bends it. Brightness becomes a few loud colours that drift, the colour floods past edges in blocks, edges ring in fine stripes and the sync tears. The CIRCUIT BEND effect does the same to any cue.	아무것도 연결하지 않은, 회로를 개조한 영상 보정기입니다. 스스로 영상을 만들고 휘어 놓습니다. 밝기가 흘러가는 몇 가지 강렬한 색으로 바뀌고, 색은 블록 형태로 경계를 넘쳐 흐르며, 경계에는 가는 줄무늬의 울림이 생기고 동기가 찢어집니다. CIRCUIT BEND 효과는 어떤 큐에도 같은 일을 합니다.
+colour bars	컬러 바
 gooey	점성
 how many	개수
 lamp	램프
@@ -4638,7 +4643,8 @@ How coarse the colour is: at the left it follows every edge, at the right it flo
 VOICE: {1}	음색: {1}
 Lesson voices	수업 음색
 lesson voices: {1}	수업 음색: {1}
-EXPERIMENTAL: SOUNDS	실험적: 소리
 LESSONS VOICE: CHIP, WORDS, SOUNDS or OFF	레슨 음색: CHIP, 단어, 소리 또는 꺼짐
 scopes - the picture scopes	scopes - 영상 스코프
 MULTIVIEW WINDOW: expected PROGRAMME, DECK<n>, OUTPUT<n>, NEXT, CLOCK, SCOPES or EMPTY	MULTIVIEW WINDOW: PROGRAMME, DECK<n>, OUTPUT<n>, NEXT, CLOCK, SCOPES 또는 EMPTY 필요
+VIDEO OUTPUT ADD: WINDOW | STREAM | MULTIVIEW | PRESENTER | PROMPTER | SCOPES	VIDEO OUTPUT ADD: 필요한 형식: WINDOW | STREAM | MULTIVIEW | PRESENTER | PROMPTER | SCOPES
+every output shows the scopes - add one that shows the programme	모든 출력이 영상 계측기를 표시합니다 - 프로그램 영상을 표시하는 출력을 추가하세요

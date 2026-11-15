@@ -1095,6 +1095,9 @@ Still making the copy. Hum something. Anything.	Kopya h?l? haz?rlan?yor. Bir ?ey
 The SOURCE picker: a Lower Third with a name on it, then a title card with a key-green backdrop.	SOURCE seçicisi: üstünde ad olan bir Lower Third, sonra chroma yeşili zeminli bir başlık kartı.
 What it needs: hard CUTS, a bright busy picture before each cut, and big steady MOTION after it. This clip has nine, one on each bar of the music.	Gerekenler: sert KESMELER, her kesmeden önce parlak ve dolu bir görüntü, ardından büyük ve sabit bir HAREKET. Bu klipte dokuz kesme var, müziğin her ölçüsünde bir tane.
 TAKE the music video and watch it once. Count the cuts. Each one lands on the beat: train, samurai, dancer, the dive, the dive backwards, the kiss.	Müzik videosuna TAKE yap ve bir kez izle. Kesmeleri say. Her biri vuruşa denk geliyor: tren, samuray, dansçı, dalış, tersten dalış, öpücük.
+Dobar den, skapi. I am Dr. Pixel. Five minutes, and you will run a show. Less, if you listen to me. Our voices change on the VOICE button, bottom left.	Dobar den, skapi. Ben Dr. Piksel. Komşuyuz... uzun bir geçmişimiz var. Neyse. Beş dakika sonra bir şov yöneteceksin. Beni dinlersen daha da az. Seslerimiz sol alttaki VOICE düğmesinden değişir.
+EXPERIMENTAL: WORDS	DENEYSEL: SÖZCÜKLER
+EXPERIMENTAL: SOUNDS	DENEYSEL: SESLER
 # --- end of tutorials ---
 Splash	Açılış ekranı
 Beast mode	Canavar modu
@@ -4600,6 +4603,8 @@ cut-outs a turn	tur başına kesik
 cylinder	silindir
 dust behind	arkada toz
 eyes closed	gözler kapalı
+A circuit-bent video enhancer with nothing plugged in: it makes its own picture and bends it. Brightness becomes a few loud colours that drift, the colour floods past edges in blocks, edges ring in fine stripes and the sync tears. The CIRCUIT BEND effect does the same to any cue.	Hiçbir şey takılı olmayan, devresi kurcalanmış bir video iyileştirici: kendi görüntüsünü üretir ve büker. Parlaklık, sürüklenen birkaç çarpıcı renge dönüşür; renk bloklar halinde kenarlardan taşar, kenarlar ince şeritlerle çınlar ve senkronizasyon yırtılır. CIRCUIT BEND efekti aynı şeyi herhangi bir cue'ya yapar.
+colour bars	renk çubukları
 gooey	kıvam
 how many	kaç tane
 lamp	lamba
@@ -4634,7 +4639,8 @@ How coarse the colour is: at the left it follows every edge, at the right it flo
 VOICE: {1}	SES: {1}
 Lesson voices	Ders sesleri
 lesson voices: {1}	ders sesleri: {1}
-EXPERIMENTAL: SOUNDS	DENEYSEL: SESLER
 LESSONS VOICE: CHIP, WORDS, SOUNDS or OFF	DERS SESİ: CHIP, SÖZCÜKLER, SESLER veya KAPALI
 scopes - the picture scopes	skoplar - görüntü skopları
 MULTIVIEW WINDOW: expected PROGRAMME, DECK<n>, OUTPUT<n>, NEXT, CLOCK, SCOPES or EMPTY	MULTIVIEW WINDOW: PROGRAMME, DECK<n>, OUTPUT<n>, NEXT, CLOCK, SCOPES veya EMPTY beklenir
+VIDEO OUTPUT ADD: WINDOW | STREAM | MULTIVIEW | PRESENTER | PROMPTER | SCOPES	VIDEO OUTPUT ADD: beklenen: WINDOW | STREAM | MULTIVIEW | PRESENTER | PROMPTER | SCOPES
+every output shows the scopes - add one that shows the programme	tüm çıkışlar görüntü ölçerlerini gösteriyor - programı gösteren bir çıkış ekleyin

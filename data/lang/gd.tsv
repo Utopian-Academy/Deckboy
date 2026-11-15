@@ -1095,6 +1095,9 @@ Still making the copy. Hum something. Anything.	An lethbhreac fhathast ga dh?ana
 The SOURCE picker: a Lower Third with a name on it, then a title card with a key-green backdrop.	An taghadair SOURCE: Lower Third le ainm air, an uairsin cairt-tiotail le cùl-raon uaine iuchrach.
 What it needs: hard CUTS, a bright busy picture before each cut, and big steady MOTION after it. This clip has nine, one on each bar of the music.	Na tha a dhìth: GEARRAIDHEAN cruaidh, dealbh soilleir trang ro gach gearradh, agus GLUASAD mòr seasmhach às a dhèidh. Tha naoi gearraidhean sa chriomag seo, fear anns gach bàr den cheòl.
 TAKE the music video and watch it once. Count the cuts. Each one lands on the beat: train, samurai, dancer, the dive, the dive backwards, the kiss.	Brùth TAKE airson a' bhidio-chiùil agus coimhead air aon turas. Cunnt na gearraidhean. Tha gach fear a' tuiteam air a' bhuille: trèana, samurai, dannsair, an dàibheadh, an dàibheadh air ais, a' phòg.
+Dobar den, skapi. I am Dr. Pixel. Five minutes, and you will run a show. Less, if you listen to me. Our voices change on the VOICE button, bottom left.	Dobar den, skapi. Is mise an Dotair Pixel. Còig mionaidean, agus bidh tu a' ruith taisbeanadh. Nas lugha, ma dh'èisteas tu rium. Atharraichidh tu ar guthan leis a' phutan VOICE, shìos air an taobh chlì.
+EXPERIMENTAL: WORDS	DEUCHAINNEACH: FACLAN
+EXPERIMENTAL: SOUNDS	DEUCHAINNEACH: FUAIMEAN
 # --- end of tutorials ---
 Splash	Sgrìn-fàilte
 Beast mode	Modh bèist
@@ -4603,6 +4606,8 @@ cut-outs a turn	tuill gach cuairt
 cylinder	siolandair
 dust behind	duslach air cùl
 eyes closed	sùilean dùinte
+A circuit-bent video enhancer with nothing plugged in: it makes its own picture and bends it. Brightness becomes a few loud colours that drift, the colour floods past edges in blocks, edges ring in fine stripes and the sync tears. The CIRCUIT BEND effect does the same to any cue.	Inneal leasachaidh bhidio le cuairt atharraichte agus gun dad ceangailte ris: nì e a dhealbh fhèin agus lùbaidh e e. Bidh soilleireachd na beagan dhathan làidir a tha a' gluasad, dòirtidh an dath seachad air na h-oirean ann am blocaichean, bidh na h-oirean a' fuaimneachadh ann an stiallan tana agus reubaidh an sioncronachadh. Nì a' bhuaidh CIRCUIT BEND an aon rud ri cue sam bith.
+colour bars	bàraichean dath
 gooey	tiughad
 how many	cia mheud
 lamp	lampa
@@ -4637,7 +4642,8 @@ How coarse the colour is: at the left it follows every edge, at the right it flo
 VOICE: {1}	GUTH: {1}
 Lesson voices	Guthan nan leasan
 lesson voices: {1}	guthan nan leasan: {1}
-EXPERIMENTAL: SOUNDS	DEUCHAINNEACH: FUAIMEAN
 LESSONS VOICE: CHIP, WORDS, SOUNDS or OFF	GUTH NAN LEASAN: CHIP, FACLAN, FUAIMEAN no DHETH
 scopes - the picture scopes	scopes - na scopes airson an deilbh
 MULTIVIEW WINDOW: expected PROGRAMME, DECK<n>, OUTPUT<n>, NEXT, CLOCK, SCOPES or EMPTY	MULTIVIEW WINDOW: tha dùil ri PROGRAMME, DECK<n>, OUTPUT<n>, NEXT, CLOCK, SCOPES no EMPTY
+VIDEO OUTPUT ADD: WINDOW | STREAM | MULTIVIEW | PRESENTER | PROMPTER | SCOPES	VIDEO OUTPUT ADD: tha dùil ri WINDOW | STREAM | MULTIVIEW | PRESENTER | PROMPTER | SCOPES
+every output shows the scopes - add one that shows the programme	tha gach às-chur a' sealltainn nam meatairean - cuir fear ris a sheallas am prògram

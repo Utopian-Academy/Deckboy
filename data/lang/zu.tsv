@@ -1095,6 +1095,9 @@ Still making the copy. Hum something. Anything.	Isenza ikhophi. Hhumuzela okuthi
 The SOURCE picker: a Lower Third with a name on it, then a title card with a key-green backdrop.	Isikhethi se-SOURCE: i-Lower Third enegama, bese ikhadi lesihloko elinengemuva eliluhlaza le-key.
 What it needs: hard CUTS, a bright busy picture before each cut, and big steady MOTION after it. This clip has nine, one on each bar of the music.	Okudingekayo: UKUSIKA okuqondile, isithombe esikhanyayo esinemininingwane eminingi ngaphambi kokusika ngakunye, NOKUNYAKAZA okukhulu okuzinzile ngemva kwako. Le clip inokusika okuyisishiyagalolunye, okukodwa kubha ngayinye yomculo.
 TAKE the music video and watch it once. Count the cuts. Each one lands on the beat: train, samurai, dancer, the dive, the dive backwards, the kiss.	TAKE ividiyo yomculo uyibuke kanye. Bala ukusika. Ngakunye kuhambisana nesigqi: isitimela, isamurai, umdansi, ukutshuza, ukutshuza emuva, ukwanga.
+Dobar den, skapi. I am Dr. Pixel. Five minutes, and you will run a show. Less, if you listen to me. Our voices change on the VOICE button, bottom left.	Dobar den, skapi. Sawubona! NginguDokotela Pixel. Imizuzu emihlanu, uzobe usuqhuba umbukiso. Kancane kunalokho, uma ungilalela. Amazwi ethu ashintshwa ngenkinobho ethi VOICE, ngezansi kwesokunxele.
+EXPERIMENTAL: WORDS	OKUSAHLOLWA: AMAGAMA
+EXPERIMENTAL: SOUNDS	OKUSAHLOLWA: IMISINDO
 # --- end of tutorials ---
 Splash	Isikrini sokuvula
 Beast mode	Imodi yesilo
@@ -4594,6 +4597,8 @@ cut-outs a turn	izimbobo ngomjiko
 cylinder	isilinda
 dust behind	uthuli ngemuva
 eyes closed	amehlo avaliwe
+A circuit-bent video enhancer with nothing plugged in: it makes its own picture and bends it. Brightness becomes a few loud colours that drift, the colour floods past edges in blocks, edges ring in fine stripes and the sync tears. The CIRCUIT BEND effect does the same to any cue.	Isithuthukisi sevidiyo esisekethe yaso siguquliwe, kungekho lutho oluxhunyiwe: senza isithombe saso bese siyasigoba. Ukukhanya kuba imibala embalwa egqamile ekhukhulekayo, umbala uchichima imiphetho ngamabhulokhi, imiphetho iyankenteza ngemigqa emincane futhi ukuvumelanisa kuyadabuka. Umphumela we-CIRCUIT BEND wenza okufanayo kunoma iyiphi i-cue.
+colour bars	imigoqo yemibala
 gooey	ukunamathela
 how many	mangaki
 lamp	isibani
@@ -4628,8 +4633,8 @@ How coarse the colour is: at the left it follows every edge, at the right it flo
 VOICE: {1}	IZWI: {1}
 Lesson voices	Amazwi ezifundo
 lesson voices: {1}	amazwi ezifundo: {1}
-EXPERIMENTAL: SOUNDS	OKUSAHLOLWA: IMISINDO
 LESSONS VOICE: CHIP, WORDS, SOUNDS or OFF	IZWI LEZIFUNDO: CHIP, AMAGAMA, IMISINDO NOMA VALIWE
 scopes - the picture scopes	ama-scope - ama-scope esithombe
-VIDEO OUTPUT ADD: WINDOW | STREAM | MULTIVIEW | PRESENTER | PROMPTER | SCOPES	VIDEO OUTPUT ADD: IWINDI | SAKAZA | MULTIVIEW | PRESENTER | ISIKHUMBUZI | IZILINGANISI
 MULTIVIEW WINDOW: expected PROGRAMME, DECK<n>, OUTPUT<n>, NEXT, CLOCK, SCOPES or EMPTY	MULTIVIEW WINDOW: kulindelwe uhlelo, DECK<n>, OUTPUT<n>, OKULANDELAYO, IWASHI, IZILINGANISI noma akunalutho
+VIDEO OUTPUT ADD: WINDOW | STREAM | MULTIVIEW | PRESENTER | PROMPTER | SCOPES	VIDEO OUTPUT ADD: IWINDI | SAKAZA | MULTIVIEW | PRESENTER | ISIKHUMBUZI | IZILINGANISI
+every output shows the scopes - add one that shows the programme	konke okuphumayo kukhombisa izilinganisi zesithombe - engeza okukodwa okukhombisa uhlelo

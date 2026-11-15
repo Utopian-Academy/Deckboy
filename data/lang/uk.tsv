@@ -1098,6 +1098,9 @@ Still making the copy. Hum something. Anything.	????? ?? ?????????. ???????? ???
 The SOURCE picker: a Lower Third with a name on it, then a title card with a key-green backdrop.	Вибір SOURCE: Lower Third з іменем, потім титр на зеленому хромакейному тлі.
 What it needs: hard CUTS, a bright busy picture before each cut, and big steady MOTION after it. This clip has nine, one on each bar of the music.	Що потрібно: різкі СКЛЕЙКИ, яскрава насичена картинка перед кожною склейкою та великий рівномірний РУХ після неї. У цьому кліпі їх дев'ять, по одній на кожен такт музики.
 TAKE the music video and watch it once. Count the cuts. Each one lands on the beat: train, samurai, dancer, the dive, the dive backwards, the kiss.	Натисни TAKE і переглянь музичне відео один раз. Полічи склейки. Кожна припадає на долю: потяг, самурай, танцівниця, стрибок у воду, стрибок навпаки, поцілунок.
+Dobar den, skapi. I am Dr. Pixel. Five minutes, and you will run a show. Less, if you listen to me. Our voices change on the VOICE button, bottom left.	Добър ден, скъпи. Я докторка Піксель. П'ять хвилин, і ти вестимеш шоу. Менше, якщо слухатимеш мене. Наші голоси змінюються кнопкою VOICE внизу ліворуч.
+EXPERIMENTAL: WORDS	ЕКСПЕРИМЕНТАЛЬНО: СЛОВА
+EXPERIMENTAL: SOUNDS	ЕКСПЕРИМЕНТАЛЬНО: ЗВУКИ
 # --- end of tutorials ---
 Splash	Заставка
 Beast mode	Режим звіра
@@ -4609,6 +4612,8 @@ cut-outs a turn	вирізів за оберт
 cylinder	циліндр
 dust behind	пил позаду
 eyes closed	очі заплющені
+A circuit-bent video enhancer with nothing plugged in: it makes its own picture and bends it. Brightness becomes a few loud colours that drift, the colour floods past edges in blocks, edges ring in fine stripes and the sync tears. The CIRCUIT BEND effect does the same to any cue.	Відеополіпшувач зі зміненою схемою, до якого нічого не підключено: він створює власне зображення та викривляє його. Яскравість перетворюється на кілька кричущих кольорів, що дрейфують, колір витікає блоками за краї, краї дзвенять тонкими смужками, а синхронізація рветься. Ефект CIRCUIT BEND робить те саме з будь-яким cue.
+colour bars	кольорові смуги
 gooey	в'язкість
 how many	скільки
 lamp	лампа
@@ -4643,7 +4648,8 @@ How coarse the colour is: at the left it follows every edge, at the right it flo
 VOICE: {1}	ГОЛОС: {1}
 Lesson voices	Голоси уроків
 lesson voices: {1}	голоси уроків: {1}
-EXPERIMENTAL: SOUNDS	ЕКСПЕРИМЕНТАЛЬНО: ЗВУКИ
 LESSONS VOICE: CHIP, WORDS, SOUNDS or OFF	ГОЛОС УРОКІВ: CHIP, СЛОВА, ЗВУКИ або ВИМ
 scopes - the picture scopes	скопи - скопи зображення
 MULTIVIEW WINDOW: expected PROGRAMME, DECK<n>, OUTPUT<n>, NEXT, CLOCK, SCOPES or EMPTY	MULTIVIEW WINDOW: очікується PROGRAMME, DECK<n>, OUTPUT<n>, NEXT, CLOCK, SCOPES або EMPTY
+VIDEO OUTPUT ADD: WINDOW | STREAM | MULTIVIEW | PRESENTER | PROMPTER | SCOPES	VIDEO OUTPUT ADD: очікується WINDOW | STREAM | MULTIVIEW | PRESENTER | PROMPTER | SCOPES
+every output shows the scopes - add one that shows the programme	усі виходи показують вимірювачі - додайте вихід із програмним зображенням

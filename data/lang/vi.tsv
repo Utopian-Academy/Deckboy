@@ -1096,6 +1096,9 @@ Still making the copy. Hum something. Anything.	V?n ?ang t?o b?n sao. Ng?n nga g
 The SOURCE picker: a Lower Third with a name on it, then a title card with a key-green backdrop.	Bộ chọn SOURCE: Lower Third mang một cái tên, rồi một thẻ tiêu đề trên nền xanh key.
 What it needs: hard CUTS, a bright busy picture before each cut, and big steady MOTION after it. This clip has nine, one on each bar of the music.	Cần có: các ĐIỂM CẮT thẳng, hình ảnh sáng và nhiều chi tiết trước mỗi điểm cắt, rồi CHUYỂN ĐỘNG lớn, đều sau đó. Clip này có chín điểm cắt, mỗi ô nhịp của bản nhạc có một điểm.
 TAKE the music video and watch it once. Count the cuts. Each one lands on the beat: train, samurai, dancer, the dive, the dive backwards, the kiss.	TAKE video ca nhạc và xem một lần. Đếm các điểm cắt. Mỗi điểm đều rơi vào phách: tàu, samurai, vũ công, cú lặn, cú lặn ngược, nụ hôn.
+Dobar den, skapi. I am Dr. Pixel. Five minutes, and you will run a show. Less, if you listen to me. Our voices change on the VOICE button, bottom left.	Dobar den, skapi. Xin chào! Tôi là Dr. Pixel. Năm phút nữa, bạn sẽ chạy một show. Ít hơn, nếu bạn nghe lời tôi. Đổi giọng của chúng tôi bằng nút VOICE ở góc dưới bên trái.
+EXPERIMENTAL: WORDS	THỬ NGHIỆM: TỪ NGỮ
+EXPERIMENTAL: SOUNDS	THỬ NGHIỆM: ÂM THANH
 # --- end of tutorials ---
 MIDI MAP	BẢN ĐỒ MIDI
 + ADD	+ THÊM
@@ -4593,6 +4596,8 @@ cut-outs a turn	lỗ mỗi vòng
 cylinder	hình trụ
 dust behind	bụi phía sau
 eyes closed	nhắm mắt
+A circuit-bent video enhancer with nothing plugged in: it makes its own picture and bends it. Brightness becomes a few loud colours that drift, the colour floods past edges in blocks, edges ring in fine stripes and the sync tears. The CIRCUIT BEND effect does the same to any cue.	Bộ cải thiện video có mạch bị can thiệp, không cắm gì vào: nó tự tạo hình ảnh rồi bẻ cong hình ảnh đó. Độ sáng biến thành vài màu chói trôi dạt, màu tràn qua các cạnh thành từng khối, các cạnh rung thành những sọc mảnh và đồng bộ bị xé. Hiệu ứng CIRCUIT BEND làm điều tương tự với bất kỳ cue nào.
+colour bars	thanh màu
 gooey	độ sệt
 how many	bao nhiêu
 lamp	đèn
@@ -4627,7 +4632,8 @@ How coarse the colour is: at the left it follows every edge, at the right it flo
 VOICE: {1}	GIỌNG: {1}
 Lesson voices	Giọng bài học
 lesson voices: {1}	giọng bài học: {1}
-EXPERIMENTAL: SOUNDS	THỬ NGHIỆM: ÂM THANH
 LESSONS VOICE: CHIP, WORDS, SOUNDS or OFF	GIỌNG BÀI HỌC: CHIP, TỪ, ÂM THANH hoặc TẮT
 scopes - the picture scopes	scope - các scope của hình ảnh
 MULTIVIEW WINDOW: expected PROGRAMME, DECK<n>, OUTPUT<n>, NEXT, CLOCK, SCOPES or EMPTY	MULTIVIEW WINDOW: cần PROGRAMME, DECK<n>, OUTPUT<n>, NEXT, CLOCK, SCOPES hoặc EMPTY
+VIDEO OUTPUT ADD: WINDOW | STREAM | MULTIVIEW | PRESENTER | PROMPTER | SCOPES	VIDEO OUTPUT ADD: cần WINDOW | STREAM | MULTIVIEW | PRESENTER | PROMPTER | SCOPES
+every output shows the scopes - add one that shows the programme	mọi đầu ra đều hiển thị máy đo hình ảnh - thêm một đầu ra hiển thị chương trình

@@ -1098,6 +1098,9 @@ Still making the copy. Hum something. Anything.	Ainda ta traha e copia. Canta al
 The SOURCE picker: a Lower Third with a name on it, then a title card with a key-green backdrop.	E selector SOURCE: un Lower Third cu un nomber, despues un carchi di titulo riba un fondo berde di key.
 What it needs: hard CUTS, a bright busy picture before each cut, and big steady MOTION after it. This clip has nine, one on each bar of the music.	Loke e mester: CORTENAN brusco, un imagen cla y yen di detaye prome cu cada corte, y MOVIMIENTO grandi y constante despues. E clip aki tin nuebe, un den cada compas di e musica.
 TAKE the music video and watch it once. Count the cuts. Each one lands on the beat: train, samurai, dancer, the dive, the dive backwards, the kiss.	TAKE e video musical y wak e un biaha. Conta e cortenan. Cada un ta cay riba e ritmo: trein, samurai, bailado, e sambuyamento, e sambuyamento patras, e sunchi.
+Dobar den, skapi. I am Dr. Pixel. Five minutes, and you will run a show. Less, if you listen to me. Our voices change on the VOICE button, bottom left.	Dobar den, skapi. Bon bini! Ami ta Dr. Pixel. Cinco minuut, i bo ta core un show. Menos, si bo scucha mi. Nos stemnan ta cambia cu e boton VOICE, abou na man robes.
+EXPERIMENTAL: WORDS	EXPERIMENTAL: PALABRANAN
+EXPERIMENTAL: SOUNDS	EXPERIMENTAL: SONIDONAN
 # --- end of tutorials ---
 + ADD AN OUTPUT	+ AGREGA OUTPUT
 >LIVE	>BIBU
@@ -4585,6 +4588,8 @@ cut-outs a turn	buraco pa bira
 cylinder	cilinder
 dust behind	stof patras
 eyes closed	wowonan sera
+A circuit-bent video enhancer with nothing plugged in: it makes its own picture and bends it. Brightness becomes a few loud colours that drift, the colour floods past edges in blocks, edges ring in fine stripes and the sync tears. The CIRCUIT BEND effect does the same to any cue.	Un mehorador di video cu e circuito modifica y sin nada conecta: e ta crea su mes imagen y dobla esaki. Claridad ta bira algun color fuerte cu ta move, color ta pasa e randnan den blok, e randnan ta vibra den strepi fini y e sincronisacion ta scheur. E efecto CIRCUIT BEND ta haci mescos cu cualkier cue.
+colour bars	barranan di color
 gooey	pegajoso
 how many	cuanto
 lamp	lampi
@@ -4619,7 +4624,8 @@ How coarse the colour is: at the left it follows every edge, at the right it flo
 VOICE: {1}	VOZ: {1}
 Lesson voices	Vosnan di les
 lesson voices: {1}	vosnan di les: {1}
-EXPERIMENTAL: SOUNDS	EXPERIMENTAL: SONIDONAN
 LESSONS VOICE: CHIP, WORDS, SOUNDS or OFF	VOZ DI LESNAN: CHIP, PALABRANAN, SONIDONAN o PAGA
 scopes - the picture scopes	scopes - e scopenan di e portret
 MULTIVIEW WINDOW: expected PROGRAMME, DECK<n>, OUTPUT<n>, NEXT, CLOCK, SCOPES or EMPTY	MULTIVIEW WINDOW: ta spera PROGRAMME, DECK<n>, OUTPUT<n>, NEXT, CLOCK, SCOPES of EMPTY
+VIDEO OUTPUT ADD: WINDOW | STREAM | MULTIVIEW | PRESENTER | PROMPTER | SCOPES	VIDEO OUTPUT ADD: ta spera WINDOW | STREAM | MULTIVIEW | PRESENTER | PROMPTER | SCOPES
+every output shows the scopes - add one that shows the programme	tur salida ta mustra e medidornan - agrega un cu ta mustra e programa

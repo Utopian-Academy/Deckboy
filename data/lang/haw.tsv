@@ -51,6 +51,9 @@ Still making the copy. Hum something. Anything.	Ke hana nei n? i ke kope. E ho?o
 The SOURCE picker: a Lower Third with a name on it, then a title card with a key-green backdrop.	Ka mea koho SOURCE: he Lower Third me ka inoa, a laila he kāleka poʻo inoa me ke kua ʻōmaʻomaʻo kī.
 What it needs: hard CUTS, a bright busy picture before each cut, and big steady MOTION after it. This clip has nine, one on each bar of the music.	Nā mea e pono ai: nā ʻOKI koke, ke kiʻi mālamalama piha i nā mea ma mua o kēlā me kēia ʻoki, a me ka NEʻE nui kūpaʻa ma hope. He ʻeiwa ko kēia kiʻi, hoʻokahi ma kēlā me kēia ana o ke mele.
 TAKE the music video and watch it once. Count the cuts. Each one lands on the beat: train, samurai, dancer, the dive, the dive backwards, the kiss.	TAKE i ke wikiō mele a nānā hoʻokahi manawa. Helu i nā ʻoki. Kū kēlā me kēia ma ke kuʻi: kaʻaahi, samurai, mea hula, ka luʻu, ka luʻu i hope, ka honi.
+Dobar den, skapi. I am Dr. Pixel. Five minutes, and you will run a show. Less, if you listen to me. Our voices change on the VOICE button, bottom left.	Dobar den, skapi. ʻO Dr. Pixel au. ʻElima minuke, a e holo ana ʻoe i hōʻike. Emi iho, inā hoʻolohe ʻoe iaʻu. Hoʻololi ʻia ko mākou mau leo ma ke pihi VOICE, ma lalo hema.
+EXPERIMENTAL: WORDS	HOʻĀʻO: NĀ HUAʻŌLELO
+EXPERIMENTAL: SOUNDS	HOʻĀʻO: NĀ KANI
 # --- end of tutorials ---
 YES	ʻAE
 NO	ʻAʻOLE
@@ -4570,6 +4573,8 @@ cut-outs a turn	puka i ka pōʻai
 cylinder	paukū
 dust behind	lepo ma hope
 eyes closed	maka paʻa
+A circuit-bent video enhancer with nothing plugged in: it makes its own picture and bends it. Brightness becomes a few loud colours that drift, the colour floods past edges in blocks, edges ring in fine stripes and the sync tears. The CIRCUIT BEND effect does the same to any cue.	He mea hoʻomaikaʻi wikiō me ke kaapuni i hoʻololi ʻia, ʻaʻohe mea i hoʻopili ʻia: hana ʻo ia i kona kiʻi ponoʻī a hoʻololi kekee iā ia. Lilo ka mālamalama i mau waihoʻoluʻu ʻōlinolino e ʻau ana, kahe ka waihoʻoluʻu ma ʻō aku o nā lihi ma nā poloka, haʻalulu nā lihi ma nā kaha lahilahi a naha ka hoʻokaulike manawa. Hana ka hopena CIRCUIT BEND i ka mea like i kēlā me kēia cue.
+colour bars	nā ʻaukā waihoʻoluʻu
 gooey	pipili
 how many	ʻehia
 lamp	kukui
@@ -4604,7 +4609,8 @@ How coarse the colour is: at the left it follows every edge, at the right it flo
 VOICE: {1}	LEO: {1}
 Lesson voices	Nā leo haʻawina
 lesson voices: {1}	nā leo haʻawina: {1}
-EXPERIMENTAL: SOUNDS	HOʻĀʻO: NĀ KANI
 LESSONS VOICE: CHIP, WORDS, SOUNDS or OFF	LEO HAʻAWINA: CHIP, NĀ HUAʻŌLELO, NĀ KANI A I ʻOLE PIO
 scopes - the picture scopes	scopes - nā ana kiʻi
 MULTIVIEW WINDOW: expected PROGRAMME, DECK<n>, OUTPUT<n>, NEXT, CLOCK, SCOPES or EMPTY	MULTIVIEW WINDOW: pono ʻo PROGRAMME, DECK<n>, OUTPUT<n>, NEXT, CLOCK, SCOPES a i ʻole EMPTY
+VIDEO OUTPUT ADD: WINDOW | STREAM | MULTIVIEW | PRESENTER | PROMPTER | SCOPES	VIDEO OUTPUT ADD: e hoʻokomo i WINDOW | STREAM | MULTIVIEW | PRESENTER | PROMPTER | SCOPES
+every output shows the scopes - add one that shows the programme	hōʻike nā puka a pau i nā ana kiʻi - hoʻohui i kekahi e hōʻike ana i ka papahana

@@ -1107,6 +1107,9 @@ Still making the copy. Hum something. Anything.	???? ???? ???? ?? ???????. ???? 
 The SOURCE picker: a Lower Third with a name on it, then a title card with a key-green backdrop.	انتخابگر SOURCE: یک Lower Third با یک نام، بعد یک کارت عنوان با پس‌زمینه‌ی سبز کروما.
 What it needs: hard CUTS, a bright busy picture before each cut, and big steady MOTION after it. This clip has nine, one on each bar of the music.	چه می‌خواهد: برش‌های ناگهانی، تصویری روشن و پرجزئیات پیش از هر برش و حرکتی بزرگ و یکنواخت پس از آن. این کلیپ نه برش دارد، یکی در هر میزان موسیقی.
 TAKE the music video and watch it once. Count the cuts. Each one lands on the beat: train, samurai, dancer, the dive, the dive backwards, the kiss.	موزیک‌ویدیو را با TAKE پخش کن و یک بار ببین. برش‌ها را بشمار. هر کدام روی ضرب می‌افتد: قطار، سامورایی، رقصنده، شیرجه، شیرجه به عقب، بوسه.
+Dobar den, skapi. I am Dr. Pixel. Five minutes, and you will run a show. Less, if you listen to me. Our voices change on the VOICE button, bottom left.	دوبار دن، اسکاپی. من دکتر پیکسل هستم. پنج دقیقه دیگر یک نمایش را اجرا می‌کنی. اگر به حرفم گوش کنی، کمتر. صداهای ما با دکمهٔ VOICE در پایین سمت چپ عوض می‌شوند.
+EXPERIMENTAL: WORDS	آزمایشی: واژه‌ها
+EXPERIMENTAL: SOUNDS	آزمایشی: جلوه‌های صوتی
 # --- end of tutorials ---
 Splash	صفحهٔ آغاز
 Beast mode	حالت هیولا
@@ -4620,6 +4623,8 @@ cut-outs a turn	بریدگی در دور
 cylinder	استوانه
 dust behind	غبار پشت
 eyes closed	چشم‌های بسته
+A circuit-bent video enhancer with nothing plugged in: it makes its own picture and bends it. Brightness becomes a few loud colours that drift, the colour floods past edges in blocks, edges ring in fine stripes and the sync tears. The CIRCUIT BEND effect does the same to any cue.	بهبوددهندهٔ ویدیو با مدار دستکاری‌شده که چیزی به آن وصل نیست: تصویر خودش را می‌سازد و آن را خم می‌کند. روشنایی به چند رنگ تند و شناور تبدیل می‌شود، رنگ به شکل بلوک از لبه‌ها بیرون می‌ریزد، لبه‌ها با نوارهای باریک زنگ می‌زنند و همگامی پاره می‌شود. جلوهٔ CIRCUIT BEND همین کار را با هر کیو انجام می‌دهد.
+colour bars	نوارهای رنگی
 gooey	چسبندگی
 how many	تعداد
 lamp	چراغ
@@ -4654,7 +4659,8 @@ How coarse the colour is: at the left it follows every edge, at the right it flo
 VOICE: {1}	صدا: {1}
 Lesson voices	صداهای درس
 lesson voices: {1}	صداهای درس: {1}
-EXPERIMENTAL: SOUNDS	آزمایشی: جلوه‌های صوتی
 LESSONS VOICE: CHIP, WORDS, SOUNDS or OFF	صدای درس‌ها: CHIP، واژه‌ها، جلوه‌های صوتی یا خاموش
 scopes - the picture scopes	scopes - اسکوپ‌های تصویر
 MULTIVIEW WINDOW: expected PROGRAMME, DECK<n>, OUTPUT<n>, NEXT, CLOCK, SCOPES or EMPTY	MULTIVIEW WINDOW: قالب مورد انتظار: PROGRAMME, DECK<n>, OUTPUT<n>, NEXT, CLOCK, SCOPES یا EMPTY
+VIDEO OUTPUT ADD: WINDOW | STREAM | MULTIVIEW | PRESENTER | PROMPTER | SCOPES	VIDEO OUTPUT ADD: قالب مورد انتظار: WINDOW | STREAM | MULTIVIEW | PRESENTER | PROMPTER | SCOPES
+every output shows the scopes - add one that shows the programme	همهٔ خروجی‌ها ابزارهای سنجش را نشان می‌دهند - خروجی‌ای اضافه کنید که برنامه را نشان دهد

@@ -1100,6 +1100,9 @@ Still making the copy. Hum something. Anything.	??????????????????????????
 The SOURCE picker: a Lower Third with a name on it, then a title card with a key-green backdrop.	SOURCEピッカー：名前入りのLower Third、それからクロマキー緑の背景のタイトルカード。
 What it needs: hard CUTS, a bright busy picture before each cut, and big steady MOTION after it. This clip has nine, one on each bar of the music.	必要なのは、ハードカット、各カットの前の明るく情報量の多い映像、そしてその後の大きく安定した動きです。このクリップには9つのカットがあり、音楽の各小節に1つずつ入っています。
 TAKE the music video and watch it once. Count the cuts. Each one lands on the beat: train, samurai, dancer, the dive, the dive backwards, the kiss.	ミュージックビデオをTAKEして一度見てください。カットを数えましょう。どれも拍に合っています：列車、侍、ダンサー、飛び込み、逆再生の飛び込み、キス。
+Dobar den, skapi. I am Dr. Pixel. Five minutes, and you will run a show. Less, if you listen to me. Our voices change on the VOICE button, bottom left.	ドバル・デン、スカピ。私はピクセル博士。5分でショーを回せるようになる。私の話を聞けば、もっと早い。 声は左下のVOICEボタンで切り替えられるよ。
+EXPERIMENTAL: WORDS	実験：言葉
+EXPERIMENTAL: SOUNDS	実験的: サウンド
 # --- end of tutorials ---
 Splash	起動画面
 Beast mode	ビーストモード
@@ -4606,6 +4609,8 @@ cut-outs a turn	1周の穴の数
 cylinder	円筒
 dust behind	後方のちり
 eyes closed	目を閉じる
+A circuit-bent video enhancer with nothing plugged in: it makes its own picture and bends it. Brightness becomes a few loud colours that drift, the colour floods past edges in blocks, edges ring in fine stripes and the sync tears. The CIRCUIT BEND effect does the same to any cue.	何も接続されていない、回路を改造した映像補正器。自分で映像を作り、それを歪めます。明るさが漂う数色の鮮烈な色に変わり、色がブロック状に輪郭からあふれ、輪郭に細い縞のリンギングが生じ、同期が裂けます。CIRCUIT BENDエフェクトは、どのキューにも同じ処理を行います。
+colour bars	カラーバー
 gooey	粘り
 how many	数
 lamp	ランプ
@@ -4640,7 +4645,8 @@ How coarse the colour is: at the left it follows every edge, at the right it flo
 VOICE: {1}	音色: {1}
 Lesson voices	レッスンの音色
 lesson voices: {1}	レッスンの音色: {1}
-EXPERIMENTAL: SOUNDS	実験的: サウンド
 LESSONS VOICE: CHIP, WORDS, SOUNDS or OFF	レッスン音色: CHIP、単語、サウンド、またはオフ
 scopes - the picture scopes	scopes - 映像スコープ
 MULTIVIEW WINDOW: expected PROGRAMME, DECK<n>, OUTPUT<n>, NEXT, CLOCK, SCOPES or EMPTY	MULTIVIEW WINDOW: PROGRAMME、DECK<n>、OUTPUT<n>、NEXT、CLOCK、SCOPES、EMPTYのいずれかを指定
+VIDEO OUTPUT ADD: WINDOW | STREAM | MULTIVIEW | PRESENTER | PROMPTER | SCOPES	VIDEO OUTPUT ADD: 必要な形式: WINDOW | STREAM | MULTIVIEW | PRESENTER | PROMPTER | SCOPES
+every output shows the scopes - add one that shows the programme	すべての出力に測定器が表示されています - 番組映像を表示する出力を追加してください

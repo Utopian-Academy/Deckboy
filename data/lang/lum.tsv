@@ -1078,6 +1078,9 @@ Still making the copy. Hum something. Anything.	Veli vela. Kissoni una sona. Ala
 The SOURCE picker: a Lower Third with a name on it, then a title card with a key-green backdrop.	SOURCE pikjana: Lower Third so hola, novtok kara-veka so luma-lumo.
 What it needs: hard CUTS, a bright busy picture before each cut, and big steady MOTION after it. This clip has nine, one on each bar of the music.	Veka hup: kor SETRANAKU, lumo so tamo veka muna ala setrana, so TAMO PONO TIRISETA novtok. Veka ni hali 9, una ala sontokkara.
 TAKE the music video and watch it once. Count the cuts. Each one lands on the beat: train, samurai, dancer, the dive, the dive backwards, the kiss.	TAKE sonveka so miri una toka. Tali setranaku. Ala setrana so sontok: retatirajana, samurai, tirisetwia, natira, natira dopmuna, pelkora.
+Dobar den, skapi. I am Dr. Pixel. Five minutes, and you will run a show. Less, if you listen to me. Our voices change on the VOICE button, bottom left.	Dobar den, skapi. Lumi! Mi Dr. Pixel. Kistok vagh, so tu deki veka-sena. Kisto, ir tu lisi mi. Mi sonaku seti so VOICE bata, nira so dopa ran.
+EXPERIMENTAL: WORDS	TESTO: HOLAKU
+EXPERIMENTAL: SOUNDS	TESTO: SONAKU
 # --- end of tutorials ---
 + ADD AN OUTPUT	+ LANI SENADORA
 >LIVE	>LUMO
@@ -4619,6 +4622,8 @@ cut-outs a turn	katdoraku turna
 cylinder	cilindra
 dust behind	polva vadoro
 eyes closed	miraku kluo
+A circuit-bent video enhancer with nothing plugged in: it makes its own picture and bends it. Brightness becomes a few loud colours that drift, the colour floods past edges in blocks, edges ring in fine stripes and the sync tears. The CIRCUIT BEND effect does the same to any cue.	Vekalumjana so rantiro kora, va lano munga: jana novi mi veka so rantiri veka. Luma seti kis tala sono kolorku so tiriseti, kolora flui nov ranaku so karaku, ranaku soni so kiso ranaku so tamtoka ranti. CIRCUIT BEND vekaseta pati samo so ala veka.
+colour bars	kolorranaku
 gooey	visko
 how many	tala
 lamp	lumjana
@@ -4653,7 +4658,8 @@ How coarse the colour is: at the left it follows every edge, at the right it flo
 VOICE: {1}	SONAKANA: {1}
 Lesson voices	Holakora sonakana
 lesson voices: {1}	holakora sonakana: {1}
-EXPERIMENTAL: SOUNDS	TESTO: SONAKU
 LESSONS VOICE: CHIP, WORDS, SOUNDS or OFF	HUPAKU SONAKANA: CHIP, HOLAKU, SONAKU o VAP
 scopes - the picture scopes	scope - talamiraku sov veka
 MULTIVIEW WINDOW: expected PROGRAMME, DECK<n>, OUTPUT<n>, NEXT, CLOCK, SCOPES or EMPTY	MULTIVIEW WINDOW: peni PROGRAMME, DECK<n>, OUTPUT<n>, NEXT, CLOCK, SCOPES o EMPTY
+VIDEO OUTPUT ADD: WINDOW | STREAM | MULTIVIEW | PRESENTER | PROMPTER | SCOPES	VIDEO OUTPUT ADD: peni WINDOW | STREAM | MULTIVIEW | PRESENTER | PROMPTER | SCOPES
+every output shows the scopes - add one that shows the programme	Ala senadoraku veki vekamirajanaku - lani una so veki koraveka

@@ -1096,6 +1096,9 @@ Still making the copy. Hum something. Anything.	Kopiota tehd??n viel?. Hyr?ile j
 The SOURCE picker: a Lower Third with a name on it, then a title card with a key-green backdrop.	SOURCE-valitsin: Lower Third nimellä, sitten otsikkokortti avainvihreällä taustalla.
 What it needs: hard CUTS, a bright busy picture before each cut, and big steady MOTION after it. This clip has nine, one on each bar of the music.	Tarvitaan jyrkkiä LEIKKAUKSIA, kirkas ja vilkas kuva ennen jokaista leikkausta ja laaja tasainen LIIKE sen jälkeen. Tässä klipissä on yhdeksän leikkausta, yksi musiikin jokaista tahtia kohti.
 TAKE the music video and watch it once. Count the cuts. Each one lands on the beat: train, samurai, dancer, the dive, the dive backwards, the kiss.	Paina musiikkivideolle TAKE ja katso se kerran. Laske leikkaukset. Jokainen osuu iskulle: juna, samurai, tanssija, sukellus, sukellus takaperin, suudelma.
+Dobar den, skapi. I am Dr. Pixel. Five minutes, and you will run a show. Less, if you listen to me. Our voices change on the VOICE button, bottom left.	Dobar den, skapi. Olen tohtori Pixel. Viisi minuuttia, ja ajat showta. Vähemmän, jos kuuntelet minua. Äänemme vaihtuvat vasemman alakulman VOICE-painikkeesta.
+EXPERIMENTAL: WORDS	KOKEELLINEN: SANAT
+EXPERIMENTAL: SOUNDS	KOKEELLINEN: ÄÄNIEFEKTIT
 # --- end of tutorials ---
 Splash	Aloituskuva
 Beast mode	Petotila
@@ -4605,6 +4608,8 @@ cut-outs a turn	aukkoja/kierros
 cylinder	sylinteri
 dust behind	pöly takana
 eyes closed	silmät kiinni
+A circuit-bent video enhancer with nothing plugged in: it makes its own picture and bends it. Brightness becomes a few loud colours that drift, the colour floods past edges in blocks, edges ring in fine stripes and the sync tears. The CIRCUIT BEND effect does the same to any cue.	Videoparannin, jonka kytkentää on muokattu ja johon ei ole liitetty mitään: se luo oman kuvansa ja vääntää sitä. Kirkkaus muuttuu muutamaksi räikeäksi, ajelehtivaksi väriksi, väri tulvii lohkoina reunojen yli, reunat soivat ohuina raitoina ja tahdistus repeilee. CIRCUIT BEND -tehoste tekee saman mille tahansa cuelle.
+colour bars	väripalkit
 gooey	sitkeys
 how many	montako
 lamp	lamppu
@@ -4639,7 +4644,8 @@ How coarse the colour is: at the left it follows every edge, at the right it flo
 VOICE: {1}	ÄÄNI: {1}
 Lesson voices	Oppituntien äänet
 lesson voices: {1}	oppituntien äänet: {1}
-EXPERIMENTAL: SOUNDS	KOKEELLINEN: ÄÄNIEFEKTIT
 LESSONS VOICE: CHIP, WORDS, SOUNDS or OFF	OPPITUNTIEN ÄÄNI: CHIP, SANAT, ÄÄNIEFEKTIT tai POIS
 scopes - the picture scopes	scopes - kuvan skoopit
 MULTIVIEW WINDOW: expected PROGRAMME, DECK<n>, OUTPUT<n>, NEXT, CLOCK, SCOPES or EMPTY	MULTIVIEW WINDOW: odotetaan PROGRAMME, DECK<n>, OUTPUT<n>, NEXT, CLOCK, SCOPES tai EMPTY
+VIDEO OUTPUT ADD: WINDOW | STREAM | MULTIVIEW | PRESENTER | PROMPTER | SCOPES	VIDEO OUTPUT ADD: odotetaan WINDOW | STREAM | MULTIVIEW | PRESENTER | PROMPTER | SCOPES
+every output shows the scopes - add one that shows the programme	kaikki ulostulot näyttävät kuvan mittarit - lisää ulostulo, joka näyttää ohjelman

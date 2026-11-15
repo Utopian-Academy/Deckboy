@@ -1097,6 +1097,9 @@ Still making the copy. Hum something. Anything.	Kopia nadal si? tworzy. Zanu? co
 The SOURCE picker: a Lower Third with a name on it, then a title card with a key-green backdrop.	Selektor SOURCE: Lower Third z imieniem, potem plansza tytułowa na zielonym tle do kluczowania.
 What it needs: hard CUTS, a bright busy picture before each cut, and big steady MOTION after it. This clip has nine, one on each bar of the music.	Potrzebne są: ostre CIĘCIA, jasny obraz pełen szczegółów przed każdym cięciem i duży, jednostajny RUCH po nim. Ten klip ma dziewięć cięć, po jednym w każdym takcie muzyki.
 TAKE the music video and watch it once. Count the cuts. Each one lands on the beat: train, samurai, dancer, the dive, the dive backwards, the kiss.	Uruchom teledysk przez TAKE i obejrzyj go raz. Policz cięcia. Każde wypada na uderzenie: pociąg, samuraj, tancerka, skok do wody, skok od tyłu, pocałunek.
+Dobar den, skapi. I am Dr. Pixel. Five minutes, and you will run a show. Less, if you listen to me. Our voices change on the VOICE button, bottom left.	Dobar den, skapi. Jestem doktor Piksel. Pięć minut i poprowadzisz show. Mniej, jeśli mnie posłuchasz. Nasze głosy zmieniasz przyciskiem VOICE na dole po lewej.
+EXPERIMENTAL: WORDS	EKSPERYMENTALNE: SŁOWA
+EXPERIMENTAL: SOUNDS	EKSPERYMENTALNE: DŹWIĘKI
 # --- end of tutorials ---
 Splash	Ekran startowy
 Beast mode	Tryb bestii
@@ -4576,6 +4579,8 @@ cut-outs a turn	wycięć na obrót
 cylinder	walec
 dust behind	pył z tyłu
 eyes closed	zamknięte oczy
+A circuit-bent video enhancer with nothing plugged in: it makes its own picture and bends it. Brightness becomes a few loud colours that drift, the colour floods past edges in blocks, edges ring in fine stripes and the sync tears. The CIRCUIT BEND effect does the same to any cue.	Ulepszacz wideo z przerobionym obwodem, bez niczego podłączonego: tworzy własny obraz i go wygina. Jasność zmienia się w kilka jaskrawych, dryfujących kolorów, kolor wylewa się blokami poza krawędzie, krawędzie dzwonią drobnymi paskami, a synchronizacja się rwie. Efekt CIRCUIT BEND robi to samo z dowolnym cue.
+colour bars	pasy barwne
 gooey	lepkość
 how many	ile
 lamp	lampa
@@ -4610,7 +4615,8 @@ How coarse the colour is: at the left it follows every edge, at the right it flo
 VOICE: {1}	GŁOS: {1}
 Lesson voices	Głosy lekcji
 lesson voices: {1}	głosy lekcji: {1}
-EXPERIMENTAL: SOUNDS	EKSPERYMENTALNE: DŹWIĘKI
 LESSONS VOICE: CHIP, WORDS, SOUNDS or OFF	GŁOS LEKCJI: CHIP, SŁOWA, DŹWIĘKI lub WYŁ.
 scopes - the picture scopes	skopy - skopy obrazu
 MULTIVIEW WINDOW: expected PROGRAMME, DECK<n>, OUTPUT<n>, NEXT, CLOCK, SCOPES or EMPTY	MULTIVIEW WINDOW: oczekiwano PROGRAMME, DECK<n>, OUTPUT<n>, NEXT, CLOCK, SCOPES lub EMPTY
+VIDEO OUTPUT ADD: WINDOW | STREAM | MULTIVIEW | PRESENTER | PROMPTER | SCOPES	VIDEO OUTPUT ADD: oczekiwano WINDOW | STREAM | MULTIVIEW | PRESENTER | PROMPTER | SCOPES
+every output shows the scopes - add one that shows the programme	każde wyjście pokazuje mierniki obrazu - dodaj takie, które pokazuje program

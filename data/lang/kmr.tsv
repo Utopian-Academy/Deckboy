@@ -715,6 +715,9 @@ Still making the copy. Hum something. Anything.	H? kop? t? ??kirin. Ti?tek? bi d
 The SOURCE picker: a Lower Third with a name on it, then a title card with a key-green backdrop.	Hilbijêra SOURCE: Lower Third bi navekî, paşê kartek sernavê bi paşxaneya kesk a key.
 What it needs: hard CUTS, a bright busy picture before each cut, and big steady MOTION after it. This clip has nine, one on each bar of the music.	Pêdiviyên wê: BIRÎNÊN hişk, wêneyeke ronî û tijî hûrgilî berî her birînê, û TEVGEREKE mezin û sabît piştî wê. Di vê klîpê de neh birîn hene, yek di her pîvana muzîkê de.
 TAKE the music video and watch it once. Count the cuts. Each one lands on the beat: train, samurai, dancer, the dive, the dive backwards, the kiss.	Vîdyoya muzîkê bi TAKE bide û carekê temaşe bike. Birînan bijmêre. Her yek li ser lêdanê dikeve: trên, samuray, dansker, bazdana nav avê, heman bazdan berevajî, maç.
+Dobar den, skapi. I am Dr. Pixel. Five minutes, and you will run a show. Less, if you listen to me. Our voices change on the VOICE button, bottom left.	Dobar den, skapi. Rojbaş! Ez Dr. Pixel im. Pênc deqe, û tu dê şanoyekê bimeşînî. Kêmtir, eger tu guh bidî min. Dengên me bi bişkoka VOICE ya li jêr aliyê çepê tên guhertin.
+EXPERIMENTAL: WORDS	CERIBANDÎ: PEYV
+EXPERIMENTAL: SOUNDS	CERIBANDÎ: DENG
 # --- end of tutorials ---
 >LIVE	>ZINDÎ
 NO	NA
@@ -4599,6 +4602,8 @@ cut-outs a turn	qul her zivirîn
 cylinder	lûle
 dust behind	toz li paş
 eyes closed	çav girtî
+A circuit-bent video enhancer with nothing plugged in: it makes its own picture and bends it. Brightness becomes a few loud colours that drift, the colour floods past edges in blocks, edges ring in fine stripes and the sync tears. The CIRCUIT BEND effect does the same to any cue.	Başkerekî vîdyoyê bi dewreya guherandî ku tu tişt pê ve ne girêdayî ye: wêneya xwe çêdike û ditewîne. Ronahî dibe çend rengên geş ên ku diherikin, reng bi blokan ji kêlekên wêneyê derbas dibe, kêlek bi xêzên zirav dengvedanê dikin û hevdemî diqelişe. Efekta CIRCUIT BEND heman tiştî li her cueyê dike.
+colour bars	şerîtên rengîn
 gooey	zeliqî
 how many	çend
 lamp	çira
@@ -4633,7 +4638,8 @@ How coarse the colour is: at the left it follows every edge, at the right it flo
 VOICE: {1}	DENG: {1}
 Lesson voices	Dengên dersê
 lesson voices: {1}	dengên dersê: {1}
-EXPERIMENTAL: SOUNDS	CERIBANDÎ: DENG
 LESSONS VOICE: CHIP, WORDS, SOUNDS or OFF	DENGÊ DERSÊ: CHIP, PEYV, DENG an GIRTÎ
 scopes - the picture scopes	scope - scopeyên wêneyê
 MULTIVIEW WINDOW: expected PROGRAMME, DECK<n>, OUTPUT<n>, NEXT, CLOCK, SCOPES or EMPTY	MULTIVIEW WINDOW: PROGRAMME, DECK<n>, OUTPUT<n>, NEXT, CLOCK, SCOPES an EMPTY tê hêvîkirin
+VIDEO OUTPUT ADD: WINDOW | STREAM | MULTIVIEW | PRESENTER | PROMPTER | SCOPES	VIDEO OUTPUT ADD: Forma bendewar: WINDOW | STREAM | MULTIVIEW | PRESENTER | PROMPTER | SCOPES
+every output shows the scopes - add one that shows the programme	hemû derketin pîvanên wêneyê nîşan didin - yekê zêde bikin ku bernameyê nîşan bide

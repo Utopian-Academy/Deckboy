@@ -1098,6 +1098,9 @@ Still making the copy. Hum something. Anything.	?? ????????? ?????????? ?????. ?
 The SOURCE picker: a Lower Third with a name on it, then a title card with a key-green backdrop.	Ο επιλογέας SOURCE: ένα Lower Third με όνομα, μετά μια κάρτα τίτλου με πράσινο φόντο για κλειδί.
 What it needs: hard CUTS, a bright busy picture before each cut, and big steady MOTION after it. This clip has nine, one on each bar of the music.	Χρειάζονται: απότομα ΚΟΨΙΜΑΤΑ, φωτεινή γεμάτη εικόνα πριν από κάθε κόψιμο και μεγάλη σταθερή ΚΙΝΗΣΗ μετά. Αυτό το κλιπ έχει εννέα, ένα σε κάθε μέτρο της μουσικής.
 TAKE the music video and watch it once. Count the cuts. Each one lands on the beat: train, samurai, dancer, the dive, the dive backwards, the kiss.	Πάτησε TAKE για το μουσικό βίντεο και δες το μία φορά. Μέτρα τα κοψίματα. Κάθε ένα πέφτει στον χτύπο: τρένο, σαμουράι, χορεύτρια, η βουτιά, η βουτιά ανάποδα, το φιλί.
+Dobar den, skapi. I am Dr. Pixel. Five minutes, and you will run a show. Less, if you listen to me. Our voices change on the VOICE button, bottom left.	Ντόμπαρ ντεν, σκάπι. Είμαι η δρ Πίξελ. Πέντε λεπτά και θα τρέχεις σόου. Λιγότερο, αν με ακούσεις. Οι φωνές μας αλλάζουν με το κουμπί VOICE, κάτω αριστερά.
+EXPERIMENTAL: WORDS	ΠΕΙΡΑΜΑΤΙΚΟ: ΛΕΞΕΙΣ
+EXPERIMENTAL: SOUNDS	ΠΕΙΡΑΜΑΤΙΚΟ: ΗΧΟΙ
 # --- end of tutorials ---
 Splash	Οθόνη εκκίνησης
 Beast mode	Λειτουργία θηρίου
@@ -4602,6 +4605,8 @@ cut-outs a turn	οπές ανά στροφή
 cylinder	κύλινδρος
 dust behind	σκόνη πίσω
 eyes closed	κλειστά μάτια
+A circuit-bent video enhancer with nothing plugged in: it makes its own picture and bends it. Brightness becomes a few loud colours that drift, the colour floods past edges in blocks, edges ring in fine stripes and the sync tears. The CIRCUIT BEND effect does the same to any cue.	Ένας βελτιωτής βίντεο με πειραγμένο κύκλωμα και τίποτα συνδεδεμένο: φτιάχνει τη δική του εικόνα και την παραμορφώνει. Η φωτεινότητα γίνεται λίγα έντονα χρώματα που παρασύρονται, το χρώμα ξεχειλίζει σε μπλοκ πέρα από τις ακμές, οι ακμές αντηχούν σε λεπτές λωρίδες και ο συγχρονισμός σκίζεται. Το εφέ CIRCUIT BEND κάνει το ίδιο σε οποιοδήποτε cue.
+colour bars	χρωματικές μπάρες
 gooey	ιξώδες
 how many	πόσα
 lamp	λάμπα
@@ -4636,7 +4641,8 @@ How coarse the colour is: at the left it follows every edge, at the right it flo
 VOICE: {1}	ΦΩΝΗ: {1}
 Lesson voices	Φωνές μαθημάτων
 lesson voices: {1}	φωνές μαθημάτων: {1}
-EXPERIMENTAL: SOUNDS	ΠΕΙΡΑΜΑΤΙΚΟ: ΗΧΟΙ
 LESSONS VOICE: CHIP, WORDS, SOUNDS or OFF	LESSONS VOICE: CHIP, WORDS, SOUNDS ή OFF
 scopes - the picture scopes	scopes - τα σκόουπ της εικόνας
 MULTIVIEW WINDOW: expected PROGRAMME, DECK<n>, OUTPUT<n>, NEXT, CLOCK, SCOPES or EMPTY	MULTIVIEW WINDOW: αναμένεται PROGRAMME, DECK<n>, OUTPUT<n>, NEXT, CLOCK, SCOPES ή EMPTY
+VIDEO OUTPUT ADD: WINDOW | STREAM | MULTIVIEW | PRESENTER | PROMPTER | SCOPES	VIDEO OUTPUT ADD: αναμένεται WINDOW | STREAM | MULTIVIEW | PRESENTER | PROMPTER | SCOPES
+every output shows the scopes - add one that shows the programme	όλες οι έξοδοι δείχνουν τα όργανα μέτρησης - προσθέστε μία που δείχνει το πρόγραμμα
