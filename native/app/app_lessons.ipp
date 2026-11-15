@@ -1590,7 +1590,7 @@
     // James, 2026-11-14: "a how to data mosh lesson ... with guest ... parody
     // of chairlift ... the teachers should emphasize a good mosh starts with
     // a well made source clip". The clip ships in data/lessons (mosh_reel.mp4,
-    // nine hard cuts from public-domain films, each on a bar of the theme; see data/lessons/CREDITS.md).
+    // eleven hard cuts from Blender's open-licensed short films, each on a bar of the theme; see data/lessons/CREDITS.md).
     {
       LessonDef l;
       l.id = "datamosh";
@@ -1639,19 +1639,19 @@
          std::function<bool()> {}, nullptr, [] { return SDL_Rect {}; }, nullptr},
         {"THE SOURCE CLIP", nullptr,
          "A good mosh starts with a well-made source clip. Moshing a dull clip only makes a smudge.",
-         "What it needs: hard CUTS, a bright busy picture before each cut, and big steady MOTION after it. This clip has nine, one on each bar of the music.",
-         "CAROLINE POLKADOT", "We shot it ourselves. In 1895. With the Lumière brothers. Long story.",
+         "What it needs: hard CUTS, a bright busy picture before each cut, and big steady MOTION after it. This clip has eleven, one on each bar of the music.",
+         "CAROLINE POLKADOT", "We shot it ourselves. A llama, a flying squirrel and a barn that is also a rocket. Long story.",
          std::function<bool()> {}, nullptr, [] { return SDL_Rect {}; }, nullptr},
         {"WATCH THE CUTS", "ENTER",
-         "TAKE the music video and watch it once. Count the cuts. Each one lands on the beat: train, samurai, dancer, the dive, the dive backwards, the kiss.",
+         "TAKE the music video and watch it once. Count the cuts. Each one lands on the beat: the barn, the Ferris wheel, the llama, the bunny, the squirrel.",
          "Every cut starts with a KEYFRAME: a whole picture. Every frame after it is only the changes. Datamosh throws the keyframe away.",
-         "CAROLINE POLKADOT", "The train is the chorus. The samurai is the bridge. The kiss is the key change.",
+         "CAROLINE POLKADOT", "The barn is the chorus. The squirrel is the bridge. The pram is the key change.",
          [this, isReel] { return lessonCueLive(isReel); },
          [this, isReel] { lessonTake(isReel); },
          [this, isReel] { return lessonTakeTarget(isReel); }, nullptr},
         {"THE EFFECT", nullptr,
          "In EFFECTS, + adds one: choose DATAMOSH.",
-         "With no keyframe, the next shot's changes land on the LAST shot's picture. The train drags the samurai along the track.",
+         "With no keyframe, the next shot's changes land on the LAST shot's picture. The rocket barn drags the Ferris wheel into the sky.",
          "CAROLINE POLKADOT", "Yes. Break it. Break it like you mean it.",
          [reel] {
            const Cue* cue = reel();
@@ -1669,7 +1669,7 @@
          prepared, nullptr, [] { return SDL_Rect {}; }, nullptr},
         {"MOSH", "ENTER",
          "It is ready. TAKE it from the top and watch each cut smear into the next.",
-         "The train slides through the samurai's moon, and the dancer's silks drag across the sea.",
+         "The shuttle smears through the Ferris wheel, and the squirrel drags the grass across the sky.",
          "CAROLINE POLKADOT", "THAT is the video. That is literally what it looked like in my head.",
          [this, isReel, prepared] {
            if (!prepared() || !lessonCueLive(isReel)) {
@@ -2887,12 +2887,24 @@
       l.title = "Sound";
       l.about = "An audio effect on a cue, a bend that damages it beautifully, and where the patch lives.";
       l.show = "The robot DJs, with Deft Funk";
-      l.setup = [this] {
-        addToneCue();
-        Deck& deck = focusedDeckMutable();
-        if (!deck.cues.empty()) deck.cues.back().name = "The beat";
-        selectCueInDeck(project_.focusedDeckIndex, 0, false, false);
-        jumpSelectedCue();
+      // The robots' own song (James 2026-11-14: "it should have its own around
+      // the world inspired song", meaning the robot DJs' famous one -- "the 2nd
+      // one <3"): an original house groove that travels round the world while
+      // the robots chant "around the mix" in the Experimental voice. Made in
+      // Deckboy's synth; data/lessons/CREDITS.md. It loops, as the tone did.
+      auto isSong = [](const Cue& c) { return c.path.find("around_the_mix") != std::string::npos; };
+      l.setup = [this, isSong] {
+        importPaths({(Paths::dataDir() / "lessons" / "around_the_mix.mp3").string()});
+        int d = -1;
+        const int i = lessonFindCue(isSong, &d);
+        if (i >= 0) {
+          Cue& song = project_.decks[static_cast<std::size_t>(d)].cues[static_cast<std::size_t>(i)];
+          song.name = "Deft Funk - 'Around the Mix'";
+          song.endAction = CueEndAction::Loop;
+          selectCueInDeck(d, i, false, false);
+          jumpSelectedCue();
+        }
+        markProjectDirty();
       };
       auto effectCount = [this]() -> int {
         const Cue* cue = selectedCuePtr();
@@ -2909,7 +2921,7 @@
          "DEFT FUNK (SILVER)", "> HELLO. WE ARE HERE TO FIX YOUR MIX.",
          std::function<bool()> {}, nullptr, [] { return SDL_Rect {}; }, nullptr},
         {"AN EFFECT", nullptr,
-         "The beat is selected. In its AUDIO EFFECTS section, + adds one. Try the delay.",
+         "The song is selected. In its AUDIO EFFECTS section, + adds one. Try the delay.",
          "Delay, reverb, filters, a compressor. Amount always means 'less of this'.",
          "DEFT FUNK (GOLD)", "> ONE MORE TIME. WITH ECHO. ECHO. ECHO.",
          [effectCount] { return effectCount() >= 1; },
