@@ -9184,6 +9184,8 @@ class App {
       catch (...) { return 0xFFFFFFFFu; }
     };
     themeCreatures_.clear();
+    themeHueCycleSeconds_ = 0.0;
+    themeHueStep_ = -1;
     bool sawFg = false;
     bool sawTile = false;
     bool sawFgSoft = false;
@@ -9231,6 +9233,11 @@ class App {
         try { pal.scanlineAlpha = static_cast<Uint8>(std::clamp(std::stoi(val), 0, 255)); }
         catch (...) { pal.scanlineAlpha = 18; }
       }
+      else if (key == "hue_cycle") {
+        // Seconds for the whole palette to turn once round the colour wheel.
+        try { themeHueCycleSeconds_ = std::clamp(std::stod(val), 10.0, 3600.0); }
+        catch (...) { themeHueCycleSeconds_ = 0.0; }
+      }
     }
     // Back-compat: a theme without screen_fg uses its screen_deep as on-body
     // ink, and without screen_tile uses its screen_light as tile fill —
@@ -9238,6 +9245,48 @@ class App {
     if (!sawFg) kScreenFgColor = kScreenDeepColor;
     if (!sawTile) kScreenTileColor = kScreenLightColor;
     if (!sawFgSoft) kScreenFgSoftColor = kScreenDarkColor;
+    themeBaseColors_ = {kShellOuterColor, kShellInnerColor, kShellShadowColor, kScreenLightColor,
+                        kScreenMidColor, kScreenDarkColor, kScreenDeepColor, kScreenInkSoftColor,
+                        kScreenFgColor, kScreenTileColor, kScreenFgSoftColor, kButtonBezelColor,
+                        kDeleteBezelColor};
+  }
+
+  // A THEME THAT TURNS (James 2026-11-14: "a slow rgb shift theme? <3 ...
+  // maybe call it Rainbow Road"). A theme with `hue_cycle <seconds>` turns
+  // its whole palette round the colour wheel once in that time. The turn keeps
+  // each colour's brightness (Rec. 709 luma, the Colour effect's rotation),
+  // so ink stays as readable against its ground as the theme drew it. It
+  // moves in 2-degree steps, not every frame, so cached text is not redrawn
+  // constantly. Danger (delete_bezel) does not turn: red must stay red.
+  double themeHueCycleSeconds_ = 0.0;
+  int themeHueStep_ = -1;
+  std::array<std::uint32_t, 13> themeBaseColors_ {};
+
+  static std::uint32_t rotateThemeHue(std::uint32_t rgba, double degrees) {
+    const double a = degrees * 3.14159265358979 / 180.0, c = std::cos(a), s = std::sin(a);
+    const double m[9] = {
+      0.2126 + c * 0.7874 - s * 0.2126, 0.7152 - c * 0.7152 - s * 0.7152, 0.0722 - c * 0.0722 + s * 0.9278,
+      0.2126 - c * 0.2126 + s * 0.1430, 0.7152 + c * 0.2848 + s * 0.1400, 0.0722 - c * 0.0722 - s * 0.2830,
+      0.2126 - c * 0.2126 - s * 0.7874, 0.7152 - c * 0.7152 + s * 0.7152, 0.0722 + c * 0.9278 + s * 0.0722,
+    };
+    const double r = (rgba >> 24) & 255, g = (rgba >> 16) & 255, b = (rgba >> 8) & 255;
+    auto ch = [](double v) { return static_cast<std::uint32_t>(std::clamp(std::lround(v), 0L, 255L)); };
+    return (ch(m[0] * r + m[1] * g + m[2] * b) << 24) | (ch(m[3] * r + m[4] * g + m[5] * b) << 16) |
+           (ch(m[6] * r + m[7] * g + m[8] * b) << 8) | (rgba & 255u);
+  }
+
+  void serviceThemeHue() {
+    if (themeHueCycleSeconds_ <= 0.0) return;
+    const double turns = static_cast<double>(SDL_GetTicks()) / 1000.0 / themeHueCycleSeconds_;
+    const int step = static_cast<int>((turns - std::floor(turns)) * 180.0) % 180;
+    if (step == themeHueStep_) return;
+    themeHueStep_ = step;
+    const double deg = step * 2.0;
+    std::uint32_t* targets[12] = {&kShellOuterColor, &kShellInnerColor, &kShellShadowColor, &kScreenLightColor,
+                                  &kScreenMidColor, &kScreenDarkColor, &kScreenDeepColor, &kScreenInkSoftColor,
+                                  &kScreenFgColor, &kScreenTileColor, &kScreenFgSoftColor, &kButtonBezelColor};
+    for (int i = 0; i < 12; ++i) *targets[i] = rotateThemeHue(themeBaseColors_[static_cast<std::size_t>(i)], deg);
+    rebuildPalette();
   }
 
   void loadTheme(const std::string& name) {

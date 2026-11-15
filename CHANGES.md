@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+### Themes
+- New theme: **Rainbow Road**. The whole desk turns slowly round the colour wheel, one lap every two minutes. Each colour keeps its brightness, so every label stays as readable as in any other theme. Any theme can do it: `hue_cycle <seconds>` in its `theme.txt`.
+
 ### Screens
 - New: **Screens > STAGE**, a projection simulator and blend planner. A room with the screen, the programme on it, each projector's picture, overlaps and cone of light; turn round it with the mouse. The planner takes the screen's size and the projectors' pixels, lumens, throw ratio, overlap and number, and gives the row's pixels, each picture's size, the throw distance and the screen's brightness (lux, nits, foot-lamberts), with the best fit when the pictures cannot cover the screen exactly, and the same with one projector more or less. One button sets the outputs' areas and edge blends to match. The plan is kept with the show.
 - New: `VIDEO BLEND ROW <first output> <how many> <overlap px>` blends a row of three or more projectors, as `VIDEO BLEND PAIR` does two.

@@ -3571,6 +3571,12 @@ slow blob of warm wax), up to twelve of
 each. A species this build does not know is ignored rather than refused, so a
 theme written for a later version still loads.
 
+**A theme that turns.** `hue_cycle	120` turns the theme's whole palette once
+round the colour wheel in that many seconds (10 to 3600). Each colour keeps its
+brightness, so labels stay as readable as the theme drew them, and the danger
+red does not turn. **Rainbow Road** is the theme that ships with it: one lap
+every two minutes.
+
 ---
 
 ## 21a. Languages

@@ -1,0 +1,19 @@
+# Deckboy Theme: Rainbow Road
+# The whole desk turns slowly round the colour wheel: one lap every two minutes.
+# All color values are RRGGBBAA hex.
+
+shell_outer	140A2EFF
+shell_inner	1E1240FF
+shell_shadow	07031AFF
+screen_light	FF4FD8FF
+screen_mid	B23AA0FF
+screen_dark	7A2A78FF
+screen_deep	0B0620FF
+screen_ink_soft	E8C8F4FF
+screen_fg	FFF0FFFF
+screen_fg_soft	CDB0DCFF
+screen_tile	1C0F3AFF
+button_bezel	3AD6FFFF
+delete_bezel	FF4A5AFF
+scanline_alpha	12
+hue_cycle	120
