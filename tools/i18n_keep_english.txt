@@ -1011,3 +1011,4 @@ nl	Shader
 pl	Shader
 pt-BR	Shader
 *	rpm
+nl	ringing

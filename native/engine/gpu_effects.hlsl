@@ -764,6 +764,58 @@ void tapeMain(uint3 id : SV_DispatchThreadID) {
   put(id.xy, float4(float3(d), float(o.a)));
 }
 
+// ---- CIRCUIT BEND (cue_effects.hpp, CueEffectKind::CircuitBend), line for line.
+// i0 bands, i1 colour block, i2 tap spacing, i3 tear band height; f0 hue phase,
+// f1 ringing, f2 ringing's hue turn, f3 tear chance, f4 tear width; tab 0-15 taps.
+int bendShift(int y) {
+  const uint band = uint(y / i3);
+  const uint tf = frame / 4u;
+  if (tapeHash(tf * 7919u + band * 31u) >= f3) return 0;
+  return int(round((tapeHash(tf * 104729u + band * 17u + 1u) - 0.5) * f4));
+}
+float bendLuma(int x, int y, int sh) {
+  const uint4 q = texel(clamp(x - sh, 0, int(width) - 1), y);
+  return (0.299 * q.r + 0.587 * q.g + 0.114 * q.b) / 255.0;
+}
+[numthreads(8, 8, 1)]
+void bendMain(uint3 id : SV_DispatchThreadID) {
+  if (id.x >= width || id.y >= height) return;
+  const int x = int(id.x), y = int(id.y);
+  const int W = int(width), H = int(height);
+  const int sh = bendShift(y);
+  float ring = 0.0;
+  for (int k = 1; k <= 16; ++k) {
+    const int xa = clamp(x - k * i2, 0, W - 1);
+    const int xb = clamp(x - (k + 1) * i2, 0, W - 1);
+    ring += (bendLuma(xa, y, sh) - bendLuma(xb, y, sh)) * tabAt(uint(k - 1));
+  }
+  const int by = min(H - 1, (y / i1) * i1 + i1 / 2);
+  const int bx = min(W - 1, (x / i1) * i1 + i1 / 2);
+  const float yb = bendLuma(bx, by, bendShift(by));
+  const float yf = clamp(bendLuma(x, y, sh) + f1 * ring, 0.0, 1.0);
+  const int band = min(i0 - 1, int(floor(yb * float(i0))));
+  float hue = float(band) * 0.618034 + f0 + ring * f2;
+  hue -= floor(hue);
+  const float h6 = hue * 6.0;
+  const int sector = min(5, int(floor(h6)));
+  const float fr = h6 - float(sector);
+  const float lo = 1.0 - 0.9, dn = 1.0 - 0.9 * fr, up = 1.0 - 0.9 * (1.0 - fr);
+  float3 c = float3(1.0, lo, dn);
+  if (sector == 0) c = float3(1.0, up, lo);
+  else if (sector == 1) c = float3(dn, 1.0, lo);
+  else if (sector == 2) c = float3(lo, 1.0, up);
+  else if (sector == 3) c = float3(lo, dn, 1.0);
+  else if (sector == 4) c = float3(up, lo, 1.0);
+  const float bright = 0.6 + 0.5 * yf;
+  const float white = 0.35 * yf * yf;
+  const float3 rgb = c * bright * (1.0 - white) + white;
+  const int3 v = int3(clamp(rgb * 255.0, 0.0, 255.0));   // truncated, as clamp8 does
+  const uint4 o = texel(x, y);
+  const int a256 = int(round(amt * 256.0));
+  const int3 d = int3(o.rgb) + (((v - int3(o.rgb)) * a256) >> 8);
+  put(id.xy, float4(float3(d), float(o.a)));
+}
+
 // ---- MELT: the picture holds and drips run out of it ------------------------
 // (cue_effects.hpp, CueEffectKind::Melt). What has run is KEPT between frames
 // in a half-size buffer the run loop owns (Pass::kept): meltInit seeds it from

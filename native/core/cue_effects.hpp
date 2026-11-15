@@ -151,6 +151,12 @@ enum class CueEffectKind : int {
   // VHS from its causes: tape age, head wear, tracking, deck age, colour-
   // under, copies, tape speed, interference. Our own model.
   Tape,
+  // Added 2026-11-14, after a circuit-bent video enhancer James sent (Lullaby
+  // Machines): brightness as a few loud false colours that drift, colour held
+  // on a coarse grid so it floods past edges, a bent filter's ringing as fine
+  // stripes after every edge, and sync tears. Also a SOURCE: the shipped
+  // shader deckboy_circuit_bend.fs bends a picture of its own.
+  CircuitBend,
   Count,
 };
 
@@ -212,6 +218,7 @@ inline const char* cueEffectLabel(CueEffectKind kind) {
     case CueEffectKind::Stereogram:     return "stereogram";
     case CueEffectKind::Melt:           return "melt";
     case CueEffectKind::Tape:           return "tape";
+    case CueEffectKind::CircuitBend:    return "circuit bend";
     default:                            return "none";
   }
 }
@@ -276,6 +283,7 @@ inline const char* cueEffectToken(CueEffectKind kind) {
     case CueEffectKind::Stereogram:     return "stereogram";
     case CueEffectKind::Melt:           return "melt";
     case CueEffectKind::Tape:           return "tape";
+    case CueEffectKind::CircuitBend:    return "circuit_bend";
     default:                            return "none";
   }
 }
@@ -343,6 +351,8 @@ inline bool cueEffectKindAnimates(CueEffectKind kind) {
     case CueEffectKind::Melt:
     // The tape's wobble, noise and dropouts move with the frame.
     case CueEffectKind::Tape:
+    // Its colours drift and its tears move with the frame.
+    case CueEffectKind::CircuitBend:
       return true;
     default:
       return false;
@@ -516,6 +526,9 @@ inline const char* cueEffectParamLabel(CueEffectKind kind, int which) {
     case CueEffectKind::Tape:
       return which == 0 ? "tape age" : which == 1 ? "head wear"
            : which == 2 ? "tracking" : which == 3 ? "deck age" : nullptr;
+    case CueEffectKind::CircuitBend:
+      return which == 0 ? "bands" : which == 1 ? "drift"
+           : which == 2 ? "bleed" : which == 3 ? "ringing" : nullptr;
     case CueEffectKind::Schlieren:
       return which == 0 ? "knife angle" : which == 1 ? "sensitivity"
            : which == 2 ? "colour" : nullptr;
@@ -878,6 +891,17 @@ inline const char* cueEffectParamTip(CueEffectKind kind, int which) {
           "thin neck with a heavier head."
         : "How fast what has dripped hardens away. At the left the drips "
           "stay until the cue changes.";
+    case CueEffectKind::CircuitBend:
+      return which == 0
+        ? "How many brightness bands become colours: two loud slabs at the left, "
+          "a busy rainbow at the right."
+        : which == 1
+        ? "How fast the colours drift round the wheel. At the left they hold still."
+        : which == 2
+        ? "How coarse the colour is: at the left it follows every edge, at the right "
+          "it floods past them in blocks."
+        : "Fine stripes after every edge, the ring of a bent filter. They shift the "
+          "colour too.";
     case CueEffectKind::Tape:
       return which == 0
         ? "An old tape loses bits of its oxide: dropouts flick white and "
@@ -1580,6 +1604,9 @@ inline void applyCueEffectArrivalDefaults(CueEffect& fx) {
     case CueEffectKind::Tape:
       fx.paramA = 0.3f; fx.paramB = 0.3f; fx.paramC = 0.2f; fx.paramD = 0.3f; fx.paramE = 0.4f; fx.paramF = 0.0f;
       break;
+    case CueEffectKind::CircuitBend:
+      fx.paramA = 0.4f; fx.paramB = 0.35f; fx.paramC = 0.4f; fx.paramD = 0.45f; fx.paramE = 0.25f;
+      break;
     default:
       break;
   }
@@ -1606,6 +1633,10 @@ inline const char* cueEffectParamLabelFor(const CueEffect& fx, int which) {
     if (which == 4) return "colour drift";
     if (which == 5) return "copies";
   }
+  if (fx.kind == CueEffectKind::CircuitBend) {
+    if (which == 4) return "tears";
+    if (which == 5) return nullptr;
+  }
   return cueEffectParamLabel(fx.kind, which);
 }
 
@@ -1620,6 +1651,9 @@ inline const char* cueEffectParamTipFor(const CueEffect& fx, int which) {
   }
   if (fx.kind == CueEffectKind::Tape && which == 5) {
     return "Copies of copies: none at the left, four at the right. Each one loses more.";
+  }
+  if (fx.kind == CueEffectKind::CircuitBend && which == 4) {
+    return "The sync slips: bands of lines jump sideways for a moment.";
   }
   if (fx.kind == CueEffectKind::Chladni) {
     const int st = chladniStyle(fx);
@@ -1722,6 +1756,87 @@ namespace detail {
 
 inline std::uint8_t clamp8(double v) {
   return static_cast<std::uint8_t>(std::clamp(v, 0.0, 255.0));
+}
+
+// CIRCUIT BEND's per-frame numbers, shared with the GPU plan
+// (gpu_effects.cpp) so both draw the same picture.
+constexpr int kBendTaps = 16;
+struct CircuitBendSetup {
+  int steps = 2;          // brightness bands
+  double phase = 0.0;     // where the hue wheel has drifted to
+  int block = 1;          // the colour grid, in pixels
+  double ringAmt = 0.0;
+  int stride = 1;         // the ringing's tap spacing, in pixels
+  double taps[kBendTaps] = {};
+  double ringHue = 0.0;   // how far the ringing turns the hue
+  double tearP = 0.0;     // the chance a band of lines is torn this moment
+  double tearPx = 0.0;    // how far a torn band slips, at most
+  int bandH = 2;
+  std::uint32_t tearFrame = 0;
+};
+
+inline double bendHash(std::uint32_t n) {
+  n = (n ^ 61u) ^ (n >> 16); n = n + (n << 3); n = n ^ (n >> 4); n *= 0x27d4eb2du; n = n ^ (n >> 15);
+  return static_cast<double>(n) / 4294967296.0;
+}
+
+inline CircuitBendSetup circuitBendSetup(int w, int h, std::int64_t frameIndex, double bands, double drift,
+                                         double bleed, double ringing, double tears) {
+  CircuitBendSetup cb;
+  const double s = w / 480.0;
+  const double t = static_cast<double>(frameIndex) / 60.0;
+  cb.steps = 2 + static_cast<int>(std::lround(bands * 10.0));
+  const double ph = t * drift * drift * 0.6 + 0.2 * std::sin(t * 0.23) * drift;
+  cb.phase = ph - std::floor(ph);
+  cb.block = std::max(1, static_cast<int>(std::lround(std::min(w, h) * bleed * bleed * 0.06)));
+  cb.ringAmt = ringing * 1.6;
+  cb.ringHue = ringing * 0.8;
+  cb.stride = std::max(1, static_cast<int>(std::lround(s * 0.6)));
+  for (int k = 1; k <= kBendTaps; ++k) {
+    cb.taps[k - 1] = std::pow(0.8, k) * std::cos(2.0 * 3.141592653589793 * k / 6.0);
+  }
+  cb.tearP = tears * 0.3;
+  cb.tearPx = w * 0.3 * tears;
+  cb.bandH = std::max(2, static_cast<int>(std::lround(5.0 * s)));
+  cb.tearFrame = static_cast<std::uint32_t>(frameIndex) / 4u;
+  return cb;
+}
+
+// How far line y slips sideways this moment (0 for most lines).
+inline int circuitBendShift(const CircuitBendSetup& cb, int w, int y) {
+  (void) w;
+  const std::uint32_t band = static_cast<std::uint32_t>(y / cb.bandH);
+  if (bendHash(cb.tearFrame * 7919u + band * 31u) >= cb.tearP) return 0;
+  return static_cast<int>(std::lround((bendHash(cb.tearFrame * 104729u + band * 17u + 1u) - 0.5) * cb.tearPx));
+}
+
+// The bent colour: the block's band picks a hue on the drifting wheel, the
+// fine brightness (with its ringing) lights it, the brightest go pastel.
+inline void circuitBendColour(const CircuitBendSetup& cb, double yBlock, double yFine, double ring, double out[3]) {
+  const int band = std::min(cb.steps - 1, static_cast<int>(std::floor(yBlock * cb.steps)));
+  // Each band a golden-ratio step round the wheel, so neighbours always
+  // differ and no count of bands lands on red, green and blue alone.
+  double hue = band * 0.618034 + cb.phase + ring * cb.ringHue;
+  hue -= std::floor(hue);
+  const double h6 = hue * 6.0;
+  const int sector = std::min(5, static_cast<int>(std::floor(h6)));
+  const double f = h6 - sector;
+  const double sat = 0.9;
+  const double p = 1.0 - sat, qq = 1.0 - sat * f, tt = 1.0 - sat * (1.0 - f);
+  double r = 1, g = 1, b = 1;
+  switch (sector) {
+    case 0: r = 1; g = tt; b = p; break;
+    case 1: r = qq; g = 1; b = p; break;
+    case 2: r = p; g = 1; b = tt; break;
+    case 3: r = p; g = qq; b = 1; break;
+    case 4: r = tt; g = p; b = 1; break;
+    default: r = 1; g = p; b = qq; break;
+  }
+  const double bright = 0.6 + 0.5 * yFine;   // the reference is never dark: neon on every band
+  const double white = 0.35 * yFine * yFine;
+  out[0] = r * bright * (1.0 - white) + white;
+  out[1] = g * bright * (1.0 - white) + white;
+  out[2] = b * bright * (1.0 - white) + white;
 }
 
 // The classic 4x4 Bayer matrix, scaled to 0..15.
@@ -6578,6 +6693,52 @@ inline void applyCueEffectStack(std::vector<std::uint8_t>& pixels,
               for (int c = 0; c < 3; ++c) {
                 const int out = detail::clamp8(kv[c] * shade + spec * (0.55 + kv[c] / 255.0 * 0.45));
                 p[c] = static_cast<std::uint8_t>(p[c] + (((out - p[c]) * a256) >> 8));
+              }
+            }
+          }
+        });
+        break;
+      }
+
+      case CueEffectKind::CircuitBend: {
+        // CIRCUIT BEND (see the enum). The GPU's bendMain does this line for
+        // line; the shared numbers come from detail::circuitBendSetup.
+        const int W = ctx.width, H = ctx.height;
+        const detail::CircuitBendSetup cb = detail::circuitBendSetup(W, H, ctx.frameIndex, pA, pB, pC, pD, pE);
+        static thread_local std::vector<std::uint8_t> clean;
+        clean.assign(pixels.begin(), pixels.begin() + static_cast<std::ptrdiff_t>(count * 4));
+        const std::uint8_t* src = clean.data();
+        auto shiftOf = [&](int y) { return detail::circuitBendShift(cb, W, y); };
+        auto luma = [&](int x, int y, int sh) {
+          const int sx = std::clamp(x - sh, 0, W - 1);
+          const std::uint8_t* q = src + (static_cast<std::size_t>(y) * W + sx) * 4;
+          return (0.299 * q[0] + 0.587 * q[1] + 0.114 * q[2]) / 255.0;
+        };
+        const int a256 = static_cast<int>(std::lround(amt * 256.0));
+        detail::parallelRows(H, W * 24, [&](int r0, int r1) {
+          std::vector<double> lum(static_cast<std::size_t>(W));
+          for (int y = r0; y < r1; ++y) {
+            const int sh = shiftOf(y);
+            for (int x = 0; x < W; ++x) lum[static_cast<std::size_t>(x)] = luma(x, y, sh);
+            const int by = std::min(H - 1, (y / cb.block) * cb.block + cb.block / 2);
+            const int shB = shiftOf(by);
+            std::uint8_t* row = pixels.data() + static_cast<std::size_t>(y) * W * 4;
+            for (int x = 0; x < W; ++x) {
+              double ring = 0.0;
+              for (int k = 1; k <= detail::kBendTaps; ++k) {
+                const int xa = std::clamp(x - k * cb.stride, 0, W - 1);
+                const int xb = std::clamp(x - (k + 1) * cb.stride, 0, W - 1);
+                ring += (lum[static_cast<std::size_t>(xa)] - lum[static_cast<std::size_t>(xb)]) * cb.taps[k - 1];
+              }
+              const int bx = std::min(W - 1, (x / cb.block) * cb.block + cb.block / 2);
+              const double yb = luma(bx, by, shB);
+              const double yf = std::clamp(lum[static_cast<std::size_t>(x)] + cb.ringAmt * ring, 0.0, 1.0);
+              double rgb[3];
+              detail::circuitBendColour(cb, yb, yf, ring, rgb);
+              std::uint8_t* p = row + static_cast<std::size_t>(x) * 4;
+              for (int c = 0; c < 3; ++c) {
+                const int v = static_cast<int>(detail::clamp8(rgb[c] * 255.0));
+                p[c] = static_cast<std::uint8_t>(p[c] + (((v - p[c]) * a256) >> 8));
               }
             }
           }

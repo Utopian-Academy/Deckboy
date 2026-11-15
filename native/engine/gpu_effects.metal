@@ -682,6 +682,55 @@ kernel void tapeMain(ARGS) {
   put(dst, id, float4(float3(d), float(o.a)));
 }
 
+// ---- CIRCUIT BEND (gpu_effects.hlsl bendMain, line for line) -----------------
+static int bendShift(constant Params& p, int y) {
+  const uint band = uint(y / p.i3);
+  const uint tf = p.frame / 4u;
+  if (tapeHash(tf * 7919u + band * 31u) >= p.f3) return 0;
+  return int(round((tapeHash(tf * 104729u + band * 17u + 1u) - 0.5f) * p.f4));
+}
+static float bendLuma(SRC src, constant Params& p, int x, int y, int sh) {
+  const uint4 q = texel(src, clamp(x - sh, 0, int(p.width) - 1), y);
+  return (0.299f * q.r + 0.587f * q.g + 0.114f * q.b) / 255.0f;
+}
+kernel void bendMain(ARGS) {
+  if (id.x >= p.width || id.y >= p.height) return;
+  const int x = int(id.x), y = int(id.y);
+  const int W = int(p.width), H = int(p.height);
+  const int sh = bendShift(p, y);
+  float ring = 0.0f;
+  for (int k = 1; k <= 16; ++k) {
+    const int xa = clamp(x - k * p.i2, 0, W - 1);
+    const int xb = clamp(x - (k + 1) * p.i2, 0, W - 1);
+    ring += (bendLuma(src, p, xa, y, sh) - bendLuma(src, p, xb, y, sh)) * tabAt(p, uint(k - 1));
+  }
+  const int by = min(H - 1, (y / p.i1) * p.i1 + p.i1 / 2);
+  const int bx = min(W - 1, (x / p.i1) * p.i1 + p.i1 / 2);
+  const float yb = bendLuma(src, p, bx, by, bendShift(p, by));
+  const float yf = clamp(bendLuma(src, p, x, y, sh) + p.f1 * ring, 0.0f, 1.0f);
+  const int band = min(p.i0 - 1, int(floor(yb * float(p.i0))));
+  float hue = float(band) * 0.618034f + p.f0 + ring * p.f2;
+  hue -= floor(hue);
+  const float h6 = hue * 6.0f;
+  const int sector = min(5, int(floor(h6)));
+  const float fr = h6 - float(sector);
+  const float lo = 1.0f - 0.9f, dn = 1.0f - 0.9f * fr, up = 1.0f - 0.9f * (1.0f - fr);
+  float3 c = float3(1.0f, lo, dn);
+  if (sector == 0) c = float3(1.0f, up, lo);
+  else if (sector == 1) c = float3(dn, 1.0f, lo);
+  else if (sector == 2) c = float3(lo, 1.0f, up);
+  else if (sector == 3) c = float3(lo, dn, 1.0f);
+  else if (sector == 4) c = float3(up, lo, 1.0f);
+  const float bright = 0.6f + 0.5f * yf;
+  const float white = 0.35f * yf * yf;
+  const float3 rgb = c * bright * (1.0f - white) + white;
+  const int3 v = int3(clamp(rgb * 255.0f, 0.0f, 255.0f));   // truncated, as clamp8 does
+  const uint4 o = texel(src, x, y);
+  const int a256 = int(round(p.amt * 256.0f));
+  const int3 d = int3(o.rgb) + (((v - int3(o.rgb)) * a256) >> 8);
+  put(dst, id, float4(float3(d), float(o.a)));
+}
+
 // ---- MELT (gpu_effects.hlsl meltInit / meltStep / meltShow, line for line) --
 static float meltSpeed(constant Params& p, int b) {
   const float fb = float(b);

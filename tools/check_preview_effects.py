@@ -104,6 +104,7 @@ EFFECTS = [
     ("luma_key",        "1:0.6"),
     ("stereogram",      "1:0.6:0.5:0:0.5:0"),
     ("tape",            "1:0.6:0.6:0.5:0.5"),
+    ("circuit_bend",    "1:0.4:0.35:0.4:0.45"),
 ]
 
 # Both need something a paused frame cannot give them.
@@ -202,6 +203,11 @@ def build_root(root, template, media, effect_field):
             f[idx + 1] = ""                    # no motion driver
             line = "\t".join(f)
         lines.append(line)
+    if not kept:
+        # A template with no cue gives a show with nothing in it: every capture
+        # is the empty desk and every effect reads NO CHANGE (2026-11-14).
+        raise SystemExit("%s has no cue record to borrow; pass --template "
+                         "with a show that has at least one cue" % template)
     io.open(os.path.join(root, "data", "default.deckboy"), "w",
             encoding="utf-8", newline="").write("\n".join(lines))
     deckboy_testroot.populate(root)

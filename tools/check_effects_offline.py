@@ -93,6 +93,7 @@ EFFECTS = [
     # Melt holds what has run, so it needs frames (PASSES) to show anything.
     ("melt",            "1.0:0.6:0.4:0.6:0.04::0.6:0:0:1"),
     ("tape",            "1.0:0.6:0.6:0.5:0.5::0.6:0.5:1:0"),
+    ("circuit_bend",    "1.0:0.4:0.35:0.4:0.45::0.25:0"),
 ]
 
 # Effects whose whole subject is what happens ACROSS frames need more than one
@@ -133,7 +134,9 @@ ANIMATES_BY_INDEX = {"grain", "temporal_dither", "block_glitch", "ripple",
                      # Its dots re-roll with the frame ("dots move" up).
                      "stereogram",
                      # The tape's wobble, noise and dropouts.
-                     "tape"}
+                     "tape",
+                     # The colours drift and the tears move.
+                     "circuit_bend"}
 ANIMATES_BY_STATE = {"feedback", "feedback_bloom", "motion_puppet",
                     "scotopic", "text_mode",
                      # Holds the swept frame between calls.
@@ -200,6 +203,7 @@ PARAM_SLOTS = {
     "stereogram":      ["depth", "repeat width", "colour", "dots move"],
     "melt":            ["drip", "drips", "pinch", "set", "sheen"],
     "tape":            ["tape age", "head wear", "tracking", "deck age", "colour drift", "copies"],
+    "circuit_bend":    ["bands", "drift", "bleed", "ringing", "tears"],
     "schlieren":       ["knife angle", "sensitivity", "colour"],
     "chladni":         ["mode", "second mode", "gather", "line glow", "style"],
     # The same effect in its other two styles (slot E picks one; see
@@ -258,6 +262,7 @@ PARAM_BASE = {
     # at neutral, Melt has no sheen and Tape no wear to change.
     "melt": [0.5, 0.35, 0.6, 0.04, 0.6, 0.0],
     "tape": [0.3, 0.3, 0.2, 0.3, 0.4, 0.0],
+    "circuit_bend": [0.4, 0.35, 0.4, 0.45, 0.25, 0.0],
     "chladni@fluid": [0.25, 0.5, 0.5, 0.5, 0.9, 0.4],
 }
 

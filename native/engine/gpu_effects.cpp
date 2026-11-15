@@ -49,12 +49,12 @@ enum GpuKind : std::uint32_t {
 enum Entry { E_POINT = 0, E_DOWN, E_BOX, E_STREAK, E_TILE, E_NV12, E_TRANS, E_STEREO, E_TAPE,
              E_MELT_INIT, E_MELT_STEP, E_MELT_SHOW, E_SOURCE,
              E_LUMIA_CLEAR, E_LUMIA_WATER, E_LUMIA_PRISM, E_LUMIA_RESOLVE, E_LUMIA_BLUR, E_LUMIA_TRAIL,
-             E_COUNT };
+             E_BEND, E_COUNT };
 const char* const kEntryNames[E_COUNT] = {"pointMain", "downMain", "boxMain", "streakMain", "tileMain", "nv12Main",
                                           "transMain", "stereoMain", "tapeMain", "meltInitMain", "meltStepMain",
                                           "meltShowMain", "sourceMain", "lumiaClearMain", "lumiaWaterMain",
                                           "lumiaPrismMain", "lumiaResolveMain", "lumiaBlurMain",
-                                          "lumiaTrailMain"};
+                                          "lumiaTrailMain", "bendMain"};
 // Threads per group: 8 x 8 for every kernel but the stereogram's, which is
 // one row of 64 (stereoMain in gpu_effects.hlsl).
 constexpr int kStereoThreads = 64;
@@ -445,6 +445,32 @@ bool planEffect(std::vector<Pass>& plan, const fx::CueEffect& e, int w, int h, c
       plan.push_back(tp);
       return true;
     }
+    case CueEffectKind::CircuitBend: {
+      // The CPU effect's own per-frame numbers (fx::detail::circuitBendSetup),
+      // then one pass: bendMain does the per-pixel part line for line.
+      const double pE = std::clamp(static_cast<double>(e.paramE), 0.0, 1.0);
+      const fx::detail::CircuitBendSetup cb = fx::detail::circuitBendSetup(w, h, ctx.frameIndex, pA, pB, pC, pD, pE);
+      p.i0 = cb.steps;
+      p.i1 = cb.block;
+      p.i2 = cb.stride;
+      p.i3 = cb.bandH;
+      p.f0 = static_cast<float>(cb.phase);
+      p.f1 = static_cast<float>(cb.ringAmt);
+      p.f2 = static_cast<float>(cb.ringHue);
+      p.f3 = static_cast<float>(cb.tearP);
+      p.f4 = static_cast<float>(cb.tearPx);
+      for (int k = 0; k < fx::detail::kBendTaps; ++k) p.tab[k] = static_cast<float>(cb.taps[k]);
+      Pass bp;
+      bp.entry = E_BEND;
+      bp.params = p;
+      bp.src = CUR;
+      bp.aux = CUR;
+      bp.dst = ALT;
+      bp.w = w;
+      bp.h = h;
+      plan.push_back(bp);
+      return true;
+    }
     case CueEffectKind::Melt: {
       // The CPU effect's own per-frame numbers (core/cue_effects.hpp).
       const int KW = std::max(2, w / 2), KH = std::max(2, h / 2);
@@ -662,7 +688,7 @@ bool supportedKind(CueEffectKind k) {
     case CueEffectKind::Relativistic: case CueEffectKind::Ripple: case CueEffectKind::Kaleidoscope:
     case CueEffectKind::Mosaic: case CueEffectKind::Blur: case CueEffectKind::Glow:
     case CueEffectKind::Sharpen: case CueEffectKind::Stereogram: case CueEffectKind::Tape:
-    case CueEffectKind::Melt:
+    case CueEffectKind::Melt: case CueEffectKind::CircuitBend:
       return true;
     default:
       return false;

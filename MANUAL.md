@@ -1805,6 +1805,14 @@ generation loss. **Speed** is SP, LP or EP, each rougher. **Interference** adds 
 herringbone or a radio's slow bars. A tape is a function of the frame number, so the same tape plays the
 same way twice.
 
+**Circuit Bend** is a video enhancer with its wires crossed. **Bands** turns the brightness into a few
+loud false colours (two slabs at the left, a busy rainbow at the right); **drift** turns the colour wheel
+over time; **bleed** holds the colour on a coarse grid, so it floods past the edges while the detail stays
+sharp; **ringing** trails fine stripes after every edge, and they shift the colour too; **tears** makes
+bands of lines slip sideways for a moment. It runs on the graphics card. The shipped shader
+**deckboy_circuit_bend** is the same bend as a SOURCE: it makes its own picture (colour bars, a ramp,
+drifting blobs or rolling noise) and bends it, with nothing plugged in.
+
 **Wavefront** solves the actual wave equation, seeded from the picture's own
 brightness — so unlike every sine-based ripple it has *inertia*. Waves leave
 their source and keep going, pass through each other and interfere, and reflect
