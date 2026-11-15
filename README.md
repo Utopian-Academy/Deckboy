@@ -60,8 +60,8 @@ operator finds it, and how you find it again.
   and any clip can play in reverse or bounce.
 - **Scopes on an output.** Send the waveform, vectorscope and parade to a screen, over NDI, or into a
   multiview window.
-- **Also new:** Render to file, Ableton Link and quantised takes, the STAGE projection planner, a
-  Rainbow Road theme that turns slowly round the colour wheel, and songs of their own for the Sound and
+- **Also new:** Render to file, Ableton Link and quantised takes, the STAGE projection planner, MIDI
+  files that play Deckboy's own synth, a Rainbow Road theme that turns slowly round the colour wheel, and songs of their own for the Sound and
   Datamosh lessons.
 - **Known issue (Windows):** when two screens run at different refresh rates, for example 59.94 Hz and
   60 Hz, an output drops or repeats a frame about every 15 seconds. Deckboy warns you when this
