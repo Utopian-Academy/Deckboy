@@ -228,7 +228,16 @@ class LiveCaptioner {
 
  private:
   static constexpr int kRate = 16000;
-  static constexpr int kStepMs = 1000;
+  // THE WAIT BETWEEN PASSES follows the engine (James 2026-11-14: "can live
+  // captions be more realtime?"). It was a fixed second after each pass, so a
+  // 450 ms pass made a 1.45 s cycle, and a word needs two passes to be sure:
+  // words were 2.1-2.5 s behind, most of it waiting, not hearing. Now the
+  // next pass starts 0.6 x the last pass later (never under kMinStepMs), so
+  // the engine works at most ~60% of the time and a faster machine is
+  // simply quicker. kMaxStepMs keeps a slow pass from stretching the wait.
+  static constexpr int kMinStepMs = 250;
+  static constexpr int kMaxStepMs = 1000;
+  int stepMs_ = kMaxStepMs;
   static constexpr double kSilence = 0.006;   // RMS under this is nobody talking
   static constexpr std::size_t kTrimSamples = kRate * 8;
   static constexpr std::size_t kMaxSamples = kRate * 15;
@@ -428,7 +437,7 @@ class LiveCaptioner {
       }
       {
         std::unique_lock<std::mutex> lock(mutex_);
-        if (wake_.wait_for(lock, std::chrono::milliseconds(kStepMs), [this] { return stop_.load(); })) break;
+        if (wake_.wait_for(lock, std::chrono::milliseconds(stepMs_), [this] { return stop_.load(); })) break;
         if (window.empty()) windowStartMs = nowMs() - pending_.size() * 1000.0 / kRate;
         window.insert(window.end(), pending_.begin(), pending_.end());
         pending_.clear();
@@ -480,6 +489,7 @@ class LiveCaptioner {
         }
         continue;
       }
+      stepMs_ = std::clamp(static_cast<int>(passMs * 0.6), kMinStepMs, kMaxStepMs);
       restarts = std::min(restarts, 1);
       // Only what comes AFTER the committed words is still open.
       //  - Not by counting from the start: a pass re-hears a committed word
