@@ -10063,6 +10063,9 @@
       permuteByDeck(has, oldToNew, deckCount, char {0});
       deckTimecodeHasExternal_.assign(has.begin(), has.end());
     }
+    permuteByDeck(midiFileSentUpTo_, oldToNew, deckCount, -1.0);
+    permuteByDeck(midiFilePortInUse_, oldToNew, deckCount, std::string {});
+    permuteByDeck(midiFileSynth_, oldToNew, deckCount, MidiFileSynthState {});
     permuteByDeck(deckScrolls_, oldToNew, deckCount, 0);
     permuteByDeck(deckScrollMax_, oldToNew, deckCount, 0);
     permuteByDeck(deckFollowedActive_, oldToNew, deckCount, -1);

@@ -802,6 +802,15 @@ video synth. On the video synth a key's pitch sets the pattern's size (an
 octave up doubles it; middle C is the size as set) and its velocity blooms
 the feedback; letting go returns it.
 
+**A MIDI file on the synth.** A MIDI File cue plays a `.mid` file out of a
+MIDI port. Its **port** row steps through the ports, then **DECKBOY SYNTH**:
+the file's notes then play every synth on air, the same as the play row. Put
+a synth cue live on another playlist, then take the file. The chip synth
+plays one note at a time (the newest note wins); a hosted instrument plays
+chords. Only the notes go to the synth. Stop, a scrub back or a loop lets go
+of the file's own notes, not the ones you play. Companion: `MIDIFILE PORT
+SYNTH`; `CHIP ADD [NES|FDS]` adds a chip synth cue.
+
 **Any control on screen.** The **~** on any control has MIDI shapes:
 **midi-note** (the last key's pitch, C2 to C6, held after you let go),
 **midi-velocity**, **midi-cc** and **aftertouch**, on any channel or one.
@@ -1336,7 +1345,7 @@ the show. Each output is one of:
   clock ([Presenter view](#presenter-view)).
 - **Prompter** — the talent's scrolling script ([Prompter](#prompter)).
 - **Scopes** — the picture scopes on a screen of their own
-  ([Picture Scopes](#18a-picture-scopes)).
+  ([Picture Scopes](#picture-scopes)).
 - **DeckLink** — SDI/HDMI out via a Blackmagic card.
 - **Spout** (Windows) — share the output as a GPU texture to another app. Syphon
   on macOS is not built yet.

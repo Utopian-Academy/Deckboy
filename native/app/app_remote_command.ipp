@@ -1899,7 +1899,8 @@
     }
     if (command == "MIDIFILE") {
       // MIDIFILE            -> report the selected midi file cue
-      // MIDIFILE PORT [name]-> which output it plays to ("" = first found)
+      // MIDIFILE PORT [name]-> which output it plays to ("" = first found;
+      //                        SYNTH = Deckboy's own synth on air)
       //
       // There is no NEW: a midi file cue comes from a FILE, so it is made by
       // importing one. A verb that made an empty one would make a cue that
@@ -1922,9 +1923,10 @@
       const std::string sub = parts.size() > 1 ? toUpper(parts[1]) : std::string();
       if (sub == "PORT") {
         cue.midiPortName = parts.size() >= 3 ? trim(joinParts(parts, 2)) : std::string();
+        const std::string asked = toUpper(cue.midiPortName);
+        if (asked == "SYNTH" || asked == "DECKBOY SYNTH") cue.midiPortName = kMidiPortDeckboySynth;
         markProjectDirty();
-        remoteCommandDetail_ = cue.midiPortName.empty() ? "first available"
-                                                        : cue.midiPortName;
+        remoteCommandDetail_ = midiPortLabel(cue.midiPortName);
         return;
       }
       if (sub.empty()) {
@@ -1941,8 +1943,17 @@
           out << "format " << parsed->format << " | " << parsed->trackCount
               << " track(s) | " << parsed->events.size() << " event(s) | "
               << formatSeconds(parsed->durationSeconds) << " | -> "
-              << (cue.midiPortName.empty() ? std::string("first available")
-                                           : cue.midiPortName);
+              << midiPortLabel(cue.midiPortName);
+          if (midiPortIsDeckboySynth(cue.midiPortName)) {
+            const MidiFileSynthState& synth = midiFileSynthForDeck(deckIndex);
+            const MediaEngine* engine = liveSynthEngine();
+            char chip[32] = "none live";
+            if (liveSynthCue() && engine) {
+              std::snprintf(chip, sizeof(chip), "%.1f Hz", engine->chipNoteNow());
+            }
+            out << " | played " << synth.played << " | holding " << synth.held.size()
+                << " | synth " << chip;
+          }
         }
         remoteCommandDetail_ = out.str();
         return;
@@ -10166,6 +10177,18 @@
       return;
     }
     if (command == "CHIP") {
+      // CHIP ADD [NES|FDS]: a chip synth cue, as SOURCE > MADE BY DECKBOY
+      // makes one -- SYNTH ADD makes a VIDEO synth.
+      if (parts.size() > 1 && toUpper(parts[1]) == "ADD") {
+        const std::string which = parts.size() > 2 ? toUpper(parts[2]) : std::string("NES");
+        if (which != "NES" && which != "FDS") {
+          failRemoteCommand("CHIP ADD: expected NES or FDS");
+          return;
+        }
+        addSynthCue(which == "FDS" ? SynthChip::Fds : SynthChip::Nes);
+        remoteCommandDetail_ = "added " + which + " synth cue " + std::to_string(focusedDeck().selectedIndex + 1);
+        return;
+      }
       Cue* cue = selectedCueMutable();
       if (!cue) {
         failRemoteCommand("CHIP: no cue selected");

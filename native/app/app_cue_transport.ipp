@@ -2986,6 +2986,85 @@
   // instrument while the notes it was meant to stop ring on for ever.
   std::vector<std::string> midiFilePortInUse_;
 
+  // DECKBOY'S OWN SYNTH AS A MIDI FILE'S DESTINATION (James, 2026-11-15:
+  // "synths can take midi files as cues, right?" ... "please do so for
+  // midi"). A MIDI File cue whose port is this plays its notes on every synth
+  // on air, the way MIDI IN and SYNTHNOTEON do: the sound synth (the chip, or
+  // a hosted instrument) live on another playlist, and any video synth. The
+  // chip has one voice, so the newest note wins; an instrument plays chords.
+  // Only notes go there: the file's other messages have nothing to drive.
+  static constexpr const char* kMidiPortDeckboySynth = "<deckboy synth>";
+  static bool midiPortIsDeckboySynth(const std::string& port) { return port == kMidiPortDeckboySynth; }
+  static std::string midiPortLabel(const std::string& port) {
+    if (port.empty()) return "first available";
+    if (midiPortIsDeckboySynth(port)) return "DECKBOY SYNTH";
+    return port;
+  }
+  // What a deck's MIDI file holds down on the synth, so stopping it lets go
+  // of ITS notes and not the ones someone is playing on the keyboard.
+  struct MidiFileSynthState {
+    std::set<int> held;
+    int played = 0;        // notes sent since the take (MIDIFILE reports it)
+    bool warned = false;   // "no synth is live" said once per take
+  };
+  std::vector<MidiFileSynthState> midiFileSynth_;
+
+  MidiFileSynthState& midiFileSynthForDeck(int deckIndex) {
+    if (midiFileSynth_.size() <= static_cast<std::size_t>(deckIndex)) {
+      midiFileSynth_.resize(static_cast<std::size_t>(deckIndex) + 1);
+    }
+    return midiFileSynth_[static_cast<std::size_t>(deckIndex)];
+  }
+
+  // One note to every synth on air; returns how many played it.
+  int playSynthNote(bool on, int note, int velocity) {
+    int played = 0;
+    for (int d = 0; d < static_cast<int>(project_.decks.size()); ++d) {
+      const Deck& deck = project_.decks[static_cast<std::size_t>(d)];
+      if (deck.activeIndex < 0 || deck.activeIndex >= static_cast<int>(deck.cues.size())) continue;
+      if (deck.cues[static_cast<std::size_t>(deck.activeIndex)].kind != CueKind::VideoSynth) continue;
+      if (MediaEngine* vsEngine = mediaEngineForDeck(d)) {
+        if (on) vsEngine->videoSynthKeyOn(note, velocity); else vsEngine->videoSynthKeyOff(note);
+        ++played;
+      }
+    }
+    if (Cue* cue = liveSynthCue()) {
+      if (MediaEngine* engine = liveSynthEngine()) {
+        const double hz = synthNoteToHz(note, cue->tone.synth.tuning, cue->tone.synth.referenceHz);
+        if (on) engine->synthNoteOn(hz, velocity); else engine->synthNoteOff(hz);
+        ++played;
+      }
+    }
+    return played;
+  }
+
+  // A MIDI file message for the synth: note on and note off only.
+  void sendMidiEventToSynth(int deckIndex, const std::vector<std::uint8_t>& bytes) {
+    if (bytes.size() < 3) return;
+    const int kind = bytes[0] & 0xF0;
+    const int note = bytes[1] & 0x7F;
+    const int velocity = bytes[2] & 0x7F;
+    MidiFileSynthState& synth = midiFileSynthForDeck(deckIndex);
+    if (kind == 0x90 && velocity > 0) {
+      synth.held.insert(note);
+      ++synth.played;
+      if (playSynthNote(true, note, velocity) == 0 && !synth.warned) {
+        synth.warned = true;
+        triggerToast("MIDI file to DECKBOY SYNTH: no synth is live. Put a synth cue live on another playlist",
+                     ToastKind::Warning, kToastReadableMs);
+      }
+    } else if (kind == 0x80 || kind == 0x90) {
+      synth.held.erase(note);
+      playSynthNote(false, note, 0);
+    }
+  }
+
+  void releaseMidiFileSynthNotes(int deckIndex) {
+    MidiFileSynthState& synth = midiFileSynthForDeck(deckIndex);
+    for (const int note : synth.held) playSynthNote(false, note, 0);
+    synth.held.clear();
+  }
+
   std::string& midiFilePortForDeck(int deckIndex) {
     if (midiFilePortInUse_.size() <= static_cast<std::size_t>(deckIndex)) {
       midiFilePortInUse_.resize(deckIndex + 1);
@@ -3005,7 +3084,11 @@
   // never reached is a note that plays until the instrument is power-cycled.
   // Two messages per channel: all-notes-off, then all-sound-off, because
   // plenty of instruments honour only one of them.
-  void silenceMidiFile(const std::string& portName) {
+  void silenceMidiFile(const std::string& portName, int deckIndex) {
+    if (midiPortIsDeckboySynth(portName)) {
+      releaseMidiFileSynthNotes(deckIndex);
+      return;
+    }
     std::string reason;
     if (!ensureMidiOutPort(portName, reason)) {
       return;
@@ -3028,7 +3111,7 @@
         if (cursor >= 0.0) {
           // The cue has gone, so its port is remembered rather than asked
           // for -- see midiFilePortInUse_.
-          silenceMidiFile(midiFilePortForDeck(deckIndex));
+          silenceMidiFile(midiFilePortForDeck(deckIndex), deckIndex);
           cursor = -1.0;
         }
         continue;
@@ -3040,7 +3123,7 @@
       }
       if (engine->state() != TransportState::Playing) {
         if (cursor >= 0.0) {
-          silenceMidiFile(cue->midiPortName);
+          silenceMidiFile(cue->midiPortName, deckIndex);
           cursor = -1.0;
         }
         continue;
@@ -3055,11 +3138,17 @@
       // everything between the old position and the new one would replay the
       // whole file at once.
       if (now < cursor) {
-        silenceMidiFile(cue->midiPortName);
+        silenceMidiFile(cue->midiPortName, deckIndex);
         cursor = -1.0;
       }
+      const bool toSynth = midiPortIsDeckboySynth(cue->midiPortName);
+      if (cursor < 0.0) {   // a new take, or the top again
+        MidiFileSynthState& synth = midiFileSynthForDeck(deckIndex);
+        synth.played = 0;
+        synth.warned = false;
+      }
       std::string reason;
-      if (!ensureMidiOutPort(cue->midiPortName, reason)) {
+      if (!toSynth && !ensureMidiOutPort(cue->midiPortName, reason)) {
         continue;
       }
       for (const auto& event : file->events) {
@@ -3069,7 +3158,11 @@
         if (event.seconds > now) {
           break;   // sorted, so nothing after this is due either
         }
-        midiOut_.send(event.bytes);
+        if (toSynth) {
+          sendMidiEventToSynth(deckIndex, event.bytes);
+        } else {
+          midiOut_.send(event.bytes);
+        }
       }
       cursor = now;
     }
@@ -3084,23 +3177,28 @@
     if (!cue) {
       return;
     }
-    const auto ports = deckboy::platform::midi::MidiOutput::listDevices();
-    if (ports.empty()) {
+    // A MIDI file can also play Deckboy's own synth: the ports, then
+    // DECKBOY SYNTH, then "first available". A MIDI cue sends messages a
+    // synth has no use for, so it has only the ports.
+    std::vector<std::string> choices;
+    for (const auto& port : deckboy::platform::midi::MidiOutput::listDevices()) choices.push_back(port.name);
+    if (cue->kind == CueKind::MidiFile) choices.push_back(kMidiPortDeckboySynth);
+    if (choices.empty()) {
       triggerToast("no MIDI output ports on this machine");
       return;
     }
     int at = -1;   // -1 is "first available"
-    for (int i = 0; i < static_cast<int>(ports.size()); ++i) {
-      if (ports[i].name == cue->midiPortName) {
+    for (int i = 0; i < static_cast<int>(choices.size()); ++i) {
+      if (choices[static_cast<std::size_t>(i)] == cue->midiPortName) {
         at = i;
         break;
       }
     }
     ++at;
-    cue->midiPortName = (at >= static_cast<int>(ports.size()))
-      ? std::string() : ports[at].name;
+    cue->midiPortName = (at >= static_cast<int>(choices.size()))
+      ? std::string() : choices[static_cast<std::size_t>(at)];
     markProjectDirty();
-    triggerToast(cue->midiPortName.empty() ? "first available" : cue->midiPortName);
+    triggerToast(midiPortLabel(cue->midiPortName));
   }
 
   Cue* selectedTextCue() {

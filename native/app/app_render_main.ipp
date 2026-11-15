@@ -7402,13 +7402,11 @@
                                              "Collapse/expand the file and its port");
       mfY = mfSection.bodyStartY;
       if (cueSectionMidiFileOpen_) {
-        mfY = drawChoiceRow(mfY, "port",
-                            selectedCue->midiPortName.empty()
-                              ? std::string("first available")
-                              : selectedCue->midiPortName,
+        mfY = drawChoiceRow(mfY, "port", midiPortLabel(selectedCue->midiPortName),
                             QuickAction::MidiFilePortCycle,
-                            "Which MIDI output this file plays to; step past the "
-                            "end for the first one available");
+                            "Which MIDI output this file plays to, or DECKBOY SYNTH: the synth cue "
+                            "live on another playlist and any video synth. Step past the end for "
+                            "the first one available");
         // WHAT IS ACTUALLY IN THE FILE, read from the parse rather than
         // promised: a cue that says "3 events" when the operator expected
         // three hundred has told them something the moment they look.

@@ -637,6 +637,7 @@ class MediaEngine {
   double videoSynthKeyScale() const { return vsKeyScale_.load(std::memory_order_relaxed); }
   double videoSynthKeyBloom() const { return vsKeyBloom_.load(std::memory_order_relaxed); }
   void synthAllNotesOff();
+  double chipNoteNow() const { return chipGateOpen_ ? chipNoteHz_ : 0.0; }   // 0 when no key is down
   bool synthGated() const { return chipGated_; }
 
   // Sprite sheet slicing. Public because --sheet-probe drives it
