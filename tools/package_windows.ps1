@@ -213,7 +213,7 @@ if (Test-Path $DataSrc) {
                              "deckboy-live-frame.bmp", "paired-phones.txt",
                              "tutorial-practice.deckboy", "tutorial-progress.txt",
                              "lessons.txt", "midi_map.tsv", "lesson-road", "lesson-road-bundle",
-                             "bugswat-highscore.txt", "bugswat-practice.deckboy")) {
+                             "bugswat-highscore.txt", "bugswat-practice.deckboy", "sealed")) {
         $StaleState = Join-Path (Join-Path $StageDir "data") $StaleName
         if (Test-Path $StaleState) {
             Remove-Item $StaleState -Force -Recurse   # some are folders (tabletop, lesson-road)

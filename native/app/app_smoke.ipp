@@ -767,6 +767,12 @@
       expect(hex == "e63d0d4397383e34cb0a8c23f037b0449bb12a9adb3e532637e2c19671a3c7539eab94bd8778f603" &&
                std::all_of(back.begin(), back.end(), [](std::uint8_t v) { return v == 0; }),
              "the SHA-256 keystream matches hashlib's and undoes itself");
+      // A letter typed on any layout, in Latin letters: Bulgarian, Russian
+      // and Greek capitals and small letters, a Latin capital, and a digit.
+      expect(sealedLatinFor(0x0449) == "sht" && sealedLatinFor(0x0416) == "zh" && sealedLatinFor(0x044E) == "yu" &&
+               sealedLatinFor(0x042B) == "y" && sealedLatinFor(0x03BB) == "l" && sealedLatinFor(0x0398) == "th" &&
+               sealedLatinFor('Q') == "q" && sealedLatinFor('w') == "w" && sealedLatinFor('7').empty(),
+             "the About page reads Cyrillic and Greek letters as Latin ones");
     }
     // A CONVERTER THAT HANGS IS STOPPED. A slide import on Gigantor sat on its
     // card for ever (2026-10-30); runCaptured's time limit is what ends any

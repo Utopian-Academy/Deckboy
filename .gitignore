@@ -85,6 +85,9 @@ Notes
 
 # Program recordings and the first-run marker — runtime output, not source
 /data/recordings/
+# Opened splash art and lesson progress: per-machine state, never source.
+/data/sealed/
+/data/lessons.txt
 /data/deckboy-first-run
 /data/mini-containment
 /data/mini-containment.saving

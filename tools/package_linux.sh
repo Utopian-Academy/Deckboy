@@ -188,7 +188,7 @@ if [ -d "$REPO_ROOT/data" ]; then
                deckboy-first-run found-sources tabletop deckboy-crash.log deckboy-soak.log \
                deckboy-render.log deckboy-show.log deckboy-live-frame.bmp paired-phones.txt \
                tutorial-practice.deckboy tutorial-progress.txt lessons.txt midi_map.tsv \
-               lesson-road lesson-road-bundle bugswat-highscore.txt bugswat-practice.deckboy; do
+               lesson-road lesson-road-bundle bugswat-highscore.txt bugswat-practice.deckboy sealed; do
     if [ -e "$STAGE_DIR/data/$stale" ]; then
       rm -rf "$STAGE_DIR/data/$stale"   # some are folders (tabletop, lesson-road)
       echo "  - stripped data/$stale (build-machine state)"

@@ -1715,7 +1715,7 @@
       pixelSays = "*shakes head* That means one more.";
       videoSays = "I love you all. I love the oscillator. I love the OUTPUT. It's video. I know. I KNOW.";
     } else if (rakia && tutorial_.rakiaNapkin) {
-      pixelSays = "The rat left a napkin, skapi. It says: \"Above Baba's town, the rocks keep a fortress. The town just calls it 'the fortress', in its own words. Type that word where Deckboy talks about itself.\"";
+      pixelSays = "The rat left a napkin, skapi. It says: \"A fortress stands in the rocks above Baba's town. The locals just call it 'the fortress', in their own language. Type that word where Deckboy talks about itself.\"";
       videoSays = "A riddle, on a napkin. Is the rat a professor now?";
     } else if (rakia) {
       pixelSays = "...and the rat took the rakia. Every time, skapi. Every single time.";
@@ -1985,15 +1985,69 @@
   // repo or the install. A sealed file is "DBSEAL1\0", an 8-byte nonce, then
   // the JPEG XORed with sha256Keystream (core/sha256.hpp).
 
+  // A letter of the keyboard's own layout, in Latin letters: a-z as they
+  // are, Cyrillic and Greek written out (Bulgarian spelling first, so
+  // shcha is "sht"). Empty for anything that is not a letter.
+  static std::string sealedLatinFor(SDL_Keycode typed) {
+    if (typed >= 'a' && typed <= 'z') return std::string(1, static_cast<char>(typed));
+    if (typed >= 'A' && typed <= 'Z') return std::string(1, static_cast<char>(typed - 'A' + 'a'));
+    struct Pair {
+      Uint32 cp;
+      const char* latin;
+    };
+    static const Pair kTable[] = {
+      // Cyrillic: Bulgarian, then the Russian, Ukrainian, Serbian and Macedonian letters.
+      {0x0430, "a"}, {0x0431, "b"}, {0x0432, "v"}, {0x0433, "g"}, {0x0434, "d"}, {0x0435, "e"},
+      {0x0436, "zh"}, {0x0437, "z"}, {0x0438, "i"}, {0x0439, "y"}, {0x043A, "k"}, {0x043B, "l"},
+      {0x043C, "m"}, {0x043D, "n"}, {0x043E, "o"}, {0x043F, "p"}, {0x0440, "r"}, {0x0441, "s"},
+      {0x0442, "t"}, {0x0443, "u"}, {0x0444, "f"}, {0x0445, "h"}, {0x0446, "ts"}, {0x0447, "ch"},
+      {0x0448, "sh"}, {0x0449, "sht"}, {0x044A, "a"}, {0x044B, "y"}, {0x044C, "y"}, {0x044D, "e"},
+      {0x044E, "yu"}, {0x044F, "ya"}, {0x0450, "e"}, {0x0451, "e"}, {0x0452, "dj"}, {0x0453, "gj"},
+      {0x0454, "e"}, {0x0455, "dz"}, {0x0456, "i"}, {0x0457, "i"}, {0x0458, "j"}, {0x0459, "lj"},
+      {0x045A, "nj"}, {0x045B, "c"}, {0x045C, "kj"}, {0x045D, "i"}, {0x045E, "u"}, {0x045F, "dz"},
+      {0x0491, "g"},
+      // Greek, with the accented vowels.
+      {0x03B1, "a"}, {0x03B2, "v"}, {0x03B3, "g"}, {0x03B4, "d"}, {0x03B5, "e"}, {0x03B6, "z"},
+      {0x03B7, "i"}, {0x03B8, "th"}, {0x03B9, "i"}, {0x03BA, "k"}, {0x03BB, "l"}, {0x03BC, "m"},
+      {0x03BD, "n"}, {0x03BE, "x"}, {0x03BF, "o"}, {0x03C0, "p"}, {0x03C1, "r"}, {0x03C2, "s"},
+      {0x03C3, "s"}, {0x03C4, "t"}, {0x03C5, "y"}, {0x03C6, "f"}, {0x03C7, "ch"}, {0x03C8, "ps"},
+      {0x03C9, "o"}, {0x03AC, "a"}, {0x03AD, "e"}, {0x03AE, "i"}, {0x03AF, "i"}, {0x03CC, "o"},
+      {0x03CD, "y"}, {0x03CE, "o"},
+    };
+    Uint32 cp = static_cast<Uint32>(typed);
+    if (cp >= 0x0410 && cp <= 0x042F) cp += 0x20;   // Cyrillic capitals
+    if (cp >= 0x0400 && cp <= 0x040F) cp += 0x50;   // and the ones before them
+    if (cp >= 0x0391 && cp <= 0x03A9) cp += 0x20;   // Greek capitals
+    for (const Pair& pair : kTable) {
+      if (pair.cp == cp) return pair.latin;
+    }
+    return {};
+  }
+
   bool noteSealedKey(SDL_Keycode key) {
     const Uint64 now = SDL_GetTicks();
     if (now - sealedTypedAtMs_ > 2000) sealedTyped_.clear();
     sealedTypedAtMs_ = now;
-    if (key < SDLK_A || key > SDLK_Z) {
+    // THE LETTER THE KEYBOARD'S OWN LAYOUT TYPES (James, 2026-11-15: "make
+    // sure typing the answer works in any language, especially bulgarian").
+    // SDL's key events give a Cyrillic or Greek layout's letters as the US
+    // letters in the same place, so shortcuts work -- which made the answer
+    // typed in Bulgarian on the standard layout arrive as punctuation and
+    // other letters. The scancode put back through the layout, without that
+    // option, gives the letter on the key; written in Latin letters, the word
+    // matches whichever alphabet it was typed in. A key event with no
+    // scancode (a test's KEY) carries its letter in the keycode.
+    SDL_Keycode typed = key;
+    if (lastKeyScancode_ != SDL_SCANCODE_UNKNOWN) {
+      const SDL_Keycode own = SDL_GetKeyFromScancode(lastKeyScancode_, SDL_KMOD_NONE, false);
+      if (own != SDLK_UNKNOWN) typed = own;
+    }
+    const std::string latin = sealedLatinFor(typed);
+    if (latin.empty()) {
       sealedTyped_.clear();
       return false;
     }
-    sealedTyped_.push_back(static_cast<char>('a' + (key - SDLK_A)));
+    sealedTyped_ += latin;
     if (sealedTyped_.size() > 16) sealedTyped_.erase(0, sealedTyped_.size() - 16);
     // Every ending from 4 to 16 letters, so the source does not give away
     // the answer's length.

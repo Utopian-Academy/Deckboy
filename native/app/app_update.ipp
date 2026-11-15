@@ -269,6 +269,7 @@
           break;
         case SDL_EVENT_KEY_DOWN:
           {
+            lastKeyScancode_ = event.key.scancode;   // the About page asks the layout for its letter
             Uint32 controlWindowId = controlWindow_ ? SDL_GetWindowID(controlWindow_) : 0;
             bool fromControlWindow = controlWindowId != 0 && event.key.windowID == controlWindowId;
             bool fromOutputWindow = outputIndexForWindowId(event.key.windowID).has_value();
