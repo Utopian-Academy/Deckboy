@@ -1791,11 +1791,18 @@
         probe.id = item.id;
         probe.path = item.path;
         probe.kind = item.kind;
-        auto resolved = resolveCueFilesystemPath(probe, projectFile);
+        // A path the filesystem refuses is a missing file, not the end of
+        // Deckboy: an exception here, on this thread, ended the app with no
+        // message (Bob3.deckboy, 2026-11-16).
         bool missing = false;
-        if (resolved && !resolved->empty()) {
-          std::error_code ec;
-          missing = !fs::exists(*resolved, ec);
+        try {
+          auto resolved = resolveCueFilesystemPath(probe, projectFile);
+          if (resolved && !resolved->empty()) {
+            std::error_code ec;
+            missing = !fs::exists(*resolved, ec);
+          }
+        } catch (const std::exception&) {
+          missing = true;
         }
         results.emplace_back(item.id, missing);
       }

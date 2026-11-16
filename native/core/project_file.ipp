@@ -2186,6 +2186,38 @@ std::string utf8FromMaybeCp1252(const std::string& in) {
   return out;
 }
 
+// Shows saved on Windows before 0.99.428 hold non-English paths in the PC's
+// old "ANSI" code page (1252 on an English or French PC, 1251 on a Russian
+// one): the process code page was ANSI until 0.99.428 made it UTF-8. Such a
+// line is read in that code page, which the registry still names (GetACP now
+// answers 65001). Elsewhere, and if Windows cannot convert it, byte by byte as
+// Windows-1252.
+std::string utf8FromLegacyCodePage(const std::string& in) {
+#ifdef _WIN32
+  static const unsigned legacyAcp = [] {
+    wchar_t value[16] = {};
+    DWORD size = sizeof(value);
+    if (RegGetValueW(HKEY_LOCAL_MACHINE, L"SYSTEM\\CurrentControlSet\\Control\\Nls\\CodePage", L"ACP",
+                     RRF_RT_REG_SZ, nullptr, value, &size) == ERROR_SUCCESS) {
+      const unsigned cp = static_cast<unsigned>(std::wcstoul(value, nullptr, 10));
+      if (cp != 0 && cp != CP_UTF8) return cp;
+    }
+    return 1252u;
+  }();
+  if (utf8FromMaybeCp1252(in) == in) return in;   // already UTF-8
+  const int wide = MultiByteToWideChar(legacyAcp, MB_ERR_INVALID_CHARS, in.data(), static_cast<int>(in.size()), nullptr, 0);
+  if (wide > 0) {
+    std::wstring w(static_cast<std::size_t>(wide), L'\0');
+    MultiByteToWideChar(legacyAcp, 0, in.data(), static_cast<int>(in.size()), w.data(), wide);
+    const int bytes = WideCharToMultiByte(CP_UTF8, 0, w.data(), wide, nullptr, 0, nullptr, nullptr);
+    std::string out(static_cast<std::size_t>(bytes), '\0');
+    WideCharToMultiByte(CP_UTF8, 0, w.data(), wide, out.data(), bytes, nullptr, nullptr);
+    return out;
+  }
+#endif
+  return utf8FromMaybeCp1252(in);
+}
+
 Project loadProject(const fs::path& projectFile,
                     const std::function<void(double)>& onProgress = {}) {
   Project project;
@@ -2250,7 +2282,7 @@ Project loadProject(const fs::path& projectFile,
     // it, and opening the show killed Deckboy -- every start, since it
     // reopens the last show (James's Bob3.deckboy, 2026-11-16). Stray bytes
     // are read as Windows-1252, which gives back the file's real name.
-    line = utf8FromMaybeCp1252(line);
+    line = utf8FromLegacyCodePage(line);
     // Report every 64 lines: often enough to animate, rare enough that tellg()
     // and the callback cost nothing on a small show.
     if (onProgress && totalBytes > 0 && (++lineCounter & 63u) == 0u) {

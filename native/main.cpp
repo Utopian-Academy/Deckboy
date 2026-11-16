@@ -3779,7 +3779,15 @@ std::optional<fs::path> resolveCueFilesystemPath(const Cue& cue, const fs::path&
       return it->second;
     }
   }
-  fs::path path(raw);
+  // Since 0.99.428 the process code page is UTF-8 (art/windows/deckboy.manifest),
+  // and a string that is not UTF-8 makes this constructor throw. loadProject
+  // repairs old shows; anything else that slips through resolves to nothing.
+  fs::path path;
+  try {
+    path = fs::path(raw);
+  } catch (const std::exception&) {
+    return std::nullopt;
+  }
   if (!path.is_absolute()) {
     std::error_code cwdEc;
     fs::path base = projectFile.has_parent_path()
@@ -14489,6 +14497,14 @@ int runDeckboyMain(int argc, char** argv) {
   gMainThreadId.store(GetCurrentThreadId());
   captureCrashLogPath();   // before the filter, so a fault at any point has it
   SetUnhandledExceptionFilter(deckboyCrashHandler);
+  // THE C RUNTIME'S OWN STOPS GO THROUGH THE SAME HANDLER. A bad argument to
+  // a CRT function, or abort(), ends in a fail-fast (0xc0000409) that skips
+  // the filter above, so the 2026-11-16 Bob3.deckboy crash left no stack.
+  // Raising an exception here first sends it through deckboyCrashHandler.
+  _set_invalid_parameter_handler([](const wchar_t*, const wchar_t*, const wchar_t*, unsigned int, uintptr_t) {
+    RaiseException(0xE0000001u, EXCEPTION_NONCONTINUABLE, 0, nullptr);   // "invalid CRT parameter"
+  });
+  std::signal(SIGABRT, [](int) { RaiseException(0xE0000002u, EXCEPTION_NONCONTINUABLE, 0, nullptr); });   // abort()
 #else
   installPosixCrashHandler();
 #endif
