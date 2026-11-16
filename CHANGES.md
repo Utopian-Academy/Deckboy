@@ -11,6 +11,7 @@
 - Fixed: Caroline's singing could be cut into pieces several times a second, depending on the sound card. She now stays in time with the video without cuts.
 - Fixed: setting lesson voices to OFF let the line being said go on for up to 5 seconds. A change of voice now stops it at once.
 - The Datamosh lesson now waits until you have watched the music video to the end before the effect, so you see the clean cuts first.
+- Fixed: in "When it goes wrong", the PANIC step went by on its own, so PANIC was never pressed. It now waits for PANIC.
 - The VOICE choice on a lesson card is now small underlined words after the progress dots. Fixed: it was a button drawn over the progress dots, and with a short label (CHIP, OFF) the last dot stuck out past its right edge.
 
 ### Packaging

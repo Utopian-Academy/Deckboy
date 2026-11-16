@@ -1449,6 +1449,7 @@
   }
 
   void triggerPanicProfile(std::optional<std::string> overrideProfile = std::nullopt) {
+    panicPressedAt_ = std::max<Uint64>(1, SDL_GetTicks());
     normalizeProject(project_);
     std::string profile = overrideProfile
       ? normalizePanicProfileToken(*overrideProfile)

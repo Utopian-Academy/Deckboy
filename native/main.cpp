@@ -12986,6 +12986,7 @@ class App {
   bool panicProfilePending_ = false;
   std::string pendingPanicProfileToken_;
   Uint64 panicProfileRequestedAt_ = 0;
+  Uint64 panicPressedAt_ = 0;   // the last PANIC, whatever its profile (the lesson's PANIC step)
   double panicRestoreDimmerTarget_ = 1.0;
   std::vector<SettingsButton> settingsBtns_;
   // THE PATCH GRID'S CELLS, for "click to cycle, drag to set": the press is

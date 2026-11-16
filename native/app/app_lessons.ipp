@@ -68,6 +68,7 @@
   int lessonCount_ = 0;              // a step's baseline, set by its enter
   bool lessonTakeWhenReady_ = false;   // SHOW ME came before the moshable copy (Datamosh)
   double lessonReelSeenTo_ = 0.0;      // how far the clean reel has played in WATCH THE CUTS (Datamosh)
+  Uint64 lessonPanicStepAt_ = 0;       // when the PANIC step was reached (When it goes wrong)
   Uint64 lessonHeldSinceMs_ = 0;     // when a step's result first held (the magic show)
   SDL_Rect lessonsCardRect_ {}, lessonsPixelTabRect_ {}, lessonsVideoTabRect_ {}, lessonsBasicsRect_ {},
            lessonsCloseRect_ {};
@@ -2722,17 +2723,18 @@
          "Worse: MENU, System, the SAFETY card: PANIC. Everything stops, the way the panic setting says.",
          "PANIC is the big red button. Use it when BLACK is not enough. Then breathe.",
          "CHEF BORK", "Bork! De fire extinguisher is also on fire!",
-         [this] {
-           for (int d = 0; d < static_cast<int>(project_.decks.size()); ++d) {
-             if (deckIsRunning(d)) return false;
-           }
-           return true;
-         },
+         // Passed by PANIC itself. It asked "is nothing running?", which was
+         // true before anyone touched it: the kitchen is a generated cue, and
+         // a generated cue shows its picture paused. So the step went by on
+         // its own and PANIC was never pressed (found 2026-11-16, walking
+         // every lesson for James).
+         [this] { return lessonPanicStepAt_ != 0 && panicPressedAt_ >= lessonPanicStepAt_; },
          [this] { triggerPanicProfile(); },
          [this] {
            if (!settingsOpen_) return tutorialButtonRect("MENU");
            return lessonSettingRect(207);
-         }, nullptr},
+         },
+         [this] { lessonPanicStepAt_ = std::max<Uint64>(1, SDL_GetTicks()); }},
         {"GET IT BACK", "ENTER",
          "Close MENU, select the souffle, and TAKE it. The show is back on.",
          "After a panic, the show is still there. Pick up where you meant to be.",
