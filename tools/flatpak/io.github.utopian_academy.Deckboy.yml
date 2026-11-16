@@ -142,13 +142,31 @@ modules:
     # app walking up from its own directory. /app is read-only, so shows and
     # settings go to the user's data directory, which is the app's fallback.
     no-make-install: true
+    # The shader source (ISF) needs glslang and SPIRV-Cross. CMakeLists.txt
+    # fetches them while it configures, but a Flatpak build has no network:
+    # 0.99.428's build stopped there and came out with no Flatpak. They come
+    # in as sources here instead, at the same tags CMakeLists.txt pins, and
+    # FETCHCONTENT_SOURCE_DIR_* points the fetch at them. Change both places
+    # together.
     config-opts:
       - -DCMAKE_BUILD_TYPE=Release
       - -DENABLE_DECKLINK=OFF
       - -DENABLE_MIDI=ON
+      - -DFETCHCONTENT_SOURCE_DIR_GLSLANG=/run/build/deckboy/flatpak-deps/glslang
+      - -DFETCHCONTENT_SOURCE_DIR_SPIRV_CROSS=/run/build/deckboy/flatpak-deps/spirv_cross
     sources:
       - type: dir
         path: ../..
+      - type: git
+        url: https://github.com/KhronosGroup/glslang.git
+        tag: 16.2.0
+        commit: f0bd0257c308b9a26562c1a30c4748a0219cc951
+        dest: flatpak-deps/glslang
+      - type: git
+        url: https://github.com/KhronosGroup/SPIRV-Cross.git
+        tag: vulkan-sdk-1.4.350.1
+        commit: 1a6169566c73d3da552748fc372fe2bbb856e46e
+        dest: flatpak-deps/spirv_cross
     post-install:
       - install -Dm755 "$(find /run/build/deckboy -name Deckboy -type f -perm -u+x | head -1)" /app/lib/deckboy/bin/Deckboy
       - cp -R data /app/lib/deckboy/data

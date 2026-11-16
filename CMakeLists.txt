@@ -1198,6 +1198,8 @@ if(DECKBOY_ISF)
   set(SPIRV_CROSS_SHARED OFF CACHE BOOL "" FORCE)
   set(SPIRV_CROSS_STATIC ON CACHE BOOL "" FORCE)
   set(SPIRV_CROSS_FORCE_PIC ON CACHE BOOL "" FORCE)
+  # tools/flatpak's manifest carries these two at the same tags, because a
+  # Flatpak build has no network. Change both places together.
   FetchContent_Declare(glslang
     GIT_REPOSITORY https://github.com/KhronosGroup/glslang.git
     GIT_TAG 16.2.0
