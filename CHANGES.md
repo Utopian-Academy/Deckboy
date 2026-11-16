@@ -2,6 +2,11 @@
 
 ## 2026-11-16 - v0.99.429 (Lumia moves smoothly)
 
+### Shows
+- Fixed: opening a show killed Deckboy when a cue's path had an accented letter saved by an older version (in the Windows code page, not UTF-8). Deckboy opens the last show at start, so it closed at every start. Such a path is now read correctly, and the cue finds its file. In 0.99.427 the same show opened.
+- New: a show that closed Deckboy while it opened is not reopened at the next start. Deckboy opens the default show instead and says which show it left out. Open that one from OPEN.
+- If Deckboy stops on an error it did not expect, the reason is now written to deckboy-render.log.
+
 ### Sources
 - Fixed: Lumia's lines shook from one frame to the next when shimmer was above 0, and a new Lumia cue starts with shimmer at 30. Now shimmer makes the lines waver smoothly, on the outputs, on the desk and in a render. At shimmer 0 nothing changes.
 

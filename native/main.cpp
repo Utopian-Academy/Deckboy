@@ -4318,9 +4318,17 @@ class App {
     // renderer exists by now (fonts and palette are up), so the overlay can
     // draw and present its own frames while this blocks.
     beginLoadingOverlay("OPENING SHOW", currentProjectFile_.filename().string());
+    markShowOpening(currentProjectFile_);
     project_ = loadProject(currentProjectFile_, [this](double frac) {
       loadingOverlayProgress(frac * 0.9);
     });
+    if (!crashedShowSkipped_.empty()) {
+      const std::string name = crashedShowSkipped_.filename().string();
+      showLog("SHOW-SKIPPED", name + " closed Deckboy while it opened last time");
+      triggerToast(deckboy::core::i18n::format("{1} closed Deckboy last time, so it was not opened. Open it from OPEN.",
+                                               {name}),
+                   ToastKind::Warning, kToastReadableMs);
+    }
     loadingOverlayProgress(0.95, "checking the show");
     normalizeProject(project_);
     endLoadingOverlay();
@@ -14453,6 +14461,27 @@ int runDeckboyCliMode(const std::string& mode, const std::vector<std::string>& o
 }  // namespace
 
 int runDeckboyMain(int argc, char** argv) {
+  // WHY IT DIED, WRITTEN DOWN. An exception nobody catches ends in abort(),
+  // and Windows records only "ucrtbase.dll, 0xc0000409" -- the 2026-11-16
+  // Bob3.deckboy crash left nothing else. The message goes into the render log
+  // (stateDir) before the abort.
+  std::set_terminate([] {
+    std::string what = "unknown";
+    if (const auto e = std::current_exception()) {
+      try {
+        std::rethrow_exception(e);
+      } catch (const std::exception& ex) {
+        what = std::string(typeid(ex).name()) + ": " + ex.what();
+      } catch (...) {
+        what = "a non-standard exception";
+      }
+    }
+    std::error_code ec;
+    std::ofstream log(Paths::stateDir() / "deckboy-render.log", std::ios::app | std::ios::binary);
+    if (log) log << "FATAL: uncaught exception: " << what << "\n";
+    std::cerr << "FATAL: uncaught exception: " << what << std::endl;
+    std::abort();
+  });
   // Before anything can draw a pattern, the CLI dumps and checks included;
   // both main() and WinMain() arrive here.
   deckboy::lava::registerGenerator();

@@ -933,6 +933,25 @@
     }
 
     {
+      // A SHOW LINE THAT IS NOT UTF-8 IS MADE UTF-8 (Bob3.deckboy, 2026-11-16:
+      // "Creme Fraiche" with its accents in the Windows code page crashed
+      // every open of the show).
+      expect(utf8FromMaybeCp1252("Cr\xE8me Fra\xEE" "che \x93q\x94") ==
+                 "Cr\xC3\xA8me Fra\xC3\xAE" "che \xE2\x80\x9Cq\xE2\x80\x9D" &&
+             utf8FromMaybeCp1252("already \xC3\xA8 fine") == "already \xC3\xA8 fine" &&
+             utf8FromMaybeCp1252("plain") == "plain",
+             "a Windows-1252 show line is read as UTF-8, and UTF-8 is left alone");
+      const fs::path f = fs::temp_directory_path() / "deckboy-cp1252-check.deckboy";
+      {
+        std::ofstream o(f, std::ios::binary);
+        o << "title\tCr\xE8me\n";
+      }
+      expect(loadProject(f).title == "Cr\xC3\xA8me", "a show with a Windows-1252 line opens, its text repaired");
+      std::error_code rmEc;
+      fs::remove(f, rmEc);
+    }
+
+    {
       // LUMIA'S SHIMMER WAVERS; IT DOES NOT SHAKE (James, 2026-11-16: "in the
       // release, lumia seems jittery"). 0.99.428 took a new random bend every
       // frame, 17% apart on average at shimmer 100, so every line jumped from

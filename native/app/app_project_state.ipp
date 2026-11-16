@@ -39,6 +39,9 @@
     return Paths::defaultProjectFile();
   }
 
+  mutable fs::path crashedShowSkipped_;   // the show startup did not reopen (showOpeningMarkerFile)
+  Uint64 showOpeningClearAt_ = 0;
+
   fs::path lastOpenedProjectPointerFile() const {
     return Paths::stateDir() / "last_project.txt";
   }
@@ -141,6 +144,29 @@
     }
   }
 
+  // A SHOW THAT KILLED DECKBOY IS NOT REOPENED BY ITSELF. Opening a show
+  // writes its path here, and the note is removed once the show has been open
+  // for ten seconds. Found at startup, it means the last open never got that
+  // far, so startup opens the default show and says which one it left out.
+  // Without it one bad show (Bob3.deckboy, 2026-11-16) crashed every start,
+  // and a restart of the machine did not help.
+  fs::path showOpeningMarkerFile() const { return Paths::stateDir() / "opening_show.txt"; }
+
+  void markShowOpening(const fs::path& show) {
+    std::error_code ec;
+    fs::create_directories(showOpeningMarkerFile().parent_path(), ec);
+    std::ofstream output(showOpeningMarkerFile(), std::ios::binary | std::ios::trunc);
+    if (output) output << normalizeProjectPath(show).string();
+    showOpeningClearAt_ = SDL_GetTicks() + 10000;
+  }
+
+  void serviceShowOpeningMarker() {
+    if (showOpeningClearAt_ == 0 || SDL_GetTicks() < showOpeningClearAt_) return;
+    showOpeningClearAt_ = 0;
+    std::error_code ec;
+    fs::remove(showOpeningMarkerFile(), ec);
+  }
+
   fs::path startupProjectFile() const {
     const char* envPath = std::getenv("DECKBOY_PROJECT");
     if (envPath && *envPath) {
@@ -153,6 +179,13 @@
       std::getline(input, storedPath);
       fs::path remembered = normalizeProjectPath(trim(storedPath));
       if (!remembered.empty() && (fs::exists(remembered) || !newerProjectRecoveryFile(remembered).empty())) {
+        std::ifstream marker(showOpeningMarkerFile(), std::ios::binary);
+        std::string opening;
+        if (marker && std::getline(marker, opening) &&
+            normalizeProjectPath(trim(opening)) == remembered && remembered != Paths::defaultProjectFile()) {
+          crashedShowSkipped_ = remembered;
+          return Paths::defaultProjectFile();
+        }
         return remembered;
       }
     }

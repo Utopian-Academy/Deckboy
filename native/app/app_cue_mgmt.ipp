@@ -1966,6 +1966,7 @@
     // window shows progress instead of appearing hung. It self-hides for opens
     // that finish inside 250 ms, which is most of them.
     beginLoadingOverlay("OPENING SHOW", normalized.filename().string());
+    markShowOpening(normalized);
     project_ = loadProject(normalized, [this](double frac) {
       // Parsing is the bulk of the wait, so give it most of the bar.
       loadingOverlayProgress(frac * 0.8);

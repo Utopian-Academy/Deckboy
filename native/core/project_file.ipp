@@ -2138,6 +2138,54 @@ inline void migrateVideoSynthTextMode(Project& project) {
   }
 }
 
+// Valid UTF-8 passes through unchanged. Any byte that does not start or
+// continue a valid UTF-8 sequence is taken as Windows-1252 (the code page old
+// saves wrote paths in) and written as UTF-8.
+std::string utf8FromMaybeCp1252(const std::string& in) {
+  static const char16_t k80to9F[32] = {
+    0x20AC, 0x81, 0x201A, 0x0192, 0x201E, 0x2026, 0x2020, 0x2021, 0x02C6, 0x2030, 0x0160, 0x2039, 0x0152, 0x8D, 0x017D, 0x8F,
+    0x90, 0x2018, 0x2019, 0x201C, 0x201D, 0x2022, 0x2013, 0x2014, 0x02DC, 0x2122, 0x0161, 0x203A, 0x0153, 0x9D, 0x017E, 0x0178};
+  auto seqLen = [&](std::size_t i) -> std::size_t {   // length of a valid UTF-8 sequence at i, else 0
+    const auto c = static_cast<unsigned char>(in[i]);
+    std::size_t n = c < 0x80 ? 1 : (c >= 0xC2 && c <= 0xDF) ? 2 : (c >= 0xE0 && c <= 0xEF) ? 3
+                  : (c >= 0xF0 && c <= 0xF4) ? 4 : 0;
+    if (n == 0 || i + n > in.size()) return 0;
+    for (std::size_t k = 1; k < n; ++k) {
+      if ((static_cast<unsigned char>(in[i + k]) & 0xC0) != 0x80) return 0;
+    }
+    const auto c1 = static_cast<unsigned char>(n > 1 ? in[i + 1] : 0);
+    if ((c == 0xE0 && c1 < 0xA0) || (c == 0xED && c1 > 0x9F) || (c == 0xF0 && c1 < 0x90) || (c == 0xF4 && c1 > 0x8F)) return 0;
+    return n;
+  };
+  std::size_t i = 0;
+  while (i < in.size()) {
+    const std::size_t n = seqLen(i);
+    if (n == 0) break;
+    i += n;
+  }
+  if (i == in.size()) return in;   // already UTF-8: the common case, untouched
+  std::string out;
+  out.reserve(in.size() + 16);
+  for (i = 0; i < in.size();) {
+    if (const std::size_t n = seqLen(i)) {
+      out.append(in, i, n);
+      i += n;
+      continue;
+    }
+    const auto c = static_cast<unsigned char>(in[i++]);
+    const unsigned cp = c >= 0xA0 ? c : k80to9F[c - 0x80];
+    if (cp < 0x800) {
+      out += static_cast<char>(0xC0 | (cp >> 6));
+      out += static_cast<char>(0x80 | (cp & 0x3F));
+    } else {
+      out += static_cast<char>(0xE0 | (cp >> 12));
+      out += static_cast<char>(0x80 | ((cp >> 6) & 0x3F));
+      out += static_cast<char>(0x80 | (cp & 0x3F));
+    }
+  }
+  return out;
+}
+
 Project loadProject(const fs::path& projectFile,
                     const std::function<void(double)>& onProgress = {}) {
   Project project;
@@ -2196,6 +2244,13 @@ Project loadProject(const fs::path& projectFile,
 
   std::string line;
   while (std::getline(input, line)) {
+    // A LINE THAT IS NOT UTF-8 IS MADE UTF-8 BEFORE ANYTHING READS IT. A show
+    // saved long ago held "Crème Fraîche" in the Windows code page (0xE8,
+    // 0xEE); Windows' filesystem path throws on such a string, nothing caught
+    // it, and opening the show killed Deckboy -- every start, since it
+    // reopens the last show (James's Bob3.deckboy, 2026-11-16). Stray bytes
+    // are read as Windows-1252, which gives back the file's real name.
+    line = utf8FromMaybeCp1252(line);
     // Report every 64 lines: often enough to animate, rare enough that tellg()
     // and the callback cost nothing on a small show.
     if (onProgress && totalBytes > 0 && (++lineCounter & 63u) == 0u) {
