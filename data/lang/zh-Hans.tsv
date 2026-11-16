@@ -4685,3 +4685,4 @@ Which MIDI output this file plays to, or DECKBOY SYNTH: the synth cue live on an
 The rat left a napkin, skapi. It says: "A fortress stands in the rocks above Baba's town. The locals just call it 'the fortress', in their own language. Type that word where Deckboy talks about itself."	老鼠留了一张餐巾纸，斯卡皮。上面说：“Baba 的小镇上方的岩石间有一座要塞。当地人用他们自己的语言，直接叫它‘要塞’。请在 Deckboy 谈到自己的地方输入那个字。”
 SCOPES SOUND SPECTROGRAM: expected ON or OFF	SCOPES SOUND SPECTROGRAM: 应为 开 或 关
 SCOPES SOUND: expected nothing, RESET, SPECTROGRAM [ON|OFF] or SPECTRUM	SCOPES SOUND: 应为 无、重置、SPECTROGRAM [开|关] 或 频谱
+tract	轨道
