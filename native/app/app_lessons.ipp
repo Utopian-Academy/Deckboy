@@ -2439,6 +2439,28 @@
       };
       auto isTimer = [](const Cue& c) { return c.kind == CueKind::Timer; };
       auto isLiftOff = [](const Cue& c) { return c.name == "The rocket (lift-off)"; };
+      // The live timer's own clock: it runs on START and holds on STOP, apart
+      // from playback, so the steps read it rather than the transport.
+      auto timerClock = [this, isTimer]() -> const TimerRuntime* {
+        for (int d = 0; d < static_cast<int>(project_.decks.size()); ++d) {
+          const Cue* cue = activeCuePtr(d);
+          if (!cue || !isTimer(*cue)) continue;
+          const auto it = timerRuntimes_.find(cue->id);
+          return it == timerRuntimes_.end() ? nullptr : &it->second;
+        }
+        return nullptr;
+      };
+      // START or STOP, the way the student does it: the timer's own button.
+      auto runTimer = [this, isTimer](bool run) {
+        int d = -1;
+        const int i = lessonFindCue(isTimer, &d);
+        if (i < 0) return;
+        project_.focusedDeckIndex = d;
+        selectCueInDeck(d, i, false, false);
+        if (timerRuntimeFor(project_.decks[static_cast<std::size_t>(d)].cues[static_cast<std::size_t>(i)]).running != run) {
+          timerToggleRun();
+        }
+      };
       l.steps = {
         {"A GRAND DAY OUT", nullptr,
          "A rocket built in a basement, skapi, an inventor who wants cheese, and a dog who does the real work. Press START.",
@@ -2456,13 +2478,26 @@
          },
          [this] { return project_.decks.size() >= 2 ? lessonOnSecondDeck(tutorialButtonRect("SOURCE"))
                                                      : tutorialButtonRect("SOURCE"); }, nullptr},
+        // A timer runs on its own START and STOP, apart from playback (by
+        // design: the clock is operated while its picture stays on air). The
+        // lesson said TAKE starts it and Space holds it, so the clock never
+        // ran and HOLD! passed on its own; James approved the new text
+        // 2026-11-16 ("right pleas fix timer text").
         {"COUNT IT DOWN", "ENTER",
-         "Select the timer and TAKE it. I have cleared its backdrop, so the rocket shows behind the numbers.",
+         "Select the timer and TAKE it, then press START in its section. I have cleared its backdrop, so the rocket shows behind the numbers.",
          "Past zero it keeps going and counts the overtime. Very honest. Slightly rude.",
          "WALLIS", "Ten... nine... ooh, I do love a countdown.",
-         [this, isTimer] { return lessonCueLive(isTimer); },
-         [this, isTimer] { lessonTake(isTimer); },
-         [this, isTimer] { return lessonTakeTarget(isTimer); },
+         [this, isTimer, timerClock] {
+           const TimerRuntime* clock = timerClock();
+           return lessonCueLive(isTimer) && clock && clock->running;
+         },
+         [this, isTimer, runTimer] {
+           if (!lessonCueLive(isTimer)) lessonTake(isTimer);
+           runTimer(true);
+         },
+         [this, isTimer] {
+           return lessonCueLive(isTimer) ? lessonQuickRect(QuickAction::TimerRunToggle) : lessonTakeTarget(isTimer);
+         },
          // A clock over a picture needs no backdrop. The timer section has
          // the switch; the lesson flips it so the countdown sits on the rocket.
          [this, isTimer] {
@@ -2473,25 +2508,16 @@
            }
            markProjectDirty();
          }},
-        {"HOLD!", "SPACE",
-         "Something's loose! Space holds the countdown. The clock shows it is held.",
-         "A hold is not a stop. Space again, and it carries on from where it was.",
+        {"HOLD!", nullptr,
+         "Something's loose! Press STOP. The clock says HELD.",
+         "A hold keeps its place. START again, and it carries on from where it was.",
          "GROMMET", "*holds up a spanner*",
-         [this, isTimer] {
-           for (int d = 0; d < static_cast<int>(project_.decks.size()); ++d) {
-             const Cue* cue = activeCuePtr(d);
-             const MediaEngine* engine = mediaEngineForDeck(d);
-             if (cue && isTimer(*cue) && engine && engine->state() == TransportState::Paused) return true;
-           }
-           return false;
+         [timerClock] {
+           const TimerRuntime* clock = timerClock();
+           return clock && !clock->running && clock->elapsedSeconds > 0.0;
          },
-         [this, isTimer] {
-           int d = -1;
-           if (lessonFindCue(isTimer, &d) < 0) return;
-           project_.focusedDeckIndex = d;
-           handleRemoteCommand("PAUSE");
-         },
-         [] { return SDL_Rect {}; }, nullptr},
+         [runTimer] { runTimer(false); },
+         [this] { return lessonQuickRect(QuickAction::TimerRunToggle); }, nullptr},
         {"THE PILOT'S VIEW", nullptr,
          "MENU, Video Outputs: make an output's type PRESENTER. The person on stage gets the timer, the next cue and their notes.",
          "A presenter view is an output like any other. Point it at the confidence monitor.",
