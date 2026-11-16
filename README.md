@@ -39,9 +39,9 @@ operator finds it, and how you find it again.
 
 [Release notes and downloads](https://github.com/Utopian-Academy/Deckboy/releases/tag/v0.99.428)
 
-<img src="docs/images/perf/four-layers.gif" width="49%" alt="Four picture-in-picture layers in four codecs, each with its own effect, recorded at 1080p while the app held 60 frames a second"> <img src="docs/images/perf/decoder-effects.gif" width="49%" alt="A 4K 10-bit HEVC clip with eight effects, recorded at 1080p while the app held 58 frames a second">
+<a href="docs/images/perf/four-layers.gif"><img src="docs/images/perf/four-layers-poster.jpg" width="60%" alt="Four picture-in-picture layers in four codecs, each with its own effect, recorded at 1080p while the app held 60 frames a second"></a>
 
-<sub>Recorded by Deckboy itself at 1080p. Left: four layers in H.264, HEVC, ProRes and MJPEG, each with its own effect and an LFO, at 60 fps. Right: a 4K 10-bit HEVC clip under eight effects at 58 fps.</sub>
+<sub>Recorded by Deckboy itself at 1080p: four layers in H.264, HEVC, ProRes and MJPEG, each with its own effect and an LFO, at 60 fps. Click the picture to see it move.</sub>
 
 - **Effects on the graphics card.** 25 picture effects, the shatter, portal, clouds and ghastly
   transitions, and the new Melt and Circuit Bend all run on the GPU, and a layer's effects run at the
