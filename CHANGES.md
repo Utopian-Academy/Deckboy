@@ -18,6 +18,9 @@
 - The Datamosh lesson now waits until you have watched the music video to the end before the effect, so you see the clean cuts first.
 - Fixed: in "When it goes wrong", the PANIC step went by on its own, so PANIC was never pressed. It now waits for PANIC.
 - Fixed: "Keeping time" said TAKE starts the stage timer and Space holds it. A timer runs on its own START and STOP, apart from playback, so the clock never ran and the hold step went by on its own. The lesson now says START and STOP, and waits for each.
+- Fixed: a lesson card could sit on the control it pointed at, or on the one beside it (in "Transitions", the card covered the transition time it asked for). The card now keeps clear of the control and the rows next to it. A walk through every lesson found 65 such steps; now none.
+- New: RESTART on a lesson card starts the lesson again from its first step, with a fresh practice show. Companion: `TUTORIAL RESTART`.
+- New: click a progress dot on a lesson card to go to that step, back or forward. Companion: `TUTORIAL STEP <n>`.
 - The VOICE choice on a lesson card is now small underlined words after the progress dots. Fixed: it was a button drawn over the progress dots, and with a short label (CHIP, OFF) the last dot stuck out past its right edge.
 
 ### Companion

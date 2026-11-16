@@ -71,6 +71,8 @@
     SDL_Rect cardRect {};
     SDL_Rect showMeRect {};
     SDL_Rect voiceRect {};    // VOICE: CHIP / EXPERIMENTAL / OFF, bottom left
+    SDL_Rect restartRect {};  // RESTART: the lesson again from its first card
+    std::vector<SDL_Rect> dotRects;   // the progress dots: a click goes to that step
     SDL_Rect skipRect {};
     SDL_Rect exitRect {};
     SDL_Rect targetRect {};
@@ -1066,6 +1068,18 @@
       setLessonVoice(nextLessonVoice());
       return true;
     }
+    if (pointInRect(x, y, tutorial_.restartRect)) {
+      restartLesson();
+      return true;
+    }
+    for (std::size_t i = 0; i < tutorial_.dotRects.size(); ++i) {
+      if (pointInRect(x, y, tutorial_.dotRects[i])) {
+        if (static_cast<int>(i) != tutorial_.step && static_cast<int>(i) < tutorialStepCount()) {
+          enterTutorialStep(static_cast<int>(i));
+        }
+        return true;
+      }
+    }
     if (pointInRect(x, y, tutorial_.skipRect)) {
       if (tutorial_.step + 1 < tutorialStepCount()) {
         enterTutorialStep(nextTutorialStep());
@@ -1790,6 +1804,52 @@
         cardY = std::clamp(target.y, uiScaled(8), std::max(uiScaled(8), height - cardH - uiScaled(8)));
       }
     }
+    // NEVER OVER WHAT IT POINTS AT (James, 2026-11-16: "the text box covers
+    // the duration selector for the shatter", then "check all lessons again
+    // for the box covering the thing its telling you to use"). Above or below
+    // the target was chosen by which half it is in, then clamped to the
+    // window, and with no room on that side the clamp put the card back over
+    // it. Now every side is tried -- the first choice, the other of above and
+    // below, then right and left of it -- and the first that leaves the target
+    // clear wins; if none can, the one covering the least of it.
+    if (target.w > 0 && target.h > 0) {
+      const int gap = uiScaled(18);
+      const int edge = uiScaled(8);
+      // Clear of the target AND the rows just above and below it: a step uses
+      // its neighbours too ("choose shatter, give it a time" points at the
+      // style row; the time row is the one above it, and the card sat on it).
+      const int rows = uiScaled(96);
+      const SDL_Rect keep {target.x, target.y - rows, target.w, target.h + rows * 2};
+      auto clampX = [&](int x) { return std::clamp(x, edge, std::max(edge, width - cardW - edge)); };
+      auto clampY = [&](int y) { return std::clamp(y, edge, std::max(edge, height - cardH - edge)); };
+      auto covered = [&](int x, int y) {
+        const int ox = std::max(0, std::min(x + cardW, keep.x + keep.w) - std::max(x, keep.x));
+        const int oy = std::max(0, std::min(y + cardH, keep.y + keep.h) - std::max(y, keep.y));
+        // The target itself weighs far more than its neighbours.
+        const int tx = std::max(0, std::min(x + cardW, target.x + target.w) - std::max(x, target.x));
+        const int ty = std::max(0, std::min(y + cardH, target.y + target.h) - std::max(y, target.y));
+        return static_cast<long long>(ox) * oy + 1000LL * tx * ty;
+      };
+      const int centreX = clampX(target.x + target.w / 2 - cardW / 2);
+      const int sideY = clampY(target.y + target.h / 2 - cardH / 2);
+      const std::pair<int, int> tries[] = {
+        {cardX, cardY},
+        {centreX, clampY(keep.y - gap - cardH)},
+        {centreX, clampY(keep.y + keep.h + gap)},
+        {clampX(keep.x + keep.w + gap), sideY},
+        {clampX(keep.x - gap - cardW), sideY},
+      };
+      long long best = -1;
+      for (const auto& [x, y] : tries) {
+        const long long c = covered(x, y);
+        if (best < 0 || c < best) {
+          best = c;
+          cardX = x;
+          cardY = y;
+        }
+        if (c == 0) break;
+      }
+    }
     // Rakia sways the card: gently at first, then less gently.
     if (rakia && !rakiaDry) {
       // Still after twelve seconds, so the napkin can be read.
@@ -1909,8 +1969,13 @@
 
     // Progress: done, here, to come.
     const int dot = uiScaled(12);
+    tutorial_.dotRects.assign(static_cast<std::size_t>(stepCount), SDL_Rect {});
     for (int i = 0; i < stepCount; ++i) {
       const SDL_Rect d {card.x + pad + i * (dot + uiScaled(5)), y + (buttonH - dot) / 2, dot, dot};
+      // Each dot is its step: click one to go back or on to it (James,
+      // 2026-11-16: "the ability to go back and forward a step"). The click
+      // area is the dot's whole column, not only the small square.
+      tutorial_.dotRects[static_cast<std::size_t>(i)] = SDL_Rect {d.x - uiScaled(2), y, dot + uiScaled(5), buttonH};
       if (i < tutorial_.step) {
         Primitives::fillRect(controlRenderer_, d, pal.light);
       } else if (i == tutorial_.step) {
@@ -1975,6 +2040,22 @@
         Primitives::fillRect(controlRenderer_, SDL_Rect {vx + (vw - lineW) / 2, underlineY, lineW, 1}, pal.mid);
       } else {
         tutorial_.voiceRect = SDL_Rect {};
+      }
+    }
+    // RESTART, after VOICE and in the same quiet style: a lesson from its
+    // first card, with a fresh practice show (restartLesson).
+    tutorial_.restartRect = SDL_Rect {};
+    if (tutorial_.lesson > 0 && tutorial_.step > 0 && tutorial_.voiceRect.w > 0) {
+      const char* label = "RESTART";
+      const int labelW = measuredTextWidth(fontSmall_, deckboy::core::i18n::translate(label).c_str());
+      const int rx = tutorial_.voiceRect.x + tutorial_.voiceRect.w + uiScaled(16);
+      const int rw = std::min(labelW + uiScaled(8), bx - rx - uiScaled(10));
+      if (rw >= labelW + uiScaled(8)) {   // whole, or not at all
+        tutorial_.restartRect = SDL_Rect {rx, y, rw, buttonH};
+        drawCenteredTextSafe(controlRenderer_, fontSmall_, tutorial_.restartRect, label, pal.fgSoft);
+        const int lineW = std::min(labelW, rw);
+        const int underlineY = y + buttonH / 2 + TTF_GetFontHeight(fontSmall_) / 2;
+        Primitives::fillRect(controlRenderer_, SDL_Rect {rx + (rw - lineW) / 2, underlineY, lineW, 1}, pal.mid);
       }
     }
     // Act three: Rat Dad walks along the top of the card, right to left, and

@@ -7828,6 +7828,15 @@
       } else if (tutorialArg == "SHOWME" || tutorialArg == "SHOW") {
         if (!tutorial_.active) { failRemoteCommand("TUTORIAL: not running"); return; }
         if (tutorial_.step == tutorialStepCount() - 1) endTutorial(true, tutorial_.lesson == 0); else tutorialShowMe();
+      } else if (tutorialArg == "STEP" && tutorialStepCount() > 0) {
+        // TUTORIAL STEP <n>: what clicking the n-th progress dot does.
+        if (!tutorial_.active) { failRemoteCommand("TUTORIAL: not running"); return; }
+        const int n = parts.size() > 2 ? std::atoi(parts[2].c_str()) : 0;
+        if (n < 1 || n > tutorialStepCount()) { failRemoteCommand("TUTORIAL STEP: 1 to " + std::to_string(tutorialStepCount())); return; }
+        enterTutorialStep(n - 1);
+      } else if (tutorialArg == "RESTART") {
+        if (!tutorial_.active || tutorial_.lesson <= 0) { failRemoteCommand("TUTORIAL: no lesson running"); return; }
+        restartLesson();
       } else if (tutorialArg == "SKIP") {
         if (!tutorial_.active) { failRemoteCommand("TUTORIAL: not running"); return; }
         if (tutorial_.step + 1 < tutorialStepCount()) enterTutorialStep(nextTutorialStep());
@@ -7845,7 +7854,7 @@
         }
         tutorialScreensOverride_ = want == "real" ? std::string() : want;
       } else if (tutorialArg != "STATUS") {
-        failRemoteCommand("TUTORIAL: expected START, SHOWME, SKIP, EXIT, STATUS or SCREENS");
+        failRemoteCommand("TUTORIAL: expected START, SHOWME, SKIP, STEP <n>, RESTART, EXIT, STATUS or SCREENS");
         return;
       }
       serviceTutorial();

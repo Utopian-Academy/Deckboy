@@ -4659,3 +4659,5 @@ listens to the live input	hoʻolohe i ka komo ola
 ~ cannot open the live input: {1}	~ ʻaʻole hiki ke wehe i ka komo ola: {1}
 listens to the live input while one is open, else the playlist	hoʻolohe i ka komo ola ke wehe ʻia kekahi, a i ʻole, i ka papa helu
 {1} closed Deckboy last time, so it was not opened. Open it from OPEN.	Ua pani ʻo {1} iā Deckboy i ka manawa hope, no laila ʻaʻole i wehe ʻia. Wehe iā ia mai WEHE.
+TUTORIAL: no lesson running	TUTORIAL: ʻaʻohe haʻawina e holo ana
+TUTORIAL: expected START, SHOWME, SKIP, STEP <n>, RESTART, EXIT, STATUS or SCREENS	TUTORIAL: pono START, SHOWME, SKIP, STEP <n>, RESTART, EXIT, STATUS a i ʻole SCREENS

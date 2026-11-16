@@ -4692,3 +4692,5 @@ listens to the live input	kuuntelee suoraa tuloa
 ~ cannot open the live input: {1}	~ ei voi avata suoraa tuloa: {1}
 listens to the live input while one is open, else the playlist	kuuntelee suoraa tuloa, kun sellainen on auki, muuten soittolistaa
 {1} closed Deckboy last time, so it was not opened. Open it from OPEN.	{1} sulki Deckboyn viime kerralla, joten sitä ei avattu. Avaa se painikkeella AVAA.
+TUTORIAL: no lesson running	TUTORIAL: ei oppituntia käynnissä
+TUTORIAL: expected START, SHOWME, SKIP, STEP <n>, RESTART, EXIT, STATUS or SCREENS	TUTORIAL: odotetaan START, SHOWME, SKIP, STEP <n>, RESTART, EXIT, STATUS tai SCREENS

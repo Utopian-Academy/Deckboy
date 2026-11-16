@@ -4665,3 +4665,5 @@ listens to the live input	hört auf den Live-Eingang
 ~ cannot open the live input: {1}	~ kann den Live-Eingang nicht öffnen: {1}
 listens to the live input while one is open, else the playlist	hört auf den Live-Eingang, solange einer offen ist, sonst auf die Playlist
 {1} closed Deckboy last time, so it was not opened. Open it from OPEN.	{1} hat Deckboy zuletzt geschlossen, daher wurde es nicht geöffnet. Öffne es über ÖFFNEN.
+TUTORIAL: no lesson running	TUTORIAL: keine Lektion läuft
+TUTORIAL: expected START, SHOWME, SKIP, STEP <n>, RESTART, EXIT, STATUS or SCREENS	TUTORIAL: erwartet START, SHOWME, SKIP, STEP <n>, RESTART, EXIT, STATUS oder SCREENS

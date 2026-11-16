@@ -4693,3 +4693,5 @@ listens to the live input	聆聽即時輸入
 ~ cannot open the live input: {1}	~ 無法開啟即時輸入：{1}
 listens to the live input while one is open, else the playlist	有即時輸入開啟時聆聽即時輸入，否則聆聽播放清單
 {1} closed Deckboy last time, so it was not opened. Open it from OPEN.	{1} 上次關閉了 Deckboy，因此沒有開啟。可從 開啟 重新開啟。
+TUTORIAL: no lesson running	TUTORIAL：沒有正在執行的課程
+TUTORIAL: expected START, SHOWME, SKIP, STEP <n>, RESTART, EXIT, STATUS or SCREENS	TUTORIAL：應為 START、SHOWME、SKIP、STEP <n>、RESTART、EXIT、STATUS 或 SCREENS

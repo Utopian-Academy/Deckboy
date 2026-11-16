@@ -4690,3 +4690,5 @@ listens to the live input	ag èisteachd ris an ion-chur beò
 ~ cannot open the live input: {1}	~ cha ghabh an t-ion-chur beò fhosgladh: {1}
 listens to the live input while one is open, else the playlist	ag èisteachd ris an ion-chur beò fhad ’s a tha fear fosgailte, ris an liosta ma tha e dùinte
 {1} closed Deckboy last time, so it was not opened. Open it from OPEN.	Dhùin {1} Deckboy an turas mu dheireadh, agus mar sin cha deach fhosgladh. Fosgail e le FOSGAIL.
+TUTORIAL: no lesson running	TUTORIAL: chan eil leasan a' ruith
+TUTORIAL: expected START, SHOWME, SKIP, STEP <n>, RESTART, EXIT, STATUS or SCREENS	TUTORIAL: tha dùil ri START, SHOWME, SKIP, STEP <n>, RESTART, EXIT, STATUS no SCREENS

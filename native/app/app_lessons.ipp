@@ -3350,6 +3350,23 @@
   // ── Running one ──────────────────────────────────────────────────────────
 
   // Starts a lesson, or says why not.
+  // RESTART on a lesson card (James, 2026-11-16: "an option to restart a
+  // lesson would be great"): leave it, forget the step it was at, and begin it
+  // again, which builds a fresh practice show (beginLesson rebuilds whenever
+  // there is no step to resume).
+  void restartLesson() {
+    if (!tutorial_.active || tutorial_.lesson <= 0) return;
+    const int index = tutorial_.lesson - 1;
+    const LessonDef* def = lessonDef(index);
+    if (!def) return;
+    const std::string id = def->id;
+    endTutorial(false);
+    LessonsProgress p = readLessonsProgress();
+    p.at.erase(id);
+    writeLessonsProgress(p);
+    beginLesson(index);
+  }
+
   bool beginLesson(int index, std::string* why = nullptr) {
     auto refuse = [&](const std::string& reason) {
       if (why) *why = reason;

@@ -4696,3 +4696,5 @@ listens to the live input	слушает живой вход
 ~ cannot open the live input: {1}	~ не удалось открыть живой вход: {1}
 listens to the live input while one is open, else the playlist	слушает живой вход, пока он открыт, иначе плейлист
 {1} closed Deckboy last time, so it was not opened. Open it from OPEN.	{1} закрыл(а) Deckboy в прошлый раз, поэтому он не был открыт. Откройте его кнопкой ОТКРЫТЬ.
+TUTORIAL: no lesson running	TUTORIAL: ни один урок не работает
+TUTORIAL: expected START, SHOWME, SKIP, STEP <n>, RESTART, EXIT, STATUS or SCREENS	TUTORIAL: ожидается START, SHOWME, SKIP, STEP <n>, RESTART, EXIT, STATUS или SCREENS

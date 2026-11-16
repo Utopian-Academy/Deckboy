@@ -4696,3 +4696,5 @@ listens to the live input	گوێ لە هاتنی ڕاستەوخۆ دەگرێت
 ~ cannot open the live input: {1}	~ ناتوانێت هاتنی ڕاستەوخۆ بکاتەوە: {1}
 listens to the live input while one is open, else the playlist	گوێ لە هاتنی ڕاستەوخۆ دەگرێت کاتێک یەکێک کرابێتەوە، گەرنا لیستی لێدان
 {1} closed Deckboy last time, so it was not opened. Open it from OPEN.	{1} دوایین جار Deckboy ی داخست، بۆیە نەکرایەوە. لە کردنەوە بیکەرەوە.
+TUTORIAL: no lesson running	TUTORIAL: هیچ وانەیەک لە کاردا نییە
+TUTORIAL: expected START, SHOWME, SKIP, STEP <n>, RESTART, EXIT, STATUS or SCREENS	TUTORIAL: چاوەڕوانکراو: START, SHOWME, SKIP, STEP <n>, RESTART, EXIT, STATUS یان SCREENS

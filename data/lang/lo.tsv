@@ -4678,3 +4678,5 @@ listens to the live input	ຟັງສຽງຂາເຂົ້າສົດ
 ~ cannot open the live input: {1}	~ ເປີດຂາເຂົ້າສົດບໍ່ໄດ້: {1}
 listens to the live input while one is open, else the playlist	ຟັງສຽງຂາເຂົ້າສົດເມື່ອເປີດຢູ່, ບໍ່ດັ່ງນັ້ນຟັງສຽງ playlist
 {1} closed Deckboy last time, so it was not opened. Open it from OPEN.	{1} ປິດ Deckboy ຄັ້ງຜ່ານມາ, ດັ່ງນັ້ນຈຶ່ງບໍ່ໄດ້ເປີດ. ເປີດມັນຈາກ ເປີດ.
+TUTORIAL: no lesson running	TUTORIAL: ບໍ່ມີບົດຮຽນກຳລັງແລ່ນ
+TUTORIAL: expected START, SHOWME, SKIP, STEP <n>, RESTART, EXIT, STATUS or SCREENS	TUTORIAL: ຕ້ອງການ START, SHOWME, SKIP, STEP <n>, RESTART, EXIT, STATUS ຫຼື SCREENS

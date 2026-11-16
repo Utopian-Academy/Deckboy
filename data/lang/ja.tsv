@@ -4693,3 +4693,5 @@ listens to the live input	ライブ入力の音声に追従
 ~ cannot open the live input: {1}	~ ライブ入力を開けません：{1}
 listens to the live input while one is open, else the playlist	ライブ入力が開いている間はその音声に、なければプレイリストに追従
 {1} closed Deckboy last time, so it was not opened. Open it from OPEN.	前回{1}がDeckboyを閉じたため、開きませんでした。開くから開いてください。
+TUTORIAL: no lesson running	TUTORIAL：実行中のレッスンはありません
+TUTORIAL: expected START, SHOWME, SKIP, STEP <n>, RESTART, EXIT, STATUS or SCREENS	TUTORIAL: 必要な形式: START, SHOWME, SKIP, STEP <n>, RESTART, EXIT, STATUS または SCREENS

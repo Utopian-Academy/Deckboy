@@ -4707,3 +4707,5 @@ listens to the live input	ورودی زنده را می‌شنود
 ~ cannot open the live input: {1}	~ نمی‌تواند ورودی زنده را باز کند: {1}
 listens to the live input while one is open, else the playlist	تا وقتی ورودی زنده‌ای باز است آن را می‌شنود، وگرنه فهرست پخش را
 {1} closed Deckboy last time, so it was not opened. Open it from OPEN.	{1} دفعهٔ قبل Deckboy را بست، برای همین باز نشد. آن را با باز کردن باز کنید.
+TUTORIAL: no lesson running	TUTORIAL: هیچ درسی در حال اجرا نیست
+TUTORIAL: expected START, SHOWME, SKIP, STEP <n>, RESTART, EXIT, STATUS or SCREENS	TUTORIAL: قالب مورد انتظار: START, SHOWME, SKIP, STEP <n>, RESTART, EXIT, STATUS یا SCREENS
