@@ -53,22 +53,36 @@ def main():
 
     env = {"SDL_AUDIO_DRIVER": "dummy", "DECKBOY_HIDE_WINDOWS": "1"}
     with Runtime(args.exe, work / "run", show, extra=("--import", str(mid)), env=env) as db:
-        time.sleep(2)
+        # THE IMPORTED CUE BY ITS ID, wherever it landed. On CI the first cue
+        # of playlist 1 was not it (2026-11-15, twice), and "DECK 1 SELECT 1"
+        # then picked some other cue for 30 seconds. The import selects what
+        # it made, so its id is on the CUEDECK line that names it.
+        where, cues, t0 = None, "", time.monotonic()
+        while where is None and time.monotonic() - t0 < 30.0:
+            cues = db.send("STATUS CUES")
+            for line in cues.splitlines():
+                m = re.match(r'CUEDECK (\d+) .*selected_id="([^"]+)".*selected_name="three_notes"', line)
+                if m:
+                    where = (m.group(1), m.group(2))
+            if where is None:
+                time.sleep(0.5)
+        if where is None:
+            print(cues)
+            print((work / "run" / "app.log").read_text(errors="replace")[-3000:])
+        expect(where is not None, "the imported MIDI file is a cue", "not found in STATUS CUES")
+        if where is None:
+            return 1
+        select = "DECK %s SELECTID %s" % where
         db.send("DECKADD")
         reply = db.send("DECK 2 CHIP ADD NES")
         expect("added NES synth cue" in reply, "CHIP ADD puts a chip synth cue on playlist 2", reply)
         db.send("TAKE")
-        # The import at launch can land after the control port opens: on CI's
-        # slower machines it had not when this ran (2026-11-15). Wait for it.
-        reply, t0 = "", time.monotonic()
-        while time.monotonic() - t0 < 30.0:
-            try:
-                db.send("DECK 1 SELECT 1")
-                reply = db.send("MIDIFILE PORT SYNTH")
-                break
-            except RuntimeError as e:
-                reply = str(e)
-                time.sleep(0.5)
+        db.send(select)
+        try:
+            reply = db.send("MIDIFILE PORT SYNTH")
+        except RuntimeError as e:
+            reply = str(e)
+            print(db.send("STATUS CUES"))
         expect("DECKBOY SYNTH" in reply, "MIDIFILE PORT SYNTH names the destination", reply)
         db.send("TAKE")
         seen, last = [], ""

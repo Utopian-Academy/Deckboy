@@ -26,6 +26,7 @@
 - Companion: `RENDER START <CUE|CUES a-b|OUTPUT> <1080P|4K|OUTPUT> <25|30|50|60> <PRORES|H264|PNG> <file>`, `RENDER STATUS`, `RENDER CANCEL`, `RENDER DIALOG`.
 
 ### Playback
+- Fixed: importing a MIDI file made a sound cue instead of a MIDI file cue wherever the computer's ffmpeg can read MIDI files (ffmpeg-full builds can, and the Windows download carries one).
 - New: **direction** on a video cue: **forward**, **reverse** or **bounce** (there and back, no frame shown twice at the turns). Deckboy makes a reversed or bounced copy of the cue's trimmed range once, in the background, and plays it; until then the cue plays forwards and the row shows how far the copy has got. A new trim makes a new copy. The sound is reversed too. A clip whose every frame is a whole picture (ProRes, HAP, DNxHR, MJPEG, PNG...) gets a lossless copy in seconds, in its own codec; others (H.264, H.265...) are encoded, and choosing reverse says which. Companion: `DIRECTION [FORWARD|REVERSE|BOUNCE|STATUS]`.
 
 ### Deckboy Mini

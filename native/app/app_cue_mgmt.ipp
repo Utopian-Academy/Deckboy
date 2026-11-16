@@ -6287,12 +6287,17 @@
           }
         }
       }
+      const bool midiFile = placeholder.kind == CueKind::MidiFile;
       deck.cues.push_back(std::move(placeholder));
       changed = true;
       addedCount += 1;
 
-      // Queue the probe. pumpProbeQueue starts them a few at a time.
-      enqueueProbe(deckIndex, pathStr);
+      // Queue the probe. pumpProbeQueue starts them a few at a time. Not for a
+      // MIDI file: it was parsed above, and an ffmpeg built with libopenmpt
+      // (ffmpeg-full, which the Windows build ships) reads a .mid as AUDIO, so
+      // the probe turned every MIDI file cue into a sound cue. Found by CI's
+      // MIDI-file check, 2026-11-15; a local ffprobe without it never showed it.
+      if (!midiFile) enqueueProbe(deckIndex, pathStr);
     }
 
     if (!changed) {

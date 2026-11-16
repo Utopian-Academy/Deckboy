@@ -481,7 +481,10 @@
           if (probed && it->deckIndex >= 0 && it->deckIndex < static_cast<int>(project_.decks.size())) {
             Deck& deck = project_.decks[it->deckIndex];
             for (auto& cue : deck.cues) {
-              if (cue.path == it->path && cue.width == 0 && cue.height == 0) {
+              // A MIDI file cue is never a probe's to change: ffmpeg can read
+              // a .mid as audio (importFiles says why).
+              if (cue.path == it->path && cue.width == 0 && cue.height == 0 &&
+                  cue.kind != CueKind::MidiFile) {
                 // Update placeholder with probed metadata
                 cue.duration = probed->duration;
                 cue.width = probed->width;
