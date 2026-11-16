@@ -1,0 +1,58 @@
+# Posts each published release to the Deckboy Discord (James, 2026-11-16).
+# The webhook URL is the repo secret DISCORD_WEBHOOK, added by James; without
+# it the job says so and does nothing. Run it by hand to post one release
+# again: Actions > Discord > Run workflow, with the tag.
+name: Discord
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Release tag to post, e.g. v0.99.429"
+        required: true
+permissions:
+  contents: read
+jobs:
+  post:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Post the release
+        env:
+          WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ github.event.release.tag_name || inputs.tag }}
+          REPO: ${{ github.repository }}
+        shell: bash
+        run: |
+          if [ -z "$WEBHOOK" ]; then
+            echo "No DISCORD_WEBHOOK secret: nothing posted."
+            exit 0
+          fi
+          gh release view "$TAG" --repo "$REPO" --json name,url,body > release.json
+          python3 - <<'EOF'
+          import json, os, re, urllib.request
+          r = json.load(open("release.json"))
+          body = r.get("body") or ""
+          # The first section of the notes, without markdown headings or images.
+          lines = []
+          for line in body.splitlines():
+              if re.match(r"\s*!\[", line) or line.strip().startswith("<"):
+                  continue
+              line = re.sub(r"^#+\s*", "", line)
+              lines.append(line)
+          text = "\n".join(lines).strip()
+          if len(text) > 1500:
+              text = text[:1500].rsplit("\n", 1)[0] + "\n..."
+          payload = {
+              "username": "Deckboy",
+              "content": "**%s is out.** %s" % (r.get("name") or os.environ["TAG"], r["url"]),
+              "embeds": [{"title": r.get("name") or os.environ["TAG"], "url": r["url"],
+                          "description": text, "color": 0x9FB81A}],
+              "allowed_mentions": {"parse": []},
+          }
+          req = urllib.request.Request(os.environ["WEBHOOK"], data=json.dumps(payload).encode(),
+                                       headers={"Content-Type": "application/json", "User-Agent": "Deckboy-release"})
+          with urllib.request.urlopen(req, timeout=30) as resp:
+              print("Discord answered", resp.status)
+          EOF
