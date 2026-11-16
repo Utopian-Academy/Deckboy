@@ -52,6 +52,10 @@ struct VoiceParams {
   double melody = 0.25;       // how far the pitch roams, in octaves
   double swoop = 0.0;         // 0..1: the reference's silly slides between syllables
   double level = 0.9;
+  // Sung (sing()): the pitch follows every target, consonants too -- each
+  // carries its note -- so a short note after a leap still lands. Speech moves
+  // its pitch on vowels only, its consonants carrying none.
+  bool sung = false;
 };
 
 // One phoneme's mouth.
@@ -613,7 +617,14 @@ inline std::string onomatopoeia(const std::string& name, const std::string& text
 struct Spoken {
   std::vector<float> samples;   // mono
   std::vector<float> mouth;     // one per 1/60 s
+  // The tract's shape, one frame per 1/60 s (as `mouth`): `tractSections`
+  // diameters from the glottis to the lips, then the velum's opening (0.01
+  // shut .. 0.4 open). What the Voice source's TRACT view draws.
+  std::vector<float> tract;
+  int tractSections = 0;
 };
+
+inline Spoken voiceTargets(const std::vector<Target>& ph, const VoiceParams& vp, int rate);
 
 inline Spoken speak(const std::string& text, const VoiceParams& vp, int rate = 48000) {
   using namespace detail;
@@ -643,6 +654,15 @@ inline Spoken speak(const std::string& text, const VoiceParams& vp, int rate = 4
     }
   }
 
+  return voiceTargets(ph, vp, rate);
+}
+
+// The vocal tract run over a list of mouth targets: what speak() and sing()
+// share. The level is set by the loud part, then a soft limit and short fades.
+inline Spoken voiceTargets(const std::vector<Target>& ph, const VoiceParams& vp, int rate) {
+  using namespace detail;
+  Spoken out;
+  if (ph.empty()) return out;
   double total = 0;
   for (const Target& t : ph) total += t.ms;
   const int samples = static_cast<int>((total + 250.0) * rate / 1000.0);
@@ -688,7 +708,9 @@ inline Spoken speak(const std::string& text, const VoiceParams& vp, int rate = 4
     hiss += (cur.hiss - hiss) * (1.0 - std::exp(-dt / 0.008));
     const double wantTense = cur.tenseness >= 0 ? cur.tenseness : vp.tenseness;
     tense += (wantTense - tense) * k;
-    if (cur.vowel) pitchOct += (cur.pitch - pitchOct) * (1.0 - std::exp(-dt / (0.03 + 0.12 * vp.swoop)));
+    if (cur.vowel || (vp.sung && cur.voice > 0.0)) {
+      pitchOct += (cur.pitch - pitchOct) * (1.0 - std::exp(-dt / (0.03 + 0.12 * vp.swoop)));
+    }
 
     vibPhase += dt * 6.0;
     const double vib = 1.0 + vp.vibrato * std::sin(2.0 * 3.141592653589793 * vibPhase)
@@ -732,6 +754,9 @@ inline Spoken speak(const std::string& text, const VoiceParams& vp, int rate = 4
         for (int s = tract.lipStart; s < tract.n; ++s) open += tract.diameter[s];
         open /= std::max(1, tract.n - tract.lipStart);
         out.mouth.push_back(static_cast<float>(std::clamp(open / 1.5 * std::min(1.0, voice * 2.0 + hiss), 0.0, 1.0)));
+        out.tractSections = tract.n;
+        for (int s = 0; s < tract.n; ++s) out.tract.push_back(static_cast<float>(tract.diameter[s]));
+        out.tract.push_back(static_cast<float>(tract.noseD[0]));
       }
     }
   }
@@ -759,6 +784,81 @@ inline Spoken speak(const std::string& text, const VoiceParams& vp, int rate = 4
     out.samples[i] = static_cast<float>(std::tanh(raw[i] * gain) * f * 0.95);
   }
   return out;
+}
+
+// ── Singing ─────────────────────────────────────────────────────────────
+// One sung syllable: its letters, where it starts and how long it is held,
+// in seconds from the start of the take, and its note. hz <= 0 is a rest.
+struct SungNote {
+  std::string text;
+  double start = 0.0;
+  double length = 0.0;
+  double hz = 0.0;
+};
+
+// A line sung on given notes, as one take, so the voice glides from note to
+// note. Each syllable's vowels take its note and stretch to fill its length;
+// its consonants keep their own time (squeezed if the note is short), so
+// every syllable starts where the score puts it. The speaking pitch line and
+// its slides are left out: the score is the melody.
+inline Spoken sing(const std::vector<SungNote>& notes, const VoiceParams& voice, int rate = 48000) {
+  using namespace detail;
+  VoiceParams vp = voice;
+  vp.swoop = std::min(vp.swoop, 0.05);   // land on the note, do not slide past it
+  vp.sung = true;
+  std::vector<Target> ph;
+  double placedMs = 0.0;
+  auto rest = [&](double ms) {
+    if (ms <= 0.5) return;
+    Target r;
+    r.voice = 0.0;
+    r.ms = ms;
+    r.pitch = ph.empty() ? 0.0 : ph.back().pitch;
+    ph.push_back(r);
+    placedMs += ms;
+  };
+  for (const SungNote& n : notes) {
+    const double startMs = n.start * 1000.0;
+    const double lenMs = std::max(40.0, n.length * 1000.0);
+    rest(startMs - placedMs);
+    if (n.hz <= 0.0 || n.text.empty()) {
+      rest(lenMs);
+      continue;
+    }
+    std::vector<Target> syl = phonemes(romanize(n.text), 1.0);
+    // phonemes() ends a phrase with a rest; a sung syllable is held instead.
+    while (!syl.empty() && !syl.back().vowel && syl.back().voice == 0.0 && syl.back().conIndex < 0) syl.pop_back();
+    if (syl.empty()) {
+      rest(lenMs);
+      continue;
+    }
+    double consonants = 0.0;
+    int vowels = 0;
+    for (const Target& s : syl) {
+      if (s.vowel) ++vowels; else consonants += s.ms;
+    }
+    const double room = vowels > 0 ? lenMs * 0.55 : lenMs;   // the vowel gets at least 45%
+    if (consonants > room) {
+      for (Target& s : syl) if (!s.vowel) s.ms *= room / consonants;
+      consonants = room;
+    }
+    const double eachVowel = vowels > 0 ? (lenMs - consonants) / vowels : 0.0;
+    const double octave = std::log2(n.hz / std::max(1.0, vp.pitchHz));
+    double used = 0.0;
+    for (Target& s : syl) {
+      if (s.vowel) s.ms = eachVowel;
+      s.pitch = octave;
+      used += s.ms;
+    }
+    if (vowels == 0 && used > 0.0) {   // a hum: stretch the whole syllable
+      for (Target& s : syl) s.ms *= lenMs / used;
+    }
+    for (const Target& s : syl) {
+      ph.push_back(s);
+      placedMs += s.ms;
+    }
+  }
+  return voiceTargets(ph, vp, rate);
 }
 
 // One mouth shape held, for measuring the formants.

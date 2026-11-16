@@ -2542,7 +2542,7 @@ Project loadProject(const fs::path& projectFile,
         cue.tone.levelDbfs = std::clamp(safeDouble(fields, tb + 24, -18.0), -60.0, -1.0);
         cue.tone.channel = std::clamp(safeInt(fields, tb + 25, -1), -1, 15);
         cue.tone.visual = static_cast<ToneVisual>(
-          std::clamp(safeInt(fields, tb + 26, 1), 0, 3));
+          std::clamp(safeInt(fields, tb + 26, 1), 0, 4));
         cue.tone.visualEnabled = safeBool(fields, tb + 27, true);
         // Chip voice. Appended after the tone block; a show saved before the
         // synth existed takes the defaults. This is the THIRD time a cue field

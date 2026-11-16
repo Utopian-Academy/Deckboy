@@ -106,6 +106,8 @@ struct DrmPrimeImporterDeleter { void operator()(DrmPrimeImporter* importer) con
 struct VoiceRender {
   std::atomic<bool> ready{false};
   std::vector<float> samples;   // mono, kAudioRate, peak normalised to 1
+  std::vector<float> tract;     // the tract's shape, 60 a second (voice::Spoken::tract)
+  int tractSections = 0;
 };
 
 class MediaEngine {

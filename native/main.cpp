@@ -103,6 +103,7 @@
 #include "engine/media_engine.hpp"
 #include "core/isf_cue.hpp"
 #include "core/sha256.hpp"
+#include "core/caroline_song.hpp"
 #include "engine/stage_timings.hpp"
 #include "engine/hap_decoder.hpp"
 #include "engine/gpu_readback.hpp"
@@ -4475,6 +4476,10 @@ class App {
       }
       SDL_DestroyAudioStream(uiAudioStream_);
       uiAudioStream_ = nullptr;
+    }
+    if (songStream_) {
+      SDL_DestroyAudioStream(songStream_);
+      songStream_ = nullptr;
     }
     releaseFonts();
     if (thumbnailThread_.joinable()) {

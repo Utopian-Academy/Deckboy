@@ -428,6 +428,7 @@
     // position -- so it scrubs, pauses and loops like everything else.
     serviceMidiFileCues();
     serviceSealedCheck();
+    serviceCarolineSong();
     syncDeckPreviewTextures();
     if (engineCueSyncPending_) {
       engineCueSyncPending_ = false;

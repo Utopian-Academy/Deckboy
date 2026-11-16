@@ -3353,7 +3353,7 @@
       // files have their own paths. Keep the namespace stable on resume and
       // separate for each state directory (including isolated test runs).
       const std::string ndiNamespace = "Deckboy Lesson - " + std::string(def->id) + " - " +
-                                       std::to_string(std::hash<fs::path> {}(practice));
+                                       std::to_string(fs::hash_value(practice));
       for (std::size_t i = 0; i < project_.outputs.size(); ++i) {
         OutputTarget& output = project_.outputs[i];
         output.ndiSourceName = ndiNamespace + " - " + std::to_string(i + 1);
@@ -3710,6 +3710,11 @@
         return;
       }
       setLessonVoice(v);
+    } else if (arg == "SONG") {
+      // Caroline's song in the Datamosh lesson: playing or why not, where, and
+      // how far from the reel's own clock (tools/check_lessons.py --song).
+      remoteCommandDetail_ = carolineSongStatus();
+      return;
     } else if (arg != "LIST" && arg != "STATUS") {
       failRemoteCommand("LESSONS: expected OPEN, CLOSE, START <id>, TRACK PIXEL|VIDEO, VOICE CHIP|WORDS|SOUNDS|OFF, LIST or STATUS");
       return;

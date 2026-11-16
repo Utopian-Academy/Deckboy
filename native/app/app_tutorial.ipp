@@ -2135,3 +2135,119 @@
     settingsOpen_ = false;
     showSplashOverlay_ = true;
   }
+
+  // ── Caroline sings (the Datamosh lesson's music video) ──────────────────
+  // James, 2026-11-15: "if caroline polkadot sang over the video ... i mean
+  // live WITH the video ... make sure she sings no matter what voice type is
+  // selected". Her song (core/caroline_song.hpp) is made once per voice type
+  // on a worker -- CHIP a pulse, WORDS the lyrics, SOUNDS her own syllables --
+  // and played on a stream of its own on the UI device, so a spoken line never
+  // cuts it. It follows the reel's own clock: it plays only while the reel is
+  // live and playing, and is put back in step when it is more than 60 ms out
+  // (a seek, a retake, a pause). OFF is silent, as for her lines.
+  struct SongTake {
+    std::atomic<bool> ready {false};
+    std::vector<std::int16_t> pcm;   // stereo at kAudioRate, from the reel's start
+  };
+  std::shared_ptr<SongTake> songTakes_[4];   // by project_.lessonVoice
+  SDL_AudioStream* songStream_ = nullptr;
+  long long songNext_ = -1;   // the next frame of the take to queue; -1 when not playing
+  int songVoice_ = -1;
+  double songDriftMs_ = 0.0;
+  std::string songWhy_ = "not in the Datamosh lesson";
+
+  void stopCarolineSong(const char* why) {
+    if (songStream_ && songNext_ >= 0) SDL_ClearAudioStream(songStream_);
+    songNext_ = -1;
+    songWhy_ = why;
+  }
+
+  std::shared_ptr<SongTake> carolineTake(int voiceType) {
+    std::shared_ptr<SongTake>& slot = songTakes_[voiceType & 3];
+    if (!slot) {
+      slot = std::make_shared<SongTake>();
+      std::shared_ptr<SongTake> out = slot;
+      std::thread([out, voiceType] {
+        std::vector<float> mono;
+        if (voiceType == 0) {
+          mono = deckboy::song::chipSing(deckboy::song::ascendimonia(false), kAudioRate);
+        } else {
+          mono = deckboy::voice::sing(deckboy::song::ascendimonia(voiceType == 3),
+                                      deckboy::voice::castVoice("CAROLINE POLKADOT"), kAudioRate).samples;
+        }
+        out->pcm.resize(mono.size() * 2u);
+        for (std::size_t i = 0; i < mono.size(); ++i) {
+          // 0.8: a lead vocal over a loud master (the theme peaks at -1 dBFS,
+          // -13.5 dB mean); her spoken lines' 0.5 left it ten dB under.
+          const auto s = static_cast<std::int16_t>(std::lround(std::clamp(mono[i] * 0.8f, -1.0f, 1.0f) * 32767.0f));
+          out->pcm[i * 2u] = out->pcm[i * 2u + 1u] = s;
+        }
+        out->ready.store(true);
+      }).detach();
+    }
+    return slot;
+  }
+
+  void serviceCarolineSong() {
+    const LessonDef* def = tutorial_.active && tutorial_.lesson > 0 ? lessonDef(tutorial_.lesson - 1) : nullptr;
+    if (!def || std::string(def->id) != "datamosh") return stopCarolineSong("not in the Datamosh lesson");
+    // Made as the lesson opens, so it is ready by the time the video plays.
+    if (project_.lessonVoice != 2) carolineTake(project_.lessonVoice);
+    const MediaEngine* engine = nullptr;
+    for (int d = 0; d < static_cast<int>(project_.decks.size()) && !engine; ++d) {
+      const Deck& deck = project_.decks[static_cast<std::size_t>(d)];
+      if (deck.activeIndex < 0 || deck.activeIndex >= static_cast<int>(deck.cues.size())) continue;
+      const Cue& cue = deck.cues[static_cast<std::size_t>(deck.activeIndex)];
+      if (cue.kind == CueKind::Video && cue.path.find("mosh_reel") != std::string::npos) engine = mediaEngineForDeck(d);
+    }
+    if (!engine) return stopCarolineSong("the music video is not live");
+    if (engine->state() != TransportState::Playing) return stopCarolineSong("the music video is not playing");
+    const int voiceType = project_.lessonVoice;
+    if (voiceType == 2) return stopCarolineSong("lesson voices are OFF");
+    if (!project_.uiSoundsEnabled) return stopCarolineSong("UI sounds are off");
+    std::shared_ptr<SongTake> take = carolineTake(voiceType);
+    if (!take->ready.load()) return stopCarolineSong("her song is still being made");
+    if (!songStream_) {
+      if (!ensureUiAudioDevice()) return stopCarolineSong("no sound device");
+      SDL_AudioSpec spec {};
+      spec.freq = kAudioRate;
+      spec.format = kAudioFormat;
+      spec.channels = kAudioChannels;
+      songStream_ = SDL_OpenAudioDeviceStream(systemDefaultPlaybackTarget(), &spec, nullptr, nullptr);
+      if (!songStream_) {
+        songStream_ = SDL_OpenAudioDeviceStream(SDL_AUDIO_DEVICE_DEFAULT_PLAYBACK, &spec, nullptr, nullptr);
+      }
+      if (!songStream_) return stopCarolineSong("no sound device");
+      deckboySetAudioPaused(songStream_, false);
+    }
+    if (voiceType != songVoice_) {
+      stopCarolineSong("changing voice");
+      songVoice_ = voiceType;
+    }
+    const long long frames = static_cast<long long>(take->pcm.size() / 2u);
+    const long long want = static_cast<long long>(engine->position() * kAudioRate);
+    const long long queued = SDL_GetAudioStreamQueued(songStream_) / 4;   // stereo 16-bit frames
+    const long long playing = songNext_ - queued;
+    songDriftMs_ = songNext_ < 0 ? 0.0 : (playing - want) * 1000.0 / kAudioRate;
+    if (songNext_ < 0 || std::fabs(songDriftMs_) > 60.0) {
+      SDL_ClearAudioStream(songStream_);
+      songNext_ = std::clamp<long long>(want, 0, frames);
+      songDriftMs_ = 0.0;
+    }
+    songWhy_.clear();
+    long long have = SDL_GetAudioStreamQueued(songStream_) / 4;
+    while (have < kAudioRate * 15 / 100 && songNext_ < frames) {
+      const long long n = std::min<long long>(kAudioRate / 20, frames - songNext_);
+      SDL_PutAudioStreamData(songStream_, take->pcm.data() + songNext_ * 2, static_cast<int>(n * 4));
+      songNext_ += n;
+      have += n;
+    }
+  }
+
+  std::string carolineSongStatus() const {
+    if (!songWhy_.empty()) return "song=off why=\"" + songWhy_ + "\"";
+    char buf[160];
+    std::snprintf(buf, sizeof(buf), "song=playing voice=%s at=%.2f drift_ms=%.1f",
+                  lessonVoiceName(songVoice_), static_cast<double>(songNext_) / kAudioRate, songDriftMs_);
+    return buf;
+  }

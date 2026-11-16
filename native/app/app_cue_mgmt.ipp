@@ -3649,6 +3649,7 @@
       case ToneVisual::Scope:     return "scope";
       case ToneVisual::Lissajous: return "lissajous";
       case ToneVisual::Spectrum:  return "spectrum";
+      case ToneVisual::Tract:     return "tract";
       default:                    return "off";
     }
   }
@@ -3833,8 +3834,9 @@
   void cycleToneVisual() {
     Cue* cue = selectedToneCueMutable();
     if (!cue) return;
-    cue->tone.visual = static_cast<ToneVisual>(
-      (static_cast<int>(cue->tone.visual) + 1) % 4);
+    // TRACT draws a voice's mouth, so only a Voice cue steps through it.
+    const int count = cue->tone.waveform == ToneWaveform::Voice ? 5 : 4;
+    cue->tone.visual = static_cast<ToneVisual>((static_cast<int>(cue->tone.visual) + 1) % count);
     markProjectDirty();
     triggerToast(std::string("display: ") + toneVisualLabel(cue->tone.visual));
     playUiSound(UiSoundEffect::Toggle);

@@ -192,7 +192,13 @@ The Experimental voice is new and rough at the edges. Its model is Pink
 Trombone's (Neil Thapen, MIT licence). The choice is kept in the show and
 carries into every lesson.
 
-Over the network: `LESSONS [OPEN|CLOSE|START <id>|TRACK PIXEL|VIDEO|VOICE CHIP|WORDS|SOUNDS|OFF|LIST]`; the
+In the Datamosh lesson, Caroline Polkadot sings STAIRLIFT's song with the music
+video while it plays, in time with it: the lyrics with **EXPERIMENTAL: WORDS**,
+her own syllables with **SOUNDS**, the tune on her chip voice with **CHIP**, and
+nothing with **OFF**. She follows the video through a pause, a seek and a retake.
+`LESSONS SONG` says whether she is singing, and if not, why.
+
+Over the network: `LESSONS [OPEN|CLOSE|START <id>|TRACK PIXEL|VIDEO|VOICE CHIP|WORDS|SOUNDS|OFF|SONG|LIST]`; the
 ids are `effects`, `draw`, `masks`, `warp`, `transitions`, `sound`, `datamosh`, `scopes`, `outside`, `bugswat`, `layers`, `go`, `words`, `timers`, `presets`, `wrong`, `road` and `multiview`. A running lesson is
 driven with the `TUTORIAL` verbs.
 
@@ -303,6 +309,9 @@ retake of the same words in the same voice starts at once. **level** is the
 speech level: the peak sits 12 dB above it, so the default -18 dBFS peaks near
 -6 dBFS, a normal speaking level. It never goes above -1 dBFS. The audio
 effects chain works on it as on other tones. The cue is named from its words.
+Its **display** can be **TRACT**: the vocal tract itself, drawn as Pink Trombone
+draws it (throat, tongue and lips in one curved tube, the nose above), moving
+with the speech as it plays.
 Companion: `VOICE SAY <text>` (sets the selected Voice cue, or adds one),
 `VOICE CHARACTER <name>|CUSTOM`, `VOICE MODE WORDS|SOUNDS`, `VOICE PITCH <Hz>`,
 `VOICE SIZE <0.8-1.25>`, `VOICE BREATH <0-100>` and `VOICE STATUS`.

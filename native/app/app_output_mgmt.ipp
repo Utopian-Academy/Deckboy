@@ -6527,6 +6527,11 @@
         uiAudioStream_ = nullptr;
         if (ensureUiAudioDevice()) {
           SDL_DestroyAudioStream(previous);
+          if (songStream_) {   // Caroline's song follows, reopened on its next tick
+            SDL_DestroyAudioStream(songStream_);
+            songStream_ = nullptr;
+            songNext_ = -1;
+          }
         } else {
           uiAudioStream_ = previous;
         }

@@ -12185,6 +12185,8 @@ std::shared_ptr<VoiceRender> voiceRenderFor(const ToneSettings& t) {
       for (float& v : spoken.samples) v *= scale;
     }
     job->samples = std::move(spoken.samples);
+    job->tract = std::move(spoken.tract);
+    job->tractSections = spoken.tractSections;
     job->ready.store(true, std::memory_order_release);
   }).detach();
   return job;
@@ -12507,7 +12509,59 @@ void MediaEngine::rebuildToneFrame(const Cue& cue) {
   std::vector<std::int16_t> scopeL, scopeR;
   std::size_t scopePos = 0;
   const bool haveScope = copyScopeSamples(scopeL, scopeR, scopePos);
-  if (cue.tone.visualEnabled && cue.tone.visual != ToneVisual::None && haveScope) {
+  // TRACT: the vocal tract a Voice cue is speaking with, drawn as Pink
+  // Trombone draws it -- a tube curving from the glottis (lower left) up over
+  // the palate to the lips (right). The outer wall stays put; the inner wall
+  // is the tongue and lips, moving with the tract's diameters at the cue's
+  // own playback position; the nose branches off the top where the velum
+  // opens. Air is drawn light, the walls in the scope's green.
+  if (cue.tone.visualEnabled && cue.tone.visual == ToneVisual::Tract && cue.tone.waveform == ToneWaveform::Voice &&
+      voiceJob_ && voiceJob_->ready.load(std::memory_order_acquire) && voiceJob_->tractSections > 0) {
+    const int sections = voiceJob_->tractSections;
+    const std::size_t stride = static_cast<std::size_t>(sections) + 1u;
+    const std::size_t frames = voiceJob_->tract.size() / stride;
+    if (frames > 0) {
+      const std::size_t at = std::min(frames - 1, static_cast<std::size_t>(std::max(0.0, position()) * 60.0));
+      const float* shape = voiceJob_->tract.data() + at * stride;
+      const double velum = shape[sections];
+      const int cx = W / 2;
+      const int cy = H * 52 / 100;
+      const double outer = H * 0.34;
+      const double scale = outer * 0.2;   // diameter units (0 .. ~3.5) to pixels
+      const double from = 3.141592653589793 * 1.18, to = -3.141592653589793 * 0.06;
+      const int dot = std::max(2, W / 360);
+      const SDL_Color air {200, 255, 215, 255};
+      auto plot = [&](double radius, double angle, SDL_Color ink, int size) {
+        const int x = cx + static_cast<int>(std::cos(angle) * radius);
+        const int y = cy - static_cast<int>(std::sin(angle) * radius);
+        fillTimerRect(frame, x - size / 2, y - size / 2, size, size, ink);
+      };
+      const int steps = sections * 6;
+      for (int s = 0; s <= steps; ++s) {
+        const double u = static_cast<double>(s) / steps;
+        const double angle = from + (to - from) * u;
+        const double pos = u * (sections - 1);
+        const int i0 = std::min(sections - 1, static_cast<int>(pos));
+        const int i1 = std::min(sections - 1, i0 + 1);
+        const double d = shape[i0] + (shape[i1] - shape[i0]) * (pos - i0);
+        const double inner = outer - std::max(0.0, d) * scale;
+        for (double r = inner; r < outer; r += dot) plot(r, angle, air, dot);   // the air
+        plot(outer, angle, green, dot * 2);   // the palate and the back of the throat
+        plot(inner, angle, green, dot * 2);   // the tongue, and the lips at the end
+      }
+      // The nose: a short tube off the top, as wide as the velum is open.
+      const double noseAngle = from + (to - from) * 0.55;
+      const double open = std::clamp((velum - 0.01) / 0.39, 0.0, 1.0);
+      for (int k = 0; k < 6; ++k) {   // short: the title sits just above
+        const double r = outer + k * dot;
+        const double a = noseAngle - k * 0.006;
+        for (double across = 0; across < open * outer * 0.12; across += dot) plot(r, a - across / (r + 1.0), air, dot);
+        plot(r, a, green, dot * 2);
+        plot(r, a - (open * outer * 0.12 + dot) / (r + 1.0), green, dot * 2);
+      }
+    }
+  } else if (cue.tone.visualEnabled && cue.tone.visual != ToneVisual::None && cue.tone.visual != ToneVisual::Tract &&
+             haveScope) {
     const int plotH = H / 3;
     const int plotY = H / 2 - plotH / 2;
     const std::size_t n = scopeL.size();
@@ -12571,9 +12625,19 @@ void MediaEngine::rebuildToneFrame(const Cue& cue) {
     }
   }
 
-  drawLine(name,      H / 2 - cell * 22, amber, 3);
-  drawLine(levelText, H / 2 + cell * 2,  white, 2);
-  drawLine(detail,    H / 2 + cell * 20, white, 2);
+  // With TRACT the mouth is the picture: the card's words go to the top and
+  // bottom edges, smaller, instead of across the middle of it.
+  const bool tractShown = cue.tone.visualEnabled && cue.tone.visual == ToneVisual::Tract &&
+                          cue.tone.waveform == ToneWaveform::Voice;
+  if (tractShown) {
+    drawLine(name,      cell * 3,       amber, 1);
+    drawLine(levelText, H - cell * 19,  white, 1);
+    drawLine(detail,    H - cell * 10,  white, 1);
+  } else {
+    drawLine(name,      H / 2 - cell * 22, amber, 3);
+    drawLine(levelText, H / 2 + cell * 2,  white, 2);
+    drawLine(detail,    H / 2 + cell * 20, white, 2);
+  }
 
   displayFrame_ = std::move(frame);
   displayFrame_->index = ++displayFrameSerial_;

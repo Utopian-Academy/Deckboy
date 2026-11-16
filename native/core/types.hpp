@@ -977,6 +977,7 @@ enum class ToneVisual {
   Scope,      // waveform against time
   Lissajous,  // channel 1 against channel 2: phase and polarity at a glance
   Spectrum,   // third-octave bars via a Goertzel bank
+  Tract,      // a Voice cue: the vocal tract speaking, as Pink Trombone draws it
 };
 
 // What an AUDIO cue puts on the screen while it plays.

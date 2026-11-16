@@ -253,6 +253,28 @@ def run(exe, work, keep):
         note("...but one built by an older Deckboy starts again on step 1", step == 1, reply)
         db.send("TUTORIAL EXIT")
 
+        # Caroline sings with the music video, in every voice type but OFF.
+        print("  Caroline sings with the music video")
+        db.send("LESSONS START datamosh")
+        walk(db, "datamosh", work, None, stop_at=3)   # WATCH THE CUTS: the reel is taken
+        db.send("TUTORIAL SHOWME")
+        for voice in ("CHIP", "WORDS", "SOUNDS"):
+            db.send("LESSONS VOICE " + voice)
+            reply = ""
+            deadline = time.monotonic() + 30
+            while time.monotonic() < deadline:
+                reply = db.send("LESSONS SONG")
+                if "song=playing" in reply:
+                    break
+                time.sleep(0.5)
+            note("she sings in %s" % voice, "song=playing" in reply, reply)
+        db.send("LESSONS VOICE OFF")
+        time.sleep(0.6)
+        reply = db.send("LESSONS SONG")
+        note("...and is quiet with lesson voices OFF", "OFF" in reply and "song=off" in reply, reply)
+        db.send("LESSONS VOICE CHIP")
+        db.send("TUTORIAL EXIT")
+
         for bad in ("LESSONS START banana", "LESSONS TRACK DOG", "LESSONS WOBBLE"):
             try:
                 reply = db.send(bad)

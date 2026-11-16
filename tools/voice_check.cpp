@@ -7,6 +7,7 @@
 // one line per character (<name>.wav).
 
 #include "core/vocal_tract.hpp"
+#include "core/caroline_song.hpp"
 
 #include <cstdio>
 #include <cstdlib>
@@ -68,8 +69,54 @@ int main(int argc, char** argv) {
     writeWav(argv[4], speak(argv[3], vp, rate).samples, rate);
     return 0;
   }
+  // --sing <WORDS|SOUNDS|CHIP> <out.wav>: Caroline's song for the Datamosh
+  // reel, the whole 34 s timeline (silence where she rests), for listening
+  // and for mixing over the reel.
+  if (argc == 4 && std::strcmp(argv[1], "--sing") == 0) {
+    const std::string how = argv[2];
+    if (how == "CHIP") {
+      writeWav(argv[3], deckboy::song::chipSing(deckboy::song::ascendimonia(false), rate), rate);
+    } else {
+      writeWav(argv[3], sing(deckboy::song::ascendimonia(how == "SOUNDS"), castVoice("CAROLINE POLKADOT"), rate).samples,
+               rate);
+    }
+    return 0;
+  }
   const std::string out = argc > 1 ? argv[1] : "";
   int failures = 0;
+
+  // SINGING lands on the score: every note of the song, sung, measured at its
+  // middle by autocorrelation, within 50 cents of its note (the glide in
+  // from the last note included).
+  {
+    const auto notes = deckboy::song::ascendimonia(false);
+    const Spoken sung = sing(notes, castVoice("CAROLINE POLKADOT"), rate);
+    double worst = 0.0;
+    int measured = 0;
+    for (const auto& n : notes) {
+      if (n.length < 0.25) continue;   // short notes are mostly consonant
+      // Over most of a vibrato cycle (6 Hz), so the vibrato averages out.
+      const int win = std::min(rate * 17 / 100, static_cast<int>(n.length * rate * 0.6));
+      const int mid = static_cast<int>((n.start + n.length * 0.55) * rate) - win / 2;
+      const int minLag = static_cast<int>(rate / (n.hz * 1.5)), maxLag = static_cast<int>(rate / (n.hz / 1.5));
+      if (mid + win + maxLag >= static_cast<int>(sung.samples.size())) continue;
+      int best = minLag;
+      double bestR = -1e9;
+      for (int lag = minLag; lag <= maxLag; ++lag) {
+        double r = 0.0;
+        for (int k = 0; k < win; ++k) r += sung.samples[mid + k] * sung.samples[mid + k + lag];
+        if (r > bestR) { bestR = r; best = lag; }
+      }
+      const double hz = static_cast<double>(rate) / best;
+      const double cents = std::fabs(1200.0 * std::log2(hz / n.hz));
+      worst = std::max(worst, cents);
+      ++measured;
+    }
+    const bool ok = measured >= 12 && worst < 50.0;
+    std::printf("%s the song is sung on its notes: %d held notes, worst %.1f cents\n", ok ? "[ok]" : "[FAIL]",
+                measured, worst);
+    failures += ok ? 0 : 1;
+  }
 
   const char* cast[] = {"DR. PIXEL", "PROF. VIDEO", "COACH MARV", "JUNE O'NEIL", "TURNIP TOP", "CHEF BORK",
                         "DONNA WHEEL", "KEEPER ROOK", "AGENT BRANDT", "AGENT HOLLIS", "MR. SALTY",
