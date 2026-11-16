@@ -4705,3 +4705,4 @@ listens to the live input	lisi tira lumo
 ~ listens to the live input: {1}	~ lisi tira lumo: {1}
 ~ cannot open the live input: {1}	~ vapel fesi tira lumo: {1}
 listens to the live input while one is open, else the playlist	lisi tira lumo kae una fesa, seto lisi vekaku
+{1} closed Deckboy last time, so it was not opened. Open it from OPEN.	{1} klui Deckboy tamuna toka, vafesi. Fesi mun FESI.

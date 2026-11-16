@@ -4685,3 +4685,4 @@ listens to the live input	guh dide ketina zindî
 ~ listens to the live input: {1}	~ guh dide ketina zindî: {1}
 ~ cannot open the live input: {1}	~ nikare ketina zindî veke: {1}
 listens to the live input while one is open, else the playlist	heta yek vekirî be guh dide ketina zindî, wekî din lîsteya lêxistinê
+{1} closed Deckboy last time, so it was not opened. Open it from OPEN.	{1} cara dawî Deckboy girt, ji ber vê yekê nehat vekirin. Ji VEKE veke.

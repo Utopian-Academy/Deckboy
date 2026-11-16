@@ -4677,3 +4677,4 @@ listens to the live input	ຟັງສຽງຂາເຂົ້າສົດ
 ~ listens to the live input: {1}	~ ຟັງສຽງຂາເຂົ້າສົດ: {1}
 ~ cannot open the live input: {1}	~ ເປີດຂາເຂົ້າສົດບໍ່ໄດ້: {1}
 listens to the live input while one is open, else the playlist	ຟັງສຽງຂາເຂົ້າສົດເມື່ອເປີດຢູ່, ບໍ່ດັ່ງນັ້ນຟັງສຽງ playlist
+{1} closed Deckboy last time, so it was not opened. Open it from OPEN.	{1} ປິດ Deckboy ຄັ້ງຜ່ານມາ, ດັ່ງນັ້ນຈຶ່ງບໍ່ໄດ້ເປີດ. ເປີດມັນຈາກ ເປີດ.

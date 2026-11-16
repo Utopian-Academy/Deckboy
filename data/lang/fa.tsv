@@ -4706,3 +4706,4 @@ listens to the live input	ورودی زنده را می‌شنود
 ~ listens to the live input: {1}	~ ورودی زنده را می‌شنود: {1}
 ~ cannot open the live input: {1}	~ نمی‌تواند ورودی زنده را باز کند: {1}
 listens to the live input while one is open, else the playlist	تا وقتی ورودی زنده‌ای باز است آن را می‌شنود، وگرنه فهرست پخش را
+{1} closed Deckboy last time, so it was not opened. Open it from OPEN.	{1} دفعهٔ قبل Deckboy را بست، برای همین باز نشد. آن را با باز کردن باز کنید.

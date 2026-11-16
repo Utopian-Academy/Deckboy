@@ -4708,3 +4708,4 @@ listens to the live input	يتبع الدخل المباشر
 ~ listens to the live input: {1}	~ يتبع الدخل المباشر: {1}
 ~ cannot open the live input: {1}	~ تعذّر فتح الدخل المباشر: {1}
 listens to the live input while one is open, else the playlist	يتبع الدخل المباشر عند فتح أحدها، وإلا قائمة التشغيل
+{1} closed Deckboy last time, so it was not opened. Open it from OPEN.	لم يفتح {1} Deckboy آخر مرة، لذلك لم يُفتح. افتحه من فتح.

@@ -4687,3 +4687,4 @@ listens to the live input	hlýðir beinu inntaki
 ~ listens to the live input: {1}	~ hlýðir beinu inntaki: {1}
 ~ cannot open the live input: {1}	~ getur ekki opnað beint inntak: {1}
 listens to the live input while one is open, else the playlist	hlýðir beinu inntaki meðan eitt er opið, annars spilunarlistanum
+{1} closed Deckboy last time, so it was not opened. Open it from OPEN.	{1} lokaði Deckboy síðast, svo það var ekki opnað. Opnaðu það með OPNA.

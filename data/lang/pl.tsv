@@ -4666,3 +4666,4 @@ listens to the live input	nasłuchuje wejścia na żywo
 ~ listens to the live input: {1}	~ nasłuchuje wejścia na żywo: {1}
 ~ cannot open the live input: {1}	~ nie można otworzyć wejścia na żywo: {1}
 listens to the live input while one is open, else the playlist	nasłuchuje wejścia na żywo, gdy jest otwarte, w przeciwnym razie playlisty
+{1} closed Deckboy last time, so it was not opened. Open it from OPEN.	{1} zamknął(-ęła) Deckboya ostatnim razem, więc nie został otwarty. Otwórz go przyciskiem OTWÓRZ.

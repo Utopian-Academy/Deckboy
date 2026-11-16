@@ -4694,3 +4694,4 @@ listens to the live input	слуша живия вход
 ~ listens to the live input: {1}	~ слуша живия вход: {1}
 ~ cannot open the live input: {1}	~ не може да отвори живия вход: {1}
 listens to the live input while one is open, else the playlist	слуша живия вход, докато е отворен такъв, иначе плейлиста
+{1} closed Deckboy last time, so it was not opened. Open it from OPEN.	{1} затвори Deckboy последния път, затова не е отворен. Отвори го от ОТВОРИ.

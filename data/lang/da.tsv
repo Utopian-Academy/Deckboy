@@ -4649,3 +4649,4 @@ listens to the live input	lytter til live-indgangen
 ~ listens to the live input: {1}	~ lytter til live-indgangen: {1}
 ~ cannot open the live input: {1}	~ kan ikke åbne live-indgangen: {1}
 listens to the live input while one is open, else the playlist	lytter til live-indgangen, når en er åben, ellers playlisten
+{1} closed Deckboy last time, so it was not opened. Open it from OPEN.	{1} lukkede Deckboy sidste gang, så den blev ikke åbnet. Åbn den fra ÅBN.

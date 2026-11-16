@@ -4695,3 +4695,4 @@ listens to the live input	گوێ لە هاتنی ڕاستەوخۆ دەگرێت
 ~ listens to the live input: {1}	~ گوێ لە هاتنی ڕاستەوخۆ دەگرێت: {1}
 ~ cannot open the live input: {1}	~ ناتوانێت هاتنی ڕاستەوخۆ بکاتەوە: {1}
 listens to the live input while one is open, else the playlist	گوێ لە هاتنی ڕاستەوخۆ دەگرێت کاتێک یەکێک کرابێتەوە، گەرنا لیستی لێدان
+{1} closed Deckboy last time, so it was not opened. Open it from OPEN.	{1} دوایین جار Deckboy ی داخست، بۆیە نەکرایەوە. لە کردنەوە بیکەرەوە.

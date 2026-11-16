@@ -4679,3 +4679,4 @@ listens to the live input	isell i unekcum s tidet
 ~ listens to the live input: {1}	~ isell i unekcum s tidet: {1}
 ~ cannot open the live input: {1}	~ ulamek ad ldiɣ anekcum s tidet: {1}
 listens to the live input while one is open, else the playlist	isell i unekcum s tidet ma yeldi, ma ulac i tebdart
+{1} closed Deckboy last time, so it was not opened. Open it from OPEN.	{1} yemdel Deckboy tikkelt taneggarut, ihi ur yeldi ara. Ldi-t seg LDI.

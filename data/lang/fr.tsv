@@ -4632,3 +4632,4 @@ listens to the live input	écoute l'entrée en direct
 ~ listens to the live input: {1}	~ écoute l'entrée en direct : {1}
 ~ cannot open the live input: {1}	~ ne peut pas ouvrir l'entrée en direct : {1}
 listens to the live input while one is open, else the playlist	écoute l'entrée en direct tant qu'une est ouverte, sinon la liste
+{1} closed Deckboy last time, so it was not opened. Open it from OPEN.	{1} a fermé Deckboy la dernière fois, donc il n'a pas été ouvert. Ouvrez-le avec OUVRIR.

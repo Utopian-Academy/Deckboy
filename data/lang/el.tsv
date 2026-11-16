@@ -4688,3 +4688,4 @@ listens to the live input	ακούει τη ζωντανή είσοδο
 ~ listens to the live input: {1}	~ ακούει τη ζωντανή είσοδο: {1}
 ~ cannot open the live input: {1}	~ δεν μπορεί να ανοίξει τη ζωντανή είσοδο: {1}
 listens to the live input while one is open, else the playlist	ακούει τη ζωντανή είσοδο όσο είναι ανοιχτή μία, αλλιώς τη λίστα
+{1} closed Deckboy last time, so it was not opened. Open it from OPEN.	Το {1} έκλεισε το Deckboy την τελευταία φορά, γι' αυτό δεν άνοιξε. Άνοιξέ το από το ΑΝΟΙΓΜΑ.

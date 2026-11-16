@@ -4680,3 +4680,4 @@ listens to the live input	ilalela okokufaka bukhoma
 ~ listens to the live input: {1}	~ ilalela okokufaka bukhoma: {1}
 ~ cannot open the live input: {1}	~ ayikwazi ukuvula okokufaka bukhoma: {1}
 listens to the live input while one is open, else the playlist	ilalela okokufaka bukhoma uma kuvuliwe, uma kungenjalo uhlu lokudlala
+{1} closed Deckboy last time, so it was not opened. Open it from OPEN.	{1} ivale i-Deckboy ngesikhathi sokugcina, ngakho ayivulwanga. Yivule ku-VULA.

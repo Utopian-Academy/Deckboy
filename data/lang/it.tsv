@@ -4661,3 +4661,4 @@ listens to the live input	ascolta l'ingresso dal vivo
 ~ listens to the live input: {1}	~ ascolta l'ingresso dal vivo: {1}
 ~ cannot open the live input: {1}	~ impossibile aprire l'ingresso dal vivo: {1}
 listens to the live input while one is open, else the playlist	ascolta l'ingresso dal vivo se ce n'è uno aperto, altrimenti la scaletta
+{1} closed Deckboy last time, so it was not opened. Open it from OPEN.	{1} ha chiuso Deckboy l'ultima volta, quindi non è stato aperto. Aprilo da APRI.

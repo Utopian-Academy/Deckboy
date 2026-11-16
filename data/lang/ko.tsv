@@ -4690,3 +4690,4 @@ listens to the live input	라이브 입력을 들음
 ~ listens to the live input: {1}	~ 라이브 입력을 들음: {1}
 ~ cannot open the live input: {1}	~ 라이브 입력을 열 수 없음: {1}
 listens to the live input while one is open, else the playlist	라이브 입력이 열려 있으면 그것을, 아니면 재생 목록을 들음
+{1} closed Deckboy last time, so it was not opened. Open it from OPEN.	{1}이(가) 지난번에 Deckboy를 닫았기 때문에 열지 않았습니다. 열기에서 여세요.

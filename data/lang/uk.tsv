@@ -4695,3 +4695,4 @@ listens to the live input	слухає живий вхід
 ~ listens to the live input: {1}	~ слухає живий вхід: {1}
 ~ cannot open the live input: {1}	~ не вдалося відкрити живий вхід: {1}
 listens to the live input while one is open, else the playlist	слухає живий вхід, поки він відкритий, інакше плейлист
+{1} closed Deckboy last time, so it was not opened. Open it from OPEN.	{1} закрив(-ла) Deckboy минулого разу, тому його не відкрито. Відкрийте його кнопкою ВІДКРИТИ.

@@ -4691,3 +4691,4 @@ listens to the live input	kuuntelee suoraa tuloa
 ~ listens to the live input: {1}	~ kuuntelee suoraa tuloa: {1}
 ~ cannot open the live input: {1}	~ ei voi avata suoraa tuloa: {1}
 listens to the live input while one is open, else the playlist	kuuntelee suoraa tuloa, kun sellainen on auki, muuten soittolistaa
+{1} closed Deckboy last time, so it was not opened. Open it from OPEN.	{1} sulki Deckboyn viime kerralla, joten sitä ei avattu. Avaa se painikkeella AVAA.

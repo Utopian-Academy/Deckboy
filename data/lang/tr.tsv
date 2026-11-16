@@ -4686,3 +4686,4 @@ listens to the live input	canlı girişi dinler
 ~ listens to the live input: {1}	~ canlı girişi dinler: {1}
 ~ cannot open the live input: {1}	~ canlı giriş açılamadı: {1}
 listens to the live input while one is open, else the playlist	açık bir canlı giriş varsa onu, yoksa çalma listesini dinler
+{1} closed Deckboy last time, so it was not opened. Open it from OPEN.	{1} Deckboy'u son seferinde kapattı, bu yüzden açılmadı. AÇ ile açın.

@@ -4694,3 +4694,4 @@ listens to the live input	लाइव इनपुट की ध्वनि �
 ~ listens to the live input: {1}	~ लाइव इनपुट की ध्वनि सुनता है: {1}
 ~ cannot open the live input: {1}	~ लाइव इनपुट नहीं खुल सका: {1}
 listens to the live input while one is open, else the playlist	लाइव इनपुट खुला हो तो उसकी ध्वनि सुनता है, वरना प्लेलिस्ट की
+{1} closed Deckboy last time, so it was not opened. Open it from OPEN.	{1} ने पिछली बार Deckboy बंद किया था, इसलिए इसे नहीं खोला गया। खोलें से इसे खोलें।

@@ -4671,3 +4671,4 @@ listens to the live input	ta scucha e entrada bibu
 ~ listens to the live input: {1}	~ ta scucha e entrada bibu: {1}
 ~ cannot open the live input: {1}	~ no por habri e entrada bibu: {1}
 listens to the live input while one is open, else the playlist	ta scucha e entrada bibu mientras un ta habri, si no e playlist
+{1} closed Deckboy last time, so it was not opened. Open it from OPEN.	{1} a sera Deckboy ultimo biaha, pesey no a habri. Habri esaki for di HABRI.

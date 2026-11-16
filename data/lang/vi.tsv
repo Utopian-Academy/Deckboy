@@ -4679,3 +4679,4 @@ listens to the live input	nghe đầu vào trực tiếp
 ~ listens to the live input: {1}	~ nghe đầu vào trực tiếp: {1}
 ~ cannot open the live input: {1}	~ không mở được đầu vào trực tiếp: {1}
 listens to the live input while one is open, else the playlist	nghe đầu vào trực tiếp khi có một cái đang mở, nếu không thì nghe playlist
+{1} closed Deckboy last time, so it was not opened. Open it from OPEN.	{1} đã đóng Deckboy lần trước, nên nó không được mở. Hãy mở từ MỞ.
