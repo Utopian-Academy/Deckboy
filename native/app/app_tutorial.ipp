@@ -1404,6 +1404,14 @@
     project_.lessonVoice = std::clamp(v, 0, 3);
     markProjectDirty();
     triggerToast(deckboy::core::i18n::format("lesson voices: {1}", {deckboy::core::i18n::translate(lessonVoiceName())}));
+    // The line being said stops at once: OFF means quiet now, not after the
+    // sentence (in 0.99.428 a line went on for 5 s after OFF), and a new voice
+    // never talks over the old one.
+    if (uiAudioStream_) SDL_ClearAudioStream(uiAudioStream_);
+    teacherTract_.reset();
+    guestTract_.reset();
+    teacherTractQueued_ = guestTractQueued_ = true;
+    guestPendingNotes_.clear();
     // Said again in the new voice, so the choice is heard at once.
     tutorial_.pixelBabbled.clear();
     tutorial_.videoBabbled.clear();
@@ -1948,14 +1956,23 @@
     Primitives::drawFramedPanel(controlRenderer_, tutorial_.exitRect, pal.dark, pal.deep, pal.mid);
     drawCenteredText(controlRenderer_, fontBase_, exitLabel, pal.light, tutorial_.exitRect);
     // How the characters speak, on every card (the first card's line points
-    // at it). Left-aligned, away from the step's own buttons; small.
+    // at it): quiet text after the progress dots, not a button (James,
+    // 2026-11-16: "keep it more discreet"). It was a button drawn OVER the
+    // dots, and a short label (CHIP, OFF) left the last dot sticking out of
+    // its right edge. The same choice is in MENU > Settings, "Lesson voices".
     {
       const std::string label = deckboy::core::i18n::format("VOICE: {1}", {deckboy::core::i18n::translate(lessonVoiceName())});
-      const int vw = std::max(uiScaled(96), measuredTextWidth(fontSmall_, label.c_str()) + uiScaled(20));
-      tutorial_.voiceRect = SDL_Rect {card.x + pad, y, std::min(vw, bx - card.x - pad - uiScaled(10)), buttonH};
-      if (tutorial_.voiceRect.w > uiScaled(40)) {
-        Primitives::drawFramedPanel(controlRenderer_, tutorial_.voiceRect, pal.dark, pal.deep, pal.mid);
-        drawCenteredTextSafe(controlRenderer_, fontSmall_, tutorial_.voiceRect, label, pal.light, /*localise=*/false);
+      const int dotsEnd = card.x + pad + stepCount * (dot + uiScaled(5));
+      const int vx = dotsEnd + uiScaled(12);
+      const int labelW = measuredTextWidth(fontSmall_, label.c_str());
+      const int vw = std::min(labelW + uiScaled(8), bx - vx - uiScaled(10));
+      tutorial_.voiceRect = SDL_Rect {vx, y, vw, buttonH};
+      if (vw > uiScaled(40)) {
+        drawCenteredTextSafe(controlRenderer_, fontSmall_, tutorial_.voiceRect, label, pal.fgSoft, /*localise=*/false);
+        // Under the words only: the hint that they can be clicked.
+        const int lineW = std::min(labelW, vw);
+        const int underlineY = y + buttonH / 2 + TTF_GetFontHeight(fontSmall_) / 2;
+        Primitives::fillRect(controlRenderer_, SDL_Rect {vx + (vw - lineW) / 2, underlineY, lineW, 1}, pal.mid);
       } else {
         tutorial_.voiceRect = SDL_Rect {};
       }
@@ -2154,6 +2171,7 @@
   long long songNext_ = -1;   // the next frame of the take to queue; -1 when not playing
   int songVoice_ = -1;
   double songDriftMs_ = 0.0;
+  int songJumps_ = 0;   // put back in step by a jump, since the lesson opened (LESSONS SONG)
   std::string songWhy_ = "not in the Datamosh lesson";
 
   void stopCarolineSong(const char* why) {
@@ -2162,19 +2180,21 @@
     songWhy_ = why;
   }
 
+  // She always SINGS with the voice synth (James, 2026-11-16: "can we have her
+  // singing always be the voice synth not the chip?"): CHIP sings the words,
+  // as WORDS does; SOUNDS sings her syllables. OFF stays silent.
+  static int carolineSungVoice(int voiceType) { return voiceType == 3 ? 3 : 1; }
+
   std::shared_ptr<SongTake> carolineTake(int voiceType) {
-    std::shared_ptr<SongTake>& slot = songTakes_[voiceType & 3];
+    const int sung = carolineSungVoice(voiceType);
+    std::shared_ptr<SongTake>& slot = songTakes_[sung];
     if (!slot) {
       slot = std::make_shared<SongTake>();
       std::shared_ptr<SongTake> out = slot;
-      std::thread([out, voiceType] {
-        std::vector<float> mono;
-        if (voiceType == 0) {
-          mono = deckboy::song::chipSing(deckboy::song::ascendimonia(false), kAudioRate);
-        } else {
-          mono = deckboy::voice::sing(deckboy::song::ascendimonia(voiceType == 3),
-                                      deckboy::voice::castVoice("CAROLINE POLKADOT"), kAudioRate).samples;
-        }
+      std::thread([out, sung] {
+        const std::vector<float> mono = deckboy::voice::sing(deckboy::song::ascendimonia(sung == 3),
+                                                             deckboy::voice::castVoice("CAROLINE POLKADOT"),
+                                                             kAudioRate).samples;
         out->pcm.resize(mono.size() * 2u);
         for (std::size_t i = 0; i < mono.size(); ++i) {
           // 0.8: a lead vocal over a loud master (the theme peaks at -1 dBFS,
@@ -2190,7 +2210,10 @@
 
   void serviceCarolineSong() {
     const LessonDef* def = tutorial_.active && tutorial_.lesson > 0 ? lessonDef(tutorial_.lesson - 1) : nullptr;
-    if (!def || std::string(def->id) != "datamosh") return stopCarolineSong("not in the Datamosh lesson");
+    if (!def || std::string(def->id) != "datamosh") {
+      songJumps_ = 0;
+      return stopCarolineSong("not in the Datamosh lesson");
+    }
     // Made as the lesson opens, so it is ready by the time the video plays.
     if (project_.lessonVoice != 2) carolineTake(project_.lessonVoice);
     const MediaEngine* engine = nullptr;
@@ -2220,19 +2243,36 @@
       if (!songStream_) return stopCarolineSong("no sound device");
       deckboySetAudioPaused(songStream_, false);
     }
-    if (voiceType != songVoice_) {
+    if (carolineSungVoice(voiceType) != songVoice_) {
       stopCarolineSong("changing voice");
-      songVoice_ = voiceType;
+      songVoice_ = carolineSungVoice(voiceType);
     }
     const long long frames = static_cast<long long>(take->pcm.size() / 2u);
     const long long want = static_cast<long long>(engine->position() * kAudioRate);
+    // Her song (33.5 s) ends before the video (36 s): once all of it is queued
+    // and the video is past its end, there is nothing left to keep in step.
+    if (songNext_ >= frames && want >= frames) {
+      songWhy_.clear();
+      return;
+    }
     const long long queued = SDL_GetAudioStreamQueued(songStream_) / 4;   // stereo 16-bit frames
     const long long playing = songNext_ - queued;
     songDriftMs_ = songNext_ < 0 ? 0.0 : (playing - want) * 1000.0 / kAudioRate;
-    if (songNext_ < 0 || std::fabs(songDriftMs_) > 60.0) {
+    // IN STEP WITHOUT CUTS. A seek, a retake or a jump of the video (more than
+    // 150 ms) puts her back at once. Anything smaller is taken up by playing
+    // her up to 1% fast or slow, which no ear hears. In 0.99.428 every 60 ms
+    // of drift threw her queued song away and jumped; the drift sits at 40-60
+    // ms by itself (the sound card's own buffer is not in what is queued), so
+    // she was cut up several times a second.
+    if (songNext_ < 0 || std::fabs(songDriftMs_) > 150.0) {
+      if (songNext_ >= 0) ++songJumps_;
       SDL_ClearAudioStream(songStream_);
+      SDL_SetAudioStreamFrequencyRatio(songStream_, 1.0f);
       songNext_ = std::clamp<long long>(want, 0, frames);
       songDriftMs_ = 0.0;
+    } else {
+      const double behind = std::fabs(songDriftMs_) < 20.0 ? 0.0 : songDriftMs_ / 1000.0;
+      SDL_SetAudioStreamFrequencyRatio(songStream_, static_cast<float>(1.0 - std::clamp(behind * 0.5, -0.01, 0.01)));
     }
     songWhy_.clear();
     long long have = SDL_GetAudioStreamQueued(songStream_) / 4;
@@ -2247,7 +2287,7 @@
   std::string carolineSongStatus() const {
     if (!songWhy_.empty()) return "song=off why=\"" + songWhy_ + "\"";
     char buf[160];
-    std::snprintf(buf, sizeof(buf), "song=playing voice=%s at=%.2f drift_ms=%.1f",
-                  lessonVoiceName(songVoice_), static_cast<double>(songNext_) / kAudioRate, songDriftMs_);
+    std::snprintf(buf, sizeof(buf), "song=playing voice=%s at=%.2f drift_ms=%.1f jumps=%d",
+                  lessonVoiceName(songVoice_), static_cast<double>(songNext_) / kAudioRate, songDriftMs_, songJumps_);
     return buf;
   }

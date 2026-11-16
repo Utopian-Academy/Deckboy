@@ -5,6 +5,14 @@
 ### Sources
 - Fixed: Lumia's lines shook from one frame to the next when shimmer was above 0, and a new Lumia cue starts with shimmer at 30. Now shimmer makes the lines waver smoothly, on the outputs, on the desk and in a render. At shimmer 0 nothing changes.
 
+### Lessons
+- Fixed: the Sound lesson's song was silent until it looped, 40 seconds in. Any sound file taken the moment it was imported did the same. It now starts as soon as Deckboy has read the file.
+- In the Datamosh lesson, Caroline always sings in the Experimental voice: with CHIP she sings the lyrics, as with WORDS. OFF is still silent.
+- Fixed: Caroline's singing could be cut into pieces several times a second, depending on the sound card. She now stays in time with the video without cuts.
+- Fixed: setting lesson voices to OFF let the line being said go on for up to 5 seconds. A change of voice now stops it at once.
+- The Datamosh lesson now waits until you have watched the music video to the end before the effect, so you see the clean cuts first.
+- The VOICE choice on a lesson card is now small underlined words after the progress dots. Fixed: it was a button drawn over the progress dots, and with a short label (CHIP, OFF) the last dot stuck out past its right edge.
+
 ### Packaging
 - Fixed: 0.99.428 came out with no Flatpak. This release has one again.
 

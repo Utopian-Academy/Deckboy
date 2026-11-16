@@ -485,6 +485,8 @@
               // a .mid as audio (importFiles says why).
               if (cue.path == it->path && cue.width == 0 && cue.height == 0 &&
                   cue.kind != CueKind::MidiFile) {
+                const bool hadSound = cue.hasAudio && cue.audioEnabled;
+                const double hadLength = cue.duration;
                 // Update placeholder with probed metadata
                 cue.duration = probed->duration;
                 cue.width = probed->width;
@@ -509,6 +511,23 @@
                   cue.stillDurationSeconds = std::clamp(deck.playlistDefaultStillDurationSeconds, 0.0, 3600.0);
                 }
                 markProjectDirty();
+                // TAKEN BEFORE ITS PROBE ANSWERED. The Sound lesson takes its
+                // song the moment it imports it, and so can an operator: the
+                // engine started with no sound and no length, so the song
+                // played silent and only sounded once it looped, 40 s later.
+                // Start it again with what the probe found: a sound cue from
+                // the top, since all it has played is silence; anything else
+                // from where it is.
+                if (MediaEngine* engine = mediaEngineForDeck(it->deckIndex);
+                    engine && engine->activeCue() && engine->activeCue()->id == cue.id &&
+                    engine->state() != TransportState::Stopped &&
+                    ((!hadSound && cue.hasAudio && cue.audioEnabled) || (hadLength <= 0.0 && cue.duration > 0.0))) {
+                  if (cue.kind == CueKind::Audio) {
+                    engine->loadCue(&cue, engine->state() == TransportState::Playing);
+                  } else {
+                    engine->refreshActiveCueRuntime(&cue);
+                  }
+                }
                 if (auto convReason = cueConvertReason(cue)) {
                   // One file says so now; a batch says so once, at the end.
                   if (probeBatchTotal_ > 1) {

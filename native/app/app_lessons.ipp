@@ -67,6 +67,7 @@
   bool lessonsTrackVideo_ = true;    // whom the operator follows: the list's open column
   int lessonCount_ = 0;              // a step's baseline, set by its enter
   bool lessonTakeWhenReady_ = false;   // SHOW ME came before the moshable copy (Datamosh)
+  double lessonReelSeenTo_ = 0.0;      // how far the clean reel has played in WATCH THE CUTS (Datamosh)
   Uint64 lessonHeldSinceMs_ = 0;     // when a step's result first held (the magic show)
   SDL_Rect lessonsCardRect_ {}, lessonsPixelTabRect_ {}, lessonsVideoTabRect_ {}, lessonsBasicsRect_ {},
            lessonsCloseRect_ {};
@@ -1705,9 +1706,25 @@
          "TAKE the music video and watch it once. Count the cuts. Each one lands on the beat: the rocket, the balloon, the coaster, the capsule, the jet.",
          "Every cut starts with a KEYFRAME: a whole picture. Every frame after it is only the changes. Datamosh throws the keyframe away.",
          "CAROLINE POLKADOT", "The rocket is the chorus. The balloon is the bridge. The coaster is the key change.",
-         [this, isReel] { return lessonCueLive(isReel); },
+         // WATCHED ONCE, TO THE END (James, 2026-11-16: the lesson "doesnt
+         // have you look at the video before the moshing"). It passed the
+         // moment the reel was live, so the effect came before anyone had
+         // seen the clean cuts it smears.
+         [this, isReel] {
+           for (int d = 0; d < static_cast<int>(project_.decks.size()); ++d) {
+             const Deck& deck = project_.decks[static_cast<std::size_t>(d)];
+             if (deck.activeIndex < 0 || deck.activeIndex >= static_cast<int>(deck.cues.size())) continue;
+             if (!isReel(deck.cues[static_cast<std::size_t>(deck.activeIndex)])) continue;
+             const MediaEngine* engine = mediaEngineForDeck(d);
+             if (!engine || engine->state() == TransportState::Stopped || engine->duration() <= 1.0) return false;
+             lessonReelSeenTo_ = std::max(lessonReelSeenTo_, engine->position());
+             return lessonReelSeenTo_ >= engine->duration() - 0.5;
+           }
+           return false;
+         },
          [this, isReel] { lessonTake(isReel); },
-         [this, isReel] { return lessonTakeTarget(isReel); }, nullptr},
+         [this, isReel] { return lessonTakeTarget(isReel); },
+         [this] { lessonReelSeenTo_ = 0.0; }},
         {"THE EFFECT", nullptr,
          "In EFFECTS, + adds one: choose DATAMOSH.",
          "With no keyframe, the next shot's changes land on the LAST shot's picture. The rocket's fire smears into the balloon's sky.",

@@ -178,8 +178,10 @@ SHOW ME, SKIP, Esc, and it picks up where you stopped. A finished lesson is
 ticked DONE in the list. In a lesson with no show, the desk's own face drops
 into a corner now and then with something to say.
 
-**How the characters speak.** The **VOICE** button at the bottom left of every
-lesson card (and **Lesson voices** in MENU, beside Sound effects) steps through:
+**How the characters speak.** **VOICE**, the small underlined words after the
+progress dots on every lesson card (and **Lesson voices** in MENU, beside Sound
+effects), steps through these. A change is heard at once: the line being said
+stops.
 
 | Voice | What you hear |
 |-------|---------------|
@@ -193,10 +195,11 @@ Trombone's (Neil Thapen, MIT licence). The choice is kept in the show and
 carries into every lesson.
 
 In the Datamosh lesson, Caroline Polkadot sings STAIRLIFT's song with the music
-video while it plays, in time with it: the lyrics with **EXPERIMENTAL: WORDS**,
-her own syllables with **SOUNDS**, the tune on her chip voice with **CHIP**, and
-nothing with **OFF**. She follows the video through a pause, a seek and a retake.
-`LESSONS SONG` says whether she is singing, and if not, why.
+video while it plays, in time with it. She always sings in the Experimental
+voice: the lyrics with **CHIP** or **EXPERIMENTAL: WORDS**, her own syllables
+with **SOUNDS**, and nothing with **OFF**. She follows the video through a
+pause, a seek and a retake. `LESSONS SONG` says whether she is singing, and if
+not, why.
 
 Over the network: `LESSONS [OPEN|CLOSE|START <id>|TRACK PIXEL|VIDEO|VOICE CHIP|WORDS|SOUNDS|OFF|SONG|LIST]`; the
 ids are `effects`, `draw`, `masks`, `warp`, `transitions`, `sound`, `datamosh`, `scopes`, `outside`, `bugswat`, `layers`, `go`, `words`, `timers`, `presets`, `wrong`, `road` and `multiview`. A running lesson is

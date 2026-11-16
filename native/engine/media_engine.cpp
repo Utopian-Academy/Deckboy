@@ -7639,7 +7639,10 @@ void MediaEngine::startDecoderThreads(const Cue& cue, double mediaStartSeconds, 
   // and still look completely healthy.
   // An AUDIO cue with no audio is a contradiction, so say which of the three
   // things the gate below wants was missing rather than leaving it silent.
-  if (cue.kind == CueKind::Audio &&
+  // Not while its probe has not answered (no length yet): taken the moment it
+  // was imported, the app starts it again once the probe says what it has
+  // (app_update.ipp), and the warning was a false alarm at every Sound lesson.
+  if (cue.kind == CueKind::Audio && cue.duration > 0.0 &&
       !(audioStream_ != nullptr && cue.hasAudio && cue.audioEnabled)) {
     latchAudioStartFailure(
       std::string("audio not started (device=") + (audioStream_ ? "yes" : "NO") +
@@ -9175,7 +9178,10 @@ bool MediaEngine::finishInprocDecoders(const Cue& cue, const std::string& mediaP
   // and still look completely healthy.
   // An AUDIO cue with no audio is a contradiction, so say which of the three
   // things the gate below wants was missing rather than leaving it silent.
-  if (cue.kind == CueKind::Audio &&
+  // Not while its probe has not answered (no length yet): taken the moment it
+  // was imported, the app starts it again once the probe says what it has
+  // (app_update.ipp), and the warning was a false alarm at every Sound lesson.
+  if (cue.kind == CueKind::Audio && cue.duration > 0.0 &&
       !(audioStream_ != nullptr && cue.hasAudio && cue.audioEnabled)) {
     latchAudioStartFailure(
       std::string("audio not started (device=") + (audioStream_ ? "yes" : "NO") +
