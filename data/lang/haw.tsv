@@ -4650,3 +4650,8 @@ The rat left a napkin, skapi. It says: "A fortress stands in the rocks above Bab
 SCOPES SOUND SPECTROGRAM: expected ON or OFF	SCOPES SOUND SPECTROGRAM: makemake ʻia ON a i ʻole OFF
 SCOPES SOUND: expected nothing, RESET, SPECTROGRAM [ON|OFF] or SPECTRUM	SCOPES SOUND: makemake ʻia ʻaʻohe mea, RESET, SPECTROGRAM [ON|OFF] a i ʻole SPECTRUM
 tract	ʻāpana ʻāina
+listens to the playlist	hoʻolohe i ka papa helu
+listens to the live input	hoʻolohe i ka komo ola
+~ listens to the live input: {1}	~ hoʻolohe i ka komo ola: {1}
+~ cannot open the live input: {1}	~ ʻaʻole hiki ke wehe i ka komo ola: {1}
+listens to the live input while one is open, else the playlist	hoʻolohe i ka komo ola ke wehe ʻia kekahi, a i ʻole, i ka papa helu

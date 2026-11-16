@@ -1092,6 +1092,15 @@ enum class LfoShape : std::uint8_t {
   // MidiNote (James, 2026-11-06: "Chladni that listens"). Held through
   // silence. Appended.
   AudioPitch,
+  // THE SOUND IN THREE BANDS (James, 2026-11-15, from Ponderosa: "i love 1 2
+  // and 3"): LOW up to 250 Hz (the kick, the bass), MID 250 Hz to 4 kHz
+  // (voices, the snare), HIGH above 4 kHz (hi-hats, cymbals). One-sided like
+  // Audio, and each measured against its own loudest moment of the last few
+  // seconds, so a quiet hi-hat moves its control as far as a loud kick moves
+  // its own. Appended.
+  AudioLow,
+  AudioMid,
+  AudioHigh,
   Count
 };
 
@@ -1104,11 +1113,22 @@ inline bool lfoShapeIsMotion(LfoShape shape) {
   return shape == LfoShape::Motion || shape == LfoShape::MotionX || shape == LfoShape::MotionY;
 }
 
+inline bool lfoShapeIsAudioBand(LfoShape shape) {
+  return shape == LfoShape::AudioLow || shape == LfoShape::AudioMid || shape == LfoShape::AudioHigh;
+}
+
+// Shapes that follow a sound, and so have a sound to listen to
+// (ParamLfo::listen) where the others have a rate.
+inline bool lfoShapeIsAudio(LfoShape shape) {
+  return shape == LfoShape::Audio || shape == LfoShape::AudioPitch || lfoShapeIsAudioBand(shape);
+}
+
 // Shapes that only ever push UP from the value that was set: stillness and
 // silence leave the control alone.
 inline bool lfoShapeIsOneSided(LfoShape shape) {
   return shape == LfoShape::Audio || shape == LfoShape::Motion ||
-         shape == LfoShape::MidiVelocity || shape == LfoShape::MidiPressure;
+         shape == LfoShape::MidiVelocity || shape == LfoShape::MidiPressure ||
+         lfoShapeIsAudioBand(shape);
 }
 
 // THE MIDI READINGS, written by the MIDI thread as each message arrives and
@@ -1129,14 +1149,30 @@ inline std::array<LfoMidiChannel, 17>& lfoMidiSignals() {
 // reads it: the reader stamps lfoAudioPitchWanted, and the app only runs the
 // detector when that stamp is fresh, so a show with no audio-pitch ~ pays
 // nothing for it.
-inline std::atomic<float>& lfoAudioPitchSignal() {
-  static std::atomic<float> value {0.5f};
-  return value;
+//
+// WHAT THE SOUND IS DOING, per source: [1] the focused playlist's sound, [2]
+// the live input ([0] is unused: AUTO resolves to one of the two). Published
+// by the app (serviceLfoAudio, serviceAudioPitch) and read by any oscillator.
+// Each reader stamps what it read, so the app analyses only what is in use.
+struct LfoAudioReading {
+  std::atomic<float> level {0.0f};             // 0-1, as the audio shape reads it
+  std::array<std::atomic<float>, 3> band {};   // low, mid, high; 0-1 of each one's recent loudest
+  std::atomic<float> pitch {0.5f};             // 0-1 across C2-C6, held through silence
+  std::atomic<bool> levelWanted {false};
+  std::atomic<bool> bandsWanted {false};
+  std::atomic<bool> pitchWanted {false};
+};
+inline std::array<LfoAudioReading, 3>& lfoAudioReadings() {
+  static std::array<LfoAudioReading, 3> readings {};
+  return readings;
 }
-inline std::atomic<bool>& lfoAudioPitchWanted() {
-  static std::atomic<bool> wanted {false};
-  return wanted;
+// True while Settings > AUDIO INPUT has an input open: where AUTO listens.
+inline std::atomic<bool>& lfoAudioAutoHearsInput() {
+  static std::atomic<bool> input {false};
+  return input;
 }
+inline std::atomic<float>& lfoAudioPitchSignal() { return lfoAudioReadings()[1].pitch; }
+inline std::atomic<bool>& lfoAudioPitchWanted() { return lfoAudioReadings()[1].pitchWanted; }
 
 // The fundamental of a short mono signal, in Hz, by normalised
 // autocorrelation; 0 when there is no clear pitch (silence, noise). The
@@ -1263,6 +1299,9 @@ inline const char* lfoShapeToken(LfoShape shape) {
     case LfoShape::MidiCc:       return "midi-cc";
     case LfoShape::MidiPressure: return "aftertouch";
     case LfoShape::AudioPitch:   return "audio-pitch";
+    case LfoShape::AudioLow:     return "audio-low";
+    case LfoShape::AudioMid:     return "audio-mid";
+    case LfoShape::AudioHigh:    return "audio-high";
     default:                 return "sine";
   }
 }
@@ -1289,6 +1328,12 @@ struct ParamLfo {
   // For the MIDI shapes: the channel (0 any, 1-16) and, for MidiCc, the CC.
   int midiChannel = 0;
   int midiNumber = 1;
+  // What an audio shape (lfoShapeIsAudio) listens to (James, 2026-11-15,
+  // Ponderosa 2): 0 AUTO, the live input while Settings > AUDIO INPUT has one
+  // open and the playlist's sound otherwise, which is what the audio shape
+  // always did; 1 the PLAYLIST, even with an input open; 2 the LIVE INPUT,
+  // opened to listen only when Settings has none open.
+  int listen = 0;
 
   // ── THE SHAPE YOU DREW ──────────────────────────────────────────────────
   //
@@ -1337,11 +1382,28 @@ inline double lfoPhase01(const ParamLfo& lfo, double seconds, double beats01) {
   return phase - std::floor(phase);
 }
 
+// Which source an audio shape hears: 1 the playlist, 2 the live input.
+inline int lfoAudioSource(const ParamLfo& lfo) {
+  if (lfo.listen == 1 || lfo.listen == 2) return lfo.listen;
+  return lfoAudioAutoHearsInput().load(std::memory_order_relaxed) ? 2 : 1;
+}
+
 inline double lfoUnitValue(const ParamLfo& lfo, double seconds, double beats01,
                            double audio01 = 0.0) {
   if (lfo.shape == LfoShape::Audio) {
-    // Rate, phase and tempo mean nothing here: the value is the sound.
-    return std::clamp(audio01, 0.0, 1.0);
+    // Rate, phase and tempo mean nothing here: the value is the sound. AUTO
+    // takes the level it was handed (the reactive level, which has always
+    // followed an open input); a chosen source reads its own.
+    if (lfo.listen != 1 && lfo.listen != 2) return std::clamp(audio01, 0.0, 1.0);
+    auto& heard = lfoAudioReadings()[static_cast<std::size_t>(lfo.listen)];
+    heard.levelWanted.store(true, std::memory_order_relaxed);
+    return std::clamp(static_cast<double>(heard.level.load(std::memory_order_relaxed)), 0.0, 1.0);
+  }
+  if (lfoShapeIsAudioBand(lfo.shape)) {
+    auto& heard = lfoAudioReadings()[static_cast<std::size_t>(lfoAudioSource(lfo))];
+    heard.bandsWanted.store(true, std::memory_order_relaxed);
+    const std::size_t band = lfo.shape == LfoShape::AudioLow ? 0 : lfo.shape == LfoShape::AudioMid ? 1 : 2;
+    return std::clamp(static_cast<double>(heard.band[band].load(std::memory_order_relaxed)), 0.0, 1.0);
   }
   if (lfoShapeIsMotion(lfo.shape)) {
     // Nor here: the value is what the camera saw.
@@ -1351,8 +1413,9 @@ inline double lfoUnitValue(const ParamLfo& lfo, double seconds, double beats01,
                       0.0, 1.0);
   }
   if (lfo.shape == LfoShape::AudioPitch) {
-    lfoAudioPitchWanted().store(true, std::memory_order_relaxed);
-    return static_cast<double>(lfoAudioPitchSignal().load(std::memory_order_relaxed));
+    auto& heard = lfoAudioReadings()[static_cast<std::size_t>(lfoAudioSource(lfo))];
+    heard.pitchWanted.store(true, std::memory_order_relaxed);
+    return static_cast<double>(heard.pitch.load(std::memory_order_relaxed));
   }
   if (lfoShapeIsMidi(lfo.shape)) {
     // And here: the value is what the controller sent.

@@ -4686,3 +4686,8 @@ The rat left a napkin, skapi. It says: "A fortress stands in the rocks above Bab
 SCOPES SOUND SPECTROGRAM: expected ON or OFF	SCOPES SOUND SPECTROGRAM: 應為 開 或 關
 SCOPES SOUND: expected nothing, RESET, SPECTROGRAM [ON|OFF] or SPECTRUM	SCOPES SOUND: 應為 無、重設、SPECTROGRAM [開|關] 或 頻譜
 tract	軌道
+listens to the playlist	聆聽播放清單
+listens to the live input	聆聽即時輸入
+~ listens to the live input: {1}	~ 聆聽即時輸入：{1}
+~ cannot open the live input: {1}	~ 無法開啟即時輸入：{1}
+listens to the live input while one is open, else the playlist	有即時輸入開啟時聆聽即時輸入，否則聆聽播放清單

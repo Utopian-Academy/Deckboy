@@ -677,6 +677,7 @@
       if (!engine || engine->state() != TransportState::Playing) {
         std::lock_guard<std::mutex> lk(vuSamplesMutex_);
         vuSamples_.clear();
+        lfoPlaylistHistory_.clear();
       }
     }
     // Fold in async media-presence scan results (boot / project open).
@@ -959,9 +960,7 @@
       // because when an operator has plugged a mic in to drive a visualiser,
       // that is plainly what they want it reacting to.
       pumpAudioInput();
-      if (audioInputRunning()) {
-        reactiveAudioLevel_ = audioInputPeak_;
-      } else {
+      {
         double vu = 0.0;
         {
           std::lock_guard<std::mutex> lock(vuSamplesMutex_);
@@ -971,9 +970,12 @@
           }
         }
         // Same asymmetric ballistics as the input meter.
-        reactiveAudioLevel_ = (vu > reactiveAudioLevel_)
-          ? vu : reactiveAudioLevel_ + (vu - reactiveAudioLevel_) * 0.08;
+        playlistLevel_ = (vu > playlistLevel_) ? vu : playlistLevel_ + (vu - playlistLevel_) * 0.08;
       }
+      reactiveAudioLevel_ = audioInputRunning() ? audioInputPeak_ : playlistLevel_;
+      // The ~ audio shapes' ears: each source's level and three bands, and
+      // the live input for a ~ that listens to it.
+      serviceLfoAudio();
       serviceAudioPitch();
       // A camera's motion, for the Motion oscillator shapes (app_motion.ipp).
       serviceMotion();

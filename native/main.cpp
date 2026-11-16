@@ -2258,6 +2258,11 @@ void writeParamLfo(std::ostream& one, const deckboy::effects::ParamLfo& lfo) {
   if (deckboy::effects::lfoShapeIsMidi(lfo.shape)) {
     one << ',' << lfo.midiChannel << ',' << lfo.midiNumber;
   }
+  // An audio shape's source, in the same place, only when it is not AUTO:
+  // a build without it reads the shape and stops.
+  if (deckboy::effects::lfoShapeIsAudio(lfo.shape) && lfo.listen != 0) {
+    one << ',' << lfo.listen;
+  }
 }
 
 void readParamLfo(const std::string& one, deckboy::effects::ParamLfo& lfo) {
@@ -2289,6 +2294,10 @@ void readParamLfo(const std::string& one, deckboy::effects::ParamLfo& lfo) {
   if (deckboy::effects::lfoShapeIsMidi(lfo.shape)) {
     lfo.midiChannel = f.size() > 7 ? std::clamp(std::atoi(f[7].c_str()), 0, 16) : 0;
     lfo.midiNumber = f.size() > 8 ? std::clamp(std::atoi(f[8].c_str()), 0, 127) : 1;
+    return;
+  }
+  if (deckboy::effects::lfoShapeIsAudio(lfo.shape)) {
+    lfo.listen = f.size() > 7 ? std::clamp(std::atoi(f[7].c_str()), 0, 2) : 0;
     return;
   }
   // The drawn curve, if this show carries one. A partial curve is
@@ -4477,6 +4486,7 @@ class App {
       SDL_DestroyAudioStream(uiAudioStream_);
       uiAudioStream_ = nullptr;
     }
+    closeLfoInput();
     if (songStream_) {
       SDL_DestroyAudioStream(songStream_);
       songStream_ = nullptr;
@@ -6191,9 +6201,10 @@ class App {
                          deckboy::effects::lfoShapeToken(lfo.shape), pal.fg);
     quickButtons_.push_back({shapeBtn, QuickAction::EffectLfoShape,
                              "sine, triangle, saw, ramp, square, sample (one random value per "
-                             "cycle, held), drawn, audio, motion: how much a camera sees "
-                             "moving, and where (motion x, motion y), or MIDI: the last key's "
-                             "pitch, how hard it was played, a CC, or aftertouch", packed});
+                             "cycle, held), drawn, audio: the sound's level, its pitch, or its "
+                             "low, mid or high band (bass, voices, cymbals), motion: how much a "
+                             "camera sees moving, and where (motion x, motion y), or MIDI: the "
+                             "last key's pitch, how hard it was played, a CC, or aftertouch", packed});
 
     // Rate, and whether it is free-running or locked to the tempo. The tap
     // tempo already exists for VJ mode; an LFO that could not use it would be
@@ -6202,7 +6213,11 @@ class App {
     std::ostringstream rate;
     const bool motionShape = deckboy::effects::lfoShapeIsMotion(lfo.shape);
     const bool midiShape = deckboy::effects::lfoShapeIsMidi(lfo.shape);
-    if (motionShape) {
+    // Nor a sound: it says what it listens to.
+    const bool audioShape = deckboy::effects::lfoShapeIsAudio(lfo.shape);
+    if (audioShape) {
+      rate << lfoListenLabel(lfo);
+    } else if (motionShape) {
       // A Motion shape has no rate: this cell says which zone it follows.
       if (lfo.motionZone <= 0) rate << "whole picture";
       else rate << "zone " << lfo.motionZone;
@@ -6217,15 +6232,21 @@ class App {
     } else {
       rate << std::fixed << std::setprecision(2) << lfo.rateHz << " hz";
     }
-    drawUIPanel(rateBtn, lfo.beatSync ? pal.dark : pal.tile, pal.deep, pal.mid);
+    const bool rateLit = lfo.beatSync && !audioShape;
+    drawUIPanel(rateBtn, rateLit ? pal.dark : pal.tile, pal.deep, pal.mid);
     drawCenteredTextSafe(controlRenderer_, fontSmall_, rateBtn,
                          ellipsizeToPixelWidth(fontSmall_, rate.str(), rateBtn.w - 8),
-                         lfo.beatSync ? pal.light : pal.fg);
+                         rateLit ? pal.light : pal.fg);
     // Click cycles the value; right-click is already spoken for elsewhere, so
     // the sync toggle rides the SAME cell as a long-press would be worse: it
     // gets its own narrow control below instead.
     quickButtons_.push_back({rateBtn, QuickAction::EffectLfoRateInc,
-                             motionShape
+                             audioShape
+                               ? "What it listens to. AUTO: the live input while Settings > AUDIO "
+                                 "INPUT has one open, otherwise the playlist's sound. PLAYLIST: the "
+                                 "focused playlist's sound. LIVE INPUT: a microphone or line input, "
+                                 "opened just to listen when Settings has none open"
+                               : motionShape
                                ? "Which part of the camera's picture it follows: the whole picture, "
                                  "or a zone drawn in Settings > Control > Motion"
                                : midiShape
@@ -6271,7 +6292,7 @@ class App {
                                "Which MIDI channel it listens to, or any", packed});
       rowY += ix.rowStep;
     }
-    if (!motionShape && !midiShape && lfo.shape != deckboy::effects::LfoShape::Audio) {
+    if (!motionShape && !midiShape && !audioShape) {
       SDL_Rect syncBtn {x0, rowY, w, std::max(16, ix.rowH - 6)};
       drawUIPanel(syncBtn, lfo.beatSync ? pal.dark : pal.tile, pal.deep,
                   lfo.beatSync ? pal.light : pal.mid);
@@ -13007,6 +13028,22 @@ class App {
   std::optional<deckboy::midimap::Message> midiMapLearned_;
   std::vector<int> midiMapLearnedValues_;
   std::vector<float> audioPitchScratch_;   // serviceAudioPitch
+  // The ~ audio shapes' ears (serviceLfoAudio, app_numeric_params.ipp).
+  double playlistLevel_ = 0.0;                   // the reactive level's playlist half
+  std::vector<float> lfoPlaylistHistory_;        // under vuSamplesMutex_; filled on the audio thread
+  std::atomic<bool> lfoPlaylistHistoryWanted_ {false};
+  std::vector<float> lfoInputHistory_;
+  bool lfoInputHistoryWanted_ = false;
+  std::vector<float> lfoAudioScratch_;
+  std::vector<std::int16_t> lfoInputScratch_;
+  SDL_AudioStream* lfoInputStream_ = nullptr;    // listen-only, while Settings has no input open
+  double lfoInputPeak_ = 0.0;
+  bool lfoInputFailSaid_ = false;
+  Uint64 lfoAudioLastMs_ = 0;
+  Uint64 lfoPlaylistBandsAtMs_ = 0;
+  Uint64 lfoInputWantedAtMs_ = 0;
+  Uint64 lfoInputRetryAtMs_ = 0;
+  std::array<std::array<deckboy::audiofx::BandFollower, 3>, 3> lfoBandFollowers_ {};
   // The MAP page.
   bool settingsMidiMapOpen_ = false;
   MidiMapEdit midiMapEdit_;

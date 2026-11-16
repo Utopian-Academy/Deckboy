@@ -4674,3 +4674,8 @@ The rat left a napkin, skapi. It says: "A fortress stands in the rocks above Bab
 SCOPES SOUND SPECTROGRAM: expected ON or OFF	SCOPES SOUND SPECTROGRAM: kulindeleke VULIWE noma VALIWE
 SCOPES SOUND: expected nothing, RESET, SPECTROGRAM [ON|OFF] or SPECTRUM	SCOPES SOUND: kulindeleke lutho, SETHA KABUSHA, SPECTROGRAM [VULIWE|VALIWE] noma I-spectrum
 tract	ithrekhi
+listens to the playlist	ilalela uhlu lokudlala
+listens to the live input	ilalela okokufaka bukhoma
+~ listens to the live input: {1}	~ ilalela okokufaka bukhoma: {1}
+~ cannot open the live input: {1}	~ ayikwazi ukuvula okokufaka bukhoma: {1}
+listens to the live input while one is open, else the playlist	ilalela okokufaka bukhoma uma kuvuliwe, uma kungenjalo uhlu lokudlala

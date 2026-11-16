@@ -4700,3 +4700,8 @@ The rat left a napkin, skapi. It says: "A fortress stands in the rocks above Bab
 SCOPES SOUND SPECTROGRAM: expected ON or OFF	SCOPES SOUND SPECTROGRAM: انتظار روشن یا خاموش
 SCOPES SOUND: expected nothing, RESET, SPECTROGRAM [ON|OFF] or SPECTRUM	SCOPES SOUND: انتظار هیچ‌چیز، بازنشانی، SPECTROGRAM [روشن|خاموش] یا طیف
 tract	ناحیه
+listens to the playlist	فهرست پخش را می‌شنود
+listens to the live input	ورودی زنده را می‌شنود
+~ listens to the live input: {1}	~ ورودی زنده را می‌شنود: {1}
+~ cannot open the live input: {1}	~ نمی‌تواند ورودی زنده را باز کند: {1}
+listens to the live input while one is open, else the playlist	تا وقتی ورودی زنده‌ای باز است آن را می‌شنود، وگرنه فهرست پخش را

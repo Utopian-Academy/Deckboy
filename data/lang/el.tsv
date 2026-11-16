@@ -4682,3 +4682,8 @@ The rat left a napkin, skapi. It says: "A fortress stands in the rocks above Bab
 SCOPES SOUND SPECTROGRAM: expected ON or OFF	SCOPES SOUND SPECTROGRAM: αναμένεται ΝΑΙ ή ΟΧΙ
 SCOPES SOUND: expected nothing, RESET, SPECTROGRAM [ON|OFF] or SPECTRUM	SCOPES SOUND: αναμένεται τίποτα, RESET, SPECTROGRAM [ON|OFF] ή SPECTRUM
 tract	οδός
+listens to the playlist	ακούει τη λίστα
+listens to the live input	ακούει τη ζωντανή είσοδο
+~ listens to the live input: {1}	~ ακούει τη ζωντανή είσοδο: {1}
+~ cannot open the live input: {1}	~ δεν μπορεί να ανοίξει τη ζωντανή είσοδο: {1}
+listens to the live input while one is open, else the playlist	ακούει τη ζωντανή είσοδο όσο είναι ανοιχτή μία, αλλιώς τη λίστα

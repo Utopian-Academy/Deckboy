@@ -4689,3 +4689,8 @@ The rat left a napkin, skapi. It says: "A fortress stands in the rocks above Bab
 SCOPES SOUND SPECTROGRAM: expected ON or OFF	SCOPES SOUND SPECTROGRAM: چاوەڕوانکراو هەڵکراو یان کوژاوە
 SCOPES SOUND: expected nothing, RESET, SPECTROGRAM [ON|OFF] or SPECTRUM	SCOPES SOUND: چاوەڕوانکراو هیچ، RESET، SPECTROGRAM [ON|OFF] یان SPECTRUM
 tract	ڕێڕەو
+listens to the playlist	گوێ لە لیستی لێدان دەگرێت
+listens to the live input	گوێ لە هاتنی ڕاستەوخۆ دەگرێت
+~ listens to the live input: {1}	~ گوێ لە هاتنی ڕاستەوخۆ دەگرێت: {1}
+~ cannot open the live input: {1}	~ ناتوانێت هاتنی ڕاستەوخۆ بکاتەوە: {1}
+listens to the live input while one is open, else the playlist	گوێ لە هاتنی ڕاستەوخۆ دەگرێت کاتێک یەکێک کرابێتەوە، گەرنا لیستی لێدان

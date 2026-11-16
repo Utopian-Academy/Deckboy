@@ -1365,6 +1365,10 @@
       const double v = std::abs(audioInputScratch_[i] / 32768.0);
       if (v > peak) peak = v;
     }
+    // A ~ listening to the live input hears it here while Settings has it open.
+    if (lfoInputHistoryWanted_) {
+      appendLfoHistory(lfoInputHistory_, audioInputScratch_.data(), n / 2, kLfoInputHistoryFrames);
+    }
     // A mono source captured as stereo lands in one leg with silence in the
     // other. Sum to both so it plays back centred rather than one-sided.
     if (project_.audioInputMono) {
@@ -7025,6 +7029,11 @@
               std::lock_guard<std::mutex> lock(vuSamplesMutex_);
               vuSamples_ = samples;
               vuSamplesUpdatedAtMs_ = SDL_GetTicks();
+              // The ~ band shapes read the playlist's last 85 ms.
+              if (lfoPlaylistHistoryWanted_.load(std::memory_order_relaxed)) {
+                appendLfoHistory(lfoPlaylistHistory_, samples.data(), samples.size() / 2,
+                                 kLfoPlaylistHistoryFrames);
+              }
             }
             // The sound scopes keep EVERY sample, not the latest chunk: an
             // integrated loudness that skipped some would read wrong. Two

@@ -783,6 +783,8 @@
            << "\"masterVolume\":" << static_cast<int>(std::round(std::clamp(project_.masterVolume, 0.0, 2.0) * 100.0)) << ","
            // The sound's pitch as the audio-pitch ~ reads it, 0-1 across C2-C6.
            << "\"audioPitch\":" << deckboy::effects::lfoAudioPitchSignal().load(std::memory_order_relaxed) << ","
+           // What the ~ audio shapes hear: each source's level, bands and pitch.
+           << "\"audioHeard\":" << lfoAudioHeardJson() << ","
            << "\"findToken\":\"" << escapeJson(lastCueFindToken_) << "\","
            << "\"findMatchCount\":" << lastCueFindMatches_.size() << ","
            << "\"findCursor\":" << (lastCueFindCursor_ >= 0 ? lastCueFindCursor_ + 1 : 0) << ","

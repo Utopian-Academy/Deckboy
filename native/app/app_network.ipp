@@ -3452,7 +3452,7 @@ html,body{width:100%;height:100%;overflow:hidden}
         "         FX PARAM <n> <A-F> <0-1>   (each effect's own shaping controls)\n"
         "         FX CHOICE <n> <A|B> <name>   (a setting from a list: Melt direction, Tape speed...)\n"
         "         FX COLOUR <n> [A-D] #rrggbb   (the effect's colour, or a hue slot's)\n"
-        "         FX LFO <n> <A-G> on|off|shape|rate|depth|phase|sync|beats [v]   (E = amount)\n"
+        "         FX LFO <n> <A-G> on|off|shape|rate|depth|phase|sync|beats|listen [v]   (E = amount)\n"
         "         FX COPY | FX PASTE   (the chain only, not geometry or fades)\n"
         "code: CODE GET | CODE SET <expression> | CODE EDIT\n"
         "swirl: SWIRL [STATUS] | SPEED <0-3> | TWIST <0-4> | PIXELS <64-960> | COLOUR <0-1>\n"

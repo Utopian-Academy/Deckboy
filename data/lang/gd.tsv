@@ -4683,3 +4683,8 @@ The rat left a napkin, skapi. It says: "A fortress stands in the rocks above Bab
 SCOPES SOUND SPECTROGRAM: expected ON or OFF	SCOPES SOUND SPECTROGRAM: dùil ri AIR no DHETH
 SCOPES SOUND: expected nothing, RESET, SPECTROGRAM [ON|OFF] or SPECTRUM	SCOPES SOUND: dùil ri dad, ATH-SHUIDHICH, SPECTROGRAM [AIR|DHETH] no SPEACTRAM
 tract	raon
+listens to the playlist	ag èisteachd ris an liosta
+listens to the live input	ag èisteachd ris an ion-chur beò
+~ listens to the live input: {1}	~ ag èisteachd ris an ion-chur beò: {1}
+~ cannot open the live input: {1}	~ cha ghabh an t-ion-chur beò fhosgladh: {1}
+listens to the live input while one is open, else the playlist	ag èisteachd ris an ion-chur beò fhad ’s a tha fear fosgailte, ris an liosta ma tha e dùinte

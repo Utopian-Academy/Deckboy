@@ -4408,6 +4408,52 @@
           expect(std::fabs(pitchToLfoUnit(220.0) - (57.0 - 36.0) / 48.0) < 0.01,
                  "A3 sits where the MIDI note shape puts it");
         }
+        // The sound in three bands (James, 2026-11-15): a tone is heard in its
+        // own band, at its own level, and nowhere else.
+        {
+          const auto bandsOf = [](double hz) {
+            std::vector<float> s(deckboy::audiofx::kBandFrames);
+            for (std::size_t k = 0; k < s.size(); ++k) {
+              s[k] = static_cast<float>(0.5 * std::sin(2.0 * 3.14159265358979 * hz * k / 48000.0));
+            }
+            return deckboy::audiofx::threeBandAmplitudes(s.data(), s.size(), 48000.0);
+          };
+          const double tones[3] = {80.0, 1000.0, 8000.0};
+          for (std::size_t b = 0; b < 3; ++b) {
+            const auto a = bandsOf(tones[b]);
+            bool alone = true;
+            for (std::size_t o = 0; o < 3; ++o) {
+              if (o != b && a[o] > 0.01) alone = false;
+            }
+            expect(std::fabs(a[b] - 0.5) < 0.05 && alone,
+                   "a " + std::to_string(static_cast<int>(tones[b])) + " Hz tone is heard in band " +
+                     std::to_string(b) + " alone (" + std::to_string(a[0]) + ", " + std::to_string(a[1]) +
+                     ", " + std::to_string(a[2]) + ")");
+          }
+          deckboy::audiofx::BandFollower follower;
+          double v = 0.0;
+          for (int i = 0; i < 60; ++i) v = follower.step(0.05, 1.0 / 60.0);
+          expect(v > 0.99, "a quiet steady band reads full against its own loudest");
+          for (int i = 0; i < 30; ++i) v = follower.step(0.0, 1.0 / 60.0);
+          expect(v < 0.1, "and falls away within half a second of silence");
+          ParamLfo high;
+          high.on = true;
+          high.shape = LfoShape::AudioHigh;
+          high.listen = 2;
+          std::ostringstream saved;
+          writeParamLfo(saved, high);
+          ParamLfo loaded;
+          readParamLfo(saved.str(), loaded);
+          expect(loaded.shape == LfoShape::AudioHigh && loaded.listen == 2,
+                 "audio-high listening to the live input survives the show file");
+          expect(std::string(lfoShapeToken(LfoShape::AudioLow)) == "audio-low" &&
+                   lfoShapeIsOneSided(LfoShape::AudioMid) && lfoShapeIsAudio(LfoShape::AudioPitch),
+                 "the bands are shapes, push one way like audio, and listen like it");
+          lfoAudioReadings()[2].band[2].store(0.75f);
+          expect(std::fabs(lfoUnitValue(high, 0.0, 0.0, 0.0) - 0.75) < 1e-6,
+                 "audio-high on the live input reads the input's high band");
+          lfoAudioReadings()[2].band[2].store(0.0f);
+        }
 
         std::array<ParamLfo, 2> tone {};
         tone[kToneLfoLevel].on = true;

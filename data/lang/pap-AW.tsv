@@ -4665,3 +4665,8 @@ The rat left a napkin, skapi. It says: "A fortress stands in the rocks above Bab
 SCOPES SOUND SPECTROGRAM: expected ON or OFF	SCOPES SOUND SPECTROGRAM: ta spera ON of OFF
 SCOPES SOUND: expected nothing, RESET, SPECTROGRAM [ON|OFF] or SPECTRUM	SCOPES SOUND: ta spera nada, RESET, SPECTROGRAM [ON|OFF] of SPECTRUM
 tract	área
+listens to the playlist	ta scucha e playlist
+listens to the live input	ta scucha e entrada bibu
+~ listens to the live input: {1}	~ ta scucha e entrada bibu: {1}
+~ cannot open the live input: {1}	~ no por habri e entrada bibu: {1}
+listens to the live input while one is open, else the playlist	ta scucha e entrada bibu mientras un ta habri, si no e playlist

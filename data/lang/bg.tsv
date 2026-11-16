@@ -4678,7 +4678,7 @@ could not write to {1}	не може да се запише в {1}
 A riddle, on a napkin. Is the rat a professor now?	Гатанка, на салфетка. Плъхът професор ли е вече?
 The rocket is the chorus. The balloon is the bridge. The coaster is the key change.	Ракетата е припевът. Балонът е мостикът. Влакчето е смяната на тоналността.
 The coaster rolls through the capsule, and the capsule splashes down on the coaster.	Влакчето минава през капсулата, а капсулата пада във водата върху влакчето.
-Rockets, balloons and a roller coaster. The rockets are public domain. The feelings are ours.	Ракети, балони и увеселително влакче. Ракетите са общественo достояние. Чувствата са наши.
+Rockets, balloons and a roller coaster. The rockets are public domain. The feelings are ours.	Ракети, балони и увеселително влакче. Ракетите са обществено достояние. Чувствата са наши.
 With no keyframe, the next shot's changes land on the LAST shot's picture. The rocket's fire smears into the balloon's sky.	Без ключов кадър промените на следващия план падат върху картината на ПРЕДХОДНИЯ план. Огънят на ракетата се размазва в небето на балона.
 TAKE the music video and watch it once. Count the cuts. Each one lands on the beat: the rocket, the balloon, the coaster, the capsule, the jet.	Направи TAKE на музикалното видео и го гледай веднъж. Брой срезовете. Всеки попада в ритъма: ракетата, балонът, влакчето, капсулата, самолетът.
 CHIP ADD: expected NES or FDS	CHIP ADD: очаква се NES или FDS
@@ -4688,3 +4688,8 @@ The rat left a napkin, skapi. It says: "A fortress stands in the rocks above Bab
 SCOPES SOUND SPECTROGRAM: expected ON or OFF	SCOPES SOUND SPECTROGRAM: очаквам ВКЛ или ИЗКЛ
 SCOPES SOUND: expected nothing, RESET, SPECTROGRAM [ON|OFF] or SPECTRUM	SCOPES SOUND: очаквам нищо, RESET, SPECTROGRAM [ON|OFF] или SPECTRUM
 tract	тракт
+listens to the playlist	слуша плейлиста
+listens to the live input	слуша живия вход
+~ listens to the live input: {1}	~ слуша живия вход: {1}
+~ cannot open the live input: {1}	~ не може да отвори живия вход: {1}
+listens to the live input while one is open, else the playlist	слуша живия вход, докато е отворен такъв, иначе плейлиста

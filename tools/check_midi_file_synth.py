@@ -58,8 +58,17 @@ def main():
         reply = db.send("DECK 2 CHIP ADD NES")
         expect("added NES synth cue" in reply, "CHIP ADD puts a chip synth cue on playlist 2", reply)
         db.send("TAKE")
-        db.send("DECK 1 SELECT 1")
-        reply = db.send("MIDIFILE PORT SYNTH")
+        # The import at launch can land after the control port opens: on CI's
+        # slower machines it had not when this ran (2026-11-15). Wait for it.
+        reply, t0 = "", time.monotonic()
+        while time.monotonic() - t0 < 30.0:
+            try:
+                db.send("DECK 1 SELECT 1")
+                reply = db.send("MIDIFILE PORT SYNTH")
+                break
+            except RuntimeError as e:
+                reply = str(e)
+                time.sleep(0.5)
         expect("DECKBOY SYNTH" in reply, "MIDIFILE PORT SYNTH names the destination", reply)
         db.send("TAKE")
         seen, last = [], ""

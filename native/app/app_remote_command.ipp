@@ -119,7 +119,7 @@
       if (found < 0) {
         failRemoteCommand(std::string(verb) + " SHAPE: sine, triangle, saw, ramp, square, sample, "
                           "drawn, audio, motion, motion-x, motion-y, midi-note, midi-velocity, "
-                          "midi-cc or aftertouch");
+                          "midi-cc, aftertouch, audio-pitch, audio-low, audio-mid or audio-high");
         return false;
       }
       lfo.shape = static_cast<deckboy::effects::LfoShape>(found);
@@ -148,6 +148,19 @@
         return false;
       }
       lfo.midiNumber = cc;
+    } else if (what == "LISTEN") {
+      // What an audio shape listens to.
+      const std::string source = toUpper(valueText);
+      if (source == "AUTO") {
+        lfo.listen = 0;
+      } else if (source == "PLAYLIST") {
+        lfo.listen = 1;
+      } else if (source == "INPUT") {
+        lfo.listen = 2;
+      } else {
+        failRemoteCommand(std::string(verb) + " LISTEN: auto, playlist or input");
+        return false;
+      }
     } else if (what == "RATE") {
       if (value <= 0.0 || value > 40.0) {
         failRemoteCommand(std::string(verb) + " RATE: hertz, 0-40");
@@ -168,7 +181,8 @@
       lfo.beats = static_cast<float>(value);
     } else {
       failRemoteCommand(std::string(verb) + ": on | off | shape <s> | rate <hz> | "
-                        "depth <0-1> | phase <0-1> | sync <on|off> | beats <n>");
+                        "depth <0-1> | phase <0-1> | sync <on|off> | beats <n> | "
+                        "listen <auto|playlist|input>");
       return false;
     }
     return true;
@@ -5995,8 +6009,10 @@
           lfo.midiChannel = std::clamp(std::atoi(parts[5].c_str()), 0, 16);
         } else if (what == "cc" && parts.size() >= 6) {
           lfo.midiNumber = std::clamp(std::atoi(parts[5].c_str()), 0, 127);
-        } else {
-          failRemoteCommand("FX LFO: on, off, shape, rate, depth, zone, channel or cc");
+        } else if (!setLfoFromRemote(lfo, parts, 4, "FX LFO")) {
+          // The rest -- phase, sync, beats, listen -- as GEOLFO spells them.
+          // HELP and the Companion module offered phase, sync and beats here,
+          // and this refused them until 2026-11-15.
           return;
         }
         markProjectDirty();

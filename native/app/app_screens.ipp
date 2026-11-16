@@ -425,7 +425,9 @@
                         lfoSlot);
           sy += rowH + 3;
           char rate[32];
-          if (deckboy::effects::lfoShapeIsMotion(lfo.shape)) {
+          if (deckboy::effects::lfoShapeIsAudio(lfo.shape)) {
+            std::snprintf(rate, sizeof rate, "%s", lfoListenLabel(lfo).c_str());
+          } else if (deckboy::effects::lfoShapeIsMotion(lfo.shape)) {
             std::snprintf(rate, sizeof rate, "%s", lfo.motionZone <= 0 ? "whole picture"
                                                    : ("zone " + std::to_string(lfo.motionZone)).c_str());
           } else if (deckboy::effects::lfoShapeIsMidi(lfo.shape)) {

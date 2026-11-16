@@ -4689,3 +4689,8 @@ The rat left a napkin, skapi. It says: "A fortress stands in the rocks above Bab
 SCOPES SOUND SPECTROGRAM: expected ON or OFF	SCOPES SOUND SPECTROGRAM: очікувалося ON або OFF
 SCOPES SOUND: expected nothing, RESET, SPECTROGRAM [ON|OFF] or SPECTRUM	SCOPES SOUND: очікувалося: нічого, RESET, SPECTROGRAM [ON|OFF] або SPECTRUM
 tract	тракт
+listens to the playlist	слухає плейлист
+listens to the live input	слухає живий вхід
+~ listens to the live input: {1}	~ слухає живий вхід: {1}
+~ cannot open the live input: {1}	~ не вдалося відкрити живий вхід: {1}
+listens to the live input while one is open, else the playlist	слухає живий вхід, поки він відкритий, інакше плейлист

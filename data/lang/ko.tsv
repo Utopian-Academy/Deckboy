@@ -4684,3 +4684,8 @@ The rat left a napkin, skapi. It says: "A fortress stands in the rocks above Bab
 SCOPES SOUND SPECTROGRAM: expected ON or OFF	SCOPES SOUND SPECTROGRAM: ON 또는 OFF 필요
 SCOPES SOUND: expected nothing, RESET, SPECTROGRAM [ON|OFF] or SPECTRUM	SCOPES SOUND: 없음, RESET, SPECTROGRAM [ON|OFF] 또는 SPECTRUM 필요
 tract	구역
+listens to the playlist	재생 목록을 들음
+listens to the live input	라이브 입력을 들음
+~ listens to the live input: {1}	~ 라이브 입력을 들음: {1}
+~ cannot open the live input: {1}	~ 라이브 입력을 열 수 없음: {1}
+listens to the live input while one is open, else the playlist	라이브 입력이 열려 있으면 그것을, 아니면 재생 목록을 들음

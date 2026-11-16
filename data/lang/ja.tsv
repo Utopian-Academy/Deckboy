@@ -4686,3 +4686,8 @@ The rat left a napkin, skapi. It says: "A fortress stands in the rocks above Bab
 SCOPES SOUND SPECTROGRAM: expected ON or OFF	SCOPES SOUND SPECTROGRAM: ON または OFF を指定
 SCOPES SOUND: expected nothing, RESET, SPECTROGRAM [ON|OFF] or SPECTRUM	SCOPES SOUND: なし、RESET、SPECTROGRAM [ON|OFF]、または SPECTRUM を指定
 tract	区域
+listens to the playlist	プレイリストの音声に追従
+listens to the live input	ライブ入力の音声に追従
+~ listens to the live input: {1}	~ ライブ入力の音声に追従：{1}
+~ cannot open the live input: {1}	~ ライブ入力を開けません：{1}
+listens to the live input while one is open, else the playlist	ライブ入力が開いている間はその音声に、なければプレイリストに追従

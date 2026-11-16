@@ -4699,3 +4699,8 @@ The rat left a napkin, skapi. It says: "A fortress stands in the rocks above Bab
 SCOPES SOUND SPECTROGRAM: expected ON or OFF	SCOPES SOUND SPECTROGRAM: tu pel gra ON o OFF
 SCOPES SOUND: expected nothing, RESET, SPECTROGRAM [ON|OFF] or SPECTRUM	SCOPES SOUND: tu pel gra vaala, RESET, SPECTROGRAM [ON|OFF] o SPECTRUM
 tract	kaea
+listens to the playlist	lisi vekaku
+listens to the live input	lisi tira lumo
+~ listens to the live input: {1}	~ lisi tira lumo: {1}
+~ cannot open the live input: {1}	~ vapel fesi tira lumo: {1}
+listens to the live input while one is open, else the playlist	lisi tira lumo kae una fesa, seto lisi vekaku

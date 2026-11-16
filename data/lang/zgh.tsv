@@ -4700,3 +4700,8 @@ The rat left a napkin, skapi. It says: "A fortress stands in the rocks above Bab
 SCOPES SOUND SPECTROGRAM: expected ON or OFF	SCOPES SOUND SPECTROGRAM: ⵜⵔⵎ ⵉⵔⵎⴷ ⵏⵖ ⵉⵅⵙⴰ
 SCOPES SOUND: expected nothing, RESET, SPECTROGRAM [ON|OFF] or SPECTRUM	SCOPES SOUND: ⵡⴰⵍⵓ, ⵙⵙⵓⵖⵍ, SPECTROGRAM [ⵉⵔⵎⴷ|ⵉⵅⵙⴰ] ⵏⵖ ⴰⵎⵣⵉⵔ
 tract	ⴰⵥⵕⵉ
+listens to the playlist	ⵉⵙⴼⵍⵉⴷ ⵉ ⵜⴱⴷⴰⵔⵜ
+listens to the live input	ⵉⵙⴼⵍⵉⴷ ⵉ ⵓⵏⴽⵛⵓⵎ ⵙ ⵜⵓⴷⵔⵜ
+~ listens to the live input: {1}	~ ⵉⵙⴼⵍⵉⴷ ⵉ ⵓⵏⴽⵛⵓⵎ ⵙ ⵜⵓⴷⵔⵜ: {1}
+~ cannot open the live input: {1}	~ ⵓⵔ ⵉⵎⴽⵏ ⵓⵔⵥⵎ ⵏ ⵓⵏⴽⵛⵓⵎ ⵙ ⵜⵓⴷⵔⵜ: {1}
+listens to the live input while one is open, else the playlist	ⵉⵙⴼⵍⵉⴷ ⵉ ⵓⵏⴽⵛⵓⵎ ⵙ ⵜⵓⴷⵔⵜ ⵎⴽ ⵉⵍⵍⴰ ⵢⴰⵏ ⵉⵕⵥⵎⵏ, ⵎⴽ ⵓⵔ ⵉⵍⵍⵉ ⵉ ⵜⴱⴷⴰⵔⵜ

@@ -4688,3 +4688,8 @@ The rat left a napkin, skapi. It says: "A fortress stands in the rocks above Bab
 SCOPES SOUND SPECTROGRAM: expected ON or OFF	SCOPES SOUND SPECTROGRAM: अपेक्षित ON या OFF
 SCOPES SOUND: expected nothing, RESET, SPECTROGRAM [ON|OFF] or SPECTRUM	SCOPES SOUND: अपेक्षित कुछ नहीं, RESET, SPECTROGRAM [ON|OFF] या SPECTRUM
 tract	क्षेत्र
+listens to the playlist	प्लेलिस्ट की ध्वनि सुनता है
+listens to the live input	लाइव इनपुट की ध्वनि सुनता है
+~ listens to the live input: {1}	~ लाइव इनपुट की ध्वनि सुनता है: {1}
+~ cannot open the live input: {1}	~ लाइव इनपुट नहीं खुल सका: {1}
+listens to the live input while one is open, else the playlist	लाइव इनपुट खुला हो तो उसकी ध्वनि सुनता है, वरना प्लेलिस्ट की

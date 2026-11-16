@@ -103,6 +103,7 @@ export function buildActions(self) {
 			{ id: 'phase', label: 'Phase' },
 			{ id: 'sync', label: 'Follow the tempo' },
 			{ id: 'beats', label: 'Cycle length in beats' },
+			{ id: 'listen', label: 'Listens to: auto, playlist or input (audio shapes)' },
 		],
 	})
 	const onOffOption = () => ({
@@ -692,6 +693,7 @@ export function buildActions(self) {
 						{ id: 'phase', label: 'Phase' },
 						{ id: 'sync', label: 'Follow the tempo' },
 						{ id: 'beats', label: 'Cycle length in beats' },
+						{ id: 'listen', label: 'Listens to: auto, playlist or input (audio shapes)' },
 					],
 				},
 				{

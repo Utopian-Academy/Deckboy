@@ -4625,3 +4625,9 @@ The rat left a napkin, skapi. It says: "A fortress stands in the rocks above Bab
 SCOPES SOUND SPECTROGRAM: expected ON or OFF	SCOPES SOUND SPECTROGRAM : attendu OUI ou NON
 SCOPES SOUND: expected nothing, RESET, SPECTROGRAM [ON|OFF] or SPECTRUM	SCOPES SOUND : attendu rien, RESET, SPECTROGRAM [OUI|NON] ou SPECTRE
 tract	étendue
+auto: input	auto : entrée
+listens to the playlist	écoute la liste
+listens to the live input	écoute l'entrée en direct
+~ listens to the live input: {1}	~ écoute l'entrée en direct : {1}
+~ cannot open the live input: {1}	~ ne peut pas ouvrir l'entrée en direct : {1}
+listens to the live input while one is open, else the playlist	écoute l'entrée en direct tant qu'une est ouverte, sinon la liste

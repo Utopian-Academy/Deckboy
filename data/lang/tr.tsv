@@ -4680,3 +4680,8 @@ The rat left a napkin, skapi. It says: "A fortress stands in the rocks above Bab
 SCOPES SOUND SPECTROGRAM: expected ON or OFF	SCOPES SOUND SPECTROGRAM: ON veya OFF bekleniyordu
 SCOPES SOUND: expected nothing, RESET, SPECTROGRAM [ON|OFF] or SPECTRUM	SCOPES SOUND: hiçbir şey, RESET, SPECTROGRAM [ON|OFF] veya SPECTRUM bekleniyordu
 tract	yol
+listens to the playlist	çalma listesini dinler
+listens to the live input	canlı girişi dinler
+~ listens to the live input: {1}	~ canlı girişi dinler: {1}
+~ cannot open the live input: {1}	~ canlı giriş açılamadı: {1}
+listens to the live input while one is open, else the playlist	açık bir canlı giriş varsa onu, yoksa çalma listesini dinler

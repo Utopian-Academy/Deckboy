@@ -1822,6 +1822,8 @@ jobs:
           if ($LASTEXITCODE -ne 0) { throw "a datamosh cut without a keyframe" }
           python tools/check_midi_file_synth.py --exe build\Release\Deckboy.exe
           if ($LASTEXITCODE -ne 0) { throw "a MIDI file to Deckboy's synth failed" }
+          python tools/check_audio_bands.py --exe build\Release\Deckboy.exe
+          if ($LASTEXITCODE -ne 0) { throw "audio band or listen-source checks failed" }
           python tools/check_render_datamosh.py --exe build\Release\Deckboy.exe
           if ($LASTEXITCODE -ne 0) { throw "Render to file did not draw DATAMOSH or Direction" }
           python tools/check_draw.py --exe build\Release\Deckboy.exe
@@ -2135,6 +2137,15 @@ jobs:
           done
           echo "every artefact present, Deckboy Mini's five included"
 
+      # A checksum for every file, so a download can be checked against the
+      # release page: sha256sum -c SHA256SUMS.txt (James, 2026-11-15).
+      - name: Checksums
+        run: |
+          set -e
+          cd release
+          sha256sum -- * > SHA256SUMS.txt
+          cat SHA256SUMS.txt
+
       # A CHANGELOG ENTRY IS NOT A RELEASE PAGE.
       #
       # This step used to paste the changelog section into the release body and
@@ -2226,6 +2237,9 @@ jobs:
           page.append("")
           page.append("Every build carries what it needs — the binary, ffmpeg and "
                       "its runtime libraries. Nothing else to install.")
+          page.append("")
+          page.append("Each file's SHA-256 is in `SHA256SUMS.txt`: in the download folder, "
+                      "`sha256sum -c SHA256SUMS.txt --ignore-missing` checks what you downloaded.")
           page.append("")
           page.append("### Deckboy Mini on its own")
           page.append("")

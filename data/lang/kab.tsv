@@ -4673,3 +4673,8 @@ The rat left a napkin, skapi. It says: "A fortress stands in the rocks above Bab
 SCOPES SOUND SPECTROGRAM: expected ON or OFF	SCOPES SOUND SPECTROGRAM: yettwarǧa ON neɣ OFF
 SCOPES SOUND: expected nothing, RESET, SPECTROGRAM [ON|OFF] or SPECTRUM	SCOPES SOUND: yettwarǧa ulac, RESET, SPECTROGRAM [ON|OFF] neɣ SPECTRUM
 tract	tamnaḍt
+listens to the playlist	isell i tebdart
+listens to the live input	isell i unekcum s tidet
+~ listens to the live input: {1}	~ isell i unekcum s tidet: {1}
+~ cannot open the live input: {1}	~ ulamek ad ldiɣ anekcum s tidet: {1}
+listens to the live input while one is open, else the playlist	isell i unekcum s tidet ma yeldi, ma ulac i tebdart

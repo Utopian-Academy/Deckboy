@@ -1309,6 +1309,15 @@ void effectLfoNudgeRate(int packed, int direction) {
 // hertz. Shared by the inspector's ~ rows and the Screens window's.
 void nudgeParamLfoRate(deckboy::effects::ParamLfo& lfoRef, int direction) {
   deckboy::effects::ParamLfo* lfo = &lfoRef;
+  if (deckboy::effects::lfoShapeIsAudio(lfo->shape)) {
+    // A sound has no rate: this cell says what it listens to.
+    lfo->listen = ((lfo->listen + direction) % 3 + 3) % 3;
+    triggerToast(lfo->listen == 1   ? std::string("listens to the playlist")
+                 : lfo->listen == 2 ? std::string("listens to the live input")
+                                    : std::string("listens to the live input while one is open, else the playlist"));
+    markProjectDirty();
+    return;
+  }
   if (lfo->shape == deckboy::effects::LfoShape::MidiCc) {
     lfo->midiNumber = ((lfo->midiNumber + direction) % 128 + 128) % 128;
     triggerToast("follows CC " + std::to_string(lfo->midiNumber));
@@ -2109,17 +2118,218 @@ void syncDatamoshFromStack() {
 // silence and smoothed a little, so a breath between notes does not throw
 // the figure about.
 void serviceAudioPitch() {
-  if (!deckboy::effects::lfoAudioPitchWanted().exchange(false, std::memory_order_relaxed)) return;
-  MediaEngine* engine = mediaEngineForDeck(project_.focusedDeckIndex);
-  if (!engine) return;
-  if (engine->copyRecentProgramAudio(audioPitchScratch_) < 1024) return;
-  // The newest third of a second is enough for C2 and keeps it responsive.
-  const std::size_t n = std::min<std::size_t>(audioPitchScratch_.size(), 2048);
-  const float* x = audioPitchScratch_.data() + (audioPitchScratch_.size() - n);
-  const double rate = engine->audioRate() / 8.0;  // the recent copy is decimated by 8
+  auto& heard = deckboy::effects::lfoAudioReadings();
+  // The playlist's: the focused playlist's played sound, from the engine's
+  // recent copy.
+  if (heard[1].pitchWanted.exchange(false, std::memory_order_relaxed)) {
+    MediaEngine* engine = mediaEngineForDeck(project_.focusedDeckIndex);
+    if (engine && engine->copyRecentProgramAudio(audioPitchScratch_) >= 1024) {
+      // The newest third of a second is enough for C2 and keeps it responsive.
+      const std::size_t n = std::min<std::size_t>(audioPitchScratch_.size(), 2048);
+      // The recent copy is decimated by 8.
+      followAudioPitch(1, audioPitchScratch_.data() + (audioPitchScratch_.size() - n), n,
+                       engine->audioRate() / 8.0);
+    }
+  }
+  // The live input's: its own history, brought down to the same rate.
+  if (heard[2].pitchWanted.exchange(false, std::memory_order_relaxed) && lfoInputHistory_.size() >= 8192) {
+    const std::size_t n = std::min<std::size_t>(lfoInputHistory_.size() / 8, 2048);
+    audioPitchScratch_.resize(n);
+    const float* from = lfoInputHistory_.data() + (lfoInputHistory_.size() - n * 8);
+    for (std::size_t i = 0; i < n; ++i) {
+      float sum = 0.0f;
+      for (std::size_t k = 0; k < 8; ++k) sum += from[i * 8 + k];
+      audioPitchScratch_[i] = sum / 8.0f;
+    }
+    followAudioPitch(2, audioPitchScratch_.data(), n, static_cast<double>(kAudioRate) / 8.0);
+  }
+}
+
+// Held through silence and noise (no clear pitch keeps the last one), and
+// smoothed by half, so a breath between notes does not throw the figure about.
+void followAudioPitch(int source, const float* x, std::size_t n, double rate) {
   const float unit = deckboy::effects::pitchToLfoUnit(deckboy::effects::detectPitchHz(x, n, rate));
-  if (unit < 0.0f) return;  // no clear pitch: hold the last one
-  auto& sig = deckboy::effects::lfoAudioPitchSignal();
+  if (unit < 0.0f) return;
+  auto& sig = deckboy::effects::lfoAudioReadings()[static_cast<std::size_t>(source)].pitch;
   const float last = sig.load(std::memory_order_relaxed);
   sig.store(last + (unit - last) * 0.5f, std::memory_order_relaxed);
+}
+
+// ── WHAT THE ~ AUDIO SHAPES HEAR ────────────────────────────────────────────
+//
+// James, 2026-11-15, from Ponderosa ("i love 1 2 and 3", then "1 and 2 this
+// release"): the sound in three bands, and a ~ that can listen to a live
+// input instead of the playlist. Each source keeps a short mono history,
+// newest last: the playlist's is filled on the engine's audio thread, the
+// input's here. A band is analysed only while some ~ has read it in the last
+// two seconds (engine threads read at their own pace, so not "this frame").
+
+static constexpr std::size_t kLfoPlaylistHistoryFrames = 4096;
+static constexpr std::size_t kLfoInputHistoryFrames = 16384;  // pitch reads a third of a second
+
+static void appendLfoHistory(std::vector<float>& history, const std::int16_t* stereo,
+                             std::size_t frames, std::size_t keep) {
+  history.reserve(keep + frames);
+  for (std::size_t i = 0; i < frames; ++i) {
+    history.push_back(static_cast<float>((static_cast<int>(stereo[2 * i]) + stereo[2 * i + 1]) / 65536.0));
+  }
+  if (history.size() > keep) {
+    history.erase(history.begin(), history.begin() + static_cast<std::ptrdiff_t>(history.size() - keep));
+  }
+}
+
+// What an audio shape's middle cell says: what it listens to. AUTO says which
+// of the two it hears right now.
+std::string lfoListenLabel(const deckboy::effects::ParamLfo& lfo) const {
+  if (lfo.listen == 1) return "playlist";
+  if (lfo.listen == 2) return "live input";
+  return audioInputRunning() ? "auto: input" : "auto: playlist";
+}
+
+// The live input for a ~ that listens to it while Settings > AUDIO INPUT has
+// none open: the Settings device (or the system's), opened to LISTEN ONLY.
+// Nothing it hears reaches the speakers, the programme, a stream or a
+// recording, and it closes three seconds after the last ~ stops reading it.
+bool openLfoInput() {
+  closeLfoInput();
+  SDL_AudioSpec desired {};
+  desired.freq = kAudioRate;
+  desired.format = SDL_AUDIO_S16;
+  desired.channels = 2;
+  std::string device = project_.audioInputDeviceName;
+  SDL_AudioDeviceID target = audioRecordingDeviceIdForName(device);
+  if (target == 0) {
+    device.clear();
+    target = SDL_AUDIO_DEVICE_DEFAULT_RECORDING;
+  }
+  SDL_AudioStream* stream = SDL_OpenAudioDeviceStream(target, &desired, nullptr, nullptr);
+  if (!stream && target != SDL_AUDIO_DEVICE_DEFAULT_RECORDING) {
+    device.clear();
+    stream = SDL_OpenAudioDeviceStream(SDL_AUDIO_DEVICE_DEFAULT_RECORDING, &desired, nullptr, nullptr);
+  }
+  if (!stream) {
+    // Tried again every ten seconds, so a mic plugged in later is found; said once.
+    lfoInputRetryAtMs_ = SDL_GetTicks() + 10000;
+    if (!lfoInputFailSaid_) {
+      lfoInputFailSaid_ = true;
+      triggerToast(deckboy::core::i18n::format("~ cannot open the live input: {1}", {std::string(SDL_GetError())}),
+                   ToastKind::Warning, kToastReadableMs);
+    }
+    showLog("LFO INPUT FAIL", SDL_GetError());
+    return false;
+  }
+  // A recording stream opens paused, like any other.
+  deckboySetAudioPaused(stream, false);
+  lfoInputStream_ = stream;
+  lfoInputPeak_ = 0.0;
+  lfoInputFailSaid_ = false;
+  const std::string shown = device.empty() ? "(system default)" : device;
+  triggerToast(deckboy::core::i18n::format("~ listens to the live input: {1}", {shown}));
+  showLog("LFO INPUT", shown);
+  return true;
+}
+
+void closeLfoInput() {
+  if (!lfoInputStream_) return;
+  SDL_DestroyAudioStream(lfoInputStream_);
+  lfoInputStream_ = nullptr;
+  lfoInputPeak_ = 0.0;
+}
+
+// What the listen-only input caught since the last frame, at the Settings
+// input's gain, into the ~ history; its level moves like the input meter's.
+void pumpLfoInput() {
+  if (!lfoInputStream_) return;
+  const int avail = SDL_GetAudioStreamAvailable(lfoInputStream_);
+  if (avail <= 0) return;
+  lfoInputScratch_.resize(static_cast<std::size_t>(avail) / sizeof(std::int16_t));
+  const int got = SDL_GetAudioStreamData(lfoInputStream_, lfoInputScratch_.data(), avail);
+  if (got <= 0) return;
+  const std::size_t n = static_cast<std::size_t>(got) / sizeof(std::int16_t);
+  const double gain = std::pow(10.0, std::clamp(project_.audioInputGainDb, -40.0, 40.0) / 20.0);
+  double peak = 0.0;
+  for (std::size_t i = 0; i < n; ++i) {
+    const double scaled = std::clamp(lfoInputScratch_[i] * gain, -32768.0, 32767.0);
+    lfoInputScratch_[i] = static_cast<std::int16_t>(scaled);
+    peak = std::max(peak, std::abs(scaled) / 32768.0);
+  }
+  appendLfoHistory(lfoInputHistory_, lfoInputScratch_.data(), n / 2, kLfoInputHistoryFrames);
+  lfoInputPeak_ = peak > lfoInputPeak_ ? peak : lfoInputPeak_ + (peak - lfoInputPeak_) * 0.08;
+}
+
+void followLfoBands(int source, const std::vector<float>& history, double dt) {
+  const std::size_t n = std::min(history.size(), deckboy::audiofx::kBandFrames);
+  const auto amplitude = deckboy::audiofx::threeBandAmplitudes(
+    n == 0 ? nullptr : history.data() + (history.size() - n), n, static_cast<double>(kAudioRate));
+  auto& heard = deckboy::effects::lfoAudioReadings()[static_cast<std::size_t>(source)];
+  auto& follow = lfoBandFollowers_[static_cast<std::size_t>(source)];
+  for (std::size_t b = 0; b < 3; ++b) {
+    heard.band[b].store(static_cast<float>(follow[b].step(amplitude[b], dt)), std::memory_order_relaxed);
+  }
+}
+
+void serviceLfoAudio() {
+  auto& heard = deckboy::effects::lfoAudioReadings();
+  deckboy::effects::lfoAudioAutoHearsInput().store(audioInputRunning(), std::memory_order_relaxed);
+  const Uint64 now = SDL_GetTicks();
+  const double dt = lfoAudioLastMs_ != 0
+                      ? std::clamp(static_cast<double>(now - lfoAudioLastMs_) / 1000.0, 0.0, 0.25)
+                      : 1.0 / 60.0;
+  lfoAudioLastMs_ = now;
+  const auto readLately = [now](bool stamped, Uint64& at, Uint64 windowMs) {
+    if (stamped) at = now;
+    return at != 0 && now - at < windowMs;
+  };
+
+  // THE PLAYLIST. Its level is the reactive level's playlist half, kept
+  // whether an input is open or not.
+  heard[1].level.store(static_cast<float>(playlistLevel_), std::memory_order_relaxed);
+  heard[1].levelWanted.store(false, std::memory_order_relaxed);
+  const bool playlistBands =
+    readLately(heard[1].bandsWanted.exchange(false, std::memory_order_relaxed), lfoPlaylistBandsAtMs_, 2000);
+  lfoPlaylistHistoryWanted_.store(playlistBands, std::memory_order_relaxed);
+  if (playlistBands) {
+    {
+      std::lock_guard<std::mutex> lock(vuSamplesMutex_);
+      lfoAudioScratch_ = lfoPlaylistHistory_;
+    }
+    followLfoBands(1, lfoAudioScratch_, dt);
+  }
+
+  // THE LIVE INPUT: Settings' own input while it is open, otherwise one
+  // opened to listen only, while a ~ reads it.
+  const bool levelAsked = heard[2].levelWanted.exchange(false, std::memory_order_relaxed);
+  const bool bandsAsked = heard[2].bandsWanted.exchange(false, std::memory_order_relaxed);
+  const bool pitchAsked = heard[2].pitchWanted.load(std::memory_order_relaxed);  // serviceAudioPitch clears it
+  const bool inputWanted = readLately(levelAsked || bandsAsked || pitchAsked, lfoInputWantedAtMs_, 3000);
+  lfoInputHistoryWanted_ = inputWanted;
+  if (audioInputRunning() || !inputWanted) {
+    closeLfoInput();
+  } else if (!lfoInputStream_ && now >= lfoInputRetryAtMs_) {
+    openLfoInput();
+  }
+  pumpLfoInput();
+  if (!inputWanted || (!audioInputRunning() && !lfoInputStream_)) lfoInputHistory_.clear();
+  heard[2].level.store(static_cast<float>(audioInputRunning() ? audioInputPeak_ : lfoInputPeak_),
+                       std::memory_order_relaxed);
+  if (inputWanted) followLfoBands(2, lfoInputHistory_, dt);
+}
+
+// STATUS: what the ~ audio shapes hear, per source.
+std::string lfoAudioHeardJson() const {
+  const auto& heard = deckboy::effects::lfoAudioReadings();
+  std::ostringstream j;
+  j << std::fixed << std::setprecision(3);
+  j << "{\"auto\":\"" << (audioInputRunning() ? "input" : "playlist") << "\"";
+  for (std::size_t s = 1; s <= 2; ++s) {
+    const auto& r = heard[s];
+    j << ",\"" << (s == 1 ? "playlist" : "input") << "\":{"
+      << "\"level\":" << r.level.load(std::memory_order_relaxed)
+      << ",\"low\":" << r.band[0].load(std::memory_order_relaxed)
+      << ",\"mid\":" << r.band[1].load(std::memory_order_relaxed)
+      << ",\"high\":" << r.band[2].load(std::memory_order_relaxed)
+      << ",\"pitch\":" << r.pitch.load(std::memory_order_relaxed) << "}";
+  }
+  j << ",\"inputOpen\":\"" << (audioInputRunning() ? "settings" : lfoInputStream_ ? "listening" : "no") << "\"}";
+  return j.str();
 }

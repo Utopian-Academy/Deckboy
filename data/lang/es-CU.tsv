@@ -4656,3 +4656,8 @@ The rat left a napkin, skapi. It says: "A fortress stands in the rocks above Bab
 SCOPES SOUND SPECTROGRAM: expected ON or OFF	SCOPES SOUND SPECTROGRAM: se espera DALE o NADA
 SCOPES SOUND: expected nothing, RESET, SPECTROGRAM [ON|OFF] or SPECTRUM	SCOPES SOUND: se espera nada, DE CERO, SPECTROGRAM [DALE|NADA] o ESPECTRO
 tract	extensión
+listens to the playlist	escucha la lista
+listens to the live input	escucha la entrada en directo
+~ listens to the live input: {1}	~ escucha la entrada en directo: {1}
+~ cannot open the live input: {1}	~ no puede abrir la entrada en directo: {1}
+listens to the live input while one is open, else the playlist	escucha la entrada en directo mientras haya una abierta; si no, la lista

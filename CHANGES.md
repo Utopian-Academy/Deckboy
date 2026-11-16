@@ -46,6 +46,9 @@
 - Lumia is made on the graphics card when every output can draw it there. Tested on Direct3D 11, Direct3D 12 and Vulkan; the Metal (macOS) version is written but not yet run. Only the small trace of light is worked out on the CPU, so a 4K output costs about what a 1080p one does: 1080p 12 ms and 4K 18 ms a frame at most, from 16 ms and 31 ms. A grade, a key or effects on the cue keep it on the CPU, as before. `DECKBOY_CPU_SOURCES=1` keeps every source on the CPU.
 
 ### Effects
+- New: three ~ shapes follow one band of the sound each: **audio-low** (up to 250 Hz: the kick, the bass), **audio-mid** (250 Hz to 4 kHz: voices, the snare) and **audio-high** (above 4 kHz: hi-hats, cymbals). Each band is measured against its own loudest moment of the last few seconds, so a quiet hi-hat moves its control as far as a loud kick moves its own.
+- New: every audio ~ (audio, audio-low, -mid, -high and audio-pitch) can listen to a live input. Its middle cell steps through **auto** (the live input while Settings > AUDIO INPUT has one open, otherwise the playlist, as before), **playlist** and **live input**. With no input open in Settings, Deckboy opens one to listen only: nothing it hears goes to the speakers, a stream or a recording. Companion: `FX LFO <n> <A-G> listen auto|playlist|input`; STATUS JSON reports `audioHeard`.
+- Fixed: `FX LFO` refused `phase`, `sync` and `beats`, which HELP and the Companion module offered.
 - Fixed: DATAMOSH smeared some of a clip's hard cuts and not others (6 of the 11 in the Datamosh lesson's clip). Every hard cut smears now.
 - Fixed: with ffmpeg 9, DATAMOSH never finished making its moshable copy, so turning it on did nothing and the Datamosh lesson stopped at its MOSH step.
 - DATAMOSH deinterlaces an interlaced clip in its moshable copy, so the smear does not comb.
@@ -178,6 +181,7 @@
 ### Companion module 1.0.10
 - New actions: a video cue's direction (forward, reverse or bounce); DATAMOSH on the selected cue; Ableton Link (join, leave or toggle); VJ quantise to the next beat or the next 1, 2 or 4 bars; Shader (load a `.fs` file, set an input, give an input an LFO); Lumia (set any control, give a control an LFO); Voice (say a text, the character, WORDS or SOUNDS, pitch, size and breath); live captions (on or off, what they listen to, which outputs show them, lines and size, make captions for a cue) and subtitles on the live cue; the phone's PAD (set, let go, HOLD or LATCH, what it moves); Render to file (open, close, cancel); edge blend for a row of projectors.
 - Multiview windows can show the Scopes.
+- The effect LFO actions can set what an audio shape listens to (auto, playlist or input), and their phase, sync and beats settings work now.
 - Shader's load action works only when Companion runs on the Deckboy computer: Deckboy does not read a file path from another computer.
 
 ### Languages

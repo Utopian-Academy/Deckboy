@@ -1924,17 +1924,46 @@ depth on the line underneath.
 
 - **Shapes**: sine, triangle, saw, ramp, square, and sample-and-hold (one random
   value per cycle, held — and repeatable, so the same moment of the show always
-  gives the same value); **drawn**, a cycle you sketch; **audio**, which follows
-  the playlist's sound; and **motion**, **motion-x** and **motion-y**, which
-  follow a camera (below).
+  gives the same value); **drawn**, a cycle you sketch; **audio**,
+  **audio-low**, **audio-mid**, **audio-high** and **audio-pitch**, which follow
+  a sound (below); and **motion**, **motion-x** and **motion-y**, which follow
+  a camera (below that).
 - **Locked to the tempo** or free-running. Locked, the cycle is measured in
   beats and follows the VJ tap tempo, so what moves is on the music.
 - The swing is **centred on the value you set**, so switching an LFO on never
   jumps the picture — it starts from where the parameter already was and
   averages back to it.
 
-`FX LFO <n> <A-E> on|off|shape|rate|depth|phase|sync|beats|zone [value]` does the
-same over the wire, where `E` is the amount.
+`FX LFO <n> <A-G> on|off|shape|rate|depth|phase|sync|beats|zone|listen [value]`
+does the same over the wire, where `E` is the amount.
+
+### The sound moves the controls
+
+Five shapes follow a sound instead of a clock:
+
+- **audio**: the level. Silence leaves the control where you set it, and sound
+  pushes it up by as much as the depth.
+- **audio-low**, **audio-mid** and **audio-high**: the same, for one band of
+  the sound. LOW is up to 250 Hz (the kick, the bass), MID is 250 Hz to 4 kHz
+  (voices, the snare), HIGH is above 4 kHz (hi-hats, cymbals). Each band is
+  measured against its own loudest moment of the last few seconds, so a quiet
+  hi-hat moves its control as far as a loud kick moves its own.
+- **audio-pitch**: the note, from C2 to C6, held through silence.
+
+On these shapes the middle cell says what the **~** listens to. Click it to
+step through:
+
+- **auto** (the default): the live input while Settings → AUDIO INPUT has one
+  open, otherwise the focused playlist's sound. The cell says which it hears.
+- **playlist**: the focused playlist's sound, even with an input open.
+- **live input**: a microphone or line input, at the Settings input's gain.
+  If Settings has no input open, Deckboy opens the Settings device (or the
+  system's default) to listen only. Nothing it hears goes to the speakers, a
+  stream or a recording, and it closes three seconds after the last **~**
+  stops listening. On a Mac, the first time asks for microphone access.
+
+`FX LFO <n> <A-G> listen auto|playlist|input` sets it over the wire, and
+STATUS JSON shows what each source hears in `audioHeard`.
 
 ### Motion: a camera moves the controls
 

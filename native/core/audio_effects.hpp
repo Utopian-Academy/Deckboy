@@ -276,6 +276,61 @@ inline std::array<double, kThirdOctaveBands> thirdOctaveLevels(const std::int16_
   return levels;
 }
 
+// ── THE SOUND IN THREE BANDS ─────────────────────────────────────────────────
+//
+// For the audio-low / -mid / -high ~ shapes (James, 2026-11-15): LOW up to
+// 250 Hz, MID 250 Hz to 4 kHz, HIGH above 4 kHz, each as the peak of a sine
+// that carries the same power. From the newest frames of a mono signal:
+// 2048 at 48 kHz is 43 ms and a 23 Hz bin, so LOW still has ten bins. Fewer
+// frames are padded with silence and read low.
+inline constexpr std::size_t kBandFrames = 2048;
+inline constexpr double kBandLowTopHz = 250.0;
+inline constexpr double kBandMidTopHz = 4000.0;
+inline std::array<double, 3> threeBandAmplitudes(const float* mono, std::size_t frames, double rate) {
+  constexpr std::size_t n = kBandFrames;
+  static const std::vector<double> hann = [] {
+    std::vector<double> w(n);
+    for (std::size_t i = 0; i < n; ++i) w[i] = 0.5 - 0.5 * std::cos(2.0 * 3.14159265358979323846 * i / (n - 1));
+    return w;
+  }();
+  std::array<double, 3> amplitude {};
+  if (!mono || frames == 0 || rate <= 0.0) return amplitude;
+  const std::size_t used = std::min(frames, n);
+  const std::size_t offset = frames - used;   // the most recent frames
+  std::vector<std::complex<double>> bins(n);
+  for (std::size_t i = 0; i < n; ++i) {
+    const double sample = i < used ? static_cast<double>(mono[offset + i]) : 0.0;
+    bins[i] = std::complex<double>(sample * hann[i], 0.0);
+  }
+  fftInPlace(bins);
+  std::array<double, 3> power {};
+  for (std::size_t k = 1; k < n / 2; ++k) {
+    const double hz = static_cast<double>(k) * rate / static_cast<double>(n);
+    power[hz < kBandLowTopHz ? 0 : hz < kBandMidTopHz ? 1 : 2] += std::norm(bins[k]);
+  }
+  // A sine of peak A puts 3 A^2 n^2 / 32 into the positive bins through a
+  // Hann window (as thirdOctaveLevels).
+  for (std::size_t b = 0; b < 3; ++b) {
+    amplitude[b] = std::sqrt(power[b] * 32.0 / (3.0 * static_cast<double>(n) * static_cast<double>(n)));
+  }
+  return amplitude;
+}
+
+// How one band's reading moves: against the band's own loudest moment of
+// the last few seconds (that loudest falls 6 dB in about three seconds, and
+// never below -40 dBFS, so silence and hiss read as nothing), up at once and
+// down over a fifth of a second, like the audio shape's level.
+struct BandFollower {
+  double loudest = 0.01;
+  double value = 0.0;
+  double step(double amplitude, double dt) {
+    loudest = std::max({amplitude, loudest * std::exp(-dt / 4.0), 0.01});
+    const double target = std::clamp(amplitude / loudest, 0.0, 1.0);
+    value = target > value ? target : value + (target - value) * (1.0 - std::exp(-dt / 0.2));
+    return value;
+  }
+};
+
 // ── THE SPECTROGRAM ──────────────────────────────────────────────────────────
 //
 // Frequency up the side (log, 25 Hz to 20 kHz), time across, level as colour:

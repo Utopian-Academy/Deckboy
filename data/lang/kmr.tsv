@@ -4679,3 +4679,8 @@ The rat left a napkin, skapi. It says: "A fortress stands in the rocks above Bab
 SCOPES SOUND SPECTROGRAM: expected ON or OFF	SCOPES SOUND SPECTROGRAM: divê ON an OFF be
 SCOPES SOUND: expected nothing, RESET, SPECTROGRAM [ON|OFF] or SPECTRUM	SCOPES SOUND: divê tiştek tune, RESET, SPECTROGRAM [ON|OFF] an SPECTRUM be
 tract	herêm
+listens to the playlist	guh dide lîsteya lêxistinê
+listens to the live input	guh dide ketina zindî
+~ listens to the live input: {1}	~ guh dide ketina zindî: {1}
+~ cannot open the live input: {1}	~ nikare ketina zindî veke: {1}
+listens to the live input while one is open, else the playlist	heta yek vekirî be guh dide ketina zindî, wekî din lîsteya lêxistinê
