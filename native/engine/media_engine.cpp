@@ -13436,6 +13436,23 @@ LumiaRipplePhases lumiaRipplePhases(double t) {
 LumiaLensyPhases lumiaLensyPhases(double t) {
   return {lumiaPhase(t, 0.6), lumiaPhase(t, 0.45), lumiaPhase(t, 0.3)};
 }
+// A smooth random wobble between -0.5 and 0.5: a random value at each whole
+// number, eased from one to the next. The same x always gives the same value,
+// so two renders of a cue are the same.
+double lumiaWobble(double x) {
+  auto at = [](double cell) {
+    auto h = static_cast<std::uint32_t>(static_cast<std::int64_t>(cell));
+    h ^= h >> 16;
+    h *= 0x7feb352du;
+    h ^= h >> 15;
+    h *= 0x846ca68bu;
+    h ^= h >> 16;
+    return h / 4294967296.0 - 0.5;
+  };
+  const double cell = std::floor(x);
+  const double f = x - cell;
+  return at(cell) + (at(cell + 1) - at(cell)) * f * f * (3 - 2 * f);
+}
 
 struct LumiaSplatScratch {
   std::vector<std::uint32_t> order;
@@ -13446,7 +13463,7 @@ struct LumiaState {
   double last = 0.0;     // the cue time of the last traced frame
   double lt = 0.0;       // the water's own time (integrated: flow may be on an LFO)
   double spinAt = 0.0;   // the picture's turn (integrated: spin may be on an LFO)
-  std::uint32_t seed = 1;
+  double shimmerAt = 0.0;    // the shimmer's clock: seconds of traced frames
   std::uint64_t moment = 0;  // the card's: the number of the last moment traced
   std::vector<float> acc, wat, tmp, core;   // this frame's light
   std::vector<float> colTab, rowTab;        // the slopes' column and row tables
@@ -13707,14 +13724,16 @@ LumiaStep lumiaStep(LumiaState& st, double animTime, const LumiaSettings& base, 
 
   // Listening: the jet surges with the programme sound.
   const double beat = base.listens ? 0.6 + 1.2 * std::clamp(static_cast<double>(clock.audio01), 0.0, 1.0) : 1.0;
-  double tremble = 1.0;
   if (s.trace) {
     st.lt += dt * (0.15 + flow * 1.4) * beat;
     st.spinAt += dt * spin * 0.6;
-    st.seed = st.seed * 1664525u + 1013904223u;
-    // Laser speckle: the whole beam's focus trembles a little every frame.
-    tremble = 1 + (st.seed / 4294967296.0 - 0.5) * shimmer * 0.5;
+    st.shimmerAt += dt;
   }
+  // Laser speckle: the whole beam's focus trembles. It eases from one random
+  // value to the next, six a second, so the lines waver smoothly. In 0.99.428
+  // it took a new random value every frame: each line jumped by up to 7% of
+  // its bend from one frame to the next, and the picture shook.
+  const double tremble = 1 + lumiaWobble(st.shimmerAt * 6.0) * shimmer * 0.5;
   s.lt = st.lt;
   s.spinAt = st.spinAt;
 

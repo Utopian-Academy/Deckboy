@@ -1,5 +1,10 @@
 # CHANGES - Incremental Updates (March-October 2026)
 
+## 2026-11-16 - v0.99.429 (Lumia moves smoothly)
+
+### Sources
+- Fixed: Lumia's lines shook from one frame to the next when shimmer was above 0, and a new Lumia cue starts with shimmer at 30. Now shimmer makes the lines waver smoothly, on the outputs, on the desk and in a render. At shimmer 0 nothing changes.
+
 ## 2026-11-15 - v0.99.428 (4K effects and transitions on the graphics card; Render to file; Shader, Lumia and Voice sources; Ableton Link; Melt and Circuit Bend)
 
 ### Themes

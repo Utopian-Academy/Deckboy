@@ -933,6 +933,40 @@
     }
 
     {
+      // LUMIA'S SHIMMER WAVERS; IT DOES NOT SHAKE (James, 2026-11-16: "in the
+      // release, lumia seems jittery"). 0.99.428 took a new random bend every
+      // frame, 17% apart on average at shimmer 100, so every line jumped from
+      // one frame to the next. Read through the plan the card draws from, a
+      // 60th of a second apart: the water's bend may change only a little
+      // each frame, and must still move over two seconds.
+      Cue cue;
+      cue.kind = CueKind::Pattern;
+      cue.id = "smoke-lumia-shimmer";
+      cue.path = "lumia";
+      cue.lumia.shimmer = 1.0;
+      deckboy::gpu::SourcePlan plan;
+      std::vector<double> bends;
+      for (int i = 0; i <= 120; ++i) {
+        if (!MediaEngine::planGpuSource(cue, 5.0 + i / 60.0, 1920, 1080, plan)) break;
+        bends.push_back(plan.tf[1]);
+      }
+      double meanStep = 0.0, worstStep = 0.0, lo = 1e9, hi = 0.0;
+      for (std::size_t i = 0; i < bends.size(); ++i) {
+        lo = std::min(lo, bends[i]);
+        hi = std::max(hi, bends[i]);
+        if (i == 0) continue;
+        const double step = std::fabs(bends[i] / bends[i - 1] - 1.0);
+        meanStep += step / static_cast<double>(bends.size() - 1);
+        worstStep = std::max(worstStep, step);
+      }
+      std::ostringstream said;
+      said << std::fixed << std::setprecision(3) << "Lumia's shimmer wavers smoothly: the bend moves "
+           << meanStep * 100 << "% a frame on average, " << worstStep * 100 << "% at most, "
+           << (lo > 0 ? hi / lo : 0.0) << "x over two seconds";
+      expect(bends.size() == 121 && lo > 0 && meanStep < 0.04 && worstStep < 0.08 && hi / lo > 1.2, said.str());
+    }
+
+    {
       App app;
       app.showSplashOverlay_ = false;
       app.showStartupDialog_ = false;
