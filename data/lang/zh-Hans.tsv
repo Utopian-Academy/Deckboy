@@ -4683,3 +4683,5 @@ CHIP ADD: expected NES or FDS	CHIP ADD：应为 NES 或 FDS
 MIDI file to DECKBOY SYNTH: no synth is live. Put a synth cue live on another playlist	MIDI 文件到 DECKBOY SYNTH：没有正在播出的合成器。请在另一个播放列表上播出合成器 cue
 Which MIDI output this file plays to, or DECKBOY SYNTH: the synth cue live on another playlist and any video synth. Step past the end for the first one available	此 MIDI 文件演奏到哪个 MIDI 输出，或 DECKBOY SYNTH：另一个播放列表上正在播出的合成器 cue 及任意视频合成器。越过末尾可选第一个可用项
 The rat left a napkin, skapi. It says: "A fortress stands in the rocks above Baba's town. The locals just call it 'the fortress', in their own language. Type that word where Deckboy talks about itself."	老鼠留了一张餐巾纸，斯卡皮。上面说：“Baba 的小镇上方的岩石间有一座要塞。当地人用他们自己的语言，直接叫它‘要塞’。请在 Deckboy 谈到自己的地方输入那个字。”
+SCOPES SOUND SPECTROGRAM: expected ON or OFF	SCOPES SOUND SPECTROGRAM: 应为 开 或 关
+SCOPES SOUND: expected nothing, RESET, SPECTROGRAM [ON|OFF] or SPECTRUM	SCOPES SOUND: 应为 无、重置、SPECTROGRAM [开|关] 或 频谱

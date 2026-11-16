@@ -1703,6 +1703,66 @@
              "sound scopes: true peak finds the crest between samples");
     }
 
+    // ── The spectrogram: a tone lights its own row and no other ─────────────
+    {
+      namespace afx = deckboy::audiofx;
+      constexpr double kPi = 3.14159265358979323846;
+      auto tone = [&](double hz, double dbfs, std::size_t frames) {
+        std::vector<std::int16_t> out(frames * 2);
+        const double amplitude = std::pow(10.0, dbfs / 20.0);
+        for (std::size_t i = 0; i < frames; ++i) {
+          out[2 * i] = out[2 * i + 1] =
+            static_cast<std::int16_t>(std::lround(amplitude * std::sin(2.0 * kPi * hz * i / kAudioRate) * 32767.0));
+        }
+        return out;
+      };
+      auto loudestRow = [&](const std::array<float, afx::kSpectrogramRows>& levels) {
+        int best = 0;
+        for (int r = 1; r < afx::kSpectrogramRows; ++r) if (levels[r] > levels[best]) best = r;
+        return best;
+      };
+      bool tonesRight = true;
+      double worstError = 0.0, worstLevel = 0.0;
+      for (double hz : {55.0, 220.0, 1000.0, 4400.0, 13000.0}) {
+        afx::SpectrogramAnalyser analyser(kAudioRate);
+        const auto signal = tone(hz, -18.0, afx::kSpectrogramFft + afx::kSpectrogramHop * 3);
+        std::array<float, afx::kSpectrogramRows> last {};
+        int columns = 0;
+        analyser.push(signal.data(), signal.size() / 2, [&](const auto& levels) { last = levels; ++columns; });
+        const int row = loudestRow(last);
+        const double found = afx::spectrogramRowHz(row);
+        worstError = std::max(worstError, std::fabs(found / hz - 1.0));
+        std::printf("        %.0f Hz -> row %d = %.0f Hz, %.2f dB\n", hz, row, found, last[row]);
+        worstLevel = std::max(worstLevel, std::fabs(last[row] + 18.0));
+        // Under about 100 Hz a row is narrower than the window's main lobe (47 Hz), so the peak is
+        // only as sharp as the window: 8 % there, 3 % above.
+        if (columns != 4 || std::fabs(found / hz - 1.0) > (hz < 100.0 ? 0.08 : 0.03) || last[row] > -16.6 || last[row] < -19.6) tonesRight = false;
+      }
+      std::printf("      spectrogram, 55 Hz to 13 kHz at -18 dBFS: worst row error %.2f %%, worst level error %.2f dB\n",
+                  worstError * 100.0, worstLevel);
+      expect(tonesRight, "spectrogram: a -18 dBFS tone lights its own row, 4 columns from 4096+3 hops, and reads its level");
+      // Silence is black, and the two channels add by power: one side at -18 reads -21.
+      afx::SpectrogramAnalyser quiet(kAudioRate);
+      std::vector<std::int16_t> zeros((afx::kSpectrogramFft + afx::kSpectrogramHop) * 2, 0);
+      float silentMax = -1000.0f;
+      quiet.push(zeros.data(), zeros.size() / 2, [&](const auto& levels) {
+        for (float v : levels) silentMax = std::max(silentMax, v);
+      });
+      expect(silentMax < -96.0f, "spectrogram: silence is below the floor in every row");
+      auto left = tone(1000.0, -18.0, afx::kSpectrogramFft);
+      for (std::size_t i = 0; i < afx::kSpectrogramFft; ++i) left[2 * i + 1] = 0;
+      afx::SpectrogramAnalyser one(kAudioRate);
+      float oneLevel = -200.0f;
+      one.push(left.data(), afx::kSpectrogramFft, [&](const auto& levels) {
+        oneLevel = *std::max_element(levels.begin(), levels.end());
+      });
+      std::printf("      one channel only at -18 dBFS: %.2f dB (power average: -21)\n", oneLevel);
+      expect(oneLevel < -20.0f && oneLevel > -22.6f, "spectrogram: the channels are averaged by power");
+      const auto dark = afx::spectrogramColour(-96.0), bright = afx::spectrogramColour(0.0);
+      expect(dark[0] + dark[1] + dark[2] < 30 && bright[0] + bright[1] + bright[2] > 600,
+             "spectrogram: the colour ramp runs from near black to near white");
+    }
+
     // ── The output limiter: a ceiling, and nothing else ─────────────────────
     {
       namespace afx = deckboy::audiofx;

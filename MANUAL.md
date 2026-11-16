@@ -3440,6 +3440,15 @@ when it closes.
   reads its own level (a -18 dBFS tone shows -18). The two channels are added
   by power, so out-of-phase sound still shows. Bars fall at 20 dB a second and
   each band's peak holds for two. The 25 and 31.5 Hz bands are coarse.
+- **SPECTROGRAM** is the other view of that panel. Press **SPECTROGRAM** in
+  the panel's title row. Frequency goes up the side on a log scale, 25 Hz to
+  20 kHz. Time goes across: the last 8 seconds, with the newest on the right.
+  Colour is the level, from black at -96 dBFS to white at 0 dBFS (the scale is
+  on the right). A steady tone is a horizontal line; a sweep is a slope; a
+  picture hidden in a sound shows as a picture. The view fills the whole
+  column, so the loudness meter is hidden until you press **SPECTRUM**. It
+  still runs. The analysis (4096-point FFT, Hann window, 47 columns a second)
+  runs only while this view is up.
 - **LOUDNESS EBU R 128**: **M** (momentary, 400 ms), **S** (short-term, 3 s)
   and **I** (integrated, gated, since the panel opened or **RESET**), on the
   EBU +9 scale with a mark at the -23 LUFS target and the distance from it in
@@ -3453,11 +3462,17 @@ against EBU Tech 3341's first test (a stereo 1 kHz sine at -23 dBFS reads
 -23.0 LUFS), and `tools/check_sound_scopes.py` reads a tone cue through the
 panel.
 
+`tools/make_spectrogram_picture.py` goes the other way. Give it a PNG, or a
+word with `--text`, and it writes a WAV whose spectrogram draws that picture.
+Import the WAV, play it, and open the SPECTROGRAM.
+
 | Command | Does |
 |---------|------|
 | `SCOPES BIG sound` | Shows the sound scopes |
 | `SCOPES SOUND` | The readings: playlist, sounding, correlation, M, S, I, true peak, loudest band |
 | `SCOPES SOUND RESET` | Starts the integrated loudness and true peak again |
+| `SCOPES SOUND SPECTROGRAM [ON\|OFF]` | Shows the spectrogram view (or not); `SCOPES SOUND` then adds `spectro=<Hz>/<dB>`, the loudest row of the newest column |
+| `SCOPES SOUND SPECTRUM` | Shows the third-octave bars again |
 
 ## 19. Timecode & Chase
 

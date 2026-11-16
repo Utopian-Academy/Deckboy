@@ -77,6 +77,15 @@
 - Quicker: words now show about a second after they are said (1.1-1.4 s), down from 2.1-2.5 s, and the first words of a sentence in 1.5 s instead of 3. The engine starts its next pass as soon as it can, instead of waiting a fixed second after each one; it still rests at least 40% of the time, so a show's CPU is safe. Measured with the base English model, the engine on 8 threads of a 32-thread PC; a slower computer waits longer, in proportion to its passes.
 
 ### Scopes
+- Added a **SPECTROGRAM** to the SOUND scopes: frequency up the side (log scale, 25 Hz to 20 kHz),
+  the last 8 seconds across with the newest on the right, and level as colour from -96 dBFS to 0.
+  It is a 4096-point FFT with a Hann window, 47 columns a second. The **SPECTROGRAM** button in
+  the SPECTRUM panel's title row switches to it (it takes the whole column, and **SPECTRUM** takes
+  you back; the loudness meter keeps running). The analysis runs only while that view is up.
+  `SCOPES SOUND SPECTROGRAM [ON|OFF]` and `SCOPES SOUND SPECTRUM` pick the view, and
+  `SCOPES SOUND` now reports `spectro=<Hz>/<dB>` for the loudest row of the newest column.
+- Added `tools/make_spectrogram_picture.py`: it writes a WAV whose spectrogram draws a picture of
+  your own (a PNG, or a word). Import it and open the panel to see it.
 - The picture scopes can go on an output. Set an output's **Shows** to **SCOPES** and it draws the waveform, parade, vectorscope, diamond and histogram full screen, for a colourist or a camera shader on a display of their own. The scopes run while it is on, whatever the desk's monitor shows. Companion: `VIDEO OUTPUT ADD SCOPES` and `VIDEO OUTPUT TYPE SCOPES`.
 - Scopes over NDI: turn NDI on for a SCOPES output, and any NDI monitor on the network shows the scopes. A stream, a recording or the Web Monitor can carry them too, with the SCOPES output as its Source.
 - A multiview window can show the scopes, on the desk's MULTI monitor and on any output that shows the multiview. Choose **the picture scopes** in the window's menu. Companion: `MULTIVIEW WINDOW <n> SCOPES`.

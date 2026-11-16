@@ -6973,16 +6973,30 @@
         remoteCommandDetail_ = scopesStats();
         return;
       }
-      // SCOPES SOUND [RESET]: the sound scopes' readings, or start the
-      // integrated loudness and true peak again.
+      // SCOPES SOUND [RESET | SPECTROGRAM [ON|OFF] | SPECTRUM]: the sound
+      // scopes' readings, start the integrated loudness and true peak again,
+      // or pick the view of the spectrum panel.
       if (sub == "SOUND") {
         const std::string value = parts.size() > 2 ? toUpper(parts[2]) : std::string();
         if (value == "RESET") {
           resetSoundScope(vuFocusedDeck_.load(std::memory_order_relaxed));
           return;
         }
+        if (value == "SPECTROGRAM" || value == "SPECTRUM") {
+          const std::string mode = parts.size() > 3 ? toUpper(parts[3]) : std::string();
+          if (value == "SPECTRUM" || mode == "OFF") {
+            soundSpectrogram_ = false;
+          } else if (mode.empty() || mode == "ON") {
+            if (!soundSpectrogram_) clearSpectrogram();
+            soundSpectrogram_ = true;
+          } else {
+            failRemoteCommand("SCOPES SOUND SPECTROGRAM: expected ON or OFF");
+            return;
+          }
+          return;
+        }
         if (!value.empty()) {
-          failRemoteCommand("SCOPES SOUND: expected nothing or RESET");
+          failRemoteCommand("SCOPES SOUND: expected nothing, RESET, SPECTROGRAM [ON|OFF] or SPECTRUM");
           return;
         }
         remoteCommandDetail_ = soundScopeReadings();

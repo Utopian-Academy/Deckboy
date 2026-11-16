@@ -276,6 +276,128 @@ inline std::array<double, kThirdOctaveBands> thirdOctaveLevels(const std::int16_
   return levels;
 }
 
+// ── THE SPECTROGRAM ──────────────────────────────────────────────────────────
+//
+// Frequency up the side (log, 25 Hz to 20 kHz), time across, level as colour:
+// the picture an image hidden in a sound is drawn on. One column per hop of
+// 1024 frames (21 ms, 47 a second) from a 4096-frame Hann FFT (11.7 Hz bins,
+// overlap 75 %). Both channels go through ONE complex FFT (left as the real
+// part, right as the imaginary), split by symmetry, and add by power, then
+// halve -- the same average thirdOctaveLevels takes -- so a sine reads its own
+// peak level in dBFS (to within the Hann window's 1.4 dB scalloping between
+// two bins).
+//
+// A row narrower than one bin is read between its two nearest bins; a row
+// wider than one (above about 2.3 kHz) takes the loudest bin it covers, so a
+// thin line stays as bright as it is and is not averaged away.
+inline constexpr std::size_t kSpectrogramFft = 4096;
+inline constexpr std::size_t kSpectrogramHop = 1024;
+inline constexpr int kSpectrogramRows = 256;
+inline constexpr int kSpectrogramColumns = 384;   // 8.2 s at 48 kHz
+inline constexpr double kSpectrogramLowHz = 25.0;
+inline constexpr double kSpectrogramHighHz = 20000.0;
+inline constexpr double kSpectrogramFloorDb = -96.0;
+
+// Row 0 is the top of the picture: the highest frequency.
+inline double spectrogramRowHz(int row) {
+  return kSpectrogramHighHz * std::pow(kSpectrogramLowHz / kSpectrogramHighHz,
+                                       static_cast<double>(row) / (kSpectrogramRows - 1));
+}
+inline int spectrogramRowFor(double hz) {
+  const double t = std::log(hz / kSpectrogramHighHz) / std::log(kSpectrogramLowHz / kSpectrogramHighHz);
+  return std::clamp(static_cast<int>(std::lround(t * (kSpectrogramRows - 1))), 0, kSpectrogramRows - 1);
+}
+
+// Dark to bright, so a quiet floor sits into the panel and the loud parts
+// stand out on it: black, indigo, magenta, orange, yellow, white (the
+// "inferno" ramp, which also survives being seen in grey).
+inline std::array<std::uint8_t, 3> spectrogramColour(double db) {
+  struct Stop { double at; double r, g, b; };
+  static constexpr Stop stops[] {
+    {0.00, 0, 0, 4}, {0.15, 31, 12, 72}, {0.30, 85, 15, 109}, {0.45, 136, 34, 106},
+    {0.60, 186, 54, 85}, {0.75, 227, 89, 51}, {0.88, 249, 140, 10}, {0.95, 249, 201, 50},
+    {1.00, 252, 255, 164}};
+  const double t = std::clamp((db - kSpectrogramFloorDb) / -kSpectrogramFloorDb, 0.0, 1.0);
+  std::size_t i = 0;
+  while (i + 2 < sizeof(stops) / sizeof(stops[0]) && t > stops[i + 1].at) ++i;
+  const double f = (t - stops[i].at) / (stops[i + 1].at - stops[i].at);
+  auto mix = [&](double a, double b) { return static_cast<std::uint8_t>(std::lround(a + (b - a) * f)); };
+  return {mix(stops[i].r, stops[i + 1].r), mix(stops[i].g, stops[i + 1].g), mix(stops[i].b, stops[i + 1].b)};
+}
+
+class SpectrogramAnalyser {
+ public:
+  explicit SpectrogramAnalyser(double rate = 48000.0) : rate_(rate), bins_(kSpectrogramFft) {
+    window_.resize(kSpectrogramFft);
+    for (std::size_t i = 0; i < kSpectrogramFft; ++i) {
+      window_[i] = 0.5 - 0.5 * std::cos(2.0 * 3.14159265358979323846 * i / (kSpectrogramFft - 1));
+    }
+    const double half = std::pow(kSpectrogramHighHz / kSpectrogramLowHz, 0.5 / (kSpectrogramRows - 1));
+    for (int row = 0; row < kSpectrogramRows; ++row) {
+      const double centre = spectrogramRowHz(row) * static_cast<double>(kSpectrogramFft) / rate_;
+      spans_[row] = {centre / half, centre * half, centre};
+    }
+  }
+
+  // Interleaved stereo frames in; each time a hop completes, emit(levels)
+  // is called with kSpectrogramRows levels in dBFS, row 0 the highest.
+  template <typename Emit>
+  void push(const std::int16_t* interleaved, std::size_t frames, Emit&& emit) {
+    pending_.insert(pending_.end(), interleaved, interleaved + frames * 2);
+    std::size_t start = 0;
+    while ((pending_.size() - start) / 2 >= kSpectrogramFft) {
+      analyse(pending_.data() + start);
+      emit(const_cast<const std::array<float, kSpectrogramRows>&>(levels_));
+      start += kSpectrogramHop * 2;
+    }
+    pending_.erase(pending_.begin(), pending_.begin() + static_cast<std::ptrdiff_t>(start));
+  }
+
+  void reset() { pending_.clear(); }
+
+ private:
+  struct Span { double lo, hi, centre; };   // in bins
+
+  void analyse(const std::int16_t* frames) {
+    constexpr std::size_t n = kSpectrogramFft;
+    for (std::size_t i = 0; i < n; ++i) {
+      bins_[i] = std::complex<double>(frames[2 * i] / 32768.0 * window_[i],
+                                      frames[2 * i + 1] / 32768.0 * window_[i]);
+    }
+    fftInPlace(bins_);
+    // |L|^2 + |R|^2 at bin k, from the packed transform Z: (|Z[k]|^2 + |Z[n-k]|^2) / 2.
+    auto power = [&](std::size_t k) {
+      return (std::norm(bins_[k]) + std::norm(bins_[(n - k) % n])) * 0.5;
+    };
+    // A sine of peak A has a Hann-windowed bin of A n / 4; the two channels
+    // are averaged.
+    const double scale = 0.5 / (static_cast<double>(n) * n / 16.0);
+    for (int row = 0; row < kSpectrogramRows; ++row) {
+      const Span& s = spans_[row];
+      double p;
+      if (s.hi - s.lo < 1.0) {
+        const auto k0 = static_cast<std::size_t>(std::floor(s.centre));
+        const double f = s.centre - static_cast<double>(k0);
+        p = power(std::min(k0, n / 2 - 1)) * (1.0 - f) + power(std::min(k0 + 1, n / 2 - 1)) * f;
+      } else {
+        const auto first = std::max<std::size_t>(1, static_cast<std::size_t>(std::ceil(s.lo)));
+        const auto last = std::min<std::size_t>(n / 2 - 1, std::max(first, static_cast<std::size_t>(std::floor(s.hi))));
+        p = 0.0;
+        for (std::size_t k = first; k <= last; ++k) p = std::max(p, power(k));
+      }
+      const double squared = p * scale;
+      levels_[row] = static_cast<float>(squared > 1e-14 ? 10.0 * std::log10(squared) : -140.0);
+    }
+  }
+
+  double rate_;
+  std::vector<double> window_;
+  std::vector<std::complex<double>> bins_;
+  std::array<Span, kSpectrogramRows> spans_ {};
+  std::array<float, kSpectrogramRows> levels_ {};
+  std::vector<std::int16_t> pending_;
+};
+
 // ── THE OUTPUT LIMITER ───────────────────────────────────────────────────────
 //
 // A ceiling nothing that plays to a device can push it past (Settings ›

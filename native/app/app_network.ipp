@@ -3483,7 +3483,7 @@ html,body{width:100%;height:100%;overflow:hidden}
         "scopes: SCOPES [PROGRAM|SCOPES|BOTH|TOGGLE] | SCOPES BIG waveform|parade|vector|diamond|histogram|\n"
         "        falsecolour|sound|OFF | SCOPES FREEZE [ON|OFF] | SCOPES MATRIX 709|2020\n"
         "        SCOPES SOURCE PROGRAMME|<n> | SCOPES STATS (the programme output, full raster; HDR in nits)\n"
-        "        SCOPES SOUND [RESET] (phase, third octaves, R 128 loudness and true peak of the focused playlist)\n"
+        "        SCOPES SOUND [RESET|SPECTROGRAM [ON|OFF]|SPECTRUM] (phase, third octaves or spectrogram, R 128 loudness and true peak of the focused playlist)\n"
         "trust:  TRUST <ip|a.b.c.d/bits> | TRUST REMOVE <entry> | TRUST LAST | TRUST LIST | TRUST CLEAR\n"
         "        (with Listen on: all interfaces, only these machines may control this one)\n"
         "        COMPANIONPASS <passphrase>|OFF - other machines must send AUTH <passphrase> first\n"

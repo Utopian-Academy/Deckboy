@@ -160,6 +160,17 @@
   double soundScopeCorrelation_ = 0.0, soundScopeGonioPeak_ = 0.0;
   std::array<double, deckboy::audiofx::kThirdOctaveBands> soundScopeBands_ {}, soundScopeBandPeaks_ {};
   std::array<Uint64, deckboy::audiofx::kThirdOctaveBands> soundScopeBandPeakAtMs_ {};
+  // The SPECTROGRAM view of the spectrum panel (drawSoundSpectrogram). The
+  // analysis (core/audio_effects.hpp) runs on the desk thread, only while the
+  // panel is open AND this view is chosen; the picture is a ring of columns in
+  // one streaming texture, and each new column is written alone.
+  bool soundSpectrogram_ = false;
+  SDL_Rect scopesSoundViewBtnRect_ {};
+  SDL_Texture* spectrogramTex_ = nullptr;
+  std::unique_ptr<deckboy::audiofx::SpectrogramAnalyser> spectrogramAnalyser_;
+  int spectrogramHead_ = 0;                       // the column written next (also the oldest)
+  std::uint64_t spectrogramColumns_ = 0;          // written since the last reset
+  std::array<float, deckboy::audiofx::kSpectrogramRows> spectrogramNewest_ {};
 
   static const char* scopePanelName(int panel) {
     switch (panel) {
@@ -814,6 +825,74 @@
     soundScopeFedAtMs_ = 0;
     soundScopeLastMs_ = 0;
     soundScopeSpectrumAtMs_ = 0;
+    clearSpectrogram();
+  }
+
+  SDL_Texture* spectrogramTexture() {
+    namespace afx = deckboy::audiofx;
+    if (spectrogramTex_) return spectrogramTex_;
+    spectrogramTex_ = deckboyCreateTexture(controlRenderer_, SDL_PIXELFORMAT_RGBA32, SDL_TEXTUREACCESS_STREAMING,
+                                           afx::kSpectrogramColumns, afx::kSpectrogramRows);
+    if (!spectrogramTex_) {
+      spectrogramTex_ = deckboyCreateTexture(controlRenderer_, SDL_PIXELFORMAT_RGBA32, SDL_TEXTUREACCESS_STATIC,
+                                             afx::kSpectrogramColumns, afx::kSpectrogramRows);
+    }
+    if (spectrogramTex_) {
+      SDL_SetTextureScaleMode(spectrogramTex_, SDL_SCALEMODE_LINEAR);   // a smooth picture, not blocks
+      SDL_SetTextureBlendMode(spectrogramTex_, SDL_BLENDMODE_NONE);
+      clearSpectrogram();
+    }
+    return spectrogramTex_;
+  }
+
+  // An empty picture: opaque black, and the next column starts at the left.
+  void clearSpectrogram() {
+    namespace afx = deckboy::audiofx;
+    spectrogramHead_ = 0;
+    spectrogramColumns_ = 0;
+    spectrogramNewest_.fill(-140.0f);
+    if (spectrogramAnalyser_) spectrogramAnalyser_->reset();
+    if (!spectrogramTex_) return;
+    const auto black = afx::spectrogramColour(-140.0);
+    std::vector<std::uint8_t> pixels(static_cast<std::size_t>(afx::kSpectrogramColumns) * afx::kSpectrogramRows * 4);
+    for (std::size_t i = 0; i < pixels.size(); i += 4) {
+      pixels[i] = black[0]; pixels[i + 1] = black[1]; pixels[i + 2] = black[2]; pixels[i + 3] = 255;
+    }
+    SDL_UpdateTexture(spectrogramTex_, nullptr, pixels.data(), afx::kSpectrogramColumns * 4);
+  }
+
+  // One column, alone: this is the whole of the streaming update.
+  void writeSpectrogramColumn(const std::array<float, deckboy::audiofx::kSpectrogramRows>& levels) {
+    namespace afx = deckboy::audiofx;
+    std::array<std::uint8_t, afx::kSpectrogramRows * 4> column;
+    for (int row = 0; row < afx::kSpectrogramRows; ++row) {
+      const auto c = afx::spectrogramColour(levels[row]);
+      column[row * 4] = c[0]; column[row * 4 + 1] = c[1]; column[row * 4 + 2] = c[2]; column[row * 4 + 3] = 255;
+    }
+    const SDL_Rect where {spectrogramHead_, 0, 1, afx::kSpectrogramRows};
+    SDL_UpdateTexture(spectrogramTex_, &where, column.data(), 4);
+    spectrogramNewest_ = levels;
+    spectrogramHead_ = (spectrogramHead_ + 1) % afx::kSpectrogramColumns;
+    ++spectrogramColumns_;
+  }
+
+  // Time keeps passing when nothing plays: silence is fed in by the clock, so
+  // the picture scrolls on, and a gap in a sound is a gap in the picture.
+  void serviceSpectrogram(const std::vector<std::int16_t>& fresh, double dt) {
+    namespace afx = deckboy::audiofx;
+    if (!spectrogramTexture()) return;
+    if (!spectrogramAnalyser_) spectrogramAnalyser_ = std::make_unique<afx::SpectrogramAnalyser>(kAudioRate);
+    std::vector<std::int16_t> silence;
+    const std::int16_t* data = fresh.data();
+    std::size_t frames = fresh.size() / 2;
+    if (fresh.empty() && !soundScopeSounding()) {
+      frames = static_cast<std::size_t>(dt * kAudioRate);
+      silence.assign(frames * 2, 0);
+      data = silence.data();
+    }
+    if (frames) {
+      spectrogramAnalyser_->push(data, frames, [&](const auto& levels) { writeSpectrogramColumn(levels); });
+    }
   }
 
   // Sound has arrived within the last quarter second.
@@ -840,6 +919,7 @@
                                         : 0.0;
     soundScopeLastMs_ = now;
     fresh.resize(fresh.size() & ~static_cast<std::size_t>(1));   // whole frames only
+    if (soundSpectrogram_) serviceSpectrogram(fresh, dt);
     if (!fresh.empty()) {
       soundScopeMeter_->push(fresh);
       soundScopeFedAtMs_ = now;
@@ -954,10 +1034,95 @@
               soundScopeSounding() ? reading : "CORRELATION --", kScopeLabel);
   }
 
+  // The longest of a panel's titles that leaves room for the view button.
+  std::string soundPanelTitle(const SDL_Rect& rect, const char* shortTitle, const char* longTitle,
+                              const char* buttonLabel) {
+    const int room = rect.w - measuredTextWidth(fontSmall_, buttonLabel) - uiScaled(40);
+    return measuredTextWidth(fontSmall_, longTitle) <= room ? std::string(longTitle) : std::string(shortTitle);
+  }
+
+  // The switch between the two views of this panel, in its title row. It
+  // names the view a click goes TO.
+  void drawSoundViewButton(const SDL_Rect& rect, const char* label) {
+    const int lineH = textLineHeight(fontSmall_);
+    const int w = measuredTextWidth(fontSmall_, label) + uiScaled(16);
+    scopesSoundViewBtnRect_ = SDL_Rect {rect.x + rect.w - w - uiScaled(4), rect.y + uiScaled(2), w,
+                                        lineH + uiScaled(4)};
+    drawUIPanel(scopesSoundViewBtnRect_, paletteToggleFill(false), pal.deep, pal.light);
+    drawCenteredTextSafe(controlRenderer_, fontSmall_, scopesSoundViewBtnRect_, label, paletteToggleInk(false));
+  }
+
+  // Frequency up the side on a log scale, the last 8 seconds across with the
+  // newest on the right, level as colour (the bar on the right). The picture
+  // is the streaming texture, drawn in two pieces where its ring wraps.
+  void drawSoundSpectrogram(const SDL_Rect& rect) {
+    namespace afx = deckboy::audiofx;
+    const int lineH = textLineHeight(fontSmall_);
+    const int barW = std::max(4, uiScaled(8));
+    const int scaleLabelW = measuredTextWidth(fontSmall_, "-96") + uiScaled(8);
+    const std::string title = soundPanelTitle(rect, "SPECTROGRAM", "SPECTROGRAM  25 Hz - 20 kHz  dBFS", "SPECTRUM");
+    SDL_Rect plot = scopePanel(rect, title.c_str(), kScopeSound, uiScaled(34),
+                               uiScaled(6) + barW + scaleLabelW);
+    drawSoundViewButton(rect, "SPECTRUM");
+    plot.h = std::max(1, plot.h - lineH);
+    SDL_Texture* tex = spectrogramTexture();
+    if (tex) {
+      const int columns = afx::kSpectrogramColumns, head = spectrogramHead_;
+      // Oldest part first: columns head..end, then 0..head.
+      const int oldestW = static_cast<int>(std::lround(static_cast<double>(plot.w) * (columns - head) / columns));
+      const SDL_FRect srcA {static_cast<float>(head), 0.0f, static_cast<float>(columns - head),
+                            static_cast<float>(afx::kSpectrogramRows)};
+      const SDL_FRect dstA {static_cast<float>(plot.x), static_cast<float>(plot.y), static_cast<float>(oldestW),
+                            static_cast<float>(plot.h)};
+      if (head < columns) SDL_RenderTexture(controlRenderer_, tex, &srcA, &dstA);
+      if (head > 0) {
+        const SDL_FRect srcB {0.0f, 0.0f, static_cast<float>(head), static_cast<float>(afx::kSpectrogramRows)};
+        const SDL_FRect dstB {static_cast<float>(plot.x + oldestW), static_cast<float>(plot.y),
+                              static_cast<float>(plot.w - oldestW), static_cast<float>(plot.h)};
+        SDL_RenderTexture(controlRenderer_, tex, &srcB, &dstB);
+      }
+    }
+    Primitives::strokeRect(controlRenderer_, plot, SDL_Color {60, 70, 60, 255});
+    // Frequency grid and labels. A row's centre is half a row in.
+    const double octaves = std::log2(afx::kSpectrogramHighHz / afx::kSpectrogramLowHz);
+    const double pxPerOctave = plot.h / octaves;
+    auto yFor = [&](double hz) {
+      const double t = std::log(hz / afx::kSpectrogramHighHz) / std::log(afx::kSpectrogramLowHz / afx::kSpectrogramHighHz);
+      return plot.y + static_cast<int>(std::lround((t * (afx::kSpectrogramRows - 1) + 0.5) / afx::kSpectrogramRows * plot.h));
+    };
+    struct Mark { double hz; const char* label; bool minor; };
+    static constexpr Mark marks[] {{50, "50", true}, {100, "100", false}, {500, "500", true}, {1000, "1k", false},
+                                   {5000, "5k", true}, {10000, "10k", false}, {20000, "20k", true}};
+    for (const Mark& m : marks) {
+      if (m.minor && pxPerOctave < lineH * 1.3) continue;
+      const int y = yFor(m.hz);
+      scopeLine(plot.x, y, plot.x + plot.w, y, SDL_Color {150, 140, 96, static_cast<Uint8>(m.minor ? 40 : 70)});
+      scopeText(plot.x - uiScaled(2), y, m.label, kScopeLabel, true);
+    }
+    // Time along the bottom.
+    const int bottom = plot.y + plot.h;
+    scopeText(plot.x, bottom + lineH / 2 + uiScaled(1), "-8 s", kScopeLabel);
+    scopeText(plot.x + plot.w / 2 - measuredTextWidth(fontSmall_, "-4 s") / 2, bottom + lineH / 2 + uiScaled(1),
+              "-4 s", kScopeLabel);
+    scopeText(plot.x + plot.w, bottom + lineH / 2 + uiScaled(1), "0", kScopeLabel, true);
+    // The level scale: 0 dBFS at the top.
+    const int barX = plot.x + plot.w + uiScaled(6);
+    for (int y = 0; y < plot.h; ++y) {
+      const double db = afx::kSpectrogramFloorDb * (static_cast<double>(y) / std::max(1, plot.h - 1));
+      const auto c = afx::spectrogramColour(db);
+      Primitives::fillRect(controlRenderer_, SDL_Rect {barX, plot.y + y, barW, 1}, SDL_Color {c[0], c[1], c[2], SDL_ALPHA_OPAQUE});
+    }
+    scopeText(barX + barW, plot.y + lineH / 2, "0", kScopeLabel);
+    scopeText(barX + barW, plot.y + plot.h / 2, "-48", kScopeLabel);
+    scopeText(barX + barW, bottom - lineH / 2, "-96", kScopeLabel);
+  }
+
   // Third octaves, 25 Hz to 20 kHz, in dBFS: a sine reads its own level.
   void drawSoundSpectrum(const SDL_Rect& rect) {
     namespace afx = deckboy::audiofx;
-    SDL_Rect plot = scopePanel(rect, "SPECTRUM  1/3 OCTAVE  dBFS", kScopeSound, uiScaled(34), uiScaled(8));
+    const std::string title = soundPanelTitle(rect, "SPECTRUM", "SPECTRUM  1/3 OCTAVE  dBFS", "SPECTROGRAM");
+    SDL_Rect plot = scopePanel(rect, title.c_str(), kScopeSound, uiScaled(34), uiScaled(8));
+    drawSoundViewButton(rect, "SPECTROGRAM");
     const int lineH = textLineHeight(fontSmall_);
     plot.h = std::max(1, plot.h - lineH);
     constexpr double kFloorDb = 80.0;
@@ -1063,9 +1228,16 @@
     const int phaseW = std::clamp(body.h, uiScaled(140), body.w * 2 / 5);
     const int restX = body.x + phaseW + gap, restW = body.w - phaseW - gap;
     const int spectrumH = (body.h - gap) * 11 / 20;
+    scopesSoundViewBtnRect_ = {};
     drawSoundPhase(SDL_Rect {body.x, body.y, phaseW, body.h});
-    drawSoundSpectrum(SDL_Rect {restX, body.y, restW, spectrumH});
-    drawSoundLoudness(SDL_Rect {restX, body.y + spectrumH + gap, restW, body.h - spectrumH - gap});
+    if (soundSpectrogram_) {
+      // The picture wants the height: it takes the whole column, and the
+      // loudness readings (still running) come back with SPECTRUM.
+      drawSoundSpectrogram(SDL_Rect {restX, body.y, restW, body.h});
+    } else {
+      drawSoundSpectrum(SDL_Rect {restX, body.y, restW, spectrumH});
+      drawSoundLoudness(SDL_Rect {restX, body.y + spectrumH + gap, restW, body.h - spectrumH - gap});
+    }
     scopesPanelRects_[kScopeSound] = body;   // a click on it goes back, as on every other panel
   }
 
@@ -1081,13 +1253,29 @@
       if (soundScopeBands_[b] > soundScopeBands_[loudest]) loudest = b;
     }
     const auto& meter = *soundScopeMeter_;
-    char text[320];
+    // The spectrogram's newest column: its loudest row as Hz/dBFS, or "--"
+    // when that column is silent, or "off" while the view is not the one up.
+    char spectro[64] = "off";
+    if (soundSpectrogram_) {
+      int row = 0;
+      for (int r = 1; r < afx::kSpectrogramRows; ++r) {
+        if (spectrogramNewest_[r] > spectrogramNewest_[row]) row = r;
+      }
+      if (spectrogramColumns_ == 0 || spectrogramNewest_[row] < -90.0f) {
+        std::snprintf(spectro, sizeof(spectro), "--");
+      } else {
+        std::snprintf(spectro, sizeof(spectro), "%.0f/%.1f", afx::spectrogramRowHz(row), spectrogramNewest_[row]);
+      }
+    }
+    char text[384];
     std::snprintf(text, sizeof(text),
-                  "deck=%d sounding=%d corr=%+.2f M=%.1f S=%.1f I=%.1f TP=%.1f loudest=%s/%.1f over=%.1fs",
+                  "deck=%d sounding=%d corr=%+.2f M=%.1f S=%.1f I=%.1f TP=%.1f loudest=%s/%.1f over=%.1fs "
+                  "spectro=%s columns=%llu",
                   soundScopeDeck_ + 1, soundScopeSounding() ? 1 : 0, soundScopeCorrelation_,
                   meter.momentary, meter.shortTerm, meter.integrated, meter.peakDb(),
                   afx::kThirdOctaveLabels[loudest], soundScopeBands_[loudest],
-                  static_cast<double>(SDL_GetTicks() - soundScopeSinceMs_) / 1000.0);
+                  static_cast<double>(SDL_GetTicks() - soundScopeSinceMs_) / 1000.0, spectro,
+                  static_cast<unsigned long long>(spectrogramColumns_));
     return text;
   }
 
@@ -1100,6 +1288,7 @@
     scopesFalseBtnRect_ = {};
     scopesSoundBtnRect_ = {};
     scopesSoundResetBtnRect_ = {};
+    scopesSoundViewBtnRect_ = {};
     const bool sound = scopesBig_ == kScopeSound;
     setSoundScopeWanted(sound);
     if (area.w < uiScaled(160) || area.h < uiScaled(120)) return;
@@ -1382,6 +1571,11 @@
     }
     if (scopesSoundBtnRect_.w > 0 && pointInRect(x, y, scopesSoundBtnRect_)) {
       dispatchQuickAction(QuickAction::ScopesToggleBig, kScopeSound);
+      return true;
+    }
+    if (scopesSoundViewBtnRect_.w > 0 && pointInRect(x, y, scopesSoundViewBtnRect_)) {
+      soundSpectrogram_ = !soundSpectrogram_;
+      clearSpectrogram();
       return true;
     }
     if (scopesSoundResetBtnRect_.w > 0 && pointInRect(x, y, scopesSoundResetBtnRect_)) {

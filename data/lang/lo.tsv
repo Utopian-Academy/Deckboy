@@ -4668,3 +4668,5 @@ CHIP ADD: expected NES or FDS	CHIP ADD: ຕ້ອງການ NES ຫຼື FDS
 MIDI file to DECKBOY SYNTH: no synth is live. Put a synth cue live on another playlist	ໄຟລ໌ MIDI ໄປ DECKBOY SYNTH: ບໍ່ມີ synth ສົດ. ໃຫ້ cue synth ສົດຢູ່ໃນ playlist ອື່ນ
 Which MIDI output this file plays to, or DECKBOY SYNTH: the synth cue live on another playlist and any video synth. Step past the end for the first one available	ໄຟລ໌ນີ້ຫຼິ້ນໄປຂາອອກ MIDI ໃດ, ຫຼື DECKBOY SYNTH: cue synth ທີ່ສົດຢູ່ໃນ playlist ອື່ນ ແລະ synth ວິດີໂອໃດກໍໄດ້. ເກີນທ້າຍເພື່ອເອົາອັນທຳອິດທີ່ມີ
 The rat left a napkin, skapi. It says: "A fortress stands in the rocks above Baba's town. The locals just call it 'the fortress', in their own language. Type that word where Deckboy talks about itself."	ໜູປ່ອຍຜ້າເຊັດປາກໄວ້, skapi. ມັນຂຽນວ່າ: "ມີປ້ອມຢູ່ເທິງໜ້າຜາ ເໜືອເມືອງຂອງ Baba. ຄົນທ້ອງຖິ່ນເອີ້ນມັນພຽງວ່າ 'ປ້ອມ' ດ້ວຍພາສາຂອງເຂົາເຈົ້າເອງ. ພິມຄຳນັ້ນໃສ່ບ່ອນທີ່ Deckboy ເວົ້າກ່ຽວກັບຕົນເອງ."
+SCOPES SOUND SPECTROGRAM: expected ON or OFF	SCOPES SOUND SPECTROGRAM: ຕ້ອງເປັນ ON ຫຼື OFF
+SCOPES SOUND: expected nothing, RESET, SPECTROGRAM [ON|OFF] or SPECTRUM	SCOPES SOUND: ຕ້ອງເປັນ ບໍ່ມີຫຍັງ, RESET, SPECTROGRAM [ON|OFF] ຫຼື SPECTRUM
