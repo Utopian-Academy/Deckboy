@@ -6963,7 +6963,16 @@ inline void applyCueEffectStack(std::vector<std::uint8_t>& pixels,
         // (dropouts patched from the line above), tracking (a rolling band),
         // the supply (hum bars). A function of the frame index: the same tape
         // plays the same way twice.
-        const int W = ctx.width, H = ctx.height;
+        //
+        // FROM 2560 WIDE IT IS MADE SMALL (James, 2026-11-16: "if tape cant hit
+        // 60 at 4k, back to the dam drawing board" -- it took 28 ms a frame at
+        // 3840x2160). Tape throws horizontal detail away on purpose: at 4K the
+        // brightness alone is smeared 17 pixels and the colour about 90. So a
+        // picture that wide runs at half size, exactly as Tape runs at 1080p,
+        // and is drawn back up bilinearly and mixed in by the amount.
+        const int fullW = ctx.width, fullH = ctx.height;
+        const bool halfSize = fullW >= 2560 && fullH >= 4;
+        const int W = halfSize ? fullW / 2 : fullW, H = halfSize ? fullH / 2 : fullH;
         const double s = W / 480.0;                       // the board's numbers are for 480 wide
         const double t = static_cast<double>(ctx.frameIndex) / 60.0;
         const std::uint32_t frame = static_cast<std::uint32_t>(ctx.frameIndex);
@@ -6991,10 +7000,61 @@ inline void applyCueEffectStack(std::vector<std::uint8_t>& pixels,
         const double hum = deck * 0.08;
         const int noiseCell = std::max(1, static_cast<int>(std::lround(8 * s)));
         const int noiseCell2 = std::max(1, static_cast<int>(std::lround(2 * s)));
-        static thread_local std::vector<std::uint8_t> clean;
-        clean.assign(pixels.begin(), pixels.begin() + static_cast<std::ptrdiff_t>(count * 4));
-        const std::uint8_t* src = clean.data();
-        const int a256 = static_cast<int>(std::lround(amt * 256.0));
+        // A byte's share of brightness and of the two colour signals, as the
+        // line loop computed them per pixel with six divisions: the same
+        // products, added in the same order, so the result is the same.
+        struct TapeTables {
+          double yr[256], yg[256], yb[256], ir[256], ig[256], ib[256], qr[256], qg[256], qb[256];
+        };
+        static const TapeTables tab = [] {
+          TapeTables k {};
+          for (int v = 0; v < 256; ++v) {
+            const double f = v / 255.0;
+            k.yr[v] = 0.299 * f; k.yg[v] = 0.587 * f; k.yb[v] = 0.114 * f;
+            k.ir[v] = 0.596 * f; k.ig[v] = 0.274 * f; k.ib[v] = 0.322 * f;
+            k.qr[v] = 0.211 * f; k.qg[v] = 0.523 * f; k.qb[v] = 0.312 * f;
+          }
+          return k;
+        }();
+        static thread_local std::vector<std::uint8_t> clean, made;
+        const std::uint8_t* src = nullptr;
+        std::uint8_t* dst = nullptr;
+        int a256 = static_cast<int>(std::lround(amt * 256.0));
+        if (halfSize) {
+          // Each small pixel the mean of a 2x2 block of the picture.
+          // Plain pointers for the row threads: inside them, the names of these
+          // thread_local buffers would mean each thread's own empty ones.
+          clean.resize(static_cast<std::size_t>(W) * static_cast<std::size_t>(H) * 4);
+          made.resize(clean.size());
+          std::uint8_t* smallPicture = clean.data();
+          detail::parallelRows(H, W * 8, [&](int r0, int r1) {
+            for (int y = r0; y < r1; ++y) {
+              const std::uint8_t* a = pixels.data() + static_cast<std::size_t>(2 * y) * fullW * 4;
+              const std::uint8_t* b = a + static_cast<std::size_t>(fullW) * 4;
+              std::uint8_t* o = smallPicture + static_cast<std::size_t>(y) * W * 4;
+              for (int x = 0; x < W; ++x) {
+                for (int c = 0; c < 3; ++c) {
+                  o[x * 4 + c] = static_cast<std::uint8_t>(
+                    (a[x * 8 + c] + a[x * 8 + 4 + c] + b[x * 8 + c] + b[x * 8 + 4 + c] + 2) >> 2);
+                }
+              }
+            }
+          });
+          src = clean.data();
+          dst = made.data();
+          a256 = 256;   // the amount mixes it in on the way back up
+        } else {
+          // The untouched picture, copied by the row threads.
+          clean.resize(static_cast<std::size_t>(count) * 4);
+          std::uint8_t* copy = clean.data();
+          const std::uint8_t* from = pixels.data();
+          detail::parallelRows(H, W * 4, [&](int r0, int r1) {
+            std::memcpy(copy + static_cast<std::size_t>(r0) * W * 4, from + static_cast<std::size_t>(r0) * W * 4,
+                        static_cast<std::size_t>(r1 - r0) * W * 4);
+          });
+          src = clean.data();
+          dst = pixels.data();
+        }
         detail::parallelRows(H, W * 12, [&](int r0, int r1) {
           std::vector<double> lY(static_cast<std::size_t>(W)), lI(static_cast<std::size_t>(W)), lQ(static_cast<std::size_t>(W));
           std::vector<double> sY(static_cast<std::size_t>(W) + 1), sI(static_cast<std::size_t>(W) + 1), sQ(static_cast<std::size_t>(W) + 1);
@@ -7010,26 +7070,30 @@ inline void applyCueEffectStack(std::vector<std::uint8_t>& pixels,
             // The line as brightness and two colour signals, read with its error.
             const std::uint8_t* line = src + static_cast<std::size_t>(y) * W * 4;
             sY[0] = sI[0] = sQ[0] = 0.0;
+            // The line's shift in whole pixels, once: x is whole, so rounding
+            // x - sh is x plus the rounded -sh (lround per pixel was a call).
+            const int shiftY = static_cast<int>(std::lround(-sh));
             for (int x = 0; x < W; ++x) {
-              const int sx = std::clamp(static_cast<int>(std::lround(x - sh)), 0, W - 1);
-              const double r = line[sx * 4] / 255.0, g = line[sx * 4 + 1] / 255.0, b = line[sx * 4 + 2] / 255.0;
-              const double Y = 0.299 * r + 0.587 * g + 0.114 * b;
+              const int sx = std::clamp(x + shiftY, 0, W - 1);
+              const std::uint8_t* q = line + sx * 4;
+              const double Y = tab.yr[q[0]] + tab.yg[q[1]] + tab.yb[q[2]];
               sY[static_cast<std::size_t>(x) + 1] = sY[static_cast<std::size_t>(x)] + Y;
               // Colour is read from the UNshifted line and shifted later with its lag.
-              const double r2 = line[x * 4] / 255.0, g2 = line[x * 4 + 1] / 255.0, b2 = line[x * 4 + 2] / 255.0;
-              sI[static_cast<std::size_t>(x) + 1] = sI[static_cast<std::size_t>(x)] + (0.596 * r2 - 0.274 * g2 - 0.322 * b2);
-              sQ[static_cast<std::size_t>(x) + 1] = sQ[static_cast<std::size_t>(x)] + (0.211 * r2 - 0.523 * g2 + 0.312 * b2);
+              const std::uint8_t* u = line + x * 4;
+              sI[static_cast<std::size_t>(x) + 1] = sI[static_cast<std::size_t>(x)] + (tab.ir[u[0]] - tab.ig[u[1]] - tab.ib[u[2]]);
+              sQ[static_cast<std::size_t>(x) + 1] = sQ[static_cast<std::size_t>(x)] + (tab.qr[u[0]] - tab.qg[u[1]] + tab.qb[u[2]]);
             }
             auto boxSum = [&](const std::vector<double>& sum, int x0, int x1) {
               x0 = std::clamp(x0, 0, W - 1); x1 = std::clamp(x1, 0, W - 1);
               return (sum[static_cast<std::size_t>(x1) + 1] - sum[static_cast<std::size_t>(x0)]) / (x1 - x0 + 1);
             };
             for (int x = 0; x < W; ++x) yb[static_cast<std::size_t>(x)] = boxSum(sY, x - blurY, x + blurY);
+            const int shiftC = static_cast<int>(std::lround(-sh - lag));
             for (int x = 0; x < W; ++x) {
               const double l = yb[static_cast<std::size_t>(std::max(0, x - ringOff))];
               const double r = yb[static_cast<std::size_t>(std::min(W - 1, x + ringOff))];
               lY[static_cast<std::size_t>(x)] = yb[static_cast<std::size_t>(x)] + (yb[static_cast<std::size_t>(x)] - (l + r) * 0.5) * ring * 2.0;
-              const int cx = static_cast<int>(std::lround(x - sh - lag));
+              const int cx = x + shiftC;
               const double a = boxSum(sI, cx - blurC, cx + blurC), b = boxSum(sQ, cx - blurC, cx + blurC);
               lI[static_cast<std::size_t>(x)] = a * chh - b * shh;
               lQ[static_cast<std::size_t>(x)] = a * shh + b * chh;
@@ -7040,18 +7104,34 @@ inline void applyCueEffectStack(std::vector<std::uint8_t>& pixels,
             const int dStart = static_cast<int>(hash(frame * 13u + static_cast<std::uint32_t>(y) * 7u) * W);
             const int dLen = static_cast<int>((6 + hash(frame * 3u + static_cast<std::uint32_t>(y)) * 60 * (0.3 + age)) * s);
             const std::uint8_t* above = src + static_cast<std::size_t>(std::max(0, y - 1)) * W * 4;
-            std::uint8_t* out = pixels.data() + static_cast<std::size_t>(y) * W * 4;
+            std::uint8_t* out = dst + static_cast<std::size_t>(y) * W * 4;
+            const double keep = (1.0 - inBand * 0.8) * (1.0 - gens * 0.08);
+            // The streaks' two noises change once a cell and the colour noise
+            // once every four pixels: hashed when they change, not per pixel.
+            const std::uint32_t rowSeed = frame * 7919u + static_cast<std::uint32_t>(y) * 1009u;
+            int cellA = -1, cellB = -1;
+            double nA = 0.0, nB = 0.0, hq = 0.0;
+            std::uint32_t quad = 0xffffffffu;
             for (int x = 0; x < W; ++x) {
               const std::uint32_t p = static_cast<std::uint32_t>(y) * static_cast<std::uint32_t>(W) + static_cast<std::uint32_t>(x);
               double yy = lY[static_cast<std::size_t>(x)];
-              const double keep = (1.0 - inBand * 0.8) * (1.0 - gens * 0.08);
               double ii = lI[static_cast<std::size_t>(x)] * keep, qq = lQ[static_cast<std::size_t>(x)] * keep;
               // Tape noise streaks along the line, with a little fine snow.
-              const double n1 = (hash(frame * 7919u + static_cast<std::uint32_t>(y) * 1009u + static_cast<std::uint32_t>(x / noiseCell)) - 0.5) * 0.55 +
-                                (hash(frame * 7919u + static_cast<std::uint32_t>(y) * 1009u + static_cast<std::uint32_t>(x / noiseCell2) + 50000u) - 0.5) * 0.3 +
-                                (hash(frame * 131u + p * 3u) - 0.5) * 0.15;
+              if (x / noiseCell != cellA) {
+                cellA = x / noiseCell;
+                nA = (hash(rowSeed + static_cast<std::uint32_t>(cellA)) - 0.5) * 0.55;
+              }
+              if (x / noiseCell2 != cellB) {
+                cellB = x / noiseCell2;
+                nB = (hash(rowSeed + static_cast<std::uint32_t>(cellB) + 50000u) - 0.5) * 0.3;
+              }
+              const double n1 = nA + nB + (hash(frame * 131u + p * 3u) - 0.5) * 0.15;
               yy += n1 * noiseY * 2.0 + n1 * inBand * 0.9;
-              const double cn = (hash(frame * 104729u + (p >> 2)) - 0.5) * (0.02 + age * 0.06) * speedK * gen;
+              if ((p >> 2) != quad) {
+                quad = p >> 2;
+                hq = hash(frame * 104729u + quad);
+              }
+              const double cn = (hq - 0.5) * (0.02 + age * 0.06) * speedK * gen;
               ii += cn; qq -= cn * 0.7;
               if (drop && x >= dStart && x < dStart + dLen) {
                 yy = (0.299 * above[x * 4] + 0.587 * above[x * 4 + 1] + 0.114 * above[x * 4 + 2]) / 255.0;
@@ -7076,6 +7156,41 @@ inline void applyCueEffectStack(std::vector<std::uint8_t>& pixels,
             }
           }
         });
+        if (halfSize) {
+          // Back up to full size: each pixel from the four nearest small ones,
+          // weighted 9:3:3:1, mixed into the picture by the amount.
+          const int mix = static_cast<int>(std::lround(amt * 256.0));
+          const std::uint8_t* taped = dst;   // made.data(), as a plain pointer (see above)
+          detail::parallelRows(fullH, fullW * 8, [&](int r0, int r1) {
+            std::vector<int> column(static_cast<std::size_t>(W) * 3);
+            for (int y = r0; y < r1; ++y) {
+              const int yi = std::min(y / 2, H - 1);
+              const int yj = std::clamp((y & 1) ? yi + 1 : yi - 1, 0, H - 1);
+              const std::uint8_t* rowA = taped + static_cast<std::size_t>(yi) * W * 4;   // the nearer row
+              const std::uint8_t* rowB = taped + static_cast<std::size_t>(yj) * W * 4;
+              // Down first (3 parts the nearer row, 1 the other), then across:
+              // the same 9:3:3:1 sum in half the arithmetic.
+              for (int i = 0; i < W; ++i) {
+                for (int c = 0; c < 3; ++c) {
+                  column[static_cast<std::size_t>(i) * 3 + c] = 3 * rowA[i * 4 + c] + rowB[i * 4 + c];
+                }
+              }
+              std::uint8_t* out = pixels.data() + static_cast<std::size_t>(y) * fullW * 4;
+              for (int x = 0; x < fullW; ++x) {
+                const int xi = std::min(x / 2, W - 1);
+                const int xj = std::clamp((x & 1) ? xi + 1 : xi - 1, 0, W - 1);
+                const int* a = column.data() + static_cast<std::size_t>(xi) * 3;
+                const int* b = column.data() + static_cast<std::size_t>(xj) * 3;
+                std::uint8_t* d = out + static_cast<std::size_t>(x) * 4;
+                for (int c = 0; c < 3; ++c) {
+                  const int v = (3 * a[c] + b[c] + 8) >> 4;
+                  d[c] = mix >= 256 ? static_cast<std::uint8_t>(v)
+                                    : static_cast<std::uint8_t>(d[c] + (((v - d[c]) * mix) >> 8));
+                }
+              }
+            }
+          });
+        }
         break;
       }
 

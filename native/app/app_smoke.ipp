@@ -4454,6 +4454,42 @@
                  "audio-high on the live input reads the input's high band");
           lfoAudioReadings()[2].band[2].store(0.0f);
         }
+        // TAPE FROM 2560 WIDE runs at half size and is drawn back up (James,
+        // 2026-11-16: "if tape cant hit 60 at 4k, back to the dam drawing
+        // board"). Its row threads once read the thread_local buffers by name,
+        // which meant each thread's own empty ones, and crashed; the effect
+        // sweeps run too small to reach this path, so it is tested here.
+        {
+          const int tw = 2560, th = 1440;
+          std::vector<std::uint8_t> picture(static_cast<std::size_t>(tw) * th * 4);
+          for (int y = 0; y < th; ++y) {
+            for (int x = 0; x < tw; ++x) {
+              std::uint8_t* q = picture.data() + (static_cast<std::size_t>(y) * tw + x) * 4;
+              q[0] = static_cast<std::uint8_t>(x * 255 / tw);
+              q[1] = static_cast<std::uint8_t>(y * 255 / th);
+              q[2] = static_cast<std::uint8_t>((x / 160 + y / 90) % 2 ? 230 : 20);
+              q[3] = 255;
+            }
+          }
+          deckboy::effects::CueEffect tape;
+          tape.kind = deckboy::effects::CueEffectKind::Tape;
+          tape.amount = 1.0f;
+          tape.paramA = 0.5f;
+          tape.paramB = 0.5f;
+          deckboy::effects::CueEffectContext tapeCtx;
+          tapeCtx.width = tw;
+          tapeCtx.height = th;
+          tapeCtx.frameIndex = 37;
+          std::vector<std::uint8_t> first = picture, second = picture;
+          deckboy::effects::applyCueEffectStack(first, {tape}, tapeCtx);
+          deckboy::effects::applyCueEffectStack(second, {tape}, tapeCtx);
+          std::size_t changed = 0;
+          for (std::size_t i = 0; i < first.size(); i += 4) {
+            if (first[i] != picture[i] || first[i + 1] != picture[i + 1] || first[i + 2] != picture[i + 2]) ++changed;
+          }
+          expect(first == second && changed > first.size() / 8,
+                 "Tape at 2560 wide runs at half size: it changes the picture, the same way twice");
+        }
 
         std::array<ParamLfo, 2> tone {};
         tone[kToneLfoLevel].on = true;
@@ -6764,6 +6800,23 @@
       if (!read || rw != w || rh != h) {
         std::cerr << "gpu-effect-dump: the GPU run failed\n";
         return 5;
+      }
+      // DECKBOY_GPU_EFFECT_REPEAT=<n>: run it n more times and say the
+      // fastest and the middle, each including the upload and the read back,
+      // so one effect can be compared with another at the same size.
+      if (const char* repeat = std::getenv("DECKBOY_GPU_EFFECT_REPEAT"); repeat && std::atoi(repeat) > 0) {
+        std::vector<double> times;
+        std::vector<std::uint8_t> again;
+        for (int i = 0; i < std::atoi(repeat); ++i) {
+          const auto t0 = std::chrono::steady_clock::now();
+          deckboy::gpu::runGpuEffects(g, 0, pixels.data(), w, h, {fx}, ctx);
+          int aw = 0, ah = 0;
+          deckboy::gpu::readGpuEffectsResult(g, 0, again, aw, ah);
+          times.push_back(std::chrono::duration<double, std::milli>(std::chrono::steady_clock::now() - t0).count());
+        }
+        std::sort(times.begin(), times.end());
+        std::cout << "gpu-effect-dump: " << w << "x" << h << " best " << times.front() << " ms, median "
+                  << times[times.size() / 2] << " ms (with upload and read back)\n";
       }
       pixels.swap(back);
       std::cout << "gpu-effect-dump: on " << deckboy::gpu::gpuEffectsBackend(g) << '\n';

@@ -164,8 +164,11 @@ def interrupted_dissolve_is_smooth(exe, work):
     frames = [raw[i:i + 3] for i in range(0, len(raw) - 2, 3)]
     jumps = [sum(abs(a - b) for a, b in zip(frames[i], frames[i + 1])) for i in range(len(frames) - 1)]
     worst = max(jumps) if jumps else 0
-    # One frame of a 4 s dissolve moves about 16; the old snap moved 365.
-    note("taking a third cue mid-dissolve has no jump", 0 < len(jumps) and worst < 60, f"worst step {worst}")
+    # One frame of a 4 s dissolve moves about 16; the old snap moved 365. A
+    # stall on a busy CI machine lets the next recorded frame catch up several
+    # frames at once (92 on 2026-11-16, about six), so the line sits at 150:
+    # well clear of that, and still under half the snap.
+    note("taking a third cue mid-dissolve has no jump", 0 < len(jumps) and worst < 150, f"worst step {worst}")
 
 
 def main():
