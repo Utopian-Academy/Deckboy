@@ -20,6 +20,9 @@
 - Fixed: "Keeping time" said TAKE starts the stage timer and Space holds it. A timer runs on its own START and STOP, apart from playback, so the clock never ran and the hold step went by on its own. The lesson now says START and STOP, and waits for each.
 - The VOICE choice on a lesson card is now small underlined words after the progress dots. Fixed: it was a button drawn over the progress dots, and with a short label (CHIP, OFF) the last dot stuck out past its right edge.
 
+### Companion
+- The Companion module is now 1.1.0. It is 1.0.10 renumbered: Bitfocus counts a new feature (the LFO listen setting) as a minor version.
+
 ### Packaging
 - Fixed: 0.99.428 came out with no Flatpak. This release has one again.
 
