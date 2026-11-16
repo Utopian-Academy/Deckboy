@@ -807,8 +807,6 @@ Select the timer and TAKE it. The countdown starts.	ເລືອກໂມງ ແ
 Past zero it keeps going, counting the overtime. Very honest. Slightly rude.	ເລີຍສູນແລ້ວ ມັນຍັງນັບ ເວລາທີ່ເກີນ. ຖືກຕ້ອງຫຼາຍ. ບໍ່ສຸພາບໜ້ອຍໜຶ່ງ.
 Ten... nine... ooh, I do love a countdown.	ສິບ... ເກົ້າ... ໂອ້ ຂ້ອຍມັກການນັບຖອຍຫຼັງ.
 HOLD!	ຢຸດ!
-Something's loose! Space holds the countdown. The clock shows it is held.	ມີຫຍັງຫຼຸດ! Space ພັກການນັບ. ໂມງສະແດງວ່າພັກຢູ່.
-A hold is not a stop. Space again, and it carries on from where it was.	ພັກ ບໍ່ແມ່ນ ຈົບ. Space ອີກ ມັນສືບຕໍ່ຈາກບ່ອນເກົ່າ.
 *holds up a spanner*	*ຍົກກະແຈປາກຕາຍ*
 THE PILOT'S VIEW	ຈໍຂອງນັກບິນ
 MENU, Video Outputs: make an output's type PRESENTER. The person on stage gets the timer, the next cue and their notes.	ເມນູ, Video Outputs: ປ່ຽນປະເພດ output ເປັນ PRESENTER. ຄົນເທິງເວທີ ເຫັນໂມງ cue ຕໍ່ໄປ ແລະ ບັນທຶກ.
@@ -1096,6 +1094,9 @@ EXPERIMENTAL: SOUNDS	ທົດລອງ: ສຽງ
 What it needs: hard CUTS, a bright busy picture before each cut, and big steady MOTION after it. This clip has eleven, one on each bar of the music.	ສິ່ງທີ່ຕ້ອງມີ: ການຕັດແບບທັນທີ, ພາບສະຫວ່າງ ແລະມີລາຍລະອຽດຫຼາຍ ກ່ອນການຕັດແຕ່ລະຄັ້ງ, ແລະການເຄື່ອນໄຫວໃຫຍ່ ແລະສະໝ່ຳສະເໝີ ຫຼັງຈາກນັ້ນ. ຄລິບນີ້ມີສິບເອັດຈຸດຕັດ, ໜຶ່ງຈຸດໃນແຕ່ລະຫ້ອງຂອງດົນຕີ.
 Deft Funk - 'Around the Mix'	Deft Funk - ‘Around the Mix’
 The song is selected. In its AUDIO EFFECTS section, + adds one. Try the delay.	ເພງ ຖືກເລືອກ. ໃນສ່ວນ AUDIO EFFECTS, + ເພີ່ມອັນໜຶ່ງ. ລອງ Delay.
+Select the timer and TAKE it, then press START in its section. I have cleared its backdrop, so the rocket shows behind the numbers.	ເລືອກໂມງນັບ ແລ້ວ TAKE, ຈາກນັ້ນກົດ START ໃນສ່ວນຂອງມັນ. ຂ້ອຍລ້າງພື້ນຫຼັງຂອງມັນແລ້ວ, ຈຶ່ງເຫັນຈະຫຼວດຢູ່ຫຼັງຕົວເລກ.
+Something's loose! Press STOP. The clock says HELD.	ມີບາງຢ່າງຫຼວມ! ກົດ STOP. ໂມງເວົ້າວ່າ ຖື.
+A hold keeps its place. START again, and it carries on from where it was.	ການຄ້າງຮັກສາຕຳແໜ່ງຂອງມັນ. ກົດ START ອີກ ແລ້ວມັນຈະດຳເນີນຕໍ່ຈາກບ່ອນເດີມ.
 # --- end of tutorials ---
 + ADD AN OUTPUT	+ ເພີ່ມ OUTPUT
 >LIVE	>ສົດ

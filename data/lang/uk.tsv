@@ -805,8 +805,6 @@ Select the timer and TAKE it. The countdown starts.	Виділи таймер і
 Past zero it keeps going, counting the overtime. Very honest. Slightly rude.	Після нуля він лічить далі, рахуючи перебір. Дуже чесно. Трохи грубо.
 Ten... nine... ooh, I do love a countdown.	Десять... дев'ять... ох, як я люблю зворотний відлік.
 HOLD!	СТОП!
-Something's loose! Space holds the countdown. The clock shows it is held.	Щось розхиталося! Пробіл ставить відлік на паузу. Годинник показує, що він на паузі.
-A hold is not a stop. Space again, and it carries on from where it was.	Пауза — не стоп. Ще раз пробіл, і він іде далі з того самого місця.
 *holds up a spanner*	*здіймає гайковий ключ*
 THE PILOT'S VIEW	ВИГЛЯД ПІЛОТА
 MENU, Video Outputs: make an output's type PRESENTER. The person on stage gets the timer, the next cue and their notes.	МЕНЮ, Відеовиходи: постав виходу тип PRESENTER. Той, хто на сцені, бачить таймер, наступний к'ю і свої нотатки.
@@ -1096,6 +1094,9 @@ EXPERIMENTAL: SOUNDS	ЕКСПЕРИМЕНТАЛЬНО: ЗВУКИ
 What it needs: hard CUTS, a bright busy picture before each cut, and big steady MOTION after it. This clip has eleven, one on each bar of the music.	Що потрібно: різкі СКЛЕЙКИ, яскрава насичена картинка перед кожною склейкою та великий рівномірний РУХ після неї. У цьому кліпі їх одинадцять, по одній на кожен такт музики.
 Deft Funk - 'Around the Mix'	Deft Funk - ‘Around the Mix’
 The song is selected. In its AUDIO EFFECTS section, + adds one. Try the delay.	Виділено пісню. У її розділі AUDIO EFFECTS + додає ефект. Спробуй delay.
+Select the timer and TAKE it, then press START in its section. I have cleared its backdrop, so the rocket shows behind the numbers.	Виділи таймер і зроби TAKE, потім натисни START у його розділі. Я прибрав його тло, тож ракета видна за цифрами.
+Something's loose! Press STOP. The clock says HELD.	Щось розхиталося! Натисни СТОП. Годинник каже УТРИМАНО.
+A hold keeps its place. START again, and it carries on from where it was.	Утримання зберігає місце. Знову START, і відлік продовжиться з того самого місця.
 # --- end of tutorials ---
 Splash	Заставка
 Beast mode	Режим звіра

@@ -804,8 +804,6 @@ Select the timer and TAKE it. The countdown starts.	Zamanlayıcıyı seç ve TAK
 Past zero it keeps going, counting the overtime. Very honest. Slightly rude.	Sıfırı geçince devam eder, aşımı sayar. Çok dürüst. Biraz kaba.
 Ten... nine... ooh, I do love a countdown.	On... dokuz... ah, geri sayıma bayılırım.
 HOLD!	DUR!
-Something's loose! Space holds the countdown. The clock shows it is held.	Bir şey gevşek! Boşluk geri sayımı duraklatır. Saat duraklatıldığını gösterir.
-A hold is not a stop. Space again, and it carries on from where it was.	Duraklatmak durdurmak değildir. Tekrar boşluk, kaldığı yerden devam eder.
 *holds up a spanner*	*bir İngiliz anahtarı kaldırır*
 THE PILOT'S VIEW	PİLOTUN GÖRÜNÜMÜ
 MENU, Video Outputs: make an output's type PRESENTER. The person on stage gets the timer, the next cue and their notes.	MENÜ, Video çıkışları: bir çıkışın türünü PRESENTER yap. Sahnedeki kişi zamanlayıcıyı, sonraki cue'yu ve notlarını görür.
@@ -1093,6 +1091,9 @@ EXPERIMENTAL: SOUNDS	DENEYSEL: SESLER
 What it needs: hard CUTS, a bright busy picture before each cut, and big steady MOTION after it. This clip has eleven, one on each bar of the music.	Gerekenler: sert KESMELER, her kesmeden önce parlak ve dolu bir görüntü, ardından büyük ve sabit bir HAREKET. Bu klipte on bir kesme var, müziğin her ölçüsünde bir tane.
 Deft Funk - 'Around the Mix'	Deft Funk - ‘Around the Mix’
 The song is selected. In its AUDIO EFFECTS section, + adds one. Try the delay.	Şarkı seçili. AUDIO EFFECTS bölümünde + bir tane ekler. delay'i dene.
+Select the timer and TAKE it, then press START in its section. I have cleared its backdrop, so the rocket shows behind the numbers.	Zamanlayıcıyı seç ve TAKE yap, sonra bölümündeki START'a bas. Arka planını temizledim, bu yüzden roket rakamların arkasında görünür.
+Something's loose! Press STOP. The clock says HELD.	Bir şey gevşemiş! DUR'a bas. Saat TUTULDU der.
+A hold keeps its place. START again, and it carries on from where it was.	Bekletme yerini korur. Tekrar START, kaldığı yerden devam eder.
 # --- end of tutorials ---
 Splash	Açılış ekranı
 Beast mode	Canavar modu

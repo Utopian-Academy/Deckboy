@@ -805,8 +805,6 @@ Select the timer and TAKE it. The countdown starts.	Chọn đồng hồ và TAKE
 Past zero it keeps going, counting the overtime. Very honest. Slightly rude.	Qua số không nó vẫn chạy, đếm phần lố giờ. Rất chính xác. Hơi vô duyên.
 Ten... nine... ooh, I do love a countdown.	Mười... chín... ồ, tôi mê đếm ngược lắm.
 HOLD!	DỪNG LẠI!
-Something's loose! Space holds the countdown. The clock shows it is held.	Có gì đó lỏng! Phím cách dừng cú đếm. Đồng hồ hiện là nó đang dừng.
-A hold is not a stop. Space again, and it carries on from where it was.	Dừng không phải là hết. Phím cách lần nữa, nó chạy tiếp từ chỗ cũ.
 *holds up a spanner*	*giơ một cái cờ lê lên*
 THE PILOT'S VIEW	MÀN HÌNH PHI CÔNG
 MENU, Video Outputs: make an output's type PRESENTER. The person on stage gets the timer, the next cue and their notes.	DANH MỤC, Video Outputs: đổi loại một output thành PRESENTER. Người trên sân khấu thấy đồng hồ, cue kế tiếp và ghi chú.
@@ -1094,6 +1092,9 @@ EXPERIMENTAL: SOUNDS	THỬ NGHIỆM: ÂM THANH
 What it needs: hard CUTS, a bright busy picture before each cut, and big steady MOTION after it. This clip has eleven, one on each bar of the music.	Cần có: các ĐIỂM CẮT thẳng, hình ảnh sáng và nhiều chi tiết trước mỗi điểm cắt, rồi CHUYỂN ĐỘNG lớn, đều sau đó. Clip này có mười một điểm cắt, mỗi ô nhịp của bản nhạc có một điểm.
 Deft Funk - 'Around the Mix'	Deft Funk - ‘Around the Mix’
 The song is selected. In its AUDIO EFFECTS section, + adds one. Try the delay.	Bài hát đang được chọn. Trong phần AUDIO EFFECTS, + thêm một cái. Thử Delay.
+Select the timer and TAKE it, then press START in its section. I have cleared its backdrop, so the rocket shows behind the numbers.	Chọn bộ đếm giờ và TAKE, rồi nhấn START trong phần của nó. Tôi đã xóa nền của nó, nên tên lửa hiện sau các con số.
+Something's loose! Press STOP. The clock says HELD.	Có gì đó bị lỏng! Nhấn DỪNG. Đồng hồ nói GIỮ.
+A hold keeps its place. START again, and it carries on from where it was.	Một lần giữ vẫn giữ nguyên vị trí. START lần nữa, nó sẽ tiếp tục từ chỗ cũ.
 # --- end of tutorials ---
 MIDI MAP	BẢN ĐỒ MIDI
 + ADD	+ THÊM

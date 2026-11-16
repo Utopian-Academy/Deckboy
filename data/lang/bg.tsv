@@ -804,8 +804,6 @@ Select the timer and TAKE it. The countdown starts.	Избери таймера 
 Past zero it keeps going, counting the overtime. Very honest. Slightly rude.	След нулата продължава и брои просрочването. Много честно. Малко грубо.
 Ten... nine... ooh, I do love a countdown.	Десет... девет... о, как обичам обратно броене.
 HOLD!	СТОП!
-Something's loose! Space holds the countdown. The clock shows it is held.	Нещо се е разхлабило! Интервалът спира броенето. Часовникът показва, че е спрял.
-A hold is not a stop. Space again, and it carries on from where it was.	Спирането не е стоп. Пак интервал и продължава оттам, докъдето беше.
 *holds up a spanner*	*вдига гаечен ключ*
 THE PILOT'S VIEW	ИЗГЛЕДЪТ НА ПИЛОТА
 MENU, Video Outputs: make an output's type PRESENTER. The person on stage gets the timer, the next cue and their notes.	МЕНЮ, Видео изходи: направи типа на един изход PRESENTER. Човекът на сцената вижда таймера, следващото кю и бележките си.
@@ -1095,6 +1093,9 @@ EXPERIMENTAL: SOUNDS	ЕКСПЕРИМЕНТАЛНО: ЗВУЦИ
 What it needs: hard CUTS, a bright busy picture before each cut, and big steady MOTION after it. This clip has eleven, one on each bar of the music.	Нужно е: резки СРЯЗВАНИЯ, ярка наситена картина преди всяко срязване и голямо равномерно ДВИЖЕНИЕ след него. Този клип има единадесет, по едно на всеки такт от музиката.
 Deft Funk - 'Around the Mix'	Deft Funk - ‘Around the Mix’
 The song is selected. In its AUDIO EFFECTS section, + adds one. Try the delay.	Песента е избрана. В секцията ѝ AUDIO EFFECTS + добавя ефект. Пробвай delay.
+Select the timer and TAKE it, then press START in its section. I have cleared its backdrop, so the rocket shows behind the numbers.	Избери таймера и направи TAKE, после натисни START в неговата секция. Изчистих фона му, така че ракетата се вижда зад цифрите.
+Something's loose! Press STOP. The clock says HELD.	Нещо се е разхлабило! Натисни СТОП. Часовникът казва ЗАДЪРЖАНО.
+A hold keeps its place. START again, and it carries on from where it was.	Задръжката пази мястото си. Натисни START пак и продължава оттам, докъдето е стигнал.
 # --- end of tutorials ---
 Splash	Начален екран
 Beast mode	Режим звяр

@@ -805,8 +805,6 @@ Select the timer and TAKE it. The countdown starts.	टाइमर चुनो
 Past zero it keeps going, counting the overtime. Very honest. Slightly rude.	शून्य के बाद भी चलता रहता है, ओवरटाइम गिनता हुआ। बहुत ईमानदार। थोड़ा बदतमीज़।
 Ten... nine... ooh, I do love a countdown.	दस... नौ... आहा, मुझे उल्टी गिनती बहुत पसंद है।
 HOLD!	रुको!
-Something's loose! Space holds the countdown. The clock shows it is held.	कुछ ढीला है! Space गिनती को रोकता है। घड़ी दिखाती है कि रुकी है।
-A hold is not a stop. Space again, and it carries on from where it was.	रुकना बंद होना नहीं है। फिर Space, और जहाँ थी वहीं से आगे।
 *holds up a spanner*	*एक पाना उठाता है*
 THE PILOT'S VIEW	पायलट का व्यू
 MENU, Video Outputs: make an output's type PRESENTER. The person on stage gets the timer, the next cue and their notes.	मेनू, वीडियो आउटपुट: किसी आउटपुट का टाइप PRESENTER करो। स्टेज वाले को टाइमर, अगला cue और अपने नोट्स दिखते हैं।
@@ -1096,6 +1094,9 @@ EXPERIMENTAL: SOUNDS	प्रायोगिक: ध्वनियाँ
 What it needs: hard CUTS, a bright busy picture before each cut, and big steady MOTION after it. This clip has eleven, one on each bar of the music.	इसके लिए चाहिए: सीधे कट, हर कट से पहले चमकीली और हलचल भरी तस्वीर, और उसके बाद बड़ी और स्थिर गति। इस क्लिप में ग्यारह कट हैं, संगीत के हर बार में एक।
 Deft Funk - 'Around the Mix'	डेफ़्ट फ़ंक - ‘Around the Mix’
 The song is selected. In its AUDIO EFFECTS section, + adds one. Try the delay.	गाना चुना हुआ है। उसके AUDIO EFFECTS हिस्से में + एक जोड़ता है। delay आज़माओ।
+Select the timer and TAKE it, then press START in its section. I have cleared its backdrop, so the rocket shows behind the numbers.	टाइमर चुनो और TAKE करो, फिर उसके सेक्शन में START दबाओ। मैंने उसकी पृष्ठभूमि हटा दी है, इसलिए रॉकेट अंकों के पीछे दिखता है।
+Something's loose! Press STOP. The clock says HELD.	कुछ ढीला है! रोकें दबाओ। घड़ी कहती है रोका गया।
+A hold keeps its place. START again, and it carries on from where it was.	रोक अपनी जगह रखती है। फिर से START दबाओ, और वह जहाँ थी वहीं से आगे चलती है।
 # --- end of tutorials ---
 Splash	आरंभ स्क्रीन
 Beast mode	बीस्ट मोड

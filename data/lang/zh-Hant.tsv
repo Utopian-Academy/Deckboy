@@ -806,8 +806,6 @@ Select the timer and TAKE it. The countdown starts.	選取計時器，TAKE。倒
 Past zero it keeps going, counting the overtime. Very honest. Slightly rude.	過了零還會繼續，數超時的時間。非常誠實。有點不客氣。
 Ten... nine... ooh, I do love a countdown.	十……九……喔，我太愛倒數了。
 HOLD!	等一下！
-Something's loose! Space holds the countdown. The clock shows it is held.	有東西鬆了！空白鍵暫停倒數。時鐘會顯示已暫停。
-A hold is not a stop. Space again, and it carries on from where it was.	暫停不是停止。再按空白鍵，從停下的地方繼續。
 *holds up a spanner*	*舉起一把扳手*
 THE PILOT'S VIEW	駕駛員的檢視
 MENU, Video Outputs: make an output's type PRESENTER. The person on stage gets the timer, the next cue and their notes.	選單，視訊輸出：把一個輸出的類型設為PRESENTER。台上的人能看到計時器、下一個cue和自己的備註。
@@ -1098,6 +1096,9 @@ EXPERIMENTAL: SOUNDS	實驗性: 聲音
 What it needs: hard CUTS, a bright busy picture before each cut, and big steady MOTION after it. This clip has eleven, one on each bar of the music.	需要的是：硬切，每次切換前明亮、內容豐富的畫面，以及切換後大幅而穩定的運動。這個片段有十一次切換，音樂的每個小節一次。
 Deft Funk - 'Around the Mix'	靈巧放克 - ‘Around the Mix’
 The song is selected. In its AUDIO EFFECTS section, + adds one. Try the delay.	歌曲已被選取。在它的AUDIO EFFECTS區塊，按+新增。試試delay。
+Select the timer and TAKE it, then press START in its section. I have cleared its backdrop, so the rocket shows behind the numbers.	選取計時器，TAKE，然後在它的區域按START。我已清除它的背景，所以火箭顯示在數字後面。
+Something's loose! Press STOP. The clock says HELD.	有東西鬆了！按停止。時鐘說已保持。
+A hold keeps its place. START again, and it carries on from where it was.	保持會留在原位。再按START，它就從原來的位置繼續。
 # --- end of tutorials ---
 Splash	啟動畫面
 Beast mode	野獸模式

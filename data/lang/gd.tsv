@@ -804,8 +804,6 @@ Select the timer and TAKE it. The countdown starts.	Tagh an t-uaireadair agus d�
 Past zero it keeps going, counting the overtime. Very honest. Slightly rude.	Às dèidh neoni cumaidh e a' dol, a' cunntadh an ùine a bharrachd. Glè onarach. Beagan mì-mhodhail.
 Ten... nine... ooh, I do love a countdown.	Deich... naoi... ò, is toil leam cunntadh sìos.
 HOLD!	CUM!
-Something's loose! Space holds the countdown. The clock shows it is held.	Tha rudeigin fuasgailte! Cumaidh am bàr-fànais an cunntadh. Seallaidh an gleoc gu bheil e air a chumail.
-A hold is not a stop. Space again, and it carries on from where it was.	Chan e stad a th' ann an cumail. Am bàr-fànais a-rithist, agus leanaidh e bhon àite far an robh e.
 *holds up a spanner*	*togaidh e spanair*
 THE PILOT'S VIEW	SEALLADH A' PHÌOLOTA
 MENU, Video Outputs: make an output's type PRESENTER. The person on stage gets the timer, the next cue and their notes.	CLÀR, Às-chuir bhidio: dèan seòrsa às-chuir PRESENTER. Gheibh an neach air an àrd-ùrlar an t-uaireadair, an ath cue agus na notaichean aca.
@@ -1093,6 +1091,9 @@ EXPERIMENTAL: SOUNDS	DEUCHAINNEACH: FUAIMEAN
 What it needs: hard CUTS, a bright busy picture before each cut, and big steady MOTION after it. This clip has eleven, one on each bar of the music.	Na tha a dhìth: GEARRAIDHEAN cruaidh, dealbh soilleir trang ro gach gearradh, agus GLUASAD mòr seasmhach às a dhèidh. Tha aon deug de ghearraidhean sa chriomag seo, fear anns gach bàr den cheòl.
 Deft Funk - 'Around the Mix'	Deft Funk - ‘Around the Mix’
 The song is selected. In its AUDIO EFFECTS section, + adds one. Try the delay.	Tha an t-òran air a thaghadh. Anns an earrann AUDIO EFFECTS aige, cuiridh + tè ris. Feuch an delay.
+Select the timer and TAKE it, then press START in its section. I have cleared its backdrop, so the rocket shows behind the numbers.	Tagh an t-uaireadair agus dèan TAKE air, an uairsin brùth START san earrann aige. Tha mi air an cùl-raon aige a ghlanadh, mar sin tha an rocaid ri fhaicinn air cùlaibh nan àireamhan.
+Something's loose! Press STOP. The clock says HELD.	Tha rudeigin sgaoilte! Brùth STAD. Tha an gleoc ag ràdh AIR CHUMAIL.
+A hold keeps its place. START again, and it carries on from where it was.	Gleidhidh cùm an t-àite aige. Brùth START a-rithist, agus leanaidh e air bhon àite far an robh e.
 # --- end of tutorials ---
 Splash	Sgrìn-fàilte
 Beast mode	Modh bèist

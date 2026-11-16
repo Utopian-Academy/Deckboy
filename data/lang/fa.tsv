@@ -814,8 +814,6 @@ Select the timer and TAKE it. The countdown starts.	زمان‌سنج را ان�
 Past zero it keeps going, counting the overtime. Very honest. Slightly rude.	از صفر که بگذرد ادامه می‌دهد و اضافه‌وقت را می‌شمارد. خیلی صادق. کمی بی‌ادب.
 Ten... nine... ooh, I do love a countdown.	ده... نه... آه، چقدر شمارش معکوس دوست دارم.
 HOLD!	نگه دار!
-Something's loose! Space holds the countdown. The clock shows it is held.	چیزی شل است! فاصله شمارش را نگه می‌دارد. ساعت نشان می‌دهد که متوقف است.
-A hold is not a stop. Space again, and it carries on from where it was.	نگه داشتن توقف نیست. دوباره فاصله، و از همان جا ادامه می‌دهد.
 *holds up a spanner*	*یک آچار بالا می‌برد*
 THE PILOT'S VIEW	نمای خلبان
 MENU, Video Outputs: make an output's type PRESENTER. The person on stage gets the timer, the next cue and their notes.	منو، خروجی‌های ویدیو: نوع یک خروجی را PRESENTER کن. کسی که روی صحنه است زمان‌سنج، کیوی بعدی و یادداشت‌هایش را می‌بیند.
@@ -1105,6 +1103,9 @@ EXPERIMENTAL: SOUNDS	آزمایشی: جلوه‌های صوتی
 What it needs: hard CUTS, a bright busy picture before each cut, and big steady MOTION after it. This clip has eleven, one on each bar of the music.	چه می‌خواهد: برش‌های ناگهانی، تصویری روشن و پرجزئیات پیش از هر برش و حرکتی بزرگ و یکنواخت پس از آن. این کلیپ یازده برش دارد، یکی در هر میزان موسیقی.
 Deft Funk - 'Around the Mix'	دفت فانک - ‘Around the Mix’
 The song is selected. In its AUDIO EFFECTS section, + adds one. Try the delay.	آهنگ انتخاب شده. در بخش AUDIO EFFECTS، + یکی اضافه می‌کند. delay را امتحان کن.
+Select the timer and TAKE it, then press START in its section. I have cleared its backdrop, so the rocket shows behind the numbers.	زمان‌سنج را انتخاب کن و TAKE بزن، بعد در بخش خودش START را بزن. پس‌زمینه‌اش را پاک کرده‌ام، پس موشک پشت عددها دیده می‌شود.
+Something's loose! Press STOP. The clock says HELD.	یک چیزی شل شده! توقف را بزن. ساعت می‌گوید نگه‌داشته.
+A hold keeps its place. START again, and it carries on from where it was.	نگه داشتن جایش را حفظ می‌کند. دوباره START را بزن و از همان‌جا ادامه می‌دهد.
 # --- end of tutorials ---
 Splash	صفحهٔ آغاز
 Beast mode	حالت هیولا

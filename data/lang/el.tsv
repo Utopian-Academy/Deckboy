@@ -805,8 +805,6 @@ Select the timer and TAKE it. The countdown starts.	Επίλεξε το χρον
 Past zero it keeps going, counting the overtime. Very honest. Slightly rude.	Μετά το μηδέν συνεχίζει, μετρώντας την υπέρβαση. Πολύ ειλικρινές. Λίγο αγενές.
 Ten... nine... ooh, I do love a countdown.	Δέκα... εννιά... ωχ, πόσο μ' αρέσει μια αντίστροφη μέτρηση.
 HOLD!	ΣΤΑΣΟΥ!
-Something's loose! Space holds the countdown. The clock shows it is held.	Κάτι χαλάρωσε! Το διάστημα παγώνει τη μέτρηση. Το ρολόι δείχνει ότι είναι σε παύση.
-A hold is not a stop. Space again, and it carries on from where it was.	Η παύση δεν είναι στοπ. Ξανά διάστημα, και συνεχίζει από εκεί που ήταν.
 *holds up a spanner*	*σηκώνει ένα κλειδί*
 THE PILOT'S VIEW	Η ΘΕΑ ΤΟΥ ΠΙΛΟΤΟΥ
 MENU, Video Outputs: make an output's type PRESENTER. The person on stage gets the timer, the next cue and their notes.	ΜΕΝΟΥ, Έξοδοι βίντεο: κάνε τον τύπο μιας εξόδου PRESENTER. Όποιος είναι στη σκηνή βλέπει το χρονόμετρο, το επόμενο cue και τις σημειώσεις του.
@@ -1096,6 +1094,9 @@ EXPERIMENTAL: SOUNDS	ΠΕΙΡΑΜΑΤΙΚΟ: ΗΧΟΙ
 What it needs: hard CUTS, a bright busy picture before each cut, and big steady MOTION after it. This clip has eleven, one on each bar of the music.	Χρειάζονται: απότομα ΚΟΨΙΜΑΤΑ, φωτεινή γεμάτη εικόνα πριν από κάθε κόψιμο και μεγάλη σταθερή ΚΙΝΗΣΗ μετά. Αυτό το κλιπ έχει έντεκα, ένα σε κάθε μέτρο της μουσικής.
 Deft Funk - 'Around the Mix'	Deft Funk - ‘Around the Mix’
 The song is selected. In its AUDIO EFFECTS section, + adds one. Try the delay.	Το τραγούδι είναι επιλεγμένο. Στην ενότητα AUDIO EFFECTS, το + προσθέτει ένα. Δοκίμασε το delay.
+Select the timer and TAKE it, then press START in its section. I have cleared its backdrop, so the rocket shows behind the numbers.	Επίλεξε το χρονόμετρο και κάνε TAKE, μετά πάτα START στην ενότητά του. Έχω καθαρίσει το φόντο του, ώστε ο πύραυλος να φαίνεται πίσω από τους αριθμούς.
+Something's loose! Press STOP. The clock says HELD.	Κάτι χαλάρωσε! Πάτα ΣΤΟΠ. Το ρολόι λέει ΣΕ ΑΝΑΜΟΝΗ.
+A hold keeps its place. START again, and it carries on from where it was.	Το κράτημα κρατά τη θέση του. Πάτα ξανά START και συνεχίζει από εκεί που ήταν.
 # --- end of tutorials ---
 Splash	Οθόνη εκκίνησης
 Beast mode	Λειτουργία θηρίου

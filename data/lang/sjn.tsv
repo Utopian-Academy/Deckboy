@@ -763,8 +763,6 @@ Select the timer and TAKE it. The countdown starts.	Cillo i lû-tal a TAKE. I ne
 Past zero it keeps going, counting the overtime. Very honest. Slightly rude.	Ab erui, renia. Thand. Ú-maer.
 Ten... nine... ooh, I do love a countdown.	Pae... neder... ai, melin nediad nu.
 HOLD!	DARTHO!
-Something's loose! Space holds the countdown. The clock shows it is held.	Nad lhind! Space dartha. I lû dartha.
-A hold is not a stop. Space again, and it carries on from where it was.	Dartha ú-meth. Space ad, a renia.
 *holds up a spanner*	*orthor i-spanner*
 THE PILOT'S VIEW	TÎR I CHALBUR
 MENU, Video Outputs: make an output's type PRESENTER. The person on stage gets the timer, the next cue and their notes.	MENU, Ethir gwaew: i mentho ah PRESENTER. I bedwen tíra i lû, i cue nedhui, a i-tîw.
@@ -1019,6 +1017,9 @@ Nazdrave, skapi. Now go and fix real bugs.	Nazdrave, skapi. Sí, nesto lhûg tha
 Every one of those is a real Motion control. Put them on any ~ knob you like.	Ilya: rond Motion thand. Na ilya rond ~.
 START: AGAIN	START: AD
 START: PLAY	START: TINNO
+Select the timer and TAKE it, then press START in its section. I have cleared its backdrop, so the rocket shows behind the numbers.	Cillo i lû a TAKE, ab hen matho START mi i thî. Glanno i dae, sui i dôr tíra nu i nediad.
+Something's loose! Press STOP. The clock says HELD.	Law ú-dhaer! Matho DARO. I lû pêd HEBIN.
+A hold keeps its place. START again, and it carries on from where it was.	Hebin hebir i mas. START ad, a nu i mas tôl.
 # --- end of tutorials ---
 + ADD AN OUTPUT	+ MENTHO ELENO
 >LIVE	>CUIN

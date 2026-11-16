@@ -817,8 +817,6 @@ Select the timer and TAKE it. The countdown starts.	حدّد المؤقت واع
 Past zero it keeps going, counting the overtime. Very honest. Slightly rude.	بعد الصفر يستمر، يعدّ الوقت الإضافي. صادق جدًا. وقح قليلًا.
 Ten... nine... ooh, I do love a countdown.	عشرة... تسعة... آه، كم أحب العدّ التنازلي.
 HOLD!	توقّف!
-Something's loose! Space holds the countdown. The clock shows it is held.	شيء ما مفكوك! المسافة توقف العدّ مؤقتًا. الساعة تُظهر أنه موقوف.
-A hold is not a stop. Space again, and it carries on from where it was.	الإيقاف المؤقت ليس توقفًا. المسافة مرة أخرى، ويكمل من حيث كان.
 *holds up a spanner*	*يرفع مفتاح ربط*
 THE PILOT'S VIEW	شاشة الطيار
 MENU, Video Outputs: make an output's type PRESENTER. The person on stage gets the timer, the next cue and their notes.	القائمة، مخارج الفيديو: اجعل نوع أحد المخارج PRESENTER. من على المسرح يرى المؤقت والإشارة التالية وملاحظاته.
@@ -1108,6 +1106,9 @@ EXPERIMENTAL: SOUNDS	تجريبي: الأصوات
 What it needs: hard CUTS, a bright busy picture before each cut, and big steady MOTION after it. This clip has eleven, one on each bar of the music.	ما يحتاجه: قطعات حادة، وصورة ساطعة مليئة بالتفاصيل قبل كل قطع، وحركة كبيرة وثابتة بعده. في هذا المقطع إحدى عشرة قطعة، واحدة في كل مازورة من الموسيقى.
 Deft Funk - 'Around the Mix'	ديفت فانك - ‘Around the Mix’
 The song is selected. In its AUDIO EFFECTS section, + adds one. Try the delay.	الأغنية محدَّدة. في قسم AUDIO EFFECTS، + يضيف مؤثرًا. جرّب delay.
+Select the timer and TAKE it, then press START in its section. I have cleared its backdrop, so the rocket shows behind the numbers.	حدّد المؤقّت واعمل له TAKE، ثم اضغط START في قسمه. مسحتُ خلفيته، فيظهر الصاروخ خلف الأرقام.
+Something's loose! Press STOP. The clock says HELD.	شيء ما سائب! اضغط إيقاف. الساعة تقول مُثبَّت.
+A hold keeps its place. START again, and it carries on from where it was.	التثبيت يحافظ على مكانه. اضغط START مجددًا فيكمل من حيث توقف.
 # --- end of tutorials ---
 Splash	شاشة البداية
 Beast mode	وضع الوحش

@@ -804,8 +804,6 @@ Select the timer and TAKE it. The countdown starts.	Valitse ajastin ja tee TAKE.
 Past zero it keeps going, counting the overtime. Very honest. Slightly rude.	Nollan jälkeen se jatkaa ja laskee yliajan. Hyvin rehellistä. Vähän tylyä.
 Ten... nine... ooh, I do love a countdown.	Kymmenen... yhdeksän... voi, rakastan lähtölaskentaa.
 HOLD!	SEIS!
-Something's loose! Space holds the countdown. The clock shows it is held.	Jokin on löysällä! Välilyönti pysäyttää laskennan. Kello näyttää, että se on pysäytetty.
-A hold is not a stop. Space again, and it carries on from where it was.	Pysäytys ei ole lopetus. Välilyönti uudelleen, ja se jatkaa siitä, mihin jäi.
 *holds up a spanner*	*nostaa jakoavaimen*
 THE PILOT'S VIEW	LENTÄJÄN NÄKYMÄ
 MENU, Video Outputs: make an output's type PRESENTER. The person on stage gets the timer, the next cue and their notes.	VALIKKO, Videolähdöt: tee jonkin ulostulon tyypiksi PRESENTER. Lavalla oleva saa ajastimen, seuraavan cuen ja muistiinpanonsa.
@@ -1094,6 +1092,9 @@ EXPERIMENTAL: SOUNDS	KOKEELLINEN: ÄÄNIEFEKTIT
 What it needs: hard CUTS, a bright busy picture before each cut, and big steady MOTION after it. This clip has eleven, one on each bar of the music.	Tarvitaan jyrkkiä LEIKKAUKSIA, kirkas ja vilkas kuva ennen jokaista leikkausta ja laaja tasainen LIIKE sen jälkeen. Tässä klipissä on yksitoista leikkausta, yksi musiikin jokaista tahtia kohti.
 Deft Funk - 'Around the Mix'	Deft Funk - ‘Around the Mix’
 The song is selected. In its AUDIO EFFECTS section, + adds one. Try the delay.	Kappale on valittuna. Sen AUDIO EFFECTS -osiossa + lisää efektin. Kokeile delayta.
+Select the timer and TAKE it, then press START in its section. I have cleared its backdrop, so the rocket shows behind the numbers.	Valitse ajastin ja tee TAKE, paina sitten START sen osiossa. Olen tyhjentänyt sen taustan, joten raketti näkyy numeroiden takana.
+Something's loose! Press STOP. The clock says HELD.	Jokin on irti! Paina SEIS. Kello sanoo PIDOSSA.
+A hold keeps its place. START again, and it carries on from where it was.	Pito säilyttää paikkansa. Paina START uudelleen, niin se jatkaa siitä mihin jäi.
 # --- end of tutorials ---
 Splash	Aloituskuva
 Beast mode	Petotila

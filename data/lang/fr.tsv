@@ -803,8 +803,6 @@ Select the timer and TAKE it. The countdown starts.	Sélectionne le minuteur et 
 Past zero it keeps going, counting the overtime. Very honest. Slightly rude.	Après zéro, il continue et compte le dépassement. Très honnête. Un peu impoli.
 Ten... nine... ooh, I do love a countdown.	Dix... neuf... oh, j'adore un bon compte à rebours.
 HOLD!	STOP !
-Something's loose! Space holds the countdown. The clock shows it is held.	Quelque chose s'est desserré ! Espace met le compte à rebours en pause. L'horloge montre qu'il est en pause.
-A hold is not a stop. Space again, and it carries on from where it was.	Une pause n'est pas un arrêt. Espace encore, et il repart d'où il était.
 *holds up a spanner*	*brandit une clé à molette*
 THE PILOT'S VIEW	LA VUE DU PILOTE
 MENU, Video Outputs: make an output's type PRESENTER. The person on stage gets the timer, the next cue and their notes.	MENU, Sorties vidéo : mets le type d'une sortie sur PRESENTER. La personne sur scène voit le minuteur, le cue suivant et ses notes.
@@ -1095,6 +1093,9 @@ EXPERIMENTAL: SOUNDS	EXPÉRIMENTAL : SONS
 What it needs: hard CUTS, a bright busy picture before each cut, and big steady MOTION after it. This clip has eleven, one on each bar of the music.	Il faut : des COUPES franches, une image lumineuse et animée avant chaque coupe, puis un grand MOUVEMENT régulier après. Ce clip compte onze coupes, une à chaque mesure de la musique.
 Deft Funk - 'Around the Mix'	Deft Funk - ‘Around the Mix’
 The song is selected. In its AUDIO EFFECTS section, + adds one. Try the delay.	La chanson est sélectionnée. Dans sa section AUDIO EFFECTS, + en ajoute un. Essaie le delay.
+Select the timer and TAKE it, then press START in its section. I have cleared its backdrop, so the rocket shows behind the numbers.	Sélectionne le minuteur et fais TAKE, puis appuie sur START dans sa section. J'ai effacé son arrière-plan, donc la fusée apparaît derrière les chiffres.
+Something's loose! Press STOP. The clock says HELD.	Quelque chose est desserré ! Appuie sur ARRÊT. L'horloge dit MAINTENU.
+A hold keeps its place. START again, and it carries on from where it was.	Un maintien garde sa place. START encore, et il repart d'où il était.
 # --- end of tutorials ---
 Splash	Écran d'accueil
 Beast mode	Mode bête

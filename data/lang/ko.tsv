@@ -805,8 +805,6 @@ Select the timer and TAKE it. The countdown starts.	타이머를 선택하고 TA
 Past zero it keeps going, counting the overtime. Very honest. Slightly rude.	0을 지나도 계속 가면서 초과 시간을 세. 아주 정직해. 살짝 무례하고.
 Ten... nine... ooh, I do love a countdown.	10... 9... 아, 카운트다운 너무 좋아.
 HOLD!	멈춰!
-Something's loose! Space holds the countdown. The clock shows it is held.	뭔가 풀렸어! 스페이스로 카운트다운을 멈춰. 시계에 멈춘 게 표시돼.
-A hold is not a stop. Space again, and it carries on from where it was.	일시 정지는 정지가 아니야. 스페이스를 다시 누르면 멈춘 데서 이어 가.
 *holds up a spanner*	*스패너를 들어 올린다*
 THE PILOT'S VIEW	조종사의 뷰
 MENU, Video Outputs: make an output's type PRESENTER. The person on stage gets the timer, the next cue and their notes.	메뉴, 비디오 출력: 출력 종류를 PRESENTER로. 무대 위 사람은 타이머, 다음 큐, 메모를 보게 돼.
@@ -1096,6 +1094,9 @@ EXPERIMENTAL: SOUNDS	실험적: 소리
 What it needs: hard CUTS, a bright busy picture before each cut, and big steady MOTION after it. This clip has eleven, one on each bar of the music.	필요한 건 하드 컷, 각 컷 직전의 밝고 복잡한 화면, 그리고 그 뒤의 크고 일정한 움직임입니다. 이 클립에는 음악의 각 마디마다 하나씩, 열한 개의 컷이 있습니다.
 Deft Funk - 'Around the Mix'	데프트 펑크 - ‘Around the Mix’
 The song is selected. In its AUDIO EFFECTS section, + adds one. Try the delay.	노래가 선택돼 있어. AUDIO EFFECTS에서 +를 누르면 추가돼. delay를 써 봐.
+Select the timer and TAKE it, then press START in its section. I have cleared its backdrop, so the rocket shows behind the numbers.	타이머를 선택하고 TAKE한 다음, 그 구역에서 START를 눌러. 배경은 내가 지워 놨으니 숫자 뒤로 로켓이 보여.
+Something's loose! Press STOP. The clock says HELD.	뭔가 헐거워졌어! STOP을 눌러. 클록에 유지됨이라고 떠.
+A hold keeps its place. START again, and it carries on from where it was.	유지는 제자리를 지켜. START를 다시 누르면 멈췄던 곳부터 이어서 진행돼.
 # --- end of tutorials ---
 Splash	시작 화면
 Beast mode	야수 모드

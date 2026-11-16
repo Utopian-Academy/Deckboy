@@ -806,8 +806,6 @@ Select the timer and TAKE it. The countdown starts.	タイマーを選んでTAKE
 Past zero it keeps going, counting the overtime. Very honest. Slightly rude.	ゼロを過ぎても続いて、超過時間を数える。とても正直。ちょっと失礼。
 Ten... nine... ooh, I do love a countdown.	10…9…ああ、カウントダウンは大好きだ。
 HOLD!	待った！
-Something's loose! Space holds the countdown. The clock shows it is held.	何か外れてる！スペースでカウントダウンを止める。時計に止まっていることが出る。
-A hold is not a stop. Space again, and it carries on from where it was.	一時停止は停止じゃない。もう一度スペースで、止めたところから続く。
 *holds up a spanner*	＊スパナを掲げる＊
 THE PILOT'S VIEW	パイロットの視界
 MENU, Video Outputs: make an output's type PRESENTER. The person on stage gets the timer, the next cue and their notes.	メニュー、映像出力：出力の種類をPRESENTERに。舞台の人には、タイマー、次のキュー、メモが見える。
@@ -1098,6 +1096,9 @@ EXPERIMENTAL: SOUNDS	実験的: サウンド
 What it needs: hard CUTS, a bright busy picture before each cut, and big steady MOTION after it. This clip has eleven, one on each bar of the music.	必要なのは、ハードカット、各カットの前の明るく情報量の多い映像、そしてその後の大きく安定した動きです。このクリップには11個のカットがあり、音楽の各小節に1つずつ入っています。
 Deft Funk - 'Around the Mix'	デフト・ファンク - ‘Around the Mix’
 The song is selected. In its AUDIO EFFECTS section, + adds one. Try the delay.	曲が選ばれている。AUDIO EFFECTSで＋を押すと追加。delayを試して。
+Select the timer and TAKE it, then press START in its section. I have cleared its backdrop, so the rocket shows behind the numbers.	タイマーを選んでTAKEして、そのセクションでSTARTを押して。背景はクリアしたから、ロケットが数字の後ろに映る。
+Something's loose! Press STOP. The clock says HELD.	何か外れた！停止を押して。クロックに保持中と出る。
+A hold keeps its place. START again, and it carries on from where it was.	保持は位置を保つ。もう一度START、そこから続きが始まる。
 # --- end of tutorials ---
 Splash	起動画面
 Beast mode	ビーストモード

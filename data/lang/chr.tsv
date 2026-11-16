@@ -23,7 +23,9 @@
 # Broadcast vocabulary is deliberately left in English where the trade leaves
 # it there: TAKE, PROGRAM, NDI, SRT, OSC.
 # What the desk face says when you switch to this language: a local saying, not a translation.
-# --- tutorials: tools/lesson_strings.py (a whole line each) ---
+# --- tutorials: tools/lesson_strings.py (a whole line each) ---Select the timer and TAKE it, then press START in its section. I have cleared its backdrop, so the rocket shows behind the numbers.	Timer ᎯᏑᏰᏍ ᎠᎴ TAKE ᎰᏩ, ᎿᏉ START ᎠᏂᏴᏫ ᎠᏂ. ᎠᏆᏚᎵᏍᎬ ᏥᏍᏆᎸᏔᏅ, ᎾᏍᎩᏃ rocket ᎠᏂᏯᏫᏍᎦ ᎾᎥ ᎠᏂᏍᎦᏯ.
+Something's loose! Press STOP. The clock says HELD.	ᎤᏍᏗ ᎠᎪᏩᏛᏗ! STOP ᎰᏩ. CLOCK ᎠᏗᎭ HELD.
+A hold keeps its place. START again, and it carries on from where it was.	ᎠᏍᏆᏂᎪᏗ ᎤᏤᎵ ᎠᎴᏂᏍᎬ ᎠᏍᏆᏂᎪᏔᏅ. START ᏔᎵᏁ ᎰᏩ, ᎠᎴ ᎤᏩᏌ ᎠᎴᏂᏍᎬ ᏧᏪᏥ.
 # --- end of tutorials ---
 YES	ᎥᎥ
 NO	ᎥᏝ
