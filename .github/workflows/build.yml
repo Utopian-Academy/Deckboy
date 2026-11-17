@@ -145,6 +145,10 @@ jobs:
       - name: The show writer and reader must agree on every column
         run: python3 tools/audit_record_layout.py
 
+      # The site names the version: a release must not leave it on the last one.
+      - name: The site names this version
+        run: python3 tools/audit_site_version.py
+
       # A QuickAction with no handler, or one nothing can fire, is a control
       # that looks real and does nothing.
       - name: No dead controls
