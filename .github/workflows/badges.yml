@@ -20,6 +20,10 @@ on:
   workflow_run:
     workflows: [Deckboy CI]
     types: [completed]
+  # A new star updates the stars badge at once. GitHub often runs the
+  # hourly schedule late or skips it (none ran 22:03-02:12 UTC, 2026-11-16).
+  watch:
+    types: [started]
   workflow_dispatch:
 
 concurrency:
