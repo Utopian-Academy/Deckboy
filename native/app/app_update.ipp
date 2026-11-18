@@ -31,7 +31,8 @@
 //                          handleMouseMotion().
 //     SDL_EVENT_KEY_DOWN        — accepted from the control window always; from
 //                          an output window only Escape (the output's own
-//                          escalation), PgUp/PgDn (a presenter's clicker) and
+//                          escalation), a presenter's clicker (PgUp/PgDn,
+//                          Left/Right, and B for its blank button) and
 //                          Ctrl+Shift+Space (stop every deck), which also
 //                          comes through from the Monitors window.
 //     SDL_EVENT_TEXT_INPUT      — forwarded to the inline text editor.
@@ -278,7 +279,9 @@
             // keyboard, and keys from an output were dropped -- so the clicker
             // went dead the moment the show started. Its two keys are let
             // through; everything else stays control-window only, so a stray
-            // key on the projector still cannot fire anything else.
+            // key on the projector still cannot fire anything else. A clicker's
+            // keys are Page Down / Page Up or Right / Left, and its BLANK button
+            // sends B (blackout, a toggle) -- a D'San Perfect Cue's defaults.
             // STOP EVERY DECK comes through from any Deckboy window: an
             // output that took the focus, or the Monitors window. Stopping is
             // the one thing a stray press can never make worse.
@@ -286,8 +289,8 @@
             const bool fromMonitorsWindow =
               monitorsWindow_ && event.key.windowID == SDL_GetWindowID(monitorsWindow_);
             bool allowFromOutputWindow = fromOutputWindow &&
-              (event.key.key == SDLK_ESCAPE || event.key.key == SDLK_PAGEDOWN ||
-               event.key.key == SDLK_PAGEUP || stopAllChord);
+              (event.key.key == SDLK_ESCAPE || isClickerKey(event.key.key, event.key.mod) ||
+               clickerBlankKey(event.key.key, event.key.mod) || stopAllChord);
             // ...except while the tour's output has eaten the desk: then
             // any key at all gives it back.
             if (fromOutputWindow && event.key.repeat == 0 && tutorial_.active &&

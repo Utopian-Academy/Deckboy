@@ -1314,8 +1314,9 @@
       Primitives::strokeRect(controlRenderer_, panel, pal.deep);
 
       static const char* const kKeys[][2] = {
-        {"Arrows", "move the cursor"},     {"Enter", "fire this row"},
+        {"Up/Down", "move the cursor"},    {"Enter", "fire this row"},
         {"Space", "play / stop"},          {"PgDn/Up", "GO / BACK (clicker)"},
+        {"Lt/Rt", "BACK / GO (clicker)"},  {"Shift+Lt/Rt", "cursor across"},
         {"0-9", "type a cue number"},      {"S F V O", "stop, fade, vol, opacity"},
         {"Del", "clear the cell"},         {"Ins", "insert a row"},
         {"F9/F10", "mute / solo a column"},
@@ -1933,6 +1934,7 @@
       {"Space",           "Play / Pause"},
       {". / ,",           "Skip to next / previous cue"},
       {"PgDn / PgUp",     "Take next / previous with the transition, even from an output"},
+      {"Right / Left",    "The same as PgDn / PgUp (a clicker set to arrows)"},
       {"S",               "Stop active cue"},
       // EVERY DECK AT ONCE. These three are the whole point of running more
       // than one playlist, and none of them was listed -- so the operator who
@@ -1943,7 +1945,7 @@
       {"Ctrl+R",          "Rerack (rewind to start)"},
       {"Up / Down",       "Navigate cue list"},
       {"Ctrl+A",          "Select every cue in the focused playlist"},
-      {"Left / Right",    "Skip back/forward 10s"},
+      {"Shift+Left / Right", "Step a paused video one frame (Ctrl: 10, Alt: 1 s)"},
       {"Home / End",      "Skip to start/end"},
       {"I",               "Import media files"},
       {"Ctrl+I",          "Set in point at playhead"},

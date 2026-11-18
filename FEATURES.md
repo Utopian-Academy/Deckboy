@@ -136,8 +136,8 @@ all one object with one set of controls, not fifty separate things to learn.
   slide, the one before it, the one after it, the notes and the clock. Every
   panel switches off on its own, the colours are yours, and the panels are
   dragged into place rather than chosen from a list of layouts
-- The clicker walks long notes a part at a time, at the speaker's pace — and
-  Page Down and Page Up just work, because that is what every clicker sends
+- The clicker walks long notes a part at a time, at the speaker's pace — whether
+  the clicker sends Page Down / Page Up or the arrow keys
 
 ![The presenter view mid-build: the live slide large on the left, the previous and next slides stacked on the right, and the speaker's notes below, the part already spoken greyed out](art/readme/presenter.png)
 

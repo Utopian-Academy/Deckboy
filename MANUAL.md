@@ -393,7 +393,8 @@ touched again. That is the point rather than a shortcut: nothing in a live show
 should depend on a document renderer being fast, being installed, or deciding to
 reflow a page halfway through the keynote. Once the pages are stills they behave
 like every other cue — they take, they fade, they carry effects, they crossfade
-to the next one — and a presenter's clicker walks them with Page Down.
+to the next one — and a presenter's clicker walks them, whether it sends Page
+Down or the Right arrow.
 
 Each platform uses the renderer it already has, so nothing is bundled:
 
@@ -1246,8 +1247,9 @@ anything.
 Across the top:
 
 - **< BACK** and **GO >** fire the previous and next step. These are also what a
-  presenter's slide clicker sends: **Page Up / Page Down** drive the tracker
-  while the dashboard is open, or always if **CLICKER** is on.
+  presenter's slide clicker sends: **Page Up / Page Down** (or **Left /
+  Right**, for a clicker set to arrows) drive the tracker while the dashboard
+  is open, or always if **CLICKER** is on.
 - **PLAY** runs the sequence unattended: each step holds for its LEN, then the
   next one fires. **STOP** halts it.
 - **LOOP** wraps from the last step back to the first instead of stopping.
@@ -1276,7 +1278,8 @@ The pattern view is driven from the keyboard:
 
 | Key | What it does |
 |-----|--------------|
-| Arrows | Move the cursor (the wheel moves it too) |
+| Up / Down | Move the cursor (the wheel moves it too) |
+| Left / Right | BACK / GO, as a clicker set to arrows does. With **EDIT** on, or with Shift, they move the cursor across playlists |
 | Enter | Fire the cursor's row |
 | Space | PLAY / STOP |
 | Page Down / Page Up | GO / BACK, as the clicker does |
@@ -3992,6 +3995,7 @@ This table is generated from the list the app itself draws on **Ctrl+/**, and
 | `Space` | Play / Pause |
 | `.` / `,` | Skip to next / previous cue |
 | `PgDn` / `PgUp` | Take next / previous with the transition, even from an output |
+| `Right` / `Left` | The same as PgDn / PgUp (a clicker set to arrows) |
 | `S` | Stop active cue |
 | `Ctrl+Enter` | Take on every deck at once |
 | `Ctrl+Space` | Play / Pause every deck |
@@ -3999,7 +4003,7 @@ This table is generated from the list the app itself draws on **Ctrl+/**, and
 | `Ctrl+R` | Rerack (rewind to start) |
 | `Up` / `Down` | Navigate cue list |
 | `Ctrl+A` | Select every cue in the focused playlist |
-| `Left` / `Right` | Skip back/forward 10s |
+| `Shift+Left` / `Right` | Step a paused video one frame (Ctrl: 10, Alt: 1 s) |
 | `Home` / `End` | Skip to start/end |
 | `I` | Import media files |
 | `Ctrl+I` | Set in point at playhead |

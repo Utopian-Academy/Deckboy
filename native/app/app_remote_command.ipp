@@ -6792,10 +6792,25 @@
     }
     if (command == "KEY") {
       if (parts.size() < 2) {
-        failRemoteCommand("KEY: expected a key name, e.g. KEY Escape [OUTPUT 1]");
+        failRemoteCommand("KEY: expected a key name, e.g. KEY Escape [OUTPUT 1] or KEY Shift+Right");
         return;
       }
-      const SDL_Keycode key = SDL_GetKeyFromName(parts[1].c_str());
+      // Shift+ / Ctrl+ / Alt+ in front of the name hold that modifier.
+      std::string keyName = parts[1];
+      Uint16 keyMod = 0;
+      for (bool more = true; more;) {
+        more = false;
+        for (const auto& [prefix, bit] : {std::pair<const char*, Uint16> {"SHIFT+", SDL_KMOD_LSHIFT},
+                                          {"CTRL+", SDL_KMOD_LCTRL}, {"ALT+", SDL_KMOD_LALT}}) {
+          const std::size_t n = std::strlen(prefix);
+          if (keyName.size() > n && toUpper(keyName.substr(0, n)) == prefix) {
+            keyMod |= bit;
+            keyName.erase(0, n);
+            more = true;
+          }
+        }
+      }
+      const SDL_Keycode key = SDL_GetKeyFromName(keyName.c_str());
       if (key == SDLK_UNKNOWN) {
         failRemoteCommand("KEY: no key called " + parts[1]);
         return;
@@ -6815,6 +6830,7 @@
         event.type = down ? SDL_EVENT_KEY_DOWN : SDL_EVENT_KEY_UP;
         event.key.windowID = window;
         event.key.key = key;
+        event.key.mod = keyMod;
         event.key.scancode = SDL_GetScancodeFromKey(key, nullptr);
         event.key.down = down;
         SDL_PushEvent(&event);

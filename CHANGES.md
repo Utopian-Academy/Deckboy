@@ -1,5 +1,13 @@
 # CHANGES - Incremental Updates (March-October 2026)
 
+## Unreleased
+
+### Clickers
+- Fixed: a presenter clicker that sends the arrow keys did nothing. A D'San Perfect Cue sends Right arrow, Left arrow and B unless it is reprogrammed, and so do many other clickers. Right and Left now take the next and previous cue with the transition, the same as Page Down and Page Up, also when a full-screen output has the keyboard and while the shortcuts sheet is open. With the tracker open, they are GO and BACK.
+- The clicker's blank button (B, blackout) now also works when a full-screen output has the keyboard.
+- Changed: to step a paused video one frame, use Shift+Right / Shift+Left (Ctrl: 10 frames, Alt: 1 second). Plain arrows did this before. Shift+arrows no longer step 5 frames.
+- In the tracker's pattern view, Right and Left are GO and BACK. With EDIT on, or with Shift held, they move the cursor across playlists.
+
 ## 2026-11-16 - v0.99.429 (Lumia moves smoothly)
 
 ### Shows

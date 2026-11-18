@@ -8137,10 +8137,7 @@
     } else if (deckboyShortcutHeld(mod)) {
       stepSeconds = 10.0 / fps;
       stepLabel = "10f";
-    } else if ((mod & SDL_KMOD_SHIFT) != 0) {
-      stepSeconds = 5.0 / fps;
-      stepLabel = "5f";
-    }
+    }   // Shift alone: one frame. Plain arrows are the clicker.
     double target = snapToCueFrame(*cue, engine->position() + static_cast<double>(direction) * stepSeconds);
     engine->seek(target);
     triggerToast((direction > 0 ? ">> " : "<< ") + stepLabel + "  " + formatTimecode(target, fps));

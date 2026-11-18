@@ -1276,6 +1276,37 @@
            (dashboardOverlayOpen_ && project_.dashboardMode == 1);
   }
 
+  // THE PRESENTER CLICKER'S KEYS. A clicker is a USB keyboard. Most send
+  // Page Down / Page Up; many (a D'San Perfect Cue set to arrows, most cheap
+  // remotes) send Right / Left instead. Both pairs are the clicker, with no
+  // modifier held: Shift+arrows frame-step a paused video.
+  static bool isClickerKey(SDL_Keycode key, Uint16 mod, bool* forward = nullptr) {
+    const bool page = key == SDLK_PAGEDOWN || key == SDLK_PAGEUP;
+    const bool arrow = (key == SDLK_RIGHT || key == SDLK_LEFT) &&
+                       (mod & (SDL_KMOD_SHIFT | SDL_KMOD_CTRL | SDL_KMOD_ALT | SDL_KMOD_GUI)) == 0;
+    if (forward) *forward = key == SDLK_PAGEDOWN || key == SDLK_RIGHT;
+    return page || arrow;
+  }
+
+  // A clicker's BLANK button sends a plain B, which is BLACKOUT here (a
+  // toggle). It is let through from a full-screen output like the other two.
+  static bool clickerBlankKey(SDL_Keycode key, Uint16 mod) {
+    return key == SDLK_B &&
+           (mod & (SDL_KMOD_SHIFT | SDL_KMOD_CTRL | SDL_KMOD_ALT | SDL_KMOD_GUI)) == 0;
+  }
+
+  // One clicker press: the next or previous cue with its transition, or the
+  // master sequence's GO / BACK while the clicker drives the tracker.
+  void clickerStep(bool forward) {
+    if (clickerDrivesTrackerNow()) {
+      if (forward) trackerGo(); else trackerBack();
+    } else if (forward) {
+      skipToNextCue(/*asTake=*/true);
+    } else {
+      skipToPrevCue(/*asTake=*/true);
+    }
+  }
+
   // Whether the pattern tracker has the keyboard: open, and nothing on top
   // of it that is typing.
   bool trackerPatternHasKeys() const {
@@ -1304,10 +1335,20 @@
       case SDLK_DOWN: moveRow(1); return true;
       case SDLK_HOME: trackerCursorRow_ = 0; return true;
       case SDLK_END: trackerCursorRow_ = std::max(0, rowCount - 1); return true;
+      // Left / Right are also what a clicker sends: they are GO / BACK unless
+      // EDIT is on or Shift is held, which move the cursor across playlists.
       case SDLK_LEFT:
+        if (!trackerEditMode_ && (mod & SDL_KMOD_SHIFT) == 0) {
+          if (!keyRepeat) trackerBack();
+          return true;
+        }
         trackerCursorCol_ = std::max(0, trackerCursorCol_ - 1);
         return true;
       case SDLK_RIGHT:
+        if (!trackerEditMode_ && (mod & SDL_KMOD_SHIFT) == 0) {
+          if (!keyRepeat) trackerGo();
+          return true;
+        }
         trackerCursorCol_ = std::clamp(trackerCursorCol_ + 1, 0, std::max(0, shownCount - 1));
         return true;
       case SDLK_PAGEDOWN:
@@ -1936,17 +1977,16 @@
     // Down / Page Up, and every modal -- settings, the shortcuts sheet, a text
     // field -- used to swallow them, so a dialog left open on the desk froze
     // the presenter's slides. Nothing in those modals uses the two keys.
-    if ((key == SDLK_PAGEDOWN || key == SDLK_PAGEUP) && !keyRepeat &&
-        (settingsOpen_ || shortcutsOverlayOpen_ || inlineEditor_.open)) {
-      const bool forward = key == SDLK_PAGEDOWN;
-      if (clickerDrivesTrackerNow()) {
-        if (forward) trackerGo(); else trackerBack();
-      } else if (forward) {
-        skipToNextCue(/*asTake=*/true);
-      } else {
-        skipToPrevCue(/*asTake=*/true);
+    // Right / Left pass through only the shortcuts sheet: in a text field
+    // they move the caret.
+    {
+      bool forward = false;
+      const bool pageKey = key == SDLK_PAGEDOWN || key == SDLK_PAGEUP;
+      if (isClickerKey(key, mod, &forward) && !keyRepeat &&
+          (shortcutsOverlayOpen_ || (pageKey && (settingsOpen_ || inlineEditor_.open)))) {
+        clickerStep(forward);
+        return;
       }
-      return;
     }
 
     // NOT while typing, and never with Ctrl or Alt held: the synth used to run
@@ -2050,8 +2090,8 @@
     }
 
     // ↑ ↑ ↓ ↓ ← → ← → B A Start. The directional prefix rides along with
-    // normal navigation (harmless selection moves); once it's complete, the
-    // B/A/Enter tail is swallowed so their hotkeys don't fire mid-code.
+    // normal navigation (harmless selection moves). From the first ← on, the
+    // code's keys are swallowed: ← → are the clicker, and B/A are hotkeys.
     if (!keyRepeat) {
       static const SDL_Keycode kKonami[] = {
         SDLK_UP, SDLK_UP, SDLK_DOWN, SDLK_DOWN,
@@ -2066,8 +2106,10 @@
           unlockTerrariumSource();
           return;
         }
-        if (konamiIndex_ > 8) {
-          return;  // swallow B/A while the tail is in progress
+        if (konamiIndex_ > 4) {
+          // Swallow ← → ← → and B/A while the code is in progress: arrows are
+          // the clicker now, and the code must not take cues.
+          return;
         }
       } else {
         konamiIndex_ = (key == kKonami[0]) ? 1 : 0;
@@ -2314,12 +2356,18 @@
       case SDLK_DOWN:
         selectRelative(1, shift);
         break;
+      // Plain Right / Left are the clicker (see isClickerKey); with Shift,
+      // Ctrl or Alt they frame-step a paused video.
       case SDLK_LEFT:
-        nudgeFocusedPausedPlayback(-1, mod);
+      case SDLK_RIGHT: {
+        bool forward = false;
+        if (isClickerKey(key, mod, &forward)) {
+          if (!keyRepeat) clickerStep(forward);
+        } else {
+          nudgeFocusedPausedPlayback(forward ? 1 : -1, mod);
+        }
         break;
-      case SDLK_RIGHT:
-        nudgeFocusedPausedPlayback(1, mod);
-        break;
+      }
       case SDLK_1:
         toggleUiSounds();
         break;
@@ -2419,21 +2467,13 @@
       // comma stay on the playlist either way: they are keyboard keys, not
       // what a clicker sends.
       case SDLK_PAGEDOWN:
-        if (clickerDrivesTrackerNow()) {
-          trackerGo();
-        } else {
-          skipToNextCue(/*asTake=*/true);
-        }
+        clickerStep(true);
         break;
       case SDLK_PERIOD:
         skipToNextCue();
         break;
       case SDLK_PAGEUP:
-        if (clickerDrivesTrackerNow()) {
-          trackerBack();
-        } else {
-          skipToPrevCue(/*asTake=*/true);
-        }
+        clickerStep(false);
         break;
       case SDLK_COMMA:
         skipToPrevCue();
