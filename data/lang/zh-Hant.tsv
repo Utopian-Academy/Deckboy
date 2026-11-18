@@ -4695,3 +4695,4 @@ listens to the live input while one is open, else the playlist	有即時輸入�
 {1} closed Deckboy last time, so it was not opened. Open it from OPEN.	{1} 上次關閉了 Deckboy，因此沒有開啟。可從 開啟 重新開啟。
 TUTORIAL: no lesson running	TUTORIAL：沒有正在執行的課程
 TUTORIAL: expected START, SHOWME, SKIP, STEP <n>, RESTART, EXIT, STATUS or SCREENS	TUTORIAL：應為 START、SHOWME、SKIP、STEP <n>、RESTART、EXIT、STATUS 或 SCREENS
+cursor across	游標橫向

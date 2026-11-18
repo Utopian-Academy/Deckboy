@@ -4697,3 +4697,4 @@ listens to the live input while one is open, else the playlist	लाइव इ�
 {1} closed Deckboy last time, so it was not opened. Open it from OPEN.	{1} ने पिछली बार Deckboy बंद किया था, इसलिए इसे नहीं खोला गया। खोलें से इसे खोलें।
 TUTORIAL: no lesson running	TUTORIAL: कोई पाठ नहीं चल रहा
 TUTORIAL: expected START, SHOWME, SKIP, STEP <n>, RESTART, EXIT, STATUS or SCREENS	TUTORIAL: अपेक्षित: START, SHOWME, SKIP, STEP <n>, RESTART, EXIT, STATUS या SCREENS
+cursor across	कर्सर आड़ा

@@ -4711,3 +4711,4 @@ listens to the live input while one is open, else the playlist	يتبع الدخ
 {1} closed Deckboy last time, so it was not opened. Open it from OPEN.	لم يفتح {1} Deckboy آخر مرة، لذلك لم يُفتح. افتحه من فتح.
 TUTORIAL: no lesson running	TUTORIAL: لا يوجد درس قيد التشغيل
 TUTORIAL: expected START, SHOWME, SKIP, STEP <n>, RESTART, EXIT, STATUS or SCREENS	TUTORIAL: المتوقع: START, SHOWME, SKIP, STEP <n>, RESTART, EXIT, STATUS أو SCREENS
+cursor across	المؤشر أفقياً

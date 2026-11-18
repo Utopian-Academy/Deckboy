@@ -4691,3 +4691,4 @@ listens to the live input while one is open, else the playlist	ακούει τη
 {1} closed Deckboy last time, so it was not opened. Open it from OPEN.	Το {1} έκλεισε το Deckboy την τελευταία φορά, γι' αυτό δεν άνοιξε. Άνοιξέ το από το ΑΝΟΙΓΜΑ.
 TUTORIAL: no lesson running	TUTORIAL: κανένα μάθημα δεν τρέχει
 TUTORIAL: expected START, SHOWME, SKIP, STEP <n>, RESTART, EXIT, STATUS or SCREENS	TUTORIAL: αναμένεται START, SHOWME, SKIP, STEP <n>, RESTART, EXIT, STATUS ή SCREENS
+cursor across	δείκτης οριζόντια

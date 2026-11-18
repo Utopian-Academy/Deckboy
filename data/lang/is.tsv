@@ -4690,3 +4690,4 @@ listens to the live input while one is open, else the playlist	hlýðir beinu in
 {1} closed Deckboy last time, so it was not opened. Open it from OPEN.	{1} lokaði Deckboy síðast, svo það var ekki opnað. Opnaðu það með OPNA.
 TUTORIAL: no lesson running	TUTORIAL: engin lexía í gangi
 TUTORIAL: expected START, SHOWME, SKIP, STEP <n>, RESTART, EXIT, STATUS or SCREENS	TUTORIAL: vænst er START, SHOWME, SKIP, STEP <n>, RESTART, EXIT, STATUS eða SCREENS
+cursor across	bendill þvert

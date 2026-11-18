@@ -4659,3 +4659,4 @@ listens to the live input while one is open, else the playlist	escuta a entrada 
 {1} closed Deckboy last time, so it was not opened. Open it from OPEN.	{1} fechou o Deckboy da última vez, então ele não foi aberto. Abra-o em ABRIR.
 TUTORIAL: no lesson running	TUTORIAL: nenhuma lição em execução
 TUTORIAL: expected START, SHOWME, SKIP, STEP <n>, RESTART, EXIT, STATUS or SCREENS	TUTORIAL: esperado START, SHOWME, SKIP, STEP <n>, RESTART, EXIT, STATUS ou SCREENS
+cursor across	cursor horizontal

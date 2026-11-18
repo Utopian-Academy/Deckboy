@@ -4680,3 +4680,4 @@ listens to the live input while one is open, else the playlist	ຟັງສຽ�
 {1} closed Deckboy last time, so it was not opened. Open it from OPEN.	{1} ປິດ Deckboy ຄັ້ງຜ່ານມາ, ດັ່ງນັ້ນຈຶ່ງບໍ່ໄດ້ເປີດ. ເປີດມັນຈາກ ເປີດ.
 TUTORIAL: no lesson running	TUTORIAL: ບໍ່ມີບົດຮຽນກຳລັງແລ່ນ
 TUTORIAL: expected START, SHOWME, SKIP, STEP <n>, RESTART, EXIT, STATUS or SCREENS	TUTORIAL: ຕ້ອງການ START, SHOWME, SKIP, STEP <n>, RESTART, EXIT, STATUS ຫຼື SCREENS
+cursor across	ເຄີເຊີຕາມຂວາງ

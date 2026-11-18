@@ -4693,3 +4693,4 @@ listens to the live input while one is open, else the playlist	라이브 입력�
 {1} closed Deckboy last time, so it was not opened. Open it from OPEN.	{1}이(가) 지난번에 Deckboy를 닫았기 때문에 열지 않았습니다. 열기에서 여세요.
 TUTORIAL: no lesson running	TUTORIAL: 실행 중인 수업 없음
 TUTORIAL: expected START, SHOWME, SKIP, STEP <n>, RESTART, EXIT, STATUS or SCREENS	TUTORIAL: START, SHOWME, SKIP, STEP <n>, RESTART, EXIT, STATUS 또는 SCREENS 필요
+cursor across	커서 가로
