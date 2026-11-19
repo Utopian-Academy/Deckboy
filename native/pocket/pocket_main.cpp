@@ -55,22 +55,75 @@ extern "C" {
 
 namespace {
 
-// The Pocket theme's four LCD inks (data/themes/pocket/theme.txt) and its shell.
+// The inks, set from a Deckboy theme (data/themes/<name>/theme.txt) by
+// applyTheme; these are the Pocket theme's, for before one is read.
 struct Ink { Uint8 r, g, b; };
-constexpr Ink kLight {196, 207, 161};
-constexpr Ink kMid {140, 148, 106};
-constexpr Ink kDark {74, 80, 56};
-constexpr Ink kDeep {26, 30, 20};
-constexpr Ink kShell {184, 184, 176};
-constexpr Ink kShellShade {150, 150, 142};
-constexpr Ink kBezel {44, 44, 52};
-constexpr Ink kPad {30, 30, 34};
-constexpr Ink kButton {120, 28, 62};
-constexpr Ink kButtonLit {176, 60, 104};
-constexpr Ink kPill {96, 96, 104};
-constexpr Ink kPrint {46, 46, 70};
+Ink kLight {196, 207, 161};
+Ink kMid {140, 148, 106};
+Ink kDark {74, 80, 56};
+Ink kDeep {26, 30, 20};
+Ink kShell {184, 184, 176};
+Ink kShellShade {150, 150, 142};
+Ink kBezel {44, 44, 52};
+Ink kPad {30, 30, 34};
+Ink kButton {120, 28, 62};
+Ink kButtonLit {176, 60, 104};
+Ink kPill {96, 96, 104};
+Ink kPrint {46, 46, 70};
 constexpr Ink kBlack {0, 0, 0};
 constexpr Ink kInOut {35, 73, 127};   // IN and OUT marks: blue, apart from the four inks
+
+Ink mixInk(Ink a, Ink b, float t) {
+  auto m = [t](Uint8 x, Uint8 y) { return static_cast<Uint8>(std::lround(x + (y - x) * t)); };
+  return {m(a.r, b.r), m(a.g, b.g), m(a.b, b.b)};
+}
+float lumaOf(Ink c) { return (0.2126f * c.r + 0.7152f * c.g + 0.0722f * c.b) / 255.0f; }
+
+// A desk theme's colours, mapped onto Pocket's parts. The screen keeps the
+// theme's four LCD inks; the shell, its print and the buttons come from the
+// theme's case colours, so every one of the desk's themes is a Pocket skin.
+bool applyTheme(const std::string& dataDir, const std::string& name) {
+  const std::string path = dataDir + "themes/" + name + "/theme.txt";
+  size_t size = 0;
+  char* text = static_cast<char*>(SDL_LoadFile(path.c_str(), &size));
+  if (!text) return false;
+  std::map<std::string, Ink> c;
+  std::string all(text, size);
+  SDL_free(text);
+  std::size_t at = 0;
+  while (at < all.size()) {
+    std::size_t end = all.find('\n', at);
+    if (end == std::string::npos) end = all.size();
+    std::string line = all.substr(at, end - at);
+    at = end + 1;
+    if (line.empty() || line[0] == '#') continue;
+    const std::size_t tab = line.find('\t');
+    if (tab == std::string::npos) continue;
+    const std::string key = line.substr(0, tab);
+    std::string hex = line.substr(tab + 1);
+    while (!hex.empty() && (hex.back() == '\r' || hex.back() == ' ')) hex.pop_back();
+    if (hex.size() < 6) continue;
+    const unsigned long v = std::strtoul(hex.substr(0, 6).c_str(), nullptr, 16);
+    c[key] = Ink {static_cast<Uint8>(v >> 16), static_cast<Uint8>(v >> 8), static_cast<Uint8>(v)};
+  }
+  if (!c.count("screen_light") || !c.count("screen_deep") || !c.count("shell_outer")) return false;
+  auto get = [&](const char* k, Ink fallback) { auto it = c.find(k); return it == c.end() ? fallback : it->second; };
+  kLight = c["screen_light"];
+  kDeep = c["screen_deep"];
+  kMid = get("screen_mid", mixInk(kLight, kDeep, 0.35f));
+  kDark = get("screen_dark", mixInk(kLight, kDeep, 0.7f));
+  kShell = c["shell_outer"];
+  const Ink shadow = get("shell_shadow", mixInk(kShell, Ink {0, 0, 0}, 0.45f));
+  kShellShade = mixInk(kShell, shadow, 0.35f);
+  kBezel = mixInk(shadow, Ink {0, 0, 0}, 0.35f);
+  kPad = mixInk(shadow, Ink {0, 0, 0}, 0.6f);
+  kButton = get("delete_bezel", Ink {120, 28, 62});
+  kButtonLit = mixInk(kButton, Ink {255, 255, 255}, 0.3f);
+  kPill = get("button_bezel", mixInk(kShell, shadow, 0.6f));
+  // Print on the shell: the theme's dark on a light case, light on a dark one.
+  kPrint = lumaOf(kShell) > 0.45f ? mixInk(shadow, Ink {0, 0, 40}, 0.4f) : mixInk(kShell, Ink {255, 255, 255}, 0.75f);
+  return true;
+}
 
 // What a first launch copies out of the APK, so Deckboy's file-based code
 // (Paths::dataDir) finds its data where it always does.
@@ -278,6 +331,33 @@ std::string prepareDataDir() {
     SDL_CreateDirectory(to.substr(0, to.find_last_of('/')).c_str());
     if (!SDL_SaveFile(to.c_str(), bytes, size)) SDL_Log("pocket: cannot write %s (%s)", to.c_str(), SDL_GetError());
     SDL_free(bytes);
+  }
+  // Every desk theme: Gradle writes themes/index.txt, one folder name a line.
+  size_t indexSize = 0;
+  if (char* index = static_cast<char*>(SDL_LoadFile("data/themes/index.txt", &indexSize))) {
+    std::string names(index, indexSize);
+    SDL_free(index);
+    std::size_t at = 0;
+    while (at < names.size()) {
+      std::size_t end = names.find('\n', at);
+      if (end == std::string::npos) end = names.size();
+      std::string name = names.substr(at, end - at);
+      at = end + 1;
+      while (!name.empty() && (name.back() == '\r' || name.back() == ' ')) name.pop_back();
+      if (name.empty()) continue;
+      const std::string rel = "themes/" + name + "/theme.txt";
+      const std::string to = joinPath(data, rel);
+      SDL_PathInfo info;
+      if (SDL_GetPathInfo(to.c_str(), &info) && info.size > 0) continue;
+      size_t n = 0;
+      if (void* bytes = SDL_LoadFile(("data/" + rel).c_str(), &n)) {
+        SDL_CreateDirectory(to.substr(0, to.find_last_of('/')).c_str());
+        SDL_SaveFile(to.c_str(), bytes, n);
+        SDL_free(bytes);
+      }
+    }
+    const std::string indexTo = joinPath(data, "themes/index.txt");
+    SDL_SaveFile(indexTo.c_str(), names.data(), names.size());
   }
   SDL_setenv_unsafe("DECKBOY_ROOT", root.c_str(), 1);
   const std::string state = joinPath(root, "state");
@@ -545,8 +625,61 @@ class Pocket {
       cue.hasAudio = cue.audioEnabled = (std::string(type) == "pocket-test");
       cues_.push_back(cue);
     }
+    loadThemes();
     loadFonts();
     return true;
+  }
+
+  // The desk's themes, and the one chosen last time (state/pocket.txt).
+  void loadThemes() {
+    const std::string data = std::string(SDL_getenv("DECKBOY_ROOT") ? SDL_getenv("DECKBOY_ROOT") : ".") + "/data/";
+    size_t n = 0;
+    if (char* index = static_cast<char*>(SDL_LoadFile((data + "themes/index.txt").c_str(), &n))) {
+      std::string names(index, n);
+      SDL_free(index);
+      std::size_t at = 0;
+      while (at < names.size()) {
+        std::size_t end = names.find('\n', at);
+        if (end == std::string::npos) end = names.size();
+        std::string name = names.substr(at, end - at);
+        at = end + 1;
+        while (!name.empty() && (name.back() == '\r' || name.back() == ' ')) name.pop_back();
+        if (!name.empty()) themes_.push_back(name);
+      }
+    }
+    std::sort(themes_.begin(), themes_.end());
+    std::string want = "pocket";
+    const char* state = SDL_getenv("DECKBOY_STATE_DIR");
+    if (state) {
+      if (char* saved = static_cast<char*>(SDL_LoadFile((std::string(state) + "/pocket.txt").c_str(), &n))) {
+        std::string line(saved, n);
+        SDL_free(saved);
+        if (line.rfind("theme\t", 0) == 0) {
+          want = line.substr(6, line.find('\n') == std::string::npos ? std::string::npos : line.find('\n') - 6);
+          while (!want.empty() && (want.back() == '\r' || want.back() == ' ')) want.pop_back();
+        }
+      }
+    }
+    setTheme(want);
+  }
+
+  void setTheme(const std::string& name) {
+    const std::string data = std::string(SDL_getenv("DECKBOY_ROOT") ? SDL_getenv("DECKBOY_ROOT") : ".") + "/data/";
+    if (!applyTheme(data, name)) return;
+    theme_ = name;
+    text_.clear();   // cached labels carry the old inks
+    if (const char* state = SDL_getenv("DECKBOY_STATE_DIR")) {
+      const std::string line = "theme\t" + name + "\n";
+      SDL_SaveFile((std::string(state) + "/pocket.txt").c_str(), line.data(), line.size());
+    }
+  }
+
+  void stepTheme(int by) {
+    if (themes_.empty()) return;
+    auto it = std::find(themes_.begin(), themes_.end(), theme_);
+    int i = it == themes_.end() ? 0 : static_cast<int>(it - themes_.begin());
+    i = (i + by + static_cast<int>(themes_.size())) % static_cast<int>(themes_.size());
+    setTheme(themes_[static_cast<std::size_t>(i)]);
   }
 
   // Every playable file in the app's media folder, in name order:
@@ -949,6 +1082,19 @@ class Pocket {
       button({lx + bw + u, y, bw, 5 * u}, "IDENTIFY", [this] { identifyUntil_ = SDL_GetTicks() + 4000; });
       y += 6.5f * u;
       item("PHONE FULL SCREEN", [this] { menuOpen_ = false; phoneFull_ = true; });
+    }
+
+    heading("SKIN");
+    {
+      const float bw = 9 * u;
+      button({lx, y, bw, 5 * u}, "<", [this] { stepTheme(-1); });
+      char label[96];
+      std::snprintf(label, sizeof label, "%s  %d/%d", theme_.c_str(),
+                    themes_.empty() ? 0 : static_cast<int>(std::find(themes_.begin(), themes_.end(), theme_) - themes_.begin()) + 1,
+                    static_cast<int>(themes_.size()));
+      text_.draw(mono_, label, kDeep, {lx + bw + u, y, lw - 2 * bw - 2 * u, 5 * u}, true);
+      button({lx + lw - bw, y, bw, 5 * u}, ">", [this] { stepTheme(1); });
+      y += 6.5f * u;
     }
 
     heading("PHONE");
@@ -1750,6 +1896,8 @@ class Pocket {
   int identifyFontH_ = 0;
   int battery_ = -1, thermal_ = 0;
   std::string showRunningTitle_;
+  std::vector<std::string> themes_;
+  std::string theme_ = "pocket";
   bool charging_ = false;
   Uint64 nextHealth_ = 0;
   bool confirmDelete_ = false;

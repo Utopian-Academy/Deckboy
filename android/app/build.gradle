@@ -68,9 +68,16 @@ def pocketAssets = layout.buildDirectory.dir("pocket-assets")
 tasks.register("copyPocketAssets", Copy) {
     from("${rootDir}/../data") {
         include "PressStart2P.ttf", "fonts/LiberationSans-Regular.ttf", "fonts/LiberationMono-Regular.ttf",
-                "fonts/LICENSE-Liberation.txt", "themes/pocket/**"
+                "fonts/LICENSE-Liberation.txt", "themes/*/theme.txt"
     }
     into pocketAssets.map { it.dir("data") }
+    // The theme list the app reads (assets cannot be listed from native code).
+    doLast {
+        def themes = new File("${rootDir}/../data/themes").listFiles()
+                .findAll { it.isDirectory() && new File(it, "theme.txt").exists() }
+                .collect { it.name }.sort()
+        pocketAssets.get().file("data/themes/index.txt").asFile.text = themes.join("\n") + "\n"
+    }
 }
 android.sourceSets.main.assets.srcDirs += pocketAssets
 preBuild.dependsOn("copyPocketAssets")
