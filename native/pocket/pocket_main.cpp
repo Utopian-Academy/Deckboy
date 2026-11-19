@@ -426,7 +426,12 @@ class Pocket {
       if (jobject ctx = appContext()) av_jni_set_android_app_ctx(ctx, nullptr);
     }
 #endif
-    engine_ = std::make_unique<MediaEngine>(renderer_, audio_);
+    // The engine places its picture for the OUTPUT's shape. Pocket's program is
+    // a 1920x1080 picture (drawProgramTexture); without this the engine took
+    // the portrait phone screen as the output and squeezed the picture.
+    engine_ = std::make_unique<MediaEngine>(renderer_, audio_, MediaEngine::AudioTapCallback {},
+                                            MediaEngine::CuePathResolver {}, MediaEngine::DecodeDeviceProvider {},
+                                            [] { return MediaEngine::OutputModeHint {kProgramW, kProgramH, 60.0}; });
     engine_->setDrawsOwnTexture(true);
     engine_->setVolume(0.8f);
 
