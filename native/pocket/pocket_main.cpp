@@ -595,6 +595,15 @@ class Pocket {
   void frame() {
     takePicks();
     engine_->update();
+    // Animated generators (Swirl, Fireside, Lumia...) are redrawn every tick
+    // from the wall clock, as the desk's update loop does; without this they
+    // show their first frame and stop.
+    if (active_ >= 0) {
+      const Cue& c = cues_[static_cast<std::size_t>(active_)];
+      if (c.kind == CueKind::Pattern && patternTypeIsAnimated(c.path) && engine_->hasPictureToShow()) {
+        engine_->rebuildPatternFrame(c, static_cast<double>(SDL_GetTicks()) / 1000.0);
+      }
+    }
     followEnd();
     // Hold a cue for its sheet.
     if (holdRow_ >= 0 && SDL_GetTicks() - holdStart_ > 450) {

@@ -22,6 +22,7 @@ android {
             }
             cmake {
                 arguments "-DANDROID_PLATFORM=android-29", "-DANDROID_STL=c++_shared",
+                          "-DANDROID_SUPPORT_FLEXIBLE_PAGE_SIZES=ON",
                           "-DPOCKET_DEPS=" + (System.getenv("POCKET_DEPS") ?: "X:/android")
                 targets "main"
                 // abiFilters 'armeabi-v7a', 'arm64-v8a', 'x86', 'x86_64'
