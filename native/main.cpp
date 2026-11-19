@@ -9318,9 +9318,30 @@ class App {
            (ch(m[6] * r + m[7] * g + m[8] * b) << 8) | (rgba & 255u);
   }
 
+  // WHERE THIS MACHINE STARTS ON THE WHEEL, from its own name. The cycle runs
+  // from launch, so two machines started together showed the same colour at
+  // the same moment -- and a cycling theme is there so machines are told apart
+  // at a glance (James, two Macs on Rainbow Road, 2026-11-19). Fixed per
+  // machine, so each one keeps its own place from launch to launch.
+  static double machineHuePhase() {
+    static const double phase = [] {
+      std::string name;
+#ifdef _WIN32
+      if (const char* n = std::getenv("COMPUTERNAME")) name = n;
+#else
+      char buf[256] = {};
+      if (gethostname(buf, sizeof buf - 1) == 0) name = buf;
+#endif
+      std::uint32_t h = 2166136261u;   // FNV-1a
+      for (unsigned char ch : name) h = (h ^ ch) * 16777619u;
+      return static_cast<double>(h % 3600u) / 3600.0;
+    }();
+    return phase;
+  }
+
   void serviceThemeHue() {
     if (themeHueCycleSeconds_ <= 0.0) return;
-    const double turns = static_cast<double>(SDL_GetTicks()) / 1000.0 / themeHueCycleSeconds_;
+    const double turns = static_cast<double>(SDL_GetTicks()) / 1000.0 / themeHueCycleSeconds_ + machineHuePhase();
     const int step = static_cast<int>((turns - std::floor(turns)) * 180.0) % 180;
     if (step == themeHueStep_) return;
     themeHueStep_ = step;
