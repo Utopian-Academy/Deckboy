@@ -1113,6 +1113,24 @@ void writeProjectRecords(std::ostream& output, const Project& project) {
         << '\t' << cue.tone.stingSeconds
         << '\t' << cue.tone.stingSweepSemitones
         << '\t' << cue.tone.stingBody
+        // vs + 206..221: an Illusion source -- shape, form, flow, flip,
+        // palette, the nine 0-1 controls, its theme inks and oscillators.
+        << '\t' << cue.illusion.shape
+        << '\t' << cue.illusion.form
+        << '\t' << cue.illusion.flow
+        << '\t' << (cue.illusion.flip ? 1 : 0)
+        << '\t' << cue.illusion.palette
+        << '\t' << cue.illusion.size
+        << '\t' << cue.illusion.count
+        << '\t' << cue.illusion.edge
+        << '\t' << cue.illusion.speed
+        << '\t' << cue.illusion.centreX
+        << '\t' << cue.illusion.centreY
+        << '\t' << cue.illusion.tone
+        << '\t' << cue.illusion.hue1
+        << '\t' << cue.illusion.hue2
+        << '\t' << escapeField(serializeMoireInks(cue.illusion.themeInks))
+        << '\t' << escapeField(serializeGeometryLfos(cue.illusion.lfo))
         << '\n';
   };
   for (size_t deckIndex = 0; deckIndex < project.decks.size(); ++deckIndex) {
@@ -3068,6 +3086,27 @@ Project loadProject(const fs::path& projectFile,
           cue.tone.stingSeconds = std::clamp(safeDouble(fields, vs + 203, 0.75), 0.05, 10.0);
           cue.tone.stingSweepSemitones = std::clamp(safeDouble(fields, vs + 204, 7.0), -24.0, 24.0);
           cue.tone.stingBody = std::clamp(safeDouble(fields, vs + 205, 0.45), 0.0, 1.0);
+        }
+        // Absent before the Illusion source: every control at its default.
+        if (fields.size() >= static_cast<std::size_t>(vs + 222)) {
+          const IllusionSettings fresh;
+          IllusionSettings& il = cue.illusion;
+          il.shape = std::clamp(safeInt(fields, vs + 206, fresh.shape), 0, kIllusionShapeCount - 1);
+          il.form = std::clamp(safeInt(fields, vs + 207, fresh.form), 0, kIllusionFormCount - 1);
+          il.flow = std::clamp(safeInt(fields, vs + 208, fresh.flow), 0, kIllusionFlowCount - 1);
+          il.flip = safeBool(fields, vs + 209, fresh.flip);
+          il.palette = std::clamp(safeInt(fields, vs + 210, fresh.palette), 0, kIllusionPaletteCount - 1);
+          il.size = std::clamp(safeDouble(fields, vs + 211, fresh.size), 0.0, 1.0);
+          il.count = std::clamp(safeDouble(fields, vs + 212, fresh.count), 0.0, 1.0);
+          il.edge = std::clamp(safeDouble(fields, vs + 213, fresh.edge), 0.0, 1.0);
+          il.speed = std::clamp(safeDouble(fields, vs + 214, fresh.speed), 0.0, 1.0);
+          il.centreX = std::clamp(safeDouble(fields, vs + 215, fresh.centreX), 0.0, 1.0);
+          il.centreY = std::clamp(safeDouble(fields, vs + 216, fresh.centreY), 0.0, 1.0);
+          il.tone = std::clamp(safeDouble(fields, vs + 217, fresh.tone), 0.0, 1.0);
+          il.hue1 = std::clamp(safeDouble(fields, vs + 218, fresh.hue1), 0.0, 1.0);
+          il.hue2 = std::clamp(safeDouble(fields, vs + 219, fresh.hue2), 0.0, 1.0);
+          il.themeInks = parseMoireInks(safeString(fields, vs + 220), fresh.themeInks);
+          il.lfo = parseGeometryLfos(safeString(fields, vs + 221));
         }
       }
       // A MASTER CUE HAS NO PATH, and this gate would have dropped it on load

@@ -49,12 +49,12 @@ enum GpuKind : std::uint32_t {
 enum Entry { E_POINT = 0, E_DOWN, E_BOX, E_STREAK, E_TILE, E_NV12, E_TRANS, E_STEREO, E_TAPE,
              E_MELT_INIT, E_MELT_STEP, E_MELT_SHOW, E_SOURCE,
              E_LUMIA_CLEAR, E_LUMIA_WATER, E_LUMIA_PRISM, E_LUMIA_RESOLVE, E_LUMIA_BLUR, E_LUMIA_TRAIL,
-             E_BEND, E_COUNT };
+             E_BEND, E_ILLUSION, E_COUNT };
 const char* const kEntryNames[E_COUNT] = {"pointMain", "downMain", "boxMain", "streakMain", "tileMain", "nv12Main",
                                           "transMain", "stereoMain", "tapeMain", "meltInitMain", "meltStepMain",
                                           "meltShowMain", "sourceMain", "lumiaClearMain", "lumiaWaterMain",
                                           "lumiaPrismMain", "lumiaResolveMain", "lumiaBlurMain",
-                                          "lumiaTrailMain", "bendMain"};
+                                          "lumiaTrailMain", "bendMain", "illusionMain"};
 // Threads per group: 8 x 8 for every kernel but the stereogram's, which is
 // one row of 64 (stereoMain in gpu_effects.hlsl).
 constexpr int kStereoThreads = 64;
@@ -1269,45 +1269,32 @@ bool sdlCreate(GpuEffects* g) {
     return false;
   }
   const SDL_GPUShaderFormat formats = SDL_GetGPUShaderFormats(g->gpu);
-  const unsigned char* dxil[E_COUNT] = {kEffectsPointDxil, kEffectsDownDxil, kEffectsBoxDxil, kEffectsStreakDxil,
-                                        kEffectsTileDxil, kEffectsNv12Dxil, kEffectsTransDxil, kEffectsStereoDxil,
-                                        kEffectsTapeDxil, kEffectsMeltInitDxil, kEffectsMeltStepDxil,
-                                        kEffectsMeltShowDxil, kEffectsSourceDxil,
-                                        kEffectsLumiaClearDxil, kEffectsLumiaWaterDxil, kEffectsLumiaPrismDxil, kEffectsLumiaResolveDxil, kEffectsLumiaBlurDxil, kEffectsLumiaTrailDxil};
-  const std::size_t dxilSize[E_COUNT] = {sizeof(kEffectsPointDxil), sizeof(kEffectsDownDxil), sizeof(kEffectsBoxDxil),
-                                         sizeof(kEffectsStreakDxil), sizeof(kEffectsTileDxil),
-                                         sizeof(kEffectsNv12Dxil), sizeof(kEffectsTransDxil),
-                                         sizeof(kEffectsStereoDxil), sizeof(kEffectsTapeDxil),
-                                         sizeof(kEffectsMeltInitDxil), sizeof(kEffectsMeltStepDxil),
-                                         sizeof(kEffectsMeltShowDxil), sizeof(kEffectsSourceDxil),
-                                         sizeof(kEffectsLumiaClearDxil), sizeof(kEffectsLumiaWaterDxil), sizeof(kEffectsLumiaPrismDxil), sizeof(kEffectsLumiaResolveDxil), sizeof(kEffectsLumiaBlurDxil), sizeof(kEffectsLumiaTrailDxil)};
-  const unsigned char* spirv[E_COUNT] = {kEffectsPointSpirv, kEffectsDownSpirv, kEffectsBoxSpirv,
-                                         kEffectsStreakSpirv, kEffectsTileSpirv, kEffectsNv12Spirv,
-                                         kEffectsTransSpirv, kEffectsStereoSpirv, kEffectsTapeSpirv,
-                                         kEffectsMeltInitSpirv, kEffectsMeltStepSpirv, kEffectsMeltShowSpirv,
-                                         kEffectsSourceSpirv, kEffectsLumiaClearSpirv, kEffectsLumiaWaterSpirv, kEffectsLumiaPrismSpirv, kEffectsLumiaResolveSpirv, kEffectsLumiaBlurSpirv, kEffectsLumiaTrailSpirv};
-  const std::size_t spirvSize[E_COUNT] = {sizeof(kEffectsPointSpirv), sizeof(kEffectsDownSpirv),
-                                          sizeof(kEffectsBoxSpirv), sizeof(kEffectsStreakSpirv),
-                                          sizeof(kEffectsTileSpirv), sizeof(kEffectsNv12Spirv),
-                                          sizeof(kEffectsTransSpirv), sizeof(kEffectsStereoSpirv),
-                                          sizeof(kEffectsTapeSpirv), sizeof(kEffectsMeltInitSpirv),
-                                          sizeof(kEffectsMeltStepSpirv), sizeof(kEffectsMeltShowSpirv),
-                                          sizeof(kEffectsSourceSpirv), sizeof(kEffectsLumiaClearSpirv), sizeof(kEffectsLumiaWaterSpirv), sizeof(kEffectsLumiaPrismSpirv), sizeof(kEffectsLumiaResolveSpirv), sizeof(kEffectsLumiaBlurSpirv), sizeof(kEffectsLumiaTrailSpirv)};
   for (int e = 0; e < E_COUNT; ++e) {
     SDL_GPUComputePipelineCreateInfo info {};
     info.entrypoint = kEntryNames[e];
+    // Each kernel's code by name (tools/build_effects_shaders.py). One the
+    // engine names and the embed lacks used to compile to a null here, and its
+    // failed pipeline took every GPU effect down with it.
+    const EffectsBlob* blob = nullptr;
+    for (const EffectsBlob& b : kEffectsBlobs) {
+      if (std::strcmp(b.entry, kEntryNames[e]) == 0) blob = &b;
+    }
     if ((formats & SDL_GPU_SHADERFORMAT_MSL) != 0) {
       info.format = SDL_GPU_SHADERFORMAT_MSL;
       info.code = reinterpret_cast<const Uint8*>(kEffectsMsl);
       info.code_size = sizeof(kEffectsMsl) - 1;
+    } else if (!blob) {
+      std::cerr << "gpu-effects: no embedded code for " << kEntryNames[e]
+                << " (run tools/build_effects_shaders.py) -- CPU effects" << std::endl;
+      return false;
     } else if ((formats & SDL_GPU_SHADERFORMAT_SPIRV) != 0 && !kEffectsPointSpirvMissing) {
       info.format = SDL_GPU_SHADERFORMAT_SPIRV;
-      info.code = spirv[e];
-      info.code_size = spirvSize[e];
+      info.code = blob->spirv;
+      info.code_size = blob->spirvSize;
     } else if ((formats & SDL_GPU_SHADERFORMAT_DXIL) != 0) {
       info.format = SDL_GPU_SHADERFORMAT_DXIL;
-      info.code = dxil[e];
-      info.code_size = dxilSize[e];
+      info.code = blob->dxil;
+      info.code_size = blob->dxilSize;
     } else {
       std::cerr << "gpu-effects: no shader this GPU device takes (formats " << formats << ") -- CPU effects" << std::endl;
       return false;
@@ -2114,6 +2101,17 @@ struct LumiaPass {
 // The passes for one plan. trace: a new moment; clear: the buffers are new.
 std::vector<LumiaPass> lumiaPasses(const SourcePlan& plan, bool trace, bool clear) {
   std::vector<LumiaPass> out;
+  // AN ILLUSION is the draw alone: nothing to trace, nothing kept.
+  if (plan.kind == SourcePlan::Illusion) {
+    Params draw = lumiaBase(plan);
+    draw.i0 = plan.i[0];
+    draw.i1 = plan.i[1];
+    draw.i2 = plan.i[2];
+    draw.i3 = plan.i[3];
+    std::copy(std::begin(plan.tab), std::end(plan.tab), std::begin(draw.tab));
+    out.push_back({E_ILLUSION, draw, (plan.width + 7) / 8, (plan.height + 7) / 8});
+    return out;
+  }
   const int gx = (plan.srcW + 7) / 8, gy = (plan.srcH + 7) / 8;
   if (clear) out.push_back({E_LUMIA_CLEAR, lumiaBase(plan), gx, gy});
   if (trace) {

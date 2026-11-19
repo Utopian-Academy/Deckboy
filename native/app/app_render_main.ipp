@@ -5878,6 +5878,90 @@
         finishInspectorSection(moSection, moY);
         ry = moY + kInspectorSectionGap;
       }
+      // AN ILLUSION: the shared controls, named for the shape on screen. A row
+      // the shape ignores is left out, so nothing on it moves nothing.
+      if (selectedCue->kind == CueKind::Pattern &&
+          normalizePatternTypeId(selectedCue->path) == "illusion") {
+        // Shares the Moire section's open flag: a cue is only ever one of them.
+        auto ilSection = beginInspectorSection(ry, "ILLUSION", cueSectionMoireOpen_,
+          QuickAction::CueSectionMoireToggle, "Collapse/expand the illusion's controls");
+        int ilY = ilSection.bodyStartY;
+        if (cueSectionMoireOpen_) {
+          const IllusionSettings& il = selectedCue->illusion;
+          struct IllusionRow { const char* label; NumericParam id; const char* tip; };
+          std::vector<IllusionRow> rows;
+          rows.push_back({"shape", NumericParam::IllusionShape,
+                          "Drift field (still shapes that seem to turn), Ouchi (a disc that floats) or cafe wall (straight rows that look tilted)"});
+          if (il.shape == 0) {
+            rows.push_back({"form", NumericParam::IllusionForm, "Leaf, petal, scale or ring"});
+            rows.push_back({"flow", NumericParam::IllusionFlow, "Which way the field seems to go: turn round the centre, out, in, or in waves"});
+            rows.push_back({"count", NumericParam::IllusionCount, "How many shapes across the screen"});
+            rows.push_back({"size", NumericParam::IllusionSize, "How much of its place each shape fills"});
+            rows.push_back({"edge width", NumericParam::IllusionEdge, "How much of the black and white edges shows. They make the drift"});
+            rows.push_back({"turn", NumericParam::IllusionSpeed, "Turn the shapes slowly, so the drift changes direction. 0 holds them still"});
+            rows.push_back({"centre x", NumericParam::IllusionCentreX, "Where the field's centre sits, left to right"});
+            rows.push_back({"centre y", NumericParam::IllusionCentreY, "Where the field's centre sits, top to bottom"});
+            rows.push_back({"flip", NumericParam::IllusionFlip, "Swap the black and white edges: the field drifts the other way"});
+          } else if (il.shape == 1) {
+            rows.push_back({"tile length", NumericParam::IllusionSize, "How long each tile is"});
+            rows.push_back({"tile thickness", NumericParam::IllusionCount, "How thick each tile is, against its length"});
+            rows.push_back({"disc size", NumericParam::IllusionEdge, "How big the floating disc is"});
+            rows.push_back({"wander", NumericParam::IllusionSpeed, "Move the disc in a small loop. 0 holds it still: the eye moves it anyway"});
+            rows.push_back({"disc x", NumericParam::IllusionCentreX, "Where the disc sits, left to right"});
+            rows.push_back({"disc y", NumericParam::IllusionCentreY, "Where the disc sits, top to bottom"});
+          } else {
+            rows.push_back({"tile size", NumericParam::IllusionSize, "How big each tile is"});
+            rows.push_back({"offset", NumericParam::IllusionCount, "How far each row is shifted. This makes the straight rows look tilted"});
+            rows.push_back({"mortar", NumericParam::IllusionEdge, "How thick the grey line between the rows is"});
+            rows.push_back({"mortar grey", NumericParam::IllusionTone, "How light the grey line is. Mid grey tilts the rows most"});
+            rows.push_back({"slide", NumericParam::IllusionSpeed, "Slide the rows back and forth, so the wall bends and straightens. 0 holds it still"});
+          }
+          rows.push_back({"palette", NumericParam::IllusionPalette,
+                          "Classic, the theme's colours (taken when picked) or two colours of your own"});
+          if (il.palette == 2) {
+            rows.push_back({il.shape == 0 ? "shape colour" : "colour 1", NumericParam::IllusionHue1, "The first colour, round the colour wheel"});
+            rows.push_back({il.shape == 0 ? "ground colour" : "colour 2", NumericParam::IllusionHue2, "The second colour, round the colour wheel"});
+          }
+          for (const auto& row : rows) {
+            double value = 0.0;
+            readNumericParam(*selectedCue, row.id, value);
+            char text[24];
+            if (row.id == NumericParam::IllusionShape)
+              std::snprintf(text, sizeof(text), "%s", illusionShapeName(il.shape));
+            else if (row.id == NumericParam::IllusionForm)
+              std::snprintf(text, sizeof(text), "%s", illusionFormName(il.form));
+            else if (row.id == NumericParam::IllusionFlow)
+              std::snprintf(text, sizeof(text), "%s", illusionFlowName(il.flow));
+            else if (row.id == NumericParam::IllusionPalette)
+              std::snprintf(text, sizeof(text), "%s", illusionPaletteName(il.palette));
+            else if (row.id == NumericParam::IllusionFlip)
+              std::snprintf(text, sizeof(text), "%s", il.flip ? "on" : "off");
+            else if (row.id == NumericParam::IllusionHue1 || row.id == NumericParam::IllusionHue2)
+              std::snprintf(text, sizeof(text), "%.0f deg", value);
+            else std::snprintf(text, sizeof(text), "%.0f%%", value);
+            const int slot = illusionLfoSlotFor(row.id);
+            if (slot < 0) {
+              inspDrawQuickRow(ix, ilY, row.label, QuickAction::NumericParamDec, text,
+                QuickAction::NumericParamInc, QuickAction::ToggleLoop, false, false,
+                row.tip, true, QuickAction::EditNumericParam, static_cast<int>(row.id));
+              ilY += kInspectorRowStep;
+              continue;
+            }
+            const auto& lfo = il.lfo[static_cast<std::size_t>(slot)];
+            inspDrawQuickRow(ix, ilY, row.label, QuickAction::NumericParamDec, text,
+              QuickAction::NumericParamInc, QuickAction::ToggleLoop, false, false,
+              row.tip, true, QuickAction::EditNumericParam, static_cast<int>(row.id),
+              QuickAction::EffectLfoToggle, lfo.on, kIllusionLfoPackBase + slot, "~",
+              "Put this control on an oscillator");
+            ilY += kInspectorRowStep;
+            if (lfo.on) {
+              ilY = inspDrawLfoRowFor(ix, ilY, lfo, kIllusionLfoPackBase + slot);
+            }
+          }
+        }
+        finishInspectorSection(ilSection, ilY);
+        ry = ilY + kInspectorSectionGap;
+      }
       if (selectedCue->kind == CueKind::Pattern &&
           normalizePatternTypeId(selectedCue->path) == "lumia") {
         // Shares the Moire section's open flag: a cue is only ever one of them.

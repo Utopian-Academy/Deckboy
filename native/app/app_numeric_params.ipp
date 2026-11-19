@@ -102,6 +102,22 @@ enum class NumericParam : int {
   LumiaGlow,
   LumiaBright,
   LumiaTrail,
+  // Illusion source, mapped like Moire. The desk names the shared controls
+  // for the shape (illusionRowLabel).
+  IllusionShape,
+  IllusionForm,
+  IllusionFlow,
+  IllusionFlip,
+  IllusionPalette,
+  IllusionSize,
+  IllusionCount,
+  IllusionEdge,
+  IllusionSpeed,
+  IllusionCentreX,
+  IllusionCentreY,
+  IllusionTone,
+  IllusionHue1,
+  IllusionHue2,
   // Panel Map: one LED tile, in pixels.
   LedPanelWidth,
   LedPanelHeight,
@@ -132,6 +148,22 @@ inline int moireLfoSlotFor(NumericParam id) {
     case NumericParam::MoireCentreY: return kMoireLfoCentreY;
     case NumericParam::MoireGrey: return kMoireLfoGrey;
     case NumericParam::MoireHue: return kMoireLfoHue;
+    default: return -1;
+  }
+}
+
+// Which oscillator slot an Illusion row's ~ drives, or -1 for a picker or a toggle.
+inline int illusionLfoSlotFor(NumericParam id) {
+  switch (id) {
+    case NumericParam::IllusionSize: return kIllusionLfoSize;
+    case NumericParam::IllusionCount: return kIllusionLfoCount;
+    case NumericParam::IllusionEdge: return kIllusionLfoEdge;
+    case NumericParam::IllusionSpeed: return kIllusionLfoSpeed;
+    case NumericParam::IllusionCentreX: return kIllusionLfoCentreX;
+    case NumericParam::IllusionCentreY: return kIllusionLfoCentreY;
+    case NumericParam::IllusionTone: return kIllusionLfoTone;
+    case NumericParam::IllusionHue1: return kIllusionLfoHue1;
+    case NumericParam::IllusionHue2: return kIllusionLfoHue2;
     default: return -1;
   }
 }
@@ -251,6 +283,62 @@ const NumericParamSpec* numericParamSpec(NumericParam id) const {
     }
     case NumericParam::MoireHue: {
       static const NumericParamSpec s {"moire.hue", "Hue", "Degrees round the colour wheel, 0-360", 0, 360, 0, false, 5};
+      return &s;
+    }
+    case NumericParam::IllusionShape: {
+      static const NumericParamSpec s {"illusion.shape", "Shape", "0 drift, 1 ouchi, 2 cafe", 0, 2, 0, true, 1};
+      return &s;
+    }
+    case NumericParam::IllusionForm: {
+      static const NumericParamSpec s {"illusion.form", "Form", "0 leaf, 1 petal, 2 scale, 3 ring", 0, 3, 0, true, 1};
+      return &s;
+    }
+    case NumericParam::IllusionFlow: {
+      static const NumericParamSpec s {"illusion.flow", "Flow", "0 turn, 1 out, 2 in, 3 wave", 0, 3, 0, true, 1};
+      return &s;
+    }
+    case NumericParam::IllusionFlip: {
+      static const NumericParamSpec s {"illusion.flip", "Flip", "0 or 1: the other way round", 0, 1, 0, true, 1};
+      return &s;
+    }
+    case NumericParam::IllusionPalette: {
+      static const NumericParamSpec s {"illusion.palette", "Palette", "0 classic, 1 theme, 2 hues", 0, 2, 0, true, 1};
+      return &s;
+    }
+    case NumericParam::IllusionSize: {
+      static const NumericParamSpec s {"illusion.size", "Size", "0-100%", 0, 100, 0, false, 2};
+      return &s;
+    }
+    case NumericParam::IllusionCount: {
+      static const NumericParamSpec s {"illusion.count", "Count", "0-100%", 0, 100, 0, false, 2};
+      return &s;
+    }
+    case NumericParam::IllusionEdge: {
+      static const NumericParamSpec s {"illusion.edge", "Edge", "0-100%", 0, 100, 0, false, 2};
+      return &s;
+    }
+    case NumericParam::IllusionSpeed: {
+      static const NumericParamSpec s {"illusion.speed", "Speed", "0-100%: 0 holds it still", 0, 100, 0, false, 2};
+      return &s;
+    }
+    case NumericParam::IllusionCentreX: {
+      static const NumericParamSpec s {"illusion.cx", "Centre X", "0-100%, left to right", 0, 100, 0, false, 2};
+      return &s;
+    }
+    case NumericParam::IllusionCentreY: {
+      static const NumericParamSpec s {"illusion.cy", "Centre Y", "0-100%, top to bottom", 0, 100, 0, false, 2};
+      return &s;
+    }
+    case NumericParam::IllusionTone: {
+      static const NumericParamSpec s {"illusion.tone", "Grey", "0-100%: 0 black, 100 the light tile", 0, 100, 0, false, 2};
+      return &s;
+    }
+    case NumericParam::IllusionHue1: {
+      static const NumericParamSpec s {"illusion.hue1", "Colour 1", "Degrees round the colour wheel, 0-360", 0, 360, 0, false, 5};
+      return &s;
+    }
+    case NumericParam::IllusionHue2: {
+      static const NumericParamSpec s {"illusion.hue2", "Colour 2", "Degrees round the colour wheel, 0-360", 0, 360, 0, false, 5};
       return &s;
     }
     case NumericParam::LumiaPalette: {
@@ -616,6 +704,41 @@ bool readNumericParam(const Cue& cue, NumericParam id, double& out) const {
           : m.hue * 360.0;
       return true;
     }
+    case NumericParam::IllusionShape:
+    case NumericParam::IllusionForm:
+    case NumericParam::IllusionFlow:
+    case NumericParam::IllusionFlip:
+    case NumericParam::IllusionPalette:
+    case NumericParam::IllusionSize:
+    case NumericParam::IllusionCount:
+    case NumericParam::IllusionEdge:
+    case NumericParam::IllusionSpeed:
+    case NumericParam::IllusionCentreX:
+    case NumericParam::IllusionCentreY:
+    case NumericParam::IllusionTone:
+    case NumericParam::IllusionHue1:
+    case NumericParam::IllusionHue2: {
+      if (cue.kind != CueKind::Pattern || normalizePatternTypeId(cue.path) != "illusion") return false;
+      const IllusionSettings& il = cue.illusion;
+      switch (id) {
+        case NumericParam::IllusionShape: out = il.shape; break;
+        case NumericParam::IllusionForm: out = il.form; break;
+        case NumericParam::IllusionFlow: out = il.flow; break;
+        case NumericParam::IllusionFlip: out = il.flip ? 1.0 : 0.0; break;
+        case NumericParam::IllusionPalette: out = il.palette; break;
+        case NumericParam::IllusionSize: out = il.size * 100.0; break;
+        case NumericParam::IllusionCount: out = il.count * 100.0; break;
+        case NumericParam::IllusionEdge: out = il.edge * 100.0; break;
+        case NumericParam::IllusionSpeed: out = il.speed * 100.0; break;
+        case NumericParam::IllusionCentreX: out = il.centreX * 100.0; break;
+        case NumericParam::IllusionCentreY: out = il.centreY * 100.0; break;
+        case NumericParam::IllusionTone: out = il.tone * 100.0; break;
+        case NumericParam::IllusionHue1: out = il.hue1 * 360.0; break;
+        case NumericParam::IllusionHue2: out = il.hue2 * 360.0; break;
+        default: break;
+      }
+      return true;
+    }
     case NumericParam::LumiaPalette:
     case NumericParam::LumiaMode:
     case NumericParam::LumiaTopBottom:
@@ -774,6 +897,30 @@ void writeNumericParam(Cue& cue, NumericParam id, double value) {
     case NumericParam::MoireCentreY: cue.moire.centreY = std::clamp(value / 100.0, 0.0, 1.0); break;
     case NumericParam::MoireGrey: cue.moire.grey = std::clamp(value / 100.0, 0.0, 1.0); break;
     case NumericParam::MoireHue: cue.moire.hue = std::clamp(value / 360.0, 0.0, 1.0); break;
+    case NumericParam::IllusionShape: cue.illusion.shape = std::clamp(static_cast<int>(std::lround(value)), 0, kIllusionShapeCount - 1); break;
+    case NumericParam::IllusionForm: cue.illusion.form = std::clamp(static_cast<int>(std::lround(value)), 0, kIllusionFormCount - 1); break;
+    case NumericParam::IllusionFlow: cue.illusion.flow = std::clamp(static_cast<int>(std::lround(value)), 0, kIllusionFlowCount - 1); break;
+    case NumericParam::IllusionFlip: cue.illusion.flip = value >= 0.5; break;
+    case NumericParam::IllusionPalette:
+      cue.illusion.palette = std::clamp(static_cast<int>(std::lround(value)), 0, kIllusionPaletteCount - 1);
+      // Captured when picked, as Moire's: the cue keeps the colours it was made with.
+      if (cue.illusion.palette == 1) {
+        const SDL_Color inks[4] = {pal.deep, pal.mid, pal.tile, pal.light};
+        for (std::size_t i = 0; i < 4; ++i) {
+          cue.illusion.themeInks[i] = (static_cast<std::uint32_t>(inks[i].r) << 16) |
+                                      (static_cast<std::uint32_t>(inks[i].g) << 8) | inks[i].b;
+        }
+      }
+      break;
+    case NumericParam::IllusionSize: cue.illusion.size = std::clamp(value / 100.0, 0.0, 1.0); break;
+    case NumericParam::IllusionCount: cue.illusion.count = std::clamp(value / 100.0, 0.0, 1.0); break;
+    case NumericParam::IllusionEdge: cue.illusion.edge = std::clamp(value / 100.0, 0.0, 1.0); break;
+    case NumericParam::IllusionSpeed: cue.illusion.speed = std::clamp(value / 100.0, 0.0, 1.0); break;
+    case NumericParam::IllusionCentreX: cue.illusion.centreX = std::clamp(value / 100.0, 0.0, 1.0); break;
+    case NumericParam::IllusionCentreY: cue.illusion.centreY = std::clamp(value / 100.0, 0.0, 1.0); break;
+    case NumericParam::IllusionTone: cue.illusion.tone = std::clamp(value / 100.0, 0.0, 1.0); break;
+    case NumericParam::IllusionHue1: cue.illusion.hue1 = std::clamp(value / 360.0, 0.0, 1.0); break;
+    case NumericParam::IllusionHue2: cue.illusion.hue2 = std::clamp(value / 360.0, 0.0, 1.0); break;
     case NumericParam::LumiaPalette: cue.lumia.palette = std::clamp(static_cast<int>(std::lround(value)), 0, kLumiaPaletteCount - 1); break;
     case NumericParam::LumiaMode: cue.lumia.mode = std::clamp(static_cast<int>(std::lround(value)), 0, kLumiaModeCount - 1); break;
     case NumericParam::LumiaTopBottom: cue.lumia.topBottom = value >= 0.5; break;
@@ -1215,7 +1362,14 @@ void effectStackNudge(int index, float delta) {
 // Every one of these takes the PACKED id described on the QuickAction enum:
 // effectIndex * 8 + slot, slot 0-3 for paramA-D and 4 for the amount.
 deckboy::effects::ParamLfo* effectLfoAt(int packed) {
-  // A shader cue's float inputs: the highest range of all.
+  // An Illusion cue's oscillators: the highest range of all.
+  if (packed >= kIllusionLfoPackBase) {
+    const int slot = packed - kIllusionLfoPackBase;
+    Cue* cue = selectedCueMutable();
+    if (!cue || slot < 0 || slot >= kIllusionLfoSlots) return nullptr;
+    return &cue->illusion.lfo[static_cast<std::size_t>(slot)];
+  }
+  // A shader cue's float inputs: the next range down.
   if (packed >= kIsfLfoPackBase) return isfLfoAt(packed - kIsfLfoPackBase);
   // A Lumia cue's oscillators: the highest range, so it is tested first.
   if (packed >= kLumiaLfoPackBase) {

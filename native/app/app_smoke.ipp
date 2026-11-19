@@ -2797,6 +2797,17 @@
         seq.moire.themeInks = {0x102030u, 0x405060u, 0x708090u, 0xA0B0C0u};
         seq.moire.lfo[kMoireLfoHue].on = true;
         seq.moire.lfo[kMoireLfoHue].rateHz = 2.0f;
+        seq.illusion.shape = 2;
+        seq.illusion.form = 3;
+        seq.illusion.flow = 1;
+        seq.illusion.flip = true;
+        seq.illusion.palette = 2;
+        seq.illusion.count = 0.8;
+        seq.illusion.tone = 0.3;
+        seq.illusion.hue2 = 0.7;
+        seq.illusion.themeInks = {0x112233u, 0x445566u, 0x778899u, 0xAABBCCu};
+        seq.illusion.lfo[kIllusionLfoSpeed].on = true;
+        seq.illusion.lfo[kIllusionLfoSpeed].rateHz = 0.5f;
         seq.lumia.palette = 3;
         seq.lumia.mode = 1;
         seq.lumia.topBottom = false;
@@ -2927,13 +2938,14 @@
           // restore at end, then the backdrop, then lock to screen, then the
           // cue's mask, then a tone's oscillators, then a drawing, then
           // whether its pixels carry alpha, then the twenty Lumia fields, then a
-          // shader's input values. The
+          // shader's input values, direction, the voice and sting, and the
+          // sixteen Illusion fields. The
           // older-show checks below trim this many and then their own, so a
           // field appended to the record is counted here once. When the
           // Moire fields went in, only two of five checks were bumped, and the
           // other three trimmed nothing but Moire -- passing without testing
           // the show they were named for.
-          constexpr int kAfterTrackerFields = 56;   // + direction, its copy, key, length, the voice and the sting (ten)
+          constexpr int kAfterTrackerFields = 72;   // + direction, its copy, key, length, the voice and the sting (ten), the illusion (sixteen)
           // A show from immediately before the fixture patch (one tail field
           // fewer) keeps its mic channel and has no fixture levels.
           {
@@ -3043,6 +3055,15 @@
                !loadedCue.moire.lfo[kMoireLfoDensity].on,
                "a moire's controls, inks and oscillators persist");
         {
+          const IllusionSettings& il = loadedCue.illusion;
+          expect(il.shape == 2 && il.form == 3 && il.flow == 1 && il.flip && il.palette == 2 &&
+                 std::fabs(il.count - 0.8) < 1e-6 && std::fabs(il.tone - 0.3) < 1e-6 &&
+                 std::fabs(il.hue2 - 0.7) < 1e-6 && il.themeInks[3] == 0xAABBCCu &&
+                 il.lfo[kIllusionLfoSpeed].on && std::fabs(il.lfo[kIllusionLfoSpeed].rateHz - 0.5f) < 1e-4f &&
+                 !il.lfo[kIllusionLfoSize].on,
+                 "an illusion's controls, inks and oscillators persist");
+        }
+        {
           const LumiaSettings& l = loadedCue.lumia;
           const auto closeTo = [](double a, double b) { return std::fabs(a - b) < 1e-6; };
           expect(l.palette == 3 && l.mode == 1 && !l.topBottom && l.listens &&
@@ -3084,7 +3105,7 @@
         // the spine and trimming 3 stopped reaching preWaitSeconds -- the test
         // failed loudly, which is the only reason this comment exists rather
         // than a silent hole in the backward-compatibility check.
-        constexpr int kSpineTailFields = 149;  // preWait, postWait, continue, masters,
+        constexpr int kSpineTailFields = 165;  // preWait, postWait, continue, masters,
                                               // target id/deck/verb, armed, panel w/h,
                                               // fade secs/to/what/curve/stop,
                                               // fireside view, overlay lower-third
@@ -3099,7 +3120,8 @@
                                               // the backdrop, lock to screen, the mask,
                                               // a tone's oscillators, a drawing, alpha,
                                               // the twenty Lumia fields, a shader's values,
-                                              // the direction and its copy (four), the voice and the sting (ten)
+                                              // the direction and its copy (four), the voice and the sting (ten),
+                                              // the sixteen Illusion fields
         {
           std::ifstream in(smokePath);
           std::ostringstream older;
@@ -5282,14 +5304,15 @@
                g.stingSweepSemitones == -5.0 && std::fabs(g.stingBody - 0.8) < 1e-9,
                "a Sting's four settings survive a save (they never did)");
       }
-      // An old show: cut the ten new fields off each cue record.
+      // An old show: cut the ten new fields off each cue record, and the
+      // sixteen Illusion fields appended after them.
       {
         std::ifstream in(voicePath);
         std::ostringstream cut;
         std::string line;
         while (std::getline(in, line)) {
           if (line.rfind("cue\t", 0) == 0) {
-            for (int i = 0; i < 10; ++i) {
+            for (int i = 0; i < 10 + 16; ++i) {
               const std::size_t tab = line.rfind('\t');
               if (tab != std::string::npos) line.erase(tab);
             }
@@ -6459,6 +6482,34 @@
           else if (key == "cy") m.centreY = v;
           else if (key == "grey") m.grey = v;
           else if (key == "hue") m.hue = v;
+        }
+      } else if (id == "illusion") {
+        // `illusion:cafe,count=0.8,palette=2` -- a shape, form or flow by
+        // name, and any control as its stored 0-1 value.
+        std::stringstream parts(variant);
+        std::string part;
+        while (std::getline(parts, part, ',')) {
+          const std::size_t eq = part.find('=');
+          IllusionSettings& il = cue.illusion;
+          if (eq == std::string::npos) {
+            for (int k = 0; k < kIllusionShapeCount; ++k) if (part == illusionShapeName(k)) il.shape = k;
+            for (int k = 0; k < kIllusionFormCount; ++k) if (part == illusionFormName(k)) il.form = k;
+            for (int k = 0; k < kIllusionFlowCount; ++k) if (part == illusionFlowName(k)) il.flow = k;
+            if (part == "flip") il.flip = true;
+            continue;
+          }
+          const std::string key = part.substr(0, eq);
+          const double v = std::atof(part.substr(eq + 1).c_str());
+          if (key == "palette") il.palette = std::clamp(static_cast<int>(v), 0, kIllusionPaletteCount - 1);
+          else if (key == "size") il.size = v;
+          else if (key == "count") il.count = v;
+          else if (key == "edge") il.edge = v;
+          else if (key == "speed") il.speed = v;
+          else if (key == "cx") il.centreX = v;
+          else if (key == "cy") il.centreY = v;
+          else if (key == "grey") il.tone = v;
+          else if (key == "hue1") il.hue1 = v;
+          else if (key == "hue2") il.hue2 = v;
         }
       } else if (id == "lumia") {
         // `lumia:mandala,palette=3,flow=0.8` -- a mode by name, and any
@@ -7993,6 +8044,13 @@
     cue.path = patternId;
     cue.width = w;
     cue.height = h;
+    // `illusion:<shape>` benches that shape (the dump's spelling).
+    if (patternId.rfind("illusion:", 0) == 0) {
+      cue.path = "illusion";
+      const std::string shape = patternId.substr(9);
+      for (int k = 0; k < kIllusionShapeCount; ++k)
+        if (shape == illusionShapeName(k)) cue.illusion.shape = k;
+    }
 
     // One warm-up build so first-touch page faults and any lazy init don't land
     // in the measurement.

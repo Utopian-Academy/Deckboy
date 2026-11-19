@@ -3799,6 +3799,12 @@
         key << '|' << m.shape << '|' << m.palette << '|' << m.density << '|' << m.speed << '|'
             << m.warp << '|' << m.turn << '|' << m.centreX << '|' << m.centreY << '|' << m.grey
             << '|' << m.hue << '|' << serializeGeometryLfos(m.lfo);
+      } else if (type == "illusion") {
+        const IllusionSettings& il = cue.illusion;
+        key << '|' << il.shape << '|' << il.form << '|' << il.flow << '|' << il.flip << '|' << il.palette
+            << '|' << il.size << '|' << il.count << '|' << il.edge << '|' << il.speed << '|' << il.centreX
+            << '|' << il.centreY << '|' << il.tone << '|' << il.hue1 << '|' << il.hue2 << '|'
+            << serializeMoireInks(il.themeInks) << '|' << serializeGeometryLfos(il.lfo);
       } else if (type == "lumia") {
         const LumiaSettings& l = cue.lumia;
         key << '|' << l.palette << '|' << l.mode << '|' << l.topBottom << '|' << l.listens << '|'

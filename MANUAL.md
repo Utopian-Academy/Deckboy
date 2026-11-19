@@ -327,7 +327,7 @@ Companion: `VOICE SAY <text>` (sets the selected Voice cue, or adds one),
   Metadata is probed asynchronously (`probing…` shows on the row until done).
 - **Add a source cue:** the SOURCE menu has four parts. LIVE PICTURE adds a
   window, camera, Syphon/Spout, browser, stream or NDI source. MADE BY DECKBOY
-  adds everything Deckboy makes itself: Fireside, Portal, Swirl, Moire, Lumia, Shaders (ISF .fs files), Video Synth,
+  adds everything Deckboy makes itself: Fireside, Portal, Swirl, Moire, Illusion, Lumia, Shaders (ISF .fs files), Video Synth,
   Code, Text, Lower Third, Stage Timer, the 2A03 and FDS synths and Voice. TEST
   SIGNALS adds a test pattern or a test tone, and CUES THAT DO THINGS adds the
   cues that act on the show rather than putting a picture up.
@@ -3163,7 +3163,7 @@ Pattern cues generate their pixels live and auto-scale to the selected output
 raster and refresh rate (unless the project overrides it). All motion is slow,
 smooth, and diagonal; full-frame solid colours have no motion option.
 
-Fireside, Portal, Swirl, Moire and Lumia are drawn the same way but are set dressing rather
+Fireside, Portal, Swirl, Moire, Illusion and Lumia are drawn the same way but are set dressing rather
 than test cards, so they are added from SOURCE > MADE BY DECKBOY, and their
 inspector says "made by Deckboy" in place of a pattern picker.
 
@@ -3219,6 +3219,36 @@ inspector says "made by Deckboy" in place of a pattern picker.
   `MOIRE SHAPE <0-5>`, `MOIRE PALETTE <0-3>`,
   `MOIRE DENSITY|SPEED|WARP|GREY|CENTREX|CENTREY <0-100>`,
   `MOIRE TURN|HUE <0-360>`, and `MOIRE LFO <control> ON|OFF|SHAPE|RATE|DEPTH|PHASE|SYNC [value]`.
+- **Illusion** — still pictures that seem to move. Each is a known effect on
+  the eye, drawn at the output's own resolution, one edge pixel to one screen
+  pixel. Look a little off-centre; it works from the back of a room. Its
+  **shape**:
+  - **drift** — rows of shapes, each with a black edge on one side and a white
+    edge on the other. Nothing moves, yet the field seems to turn, because the
+    eye reads black to white as motion. **form** (leaf, petal, scale, ring),
+    **flow** (turn round the centre, out, in, or in waves), **count**, **size**,
+    **edge width** (more edge, stronger drift), **turn** (turns the shapes
+    slowly so the drift changes direction), **centre x / centre y** and
+    **flip** (the other way round);
+  - **ouchi** — a disc of tiles running across, over tiles running down. The
+    disc seems to float and slide on its own. **tile length**, **tile
+    thickness**, **disc size**, **wander** (moves the disc in a small loop) and
+    **disc x / disc y**;
+  - **cafe** — black and white tiles, each row shifted, split by thin grey
+    lines. The rows are straight and look tilted. **tile size**, **offset**
+    (how far each row shifts: the tilt), **mortar** (the grey line's
+    thickness), **mortar grey** and **slide** (rows slide back and forth, so
+    the wall bends and straightens).
+
+  **palette**: classic (black and white; the drift field's orange on green),
+  theme (taken when picked, as Moire's) or hues (two colours of your own; the
+  drift's black and white edges always stay, they are what makes it drift).
+  Every number has a **~**. Over the wire: `ILLUSION [STATUS]`,
+  `ILLUSION SHAPE drift|ouchi|cafe`, `ILLUSION FORM|FLOW|PALETTE <name or number>`,
+  `ILLUSION FLIP ON|OFF`, `ILLUSION SIZE|COUNT|EDGE|SPEED|CENTREX|CENTREY|GREY <0-100>`,
+  `ILLUSION HUE1|HUE2 <0-360>` and `ILLUSION LFO <control> ...`. For a
+  stereogram, put the **stereogram** effect on any cue (a Text cue floats a
+  word out of the screen).
 - **Lumia** — laser light through moving water, a prism and a tube of mirrors,
   like the light-art machines of the 1960s and 70s. Deckboy draws the light,
   then the mirrors and the lens decide what each pixel shows. Its inspector

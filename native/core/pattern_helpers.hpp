@@ -137,7 +137,7 @@ inline bool patternTypeSupportsMotion(const std::string& typeId) {
 // which made the desk look like nobody had decided what either one was.
 inline bool patternTypeIsGenerator(const std::string& typeId) {
   const std::string t = normalizePatternTypeId(typeId);
-  return t == "fireside" || t == "portal" || t == "swirl" || t == "code" || t == "moire-field" || t == "lumia" || t == "isf" || t == "draw" ||
+  return t == "fireside" || t == "portal" || t == "swirl" || t == "code" || t == "moire-field" || t == "illusion" || t == "lumia" || t == "isf" || t == "draw" ||
          t == "terrarium" || t == "terrarium-pico" || deckboy::extras::findGenerator(t) != nullptr;
 }
 
@@ -150,6 +150,7 @@ inline std::string generatorPatternName(const std::string& typeId) {
   if (t == "draw") return "Draw";
   if (t == "swirl") return "Swirl";
   if (t == "moire-field") return "Moire";
+  if (t == "illusion") return "Illusion";
   if (t == "lumia") return "Lumia";
   if (t == "isf") return "Shader";
   if (t == "code") return "Code";
@@ -185,6 +186,7 @@ inline bool patternTypeIsAnimated(const std::string& typeId) {
          normalized == "swirl" ||                      // turning, melting greens
          normalized == "moire-field" ||                // scrolling interference bands
          normalized == "lumia" ||                      // moving water, lasers and mirrors
+         normalized == "illusion" ||                   // its controls can slide, turn and wander
          normalized == "isf" ||                        // a shader: time is an input
          normalized == "portal" ||                     // born, drifting, melting
          // A DRAWING is rebuilt as it is drawn on and as it replays; the

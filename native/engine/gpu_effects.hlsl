@@ -1191,3 +1191,89 @@ void sourceMain(uint3 id : SV_DispatchThreadID) {
   const float3 light = min(float3(12.0, 12.0, 12.0), (v.rgb + v.a * float3(0.55, 0.75, 1.0)) * fade);
   put(id.xy, float4(floor(255.0 * (1.0 - exp(-light * 0.9)) + 0.5), 255.0));
 }
+
+// ---- AN ILLUSION (media_engine.cpp buildIllusion, step for step) -----------
+// tab: the four inks (dark, light, body, ground; 0-255), then size, count,
+// edge, centre x, centre y, tone and the clock (illusionStep). i0 shape, i1
+// form, i2 flow, i3 flip. Every size is a share of the short side, so the
+// desk's small copy draws the same picture.
+float3 illusionInk(int k) { return float3(tabAt(uint(k * 3)), tabAt(uint(k * 3 + 1)), tabAt(uint(k * 3 + 2))); }
+float illusionCover(float u, float v, float a, float b) {
+  const float q = sqrt((u * u) / (a * a) + (v * v) / (b * b));
+  return clamp((1.0 - q) * min(a, b) + 0.5, 0.0, 1.0);
+}
+[numthreads(8, 8, 1)]
+void illusionMain(uint3 id : SV_DispatchThreadID) {
+  if (id.x >= width || id.y >= height) return;
+  const float W = float(width), H = float(height);
+  const float S = min(W, H);
+  const float size = tabAt(12), count = tabAt(13), edge = tabAt(14);
+  const float cx = tabAt(15) * W, cy = tabAt(16) * H, tone = tabAt(17), t = tabAt(18);
+  const float px = float(id.x) + 0.5, py = float(id.y) + 0.5;
+  float3 col;
+  if (i0 == 0) {
+    // Drift field: the nearest shape's centre, this row of the honeycomb and
+    // the rows either side.
+    const float pitch = S / (6.0 + count * 34.0);
+    const float rowH = pitch * 0.866;
+    const float rx = pitch * 0.5 * (0.45 + 0.55 * size);
+    const float aspect = i1 == 0 ? 0.53 : (i1 == 1 ? 0.75 : 1.0);
+    const float ry = rx * aspect;
+    const float e = rx * (0.05 + 0.3 * edge);
+    const int r0 = int(floor((float(id.y)) / rowH)) + 1;
+    float bestD = 1e30, bx = 0.0, by = 0.0;
+    for (int r = r0 - 1; r <= r0 + 1; ++r) {
+      if (r < 0) continue;
+      const float off = ((r - 1) & 1) != 0 ? pitch * 0.5 : 0.0;
+      const int c = lroundf((px - off) / pitch) + 1;
+      const float ex = float(c - 1) * pitch + off, ey = float(r - 1) * rowH;
+      const float d = (px - ex) * (px - ex) + (py - ey) * (py - ey);
+      if (d < bestD) { bestD = d; bx = ex; by = ey; }
+    }
+    const float ddx = bx - cx, ddy = by - cy;
+    const float radial = atan2(ddy, ddx);
+    float a = i2 == 0 ? radial + 1.5707963 : (i2 == 1 ? radial : (i2 == 2 ? radial + 3.14159265 : sin(ddy / S * 12.0 + t) * 1.2));
+    if (i2 != 3) a += t;
+    if (i3 != 0) a += 3.14159265;
+    const float ca = cos(a), sa = sin(a);
+    const float dx = px - bx, dy = py - by;
+    const float u = dx * ca + dy * sa, v = -dx * sa + dy * ca;
+    col = illusionInk(3);
+    col += (float3(0.0, 0.0, 0.0) - col) * illusionCover(u - e, v, rx, ry);
+    col += (float3(255.0, 255.0, 255.0) - col) * illusionCover(u + e, v, rx, ry);
+    col += (illusionInk(2) - col) * illusionCover(u, v, rx * 0.97, ry * 0.85);
+    if (i1 == 3) col += (illusionInk(3) - col) * illusionCover(u, v, rx * 0.45, ry * 0.45);
+  } else if (i0 == 1) {
+    // Ouchi: tiles down, and a disc of tiles across that wanders with speed.
+    const float tw = S * (0.025 + 0.11 * size);
+    const float th = tw * (0.12 + 0.5 * count);
+    const float R = S * (0.08 + 0.4 * edge);
+    const float discX = cx + S * 0.04 * cos(t), discY = cy + S * 0.04 * sin(t * 1.3);
+    const float qx = px - W * 0.5, qy = py - H * 0.5;
+    const bool down = ((int(floor(qx / th)) + int(floor(qy / tw))) & 1) != 0;
+    col = down ? illusionInk(0) : illusionInk(1);
+    const float ux = px - discX, uy = py - discY;
+    const float cover = illusionCover(ux, uy, R, R);
+    if (cover > 0.0) {
+      const bool across = ((int(floor(ux / tw)) + int(floor(uy / th))) & 1) != 0;
+      col += ((across ? illusionInk(0) : illusionInk(1)) - col) * cover;
+    }
+  } else {
+    // Cafe wall: rows shifted d * {0, 1, 2, 1}, split by grey mortar.
+    const float T = S * (0.04 + 0.16 * size);
+    const float mortar = T * (0.01 + 0.12 * edge);
+    const float d = count * T * 0.5 * cos(t);
+    const float qy = py - H * 0.5;
+    const int r = int(floor(qy / T));
+    const float within = qy - float(r) * T;
+    const int w4 = ((r % 4) + 4) % 4;
+    const float shift = d * (w4 == 0 ? 0.0 : (w4 == 2 ? 2.0 : 1.0));
+    const float toEdge = min(within, T - within);
+    const float mortarCover = clamp(mortar * 0.5 - toEdge + 0.5, 0.0, 1.0);
+    const bool dark = (int(floor((px - W * 0.5 - shift) / T)) & 1) == 0;
+    col = dark ? illusionInk(0) : illusionInk(1);
+    const float3 grey = floor(clamp(illusionInk(1) * tone, 0.0, 255.0) + 0.5);
+    col += (grey - col) * mortarCover;
+  }
+  put(id.xy, float4(floor(clamp(col, 0.0, 255.0) + 0.5), 255.0));
+}

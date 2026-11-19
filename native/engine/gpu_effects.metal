@@ -1050,3 +1050,84 @@ kernel void sourceMain(LARGS) {
   const float3 light = min(float3(12.0f), (v.rgb + v.a * float3(0.55f, 0.75f, 1.0f)) * fade);
   put(dst, id, float4(floor(255.0f * (1.0f - exp(-light * 0.9f)) + 0.5f), 255.0f));
 }
+
+// ---- AN ILLUSION (gpu_effects.hlsl illusionMain, line for line) ------------
+static float3 illusionInk(constant Params& p, int k) {
+  return float3(tabAt(p, uint(k * 3)), tabAt(p, uint(k * 3 + 1)), tabAt(p, uint(k * 3 + 2)));
+}
+static float illusionCover(float u, float v, float a, float b) {
+  const float q = sqrt((u * u) / (a * a) + (v * v) / (b * b));
+  return clamp((1.0f - q) * min(a, b) + 0.5f, 0.0f, 1.0f);
+}
+static int illusionRound(float v) { return int(sign(v) * floor(fabs(v) + 0.5f)); }
+kernel void illusionMain(LARGS) {
+  if (id.x >= p.width || id.y >= p.height) return;
+  const float W = float(p.width), H = float(p.height);
+  const float S = min(W, H);
+  const float size = tabAt(p, 12), count = tabAt(p, 13), edge = tabAt(p, 14);
+  const float cx = tabAt(p, 15) * W, cy = tabAt(p, 16) * H, tone = tabAt(p, 17), t = tabAt(p, 18);
+  const float px = float(id.x) + 0.5f, py = float(id.y) + 0.5f;
+  float3 col;
+  if (p.i0 == 0) {
+    const float pitch = S / (6.0f + count * 34.0f);
+    const float rowH = pitch * 0.866f;
+    const float rx = pitch * 0.5f * (0.45f + 0.55f * size);
+    const float aspect = p.i1 == 0 ? 0.53f : (p.i1 == 1 ? 0.75f : 1.0f);
+    const float ry = rx * aspect;
+    const float e = rx * (0.05f + 0.3f * edge);
+    const int r0 = int(floor(float(id.y) / rowH)) + 1;
+    float bestD = 1e30f, bx = 0.0f, by = 0.0f;
+    for (int r = r0 - 1; r <= r0 + 1; ++r) {
+      if (r < 0) continue;
+      const float off = ((r - 1) & 1) != 0 ? pitch * 0.5f : 0.0f;
+      const int c = illusionRound((px - off) / pitch) + 1;
+      const float ex = float(c - 1) * pitch + off, ey = float(r - 1) * rowH;
+      const float d = (px - ex) * (px - ex) + (py - ey) * (py - ey);
+      if (d < bestD) { bestD = d; bx = ex; by = ey; }
+    }
+    const float ddx = bx - cx, ddy = by - cy;
+    const float radial = atan2(ddy, ddx);
+    float a = p.i2 == 0 ? radial + 1.5707963f
+            : (p.i2 == 1 ? radial : (p.i2 == 2 ? radial + 3.14159265f : sin(ddy / S * 12.0f + t) * 1.2f));
+    if (p.i2 != 3) a += t;
+    if (p.i3 != 0) a += 3.14159265f;
+    const float ca = cos(a), sa = sin(a);
+    const float dx = px - bx, dy = py - by;
+    const float u = dx * ca + dy * sa, v = -dx * sa + dy * ca;
+    col = illusionInk(p, 3);
+    col += (float3(0.0f) - col) * illusionCover(u - e, v, rx, ry);
+    col += (float3(255.0f) - col) * illusionCover(u + e, v, rx, ry);
+    col += (illusionInk(p, 2) - col) * illusionCover(u, v, rx * 0.97f, ry * 0.85f);
+    if (p.i1 == 3) col += (illusionInk(p, 3) - col) * illusionCover(u, v, rx * 0.45f, ry * 0.45f);
+  } else if (p.i0 == 1) {
+    const float tw = S * (0.025f + 0.11f * size);
+    const float th = tw * (0.12f + 0.5f * count);
+    const float R = S * (0.08f + 0.4f * edge);
+    const float discX = cx + S * 0.04f * cos(t), discY = cy + S * 0.04f * sin(t * 1.3f);
+    const float qx = px - W * 0.5f, qy = py - H * 0.5f;
+    const bool down = ((int(floor(qx / th)) + int(floor(qy / tw))) & 1) != 0;
+    col = down ? illusionInk(p, 0) : illusionInk(p, 1);
+    const float ux = px - discX, uy = py - discY;
+    const float cover = illusionCover(ux, uy, R, R);
+    if (cover > 0.0f) {
+      const bool across = ((int(floor(ux / tw)) + int(floor(uy / th))) & 1) != 0;
+      col += ((across ? illusionInk(p, 0) : illusionInk(p, 1)) - col) * cover;
+    }
+  } else {
+    const float T = S * (0.04f + 0.16f * size);
+    const float mortar = T * (0.01f + 0.12f * edge);
+    const float d = count * T * 0.5f * cos(t);
+    const float qy = py - H * 0.5f;
+    const int r = int(floor(qy / T));
+    const float within = qy - float(r) * T;
+    const int w4 = ((r % 4) + 4) % 4;
+    const float shift = d * (w4 == 0 ? 0.0f : (w4 == 2 ? 2.0f : 1.0f));
+    const float toEdge = min(within, T - within);
+    const float mortarCover = clamp(mortar * 0.5f - toEdge + 0.5f, 0.0f, 1.0f);
+    const bool dark = (int(floor((px - W * 0.5f - shift) / T)) & 1) == 0;
+    col = dark ? illusionInk(p, 0) : illusionInk(p, 1);
+    const float3 grey = floor(clamp(illusionInk(p, 1) * tone, 0.0f, 255.0f) + 0.5f);
+    col += (grey - col) * mortarCover;
+  }
+  put(dst, id, float4(floor(clamp(col, 0.0f, 255.0f) + 0.5f), 255.0f));
+}

@@ -112,14 +112,15 @@ struct TransitionSource {
 SDL_Texture* runGpuTransition(GpuEffects* g, int slot, const TransitionSource& source, const TransitionPlan& plan);
 
 // ---------------------------------------------------------------------------
-// GENERATED SOURCES MADE ON THE CARD. Lumia is traced and drawn here
+// GENERATED SOURCES MADE ON THE CARD. An Illusion is one pass (illusionMain,
+// from the numbers MediaEngine::planGpuSource takes from illusionStep). Lumia is traced and drawn here
 // (gpu_effects.hlsl lumia*Main, sourceMain); the CPU only works out each
 // moment's numbers -- MediaEngine::planGpuSource, from lumiaStep, the code its
 // CPU builder runs -- so the output never fills, uploads or traces a frame.
 // The CPU builder stays the reference: --gpu-source-dump against
 // --pattern-dump (tools/check_gpu_sources.py).
 struct SourcePlan {
-  enum Kind : int { None = 0, Lumia = 1, Isf = 2 };
+  enum Kind : int { None = 0, Lumia = 1, Isf = 2, Illusion = 3 };
   int kind = None;
   int width = 0, height = 0;     // the picture to make
   int srcW = 0, srcH = 0;        // the traced source

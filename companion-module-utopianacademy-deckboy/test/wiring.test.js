@@ -671,6 +671,8 @@ test('the 0.99.428 actions send the commands the app documents', async () => {
 	await run('shader_lfo', { input: 'speed', what: 'rate', value: '2' })
 	await run('lumia_set', { control: 'palette', value: 'ice' })
 	await run('lumia_lfo', { control: 'flow', what: 'on', value: '' })
+	await run('illusion_set', { control: 'shape', value: 'cafe' })
+	await run('illusion_lfo', { control: 'speed', what: 'rate', value: '0.5' })
 	await run('voice_say', { text: 'Hello there' })
 	await run('voice_character', { name: 'CUSTOM' })
 	await run('voice_mode', { mode: 'sounds' })
@@ -698,6 +700,8 @@ test('the 0.99.428 actions send the commands the app documents', async () => {
 		'SHADER LFO speed RATE 2',
 		'LUMIA PALETTE ice',
 		'LUMIA LFO FLOW ON',
+		'ILLUSION SHAPE cafe',
+		'ILLUSION LFO SPEED RATE 0.5',
 		'VOICE SAY Hello there',
 		'VOICE CHARACTER CUSTOM',
 		'VOICE MODE SOUNDS',

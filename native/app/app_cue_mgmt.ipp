@@ -3120,6 +3120,11 @@
       [this]() { addMoireCue(); }
     });
     contextItems_.push_back({
+      "  Illusion (still pictures that move)",
+      {0, 0, 0, 0},
+      [this]() { addIllusionCue(); }
+    });
+    contextItems_.push_back({
       "  Lumia (laser light and mirrors)",
       {0, 0, 0, 0},
       [this]() { addLumiaCue(); }
@@ -3510,6 +3515,7 @@
       list.emplace_back("draw",           "Draw (what you draw on the monitor)");
       list.emplace_back("swirl",          "Swirl (melting pixel greens)");
       list.emplace_back("moire-field",    "Moire (interference bands)");
+      list.emplace_back("illusion",       "Illusion (still pictures that move)");
       list.emplace_back("lumia",          "Lumia (laser light and mirrors)");
       list.emplace_back("isf",            "Shader (an ISF .fs file)");
       list.emplace_back("code",           "Code (live expression)");
@@ -4469,6 +4475,17 @@
       Cue& cue = deck.cues.back();
       cue.name = "Moire";
       cue.color = {150, 60, 170, 255};
+      markProjectDirty();
+    }
+  }
+
+  void addIllusionCue() {
+    addPatternCue("illusion");
+    Deck& deck = focusedDeckMutable();
+    if (!deck.cues.empty()) {
+      Cue& cue = deck.cues.back();
+      cue.name = "Illusion";
+      cue.color = {232, 98, 44, 255};
       markProjectDirty();
     }
   }

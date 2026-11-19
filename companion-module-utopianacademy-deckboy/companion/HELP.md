@@ -62,6 +62,7 @@ New for Deckboy 0.99.428:
 - **VJ Ableton Link:** join, leave or toggle the Link session. VJ quantise now waits for the next beat, or 1, 2 or 4 bars.
 - **Shader:** load a `.fs` (ISF) file as a cue (only when Companion runs on the Deckboy computer), set an input of the selected shader cue, or give a number input an LFO.
 - **Lumia:** set any control of the selected Lumia cue, or give a slider an LFO.
+- **Illusion:** set any control of the selected Illusion cue (shape, form, flow, palette, sizes, colours), or give a slider an LFO.
 - **Voice:** make the selected Voice cue say a text, pick its character, words or sounds, and set pitch, size and breath for the `CUSTOM` character.
 - **Captions:** live captions on or off, what they listen to, which outputs show them, lines and size. Make captions for the selected cue. Subtitles on the live cue on or off.
 - **Pad:** the phone's X/Y pad. Put it at a point, let go, hold or latch, and set which controls it moves.

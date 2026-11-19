@@ -14184,6 +14184,355 @@ void buildLumiaAt(DecodedFrame& frame, double animTime, const LumiaSettings& bas
   lumiaWithFrame(animTime, base, cueId, q, [&](const LumiaView& v) { lumiaDraw(frame, v); });
 }
 
+// ---------------------------------------------------------------------------
+// buildIllusion - pictures that trick the eye (IllusionSettings, batch 1 of
+// the 2026-11-13 board). Each is drawn per output pixel at the output's
+// raster: the effect lives in edges a pixel or two wide, and scaling a smaller
+// picture up would blur exactly those.
+//
+// ONE MOMENT, TWO DRAWERS. illusionStep works out the moment's numbers -- the
+// controls after their oscillators, the integrated clock, the inks -- and both
+// this builder and the card's illusionMain (gpu_effects.hlsl) draw from them.
+// Every size is a share of the picture's short side, so the same numbers draw
+// the same picture at any raster: the desk's small copy included.
+//
+// The drift field: each shape is a body with a black crescent on one side and
+// a white one on the other; the eye reads the order black -> white as motion,
+// so the crescents' direction turns the field. The shapes sit on a honeycomb
+// and each owns the pixels nearer its centre than any other's (the card finds
+// the nearest centre per pixel; here each shape is drawn in its own box and
+// gives up the pixels a neighbour is nearer to), so big shapes meet at a seam
+// instead of piling on each other in drawing order.
+// ---------------------------------------------------------------------------
+namespace {
+struct IllusionInks {
+  std::array<std::uint8_t, 3> dark, light, body, ground;
+};
+
+IllusionInks illusionInks(const IllusionSettings& s, double hue1, double hue2) {
+  auto rgb = [](std::uint32_t c) {
+    return std::array<std::uint8_t, 3> {static_cast<std::uint8_t>((c >> 16) & 255),
+                                        static_cast<std::uint8_t>((c >> 8) & 255),
+                                        static_cast<std::uint8_t>(c & 255)};
+  };
+  auto mix = [](std::array<std::uint8_t, 3> a, std::array<std::uint8_t, 3> b, double t) {
+    std::array<std::uint8_t, 3> o {};
+    for (std::size_t i = 0; i < 3; ++i) o[i] = static_cast<std::uint8_t>(std::lround(a[i] + (b[i] - a[i]) * t));
+    return o;
+  };
+  const std::array<std::uint8_t, 3> black {0, 0, 0}, white {255, 255, 255};
+  switch (std::clamp(s.palette, 0, kIllusionPaletteCount - 1)) {
+    case 1:  // theme: the inks it captured, dark to light
+      return {rgb(s.themeInks[0]), rgb(s.themeInks[3]), rgb(s.themeInks[2]), rgb(s.themeInks[1])};
+    case 2: {  // hues: the two colours, and a dark and a light of them for the tiles
+      const auto a = moireHueRgb(hue1 * 6.0), b = moireHueRgb(hue2 * 6.0);
+      return {mix(a, black, 0.75), mix(b, white, 0.6), a, mix(b, black, 0.35)};
+    }
+    default:  // classic: black and white, and the drift field's orange on green
+      return {black, white, {232, 98, 44}, {127, 174, 60}};
+  }
+}
+
+struct IllusionStep {
+  int shape = 0, form = 0, flow = 0;
+  bool flip = false;
+  double size = 0, count = 0, edge = 0, centreX = 0.5, centreY = 0.5, tone = 0.5;
+  double t = 0;   // the integrated clock: turn, wander, slide
+  IllusionInks ink {};
+};
+
+IllusionStep illusionStep(const IllusionSettings& base, double animTime, const std::string& cueId) {
+  const auto clock = deckboy::effects::readLfoClock();
+  auto mod = [&](int slot, double value) {
+    const auto& lfo = base.lfo[static_cast<std::size_t>(slot)];
+    return static_cast<double>(deckboy::effects::lfoApply(lfo, static_cast<float>(std::clamp(value, 0.0, 1.0)),
+                                                          clock.seconds, clock.beats, clock.audio01));
+  };
+  IllusionStep s;
+  s.shape = std::clamp(base.shape, 0, kIllusionShapeCount - 1);
+  s.form = std::clamp(base.form, 0, kIllusionFormCount - 1);
+  s.flow = std::clamp(base.flow, 0, kIllusionFlowCount - 1);
+  s.flip = base.flip;
+  s.size = mod(kIllusionLfoSize, base.size);
+  s.count = mod(kIllusionLfoCount, base.count);
+  s.edge = mod(kIllusionLfoEdge, base.edge);
+  s.centreX = mod(kIllusionLfoCentreX, base.centreX);
+  s.centreY = mod(kIllusionLfoCentreY, base.centreY);
+  s.tone = mod(kIllusionLfoTone, base.tone);
+  s.ink = illusionInks(base, mod(kIllusionLfoHue1, base.hue1), mod(kIllusionLfoHue2, base.hue2));
+  // Integrated, as Moire's: an oscillating speed never jumps the picture.
+  // The card's plan and the desk's copy ask for the same moment; a second
+  // call at the same time adds nothing.
+  s.t = moireFieldTime(cueId + "#illusion", animTime, mod(kIllusionLfoSpeed, base.speed) * 1.5);
+  return s;
+}
+
+// How much of a pixel an ellipse covers: 1 inside, 0 outside, a pixel's
+// worth of ramp across the edge. (u, v) are pixels from its centre on its
+// own axes; a and b its radii in pixels. (illusionCover in the shaders.)
+inline float illusionEllipse(float u, float v, float a, float b) {
+  const float f = (u * u) / (a * a) + (v * v) / (b * b);
+  const float m = std::min(a, b);
+  // Well inside or well outside: no square root. Only the one-pixel band at
+  // the edge needs it, and that is a small share of the pixels.
+  const float inner = std::max(0.0f, 1.0f - 0.5f / m), outer = 1.0f + 0.5f / m;
+  if (f <= inner * inner) return 1.0f;
+  if (f >= outer * outer) return 0.0f;
+  return std::clamp((1.0f - std::sqrt(f)) * m + 0.5f, 0.0f, 1.0f);
+}
+
+// lround and floor are calls under MSVC; at 4K they were most of the frame.
+inline std::uint8_t illusionByte(float c) {
+  return static_cast<std::uint8_t>((c < 0.0f ? 0.0f : c > 255.0f ? 255.0f : c) + 0.5f);
+}
+inline long long illusionFloor(double v) {
+  const long long i = static_cast<long long>(v);
+  return i - (v < static_cast<double>(i) ? 1 : 0);
+}
+
+inline void illusionBlend(float* c, const std::array<std::uint8_t, 3>& ink, float cover) {
+  for (std::size_t i = 0; i < 3; ++i) c[i] += (ink[i] - c[i]) * cover;
+}
+}  // namespace
+
+void buildIllusion(DecodedFrame& frame, double animTime, const IllusionSettings& base,
+                   const std::string& cueId) {
+  const int W = frame.width, H = frame.height;
+  if (W <= 0 || H <= 0) return;
+  frame.format = FramePixelFormat::RGBA32;
+  frame.pixels.resize(static_cast<std::size_t>(W) * static_cast<std::size_t>(H) * 4u);
+  const IllusionStep st = illusionStep(base, animTime, cueId);
+  const IllusionInks& ink = st.ink;
+  const double S = static_cast<double>(std::min(W, H));
+  const double cx = st.centreX * W, cy = st.centreY * H;
+  const double t = st.t;
+  std::uint8_t* out = frame.pixels.data();
+  auto put = [out](std::size_t at, const float* c) {
+    out[at] = illusionByte(c[0]);
+    out[at + 1] = illusionByte(c[1]);
+    out[at + 2] = illusionByte(c[2]);
+    out[at + 3] = 255;
+  };
+  auto fill = [](float* c, const std::array<std::uint8_t, 3>& ink3) {
+    for (std::size_t i = 0; i < 3; ++i) c[i] = ink3[i];
+  };
+
+  if (st.shape == 0) {
+    // ---- Drift field ---------------------------------------------------------
+    const double across = 6.0 + st.count * 34.0;         // shapes across the short side
+    const double pitch = S / across;
+    const double rowH = pitch * 0.866;                    // a honeycomb: six neighbours a pitch away
+    const float rx = static_cast<float>(pitch * 0.5 * (0.45 + 0.55 * st.size));
+    static const float kAspect[kIllusionFormCount] = {0.53f, 0.75f, 1.0f, 1.0f};
+    const float ry = rx * kAspect[st.form];
+    const float e = rx * static_cast<float>(0.05 + 0.3 * st.edge);   // how far each crescent shows
+    const int rows = static_cast<int>(H / rowH) + 3;
+    const int cols = static_cast<int>(W / pitch) + 3;
+    std::vector<float> cosA(static_cast<std::size_t>(rows) * static_cast<std::size_t>(cols)), sinA(cosA.size());
+    for (int r = 0; r < rows; ++r) {
+      for (int c = 0; c < cols; ++c) {
+        const double x = (c - 1) * pitch + (((r - 1) & 1) ? pitch * 0.5 : 0.0);
+        const double y = (r - 1) * rowH;
+        const double dx = x - cx, dy = y - cy;
+        const double radial = std::atan2(dy, dx);
+        double a = st.flow == 0 ? radial + 1.5707963 : st.flow == 1 ? radial : st.flow == 2 ? radial + 3.14159265
+                 : std::sin(dy / S * 12.0 + t) * 1.2;
+        if (st.flow != 3) a += t;
+        if (st.flip) a += 3.14159265;
+        const std::size_t at = static_cast<std::size_t>(r) * static_cast<std::size_t>(cols) + static_cast<std::size_t>(c);
+        cosA[at] = static_cast<float>(std::cos(a));
+        sinA[at] = static_cast<float>(std::sin(a));
+      }
+    }
+    const std::array<std::uint8_t, 3> black {0, 0, 0}, white {255, 255, 255};   // the mechanism, always
+    const float reach = rx + e + 1.0f;
+    // Inside half a pitch a pixel is this shape's whatever the neighbours;
+    // past it, a neighbour nearer than its own centre takes it.
+    const double own2 = pitch * pitch * 0.25;
+    const double nbX[6] = {pitch, -pitch, pitch * 0.5, -pitch * 0.5, pitch * 0.5, -pitch * 0.5};
+    const double nbY[6] = {0.0, 0.0, rowH, rowH, -rowH, -rowH};
+    deckboy::effects::detail::parallelRows(H, W * 2, [&](int y0, int y1) {
+      for (int y = y0; y < y1; ++y) {
+        std::uint8_t* row = out + static_cast<std::size_t>(y) * static_cast<std::size_t>(W) * 4u;
+        for (int x = 0; x < W; ++x) {
+          row[x * 4] = ink.ground[0];
+          row[x * 4 + 1] = ink.ground[1];
+          row[x * 4 + 2] = ink.ground[2];
+          row[x * 4 + 3] = 255;
+        }
+      }
+      const int rFirst = std::max(0, static_cast<int>(std::floor((y0 - reach) / rowH)) + 1);
+      const int rLast = std::min(rows - 1, static_cast<int>(std::ceil((y1 + reach) / rowH)) + 1);
+      for (int r = rFirst; r <= rLast; ++r) {
+        const double off = ((r - 1) & 1) ? pitch * 0.5 : 0.0;
+        const double ey = (r - 1) * rowH;
+        const int ya = std::max(y0, static_cast<int>(std::floor(ey - reach)));
+        const int yb = std::min(y1 - 1, static_cast<int>(std::ceil(ey + reach)));
+        if (ya > yb) continue;
+        for (int c = 0; c < cols; ++c) {
+          const double ex = (c - 1) * pitch + off;
+          const int xa = std::max(0, static_cast<int>(std::floor(ex - reach)));
+          const int xb = std::min(W - 1, static_cast<int>(std::ceil(ex + reach)));
+          if (xa > xb) continue;
+          const std::size_t at = static_cast<std::size_t>(r) * static_cast<std::size_t>(cols) + static_cast<std::size_t>(c);
+          const float ca = cosA[at], sa = sinA[at];
+          for (int y = ya; y <= yb; ++y) {
+            const double pyd = y + 0.5 - ey;
+            const float dy = static_cast<float>(pyd);
+            std::uint8_t* row = out + static_cast<std::size_t>(y) * static_cast<std::size_t>(W) * 4u;
+            for (int x = xa; x <= xb; ++x) {
+              const double pxd = x + 0.5 - ex;
+              const float dx = static_cast<float>(pxd);
+              const float u = dx * ca + dy * sa, v = -dx * sa + dy * ca;
+              if (std::fabs(v) > ry + 1.0f || std::fabs(u) > rx + e + 1.0f) continue;
+              const double d2 = pxd * pxd + pyd * pyd;
+              if (d2 > own2) {
+                bool theirs = false;
+                for (int k = 0; k < 6 && !theirs; ++k) {
+                  const double qx = pxd - nbX[k], qy = pyd - nbY[k];
+                  theirs = qx * qx + qy * qy < d2;
+                }
+                if (theirs) continue;
+              }
+              const float cbody = illusionEllipse(u, v, rx * 0.97f, ry * 0.85f);
+              if (cbody >= 1.0f && st.form != 3) {
+                std::uint8_t* px = row + static_cast<std::size_t>(x) * 4u;
+                px[0] = ink.body[0];
+                px[1] = ink.body[1];
+                px[2] = ink.body[2];
+                continue;
+              }
+              const float cb = illusionEllipse(u - e, v, rx, ry);
+              const float cw = illusionEllipse(u + e, v, rx, ry);
+              if (cb <= 0.0f && cw <= 0.0f && cbody <= 0.0f) continue;
+              float col[3];
+              fill(col, ink.ground);
+              illusionBlend(col, black, cb);
+              illusionBlend(col, white, cw);
+              illusionBlend(col, ink.body, cbody);
+              if (st.form == 3) illusionBlend(col, ink.ground, illusionEllipse(u, v, rx * 0.45f, ry * 0.45f));
+              put((static_cast<std::size_t>(y) * static_cast<std::size_t>(W) + static_cast<std::size_t>(x)) * 4u, col);
+            }
+          }
+        }
+      }
+    });
+    return;
+  }
+
+  if (st.shape == 1) {
+    // ---- Ouchi ---------------------------------------------------------------
+    const double tw = S * (0.025 + 0.11 * st.size);       // a tile's length
+    const double th = tw * (0.12 + 0.5 * st.count);       // and its thickness
+    const float R = static_cast<float>(S * (0.08 + 0.4 * st.edge));
+    // With speed up, the disc wanders a little round its place; its tiles go
+    // with it, so it reads as a thing of its own.
+    const double discX = cx + S * 0.04 * std::cos(t), discY = cy + S * 0.04 * std::sin(t * 1.3);
+    const double invTh = 1.0 / th, invTw = 1.0 / tw;
+    deckboy::effects::detail::parallelRows(H, W * 3, [&](int y0, int y1) {
+      long long lastTile = -1;
+      for (int y = y0; y < y1; ++y) {
+        const double py = y + 0.5 - H * 0.5;
+        const long long tileRow = illusionFloor(py * invTw);
+        const bool clearOfDisc = std::fabs(y + 0.5 - discY) > R + 1.0;
+        std::uint8_t* row = out + static_cast<std::size_t>(y) * static_cast<std::size_t>(W) * 4u;
+        // A row clear of the disc is the row above it, down a tile.
+        if (clearOfDisc && y > y0 && tileRow == lastTile) {
+          std::memcpy(row, row - static_cast<std::size_t>(W) * 4u, static_cast<std::size_t>(W) * 4u);
+          continue;
+        }
+        lastTile = clearOfDisc ? tileRow : -1;
+        for (int x = 0; x < W; ++x) {
+          const double px = x + 0.5 - W * 0.5;
+          const bool down = ((illusionFloor(px * invTh) + tileRow) & 1) != 0;
+          float col[3];
+          fill(col, down ? ink.dark : ink.light);
+          const float ux = static_cast<float>(x + 0.5 - discX), uy = static_cast<float>(y + 0.5 - discY);
+          const float cover = std::fabs(ux) > R + 1.0f || std::fabs(uy) > R + 1.0f ? 0.0f : illusionEllipse(ux, uy, R, R);
+          if (cover > 0.0f) {
+            const bool across = ((illusionFloor(ux * invTw) + illusionFloor(uy * invTh)) & 1) != 0;
+            illusionBlend(col, across ? ink.dark : ink.light, cover);
+          }
+          put((static_cast<std::size_t>(y) * static_cast<std::size_t>(W) + static_cast<std::size_t>(x)) * 4u, col);
+        }
+      }
+    });
+    return;
+  }
+
+  // ---- Cafe wall -------------------------------------------------------------
+  const double T = S * (0.04 + 0.16 * st.size);            // a tile
+  const double mortar = T * (0.01 + 0.12 * st.edge);
+  // Row r is shifted by d * {0, 1, 2, 1}[r % 4]: the classic wedge. Speed
+  // swings the shift back and forth, so the rows bend and straighten.
+  const double d = st.count * T * 0.5 * std::cos(t);
+  std::array<std::uint8_t, 3> grey {};
+  for (std::size_t i = 0; i < 3; ++i) grey[i] = illusionByte(static_cast<float>(ink.light[i] * st.tone));
+  deckboy::effects::detail::parallelRows(H, W * 2, [&](int y0, int y1) {
+    static const int kWedge[4] = {0, 1, 2, 1};
+    long long lastRow = -1;
+    float lastMortar = -1.0f;
+    for (int y = y0; y < y1; ++y) {
+      const double py = y + 0.5 - H * 0.5;
+      const long long r = illusionFloor(py / T);
+      const double within = py - static_cast<double>(r) * T;
+      const double shift = d * kWedge[((r % 4) + 4) % 4];
+      // The mortar line, with a pixel of ramp so a thin one stays even.
+      const double toEdge = std::min(within, T - within);
+      const float mortarCover = static_cast<float>(std::clamp(mortar * 0.5 - toEdge + 0.5, 0.0, 1.0));
+      std::uint8_t* row = out + static_cast<std::size_t>(y) * static_cast<std::size_t>(W) * 4u;
+      // The same tile row and the same mortar: the row above, copied.
+      if (y > y0 && r == lastRow && mortarCover == lastMortar) {
+        std::memcpy(row, row - static_cast<std::size_t>(W) * 4u, static_cast<std::size_t>(W) * 4u);
+        continue;
+      }
+      lastRow = r;
+      lastMortar = mortarCover;
+      for (int x = 0; x < W; ++x) {
+        const double px = x + 0.5 - W * 0.5 - shift;
+        const bool dark = (illusionFloor(px / T) & 1) == 0;
+        float col[3];
+        fill(col, dark ? ink.dark : ink.light);
+        if (mortarCover > 0.0f) illusionBlend(col, grey, mortarCover);
+        put((static_cast<std::size_t>(y) * static_cast<std::size_t>(W) + static_cast<std::size_t>(x)) * 4u, col);
+      }
+    }
+  });
+}
+
+// planIllusionSource - one moment of an Illusion for the card
+// (gpu_effects.hlsl illusionMain): the numbers illusionStep works out, which
+// the kernel draws at whatever size it is asked for. tab: the four inks (dark,
+// light, body, ground; 0-255), then size, count, edge, centre x, centre y,
+// tone and the clock. i: shape, form, flow, flip.
+static bool planIllusionSource(const Cue& cue, double animTime, int width, int height,
+                               deckboy::gpu::SourcePlan& plan) {
+  static std::atomic<std::uint64_t> moments {0};
+  const IllusionStep st = illusionStep(cue.illusion, animTime, cue.id);
+  plan.kind = deckboy::gpu::SourcePlan::Illusion;
+  plan.width = width;
+  plan.height = height;
+  plan.srcW = 2;   // nothing traced: the runner's buffers stay a token size
+  plan.srcH = 2;
+  plan.moment = ++moments;
+  plan.i[0] = st.shape;
+  plan.i[1] = st.form;
+  plan.i[2] = st.flow;
+  plan.i[3] = st.flip ? 1 : 0;
+  const std::array<std::uint8_t, 3>* inks[4] = {&st.ink.dark, &st.ink.light, &st.ink.body, &st.ink.ground};
+  for (int k = 0; k < 4; ++k) {
+    for (int c = 0; c < 3; ++c) plan.tab[k * 3 + c] = static_cast<float>((*inks[k])[static_cast<std::size_t>(c)]);
+  }
+  plan.tab[12] = static_cast<float>(st.size);
+  plan.tab[13] = static_cast<float>(st.count);
+  plan.tab[14] = static_cast<float>(st.edge);
+  plan.tab[15] = static_cast<float>(st.centreX);
+  plan.tab[16] = static_cast<float>(st.centreY);
+  plan.tab[17] = static_cast<float>(st.tone);
+  plan.tab[18] = static_cast<float>(st.t);
+  return true;
+}
+
 void buildLumia(DecodedFrame& frame, double animTime, const LumiaSettings& base, const std::string& cueId) {
   buildLumiaAt(frame, animTime, base, cueId, frame.height >= 600 ? 2 : 1);
 }
@@ -14205,12 +14554,17 @@ void MediaEngine::buildGpuSourceDeskPicture(DecodedFrame& frame, const Cue& cue,
     for (std::size_t i = 3; i < frame.pixels.size(); i += 4) frame.pixels[i] = 255;
     return;
   }
+  if (normalizePatternTypeId(cue.path) == "illusion") {
+    // Every size is a share of the short side: this is the card's picture, small.
+    buildIllusion(frame, animTime, cue.illusion, cue.id);
+    return;
+  }
   buildLumiaAt(frame, animTime, cue.lumia, cue.id, 1);
 }
 
 bool MediaEngine::patternMadeOnGpu(const std::string& patternPath) {
   const std::string base = stripPatternMotionSuffix(normalizePatternTypeId(patternPath));
-  return base == "lumia" || base == "isf";
+  return base == "lumia" || base == "isf" || base == "illusion";
 }
 
 // A SHADER's plan (ISF): the compiled program, each input's value for this
@@ -14254,6 +14608,9 @@ bool MediaEngine::planGpuSource(const Cue& cue, double animTime, int width, int 
   if (!patternMadeOnGpu(cue.path) || width < 2 || height < 2) return false;
   if (stripPatternMotionSuffix(normalizePatternTypeId(cue.path)) == "isf") {
     return planIsfSource(cue, animTime, width, height, plan);
+  }
+  if (stripPatternMotionSuffix(normalizePatternTypeId(cue.path)) == "illusion") {
+    return planIllusionSource(cue, animTime, width, height, plan);
   }
   const int q = height >= 600 ? 2 : 1;
   static std::mutex mutex;
@@ -17166,6 +17523,9 @@ void MediaEngine::buildPatternFrameInto(DecodedFrame& frame, const Cue& cue, dou
   } else if (basePatternType == "moire-field") {
     // Always animated: the bands scroll and the field drifts.
     buildMoireField(frame, animTime, cue.moire, cue.id);
+  } else if (basePatternType == "illusion") {
+    // Animated: its speed and oscillators can slide, turn and wander it.
+    buildIllusion(frame, animTime, cue.illusion, cue.id);
   } else if (basePatternType == "lumia") {
     // Always animated: the water flows.
     buildLumia(frame, animTime, cue.lumia, cue.id);
