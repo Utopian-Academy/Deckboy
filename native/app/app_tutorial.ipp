@@ -2062,11 +2062,11 @@
       tutorial_.voiceRect = SDL_Rect {};
       tutorial_.restartRect = SDL_Rect {};
       if (stacked) {
-        const int line = std::max(buttonH / 2, fontH);
-        const int top = y + (buttonH - line * 2) / 2;
+        const int linkH = std::max(buttonH / 2, fontH);
+        const int top = y + (buttonH - linkH * 2) / 2;
         const int w = std::max(voiceW, restartW);
-        tutorial_.voiceRect = SDL_Rect {vx, top, w, line};
-        tutorial_.restartRect = SDL_Rect {vx, top + line, w, line};
+        tutorial_.voiceRect = SDL_Rect {vx, top, w, linkH};
+        tutorial_.restartRect = SDL_Rect {vx, top + linkH, w, linkH};
       } else {
         const int vw = std::min(voiceW, room);
         if (vw > uiScaled(40)) tutorial_.voiceRect = SDL_Rect {vx, y, vw, buttonH};
