@@ -1957,8 +1957,14 @@
       }
       if (guestHasFace) {
         const Uint64 nowMs = SDL_GetTicks();
+        // Caroline singing over the music video: her mouth follows the song.
+        const int singing = std::strcmp(line.guestName, "CAROLINE POLKADOT") == 0 ? carolineSingingMouth() : -1;
+        if (singing >= 0) {
+          songMouthDrawn_ = singing;
+          songMouthDrawnAt_ = nowMs;
+        }
         drawGuestPortrait(SDL_Rect {card.x + pad, y, portrait, portrait}, line.guestName,
-                          nowMs >= guestTalkFromMs_ && nowMs < guestTalkUntilMs_);
+                          singing >= 0 || (nowMs >= guestTalkFromMs_ && nowMs < guestTalkUntilMs_), singing);
       }
       for (std::size_t i = 0; i < guestLines.size(); ++i) {
         drawCardLine(guestLines[i], y + static_cast<int>(i) * lineH, pal.fgSoft);
@@ -2025,38 +2031,45 @@
     // 2026-11-16: "keep it more discreet"). It was a button drawn OVER the
     // dots, and a short label (CHIP, OFF) left the last dot sticking out of
     // its right edge. The same choice is in MENU > Settings, "Lesson voices".
+    // RESTART follows it, in the same quiet style: the lesson from its first
+    // card, with a fresh practice show (restartLesson). A lesson with many
+    // steps (Draw: 12 dots) leaves no room for both side by side; then they
+    // share the row's height, VOICE above and RESTART below. RESTART used to
+    // be left out there (James, 2026-11-16).
     {
-      const std::string label = deckboy::core::i18n::format("VOICE: {1}", {deckboy::core::i18n::translate(lessonVoiceName())});
+      const std::string voice = deckboy::core::i18n::format("VOICE: {1}", {deckboy::core::i18n::translate(lessonVoiceName())});
+      const std::string restart = deckboy::core::i18n::translate("RESTART");
+      const bool offerRestart = tutorial_.lesson > 0 && tutorial_.step > 0;
       const int dotsEnd = card.x + pad + stepCount * (dot + uiScaled(5));
       const int vx = dotsEnd + uiScaled(12);
-      const int labelW = measuredTextWidth(fontSmall_, label.c_str());
-      const int vw = std::min(labelW + uiScaled(8), bx - vx - uiScaled(10));
-      tutorial_.voiceRect = SDL_Rect {vx, y, vw, buttonH};
-      if (vw > uiScaled(40)) {
-        drawCenteredTextSafe(controlRenderer_, fontSmall_, tutorial_.voiceRect, label, pal.fgSoft, /*localise=*/false);
+      const int room = bx - vx - uiScaled(10);
+      const int fontH = TTF_GetFontHeight(fontSmall_);
+      const int voiceW = measuredTextWidth(fontSmall_, voice.c_str()) + uiScaled(8);
+      const int restartW = measuredTextWidth(fontSmall_, restart.c_str()) + uiScaled(8);
+      const bool beside = offerRestart && voiceW + uiScaled(16) + restartW <= room;
+      const bool stacked = offerRestart && !beside && std::max(voiceW, restartW) <= room &&
+                           fontH * 2 + uiScaled(4) <= buttonH;
+      const auto drawLink = [&](const SDL_Rect& r, const std::string& text) {
+        drawCenteredTextSafe(controlRenderer_, fontSmall_, r, text, pal.fgSoft, /*localise=*/false);
         // Under the words only: the hint that they can be clicked.
-        const int lineW = std::min(labelW, vw);
-        const int underlineY = y + buttonH / 2 + TTF_GetFontHeight(fontSmall_) / 2;
-        Primitives::fillRect(controlRenderer_, SDL_Rect {vx + (vw - lineW) / 2, underlineY, lineW, 1}, pal.mid);
+        const int lineW = std::min(measuredTextWidth(fontSmall_, text.c_str()), r.w);
+        Primitives::fillRect(controlRenderer_,
+                             SDL_Rect {r.x + (r.w - lineW) / 2, r.y + r.h / 2 + fontH / 2, lineW, 1}, pal.mid);
+      };
+      tutorial_.voiceRect = SDL_Rect {};
+      tutorial_.restartRect = SDL_Rect {};
+      if (stacked) {
+        const int half = buttonH / 2;
+        const int w = std::max(voiceW, restartW);
+        tutorial_.voiceRect = SDL_Rect {vx, y, w, half};
+        tutorial_.restartRect = SDL_Rect {vx, y + half, w, half};
       } else {
-        tutorial_.voiceRect = SDL_Rect {};
+        const int vw = std::min(voiceW, room);
+        if (vw > uiScaled(40)) tutorial_.voiceRect = SDL_Rect {vx, y, vw, buttonH};
+        if (beside) tutorial_.restartRect = SDL_Rect {vx + vw + uiScaled(16), y, restartW, buttonH};
       }
-    }
-    // RESTART, after VOICE and in the same quiet style: a lesson from its
-    // first card, with a fresh practice show (restartLesson).
-    tutorial_.restartRect = SDL_Rect {};
-    if (tutorial_.lesson > 0 && tutorial_.step > 0 && tutorial_.voiceRect.w > 0) {
-      const char* label = "RESTART";
-      const int labelW = measuredTextWidth(fontSmall_, deckboy::core::i18n::translate(label).c_str());
-      const int rx = tutorial_.voiceRect.x + tutorial_.voiceRect.w + uiScaled(16);
-      const int rw = std::min(labelW + uiScaled(8), bx - rx - uiScaled(10));
-      if (rw >= labelW + uiScaled(8)) {   // whole, or not at all
-        tutorial_.restartRect = SDL_Rect {rx, y, rw, buttonH};
-        drawCenteredTextSafe(controlRenderer_, fontSmall_, tutorial_.restartRect, label, pal.fgSoft);
-        const int lineW = std::min(labelW, rw);
-        const int underlineY = y + buttonH / 2 + TTF_GetFontHeight(fontSmall_) / 2;
-        Primitives::fillRect(controlRenderer_, SDL_Rect {rx + (rw - lineW) / 2, underlineY, lineW, 1}, pal.mid);
-      }
+      if (tutorial_.voiceRect.w > 0) drawLink(tutorial_.voiceRect, voice);
+      if (tutorial_.restartRect.w > 0) drawLink(tutorial_.restartRect, restart);
     }
     // Act three: Rat Dad walks along the top of the card, right to left, and
     // leaves with the glass.
@@ -2246,6 +2259,7 @@
   struct SongTake {
     std::atomic<bool> ready {false};
     std::vector<std::int16_t> pcm;   // stereo at kAudioRate, from the reel's start
+    std::vector<float> mouth;        // how open her mouth is, one per 1/60 s
   };
   std::shared_ptr<SongTake> songTakes_[4];   // by project_.lessonVoice
   SDL_AudioStream* songStream_ = nullptr;
@@ -2253,12 +2267,29 @@
   int songVoice_ = -1;
   double songDriftMs_ = 0.0;
   int songJumps_ = 0;   // put back in step by a jump, since the lesson opened (LESSONS SONG)
+  long long songHeardFrame_ = -1;   // the frame of her song the speaker is playing now; -1 when silent
+  int songMouthDrawn_ = -1;          // what the card last drew for her singing mouth (LESSONS SONG)
+  Uint64 songMouthDrawnAt_ = 0;
   std::string songWhy_ = "not in the Datamosh lesson";
 
   void stopCarolineSong(const char* why) {
     if (songStream_ && songNext_ >= 0) SDL_ClearAudioStream(songStream_);
     songNext_ = -1;
+    songHeardFrame_ = -1;
     songWhy_ = why;
+  }
+
+  // HER MOUTH MOVES WHILE SHE SINGS (James, 2026-11-16: it stayed shut through
+  // the whole song). The take keeps the tract's mouth shapes, as a spoken line
+  // does, read at the frame the speaker is playing. -1: she is not singing;
+  // 0: shut; 1: open.
+  int carolineSingingMouth() const {
+    if (songHeardFrame_ < 0 || songVoice_ < 0) return -1;
+    const std::shared_ptr<SongTake>& take = songTakes_[songVoice_];
+    if (!take || !take->ready.load()) return -1;
+    const long long frame = songHeardFrame_ * 60 / kAudioRate;
+    if (frame < 0 || frame >= static_cast<long long>(take->mouth.size())) return -1;
+    return take->mouth[static_cast<std::size_t>(frame)] > 0.35f ? 1 : 0;
   }
 
   // She always SINGS with the voice synth (James, 2026-11-16: "can we have her
@@ -2273,9 +2304,10 @@
       slot = std::make_shared<SongTake>();
       std::shared_ptr<SongTake> out = slot;
       std::thread([out, sung] {
-        const std::vector<float> mono = deckboy::voice::sing(deckboy::song::ascendimonia(sung == 3),
-                                                             deckboy::voice::castVoice("CAROLINE POLKADOT"),
-                                                             kAudioRate).samples;
+        auto sung_ = deckboy::voice::sing(deckboy::song::ascendimonia(sung == 3),
+                                          deckboy::voice::castVoice("CAROLINE POLKADOT"), kAudioRate);
+        const std::vector<float>& mono = sung_.samples;
+        out->mouth = std::move(sung_.mouth);
         out->pcm.resize(mono.size() * 2u);
         for (std::size_t i = 0; i < mono.size(); ++i) {
           // 0.8: a lead vocal over a loud master (the theme peaks at -1 dBFS,
@@ -2332,12 +2364,13 @@
     const long long want = static_cast<long long>(engine->position() * kAudioRate);
     // Her song (33.5 s) ends before the video (36 s): once all of it is queued
     // and the video is past its end, there is nothing left to keep in step.
+    const long long queued = SDL_GetAudioStreamQueued(songStream_) / 4;   // stereo 16-bit frames
+    const long long playing = songNext_ - queued;
+    songHeardFrame_ = songNext_ < 0 || playing >= frames ? -1 : std::max(0LL, playing);
     if (songNext_ >= frames && want >= frames) {
       songWhy_.clear();
       return;
     }
-    const long long queued = SDL_GetAudioStreamQueued(songStream_) / 4;   // stereo 16-bit frames
-    const long long playing = songNext_ - queued;
     songDriftMs_ = songNext_ < 0 ? 0.0 : (playing - want) * 1000.0 / kAudioRate;
     // IN STEP WITHOUT CUTS. A seek, a retake or a jump of the video (more than
     // 150 ms) puts her back at once. Anything smaller is taken up by playing
@@ -2367,8 +2400,12 @@
 
   std::string carolineSongStatus() const {
     if (!songWhy_.empty()) return "song=off why=\"" + songWhy_ + "\"";
-    char buf[160];
-    std::snprintf(buf, sizeof(buf), "song=playing voice=%s at=%.2f drift_ms=%.1f jumps=%d",
-                  lessonVoiceName(songVoice_), static_cast<double>(songNext_) / kAudioRate, songDriftMs_, songJumps_);
+    char buf[256];
+    const bool drawnNow = songMouthDrawn_ >= 0 && SDL_GetTicks() < songMouthDrawnAt_ + 500;
+    const int mouth = carolineSingingMouth();
+    std::snprintf(buf, sizeof(buf), "song=playing voice=%s at=%.2f drift_ms=%.1f jumps=%d mouth=%s drawn=%s",
+                  lessonVoiceName(songVoice_), static_cast<double>(songNext_) / kAudioRate, songDriftMs_, songJumps_,
+                  mouth < 0 ? "none" : mouth ? "open" : "shut",
+                  !drawnNow ? "none" : songMouthDrawn_ ? "open" : "shut");
     return buf;
   }

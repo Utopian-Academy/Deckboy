@@ -1345,14 +1345,16 @@
   Uint64 guestPendingAtMs_ = 0;
 
   // False when there is no face for that name (the card then draws none).
-  bool drawGuestPortrait(const SDL_Rect& box, const char* name, bool speaking) {
+  // mouth: -1 opens and shuts it while speaking; 0 / 1 hold it shut / open
+  // (Caroline's song gives its own shapes).
+  bool drawGuestPortrait(const SDL_Rect& box, const char* name, bool speaking, int mouth = -1) {
     const GuestFace* face = guestFace(name);
     if (!face) return false;
     char rows[20][17];
     for (int r = 0; r < 20; ++r) std::memcpy(rows[r], face->rows[r], 17);
     const std::size_t seed = std::hash<std::string> {}(name);
     const bool blinking = (animationNow_ + seed % 3100) % 4300 < 140;
-    const bool mouthOpen = speaking && ((animationNow_ / 110) % 2) == 0;
+    const bool mouthOpen = mouth >= 0 ? mouth == 1 : speaking && ((animationNow_ / 110) % 2) == 0;
     if (blinking && face->eyeRow >= 0 && face->eyeRow < 20) {
       for (int c : face->eyeCols) {
         if (c >= 0 && c < 16 && rows[face->eyeRow][c] != '.') rows[face->eyeRow][c] = 'F';

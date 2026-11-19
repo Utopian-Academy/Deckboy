@@ -798,6 +798,11 @@
            << "\"settingsOpen\":" << (settingsOpen_ ? "true" : "false") << ","
            << "\"outputChipRect\":[" << outputBadgeRect_.x << "," << outputBadgeRect_.y << ","
            << outputBadgeRect_.w << "," << outputBadgeRect_.h << "],"
+           // The lesson card's quiet links, for the check that they are drawn.
+           << "\"lessonVoiceRect\":[" << tutorial_.voiceRect.x << "," << tutorial_.voiceRect.y << ","
+           << tutorial_.voiceRect.w << "," << tutorial_.voiceRect.h << "],"
+           << "\"lessonRestartRect\":[" << tutorial_.restartRect.x << "," << tutorial_.restartRect.y << ","
+           << tutorial_.restartRect.w << "," << tutorial_.restartRect.h << "],"
            << colourPickerStatusJson()
            << const_cast<App*>(this)->maskEditorStatusJson()   // reads only; its helpers are not const
            << dropdownStatusJson()

@@ -18,6 +18,7 @@ Every window hidden, sound to the dummy driver.
     py -3 tools/check_lessons.py --exe build/windows/Release/Deckboy.exe [--keep dir]
 """
 import argparse
+import json
 import re
 import shutil
 import sys
@@ -268,12 +269,50 @@ def run(exe, work, keep):
                     break
                 time.sleep(0.5)
             note("she sings in %s" % voice, "song=playing" in reply, reply)
+            # Her mouth moves with the song, on the card (it stayed shut in 0.99.429).
+            # The song opens with a bar of music, mouth shut: wait for her words.
+            seen = set()
+            deadline = time.monotonic() + 15
+            while time.monotonic() < deadline and len(seen) < 2:
+                r = db.send("LESSONS SONG")
+                for state in ("open", "shut"):
+                    if "drawn=" + state in r:
+                        seen.add(state)
+                time.sleep(0.05)
+            note("her mouth opens and shuts on the card in %s" % voice, seen == {"open", "shut"},
+                 "drawn: %s" % sorted(seen))
         db.send("LESSONS VOICE OFF")
         time.sleep(0.6)
         reply = db.send("LESSONS SONG")
         note("...and is quiet with lesson voices OFF", "OFF" in reply and "song=off" in reply, reply)
         db.send("LESSONS VOICE CHIP")
         db.send("TUTORIAL EXIT")
+
+        # RESTART is on every lesson card after the first, Draw's twelve dots
+        # included (it was left out there), and a click starts it again.
+        print("  RESTART on the card")
+        for lesson in ("draw", "sound"):
+            db.send("LESSONS START " + lesson)
+            walk(db, lesson, work, None, stop_at=2)
+            time.sleep(0.5)
+            s = json.loads(db.send("STATUS JSON"))
+            x, y, w, h = s.get("lessonRestartRect", [0, 0, 0, 0])
+            vx, vy, vw, vh = s.get("lessonVoiceRect", [0, 0, 0, 0])
+            note("%s: RESTART is on the card" % lesson, w > 0 and h > 0, s.get("lessonRestartRect"))
+            apart = x >= vx + vw or y >= vy + vh or vx >= x + w or vy >= y + h
+            note("%s: ...clear of VOICE" % lesson, w > 0 and vw > 0 and apart,
+                 "%s %s" % (s.get("lessonVoiceRect"), s.get("lessonRestartRect")))
+            if w > 0:
+                db.send("CLICK %d %d" % (x + w // 2, y + h // 2))
+                deadline = time.monotonic() + 5
+                step = None
+                while time.monotonic() < deadline:
+                    step, _, reply = step_of(db)
+                    if step == 1:
+                        break
+                    time.sleep(0.2)
+                note("%s: ...and a click starts the lesson again" % lesson, step == 1, step)
+            db.send("TUTORIAL EXIT")
 
         for bad in ("LESSONS START banana", "LESSONS TRACK DOG", "LESSONS WOBBLE"):
             try:

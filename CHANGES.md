@@ -8,6 +8,16 @@
 - Changed: to step a paused video one frame, use Shift+Right / Shift+Left (Ctrl: 10 frames, Alt: 1 second). Plain arrows did this before. Shift+arrows no longer step 5 frames.
 - In the tracker's pattern view, Right and Left are GO and BACK. With EDIT on, or with Shift held, they move the cursor across playlists.
 
+### Lessons
+- Fixed: Caroline Polkadot's mouth stayed shut while she sang in the Datamosh lesson. It now moves with her song.
+- Fixed: RESTART was missing from the cards of lessons with many steps, such as Draw. When there is no room beside VOICE, the two now share the row, VOICE above and RESTART below.
+
+### Site
+- The comparison page now includes Cue2.
+
+### Releases
+- Each release is now posted to the Deckboy Discord when it is published. 0.99.429 had to be posted by hand.
+
 ## 2026-11-16 - v0.99.429 (Lumia moves smoothly)
 
 ### Shows
