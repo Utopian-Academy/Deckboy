@@ -1,0 +1,65 @@
+plugins {
+     id 'com.android.application'
+}
+
+def buildWithCMake = true
+
+android {
+    namespace = "io.github.utopian_academy.deckboy.pocket"
+    compileSdkVersion 35
+    ndkVersion = "27.3.13750724"
+    defaultConfig {
+        applicationId "io.github.utopian_academy.deckboy.pocket"
+        minSdkVersion 29
+        targetSdkVersion 35
+        versionCode 1
+        versionName "0.1"
+        externalNativeBuild {
+            ndkBuild {
+                arguments "APP_PLATFORM=android-29"
+                // abiFilters 'armeabi-v7a', 'arm64-v8a', 'x86', 'x86_64'
+                abiFilters 'arm64-v8a'
+            }
+            cmake {
+                arguments "-DANDROID_PLATFORM=android-29", "-DANDROID_STL=c++_shared",
+                          "-DPOCKET_DEPS=" + (System.getenv("POCKET_DEPS") ?: "X:/android")
+                // abiFilters 'armeabi-v7a', 'arm64-v8a', 'x86', 'x86_64'
+                abiFilters 'arm64-v8a'
+            }
+        }
+    }
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+    applicationVariants.all { variant ->
+        tasks["merge${variant.name.capitalize()}Assets"]
+            .dependsOn("externalNativeBuild${variant.name.capitalize()}")
+    }
+    if (!project.hasProperty('EXCLUDE_NATIVE_LIBS')) {
+        sourceSets.main {
+            jniLibs.srcDir 'libs'
+        }
+        externalNativeBuild {
+            if (buildWithCMake) {
+                cmake {
+                    path 'jni/CMakeLists.txt'
+                }
+            } else {
+                ndkBuild {
+                    path 'jni/Android.mk'
+                }
+            }
+        }
+
+    }
+    lint {
+        abortOnError = false
+    }
+}
+
+dependencies {
+    implementation fileTree(include: ['*.jar'], dir: 'libs')
+}
