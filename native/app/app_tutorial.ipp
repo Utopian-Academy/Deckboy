@@ -2047,8 +2047,11 @@
       const int voiceW = measuredTextWidth(fontSmall_, voice.c_str()) + uiScaled(8);
       const int restartW = measuredTextWidth(fontSmall_, restart.c_str()) + uiScaled(8);
       const bool beside = offerRestart && voiceW + uiScaled(16) + restartW <= room;
+      // Two lines of the small font, centred on the button row. A tall font
+      // (Linux's, 2026-11-18 CI) needs more than the row's 40: the stack may
+      // stand into the gap the card keeps above the row and the pad below it.
       const bool stacked = offerRestart && !beside && std::max(voiceW, restartW) <= room &&
-                           fontH * 2 + uiScaled(4) <= buttonH;
+                           fontH * 2 <= buttonH + uiScaled(20);
       const auto drawLink = [&](const SDL_Rect& r, const std::string& text) {
         drawCenteredTextSafe(controlRenderer_, fontSmall_, r, text, pal.fgSoft, /*localise=*/false);
         // Under the words only: the hint that they can be clicked.
@@ -2059,10 +2062,11 @@
       tutorial_.voiceRect = SDL_Rect {};
       tutorial_.restartRect = SDL_Rect {};
       if (stacked) {
-        const int half = buttonH / 2;
+        const int line = std::max(buttonH / 2, fontH);
+        const int top = y + (buttonH - line * 2) / 2;
         const int w = std::max(voiceW, restartW);
-        tutorial_.voiceRect = SDL_Rect {vx, y, w, half};
-        tutorial_.restartRect = SDL_Rect {vx, y + half, w, half};
+        tutorial_.voiceRect = SDL_Rect {vx, top, w, line};
+        tutorial_.restartRect = SDL_Rect {vx, top + line, w, line};
       } else {
         const int vw = std::min(voiceW, room);
         if (vw > uiScaled(40)) tutorial_.voiceRect = SDL_Rect {vx, y, vw, buttonH};
