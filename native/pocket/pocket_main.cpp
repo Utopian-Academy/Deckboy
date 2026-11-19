@@ -32,6 +32,7 @@
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
+#include <functional>
 #include <map>
 #include <memory>
 #include <string>
@@ -68,6 +69,7 @@ constexpr Ink kButtonLit {176, 60, 104};
 constexpr Ink kPill {96, 96, 104};
 constexpr Ink kPrint {46, 46, 70};
 constexpr Ink kBlack {0, 0, 0};
+constexpr Ink kInOut {35, 73, 127};   // IN and OUT marks: blue, apart from the four inks
 
 // What a first launch copies out of the APK, so Deckboy's file-based code
 // (Paths::dataDir) finds its data where it always does.
@@ -380,6 +382,56 @@ std::string clock(double seconds) {
   return buf;
 }
 
+// mm:ss.ff, frames at the cue's own rate (hh: only when there are hours).
+std::string timecode(double seconds, double fps) {
+  if (!(seconds >= 0)) seconds = 0;
+  if (!(fps > 1)) fps = 30;
+  const long frames = static_cast<long>(std::floor(seconds * fps + 1e-6));
+  const long perSec = static_cast<long>(std::lround(fps));
+  const long total = frames / std::max(1L, perSec);
+  const long ff = frames % std::max(1L, perSec);
+  char buf[32];
+  if (total >= 3600) {
+    std::snprintf(buf, sizeof buf, "%ld:%02ld:%02ld.%02ld", total / 3600, (total / 60) % 60, total % 60, ff);
+  } else {
+    std::snprintf(buf, sizeof buf, "%02ld:%02ld.%02ld", total / 60, total % 60, ff);
+  }
+  return buf;
+}
+
+// A cue's played range: in to out (out 0 = the end of the media).
+double cueIn(const Cue& c) { return std::max(0.0, c.inPointSeconds); }
+double cueOut(const Cue& c) {
+  return (c.outPointSeconds > 0.0 && (c.duration <= 0.0 || c.outPointSeconds < c.duration)) ? c.outPointSeconds : c.duration;
+}
+double cueFrame(const Cue& c) { return 1.0 / (c.fps > 1.0 ? c.fps : 30.0); }
+bool cueHasTimeline(const Cue& c) {
+  return (c.kind == CueKind::Video || c.kind == CueKind::Audio) && c.duration > 0.0;
+}
+
+// What a cue does at its end, as the three choices Pocket offers.
+enum class EndMode { Hold, Loop, Next };
+EndMode endModeOf(const Cue& c) {
+  if (c.loop || c.endAction == CueEndAction::Loop) return EndMode::Loop;
+  if (c.endAction == CueEndAction::AutoNext) return EndMode::Next;
+  return EndMode::Hold;
+}
+void setEndMode(Cue& c, EndMode m) {
+  c.loop = (m == EndMode::Loop);
+  c.pauseOnLastFrame = true;   // the last frame holds through any change
+  c.endAction = m == EndMode::Loop ? CueEndAction::Loop : m == EndMode::Next ? CueEndAction::AutoNext : CueEndAction::PauseOnLast;
+}
+
+const char* kindTag(const Cue& c) {
+  switch (c.kind) {
+    case CueKind::Video: return "VIDEO";
+    case CueKind::Image: return "STILL";
+    case CueKind::Audio: return "SOUND";
+    case CueKind::Pattern: return "MADE";
+    default: return "CUE";
+  }
+}
+
 // ── The app ──────────────────────────────────────────────────────────────────
 
 class Pocket {
@@ -520,7 +572,15 @@ class Pocket {
         }
         break;
       case SDL_EVENT_FINGER_DOWN:
-        tap(e.tfinger.x * pxW_, e.tfinger.y * pxH_);
+        onDown(e.tfinger.x * pxW_, e.tfinger.y * pxH_);
+        break;
+      case SDL_EVENT_FINGER_MOTION:
+        onMove(e.tfinger.x * pxW_, e.tfinger.y * pxH_);
+        break;
+      case SDL_EVENT_FINGER_UP:
+      case SDL_EVENT_FINGER_CANCELED:
+        drag_ = Drag::None;
+        holdRow_ = -1;
         break;
       case SDL_EVENT_WINDOW_PIXEL_SIZE_CHANGED:
       case SDL_EVENT_WINDOW_SAFE_AREA_CHANGED:
@@ -535,14 +595,25 @@ class Pocket {
   void frame() {
     takePicks();
     engine_->update();
+    followEnd();
+    // Hold a cue for its sheet.
+    if (holdRow_ >= 0 && SDL_GetTicks() - holdStart_ > 450) {
+      openSheet(holdRow_);
+      holdRow_ = -1;
+    }
     drawProgramTexture();
     drawOutputScreen();
     layout();
     SDL_Renderer* r = renderer_;
+    hits_.clear();
     fillRect(r, kShell, {0, 0, pxW_, pxH_});
     drawProgram();
-    drawCueList();
-    drawControls();
+    if (sheet_ >= 0) {
+      drawSheet();
+    } else {
+      drawCueList();
+      drawControls();
+    }
     SDL_RenderPresent(r);
     if (pressedUntil_ && SDL_GetTicks() > pressedUntil_) pressed_ = Pressed::None, pressedUntil_ = 0;
   }
@@ -580,7 +651,8 @@ class Pocket {
     header_ = {x0 + 3 * u, y0 + 1.5f * u, 66 * u, 5 * u};
     // Program panel: a title line, the 16:9 picture, a name and clock line.
     const float picH = (68 - 5 - 2) * u * 9.0f / 16.0f;
-    program_ = {x0 + 2 * u, y0 + 7 * u, 68 * u, 5 * u + u + picH + 1.2f * u + 4 * u + 2.5f * u};
+    // ...then the scrub bar, the time line and PAUSE / SET IN / SET OUT.
+    program_ = {x0 + 2 * u, y0 + 7 * u, 68 * u, 5 * u + u + picH + 1.2f * u + 4 * u + 4.5f * u + 4 * u + 6 * u + 2.5f * u};
     const float stripH = 50 * u;
     const float bottom = safe_.y + safe_.h;
     strip_ = {x0, bottom - stripH, safe_.w, stripH};
@@ -618,12 +690,87 @@ class Pocket {
     const SDL_FRect pic {lcd.x + u, lcd.y + u, pw, ph};
     fillRect(r, kBlack, pic);
     if (programTex_) SDL_RenderTexture(r, programTex_, nullptr, &pic);
-    // name and clock under the picture
-    const float ty = pic.y + pic.h + 1.2f * u;
-    const std::string name = active_ >= 0 ? cues_[static_cast<std::size_t>(active_)].name : "Nothing on air";
-    text_.draw(mono_, name, kDeep, {lcd.x + u, ty, lcd.w * 0.6f, 4 * u});
-    const double pos = active_ >= 0 ? engine_->position() : 0.0;
-    text_.draw(mono_, clock(pos), kDeep, {lcd.x + lcd.w * 0.6f, ty, lcd.w * 0.4f - u, 4 * u}, false);
+    // The name, then the scrub bar (the media's whole length, IN and OUT
+    // marked, drag to seek), the time from IN and to OUT, and the buttons.
+    float y = pic.y + pic.h + 1.2f * u;
+    const Cue* onAir = active_ >= 0 ? &cues_[static_cast<std::size_t>(active_)] : nullptr;
+    text_.draw(mono_, onAir ? onAir->name : "Nothing on air", kDeep, {lcd.x + u, y, lcd.w - 2 * u, 4 * u});
+    y += 4.5f * u;
+    scrub_ = {lcd.x + u, y, lcd.w - 2 * u, 3.4f * u};
+    const double pos = onAir ? engine_->position() : 0.0;
+    fillRect(r, kMid, {scrub_.x, scrub_.y + 1.2f * u, scrub_.w, 1.0f * u});
+    if (onAir && cueHasTimeline(*onAir)) {
+      const double len = onAir->duration;
+      auto xAt = [&](double t) { return scrub_.x + scrub_.w * static_cast<float>(std::clamp(t / len, 0.0, 1.0)); };
+      const float xi = xAt(cueIn(*onAir)), xo = xAt(cueOut(*onAir)), xp = xAt(pos);
+      fillRect(r, kDeep, {xi, scrub_.y + 1.2f * u, std::max(0.0f, xp - xi), 1.0f * u});
+      fillRect(r, kInOut, {xi - 0.3f * u, scrub_.y, 0.6f * u, scrub_.h});
+      fillRect(r, kInOut, {xo - 0.3f * u, scrub_.y, 0.6f * u, scrub_.h});
+      fillRect(r, kDeep, {xp - 0.4f * u, scrub_.y - 0.3f * u, 0.8f * u, scrub_.h + 0.6f * u});
+    }
+    y += 4.5f * u;
+    if (onAir && cueHasTimeline(*onAir)) {
+      text_.draw(mono_, timecode(std::max(0.0, pos - cueIn(*onAir)), onAir->fps), kDeep, {lcd.x + u, y, lcd.w * 0.5f, 4 * u});
+      const std::string left = "-" + timecode(std::max(0.0, cueOut(*onAir) - pos), onAir->fps);
+      int tw = 0, th = 0;
+      if (mono_) TTF_GetStringSize(mono_, left.c_str(), 0, &tw, &th);
+      text_.draw(mono_, left, kDeep, {lcd.x + lcd.w - u - static_cast<float>(tw), y, static_cast<float>(tw) + 1, 4 * u});
+    } else {
+      text_.draw(mono_, onAir ? "holds until GO" : "", kDark, {lcd.x + u, y, lcd.w - 2 * u, 4 * u});
+    }
+    y += 4.5f * u;
+    const float bw = (lcd.w - 2 * u - 2 * u) / 3;
+    const bool paused = onAir && engine_->state() == TransportState::Paused;
+    const bool canTrim = onAir && cueHasTimeline(*onAir);
+    button({lcd.x + u, y, bw, 5 * u}, paused ? "PLAY" : "PAUSE", [this, paused] { paused ? engine_->play() : engine_->pause(); }, onAir != nullptr);
+    button({lcd.x + 2 * u + bw, y, bw, 5 * u}, "SET IN", [this] { setInOut(true); }, canTrim);
+    button({lcd.x + 3 * u + 2 * bw, y, bw, 5 * u}, "SET OUT", [this] { setInOut(false); }, canTrim);
+  }
+
+  // A button on the LCD: drawn, and registered for this frame's taps.
+  void button(const SDL_FRect& b, const std::string& label, std::function<void()> fn, bool enabled = true,
+              bool on = false, bool warn = false) {
+    SDL_Renderer* r = renderer_;
+    const Ink face = !enabled ? kMid : warn ? Ink {122, 46, 46} : on ? kDark : kDeep;
+    fillRound(r, face, b, 0.8f * unit_);
+    text_.draw(pixelSmall_, label, enabled ? kLight : kDark, b, true);
+    if (enabled) hits_.push_back({b, std::move(fn)});
+  }
+
+  // SET IN / SET OUT: the playhead's frame on the cue on air.
+  void setInOut(bool in) {
+    if (active_ < 0) return;
+    Cue& c = cues_[static_cast<std::size_t>(active_)];
+    if (!cueHasTimeline(c)) return;
+    const double f = cueFrame(c);
+    const double at = std::floor(engine_->position() / f + 1e-6) * f;
+    if (in) {
+      c.inPointSeconds = std::clamp(at, 0.0, cueOut(c) - f);
+    } else {
+      c.outPointSeconds = std::clamp(at, cueIn(c) + f, c.duration);
+    }
+    cueEdited(active_, true);
+    notice_ = (in ? "IN " : "OUT ") + timecode(at, c.fps);
+    noticeUntil_ = SDL_GetTicks() + 2000;
+  }
+
+  // After any edit: the cue on air takes it now (trim without a restart).
+  void cueEdited(int i, bool trim) {
+    if (i != active_ || i < 0) return;
+    const Cue& c = cues_[static_cast<std::size_t>(i)];
+    engine_->syncActiveCueSnapshot(c);
+    if (trim) engine_->applyActiveCueTrimEdit(c);
+  }
+
+  // A cue set to NEXT takes the one after it when it ends.
+  void followEnd() {
+    if (active_ < 0) return;
+    const Cue& c = cues_[static_cast<std::size_t>(active_)];
+    if (endModeOf(c) != EndMode::Next || !engine_->reachedEnd()) return;
+    if (active_ + 1 < static_cast<int>(cues_.size())) {
+      take(active_ + 1);
+      select(active_ + 1);
+    }
   }
 
   void drawCueList() {
@@ -650,8 +797,19 @@ class Pocket {
         SDL_RenderRect(r, &outline);
       }
       const Ink ink = isLive ? kLight : kDeep;
+      const Cue& c = cues_[static_cast<std::size_t>(i)];
       text_.draw(mono_, std::to_string(i + 1), isLive ? kMid : kDark, {row.x + 1.5f * u, row.y, 5 * u, row.h});
-      text_.draw(mono_, cues_[static_cast<std::size_t>(i)].name, ink, {row.x + 7 * u, row.y, row.w - 8.5f * u, row.h});
+      text_.draw(mono_, c.name, ink, {row.x + 7 * u, row.y, row.w - 26 * u, row.h});
+      text_.draw(pixelSmall_, kindTag(c), isLive ? kMid : kDark, {row.x + row.w - 18.5f * u, row.y, 9 * u, row.h}, true);
+      const EndMode m = endModeOf(c);
+      std::string right = m == EndMode::Loop ? "LOOP" : m == EndMode::Next ? "NEXT" : "HOLD";
+      if (cueHasTimeline(c) && m != EndMode::Loop) {
+        const int secs = static_cast<int>(std::lround(cueOut(c) - cueIn(c)));
+        char len[16];
+        std::snprintf(len, sizeof len, "%d:%02d", secs / 60, secs % 60);
+        right = m == EndMode::Next ? std::string(len) + ">" : len;
+      }
+      text_.draw(mono_, right, ink, {row.x + row.w - 9 * u, row.y, 8.5f * u, row.h});
     }
   }
 
@@ -897,6 +1055,261 @@ class Pocket {
     pressedUntil_ = SDL_GetTicks() + 160;
   }
 
+  enum class Drag { None, Scrub, TrimIn, TrimOut, Volume };
+
+  void onDown(float x, float y) {
+    downX_ = x;
+    downY_ = y;
+    // Sheet controls and LCD buttons first (the last drawn sit on top).
+    if (sheet_ >= 0) {
+      Cue& c = cues_[static_cast<std::size_t>(sheet_)];
+      if (cueHasTimeline(c) && inside(grow(trimBar_, unit_ * 1.5f), x, y)) {
+        const float xi = trimBar_.x + trimBar_.w * static_cast<float>(cueIn(c) / c.duration);
+        const float xo = trimBar_.x + trimBar_.w * static_cast<float>(cueOut(c) / c.duration);
+        drag_ = std::fabs(x - xi) <= std::fabs(x - xo) ? Drag::TrimIn : Drag::TrimOut;
+        onMove(x, y);
+        return;
+      }
+      if (inside(grow(volumeBar_, unit_), x, y)) {
+        drag_ = Drag::Volume;
+        onMove(x, y);
+        return;
+      }
+    }
+    for (auto it = hits_.rbegin(); it != hits_.rend(); ++it) {
+      if (inside(it->rect, x, y)) {
+        auto fn = it->fn;   // the handler may rebuild hits_
+        fn();
+        return;
+      }
+    }
+    if (sheet_ >= 0) return;
+    if (active_ >= 0 && cueHasTimeline(cues_[static_cast<std::size_t>(active_)]) && inside(grow(scrub_, unit_), x, y)) {
+      drag_ = Drag::Scrub;
+      onMove(x, y);
+      return;
+    }
+    if (inside(listLcd_, x, y) && rowH_ > 0) {
+      const int row = scroll_ + static_cast<int>((y - listLcd_.y) / rowH_);
+      if (row >= 0 && row < static_cast<int>(cues_.size())) {
+        holdRow_ = row;
+        holdStart_ = SDL_GetTicks();
+      }
+    }
+    tap(x, y);
+  }
+
+  void onMove(float x, float y) {
+    if (holdRow_ >= 0 && (std::fabs(x - downX_) > 2 * unit_ || std::fabs(y - downY_) > 2 * unit_)) holdRow_ = -1;
+    if (drag_ == Drag::Scrub && active_ >= 0) {
+      const Cue& c = cues_[static_cast<std::size_t>(active_)];
+      const double t = c.duration * std::clamp(static_cast<double>((x - scrub_.x) / scrub_.w), 0.0, 1.0);
+      engine_->seek(std::clamp(t, cueIn(c), cueOut(c)));
+    } else if ((drag_ == Drag::TrimIn || drag_ == Drag::TrimOut) && sheet_ >= 0) {
+      Cue& c = cues_[static_cast<std::size_t>(sheet_)];
+      const double f = cueFrame(c);
+      double t = c.duration * std::clamp(static_cast<double>((x - trimBar_.x) / trimBar_.w), 0.0, 1.0);
+      t = std::round(t / f) * f;
+      if (drag_ == Drag::TrimIn) c.inPointSeconds = std::clamp(t, 0.0, cueOut(c) - f);
+      else c.outPointSeconds = std::clamp(t, cueIn(c) + f, c.duration);
+      cueEdited(sheet_, true);
+    } else if (drag_ == Drag::Volume && sheet_ >= 0) {
+      Cue& c = cues_[static_cast<std::size_t>(sheet_)];
+      const float k = std::clamp((x - volumeBar_.x) / volumeBar_.w, 0.0f, 1.0f);
+      c.audioGainDb = std::round(-40.0f + 46.0f * k);   // -40 dB to +6 dB, whole dB
+      cueEdited(sheet_, false);
+    }
+  }
+
+  static SDL_FRect grow(const SDL_FRect& r, float by) { return {r.x - by, r.y - by, r.w + 2 * by, r.h + 2 * by}; }
+
+  // ── The cue sheet: hold a cue ──
+  void openSheet(int i) {
+    if (i < 0 || i >= static_cast<int>(cues_.size())) return;
+    sheet_ = i;
+    select(i);
+    confirmDelete_ = false;
+  }
+
+  void drawSheet() {
+    SDL_Renderer* r = renderer_;
+    const float u = unit_;
+    Cue& c = cues_[static_cast<std::size_t>(sheet_)];
+    const float x = safe_.x + 2 * u, w = 68 * u;
+    float y = program_.y + program_.h + 2 * u;
+    const float bottom = safe_.y + safe_.h - u;
+    const SDL_FRect panel {x, y, w, bottom - y};
+    fillRound(r, kBezel, panel, 3 * u);
+    const SDL_FRect lcd {x + 2.5f * u, y + 2.5f * u, w - 5 * u, panel.h - 5 * u};
+    fillRect(r, kLight, lcd);
+    const float lx = lcd.x + u, lw = lcd.w - 2 * u;
+    y = lcd.y + u;
+    // Title and DONE
+    text_.draw(pixelSmall_, "CUE " + std::to_string(sheet_ + 1), kDark, {lx, y, 20 * u, 4.5f * u});
+    button({lx + lw - 14 * u, y, 14 * u, 4.5f * u}, "DONE", [this] { sheet_ = -1; });
+    y += 5.5f * u;
+    text_.draw(mono_, c.name, kDeep, {lx, y, lw, 4 * u});
+    y += 4.2f * u;
+    char info[160];
+    if (cueHasTimeline(c)) {
+      std::snprintf(info, sizeof info, "%s%s%dx%d  %.4g fps  %s", c.videoCodec.c_str(), c.videoCodec.empty() ? "" : "  ",
+                    c.width, c.height, c.fps, timecode(c.duration, c.fps).c_str());
+    } else {
+      std::snprintf(info, sizeof info, "%s  holds until GO", kindTag(c));
+    }
+    text_.draw(pixelSmall_, info, kDark, {lx, y, lw, 3.5f * u});
+    y += 5 * u;
+
+    if (cueHasTimeline(c)) {
+      // TRIM: the whole media; drag the IN and OUT handles.
+      text_.draw(pixelSmall_, "TRIM", kDark, {lx, y, 20 * u, 3.5f * u});
+      y += 4 * u;
+      trimBar_ = {lx, y, lw, 6 * u};
+      fillRect(r, kDeep, trimBar_);
+      const float xi = trimBar_.x + trimBar_.w * static_cast<float>(cueIn(c) / c.duration);
+      const float xo = trimBar_.x + trimBar_.w * static_cast<float>(cueOut(c) / c.duration);
+      fillRect(r, kMid, {xi, trimBar_.y + 0.6f * u, xo - xi, trimBar_.h - 1.2f * u});
+      for (float hx : {xi, xo}) fillRect(r, kInOut, {hx - 0.8f * u, trimBar_.y - 0.8f * u, 1.6f * u, trimBar_.h + 1.6f * u});
+      if (sheet_ == active_) {
+        const float xp = trimBar_.x + trimBar_.w * static_cast<float>(std::clamp(engine_->position() / c.duration, 0.0, 1.0));
+        fillRect(r, kLight, {xp - 0.25f * u, trimBar_.y, 0.5f * u, trimBar_.h});
+      }
+      y += 7.5f * u;
+      const double f = cueFrame(c);
+      auto stepRow = [&](bool in) {
+        const float bw = 7 * u;
+        button({lx, y, bw, 4.5f * u}, "<", [this, in, f] { nudgeTrim(in, -f); });
+        text_.draw(mono_, std::string(in ? "IN  " : "OUT ") + timecode(in ? cueIn(c) : cueOut(c), c.fps), kDeep,
+                   {lx + bw + u, y, lw - 3 * bw - 3 * u, 4.5f * u}, true);
+        button({lx + lw - 2 * bw - u, y, bw, 4.5f * u}, ">", [this, in, f] { nudgeTrim(in, f); });
+        button({lx + lw - bw, y, bw, 4.5f * u}, "SET", [this, in] { if (sheet_ == active_) setInOut(in); }, sheet_ == active_);
+        y += 5.5f * u;
+      };
+      stepRow(true);
+      stepRow(false);
+      text_.draw(mono_, "LENGTH " + timecode(cueOut(c) - cueIn(c), c.fps), kDeep, {lx, y, lw * 0.55f, 4.5f * u});
+      button({lx + lw * 0.58f, y, lw * 0.42f, 4.5f * u}, "PLAY FROM IN", [this] {
+        const int i = sheet_;
+        take(i);
+      });
+      y += 6.5f * u;
+    } else {
+      trimBar_ = {};
+    }
+
+    // Fades and transition: - value +
+    auto stepper = [&](const char* label, std::string value, std::function<void()> less, std::function<void()> more) {
+      text_.draw(pixelSmall_, label, kDark, {lx, y, 22 * u, 4.5f * u});
+      button({lx + 23 * u, y, 7 * u, 4.5f * u}, "-", std::move(less));
+      text_.draw(mono_, value, kDeep, {lx + 31 * u, y, lw - 46 * u, 4.5f * u}, true);
+      button({lx + lw - 7 * u, y, 7 * u, 4.5f * u}, "+", std::move(more));
+      y += 5.5f * u;
+    };
+    auto secs = [](double v) { char b[16]; std::snprintf(b, sizeof b, "%.1f s", v); return std::string(b); };
+    stepper("FADE IN", secs(c.fadeInSeconds), [this] { bump(&Cue::fadeInSeconds, -0.5); }, [this] { bump(&Cue::fadeInSeconds, 0.5); });
+    stepper("FADE OUT", secs(c.fadeOutSeconds), [this] { bump(&Cue::fadeOutSeconds, -0.5); }, [this] { bump(&Cue::fadeOutSeconds, 0.5); });
+    stepper("CROSSFADE", c.cueTransitionSeconds < 0 ? "0.5 s (usual)" : secs(c.cueTransitionSeconds),
+            [this] { bumpTransition(-0.5); }, [this] { bumpTransition(0.5); });
+
+    // HOLD / LOOP / NEXT
+    text_.draw(pixelSmall_, "AT THE END", kDark, {lx, y, 22 * u, 4.5f * u});
+    const EndMode m = endModeOf(c);
+    const float sw = (lw - 23 * u) / 3;
+    const std::pair<EndMode, const char*> modes[] = {{EndMode::Hold, "HOLD"}, {EndMode::Loop, "LOOP"}, {EndMode::Next, "NEXT"}};
+    for (int k = 0; k < 3; ++k) {
+      const EndMode mode = modes[k].first;
+      button({lx + 23 * u + static_cast<float>(k) * sw, y, sw - 0.5f * u, 4.5f * u}, modes[k].second,
+             [this, mode] { Cue& cc = cues_[static_cast<std::size_t>(sheet_)]; setEndMode(cc, mode); cueEdited(sheet_, false); },
+             true, m == mode);
+    }
+    y += 5.5f * u;
+
+    // VOLUME: -40 dB to +6 dB
+    if (c.hasAudio || c.kind == CueKind::Audio) {
+      text_.draw(pixelSmall_, "VOLUME", kDark, {lx, y, 22 * u, 4.5f * u});
+      volumeBar_ = {lx + 23 * u, y + 1.5f * u, lw - 36 * u, 1.5f * u};
+      fillRect(r, kMid, volumeBar_);
+      const float k = std::clamp((c.audioGainDb + 40.0f) / 46.0f, 0.0f, 1.0f);
+      fillRect(r, kDeep, {volumeBar_.x, volumeBar_.y, volumeBar_.w * k, volumeBar_.h});
+      fillRect(r, kDeep, {volumeBar_.x + volumeBar_.w * k - 0.6f * u, y + 0.3f * u, 1.2f * u, 3.9f * u});
+      char db[16];
+      std::snprintf(db, sizeof db, "%+.0f dB", static_cast<double>(c.audioGainDb));
+      text_.draw(mono_, db, kDeep, {lx + lw - 12 * u, y, 12 * u, 4.5f * u}, true);
+      y += 5.5f * u;
+    } else {
+      volumeBar_ = {};
+    }
+
+    // DUPLICATE, UP, DOWN, DELETE
+    y = std::max(y + u, lcd.y + lcd.h - 6 * u);
+    const float qw = (lw - 3 * u) / 4;
+    button({lx, y, qw, 5 * u}, "COPY", [this] { duplicateSheetCue(); });
+    button({lx + qw + u, y, qw, 5 * u}, "UP", [this] { moveSheetCue(-1); }, sheet_ > 0);
+    button({lx + 2 * (qw + u), y, qw, 5 * u}, "DOWN", [this] { moveSheetCue(1); }, sheet_ + 1 < static_cast<int>(cues_.size()));
+    button({lx + 3 * (qw + u), y, qw, 5 * u}, confirmDelete_ ? "SURE?" : "DELETE", [this] { deleteSheetCue(); }, true, false, true);
+  }
+
+  void nudgeTrim(bool in, double by) {
+    if (sheet_ < 0) return;
+    Cue& c = cues_[static_cast<std::size_t>(sheet_)];
+    const double f = cueFrame(c);
+    if (in) c.inPointSeconds = std::clamp(cueIn(c) + by, 0.0, cueOut(c) - f);
+    else c.outPointSeconds = std::clamp(cueOut(c) + by, cueIn(c) + f, c.duration);
+    cueEdited(sheet_, true);
+  }
+
+  void bump(double Cue::*field, double by) {
+    if (sheet_ < 0) return;
+    Cue& c = cues_[static_cast<std::size_t>(sheet_)];
+    c.*field = std::clamp(c.*field + by, 0.0, 30.0);
+    cueEdited(sheet_, false);
+  }
+
+  void bumpTransition(double by) {
+    if (sheet_ < 0) return;
+    Cue& c = cues_[static_cast<std::size_t>(sheet_)];
+    const double now = c.cueTransitionSeconds < 0 ? 0.5 : c.cueTransitionSeconds;
+    c.cueTransitionSeconds = std::clamp(now + by, 0.0, 10.0);
+  }
+
+  void duplicateSheetCue() {
+    if (sheet_ < 0) return;
+    Cue copy = cues_[static_cast<std::size_t>(sheet_)];
+    copy.id = "pocket-" + std::to_string(++nextId_);
+    copy.name += " copy";
+    cues_.insert(cues_.begin() + sheet_ + 1, copy);
+    if (active_ > sheet_) ++active_;
+    openSheet(sheet_ + 1);
+  }
+
+  void moveSheetCue(int by) {
+    const int to = sheet_ + by;
+    if (sheet_ < 0 || to < 0 || to >= static_cast<int>(cues_.size())) return;
+    std::swap(cues_[static_cast<std::size_t>(sheet_)], cues_[static_cast<std::size_t>(to)]);
+    if (active_ == sheet_) active_ = to;
+    else if (active_ == to) active_ = sheet_;
+    sheet_ = to;
+    select(to);
+  }
+
+  void deleteSheetCue() {
+    if (sheet_ < 0) return;
+    if (!confirmDelete_) {
+      confirmDelete_ = true;
+      return;
+    }
+    if (sheet_ == active_) {
+      engine_->clear();
+      active_ = -1;
+    } else if (active_ > sheet_) {
+      --active_;
+    }
+    cues_.erase(cues_.begin() + sheet_);
+    sheet_ = -1;
+    confirmDelete_ = false;
+    select(std::min(selected_, static_cast<int>(cues_.size()) - 1));
+  }
+
   void tap(float x, float y) {
     const float u = unit_;
     auto within = [&](SDL_FPoint c, float rad) { return (x - c.x) * (x - c.x) + (y - c.y) * (y - c.y) <= rad * rad; };
@@ -905,7 +1318,15 @@ class Pocket {
     const float dx = x - padCentre_.x, dy = y - padCentre_.y;
     if (std::fabs(dx) < 15 * u && std::fabs(dy) < 15 * u) {
       if (std::fabs(dx) > std::fabs(dy)) {
-        if (dx > 0) { press(Pressed::Right); go(); } else { press(Pressed::Left); back(); }
+        const bool paused = active_ >= 0 && engine_->state() == TransportState::Paused &&
+                            cueHasTimeline(cues_[static_cast<std::size_t>(active_)]);
+        if (paused) {
+          // Paused: the pad's left/right step one frame (a clicker stays GO/BACK).
+          const Cue& c = cues_[static_cast<std::size_t>(active_)];
+          const double f = cueFrame(c);
+          press(dx > 0 ? Pressed::Right : Pressed::Left);
+          engine_->seek(std::clamp(engine_->position() + (dx > 0 ? f : -f), cueIn(c), cueOut(c)));
+        } else if (dx > 0) { press(Pressed::Right); go(); } else { press(Pressed::Left); back(); }
       } else {
         if (dy > 0) { press(Pressed::Down); select(selected_ + 1); } else { press(Pressed::Up); select(selected_ - 1); }
       }
@@ -943,7 +1364,9 @@ class Pocket {
     if (i < 0 || i >= static_cast<int>(cues_.size())) return;
     active_ = i;
     black_ = false;
-    engine_->loadCue(&cues_[static_cast<std::size_t>(i)], true, 0.5, TransitionStyle::Crossfade);
+    const Cue& c = cues_[static_cast<std::size_t>(i)];
+    const double fade = c.cueTransitionSeconds >= 0 ? c.cueTransitionSeconds : 0.5;
+    engine_->loadCue(&c, true, fade, fade > 0 ? TransitionStyle::Crossfade : TransitionStyle::Cut);
   }
 
   SDL_Window* window_ = nullptr;
@@ -966,6 +1389,15 @@ class Pocket {
   Uint64 noticeUntil_ = 0;
   static constexpr int kProgramW = 1920, kProgramH = 1080;
   SDL_Texture* programTex_ = nullptr;
+  struct Hit { SDL_FRect rect; std::function<void()> fn; };
+  std::vector<Hit> hits_;
+  Drag drag_ = Drag::None;
+  float downX_ = 0, downY_ = 0;
+  int holdRow_ = -1;
+  Uint64 holdStart_ = 0;
+  int sheet_ = -1;
+  bool confirmDelete_ = false;
+  SDL_FRect scrub_ {}, trimBar_ {}, volumeBar_ {};
   SDL_Texture* outputTex_ = nullptr;
   int outputTexW_ = 0, outputTexH_ = 0, outputGeneration_ = -1;
   std::string outputLabel_;
