@@ -276,15 +276,17 @@ void fillOutline(SDL_Renderer* r, Ink c, const std::vector<SDL_FPoint>& outline,
   SDL_RenderGeometry(r, nullptr, v.data(), static_cast<int>(v.size()), idx.data(), static_cast<int>(idx.size()));
 }
 
+// Corners in order round the shape (y grows downward): top-left 180-270
+// degrees, top-right 270-360, bottom-right 0-90, bottom-left 90-180.
 std::vector<SDL_FPoint> roundRectOutline(const SDL_FRect& b, float radius) {
-  const float rad = std::min({radius, b.w / 2, b.h / 2});
+  const float rad = std::max(0.0f, std::min({radius, b.w / 2, b.h / 2}));
   std::vector<SDL_FPoint> pts;
-  const float cx[4] = {b.x + b.w - rad, b.x + rad, b.x + rad, b.x + b.w - rad};
+  const float cx[4] = {b.x + rad, b.x + b.w - rad, b.x + b.w - rad, b.x + rad};
   const float cy[4] = {b.y + rad, b.y + rad, b.y + b.h - rad, b.y + b.h - rad};
-  const float start[4] = {-90, 180, 90, 0};
+  const float start[4] = {180, 270, 0, 90};
   for (int k = 0; k < 4; ++k) {
     for (int i = 0; i <= 8; ++i) {
-      const float a = (start[k] - 90.0f * static_cast<float>(i) / 8.0f) * 3.14159265f / 180.0f;
+      const float a = (start[k] + 90.0f * static_cast<float>(i) / 8.0f) * 3.14159265f / 180.0f;
       pts.push_back({cx[k] + rad * std::cos(a), cy[k] + rad * std::sin(a)});
     }
   }
@@ -528,6 +530,7 @@ class Pocket {
   void frame() {
     takePicks();
     engine_->update();
+    drawProgramTexture();
     drawOutputScreen();
     layout();
     SDL_Renderer* r = renderer_;
@@ -570,18 +573,20 @@ class Pocket {
   void layout() {
     const float u = unit_, x0 = safe_.x, y0 = safe_.y;
     header_ = {x0 + 3 * u, y0 + 1.5f * u, 66 * u, 5 * u};
-    program_ = {x0 + 2 * u, y0 + 7 * u, 68 * u, 52 * u};
-    list_ = {x0 + 2 * u, program_.y + program_.h + 2.5f * u, 68 * u, 0};
-    const float stripH = 58 * u;
+    // Program panel: a title line, the 16:9 picture, a name and clock line.
+    const float picH = (68 - 5 - 2) * u * 9.0f / 16.0f;
+    program_ = {x0 + 2 * u, y0 + 7 * u, 68 * u, 5 * u + u + picH + 1.2f * u + 4 * u + 2.5f * u};
+    const float stripH = 50 * u;
     const float bottom = safe_.y + safe_.h;
-    list_.h = std::max(20 * u, bottom - stripH - list_.y - 2 * u);
     strip_ = {x0, bottom - stripH, safe_.w, stripH};
-    const float cy = strip_.y + 22 * u;
-    padCentre_ = {x0 + 18 * u, cy};
-    goCentre_ = {x0 + 57 * u, cy - 6 * u};
-    backCentre_ = {x0 + 41 * u, cy + 9 * u};
-    blackPill_ = {x0 + 18 * u, strip_.y + 44 * u, 12 * u, 4 * u};
-    menuPill_ = {x0 + 36 * u, strip_.y + 44 * u, 12 * u, 4 * u};
+    list_ = {x0 + 2 * u, program_.y + program_.h + 2 * u, 68 * u, 0};
+    list_.h = std::max(20 * u, strip_.y - list_.y - 1.5f * u);
+    const float cy = strip_.y + 19 * u;
+    padCentre_ = {x0 + 17 * u, cy};
+    goCentre_ = {x0 + 57 * u, cy - 5 * u};
+    backCentre_ = {x0 + 41 * u, cy + 8 * u};
+    blackPill_ = {x0 + 18 * u, strip_.y + 39 * u, 12 * u, 4 * u};
+    menuPill_ = {x0 + 36 * u, strip_.y + 39 * u, 12 * u, 4 * u};
   }
 
   void drawProgram() {
@@ -607,9 +612,7 @@ class Pocket {
     const float ph = pw * 9.0f / 16.0f;
     const SDL_FRect pic {lcd.x + u, lcd.y + u, pw, ph};
     fillRect(r, kBlack, pic);
-    if (active_ >= 0 && !black_) {
-      engine_->render(SDL_Rect {static_cast<int>(pic.x), static_cast<int>(pic.y), static_cast<int>(pic.w), static_cast<int>(pic.h)});
-    }
+    if (programTex_) SDL_RenderTexture(r, programTex_, nullptr, &pic);
     // name and clock under the picture
     const float ty = pic.y + pic.h + 1.2f * u;
     const std::string name = active_ >= 0 ? cues_[static_cast<std::size_t>(active_)].name : "Nothing on air";
@@ -683,6 +686,27 @@ class Pocket {
     text_.draw(pixelSmall_, "ADD", kPrint, {menuPill_.x - 2 * u, menuPill_.y + 5 * u, menuPill_.w + 4 * u, 3 * u}, true);
   }
 
+  // The program picture, 16:9, as the engine draws an output: into a texture of
+  // its own, because the engine fills its whole target (bars included).
+  void drawProgramTexture() {
+    if (!programTex_) {
+      programTex_ = SDL_CreateTexture(renderer_, SDL_PIXELFORMAT_RGBA32, SDL_TEXTUREACCESS_TARGET, kProgramW, kProgramH);
+      if (programTex_) SDL_SetTextureScaleMode(programTex_, SDL_SCALEMODE_LINEAR);
+    }
+    if (!programTex_) return;
+    SDL_SetRenderTarget(renderer_, programTex_);
+    SDL_SetRenderViewport(renderer_, nullptr);
+    SDL_SetRenderClipRect(renderer_, nullptr);
+    SDL_SetRenderDrawColor(renderer_, 0, 0, 0, 255);
+    SDL_RenderClear(renderer_);
+    if (active_ >= 0 && !black_) engine_->render(SDL_Rect {0, 0, kProgramW, kProgramH});
+    SDL_SetRenderTarget(renderer_, nullptr);
+    // Whatever the engine left set must not reach the phone's own drawing.
+    SDL_SetRenderViewport(renderer_, nullptr);
+    SDL_SetRenderClipRect(renderer_, nullptr);
+    SDL_SetRenderDrawBlendMode(renderer_, SDL_BLENDMODE_BLEND);
+  }
+
   // -- The show output --
   //
   // The program picture alone, full screen, at up to 1920x1080 (the screen's
@@ -721,12 +745,12 @@ class Pocket {
     SDL_SetRenderTarget(renderer_, outputTex_);
     SDL_SetRenderDrawColor(renderer_, 0, 0, 0, 255);
     SDL_RenderClear(renderer_);
-    if (active_ >= 0 && !black_) {
+    if (programTex_) {
       // 16:9 picture, letterboxed into the screen's shape.
       float pw = static_cast<float>(bw), ph = pw * 9.0f / 16.0f;
       if (ph > static_cast<float>(bh)) { ph = static_cast<float>(bh); pw = ph * 16.0f / 9.0f; }
-      engine_->render(SDL_Rect {static_cast<int>((static_cast<float>(bw) - pw) / 2), static_cast<int>((static_cast<float>(bh) - ph) / 2),
-                                static_cast<int>(pw), static_cast<int>(ph)});
+      const SDL_FRect dst {(static_cast<float>(bw) - pw) / 2, (static_cast<float>(bh) - ph) / 2, pw, ph};
+      SDL_RenderTexture(renderer_, programTex_, nullptr, &dst);
     }
     SDL_Surface* shot = SDL_RenderReadPixels(renderer_, nullptr);
     SDL_SetRenderTarget(renderer_, nullptr);
@@ -935,6 +959,8 @@ class Pocket {
   bool pickerOpen_ = false;
   std::string notice_;
   Uint64 noticeUntil_ = 0;
+  static constexpr int kProgramW = 1920, kProgramH = 1080;
+  SDL_Texture* programTex_ = nullptr;
   SDL_Texture* outputTex_ = nullptr;
   int outputTexW_ = 0, outputTexH_ = 0, outputGeneration_ = -1;
   std::string outputLabel_;
