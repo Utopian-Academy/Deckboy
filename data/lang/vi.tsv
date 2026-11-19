@@ -4761,3 +4761,4 @@ How light the grey line is. Mid grey tilts the rows most	Độ sáng đường x
 How big the three dots are. Small dots vanish more easily	Kích thước ba chấm. Chấm nhỏ dễ biến mất hơn
 Swap the black and white edges: the field drifts the other way	Đổi cạnh đen và trắng: trường trôi theo hướng ngược lại
 How much of the black and white edges shows. They make the drift	Mức hiện của cạnh đen và trắng. Chúng tạo ra sự trôi
+LFO: size, count, edge, speed, centrex, centrey, grey, hue1 or hue2	LFO: size, count, edge, speed, centrex, centrey, grey, hue1 hoặc hue2

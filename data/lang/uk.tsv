@@ -4777,3 +4777,4 @@ How light the grey line is. Mid grey tilts the rows most	Яскравість с
 How big the three dots are. Small dots vanish more easily	Розмір трьох точок. Малі точки зникають легше
 Swap the black and white edges: the field drifts the other way	Поміняти місцями чорні й білі краї: поле дрейфує в інший бік
 How much of the black and white edges shows. They make the drift	Наскільки видно чорні й білі краї. Вони створюють дрейф
+LFO: size, count, edge, speed, centrex, centrey, grey, hue1 or hue2	LFO: size, count, edge, speed, centrex, centrey, grey, hue1 або hue2

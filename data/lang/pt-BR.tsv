@@ -4737,3 +4737,4 @@ How light the grey line is. Mid grey tilts the rows most	Quão clara é a linha 
 How big the three dots are. Small dots vanish more easily	Tamanho dos três pontos. Pontos pequenos somem com mais facilidade
 Swap the black and white edges: the field drifts the other way	Inverte as bordas pretas e brancas: o campo deriva no sentido oposto
 How much of the black and white edges shows. They make the drift	Quanto aparece das bordas pretas e brancas. Elas criam a deriva
+LFO: size, count, edge, speed, centrex, centrey, grey, hue1 or hue2	LFO: size, count, edge, speed, centrex, centrey, grey, hue1 ou hue2
