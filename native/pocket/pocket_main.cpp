@@ -521,7 +521,7 @@ class Pocket {
     // the portrait phone screen as the output and squeezed the picture.
     engine_ = std::make_unique<MediaEngine>(renderer_, audio_, MediaEngine::AudioTapCallback {},
                                             MediaEngine::CuePathResolver {}, MediaEngine::DecodeDeviceProvider {},
-                                            [] { return MediaEngine::OutputModeHint {kProgramW, kProgramH, 60.0}; });
+                                            [this] { return MediaEngine::OutputModeHint {programW_, programH_, programHz_}; });
     engine_->setDrawsOwnTexture(true);
     engine_->setVolume(0.8f);
 
@@ -761,7 +761,10 @@ class Pocket {
     const float ph = pw * 9.0f / 16.0f;
     const SDL_FRect pic {lcd.x + u, lcd.y + u, pw, ph};
     fillRect(r, kBlack, pic);
-    if (programTex_) SDL_RenderTexture(r, programTex_, nullptr, &pic);
+    if (programTex_) {
+      const SDL_FRect fitted = fitProgram(pic);
+      SDL_RenderTexture(r, programTex_, nullptr, &fitted);
+    }
     // The name, then the scrub bar (the media's whole length, IN and OUT
     // marked, drag to seek), the time from IN and to OUT, and the buttons.
     float y = pic.y + pic.h + 1.2f * u;
@@ -809,15 +812,13 @@ class Pocket {
     fillRect(r, kBlack, {0, 0, W, H});
     if (!programTex_) return;
     if (turned && H > W) {
-      // Rotated 90 degrees: the picture's width runs down the phone.
-      float pw = H, ph = H * 9.0f / 16.0f;
-      if (ph > W) { ph = W; pw = W * 16.0f / 9.0f; }
-      const SDL_FRect dst {(W - pw) / 2, (H - ph) / 2, pw, ph};
+      // Rotated 90 degrees: the picture's width runs down the phone. Fitted
+      // in the turned box (H x W), then rotated about its centre.
+      const SDL_FRect turnedBox {(W - H) / 2, (H - W) / 2, H, W};
+      const SDL_FRect dst = fitProgram(turnedBox);
       SDL_RenderTextureRotated(r, programTex_, nullptr, &dst, 90.0, nullptr, SDL_FLIP_NONE);
     } else {
-      float pw = W, ph = W * 9.0f / 16.0f;
-      if (ph > H) { ph = H; pw = H * 16.0f / 9.0f; }
-      const SDL_FRect dst {(W - pw) / 2, (H - ph) / 2, pw, ph};
+      const SDL_FRect dst = fitProgram({0, 0, W, H});
       SDL_RenderTexture(r, programTex_, nullptr, &dst);
     }
   }
@@ -960,8 +961,8 @@ class Pocket {
     cue.path = std::string("pattern://") + type;
     const std::string generated = generatorPatternName(type);
     cue.name = generated.empty() ? (std::string(type) == "smpte-bars" ? "SMPTE colour bars" : "Pocket Test") : generated;
-    cue.width = kProgramW;
-    cue.height = kProgramH;
+    cue.width = programW_;
+    cue.height = programH_;
     cue.formatName = "generated";
     cue.pauseOnLastFrame = true;
     cue.stillDurationSeconds = 0.0;
@@ -1118,9 +1119,51 @@ class Pocket {
 
   // The program picture, 16:9, as the engine draws an output: into a texture of
   // its own, because the engine fills its whole target (bars included).
+  // The program takes the shape and size of where it is going, as the desk's
+  // output raster does: a connected screen's own size (to 4K), else the
+  // phone's own landscape pixels while it is full screen, else 1920x1080.
+  // A 16:9 clip then fits a 19.5:9 phone as cue geometry, and Deckboy's
+  // generators fill the screen edge to edge.
+  void chooseProgramRaster() {
+    int w = 1920, h = 1080;
+    float hz = 60.0f;
+#if defined(SDL_PLATFORM_ANDROID)
+    {
+      OutputScreen& out = outputScreen();
+      std::lock_guard<std::mutex> hold(out.lock);
+      if (out.window && out.width > 0 && out.height > 0) {
+        const float k = std::min(1.0f, std::min(3840.0f / static_cast<float>(out.width), 2160.0f / static_cast<float>(out.height)));
+        w = static_cast<int>(static_cast<float>(out.width) * k) & ~1;
+        h = static_cast<int>(static_cast<float>(out.height) * k) & ~1;
+        if (out.refreshHz > 1.0f) hz = out.refreshHz;
+      } else if (phoneFull_) {
+        w = static_cast<int>(std::max(pxW_, pxH_)) & ~1;
+        h = static_cast<int>(std::min(pxW_, pxH_)) & ~1;
+      }
+    }
+#endif
+    if (w == programW_ && h == programH_) return;
+    programW_ = w;
+    programH_ = h;
+    programHz_ = hz;
+    if (programTex_) {
+      SDL_DestroyTexture(programTex_);
+      programTex_ = nullptr;
+    }
+  }
+
+  // Where a picture of the program's shape sits inside a box: fitted, centred.
+  SDL_FRect fitProgram(const SDL_FRect& box) const {
+    const float aspect = static_cast<float>(programW_) / static_cast<float>(std::max(1, programH_));
+    float w = box.w, h = w / aspect;
+    if (h > box.h) { h = box.h; w = h * aspect; }
+    return {box.x + (box.w - w) / 2, box.y + (box.h - h) / 2, w, h};
+  }
+
   void drawProgramTexture() {
+    chooseProgramRaster();
     if (!programTex_) {
-      programTex_ = SDL_CreateTexture(renderer_, SDL_PIXELFORMAT_RGBA32, SDL_TEXTUREACCESS_TARGET, kProgramW, kProgramH);
+      programTex_ = SDL_CreateTexture(renderer_, SDL_PIXELFORMAT_RGBA32, SDL_TEXTUREACCESS_TARGET, programW_, programH_);
       if (programTex_) SDL_SetTextureScaleMode(programTex_, SDL_SCALEMODE_LINEAR);
     }
     if (!programTex_) return;
@@ -1129,7 +1172,7 @@ class Pocket {
     SDL_SetRenderClipRect(renderer_, nullptr);
     SDL_SetRenderDrawColor(renderer_, 0, 0, 0, 255);
     SDL_RenderClear(renderer_);
-    if (active_ >= 0 && !black_) engine_->render(SDL_Rect {0, 0, kProgramW, kProgramH});
+    if (active_ >= 0 && !black_) engine_->render(SDL_Rect {0, 0, programW_, programH_});
     SDL_SetRenderTarget(renderer_, nullptr);
     // Whatever the engine left set must not reach the phone's own drawing.
     SDL_SetRenderViewport(renderer_, nullptr);
@@ -1186,10 +1229,8 @@ class Pocket {
       const SDL_FRect edge {1, 1, static_cast<float>(bw) - 2, static_cast<float>(bh) - 2};
       SDL_RenderRect(renderer_, &edge);
     } else if (programTex_) {
-      // 16:9 picture, letterboxed into the screen's shape.
-      float pw = static_cast<float>(bw), ph = pw * 9.0f / 16.0f;
-      if (ph > static_cast<float>(bh)) { ph = static_cast<float>(bh); pw = ph * 16.0f / 9.0f; }
-      const SDL_FRect dst {(static_cast<float>(bw) - pw) / 2, (static_cast<float>(bh) - ph) / 2, pw, ph};
+      // The program has the screen's own shape, so this fills it.
+      const SDL_FRect dst = fitProgram({0, 0, static_cast<float>(bw), static_cast<float>(bh)});
       SDL_RenderTexture(renderer_, programTex_, nullptr, &dst);
     }
     if (testPattern_ || SDL_GetTicks() < identifyUntil_) {
@@ -1691,7 +1732,8 @@ class Pocket {
   bool pickerOpen_ = false;
   std::string notice_;
   Uint64 noticeUntil_ = 0;
-  static constexpr int kProgramW = 1920, kProgramH = 1080;
+  int programW_ = 1920, programH_ = 1080;
+  float programHz_ = 60.0f;
   SDL_Texture* programTex_ = nullptr;
   struct Hit { SDL_FRect rect; std::function<void()> fn; };
   std::vector<Hit> hits_;
