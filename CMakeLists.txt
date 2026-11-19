@@ -1387,6 +1387,9 @@ if(DECKBOY_BUILD_POCKET)
     endif()
   endforeach()
   target_link_options(main PRIVATE "-Wl,-z,max-page-size=16384")
+  if(ANDROID)
+    target_link_libraries(main PRIVATE android log)   # the output screen's ANativeWindow
+  endif()
   add_dependencies(main deckboy_generate_version)
 endif()
 

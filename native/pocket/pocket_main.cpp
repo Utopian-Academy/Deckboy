@@ -31,6 +31,7 @@
 #include <cmath>
 #include <cstdio>
 #include <cstdlib>
+#include <cstring>
 #include <map>
 #include <memory>
 #include <string>
@@ -40,6 +41,8 @@
 #include <mutex>
 
 #if defined(SDL_PLATFORM_ANDROID)
+#include <android/native_window.h>
+#include <android/native_window_jni.h>
 #include <jni.h>
 #endif
 #if defined(SDL_PLATFORM_ANDROID) && defined(DECKBOY_INPROC_DECODE)
@@ -158,6 +161,57 @@ int bridgeRenderPdf(const std::string& uri, const std::string& outDir, int width
   return pages;
 }
 #endif
+
+// ── The show output: a second screen's surface, from PocketActivity ──
+//
+// Java's UI thread hands it over (or takes it away); SDL's main thread draws
+// into it. The lock is held only to swap the pointer or to post one frame.
+struct OutputScreen {
+  std::mutex lock;
+#if defined(SDL_PLATFORM_ANDROID)
+  ANativeWindow* window = nullptr;
+#endif
+  int width = 0, height = 0;      // the screen's own size
+  float refreshHz = 0;
+  std::string name;
+  int generation = 0;             // bumps on every change, so the app re-sizes
+};
+OutputScreen& outputScreen() {
+  static OutputScreen screen;
+  return screen;
+}
+
+}  // namespace
+
+#if defined(SDL_PLATFORM_ANDROID)
+extern "C" JNIEXPORT void JNICALL
+Java_io_github_utopian_1academy_deckboy_pocket_PocketActivity_nativeSetOutputSurface(
+    JNIEnv* env, jclass, jobject surface, jint width, jint height, jfloat refreshHz, jstring name) {
+  OutputScreen& out = outputScreen();
+  std::lock_guard<std::mutex> hold(out.lock);
+  if (out.window) {
+    ANativeWindow_release(out.window);
+    out.window = nullptr;
+  }
+  out.width = out.height = 0;
+  out.refreshHz = 0;
+  out.name.clear();
+  if (surface && width > 0 && height > 0) {
+    out.window = ANativeWindow_fromSurface(env, surface);
+    out.width = width;
+    out.height = height;
+    out.refreshHz = refreshHz;
+    if (name) {
+      const char* chars = env->GetStringUTFChars(name, nullptr);
+      out.name = chars ? chars : "";
+      env->ReleaseStringUTFChars(name, chars);
+    }
+  }
+  ++out.generation;
+}
+#endif
+
+namespace {
 
 bool endsWithNoCase(const std::string& s, const std::string& tail) {
   if (s.size() < tail.size()) return false;
@@ -474,6 +528,7 @@ class Pocket {
   void frame() {
     takePicks();
     engine_->update();
+    drawOutputScreen();
     layout();
     SDL_Renderer* r = renderer_;
     fillRect(r, kShell, {0, 0, pxW_, pxH_});
@@ -543,6 +598,8 @@ class Pocket {
     fillCircle(r, live ? Ink {255, 50, 30} : Ink {70, 20, 20}, {program_.x + 3 * u, program_.y + 2.8f * u}, 0.9f * u);
     text_.draw(pixelSmall_, live ? "LIVE" : (black_ ? "BLACK" : "READY"), Ink {170, 170, 180},
                {program_.x + 5 * u, program_.y + 1.2f * u, 20 * u, 3.2f * u});
+    text_.draw(pixelSmall_, outputLabel_.empty() ? "NO OUTPUT" : outputLabel_, Ink {170, 170, 180},
+               {program_.x + 24 * u, program_.y + 1.2f * u, program_.w - 27 * u, 3.2f * u});
     const SDL_FRect lcd {program_.x + 2.5f * u, program_.y + 5 * u, program_.w - 5 * u, program_.h - 7.5f * u};
     fillRect(r, kLight, lcd);
     // The picture: 16:9, the engine's own render.
@@ -624,6 +681,80 @@ class Pocket {
     fillRound(r, pressed_ == Pressed::Menu ? kDark : kPill, menuPill_, 2 * u);
     text_.draw(pixelSmall_, "BLACK", kPrint, {blackPill_.x - 2 * u, blackPill_.y + 5 * u, blackPill_.w + 4 * u, 3 * u}, true);
     text_.draw(pixelSmall_, "ADD", kPrint, {menuPill_.x - 2 * u, menuPill_.y + 5 * u, menuPill_.w + 4 * u, 3 * u}, true);
+  }
+
+  // -- The show output --
+  //
+  // The program picture alone, full screen, at up to 1920x1080 (the screen's
+  // compositor scales a 4K screen; a GPU path straight to the surface can
+  // come later). Drawn into a texture, read back and posted to the surface.
+  void drawOutputScreen() {
+#if defined(SDL_PLATFORM_ANDROID)
+    OutputScreen& out = outputScreen();
+    int ow = 0, oh = 0, gen = 0;
+    {
+      std::lock_guard<std::mutex> hold(out.lock);
+      if (!out.window) {
+        outputLabel_.clear();
+        return;
+      }
+      ow = out.width;
+      oh = out.height;
+      gen = out.generation;
+      if (gen != outputGeneration_) {
+        char label[96];
+        std::snprintf(label, sizeof label, "OUT %dx%d %.4g", ow, oh, static_cast<double>(out.refreshHz));
+        outputLabel_ = label;
+      }
+    }
+    // Buffer size: the screen's shape, no larger than 1080p.
+    const float scale = std::min(1.0f, std::min(1920.0f / static_cast<float>(ow), 1080.0f / static_cast<float>(oh)));
+    const int bw = std::max(16, static_cast<int>(static_cast<float>(ow) * scale)) & ~1;
+    const int bh = std::max(16, static_cast<int>(static_cast<float>(oh) * scale)) & ~1;
+    if (!outputTex_ || outputTexW_ != bw || outputTexH_ != bh) {
+      if (outputTex_) SDL_DestroyTexture(outputTex_);
+      outputTex_ = SDL_CreateTexture(renderer_, SDL_PIXELFORMAT_RGBA32, SDL_TEXTUREACCESS_TARGET, bw, bh);
+      outputTexW_ = bw;
+      outputTexH_ = bh;
+    }
+    if (!outputTex_) return;
+    SDL_SetRenderTarget(renderer_, outputTex_);
+    SDL_SetRenderDrawColor(renderer_, 0, 0, 0, 255);
+    SDL_RenderClear(renderer_);
+    if (active_ >= 0 && !black_) {
+      // 16:9 picture, letterboxed into the screen's shape.
+      float pw = static_cast<float>(bw), ph = pw * 9.0f / 16.0f;
+      if (ph > static_cast<float>(bh)) { ph = static_cast<float>(bh); pw = ph * 16.0f / 9.0f; }
+      engine_->render(SDL_Rect {static_cast<int>((static_cast<float>(bw) - pw) / 2), static_cast<int>((static_cast<float>(bh) - ph) / 2),
+                                static_cast<int>(pw), static_cast<int>(ph)});
+    }
+    SDL_Surface* shot = SDL_RenderReadPixels(renderer_, nullptr);
+    SDL_SetRenderTarget(renderer_, nullptr);
+    if (!shot) return;
+    SDL_Surface* rgba = shot->format == SDL_PIXELFORMAT_RGBA32 ? shot : SDL_ConvertSurface(shot, SDL_PIXELFORMAT_RGBA32);
+    if (rgba) {
+      std::lock_guard<std::mutex> hold(out.lock);
+      if (out.window && out.generation == gen) {
+        if (gen != outputGeneration_) {
+          ANativeWindow_setBuffersGeometry(out.window, rgba->w, rgba->h, WINDOW_FORMAT_RGBA_8888);
+          outputGeneration_ = gen;
+        }
+        ANativeWindow_Buffer buf;
+        if (ANativeWindow_lock(out.window, &buf, nullptr) == 0) {
+          const int rows = std::min(buf.height, rgba->h);
+          const int bytes = std::min(buf.width, rgba->w) * 4;
+          for (int y = 0; y < rows; ++y) {
+            std::memcpy(static_cast<Uint8*>(buf.bits) + static_cast<std::size_t>(y) * static_cast<std::size_t>(buf.stride) * 4,
+                        static_cast<const Uint8*>(rgba->pixels) + static_cast<std::size_t>(y) * static_cast<std::size_t>(rgba->pitch),
+                        static_cast<std::size_t>(bytes));
+          }
+          ANativeWindow_unlockAndPost(out.window);
+        }
+      }
+      if (rgba != shot) SDL_DestroySurface(rgba);
+    }
+    SDL_DestroySurface(shot);
+#endif
   }
 
   // -- Adding media: the system picker --
@@ -804,6 +935,9 @@ class Pocket {
   bool pickerOpen_ = false;
   std::string notice_;
   Uint64 noticeUntil_ = 0;
+  SDL_Texture* outputTex_ = nullptr;
+  int outputTexW_ = 0, outputTexH_ = 0, outputGeneration_ = -1;
+  std::string outputLabel_;
   int selected_ = 0;
   int active_ = -1;
   int scroll_ = 0;
