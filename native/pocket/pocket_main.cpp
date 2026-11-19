@@ -951,9 +951,18 @@ class Pocket {
   void button(const SDL_FRect& b, const std::string& label, std::function<void()> fn, bool enabled = true,
               bool on = false, bool warn = false) {
     SDL_Renderer* r = renderer_;
-    const Ink face = !enabled ? kMid : warn ? Ink {122, 46, 46} : on ? kDark : kDeep;
-    fillRound(r, face, b, 0.8f * unit_);
-    text_.draw(pixelSmall_, label, enabled ? kLight : kDark, b, true);
+    // ON reads as lit: the button turns light with a heavy dark frame, the
+    // opposite of its neighbours, rather than a shade that is hard to tell.
+    if (on && enabled) {
+      fillRound(r, kDeep, b, 0.8f * unit_);
+      const float t = 0.5f * unit_;
+      fillRound(r, kLight, {b.x + t, b.y + t, b.w - 2 * t, b.h - 2 * t}, 0.5f * unit_);
+      text_.draw(pixelSmall_, label, kDeep, b, true);
+    } else {
+      const Ink face = !enabled ? kMid : warn ? Ink {122, 46, 46} : kDeep;
+      fillRound(r, face, b, 0.8f * unit_);
+      text_.draw(pixelSmall_, label, enabled ? kLight : kDark, b, true);
+    }
     if (enabled) hits_.push_back({b, std::move(fn)});
   }
 
@@ -1010,17 +1019,27 @@ class Pocket {
       const SDL_FRect row {lcd.x, lcd.y + static_cast<float>(i - scroll_) * rowH_, lcd.w, rowH_};
       const bool isLive = (i == active_);
       const bool isSel = (i == selected_);
+      // LIVE is the row filled dark. SELECTED (what GO takes) is filled
+      // mid-green with a solid bar down its left edge and a heavy frame, so
+      // it cannot be mistaken for anything else -- a hairline was invisible.
       if (isLive) fillRect(r, kDeep, row);
-      if (isSel && !isLive) {
-        setInk(r, kDeep);
-        SDL_FRect outline {row.x + 0.3f * u, row.y + 0.3f * u, row.w - 0.6f * u, row.h - 0.6f * u};
-        SDL_RenderRect(r, &outline);
+      if (isSel) {
+        const float t = 0.55f * u;
+        if (!isLive) fillRect(r, kMid, row);
+        const Ink frame = isLive ? kMid : kDeep;
+        fillRect(r, frame, {row.x, row.y, row.w, t});
+        fillRect(r, frame, {row.x, row.y + row.h - t, row.w, t});
+        fillRect(r, frame, {row.x + row.w - t, row.y, t, row.h});
+        fillRect(r, frame, {row.x, row.y, 1.3f * u, row.h});
       }
       const Ink ink = isLive ? kLight : kDeep;
       const Cue& c = cues_[static_cast<std::size_t>(i)];
-      text_.draw(mono_, std::to_string(i + 1), isLive ? kMid : kDark, {row.x + 1.5f * u, row.y, 5 * u, row.h});
+      // Secondary ink: soft on the plain rows, full strength on the mid-green
+      // selected row, where the soft ink would sink into the fill.
+      const Ink soft = isLive ? kMid : isSel ? kDeep : kDark;
+      text_.draw(mono_, std::to_string(i + 1), isSel && !isLive ? kLight : soft, {row.x + 1.5f * u, row.y, 5 * u, row.h});
       text_.draw(mono_, c.name, ink, {row.x + 7 * u, row.y, row.w - 26 * u, row.h});
-      text_.draw(pixelSmall_, kindTag(c), isLive ? kMid : kDark, {row.x + row.w - 18.5f * u, row.y, 9 * u, row.h}, true);
+      text_.draw(pixelSmall_, kindTag(c), soft, {row.x + row.w - 18.5f * u, row.y, 9 * u, row.h}, true);
       const EndMode m = endModeOf(c);
       std::string right = m == EndMode::Loop ? "LOOP" : m == EndMode::Next ? "NEXT" : "HOLD";
       if (cueHasTimeline(c) && m != EndMode::Loop) {
