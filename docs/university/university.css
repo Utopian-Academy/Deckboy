@@ -20,6 +20,7 @@
 .sim { border: 2px solid var(--rule); background: var(--panel); padding: 1rem; display: grid; gap: .9rem; min-width: 0; }
 .sim canvas { display: block; width: 100%; max-width: 100%; height: auto; background: #071a07; border: 2px solid var(--rule); image-rendering: pixelated; }
 .sim label { display: grid; gap: .25rem; font-size: .85rem; color: var(--ink-soft); }
+.sim label, .sim select { min-width: 0; max-width: 100%; }
 .sim output, .sim .value { color: var(--ink); font-variant-numeric: tabular-nums; }
 .sim input[type=range] { width: 100%; accent-color: var(--ink); }
 .sim select { font: inherit; background: var(--ground); color: var(--ink-body); border: 1px solid var(--ink-soft); padding: .35rem .5rem; }

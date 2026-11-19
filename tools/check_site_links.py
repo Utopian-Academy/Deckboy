@@ -136,7 +136,10 @@ def undefined_colours(pages):
 
 
 def main():
-    pages = {p.name: load(p) for p in sorted(DOCS.glob("*.html"))}
+    # Top-level pages plus one folder down (docs/university/). Keys are paths
+    # relative to docs/, so links resolve from the page's own folder.
+    found = sorted(DOCS.glob("*.html")) + sorted(DOCS.glob("*/*.html"))
+    pages = {p.relative_to(DOCS).as_posix(): load(p) for p in found}
     if not pages:
         print("no pages found in docs/ -- has the site moved?")
         return 1
@@ -161,15 +164,17 @@ def main():
                     problems.append("%s: #%s is not on this page" % (name, fragment))
                 continue
 
-            resolved = (DOCS / target).resolve() if target != "./" else DOCS
-            if target == "./":
-                resolved = DOCS / "index.html"
+            here = (DOCS / name).parent
+            resolved = (here / target).resolve()
+            # A folder link ("./", "../", "university/") serves its index.html.
+            if target.endswith("/") or resolved.is_dir():
+                resolved = resolved / "index.html"
             if not resolved.exists():
                 problems.append("%s: %s -> %s is missing" % (name, kind, target))
                 continue
 
             if fragment and resolved.suffix == ".html":
-                other = pages.get(resolved.name) or load(resolved)
+                other = pages.get(resolved.relative_to(DOCS.resolve()).as_posix()) or load(resolved)
                 if fragment not in other.ids:
                     problems.append("%s: %s#%s -- no such anchor in %s"
                                     % (name, target, fragment, resolved.name))
@@ -181,8 +186,8 @@ def main():
     if sitemap.exists():
         listed = set()
         for loc in re.findall(r"<loc>([^<]+)</loc>", sitemap.read_text(encoding="utf-8")):
-            tail = loc.rstrip("/").rsplit("/", 1)[-1]
-            listed.add("index.html" if not tail.endswith(".html") else tail)
+            tail = loc.split("/Deckboy/", 1)[-1]
+            listed.add(tail + "index.html" if not tail.endswith(".html") else tail)
         for missing in sorted(listed - set(pages)):
             problems.append("sitemap.xml lists %s, which is not in docs/" % missing)
         for unlisted in sorted(set(pages) - listed):
