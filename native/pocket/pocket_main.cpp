@@ -26,6 +26,8 @@
 #include "core/pattern_helpers.hpp"
 #include "core/types.hpp"
 #include "engine/media_engine.hpp"
+#include "platform/network.hpp"
+using namespace deckboy::platform;   // the remote port (sockets)
 
 #include <algorithm>
 #include <cmath>
@@ -42,6 +44,7 @@
 
 #include <cctype>
 #include <mutex>
+#include <sstream>
 
 #if defined(SDL_PLATFORM_ANDROID)
 #include <android/native_window.h>
@@ -640,6 +643,10 @@ class Pocket {
     engine_->setDrawsOwnTexture(true);
     engine_->setVolume(0.8f);
 
+    // The desk's remote protocol on the desk's port, so Companion, scripts and
+    // the desk itself drive Pocket as deck 1 (the same shape Mini answers in).
+    listen_ = createBoundSocket(SOCK_STREAM, kRemotePort, true, false);
+    if (listen_ == kInvalidSocket) SDL_Log("pocket: remote port %d is taken; remote control is off", kRemotePort);
     loadMediaFolder();
     // Then what Deckboy makes itself. Real shows (.deckboy files and bundles)
     // come next.
@@ -783,6 +790,8 @@ class Pocket {
   }
 
   void shutdown() {
+    for (RemoteClient& c : clients_) closeSocket(c.socket);
+    if (listen_ != kInvalidSocket) closeSocket(listen_);
     engine_.reset();
     text_.clear();
     for (TTF_Font* f : {pixel_, pixelSmall_, sans_, mono_}) if (f) TTF_CloseFont(f);
@@ -838,6 +847,7 @@ class Pocket {
   void frame() {
     const Uint64 t0 = SDL_GetPerformanceCounter();
     takePicks();
+    pollRemote();
     engine_->update();
     // Animated generators (Swirl, Fireside, Lumia...) are redrawn every tick
     // from the wall clock, as the desk's update loop does; without this they
@@ -1543,6 +1553,149 @@ class Pocket {
 #endif
   }
 
+  // -- The remote: the desk's protocol --
+  //
+  // One line in, one reply out: OK <VERB>, ERR <VERB>: <why>, or the STATUS
+  // report, the same shapes the desk and Mini use, so a client written for
+  // either drives Pocket as deck 1.
+
+  struct RemoteClient { SocketHandle socket; std::string buffer; };
+
+  void pollRemote() {
+    if (listen_ == kInvalidSocket) return;
+    fd_set readable;
+    FD_ZERO(&readable);
+    SocketHandle maxFd = listen_;
+    watchFd(listen_, &readable, maxFd);
+    for (RemoteClient& c : clients_) watchFd(c.socket, &readable, maxFd);
+    timeval none {0, 0};
+    if (::select(selectNfds(maxFd), &readable, nullptr, nullptr, &none) <= 0) return;
+    if (readyFd(listen_, &readable)) {
+      sockaddr_in from {};
+      socklen_t len = sizeof(from);
+      SocketHandle sock = static_cast<SocketHandle>(accept(listen_, reinterpret_cast<sockaddr*>(&from), &len));
+      if (sock != kInvalidSocket && clients_.size() < 16) clients_.push_back({sock, {}});
+      else if (sock != kInvalidSocket) closeSocket(sock);
+    }
+    for (std::size_t i = 0; i < clients_.size();) {
+      RemoteClient& c = clients_[i];
+      bool alive = true;
+      if (readyFd(c.socket, &readable)) {
+        char buf[2048];
+        const int n = static_cast<int>(recv(c.socket, buf, sizeof(buf), 0));
+        if (n <= 0) alive = false;
+        else c.buffer.append(buf, static_cast<std::size_t>(n));
+        std::size_t eol;
+        while (alive && (eol = c.buffer.find('\n')) != std::string::npos) {
+          std::string line = c.buffer.substr(0, eol);
+          c.buffer.erase(0, eol + 1);
+          if (!line.empty() && line.back() == '\r') line.pop_back();
+          const std::string answer = remoteCommand(line);
+          if (!answer.empty()) send(c.socket, answer.data(), static_cast<int>(answer.size()), kSocketSendFlags);
+        }
+        if (c.buffer.size() > 65536) alive = false;
+      }
+      if (alive) { ++i; continue; }
+      closeSocket(c.socket);
+      clients_.erase(clients_.begin() + static_cast<std::ptrdiff_t>(i));
+    }
+  }
+
+  std::string remoteCommand(const std::string& raw) {
+    std::istringstream in(raw);
+    std::string verb;
+    in >> verb;
+    for (char& ch : verb) ch = static_cast<char>(std::toupper(static_cast<unsigned char>(ch)));
+    std::string rest;
+    std::getline(in, rest);
+    while (!rest.empty() && rest.front() == ' ') rest.erase(rest.begin());
+    auto ok = [&] { return "OK " + verb + "\n"; };
+    auto err = [&](const std::string& why) { return "ERR " + verb + ": " + why + "\n"; };
+    const int count = static_cast<int>(cues_.size());
+    auto cueNumber = [&](int& out) {
+      char* end = nullptr;
+      const long n = std::strtol(rest.c_str(), &end, 10);
+      if (end == rest.c_str() || n < 1 || n > count) return false;
+      out = static_cast<int>(n) - 1;
+      return true;
+    };
+    if (verb.empty()) return "";
+    if (verb == "PING") return ok();
+    if (verb == "HELP") {
+      return "OK HELP\nPocket answers: PING STATUS GO BACK TAKE <n> SELECT <n> NEXT PREV PLAY PAUSE STOP\n"
+             "SEEK <seconds> BLACK [ON|OFF] VOLUME <0-100> DECK 1\n";
+    }
+    if (verb == "STATUS" || verb == "STATE") return remoteStatus();
+    if (verb == "DECK") return rest.empty() || rest == "1" ? ok() : err("Pocket has one deck");
+    if (verb == "GO") { go(); return ok(); }
+    if (verb == "BACK") { back(); return ok(); }
+    if (verb == "TAKE") {
+      int n = selected_;
+      if (!rest.empty() && !cueNumber(n)) return err("no cue " + rest);
+      take(n);
+      select(n + 1);
+      return ok();
+    }
+    if (verb == "SELECT") {
+      int n = 0;
+      if (!cueNumber(n)) return err("no cue " + rest);
+      select(n);
+      return ok();
+    }
+    if (verb == "NEXT") { select(selected_ + 1); return ok(); }
+    if (verb == "PREV" || verb == "PREVIOUS") { select(selected_ - 1); return ok(); }
+    if (verb == "PLAY") { if (active_ < 0) go(); else engine_->play(); return ok(); }
+    if (verb == "PAUSE") { if (active_ >= 0) engine_->pause(); return ok(); }
+    if (verb == "STOP" || verb == "CLEAR" || verb == "PANIC") {
+      engine_->clear();
+      active_ = -1;
+      return ok();
+    }
+    if (verb == "SEEK") {
+      if (active_ < 0) return err("nothing is live");
+      char* end = nullptr;
+      const double t = std::strtod(rest.c_str(), &end);
+      if (end == rest.c_str() || t < 0) return err("seconds, please");
+      const Cue& c = cues_[static_cast<std::size_t>(active_)];
+      if (cueHasTimeline(c) && t > c.duration) return err("past the end");
+      engine_->seek(t);
+      return ok();
+    }
+    if (verb == "BLACK" || verb == "BLACKOUT") {
+      std::string a = rest;
+      for (char& ch : a) ch = static_cast<char>(std::toupper(static_cast<unsigned char>(ch)));
+      if (a.empty() || a == "TOGGLE") black_ = !black_;
+      else if (a == "ON") black_ = true;
+      else if (a == "OFF") black_ = false;
+      else return err("ON, OFF or nothing");
+      return ok();
+    }
+    if (verb == "VOLUME" || verb == "MASTERVOL") {
+      char* end = nullptr;
+      const double v = std::strtod(rest.c_str(), &end);
+      if (end == rest.c_str() || v < 0 || v > 100) return err("a percent, 0-100");   // never clamped silently
+      volume_ = static_cast<int>(std::lround(v));
+      engine_->setVolume(static_cast<float>(volume_) / 100.0f);
+      return ok();
+    }
+    return "ERR unknown command: " + verb + "\n";
+  }
+
+  std::string remoteStatus() const {
+    const Cue* live = active_ >= 0 ? &cues_[static_cast<std::size_t>(active_)] : nullptr;
+    const char* state = !live ? "Stopped" : engine_->state() == TransportState::Playing ? "Playing" : "Paused";
+    std::ostringstream o;
+    o << "DECKBOY_0.01 app=pocket focus=1 decks=1 outputs=1 master_vol=" << volume_
+      << " blackout=" << (black_ ? "on" : "off") << "\n";
+    o << "DECK 1 name=\"Pocket\" status=" << state << " selected=" << (cues_.empty() ? 0 : selected_ + 1)
+      << " active=" << active_ + 1 << " cues=" << cues_.size() << " cue=\"" << (live ? live->name : std::string()) << "\""
+      << " pos=" << (live ? clock(engine_->position()) : std::string("--:--"))
+      << " dur=" << (live && live->duration > 0 ? clock(live->duration) : std::string("--:--")) << "\n";
+    o << "OUTPUT 1 name=\"" << (outputLabel_.empty() ? "phone" : outputLabel_) << "\" enabled=" << (black_ ? "off" : "on")
+      << " raster=" << programW_ << "x" << programH_ << "\n";
+    return o.str();
+  }
+
   // -- Adding media: the system picker --
   //
   // Android's own picker (Gallery, Files, Drive): the phone gives Pocket the
@@ -2009,6 +2162,10 @@ class Pocket {
   int identifyFontH_ = 0;
   int battery_ = -1, thermal_ = 0;
   std::string showRunningTitle_;
+  static constexpr int kRemotePort = 5510;   // the desk's
+  SocketHandle listen_ = kInvalidSocket;
+  std::vector<RemoteClient> clients_;
+  int volume_ = 80;
   std::vector<std::string> themes_;
   double huePhase_ = -1.0;
   int hueStep_ = -1;
