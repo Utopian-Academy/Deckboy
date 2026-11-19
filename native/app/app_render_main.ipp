@@ -5891,7 +5891,9 @@
           struct IllusionRow { const char* label; NumericParam id; const char* tip; };
           std::vector<IllusionRow> rows;
           rows.push_back({"shape", NumericParam::IllusionShape,
-                          "Drift field (still shapes that seem to turn), Ouchi (a disc that floats) or cafe wall (straight rows that look tilted)"});
+                          "Drift (still shapes that seem to turn), ouchi (a disc that floats), cafe (straight rows that look tilted), "
+                          "vanish (dots that disappear while you stare), grid (dots that flicker and are not there) or "
+                          "dancer (it spins whichever way you see it)"});
           if (il.shape == 0) {
             rows.push_back({"form", NumericParam::IllusionForm, "Leaf, petal, scale or ring"});
             rows.push_back({"flow", NumericParam::IllusionFlow, "Which way the field seems to go: turn round the centre, out, in, or in waves"});
@@ -5909,6 +5911,27 @@
             rows.push_back({"wander", NumericParam::IllusionSpeed, "Move the disc in a small loop. 0 holds it still: the eye moves it anyway"});
             rows.push_back({"disc x", NumericParam::IllusionCentreX, "Where the disc sits, left to right"});
             rows.push_back({"disc y", NumericParam::IllusionCentreY, "Where the disc sits, top to bottom"});
+          } else if (il.shape == 3) {
+            rows.push_back({"crosses", NumericParam::IllusionCount, "How many crosses across the screen"});
+            rows.push_back({"cross size", NumericParam::IllusionEdge, "How big each cross is"});
+            rows.push_back({"dot size", NumericParam::IllusionSize, "How big the three dots are. Small dots vanish more easily"});
+            rows.push_back({"turn", NumericParam::IllusionSpeed, "How fast the crosses turn. They always turn a little: the dots vanish only while they move"});
+            rows.push_back({"centre x", NumericParam::IllusionCentreX, "Where the centre point sits, left to right"});
+            rows.push_back({"centre y", NumericParam::IllusionCentreY, "Where the centre point sits, top to bottom"});
+            rows.push_back({"flip", NumericParam::IllusionFlip, "Turn the crosses the other way"});
+          } else if (il.shape == 4) {
+            rows.push_back({"squares", NumericParam::IllusionCount, "How many squares across the screen"});
+            rows.push_back({"street width", NumericParam::IllusionEdge, "How wide the grey lines between the squares are"});
+            rows.push_back({"disc size", NumericParam::IllusionSize, "How big the light discs at the crossings are"});
+            rows.push_back({"street grey", NumericParam::IllusionTone, "How light the grey lines are"});
+            rows.push_back({"drift", NumericParam::IllusionSpeed, "Slide the grid slowly. 0 holds it still"});
+          } else if (il.shape == 5) {
+            rows.push_back({"size", NumericParam::IllusionSize, "How tall the dancer is"});
+            rows.push_back({"pose", NumericParam::IllusionEdge, "How far the free leg and the arms reach"});
+            rows.push_back({"spin", NumericParam::IllusionSpeed, "How fast the dancer turns. It always turns a little"});
+            rows.push_back({"centre x", NumericParam::IllusionCentreX, "Where the dancer stands, left to right"});
+            rows.push_back({"centre y", NumericParam::IllusionCentreY, "Where the dancer stands, top to bottom"});
+            rows.push_back({"flip", NumericParam::IllusionFlip, "Spin the other way. Most people cannot tell which way it turns anyway"});
           } else {
             rows.push_back({"tile size", NumericParam::IllusionSize, "How big each tile is"});
             rows.push_back({"offset", NumericParam::IllusionCount, "How far each row is shifted. This makes the straight rows look tilted"});
@@ -5919,8 +5942,10 @@
           rows.push_back({"palette", NumericParam::IllusionPalette,
                           "Classic, the theme's colours (taken when picked) or two colours of your own"});
           if (il.palette == 2) {
-            rows.push_back({il.shape == 0 ? "shape colour" : "colour 1", NumericParam::IllusionHue1, "The first colour, round the colour wheel"});
-            rows.push_back({il.shape == 0 ? "ground colour" : "colour 2", NumericParam::IllusionHue2, "The second colour, round the colour wheel"});
+            rows.push_back({il.shape == 0 ? "shape colour" : il.shape == 3 ? "dot colour" : "colour 1",
+                            NumericParam::IllusionHue1, "The first colour, round the colour wheel"});
+            rows.push_back({il.shape == 0 ? "ground colour" : il.shape == 3 ? "cross colour" : "colour 2",
+                            NumericParam::IllusionHue2, "The second colour, round the colour wheel"});
           }
           for (const auto& row : rows) {
             double value = 0.0;

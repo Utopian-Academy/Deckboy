@@ -7804,7 +7804,7 @@
       if (parts.size() != 3 || !spec || !value || !std::isfinite(*value) ||
           *value < spec->lo || *value > spec->hi ||
           (spec->integral && std::floor(*value) != *value)) {
-        failRemoteCommand("STATUS | SHAPE drift|ouchi|cafe | FORM leaf|petal|scale|ring | FLOW turn|out|in|wave | "
+        failRemoteCommand("STATUS | SHAPE drift|ouchi|cafe|vanish|grid|dancer | FORM leaf|petal|scale|ring | FLOW turn|out|in|wave | "
                           "FLIP ON|OFF | PALETTE classic|theme|hues | SIZE|COUNT|EDGE|SPEED|CENTREX|CENTREY|GREY "
                           "<0-100> | HUE1|HUE2 <0-360> | LFO <control> <setting>");
         return;

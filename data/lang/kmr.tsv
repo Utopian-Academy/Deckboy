@@ -4689,3 +4689,92 @@ listens to the live input while one is open, else the playlist	heta yek vekirî 
 TUTORIAL: no lesson running	TUTORIAL: ders naxebite
 TUTORIAL: expected START, SHOWME, SKIP, STEP <n>, RESTART, EXIT, STATUS or SCREENS	TUTORIAL: START, SHOWME, SKIP, STEP <n>, RESTART, EXIT, STATUS an SCREENS lazim e
 cursor across	nîşanderê berwarî
+Edge	Qerax
+Flip	Wergerîne
+Form	Teşe
+flip	wergerîne
+form	teşe
+pose	helwest
+Count	Hejmar
+count	hejmar
+disc x	dîsk x
+disc y	dîsk y
+mortar	harç
+offset	şemitîn
+wander	gerîn
+RESTART	DÎSA DEST PÊ BIKE
+crosses	xaç
+squares	çargoşe
+Colour 1	Rengê 1
+Colour 2	Rengê 2
+ILLUSION	XAPANDIN
+Illusion	Xapandin
+colour 1	rengê 1
+colour 2	rengê 2
+dot size	mezinahiya xalê
+disc size	mezinahiya dîskê
+cross size	mezinahiya xaçê
+dot colour	rengê xalê
+edge width	firehiya qeraxê
+mortar grey	gewriya harçê
+street grey	gewriya kolanê
+tile length	dirêjahiya kaşiyê
+cross colour	rengê xaçê
+shape colour	rengê şiklê
+street width	firehiya kolanê
+ground colour	rengê zemînê
+tile thickness	stûrahiya kaşiyê
+How big each tile is	Mezinahiya her kaşiyê
+How big each cross is	Mezinahiya her xaçê
+How long each tile is	Dirêjahiya her kaşiyê
+How tall the dancer is	Bilindahiya danserê
+0-100%: 0 holds it still	0-100%: 0 wê sabît digire
+0 classic, 1 theme, 2 hues	0 klasîk, 1 rûkar, 2 tonên rengan
+Leaf, petal, scale or ring	Pel, pelika gulê, pûlik an xelek
+0 or 1: the other way round	0 an 1: berevajî
+0 turn, 1 out, 2 in, 3 wave	0 zivirîn, 1 derketin, 2 ketin, 3 pêl
+How big the floating disc is	Mezinahiya dîska ku diherike
+How light the grey lines are	Ronbûna xêzên gewr
+select an illusion cue first	pêşî cueyeke îlûzyonê hilbijêre
+Turn the crosses the other way	Xaçan ber bi aliyê din bizivirîne
+Illusion (Pictures that move!?)	Îlûzyon (Wêneyên ku dilivin!?)
+0 leaf, 1 petal, 2 scale, 3 ring	0 pel, 1 pelika gulê, 2 pûlik, 3 xelek
+How many shapes across the screen	Çend şikl li ser ekranê
+How many crosses across the screen	Çend xaç li ser ekranê
+How many squares across the screen	Çend çargoşe li ser ekranê
+Where the disc sits, left to right	Cihê dîskê, ji çepê ber bi rastê
+Where the disc sits, top to bottom	Cihê dîskê, ji jor ber bi jêr
+0-100%: 0 black, 100 the light tile	0-100%: 0 reş, 100 kaşiya ron
+How much of its place each shape fills	Her şikl çiqas ji cihê xwe tije dike
+Where the dancer stands, left to right	Cihê danserê, ji çepê ber bi rastê
+Where the dancer stands, top to bottom	Cihê danserê, ji jor ber bi jêr
+Collapse/expand the illusion's controls	Kontrolên îlûzyonê bigire/veke
+How far the free leg and the arms reach	Lingê azad û mil çiqas digihîjin
+Slide the grid slowly. 0 holds it still	Torê hêdî bişemitîne. 0 wê sabît digire
+The first colour, round the colour wheel	Rengê yekem, li dora çerxa rengan
+The second colour, round the colour wheel	Rengê duyem, li dora çerxa rengan
+How thick each tile is, against its length	Stûrahiya her kaşiyê, li gor dirêjahiya wê
+Where the centre point sits, left to right	Cihê xala navendê, ji çepê ber bi rastê
+Where the centre point sits, top to bottom	Cihê xala navendê, ji jor ber bi jêr
+How thick the grey line between the rows is	Stûrahiya xêza gewr di navbera rêzan de
+How big the light discs at the crossings are	Mezinahiya dîskên ron li xaçerêyan
+Where the field's centre sits, left to right	Cihê navenda qadê, ji çepê ber bi rastê
+Where the field's centre sits, top to bottom	Cihê navenda qadê, ji jor ber bi jêr
+How wide the grey lines between the squares are	Firehiya xêzên gewr di navbera çargoşeyan de
+How fast the dancer turns. It always turns a little	Leza zivirîna danserê. Ew hergav hinekî dizivire
+0 drift, 1 ouchi, 2 cafe, 3 vanish, 4 grid, 5 dancer	0 şemitîn, 1 ouchi, 2 kafe, 3 windabûn, 4 tor, 5 danser
+How light the grey line is. Mid grey tilts the rows most	Ronbûna xêza gewr. Gewrê navîn rêzan herî zêde xwar dike
+How big the three dots are. Small dots vanish more easily	Mezinahiya sê xalan. Xalên biçûk hêsantir winda dibin
+Swap the black and white edges: the field drifts the other way	Keviyên reş û spî biguherîne: qad ber bi aliyê din dişemite
+How much of the black and white edges shows. They make the drift	Keviyên reş û spî çiqas xuya dibin. Ew şemitînê çêdikin
+LFO: size, count, edge, speed, centrex, centrey, grey, hue1 or hue2	LFO: size, count, edge, speed, centrex, centrey, grey, hue1 an hue2
+How far each row is shifted. This makes the straight rows look tilted	Her rêz çiqas tê kişandin. Ev yek rêzên rast xwar nîşan dide
+Spin the other way. Most people cannot tell which way it turns anyway	Ber bi aliyê din bizivirîne. Piraniya mirovan nizanin ka bi kîjan alî dizivire jî
+Move the disc in a small loop. 0 holds it still: the eye moves it anyway	Diskê di dubareyeke biçûk de tevger bike. 0 wê sabît digire: çav wê dîsa jî dilivîne
+Turn the shapes slowly, so the drift changes direction. 0 holds them still	Şiklan hêdî bizivirîne, da ku aliyê şemitînê biguhere. 0 wan sabît digire
+Classic, the theme's colours (taken when picked) or two colours of your own	Klasîk, rengên rûkarê (dema tê hilbijartin tên girtin) an du rengên te bi xwe
+Which way the field seems to go: turn round the centre, out, in, or in waves	Qad xuya dike bi kîjan alî ve diçe: zivirîn li dora navendê, derketin, ketin an bi pêlan
+Slide the rows back and forth, so the wall bends and straightens. 0 holds it still	Rêzan paş û pêş bişemitîne, da ku dîwar xwar û rast bibe. 0 wê sabît digire
+How fast the crosses turn. They always turn a little: the dots vanish only while they move	Xaç çiqas bilez dizivirin. Ew hergav hinekî dizivirin: xal tenê dema ew tevger dikin winda dibin
+Drift (still shapes that seem to turn), ouchi (a disc that floats), cafe (straight rows that look tilted), vanish (dots that disappear while you stare), grid (dots that flicker and are not there) or dancer (it spins whichever way you see it)	drift (şiklên sabît ku xuya dikin dizivirin), ouchi (diskeke ku li hewayê dimîne), cafe (rêzên rast ku xwar xuya dikin), vanish (xalên ku dema tu lê dinêrî winda dibin), grid (xalên ku dilerizin û ne li wir in) an dancer (bi kîjan alî ku tu bibînî dizivire)
+STATUS | SHAPE drift|ouchi|cafe|vanish|grid|dancer | FORM leaf|petal|scale|ring | FLOW turn|out|in|wave | FLIP ON|OFF | PALETTE classic|theme|hues | SIZE|COUNT|EDGE|SPEED|CENTREX|CENTREY|GREY <0-100> | HUE1|HUE2 <0-360> | LFO <control> <setting>	STATUS | SHAPE drift|ouchi|cafe|vanish|grid|dancer | FORM leaf|petal|scale|ring | FLOW turn|out|in|wave | FLIP ON|OFF | PALETTE classic|theme|hues | SIZE|COUNT|EDGE|SPEED|CENTREX|CENTREY|GREY <0-100> | HUE1|HUE2 <0-360> | LFO <kontrol> <mîheng>

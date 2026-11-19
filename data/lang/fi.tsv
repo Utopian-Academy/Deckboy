@@ -4695,3 +4695,92 @@ listens to the live input while one is open, else the playlist	kuuntelee suoraa 
 TUTORIAL: no lesson running	TUTORIAL: ei oppituntia käynnissä
 TUTORIAL: expected START, SHOWME, SKIP, STEP <n>, RESTART, EXIT, STATUS or SCREENS	TUTORIAL: odotetaan START, SHOWME, SKIP, STEP <n>, RESTART, EXIT, STATUS tai SCREENS
 cursor across	kohdistin sivulle
+Edge	Reuna
+Flip	Käännä
+Form	Muoto
+flip	käännä
+form	muoto
+pose	asento
+Count	Määrä
+count	määrä
+disc x	kiekko x
+disc y	kiekko y
+mortar	laasti
+offset	siirto
+wander	vaellus
+RESTART	ALOITA ALUSTA
+crosses	ristit
+squares	neliöt
+Colour 1	Väri 1
+Colour 2	Väri 2
+ILLUSION	ILLUUSIO
+Illusion	Illuusio
+colour 1	väri 1
+colour 2	väri 2
+dot size	pistekoko
+disc size	kiekon koko
+cross size	ristin koko
+dot colour	pisteen väri
+edge width	reunan leveys
+mortar grey	laastin harmaa
+street grey	kadun harmaa
+tile length	laatan pituus
+cross colour	ristin väri
+shape colour	muodon väri
+street width	kadun leveys
+ground colour	pohjaväri
+tile thickness	laatan paksuus
+How big each tile is	Kunkin laatan koko
+How big each cross is	Kunkin ristin koko
+How long each tile is	Kunkin laatan pituus
+How tall the dancer is	Tanssijan pituus
+0-100%: 0 holds it still	0-100%: 0 pitää paikallaan
+0 classic, 1 theme, 2 hues	0 klassinen, 1 teema, 2 sävyt
+Leaf, petal, scale or ring	Lehti, terälehti, suomu tai rengas
+0 or 1: the other way round	0 tai 1: toisin päin
+0 turn, 1 out, 2 in, 3 wave	0 kierto, 1 ulos, 2 sisään, 3 aalto
+How big the floating disc is	Leijuvan kiekon koko
+How light the grey lines are	Harmaiden viivojen vaaleus
+select an illusion cue first	valitse ensin illuusio-cue
+Turn the crosses the other way	Käännä ristit toiseen suuntaan
+Illusion (Pictures that move!?)	Illuusio (Liikkuvia kuvia!?)
+0 leaf, 1 petal, 2 scale, 3 ring	0 lehti, 1 terälehti, 2 suomu, 3 rengas
+How many shapes across the screen	Muotojen määrä näytön leveydellä
+How many crosses across the screen	Ristien määrä näytön leveydellä
+How many squares across the screen	Neliöiden määrä näytön leveydellä
+Where the disc sits, left to right	Kiekon sijainti vasemmalta oikealle
+Where the disc sits, top to bottom	Kiekon sijainti ylhäältä alas
+0-100%: 0 black, 100 the light tile	0-100%: 0 musta, 100 vaalea laatta
+How much of its place each shape fills	Kuinka paljon kukin muoto täyttää paikastaan
+Where the dancer stands, left to right	Tanssijan sijainti vasemmalta oikealle
+Where the dancer stands, top to bottom	Tanssijan sijainti ylhäältä alas
+Collapse/expand the illusion's controls	Pienennä/laajenna illuusion säätimet
+How far the free leg and the arms reach	Vapaan jalan ja käsivarsien ulottuvuus
+Slide the grid slowly. 0 holds it still	Liu'uta ruudukkoa hitaasti. 0 pitää paikallaan
+The first colour, round the colour wheel	Ensimmäinen väri väriympyrällä
+The second colour, round the colour wheel	Toinen väri väriympyrällä
+How thick each tile is, against its length	Kunkin laatan paksuus suhteessa pituuteen
+Where the centre point sits, left to right	Keskipisteen sijainti vasemmalta oikealle
+Where the centre point sits, top to bottom	Keskipisteen sijainti ylhäältä alas
+How thick the grey line between the rows is	Rivien välisen harmaan viivan paksuus
+How big the light discs at the crossings are	Risteyskohtien vaaleiden kiekkojen koko
+Where the field's centre sits, left to right	Kentän keskikohdan sijainti vasemmalta oikealle
+Where the field's centre sits, top to bottom	Kentän keskikohdan sijainti ylhäältä alas
+How wide the grey lines between the squares are	Neliöiden välisten harmaiden viivojen leveys
+How fast the dancer turns. It always turns a little	Tanssijan kiertonopeus. Se kiertää aina hieman
+0 drift, 1 ouchi, 2 cafe, 3 vanish, 4 grid, 5 dancer	0 ajautuma, 1 ouchi, 2 kahvila, 3 katoaminen, 4 ruudukko, 5 tanssija
+How light the grey line is. Mid grey tilts the rows most	Harmaan viivan vaaleus. Keskiharmaa kallistaa rivejä eniten
+How big the three dots are. Small dots vanish more easily	Kolmen pisteen koko. Pienet pisteet katoavat helpommin
+Swap the black and white edges: the field drifts the other way	Vaihda mustat ja valkoiset reunat: kenttä ajautuu toiseen suuntaan
+How much of the black and white edges shows. They make the drift	Kuinka paljon mustia ja valkoisia reunoja näkyy. Ne luovat ajautuman
+LFO: size, count, edge, speed, centrex, centrey, grey, hue1 or hue2	LFO: koko, määrä, reuna, nopeus, keskikohta x, keskikohta y, harmaa, sävy1 tai sävy2
+How far each row is shifted. This makes the straight rows look tilted	Kuinka paljon kutakin riviä siirretään. Näin suorat rivit näyttävät vinoilta
+Spin the other way. Most people cannot tell which way it turns anyway	Pyöritys toiseen suuntaan. Useimmat eivät kuitenkaan erota pyörimissuuntaa
+Move the disc in a small loop. 0 holds it still: the eye moves it anyway	Liikuttaa kiekkoa pienessä silmukassa. 0 pitää sen paikallaan: silmä liikuttaa sitä silti
+Turn the shapes slowly, so the drift changes direction. 0 holds them still	Kääntää muotoja hitaasti, jolloin ajautuman suunta vaihtuu. 0 pitää ne paikallaan
+Classic, the theme's colours (taken when picked) or two colours of your own	Klassinen, teeman värit (otetaan valittaessa) tai kaksi omaa väriä
+Which way the field seems to go: turn round the centre, out, in, or in waves	Mihin suuntaan kenttä näyttää liikkuvan: käännä keskikohdan ympäri, ulos, sisään tai aaltoina
+Slide the rows back and forth, so the wall bends and straightens. 0 holds it still	Liu'uttaa rivejä edestakaisin, jolloin seinä taipuu ja suoristuu. 0 pitää sen paikallaan
+How fast the crosses turn. They always turn a little: the dots vanish only while they move	Kuinka nopeasti ristit kääntyvät. Ne kääntyvät aina vähän: pisteet katoavat vain liikkeen aikana
+Drift (still shapes that seem to turn), ouchi (a disc that floats), cafe (straight rows that look tilted), vanish (dots that disappear while you stare), grid (dots that flicker and are not there) or dancer (it spins whichever way you see it)	Ajautuma (paikallaan olevat muodot, jotka näyttävät kääntyvän), ouchi (kelluva kiekko), kahvila (suorat rivit, jotka näyttävät vinoilta), katoaminen (pisteet, jotka katoavat, kun tuijotat), ruudukko (välkkyvät pisteet, joita ei ole) tai tanssija (pyörii siihen suuntaan, jonka näet)
+STATUS | SHAPE drift|ouchi|cafe|vanish|grid|dancer | FORM leaf|petal|scale|ring | FLOW turn|out|in|wave | FLIP ON|OFF | PALETTE classic|theme|hues | SIZE|COUNT|EDGE|SPEED|CENTREX|CENTREY|GREY <0-100> | HUE1|HUE2 <0-360> | LFO <control> <setting>	STATUS | SHAPE drift|ouchi|cafe|vanish|grid|dancer | FORM leaf|petal|scale|ring | FLOW turn|out|in|wave | FLIP ON|OFF | PALETTE classic|theme|hues | SIZE|COUNT|EDGE|SPEED|CENTREX|CENTREY|GREY <0-100> | HUE1|HUE2 <0-360> | LFO <ohjain> <asetus>

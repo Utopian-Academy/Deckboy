@@ -1113,6 +1113,55 @@ kernel void illusionMain(LARGS) {
       const bool across = ((int(floor(ux / tw)) + int(floor(uy / th))) & 1) != 0;
       col += ((across ? illusionInk(p, 0) : illusionInk(p, 1)) - col) * cover;
     }
+  } else if (p.i0 == 3) {
+    const float pitch = S / (4.0f + count * 20.0f);
+    const float arm = pitch * (0.15f + 0.3f * edge);
+    const float thick = max(1.0f, arm * 0.28f);
+    const float dotR = S * (0.008f + 0.03f * size);
+    const float ca = cos(t), sa = sin(t);
+    const float qx = px - cx, qy = py - cy;
+    const float u = qx * ca + qy * sa, v = -qx * sa + qy * ca;
+    const float lu = fabs(u - pitch * floor(u / pitch + 0.5f));
+    const float lv = fabs(v - pitch * floor(v / pitch + 0.5f));
+    const float across = clamp(arm - lu + 0.5f, 0.0f, 1.0f) * clamp(thick * 0.5f - lv + 0.5f, 0.0f, 1.0f);
+    const float down = clamp(arm - lv + 0.5f, 0.0f, 1.0f) * clamp(thick * 0.5f - lu + 0.5f, 0.0f, 1.0f);
+    col = illusionInk(p, 0);
+    const float3 gridInk = float3(tabAt(p, 22), tabAt(p, 23), tabAt(p, 24));
+    const float3 dotInk = float3(tabAt(p, 19), tabAt(p, 20), tabAt(p, 21));
+    col += (gridInk - col) * max(across, down);
+    for (int k = 0; k < 3; ++k) {
+      const float a = -1.5707963f + float(k) * 2.0943951f;
+      const float dx = px - (cx + S * 0.28f * cos(a)), dy = py - (cy + S * 0.28f * sin(a));
+      if (fabs(dx) <= dotR + 1.0f && fabs(dy) <= dotR + 1.0f) col += (dotInk - col) * illusionCover(dx, dy, dotR, dotR);
+    }
+    if (fabs(qx) <= dotR + 1.0f && fabs(qy) <= dotR + 1.0f) col += (illusionInk(p, 1) - col) * illusionCover(qx, qy, dotR * 0.6f, dotR * 0.6f);
+  } else if (p.i0 == 4) {
+    const float pitch = S / (4.0f + count * 20.0f);
+    const float bar = pitch * (0.06f + 0.25f * edge);
+    const float disc = bar * (0.5f + 0.4f * size);
+    const float drift = t * pitch * 0.3f;
+    const float qx = px - cx + drift, qy = py - cy + drift;
+    const float lx = fabs(qx - pitch * floor(qx / pitch + 0.5f));
+    const float ly = fabs(qy - pitch * floor(qy / pitch + 0.5f));
+    col = illusionInk(p, 0);
+    const float3 grey = floor(clamp(illusionInk(p, 1) * tone, 0.0f, 255.0f) + 0.5f);
+    col += (grey - col) * clamp(bar * 0.5f - min(lx, ly) + 0.5f, 0.0f, 1.0f);
+    if (lx <= disc + 1.0f && ly <= disc + 1.0f) col += (illusionInk(p, 1) - col) * illusionCover(lx, ly, disc, disc);
+  } else if (p.i0 == 5) {
+    col = illusionInk(p, 1);
+    const float qx = (px - cx) / S, qy = (py - cy) / S;
+    float cover = 0.0f;
+    const int limbs = int(tabAt(p, 25));
+    for (int k = 0; k < limbs; ++k) {
+      const uint b = uint(32 + k * 5);
+      const float ax = qx - tabAt(p, b), ay = qy - tabAt(p, b + 1);
+      const float dx = tabAt(p, b + 2) - tabAt(p, b), dy = tabAt(p, b + 3) - tabAt(p, b + 1);
+      const float len2 = dx * dx + dy * dy;
+      const float h = len2 > 0.0f ? clamp((ax * dx + ay * dy) / len2, 0.0f, 1.0f) : 0.0f;
+      const float ex = ax - dx * h, ey = ay - dy * h;
+      cover = max(cover, clamp(0.5f - (sqrt(ex * ex + ey * ey) - tabAt(p, b + 4)) * S, 0.0f, 1.0f));
+    }
+    col += (illusionInk(p, 0) - col) * cover;
   } else {
     const float T = S * (0.04f + 0.16f * size);
     const float mortar = T * (0.01f + 0.12f * edge);

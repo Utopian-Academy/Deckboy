@@ -4660,3 +4660,80 @@ listens to the live input while one is open, else the playlist	escuta a entrada 
 TUTORIAL: no lesson running	TUTORIAL: nenhuma lição em execução
 TUTORIAL: expected START, SHOWME, SKIP, STEP <n>, RESTART, EXIT, STATUS or SCREENS	TUTORIAL: esperado START, SHOWME, SKIP, STEP <n>, RESTART, EXIT, STATUS ou SCREENS
 cursor across	cursor horizontal
+Edge	Borda
+Flip	Inverter
+Form	Forma
+flip	inverter
+form	forma
+Count	Quantidade
+count	quantidade
+disc x	disco x
+disc y	disco y
+mortar	rejunte
+offset	deslocamento
+wander	deriva
+RESTART	REINICIAR
+crosses	cruzes
+squares	quadrados
+Colour 1	Cor 1
+Colour 2	Cor 2
+ILLUSION	ILUSÃO
+Illusion	Ilusão
+colour 1	cor 1
+colour 2	cor 2
+dot size	tamanho do ponto
+disc size	tamanho do disco
+cross size	tamanho da cruz
+dot colour	cor do ponto
+edge width	largura da borda
+mortar grey	cinza do rejunte
+street grey	cinza das ruas
+tile length	comprimento do ladrilho
+cross colour	cor da cruz
+shape colour	cor da forma
+street width	largura das ruas
+ground colour	cor do fundo
+tile thickness	espessura do ladrilho
+How big each tile is	O tamanho de cada ladrilho
+How big each cross is	O tamanho de cada cruz
+How long each tile is	O comprimento de cada ladrilho
+How tall the dancer is	Altura do dançarino
+0-100%: 0 holds it still	0-100%: 0 mantém parado
+0 classic, 1 theme, 2 hues	0 clássico, 1 tema, 2 matizes
+Leaf, petal, scale or ring	Folha, pétala, escama ou anel
+0 or 1: the other way round	0 ou 1: no sentido inverso
+0 turn, 1 out, 2 in, 3 wave	0 giro, 1 para fora, 2 para dentro, 3 onda
+How big the floating disc is	Tamanho do disco flutuante
+How light the grey lines are	Quão claras são as linhas cinza
+select an illusion cue first	selecione primeiro um cue de ilusão
+Turn the crosses the other way	Girar as cruzes no sentido oposto
+Illusion (Pictures that move!?)	Ilusão (Imagens que se mexem!?)
+0 leaf, 1 petal, 2 scale, 3 ring	0 folha, 1 pétala, 2 escama, 3 anel
+How many shapes across the screen	Quantas formas na largura da tela
+How many crosses across the screen	Quantas cruzes na largura da tela
+How many squares across the screen	Quantos quadrados na largura da tela
+Where the disc sits, left to right	Posição do disco, da esquerda para a direita
+Where the disc sits, top to bottom	Posição do disco, de cima para baixo
+0-100%: 0 black, 100 the light tile	0-100%: 0 preto, 100 o ladrilho claro
+How much of its place each shape fills	Quanto do seu espaço cada forma preenche
+Where the dancer stands, left to right	Posição do dançarino, da esquerda para a direita
+Where the dancer stands, top to bottom	Posição do dançarino, de cima para baixo
+Collapse/expand the illusion's controls	Recolher/expandir os controles da ilusão
+How far the free leg and the arms reach	Alcance da perna livre e dos braços
+Slide the grid slowly. 0 holds it still	Desliza a grade devagar. 0 a mantém parada
+The first colour, round the colour wheel	A primeira cor, no círculo de cores
+The second colour, round the colour wheel	A segunda cor, no círculo de cores
+How thick each tile is, against its length	Espessura de cada ladrilho em relação ao comprimento
+Where the centre point sits, left to right	Posição do ponto central, da esquerda para a direita
+Where the centre point sits, top to bottom	Posição do ponto central, de cima para baixo
+How thick the grey line between the rows is	Espessura da linha cinza entre as fileiras
+How big the light discs at the crossings are	Tamanho dos discos claros nos cruzamentos
+Where the field's centre sits, left to right	Posição do centro do campo, da esquerda para a direita
+Where the field's centre sits, top to bottom	Posição do centro do campo, de cima para baixo
+How wide the grey lines between the squares are	Largura das linhas cinza entre os quadrados
+How fast the dancer turns. It always turns a little	Velocidade de giro do dançarino. Ele sempre gira um pouco
+0 drift, 1 ouchi, 2 cafe, 3 vanish, 4 grid, 5 dancer	0 deriva, 1 ouchi, 2 café, 3 sumir, 4 grade, 5 dançarino
+How light the grey line is. Mid grey tilts the rows most	Quão clara é a linha cinza. Cinza médio inclina mais as fileiras
+How big the three dots are. Small dots vanish more easily	Tamanho dos três pontos. Pontos pequenos somem com mais facilidade
+Swap the black and white edges: the field drifts the other way	Inverte as bordas pretas e brancas: o campo deriva no sentido oposto
+How much of the black and white edges shows. They make the drift	Quanto aparece das bordas pretas e brancas. Elas criam a deriva

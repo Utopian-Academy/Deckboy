@@ -4698,3 +4698,91 @@ listens to the live input while one is open, else the playlist	слуша жив
 TUTORIAL: no lesson running	TUTORIAL: няма работещ урок
 TUTORIAL: expected START, SHOWME, SKIP, STEP <n>, RESTART, EXIT, STATUS or SCREENS	TUTORIAL: очаква се START, SHOWME, SKIP, STEP <n>, RESTART, EXIT, STATUS или SCREENS
 cursor across	курсор напречно
+Edge	Ръб
+Flip	Обръщане
+Form	Форма
+flip	обръщане
+form	форма
+pose	поза
+Count	Брой
+count	брой
+disc x	диск x
+disc y	диск y
+mortar	хоросан
+offset	отместване
+wander	блуждаене
+RESTART	РЕСТАРТ
+crosses	кръстчета
+squares	квадрати
+Colour 1	Цвят 1
+Colour 2	Цвят 2
+ILLUSION	ИЛЮЗИЯ
+Illusion	Илюзия
+colour 1	цвят 1
+colour 2	цвят 2
+dot size	размер на точката
+disc size	размер на диска
+cross size	размер на кръстчето
+dot colour	цвят на точката
+edge width	ширина на ръба
+mortar grey	сиво на хоросана
+street grey	сиво на улиците
+tile length	дължина на плочка
+cross colour	цвят на кръстчето
+shape colour	цвят на формата
+street width	ширина на улиците
+ground colour	цвят на фона
+tile thickness	дебелина на плочка
+How big each tile is	Размер на всяка плочка
+How big each cross is	Размер на всяко кръстче
+How long each tile is	Дължина на всяка плочка
+How tall the dancer is	Колко висока е танцьорката
+0-100%: 0 holds it still	0-100%: 0 го спира
+0 classic, 1 theme, 2 hues	0 класическо, 1 тема, 2 оттенъци
+Leaf, petal, scale or ring	Лист, венчелистче, люспа или пръстен
+0 or 1: the other way round	0 или 1: в обратна посока
+0 turn, 1 out, 2 in, 3 wave	0 завъртане, 1 изх., 2 вх., 3 вълна
+How big the floating disc is	Размер на плаващия диск
+How light the grey lines are	Колко светли са сивите линии
+select an illusion cue first	първо изберете cue за илюзия
+Turn the crosses the other way	Завъртете кръстчетата в обратна посока
+Illusion (Pictures that move!?)	Илюзия (Картини, които се движат!?)
+0 leaf, 1 petal, 2 scale, 3 ring	0 лист, 1 венчелистче, 2 люспа, 3 пръстен
+How many shapes across the screen	Колко форми по ширината на екрана
+How many crosses across the screen	Колко кръстчета по ширината на екрана
+How many squares across the screen	Колко квадрата по ширината на екрана
+Where the disc sits, left to right	Позиция на диска, отляво надясно
+Where the disc sits, top to bottom	Позиция на диска, отгоре надолу
+0-100%: 0 black, 100 the light tile	0-100%: 0 черно, 100 светлата плочка
+How much of its place each shape fills	Каква част от мястото си запълва всяка форма
+Where the dancer stands, left to right	Позиция на танцьорката, отляво надясно
+Where the dancer stands, top to bottom	Позиция на танцьорката, отгоре надолу
+Collapse/expand the illusion's controls	Свиване/разгъване на контролите на илюзията
+How far the free leg and the arms reach	Докъде стигат свободният крак и ръцете
+Slide the grid slowly. 0 holds it still	Плъзгайте мрежата бавно. 0 я спира
+The first colour, round the colour wheel	Първият цвят, по цветния кръг
+The second colour, round the colour wheel	Вторият цвят, по цветния кръг
+How thick each tile is, against its length	Дебелина на всяка плочка спрямо дължината ѝ
+Where the centre point sits, left to right	Позиция на центъра, отляво надясно
+Where the centre point sits, top to bottom	Позиция на центъра, отгоре надолу
+How thick the grey line between the rows is	Дебелина на сивата линия между редовете
+How big the light discs at the crossings are	Размер на светлите дискове при пресичанията
+Where the field's centre sits, left to right	Център на полето, отляво надясно
+Where the field's centre sits, top to bottom	Център на полето, отгоре надолу
+How wide the grey lines between the squares are	Ширина на сивите линии между квадратите
+How fast the dancer turns. It always turns a little	Колко бързо се върти танцьорката. Тя винаги се върти малко
+0 drift, 1 ouchi, 2 cafe, 3 vanish, 4 grid, 5 dancer	0 дрейф, 1 ouchi, 2 кафене, 3 изчезване, 4 мрежа, 5 танцьорка
+How light the grey line is. Mid grey tilts the rows most	Колко светла е сивата линия. Средно сиво накланя редовете най-много
+How big the three dots are. Small dots vanish more easily	Размер на трите точки. Малките точки изчезват по-лесно
+Swap the black and white edges: the field drifts the other way	Разменете черните и белите ръбове: полето дрейфира в обратна посока
+How much of the black and white edges shows. They make the drift	Колко от черните и белите ръбове се вижда. Те създават дрейфа
+LFO: size, count, edge, speed, centrex, centrey, grey, hue1 or hue2	LFO: size, count, edge, speed, centrex, centrey, grey, hue1 или hue2
+How far each row is shifted. This makes the straight rows look tilted	Колко е отместен всеки ред. Така правите редове изглеждат наклонени
+Spin the other way. Most people cannot tell which way it turns anyway	Въртене в обратна посока. Повечето хора и без това не различават накъде се върти
+Move the disc in a small loop. 0 holds it still: the eye moves it anyway	Движи диска в малък кръг. 0 го държи неподвижен: окото го движи и без това
+Turn the shapes slowly, so the drift changes direction. 0 holds them still	Завърта формите бавно, така дрейфът сменя посоката. 0 ги държи неподвижни
+Classic, the theme's colours (taken when picked) or two colours of your own	Класическо, цветовете на темата (взети при избора) или два ваши цвята
+Which way the field seems to go: turn round the centre, out, in, or in waves	Накъде сякаш върви полето: завъртане около центъра, навън, навътре или на вълни
+Slide the rows back and forth, so the wall bends and straightens. 0 holds it still	Плъзга редовете напред-назад, така стената се огъва и изправя. 0 я държи неподвижна
+How fast the crosses turn. They always turn a little: the dots vanish only while they move	Колко бързо се въртят кръстчетата. Винаги се въртят малко: точките изчезват само докато се движат
+Drift (still shapes that seem to turn), ouchi (a disc that floats), cafe (straight rows that look tilted), vanish (dots that disappear while you stare), grid (dots that flicker and are not there) or dancer (it spins whichever way you see it)	Дрейф (неподвижни форми, които сякаш се въртят), ouchi (диск, който плува), кафене (прави редове, които изглеждат наклонени), изчезване (точки, които изчезват, докато гледате), мрежа (точки, които трептят и ги няма) или танцьорка (върти се накъдето я видите)

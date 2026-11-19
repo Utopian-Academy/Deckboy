@@ -14207,6 +14207,7 @@ void buildLumiaAt(DecodedFrame& frame, double animTime, const LumiaSettings& bas
 namespace {
 struct IllusionInks {
   std::array<std::uint8_t, 3> dark, light, body, ground;
+  std::array<std::uint8_t, 3> dots, grid;   // vanish: the dots that go, the crosses that turn
 };
 
 IllusionInks illusionInks(const IllusionSettings& s, double hue1, double hue2) {
@@ -14223,22 +14224,49 @@ IllusionInks illusionInks(const IllusionSettings& s, double hue1, double hue2) {
   const std::array<std::uint8_t, 3> black {0, 0, 0}, white {255, 255, 255};
   switch (std::clamp(s.palette, 0, kIllusionPaletteCount - 1)) {
     case 1:  // theme: the inks it captured, dark to light
-      return {rgb(s.themeInks[0]), rgb(s.themeInks[3]), rgb(s.themeInks[2]), rgb(s.themeInks[1])};
+      return {rgb(s.themeInks[0]), rgb(s.themeInks[3]), rgb(s.themeInks[2]), rgb(s.themeInks[1]),
+              rgb(s.themeInks[3]), rgb(s.themeInks[2])};
     case 2: {  // hues: the two colours, and a dark and a light of them for the tiles
       const auto a = moireHueRgb(hue1 * 6.0), b = moireHueRgb(hue2 * 6.0);
-      return {mix(a, black, 0.75), mix(b, white, 0.6), a, mix(b, black, 0.35)};
+      return {mix(a, black, 0.75), mix(b, white, 0.6), a, mix(b, black, 0.35), a, b};
     }
-    default:  // classic: black and white, and the drift field's orange on green
-      return {black, white, {232, 98, 44}, {127, 174, 60}};
+    default:  // classic: black and white, the drift field's orange on green, yellow dots on blue
+      return {black, white, {232, 98, 44}, {127, 174, 60}, {255, 226, 0}, {30, 90, 255}};
   }
 }
+
+// The dancer's limbs, each a capsule in its own 3D space (y up, feet at 0,
+// head at about 1): a robot on one leg, the other leg reaching back, one arm
+// up and one out. Turned about the vertical axis and drawn flat -- no shading,
+// no depth -- so nothing says which way it turns (illusionStep).
+struct IllusionLimb {
+  float a[3], b[3], r;
+  bool reaches;   // follows the pose control
+};
+constexpr IllusionLimb kIllusionDancer[] = {
+  {{0.00f, 0.44f, 0.00f}, {0.00f, 0.74f, 0.00f}, 0.075f, false},    // body
+  {{0.00f, 0.86f, 0.00f}, {0.00f, 0.86f, 0.00f}, 0.085f, false},    // head
+  {{0.00f, 0.93f, 0.00f}, {0.04f, 1.04f, 0.02f}, 0.013f, false},    // antenna
+  {{0.03f, 0.44f, 0.00f}, {0.02f, 0.03f, 0.02f}, 0.045f, false},    // standing leg
+  {{0.02f, 0.03f, 0.02f}, {0.10f, 0.00f, 0.06f}, 0.030f, false},    // its foot
+  {{-0.03f, 0.44f, 0.00f}, {-0.17f, 0.30f, -0.12f}, 0.042f, true},  // the other thigh
+  {{-0.17f, 0.30f, -0.12f}, {-0.35f, 0.36f, -0.24f}, 0.036f, true}, // and shin, reaching back
+  {{0.07f, 0.71f, 0.00f}, {0.17f, 0.85f, 0.07f}, 0.032f, true},     // the raised arm
+  {{0.17f, 0.85f, 0.07f}, {0.12f, 1.00f, 0.12f}, 0.028f, true},
+  {{-0.07f, 0.71f, 0.00f}, {-0.21f, 0.69f, 0.09f}, 0.030f, true},   // the arm held out
+  {{-0.21f, 0.69f, 0.09f}, {-0.33f, 0.76f, 0.15f}, 0.026f, true},
+};
+constexpr int kIllusionLimbs = static_cast<int>(sizeof(kIllusionDancer) / sizeof(kIllusionDancer[0]));
 
 struct IllusionStep {
   int shape = 0, form = 0, flow = 0;
   bool flip = false;
   double size = 0, count = 0, edge = 0, centreX = 0.5, centreY = 0.5, tone = 0.5;
-  double t = 0;   // the integrated clock: turn, wander, slide
+  double t = 0;   // the integrated clock: turn, wander, slide, spin
   IllusionInks ink {};
+  // The dancer, turned and flattened: each limb's two ends and radius, as
+  // shares of the short side from the centre (x right, y down).
+  float limb[kIllusionLimbs][5] = {};
 };
 
 IllusionStep illusionStep(const IllusionSettings& base, double animTime, const std::string& cueId) {
@@ -14262,8 +14290,39 @@ IllusionStep illusionStep(const IllusionSettings& base, double animTime, const s
   s.ink = illusionInks(base, mod(kIllusionLfoHue1, base.hue1), mod(kIllusionLfoHue2, base.hue2));
   // Integrated, as Moire's: an oscillating speed never jumps the picture.
   // The card's plan and the desk's copy ask for the same moment; a second
-  // call at the same time adds nothing.
-  s.t = moireFieldTime(cueId + "#illusion", animTime, mod(kIllusionLfoSpeed, base.speed) * 1.5);
+  // call at the same time adds nothing. The vanishing dots and the dancer
+  // only work while something moves, so they move at speed 0 too.
+  const double speed = mod(kIllusionLfoSpeed, base.speed);
+  const double rate = s.shape == 3 ? 0.3 + speed * 1.5                        // radians a second
+                    : s.shape == 5 ? 6.2831853 * (0.45 + speed * 1.2)         // turns a second
+                    : speed * 1.5;
+  s.t = moireFieldTime(cueId + "#illusion", animTime, rate);
+  if (s.flip && (s.shape == 3 || s.shape == 5)) s.t = -s.t;
+  if (s.shape == 5) {
+    const double height = 0.5 + 0.45 * s.size;     // the figure, as a share of the short side
+    const double reach = 0.6 + 0.8 * s.edge;       // the pose: how far the free limbs reach
+    const float c = static_cast<float>(std::cos(s.t)), sn = static_cast<float>(std::sin(s.t));
+    for (int k = 0; k < kIllusionLimbs; ++k) {
+      const IllusionLimb& L = kIllusionDancer[k];
+      float a[3] = {L.a[0], L.a[1], L.a[2]}, b[3] = {L.b[0], L.b[1], L.b[2]};
+      if (L.reaches) {
+        // Out from the hip or the shoulder, in proportion.
+        const float anchorY = L.a[1] > 0.6f ? 0.71f : 0.44f;
+        for (float* q : {a, b}) {
+          q[0] *= static_cast<float>(reach);
+          q[2] *= static_cast<float>(reach);
+          q[1] = anchorY + (q[1] - anchorY) * static_cast<float>(reach);
+        }
+      }
+      auto flat = [&](const float* q, float* out2) {
+        out2[0] = static_cast<float>((q[0] * c + q[2] * sn) * height);
+        out2[1] = static_cast<float>((0.52 - q[1]) * height);   // feet low, centred on the middle
+      };
+      flat(a, &s.limb[k][0]);
+      flat(b, &s.limb[k][2]);
+      s.limb[k][4] = static_cast<float>(L.r * height);
+    }
+  }
   return s;
 }
 
@@ -14460,6 +14519,165 @@ void buildIllusion(DecodedFrame& frame, double animTime, const IllusionSettings&
     return;
   }
 
+  if (st.shape == 3) {
+    // ---- Vanishing dots (motion-induced blindness) ---------------------------
+    // Crosses on a grid that turns round the centre, three still dots, and a
+    // point to look at. Stare at the point: the dots go, one or two at a time,
+    // and come back.
+    const double pitch = S / (4.0 + st.count * 20.0);
+    const float arm = static_cast<float>(pitch * (0.15 + 0.3 * st.edge));
+    const float thick = std::max(1.0f, arm * 0.28f);
+    const float dotR = static_cast<float>(S * (0.008 + 0.03 * st.size));
+    const double ca = std::cos(t), sa = std::sin(t);
+    const double ring = S * 0.28;
+    double dots[3][2];
+    for (int k = 0; k < 3; ++k) {
+      const double a = -1.5707963 + k * 2.0943951;
+      dots[k][0] = cx + ring * std::cos(a);
+      dots[k][1] = cy + ring * std::sin(a);
+    }
+    const double invPitch = 1.0 / pitch;
+    deckboy::effects::detail::parallelRows(H, W * 3, [&](int y0, int y1) {
+      for (int y = y0; y < y1; ++y) {
+        const double qy = y + 0.5 - cy;
+        // Only the dots (and the point) this row passes through are tested.
+        bool rowDots[3];
+        for (int k = 0; k < 3; ++k) rowDots[k] = std::fabs(y + 0.5 - dots[k][1]) <= dotR + 1.0;
+        const bool rowPoint = std::fabs(qy) <= dotR + 1.0;
+        // The turned grid, stepped along the row (in grid cells) rather than
+        // turned per pixel. Most pixels are the ground: written as they are.
+        const float pf = static_cast<float>(pitch);
+        const float cu = static_cast<float>(ca * invPitch), cv = static_cast<float>(sa * invPitch);
+        float uc = static_cast<float>(((0.5 - cx) * ca + qy * sa) * invPitch);
+        float vc = static_cast<float>((-(0.5 - cx) * sa + qy * ca) * invPitch);
+        std::uint8_t* row = out + static_cast<std::size_t>(y) * static_cast<std::size_t>(W) * 4u;
+        for (int x = 0; x < W; ++x, uc += cu, vc -= cv) {
+          const double qx = x + 0.5 - cx;
+          const float ur = uc + 0.5f, vr = vc + 0.5f;
+          const int ui = static_cast<int>(ur) - (ur < static_cast<float>(static_cast<int>(ur)) ? 1 : 0);
+          const int vi = static_cast<int>(vr) - (vr < static_cast<float>(static_cast<int>(vr)) ? 1 : 0);
+          const float lu = std::fabs(uc - static_cast<float>(ui)) * pf;
+          const float lv = std::fabs(vc - static_cast<float>(vi)) * pf;
+          const bool nearDot = (rowDots[0] || rowDots[1] || rowDots[2] || rowPoint);
+          if (!nearDot && (lu > arm + 0.5f || lv > arm + 0.5f) &&
+              (lu > thick * 0.5f + 0.5f && lv > thick * 0.5f + 0.5f)) {
+            std::uint8_t* px = row + static_cast<std::size_t>(x) * 4u;
+            px[0] = ink.dark[0];
+            px[1] = ink.dark[1];
+            px[2] = ink.dark[2];
+            px[3] = 255;
+            continue;
+          }
+          const float across = std::clamp(arm - lu + 0.5f, 0.0f, 1.0f) * std::clamp(thick * 0.5f - lv + 0.5f, 0.0f, 1.0f);
+          const float down = std::clamp(arm - lv + 0.5f, 0.0f, 1.0f) * std::clamp(thick * 0.5f - lu + 0.5f, 0.0f, 1.0f);
+          float col[3];
+          fill(col, ink.dark);
+          illusionBlend(col, ink.grid, std::max(across, down));
+          for (int k = 0; k < 3; ++k) {
+            if (!rowDots[k]) continue;
+            const float dx = static_cast<float>(x + 0.5 - dots[k][0]), dy = static_cast<float>(y + 0.5 - dots[k][1]);
+            if (std::fabs(dx) <= dotR + 1.0f && std::fabs(dy) <= dotR + 1.0f)
+              illusionBlend(col, ink.dots, illusionEllipse(dx, dy, dotR, dotR));
+          }
+          if (rowPoint) {
+            const float fx = static_cast<float>(qx), fy = static_cast<float>(qy);
+            if (std::fabs(fx) <= dotR + 1.0f)
+              illusionBlend(col, ink.light, illusionEllipse(fx, fy, dotR * 0.6f, dotR * 0.6f));
+          }
+          put((static_cast<std::size_t>(y) * static_cast<std::size_t>(W) + static_cast<std::size_t>(x)) * 4u, col);
+        }
+      }
+    });
+    return;
+  }
+
+  if (st.shape == 4) {
+    // ---- Scintillating grid --------------------------------------------------
+    // Grey streets between dark squares, a light disc at every crossing. Dark
+    // dots flicker in the discs you are not looking at; none is there.
+    const double pitch = S / (4.0 + st.count * 20.0);
+    const float bar = static_cast<float>(pitch * (0.06 + 0.25 * st.edge));
+    const float disc = bar * static_cast<float>(0.5 + 0.4 * st.size);
+    const double drift = t * pitch * 0.3;   // speed slides the grid diagonally
+    std::array<std::uint8_t, 3> grey {};
+    for (std::size_t i = 0; i < 3; ++i) grey[i] = illusionByte(static_cast<float>(ink.light[i] * st.tone));
+    deckboy::effects::detail::parallelRows(H, W * 2, [&](int y0, int y1) {
+      for (int y = y0; y < y1; ++y) {
+        const double qy = y + 0.5 - cy + drift;
+        const float ly = static_cast<float>(std::fabs(qy - pitch * illusionFloor(qy / pitch + 0.5)));
+        for (int x = 0; x < W; ++x) {
+          const double qx = x + 0.5 - cx + drift;
+          const float lx = static_cast<float>(std::fabs(qx - pitch * illusionFloor(qx / pitch + 0.5)));
+          float col[3];
+          fill(col, ink.dark);
+          illusionBlend(col, grey, std::clamp(bar * 0.5f - std::min(lx, ly) + 0.5f, 0.0f, 1.0f));
+          if (lx <= disc + 1.0f && ly <= disc + 1.0f) illusionBlend(col, ink.light, illusionEllipse(lx, ly, disc, disc));
+          put((static_cast<std::size_t>(y) * static_cast<std::size_t>(W) + static_cast<std::size_t>(x)) * 4u, col);
+        }
+      }
+    });
+    return;
+  }
+
+  if (st.shape == 5) {
+    // ---- Spinning dancer -----------------------------------------------------
+    // A flat silhouette turning in place. Nothing in it says which way: half
+    // a room sees it go one way, half the other, and it can flip as you watch.
+    const float Sf = static_cast<float>(S);
+    float minX = 1e9f, maxX = -1e9f, minY = 1e9f, maxY = -1e9f;
+    for (const auto& L : st.limb) {
+      minX = std::min({minX, L[0] - L[4], L[2] - L[4]});
+      maxX = std::max({maxX, L[0] + L[4], L[2] + L[4]});
+      minY = std::min({minY, L[1] - L[4], L[3] - L[4]});
+      maxY = std::max({maxY, L[1] + L[4], L[3] + L[4]});
+    }
+    const int bx0 = std::max(0, static_cast<int>(std::floor(cx + minX * Sf)) - 2);
+    const int bx1 = std::min(W, static_cast<int>(std::ceil(cx + maxX * Sf)) + 2);
+    (void) minY;
+    (void) maxY;
+    deckboy::effects::detail::parallelRows(H, W * 2, [&](int y0, int y1) {
+      for (int y = y0; y < y1; ++y) {
+        const float py = static_cast<float>((y + 0.5 - cy) / S);
+        // The limbs this row crosses (a pixel of ramp either side), and the
+        // span of the row they cover; every other pixel is the ground.
+        int active[kIllusionLimbs];
+        int nActive = 0;
+        float spanLo = 1e9f, spanHi = -1e9f;
+        const float px1 = 1.0f / Sf;
+        for (int k = 0; k < kIllusionLimbs; ++k) {
+          const auto& L = st.limb[k];
+          if (py < std::min(L[1], L[3]) - L[4] - px1 || py > std::max(L[1], L[3]) + L[4] + px1) continue;
+          active[nActive++] = k;
+          spanLo = std::min({spanLo, L[0] - L[4], L[2] - L[4]});
+          spanHi = std::max({spanHi, L[0] + L[4], L[2] + L[4]});
+        }
+        const int xa = std::max(bx0, static_cast<int>(std::floor(cx + spanLo * Sf)) - 2);
+        const int xb = std::min(bx1, static_cast<int>(std::ceil(cx + spanHi * Sf)) + 2);
+        for (int x = 0; x < W; ++x) {
+          float col[3];
+          fill(col, ink.light);
+          if (nActive > 0 && x >= xa && x < xb) {
+            const float px = static_cast<float>((x + 0.5 - cx) / S);
+            float cover = 0.0f;
+            for (int n = 0; n < nActive; ++n) {
+              const auto& L = st.limb[active[n]];
+              const float ax = px - L[0], ay = py - L[1], dx = L[2] - L[0], dy = L[3] - L[1];
+              const float len2 = dx * dx + dy * dy;
+              const float h = len2 > 0.0f ? std::clamp((ax * dx + ay * dy) / len2, 0.0f, 1.0f) : 0.0f;
+              const float ex = ax - dx * h, ey = ay - dy * h;
+              const float dist = (std::sqrt(ex * ex + ey * ey) - L[4]) * Sf;   // pixels outside the limb
+              cover = std::max(cover, std::clamp(0.5f - dist, 0.0f, 1.0f));
+              if (cover >= 1.0f) break;
+            }
+            illusionBlend(col, ink.dark, cover);
+          }
+          put((static_cast<std::size_t>(y) * static_cast<std::size_t>(W) + static_cast<std::size_t>(x)) * 4u, col);
+        }
+      }
+    });
+    return;
+  }
+
   // ---- Cafe wall -------------------------------------------------------------
   const double T = S * (0.04 + 0.16 * st.size);            // a tile
   const double mortar = T * (0.01 + 0.12 * st.edge);
@@ -14504,7 +14722,8 @@ void buildIllusion(DecodedFrame& frame, double animTime, const IllusionSettings&
 // (gpu_effects.hlsl illusionMain): the numbers illusionStep works out, which
 // the kernel draws at whatever size it is asked for. tab: the four inks (dark,
 // light, body, ground; 0-255), then size, count, edge, centre x, centre y,
-// tone and the clock. i: shape, form, flow, flip.
+// tone and the clock; 19-24 the vanishing dots' two inks; 25 the dancer's
+// limb count and from 32 its limbs, five floats each. i: shape, form, flow, flip.
 static bool planIllusionSource(const Cue& cue, double animTime, int width, int height,
                                deckboy::gpu::SourcePlan& plan) {
   static std::atomic<std::uint64_t> moments {0};
@@ -14530,6 +14749,14 @@ static bool planIllusionSource(const Cue& cue, double animTime, int width, int h
   plan.tab[16] = static_cast<float>(st.centreY);
   plan.tab[17] = static_cast<float>(st.tone);
   plan.tab[18] = static_cast<float>(st.t);
+  for (int c = 0; c < 3; ++c) {
+    plan.tab[19 + c] = static_cast<float>(st.ink.dots[static_cast<std::size_t>(c)]);
+    plan.tab[22 + c] = static_cast<float>(st.ink.grid[static_cast<std::size_t>(c)]);
+  }
+  plan.tab[25] = static_cast<float>(kIllusionLimbs);
+  for (int k = 0; k < kIllusionLimbs; ++k) {
+    for (int c = 0; c < 5; ++c) plan.tab[32 + k * 5 + c] = st.limb[k][c];
+  }
   return true;
 }
 

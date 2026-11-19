@@ -3254,7 +3254,7 @@ html,body{width:100%;height:100%;overflow:hidden}
     // without something saying so.
     if (upper == "HELP ALL" || upper == "HELP FULL" || upper == "?? ") {
       sendSnapshot(
-        "DECKBOY_0.01 every verb (402)\n"
+        "DECKBOY_0.01 every verb (403)\n"
         "ADDTIMER ALLGO ALLPAUSE ALLPLAY ALLSTOP ALLTAKE ANIM ANIMATION ARM AUDITION\n"
         "ARTNET ARTNETEVENT ARTNETPORT ART_NET_PORT ASCII ATEM ATEMEVENT\n"
         "ATEMTRIGGER AUDIO AUDIOCUE AUDIOENABLED AUDIOFX AUDIOGAIN AUDIOMONO\n"
@@ -3457,7 +3457,7 @@ html,body{width:100%;height:100%;overflow:hidden}
         "code: CODE GET | CODE SET <expression> | CODE EDIT\n"
         "swirl: SWIRL [STATUS] | SPEED <0-3> | TWIST <0-4> | PIXELS <64-960> | COLOUR <0-1>\n"
         "moire: MOIRE [STATUS] | SHAPE <0-5> | PALETTE <0-3> | DENSITY|SPEED|WARP|GREY|CENTREX|CENTREY <0-100>\n"
-        "illusion: ILLUSION [STATUS] | SHAPE drift|ouchi|cafe | FORM | FLOW | FLIP | PALETTE | SIZE|COUNT|EDGE|SPEED|CENTREX|CENTREY|GREY <0-100>\n"
+        "illusion: ILLUSION [STATUS] | SHAPE drift|ouchi|cafe|vanish|grid|dancer | FORM | FLOW | FLIP | PALETTE | SIZE|COUNT|EDGE|SPEED|CENTREX|CENTREY|GREY <0-100>\n"
         "          ILLUSION HUE1|HUE2 <0-360> | ILLUSION LFO <control> ON|OFF|SHAPE|RATE|DEPTH|PHASE|SYNC [value]\n"
         "       MOIRE TURN|HUE <0-360> | MOIRE LFO <control> ON|OFF|SHAPE|RATE|DEPTH|PHASE|SYNC [value]\n"
         "lumia: LUMIA [STATUS] | PALETTE <0-5|name> | MODE <0-2|name> | TOPBOTTOM|LISTENS ON|OFF\n"

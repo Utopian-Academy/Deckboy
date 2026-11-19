@@ -4666,3 +4666,92 @@ listens to the live input while one is open, else the playlist	escucha la entrad
 TUTORIAL: no lesson running	TUTORIAL: no hay ninguna lección en marcha
 TUTORIAL: expected START, SHOWME, SKIP, STEP <n>, RESTART, EXIT, STATUS or SCREENS	TUTORIAL: se espera START, SHOWME, SKIP, STEP <n>, RESTART, EXIT, STATUS o SCREENS
 cursor across	cursor horizontal
+Edge	Borde
+Flip	Voltear
+Form	Forma
+flip	voltear
+form	forma
+pose	postura
+Count	Cantidad
+count	cantidad
+disc x	disco x
+disc y	disco y
+mortar	mortero
+offset	desplazamiento
+wander	deriva
+RESTART	REINICIAR
+crosses	cruces
+squares	cuadrados
+Colour 1	Color 1
+Colour 2	Color 2
+ILLUSION	ILUSIÓN
+Illusion	Ilusión
+colour 1	color 1
+colour 2	color 2
+dot size	tamaño del punto
+disc size	tamaño del disco
+cross size	tamaño de la cruz
+dot colour	color del punto
+edge width	ancho del borde
+mortar grey	gris del mortero
+street grey	gris de calle
+tile length	largo de baldosa
+cross colour	color de la cruz
+shape colour	color de forma
+street width	ancho de calle
+ground colour	color del fondo
+tile thickness	grosor de baldosa
+How big each tile is	El tamaño de cada baldosa
+How big each cross is	El tamaño de cada cruz
+How long each tile is	El largo de cada baldosa
+How tall the dancer is	Altura del bailarín
+0-100%: 0 holds it still	0-100%: 0 lo mantiene quieto
+0 classic, 1 theme, 2 hues	0 clásico, 1 el look, 2 tonos
+Leaf, petal, scale or ring	Hoja, pétalo, escama o anillo
+0 or 1: the other way round	0 o 1: al revés
+0 turn, 1 out, 2 in, 3 wave	0 giro, 1 afuera, 2 adentro, 3 onda
+How big the floating disc is	Tamaño del disco flotante
+How light the grey lines are	Claridad de las líneas grises
+select an illusion cue first	elija primero un cue de ilusión
+Turn the crosses the other way	Girar las cruces en la dirección contraria
+Illusion (Pictures that move!?)	Ilusión (¡¿Imágenes que se mueven?!)
+0 leaf, 1 petal, 2 scale, 3 ring	0 hoja, 1 pétalo, 2 escama, 3 anillo
+How many shapes across the screen	Cuántas formas a lo ancho de la pantalla
+How many crosses across the screen	Cuántas cruces a lo ancho de la pantalla
+How many squares across the screen	Cuántos cuadrados a lo ancho de la pantalla
+Where the disc sits, left to right	Posición del disco, de izquierda a derecha
+Where the disc sits, top to bottom	Posición del disco, de arriba abajo
+0-100%: 0 black, 100 the light tile	0-100%: 0 negro, 100 la baldosa clara
+How much of its place each shape fills	Cuánto de su espacio ocupa cada forma
+Where the dancer stands, left to right	Posición del bailarín, de izquierda a derecha
+Where the dancer stands, top to bottom	Posición del bailarín, de arriba abajo
+Collapse/expand the illusion's controls	Contraer/expandir los controles de la ilusión
+How far the free leg and the arms reach	Alcance de la pierna libre y los brazos
+Slide the grid slowly. 0 holds it still	Deslizar la cuadrícula despacio. 0 la mantiene quieta
+The first colour, round the colour wheel	El primer color, en el círculo cromático
+The second colour, round the colour wheel	El segundo color, en el círculo cromático
+How thick each tile is, against its length	Grosor de cada baldosa respecto a su longitud
+Where the centre point sits, left to right	Posición del punto central, de izquierda a derecha
+Where the centre point sits, top to bottom	Posición del punto central, de arriba abajo
+How thick the grey line between the rows is	Grosor de la línea gris entre las filas
+How big the light discs at the crossings are	Tamaño de los discos claros en los cruces
+Where the field's centre sits, left to right	Posición del centro del campo, de izquierda a derecha
+Where the field's centre sits, top to bottom	Posición del centro del campo, de arriba abajo
+How wide the grey lines between the squares are	Ancho de las líneas grises entre los cuadrados
+How fast the dancer turns. It always turns a little	Velocidad de giro del bailarín. Siempre gira un poco
+0 drift, 1 ouchi, 2 cafe, 3 vanish, 4 grid, 5 dancer	0 deriva, 1 ouchi, 2 café, 3 desvanecer, 4 cuadrícula, 5 bailarín
+How light the grey line is. Mid grey tilts the rows most	Claridad de la línea gris. El gris medio inclina más las filas
+How big the three dots are. Small dots vanish more easily	Tamaño de los tres puntos. Los puntos pequeños desaparecen más fácil
+Swap the black and white edges: the field drifts the other way	Intercambiar los bordes negros y blancos: el campo deriva en la dirección contraria
+How much of the black and white edges shows. They make the drift	Cuánto se ven los bordes negros y blancos. Ellos crean la deriva
+LFO: size, count, edge, speed, centrex, centrey, grey, hue1 or hue2	LFO: tamaño, cantidad, borde, velocidad, centro X, centro Y, gris, tono1 o tono2
+How far each row is shifted. This makes the straight rows look tilted	Cuánto se desplaza cada fila. Así las filas rectas parecen inclinadas
+Spin the other way. Most people cannot tell which way it turns anyway	Gira al revés. Total, casi nadie nota hacia dónde gira
+Move the disc in a small loop. 0 holds it still: the eye moves it anyway	Mueve el disco en un bucle pequeño. 0 lo deja quieto: el ojo lo mueve igual
+Turn the shapes slowly, so the drift changes direction. 0 holds them still	Gira las formas despacio para que la deriva cambie de dirección. 0 las deja quietas
+Classic, the theme's colours (taken when picked) or two colours of your own	Clásico, los colores del look (tomados al elegirlo) o dos colores tuyos
+Which way the field seems to go: turn round the centre, out, in, or in waves	Hacia dónde parece ir el campo: giro alrededor del centro, salida, entrada u ondas
+Slide the rows back and forth, so the wall bends and straightens. 0 holds it still	Desliza las filas de un lado a otro para que la pared se curve y se enderece. 0 la deja quieta
+How fast the crosses turn. They always turn a little: the dots vanish only while they move	Velocidad de giro de las cruces. Siempre giran un poco: los puntos solo desaparecen mientras se mueven
+Drift (still shapes that seem to turn), ouchi (a disc that floats), cafe (straight rows that look tilted), vanish (dots that disappear while you stare), grid (dots that flicker and are not there) or dancer (it spins whichever way you see it)	Deriva (formas quietas que parecen girar), ouchi (un disco que flota), café (filas rectas que parecen inclinadas), desaparecer (puntos que se esfuman mientras los miras), cuadrícula (puntos que parpadean y no están) o bailarina (gira para el lado que tú la veas)
+STATUS | SHAPE drift|ouchi|cafe|vanish|grid|dancer | FORM leaf|petal|scale|ring | FLOW turn|out|in|wave | FLIP ON|OFF | PALETTE classic|theme|hues | SIZE|COUNT|EDGE|SPEED|CENTREX|CENTREY|GREY <0-100> | HUE1|HUE2 <0-360> | LFO <control> <setting>	STATUS | SHAPE drift|ouchi|cafe|vanish|grid|dancer | FORM leaf|petal|scale|ring | FLOW turn|out|in|wave | FLIP ON|OFF | PALETTE classic|theme|hues | SIZE|COUNT|EDGE|SPEED|CENTREX|CENTREY|GREY <0-100> | HUE1|HUE2 <0-360> | LFO <control> <ajuste>

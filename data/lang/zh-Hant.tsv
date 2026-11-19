@@ -4696,3 +4696,81 @@ listens to the live input while one is open, else the playlist	有即時輸入�
 TUTORIAL: no lesson running	TUTORIAL：沒有正在執行的課程
 TUTORIAL: expected START, SHOWME, SKIP, STEP <n>, RESTART, EXIT, STATUS or SCREENS	TUTORIAL：應為 START、SHOWME、SKIP、STEP <n>、RESTART、EXIT、STATUS 或 SCREENS
 cursor across	游標橫向
+Edge	邊緣
+Flip	翻轉
+Form	形態
+flip	翻轉
+form	形態
+pose	姿態
+Count	數量
+count	數量
+disc x	圓盤 x
+disc y	圓盤 y
+mortar	灰縫
+offset	位移
+wander	遊移
+RESTART	重新開始
+crosses	十字
+squares	方塊
+Colour 1	顏色 1
+Colour 2	顏色 2
+ILLUSION	錯覺
+Illusion	錯覺
+colour 1	顏色 1
+colour 2	顏色 2
+dot size	圓點大小
+disc size	圓盤大小
+cross size	十字大小
+dot colour	圓點顏色
+edge width	邊緣寬度
+mortar grey	灰縫灰度
+street grey	街道灰度
+tile length	單元長度
+cross colour	十字顏色
+shape colour	形狀顏色
+street width	街道寬度
+ground colour	底色
+tile thickness	單元厚度
+How big each tile is	每塊磁磚的大小
+How big each cross is	每個十字的大小
+How long each tile is	每塊磁磚的長度
+How tall the dancer is	舞者的高度
+0-100%: 0 holds it still	0-100%: 0 時保持靜止
+0 classic, 1 theme, 2 hues	0 經典，1 主題，2 色相
+Leaf, petal, scale or ring	葉片、花瓣、鱗片或圓環
+0 or 1: the other way round	0 或 1：反方向
+0 turn, 1 out, 2 in, 3 wave	0 轉動，1 出，2 入，3 波浪
+How big the floating disc is	浮動圓盤的大小
+How light the grey lines are	灰色線條的明度
+select an illusion cue first	請先選取一個錯覺 cue
+Turn the crosses the other way	將十字反方向轉動
+Illusion (Pictures that move!?)	錯覺（會動的圖片！？）
+0 leaf, 1 petal, 2 scale, 3 ring	0 葉片，1 花瓣，2 鱗片，3 圓環
+How many shapes across the screen	螢幕橫向的形狀數量
+How many crosses across the screen	螢幕橫向的十字數量
+How many squares across the screen	螢幕橫向的方塊數量
+Where the disc sits, left to right	圓盤位置，從左到右
+Where the disc sits, top to bottom	圓盤位置，從上到下
+0-100%: 0 black, 100 the light tile	0-100%: 0 為黑，100 為淺色磁磚
+How much of its place each shape fills	每個形狀填滿其位置的程度
+Where the dancer stands, left to right	舞者位置，從左到右
+Where the dancer stands, top to bottom	舞者位置，從上到下
+Collapse/expand the illusion's controls	摺疊/展開錯覺控制項
+How far the free leg and the arms reach	自由腿與手臂的延伸距離
+Slide the grid slowly. 0 holds it still	緩慢滑動網格。0 為靜止
+The first colour, round the colour wheel	第一種顏色，在色環上的位置
+The second colour, round the colour wheel	第二種顏色，在色環上的位置
+How thick each tile is, against its length	每塊磁磚相對其長度的厚度
+Where the centre point sits, left to right	中心點位置，從左到右
+Where the centre point sits, top to bottom	中心點位置，從上到下
+How thick the grey line between the rows is	行間灰色線條的粗細
+How big the light discs at the crossings are	交叉處淺色圓點的大小
+Where the field's centre sits, left to right	場中心位置，從左到右
+Where the field's centre sits, top to bottom	場中心位置，從上到下
+How wide the grey lines between the squares are	方塊間灰色線條的寬度
+How fast the dancer turns. It always turns a little	舞者轉動的速度。總是會略微轉動
+0 drift, 1 ouchi, 2 cafe, 3 vanish, 4 grid, 5 dancer	0 漂移，1 ouchi，2 咖啡牆，3 消失，4 網格，5 舞者
+How light the grey line is. Mid grey tilts the rows most	灰色線條的明度。中灰使各行傾斜最大
+How big the three dots are. Small dots vanish more easily	三個圓點的大小。小圓點更容易消失
+Swap the black and white edges: the field drifts the other way	交換黑白邊緣：場向反方向漂移
+How much of the black and white edges shows. They make the drift	黑白邊緣顯示的程度。它們造成漂移

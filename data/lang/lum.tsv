@@ -4709,3 +4709,92 @@ listens to the live input while one is open, else the playlist	lisi tira lumo ka
 TUTORIAL: no lesson running	TUTORIAL: holakora vazaro
 TUTORIAL: expected START, SHOWME, SKIP, STEP <n>, RESTART, EXIT, STATUS or SCREENS	TUTORIAL: peni START, SHOWME, SKIP, STEP <n>, RESTART, EXIT, STATUS o SCREENS
 cursor across	tirwia levre
+Edge	Rana
+Flip	Dopseti
+Form	Pata
+flip	dopseti
+form	pata
+pose	patkaea
+Count	Tala
+count	tala
+disc x	diska x
+disc y	diska y
+mortar	karrana
+offset	kaeseta
+wander	alatiriseti
+RESTART	NOVFESI
+crosses	krusaku
+squares	karaku
+Colour 1	Luma 1
+Colour 2	Luma 2
+ILLUSION	VAMIRA
+Illusion	Vamira
+colour 1	luma 1
+colour 2	luma 2
+dot size	kisatama
+disc size	diskatama
+cross size	krusatama
+dot colour	kisaluma
+edge width	ran rana
+mortar grey	karrana nirlumo
+street grey	dora nirlumo
+tile length	toka kara
+cross colour	krusaluma
+shape colour	pataluma
+street width	ran dora
+ground colour	kaealuma
+tile thickness	dopran kara
+How big each tile is	Tal taro vekakisa
+How big each cross is	Tal taro krusa
+How long each tile is	Tal toko vekakisa
+How tall the dancer is	Tal alataro patatiriwia
+0-100%: 0 holds it still	0-100%: 0 hali
+0 classic, 1 theme, 2 hues	0 muno, 1 nirolumo, 2 lumaku
+Leaf, petal, scale or ring	Fespata, lumkisa, ranakisa o kororana
+0 or 1: the other way round	0, 1: setdora
+0 turn, 1 out, 2 in, 3 wave	0 korotiri, 1 bra, 2 dora, 3 ranatiri
+How big the floating disc is	Tal taro tiritoko korokara
+How light the grey lines are	Tal lumo nirlumo ranaku
+select an illusion cue first	Piki mirsetaveka muna
+Turn the crosses the other way	Korotiri duaranaku setdora
+Illusion (Pictures that move!?)	Mirseta (Vekaku tiriseti!?)
+0 leaf, 1 petal, 2 scale, 3 ring	0 fespata, 1 lumkisa, 2 ranakisa, 3 kororana
+How many shapes across the screen	Tala pataku dop vekadeka
+How many crosses across the screen	Tala duaranaku dop vekadeka
+How many squares across the screen	Tala kwarakaraku dop vekadeka
+Where the disc sits, left to right	Korokara kaea, posa go nira
+Where the disc sits, top to bottom	Korokara kaea, kora go rana
+0-100%: 0 black, 100 the light tile	0-100%: 0 nira, 100 lumo vekakisa
+How much of its place each shape fills	Tal pata tami kaea
+Where the dancer stands, left to right	Patatiriwia kaea, posa go nira
+Where the dancer stands, top to bottom	Patatiriwia kaea, kora go rana
+Collapse/expand the illusion's controls	Klui/fesi mirseta bataku
+How far the free leg and the arms reach	Tal dorsa feso tirpata o patatiraku
+Slide the grid slowly. 0 holds it still	Tiri reta vazaro. 0 hali
+The first colour, round the colour wheel	Una luma, kor lumareta
+The second colour, round the colour wheel	Dua luma, kor lumareta
+How thick each tile is, against its length	Tal taro vekakisa, dop toka
+Where the centre point sits, left to right	Korakae kaea, posa go nira
+Where the centre point sits, top to bottom	Korakae kaea, kora go rana
+How thick the grey line between the rows is	Tal taro nirlumo rana kor retaku
+How big the light discs at the crossings are	Tal taro lumo korokaraku sov duaranaku
+Where the field's centre sits, left to right	Kaepata korakae, posa go nira
+Where the field's centre sits, top to bottom	Kaepata korakae, kora go rana
+How wide the grey lines between the squares are	Tal taro nirlumo ranaku kor kwarakaraku
+How fast the dancer turns. It always turns a little	Tal zaro patatiriwia korotiri. Alatoka korotiri kiso
+0 drift, 1 ouchi, 2 cafe, 3 vanish, 4 grid, 5 dancer	0 tiritoka, 1 ouchi, 2 kafe, 3 vamira, 4 reta, 5 patatiriwia
+How light the grey line is. Mid grey tilts the rows most	Tal lumo nirlumo rana. Kora nirlumo rantiri retaku tamo
+How big the three dots are. Small dots vanish more easily	Tal taro tria kislumaku. Kiso kislumaku vamiri zaro
+Swap the black and white edges: the field drifts the other way	Seti nira o tamlumo ranaku: kaepata tiri setdora
+How much of the black and white edges shows. They make the drift	Tal nira o tamlumo ranaku veki. Tiritoka sov ranaku
+LFO: size, count, edge, speed, centrex, centrey, grey, hue1 or hue2	LFO: size, count, edge, speed, centrex, centrey, grey, hue1 o hue2
+How far each row is shifted. This makes the straight rows look tilted	Tal tiri sov rana. Tamrano ranaku miri dopseto
+Spin the other way. Most people cannot tell which way it turns anyway	Korotiri setdora. Alaku va pel miri dora sov korotira
+Move the disc in a small loop. 0 holds it still: the eye moves it anyway	Tiriseti korpata a kiso novtoka. 0 hali: mira tiriseti novtok
+Turn the shapes slowly, so the drift changes direction. 0 holds them still	Korotiri pataku vazaro, a tiritoka seti dopa. 0 hali pataku
+Classic, the theme's colours (taken when picked) or two colours of your own	Muno, nirolumo lumaku (tiri pikitoka) o dua lumaku sov tu
+Which way the field seems to go: turn round the centre, out, in, or in waves	Dora vekakae miro tiri: korotiri sov korakae, bra, dora o wattiraku
+Slide the rows back and forth, so the wall bends and straightens. 0 holds it still	Tiri ranaku dopa o muna, a klupata rantiri o tamrani. 0 hali
+How fast the crosses turn. They always turn a little: the dots vanish only while they move	Tal zaro retapataku korotiri. Alatoka korotiri kiso: kaekisaku vaveki tirisetoka
+Drift (still shapes that seem to turn), ouchi (a disc that floats), cafe (straight rows that look tilted), vanish (dots that disappear while you stare), grid (dots that flicker and are not there) or dancer (it spins whichever way you see it)	drift (halo pataku miro korotiri), ouchi (korpata tiritoka), cafe (tamrano ranaku miro dopseto), vanish (kaekisaku vaveki tu mirtoka), grid (kaekisaku zarlumi o vana kae) o dancer (korotiri dora tu miri)
+STATUS | SHAPE drift|ouchi|cafe|vanish|grid|dancer | FORM leaf|petal|scale|ring | FLOW turn|out|in|wave | FLIP ON|OFF | PALETTE classic|theme|hues | SIZE|COUNT|EDGE|SPEED|CENTREX|CENTREY|GREY <0-100> | HUE1|HUE2 <0-360> | LFO <control> <setting>	STATUS | SHAPE drift|ouchi|cafe|vanish|grid|dancer | FORM leaf|petal|scale|ring | FLOW turn|out|in|wave | FLIP ON|OFF | PALETTE classic|theme|hues | SIZE|COUNT|EDGE|SPEED|CENTREX|CENTREY|GREY <0-100> | HUE1|HUE2 <0-360> | LFO <setjana> <seta>

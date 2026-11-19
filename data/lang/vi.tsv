@@ -4683,3 +4683,81 @@ listens to the live input while one is open, else the playlist	nghe đầu vào 
 TUTORIAL: no lesson running	TUTORIAL: không có bài học nào đang chạy
 TUTORIAL: expected START, SHOWME, SKIP, STEP <n>, RESTART, EXIT, STATUS or SCREENS	TUTORIAL: cần START, SHOWME, SKIP, STEP <n>, RESTART, EXIT, STATUS hoặc SCREENS
 cursor across	con trỏ ngang
+Edge	Cạnh
+Flip	Lật
+Form	Dạng
+flip	lật
+form	dạng
+pose	tư thế
+Count	Số lượng
+count	số lượng
+disc x	đĩa x
+disc y	đĩa y
+mortar	mạch vữa
+offset	độ lệch
+wander	trôi
+RESTART	CHẠY LẠI
+crosses	chữ thập
+squares	ô vuông
+Colour 1	Màu 1
+Colour 2	Màu 2
+ILLUSION	ẢO GIÁC
+Illusion	Ảo giác
+colour 1	màu 1
+colour 2	màu 2
+dot size	cỡ chấm
+disc size	cỡ đĩa
+cross size	cỡ chữ thập
+dot colour	màu chấm
+edge width	rộng cạnh
+mortar grey	xám mạch vữa
+street grey	xám đường
+tile length	độ dài ô
+cross colour	màu chữ thập
+shape colour	màu hình
+street width	rộng đường
+ground colour	màu nền
+tile thickness	độ dày ô
+How big each tile is	Kích thước mỗi ô
+How big each cross is	Kích thước mỗi chữ thập
+How long each tile is	Độ dài mỗi ô
+How tall the dancer is	Chiều cao của vũ công
+0-100%: 0 holds it still	0-100%: 0 giữ đứng yên
+0 classic, 1 theme, 2 hues	0 cổ điển, 1 giao diện màu, 2 sắc độ
+Leaf, petal, scale or ring	Lá, cánh hoa, vảy hoặc vòng
+0 or 1: the other way round	0 hoặc 1: theo chiều ngược lại
+0 turn, 1 out, 2 in, 3 wave	0 xoay, 1 ra ngoài, 2 vào trong, 3 sóng
+How big the floating disc is	Kích thước đĩa trôi nổi
+How light the grey lines are	Độ sáng của các đường xám
+select an illusion cue first	hãy chọn một cue ảo ảnh trước
+Turn the crosses the other way	Xoay các dấu thập theo chiều ngược lại
+Illusion (Pictures that move!?)	Ảo ảnh (Hình ảnh chuyển động!?)
+0 leaf, 1 petal, 2 scale, 3 ring	0 lá, 1 cánh hoa, 2 vảy, 3 vòng
+How many shapes across the screen	Số hình theo chiều ngang màn hình
+How many crosses across the screen	Số dấu thập theo chiều ngang màn hình
+How many squares across the screen	Số ô vuông theo chiều ngang màn hình
+Where the disc sits, left to right	Vị trí đĩa, trái sang phải
+Where the disc sits, top to bottom	Vị trí đĩa, trên xuống dưới
+0-100%: 0 black, 100 the light tile	0-100%: 0 đen, 100 ô sáng
+How much of its place each shape fills	Mức mỗi hình lấp đầy chỗ của nó
+Where the dancer stands, left to right	Vị trí vũ công, trái sang phải
+Where the dancer stands, top to bottom	Vị trí vũ công, trên xuống dưới
+Collapse/expand the illusion's controls	Thu gọn/mở rộng điều khiển ảo ảnh
+How far the free leg and the arms reach	Tầm với của chân tự do và tay
+Slide the grid slowly. 0 holds it still	Trượt lưới từ từ. 0 giữ đứng yên
+The first colour, round the colour wheel	Màu thứ nhất trên vòng màu
+The second colour, round the colour wheel	Màu thứ hai trên vòng màu
+How thick each tile is, against its length	Độ dày mỗi ô so với chiều dài
+Where the centre point sits, left to right	Vị trí điểm giữa, trái sang phải
+Where the centre point sits, top to bottom	Vị trí điểm giữa, trên xuống dưới
+How thick the grey line between the rows is	Độ dày đường xám giữa các hàng
+How big the light discs at the crossings are	Kích thước đĩa sáng ở các giao điểm
+Where the field's centre sits, left to right	Vị trí tâm trường, trái sang phải
+Where the field's centre sits, top to bottom	Vị trí tâm trường, trên xuống dưới
+How wide the grey lines between the squares are	Độ rộng đường xám giữa các ô vuông
+How fast the dancer turns. It always turns a little	Tốc độ xoay của vũ công. Luôn xoay một chút
+0 drift, 1 ouchi, 2 cafe, 3 vanish, 4 grid, 5 dancer	0 trôi, 1 ouchi, 2 quán cà phê, 3 biến mất, 4 lưới, 5 vũ công
+How light the grey line is. Mid grey tilts the rows most	Độ sáng đường xám. Xám trung bình làm hàng nghiêng nhiều nhất
+How big the three dots are. Small dots vanish more easily	Kích thước ba chấm. Chấm nhỏ dễ biến mất hơn
+Swap the black and white edges: the field drifts the other way	Đổi cạnh đen và trắng: trường trôi theo hướng ngược lại
+How much of the black and white edges shows. They make the drift	Mức hiện của cạnh đen và trắng. Chúng tạo ra sự trôi

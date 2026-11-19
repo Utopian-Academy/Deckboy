@@ -286,7 +286,7 @@ const NumericParamSpec* numericParamSpec(NumericParam id) const {
       return &s;
     }
     case NumericParam::IllusionShape: {
-      static const NumericParamSpec s {"illusion.shape", "Shape", "0 drift, 1 ouchi, 2 cafe", 0, 2, 0, true, 1};
+      static const NumericParamSpec s {"illusion.shape", "Shape", "0 drift, 1 ouchi, 2 cafe, 3 vanish, 4 grid, 5 dancer", 0, 5, 0, true, 1};
       return &s;
     }
     case NumericParam::IllusionForm: {

@@ -4670,3 +4670,81 @@ listens to the live input while one is open, else the playlist	nasłuchuje wejś
 TUTORIAL: no lesson running	TUTORIAL: żadna lekcja nie działa
 TUTORIAL: expected START, SHOWME, SKIP, STEP <n>, RESTART, EXIT, STATUS or SCREENS	TUTORIAL: oczekiwano START, SHOWME, SKIP, STEP <n>, RESTART, EXIT, STATUS lub SCREENS
 cursor across	kursor w bok
+Edge	Krawędź
+Flip	Odbicie
+Form	Forma
+flip	odbicie
+form	forma
+pose	poza
+Count	Liczba
+count	liczba
+disc x	dysk x
+disc y	dysk y
+mortar	fuga
+offset	przesunięcie
+wander	błądzenie
+RESTART	OD NOWA
+crosses	krzyżyki
+squares	kwadraty
+Colour 1	Kolor 1
+Colour 2	Kolor 2
+ILLUSION	ILUZJA
+Illusion	Iluzja
+colour 1	kolor 1
+colour 2	kolor 2
+dot size	rozmiar kropki
+disc size	rozmiar dysku
+cross size	rozmiar krzyżyka
+dot colour	kolor kropki
+edge width	szerokość krawędzi
+mortar grey	szarość fugi
+street grey	szarość ulic
+tile length	długość kafelka
+cross colour	kolor krzyżyka
+shape colour	kolor kształtu
+street width	szerokość ulic
+ground colour	kolor tła
+tile thickness	grubość kafelka
+How big each tile is	Rozmiar każdego kafelka
+How big each cross is	Rozmiar każdego krzyżyka
+How long each tile is	Długość każdego kafelka
+How tall the dancer is	Wzrost tancerza
+0-100%: 0 holds it still	0-100%: 0 zatrzymuje ruch
+0 classic, 1 theme, 2 hues	0 klasyczny, 1 motyw, 2 odcienie
+Leaf, petal, scale or ring	Liść, płatek, łuska lub pierścień
+0 or 1: the other way round	0 lub 1: w przeciwnym kierunku
+0 turn, 1 out, 2 in, 3 wave	0 obrót, 1 na zewnątrz, 2 do środka, 3 fala
+How big the floating disc is	Rozmiar pływającego dysku
+How light the grey lines are	Jasność szarych linii
+select an illusion cue first	najpierw wybierz cue iluzji
+Turn the crosses the other way	Obróć krzyżyki w przeciwną stronę
+Illusion (Pictures that move!?)	Iluzja (Obrazy, które się ruszają!?)
+0 leaf, 1 petal, 2 scale, 3 ring	0 liść, 1 płatek, 2 łuska, 3 pierścień
+How many shapes across the screen	Liczba kształtów na szerokość ekranu
+How many crosses across the screen	Liczba krzyżyków na szerokość ekranu
+How many squares across the screen	Liczba kwadratów na szerokość ekranu
+Where the disc sits, left to right	Położenie dysku, od lewej do prawej
+Where the disc sits, top to bottom	Położenie dysku, z góry na dół
+0-100%: 0 black, 100 the light tile	0-100%: 0 czarny, 100 jasny kafelek
+How much of its place each shape fills	Jaką część swojego miejsca wypełnia każdy kształt
+Where the dancer stands, left to right	Położenie tancerza, od lewej do prawej
+Where the dancer stands, top to bottom	Położenie tancerza, z góry na dół
+Collapse/expand the illusion's controls	Zwiń/rozwiń ustawienia iluzji
+How far the free leg and the arms reach	Zasięg wolnej nogi i ramion
+Slide the grid slowly. 0 holds it still	Powoli przesuwa siatkę. 0 ją zatrzymuje
+The first colour, round the colour wheel	Pierwszy kolor na kole barw
+The second colour, round the colour wheel	Drugi kolor na kole barw
+How thick each tile is, against its length	Grubość każdego kafelka względem jego długości
+Where the centre point sits, left to right	Położenie punktu środkowego, od lewej do prawej
+Where the centre point sits, top to bottom	Położenie punktu środkowego, z góry na dół
+How thick the grey line between the rows is	Grubość szarej linii między rzędami
+How big the light discs at the crossings are	Rozmiar jasnych dysków na skrzyżowaniach
+Where the field's centre sits, left to right	Położenie środka pola, od lewej do prawej
+Where the field's centre sits, top to bottom	Położenie środka pola, z góry na dół
+How wide the grey lines between the squares are	Szerokość szarych linii między kwadratami
+How fast the dancer turns. It always turns a little	Szybkość obrotu tancerza. Zawsze trochę się obraca
+0 drift, 1 ouchi, 2 cafe, 3 vanish, 4 grid, 5 dancer	0 dryf, 1 ouchi, 2 kawiarnia, 3 zanikanie, 4 siatka, 5 tancerz
+How light the grey line is. Mid grey tilts the rows most	Jasność szarej linii. Średnia szarość najbardziej przechyla rzędy
+How big the three dots are. Small dots vanish more easily	Rozmiar trzech kropek. Małe kropki łatwiej znikają
+Swap the black and white edges: the field drifts the other way	Zamień czarne i białe krawędzie: pole dryfuje w przeciwną stronę
+How much of the black and white edges shows. They make the drift	Jak dużo widać czarnych i białych krawędzi. To one tworzą dryf

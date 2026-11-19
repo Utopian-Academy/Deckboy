@@ -4639,3 +4639,92 @@ listens to the live input while one is open, else the playlist	luistert naar de 
 TUTORIAL: no lesson running	TUTORIAL: er loopt geen les
 TUTORIAL: expected START, SHOWME, SKIP, STEP <n>, RESTART, EXIT, STATUS or SCREENS	TUTORIAL: verwacht START, SHOWME, SKIP, STEP <n>, RESTART, EXIT, STATUS of SCREENS
 cursor across	cursor dwars
+Edge	Rand
+Flip	Spiegelen
+Form	Vorm
+flip	spiegelen
+form	vorm
+pose	houding
+Count	Aantal
+count	aantal
+disc x	schijf x
+disc y	schijf y
+mortar	voeg
+offset	verschuiving
+wander	dwalen
+RESTART	HERSTARTEN
+crosses	kruisen
+squares	vierkanten
+Colour 1	Kleur 1
+Colour 2	Kleur 2
+ILLUSION	ILLUSIE
+Illusion	Illusie
+colour 1	kleur 1
+colour 2	kleur 2
+dot size	stipgrootte
+disc size	schijfgrootte
+cross size	kruisgrootte
+dot colour	stipkleur
+edge width	randbreedte
+mortar grey	voeggrijs
+street grey	straatgrijs
+tile length	tegellengte
+cross colour	kruiskleur
+shape colour	vormkleur
+street width	straatbreedte
+ground colour	achtergrondkleur
+tile thickness	tegeldikte
+How big each tile is	Hoe groot elke tegel is
+How big each cross is	Hoe groot elk kruis is
+How long each tile is	Hoe lang elke tegel is
+How tall the dancer is	Hoe lang de danser is
+0-100%: 0 holds it still	0-100%: 0 houdt het stil
+0 classic, 1 theme, 2 hues	0 klassiek, 1 thema, 2 tinten
+Leaf, petal, scale or ring	Blad, bloemblad, schub of ring
+0 or 1: the other way round	0 of 1: andersom
+0 turn, 1 out, 2 in, 3 wave	0 draai, 1 uit, 2 in, 3 golf
+How big the floating disc is	Hoe groot de zwevende schijf is
+How light the grey lines are	Hoe licht de grijze lijnen zijn
+select an illusion cue first	kies eerst een illusie-cue
+Turn the crosses the other way	Draai de kruisjes andersom
+Illusion (Pictures that move!?)	Illusie (Plaatjes die bewegen!?)
+0 leaf, 1 petal, 2 scale, 3 ring	0 blad, 1 bloemblad, 2 schub, 3 ring
+How many shapes across the screen	Hoeveel vormen over het scherm
+How many crosses across the screen	Hoeveel kruisjes over het scherm
+How many squares across the screen	Hoeveel vierkanten over het scherm
+Where the disc sits, left to right	Plaats van de schijf, van links naar rechts
+Where the disc sits, top to bottom	Plaats van de schijf, van boven naar beneden
+0-100%: 0 black, 100 the light tile	0-100%: 0 zwart, 100 de lichte tegel
+How much of its place each shape fills	Hoeveel van zijn plek elke vorm vult
+Where the dancer stands, left to right	Plaats van de danser, van links naar rechts
+Where the dancer stands, top to bottom	Plaats van de danser, van boven naar beneden
+Collapse/expand the illusion's controls	Bediening van de illusie in-/uitklappen
+How far the free leg and the arms reach	Hoe ver het vrije been en de armen reiken
+Slide the grid slowly. 0 holds it still	Schuif het raster langzaam. 0 houdt het stil
+The first colour, round the colour wheel	De eerste kleur, op de kleurencirkel
+The second colour, round the colour wheel	De tweede kleur, op de kleurencirkel
+How thick each tile is, against its length	Hoe dik elke tegel is, ten opzichte van zijn lengte
+Where the centre point sits, left to right	Plaats van het middelpunt, van links naar rechts
+Where the centre point sits, top to bottom	Plaats van het middelpunt, van boven naar beneden
+How thick the grey line between the rows is	Hoe dik de grijze lijn tussen de rijen is
+How big the light discs at the crossings are	Hoe groot de lichte schijven op de kruisingen zijn
+Where the field's centre sits, left to right	Plaats van het midden van het veld, van links naar rechts
+Where the field's centre sits, top to bottom	Plaats van het midden van het veld, van boven naar beneden
+How wide the grey lines between the squares are	Hoe breed de grijze lijnen tussen de vierkanten zijn
+How fast the dancer turns. It always turns a little	Hoe snel de danser draait. Draait altijd een beetje
+0 drift, 1 ouchi, 2 cafe, 3 vanish, 4 grid, 5 dancer	0 drift, 1 ouchi, 2 café, 3 verdwijnen, 4 raster, 5 danser
+How light the grey line is. Mid grey tilts the rows most	Hoe licht de grijze lijn is. Middengrijs laat de rijen het meest kantelen
+How big the three dots are. Small dots vanish more easily	Hoe groot de drie stippen zijn. Kleine stippen verdwijnen makkelijker
+Swap the black and white edges: the field drifts the other way	Wissel de zwarte en witte randen: het veld drijft de andere kant op
+How much of the black and white edges shows. They make the drift	Hoeveel van de zwarte en witte randen zichtbaar is. Zij maken de drift
+LFO: size, count, edge, speed, centrex, centrey, grey, hue1 or hue2	LFO: size, count, edge, speed, centrex, centrey, grey, hue1 of hue2
+How far each row is shifted. This makes the straight rows look tilted	Hoe ver elke rij verschoven wordt. Zo lijken de rechte rijen scheef
+Spin the other way. Most people cannot tell which way it turns anyway	Draai de andere kant op. De meeste mensen zien toch niet welke kant hij op draait
+Move the disc in a small loop. 0 holds it still: the eye moves it anyway	Verplaats de schijf in een kleine lus. 0 houdt hem stil: het oog beweegt hem toch
+Turn the shapes slowly, so the drift changes direction. 0 holds them still	Draai de vormen langzaam, zodat de drift van richting verandert. 0 houdt ze stil
+Classic, the theme's colours (taken when picked) or two colours of your own	Klassiek, de kleuren van het thema (vastgelegd bij het kiezen) of twee eigen kleuren
+Which way the field seems to go: turn round the centre, out, in, or in waves	Welke richting het veld lijkt op te gaan: draai rond het midden, uit, in of in golven
+Slide the rows back and forth, so the wall bends and straightens. 0 holds it still	Schuif de rijen heen en weer, zodat de muur buigt en weer recht wordt. 0 houdt hem stil
+How fast the crosses turn. They always turn a little: the dots vanish only while they move	Hoe snel de kruizen draaien. Ze draaien altijd een beetje: de stippen verdwijnen alleen zolang ze bewegen
+Drift (still shapes that seem to turn), ouchi (a disc that floats), cafe (straight rows that look tilted), vanish (dots that disappear while you stare), grid (dots that flicker and are not there) or dancer (it spins whichever way you see it)	drift (stilstaande vormen die lijken te draaien), ouchi (een schijf die zweeft), cafe (rechte rijen die scheef lijken), vanish (stippen die verdwijnen terwijl je staart), grid (stippen die flikkeren en er niet zijn) of dancer (draait de kant op die je ziet)
+STATUS | SHAPE drift|ouchi|cafe|vanish|grid|dancer | FORM leaf|petal|scale|ring | FLOW turn|out|in|wave | FLIP ON|OFF | PALETTE classic|theme|hues | SIZE|COUNT|EDGE|SPEED|CENTREX|CENTREY|GREY <0-100> | HUE1|HUE2 <0-360> | LFO <control> <setting>	STATUS | SHAPE drift|ouchi|cafe|vanish|grid|dancer | FORM leaf|petal|scale|ring | FLOW turn|out|in|wave | FLIP ON|OFF | PALETTE classic|theme|hues | SIZE|COUNT|EDGE|SPEED|CENTREX|CENTREY|GREY <0-100> | HUE1|HUE2 <0-360> | LFO <besturing> <instelling>

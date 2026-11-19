@@ -40,7 +40,12 @@ CONTROLS = {
               "palette=2,hue2=0.8"],
     "ouchi": ["size=0.9", "count=0.9", "edge=0.9", "cx=0.2", "cy=0.2", "palette=2"],
     "cafe": ["size=0.9", "count=1", "edge=1", "grey=0.1", "palette=2"],
+    "vanish": ["count=0.9", "edge=0.9", "size=0.9", "cx=0.3", "cy=0.3", "palette=2,hue1=0.6", "palette=2,hue2=0.1"],
+    "grid": ["count=0.9", "edge=0.9", "size=0.1", "grey=0.2", "palette=1"],
+    "dancer": ["size=0.1", "edge=1", "cx=0.3", "cy=0.3", "flip", "palette=2"],
 }
+# These only work while something moves, so they move at speed 0 too.
+ALWAYS_MOVING = ("vanish", "dancer")
 
 
 def note(name, ok, info=""):
@@ -83,7 +88,11 @@ def offline(exe, work):
             note("%s: %s changes the picture" % (shape, c), d > 0.5, "mean change %.3f" % d)
         still_a = dump(exe, work, shape, 0.5)
         still_b = dump(exe, work, shape, 2.5)
-        note("%s: at speed 0 it holds still" % shape, still_a == still_b, "it moved")
+        if shape in ALWAYS_MOVING:
+            d = mean_diff(still_a, still_b) if still_a and still_b else 0
+            note("%s: at speed 0 it still moves" % shape, d > 0.5, "mean change %.3f" % d)
+        else:
+            note("%s: at speed 0 it holds still" % shape, still_a == still_b, "it moved")
         moving_a = dump(exe, work, shape + ",speed=0.6", 0.5)
         moving_b = dump(exe, work, shape + ",speed=0.6", 2.5)
         d = mean_diff(moving_a, moving_b) if moving_a and moving_b else 0

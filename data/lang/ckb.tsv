@@ -4699,3 +4699,91 @@ listens to the live input while one is open, else the playlist	گوێ لە ها�
 TUTORIAL: no lesson running	TUTORIAL: هیچ وانەیەک لە کاردا نییە
 TUTORIAL: expected START, SHOWME, SKIP, STEP <n>, RESTART, EXIT, STATUS or SCREENS	TUTORIAL: چاوەڕوانکراو: START, SHOWME, SKIP, STEP <n>, RESTART, EXIT, STATUS یان SCREENS
 cursor across	نیشاندەر بە پانی
+Edge	لێوار
+Flip	هەڵگەڕاندنەوە
+Form	فۆرم
+flip	هەڵگەڕاندنەوە
+form	فۆرم
+pose	پۆز
+Count	ژمارە
+count	ژمارە
+disc x	دیسک x
+disc y	دیسک y
+mortar	چیمەنتۆ
+offset	لادان
+wander	گەڕان
+RESTART	دەستپێکردنەوە
+crosses	خاچەکان
+squares	چوارگۆشەکان
+Colour 1	ڕەنگی 1
+Colour 2	ڕەنگی 2
+ILLUSION	وەهمی بینین
+Illusion	وەهمی بینین
+colour 1	ڕەنگی 1
+colour 2	ڕەنگی 2
+dot size	قەبارەی خاڵ
+disc size	قەبارەی دیسک
+cross size	قەبارەی خاچ
+dot colour	ڕەنگی خاڵ
+edge width	پانی لێوار
+mortar grey	خۆڵەمێشیی چیمەنتۆ
+street grey	خۆڵەمێشیی شەقام
+tile length	درێژیی کاشی
+cross colour	ڕەنگی خاچ
+shape colour	ڕەنگی شێوە
+street width	پانی شەقام
+ground colour	ڕەنگی زەمینە
+tile thickness	ئەستووریی کاشی
+How big each tile is	قەبارەی هەر کاشییەک
+How big each cross is	قەبارەی هەر خاچێک
+How long each tile is	درێژیی هەر کاشییەک
+How tall the dancer is	بەرزیی سەماکەرەکە
+0-100%: 0 holds it still	0-100%: 0 جێگیری دەکات
+0 classic, 1 theme, 2 hues	0 کلاسیک، 1 ڕووکار، 2 تۆنی ڕەنگ
+Leaf, petal, scale or ring	گەڵا، پەڕە گوڵ، پوولەکە یان ئەڵقە
+0 or 1: the other way round	0 یان 1: بە پێچەوانەوە
+0 turn, 1 out, 2 in, 3 wave	0 سووڕان، 1 دەرچوون، 2 هاتن، 3 شەپۆل
+How big the floating disc is	قەبارەی دیسکە لەهەوادا ماوەکە
+How light the grey lines are	کاڵیی هێڵە خۆڵەمێشییەکان
+select an illusion cue first	سەرەتا cue ـێکی فریوی بینین هەڵبژێرە
+Turn the crosses the other way	خاچەکان بە ئاراستەی پێچەوانە بسووڕێنە
+Illusion (Pictures that move!?)	فریوی بینین (وێنەکان دەجووڵێن!؟)
+0 leaf, 1 petal, 2 scale, 3 ring	0 گەڵا، 1 پەڕە گوڵ، 2 پوولەکە، 3 ئەڵقە
+How many shapes across the screen	چەند شێوە بە پانایی شاشەدا
+How many crosses across the screen	چەند خاچ بە پانایی شاشەدا
+How many squares across the screen	چەند چوارگۆشە بە پانایی شاشەدا
+Where the disc sits, left to right	شوێنی دیسک، لە چەپەوە بۆ ڕاست
+Where the disc sits, top to bottom	شوێنی دیسک، لە سەرەوە بۆ خوارەوە
+0-100%: 0 black, 100 the light tile	0-100%: 0 ڕەش، 100 کاشیی کاڵ
+How much of its place each shape fills	هەر شێوەیەک چەندی شوێنەکەی خۆی پڕ دەکاتەوە
+Where the dancer stands, left to right	شوێنی سەماکەر، لە چەپەوە بۆ ڕاست
+Where the dancer stands, top to bottom	شوێنی سەماکەر، لە سەرەوە بۆ خوارەوە
+Collapse/expand the illusion's controls	داخستن/کردنەوەی کۆنتڕۆڵەکانی فریوی بینین
+How far the free leg and the arms reach	قاچە ئازادەکە و دەستەکان تا چەند درێژ دەبنەوە
+Slide the grid slowly. 0 holds it still	تۆڕەکە هێواش بخلیسکێنە. 0 جێگیری دەکات
+The first colour, round the colour wheel	ڕەنگی یەکەم، بە دەوری بازنەی ڕەنگ
+The second colour, round the colour wheel	ڕەنگی دووەم، بە دەوری بازنەی ڕەنگ
+How thick each tile is, against its length	ئەستووریی هەر کاشییەک بەراورد بە درێژییەکەی
+Where the centre point sits, left to right	شوێنی خاڵی ناوەڕاست، لە چەپەوە بۆ ڕاست
+Where the centre point sits, top to bottom	شوێنی خاڵی ناوەڕاست، لە سەرەوە بۆ خوارەوە
+How thick the grey line between the rows is	ئەستووریی هێڵە خۆڵەمێشییەکەی نێوان ڕیزەکان
+How big the light discs at the crossings are	قەبارەی دیسکە کاڵەکان لە خاڵەکانی یەکتربڕین
+Where the field's centre sits, left to right	ناوەڕاستی مەیدان، لە چەپەوە بۆ ڕاست
+Where the field's centre sits, top to bottom	ناوەڕاستی مەیدان، لە سەرەوە بۆ خوارەوە
+How wide the grey lines between the squares are	پانیی هێڵە خۆڵەمێشییەکانی نێوان چوارگۆشەکان
+How fast the dancer turns. It always turns a little	خێرایی سووڕانی سەماکەر. هەمیشە کەمێک دەسووڕێت
+0 drift, 1 ouchi, 2 cafe, 3 vanish, 4 grid, 5 dancer	0 خلیسکان، 1 ouchi، 2 کافێ، 3 ونبوون، 4 تۆڕ، 5 سەماکەر
+How light the grey line is. Mid grey tilts the rows most	کاڵیی هێڵە خۆڵەمێشییەکە. خۆڵەمێشیی مامناوەند ڕیزەکان زیاتر لار دەکات
+How big the three dots are. Small dots vanish more easily	قەبارەی سێ خاڵەکە. خاڵە بچووکەکان ئاسانتر ون دەبن
+Swap the black and white edges: the field drifts the other way	لێوارە ڕەش و سپییەکان بگۆڕەوە: مەیدانەکە بە ئاراستەی پێچەوانە دەخلیسکێت
+How much of the black and white edges shows. They make the drift	چەندی لێوارە ڕەش و سپییەکان نیشان دەدرێن. ئەوان خلیسکانەکە دروست دەکەن
+LFO: size, count, edge, speed, centrex, centrey, grey, hue1 or hue2	LFO: size, count, edge, speed, centrex, centrey, grey, hue1 یان hue2
+How far each row is shifted. This makes the straight rows look tilted	هەر ڕیزێک چەند لادەدرێت. ئەمە وا دەکات ڕیزە ڕاستەکان لار دیار بن
+Spin the other way. Most people cannot tell which way it turns anyway	سووڕان بە ئاراستەی پێچەوانە. زۆربەی خەڵک هەر نازانن بە کام ئاراستەدا دەسووڕێت
+Move the disc in a small loop. 0 holds it still: the eye moves it anyway	دیسکەکە لە بازنەیەکی بچووکدا بجوڵێنە. 0 جێگیری دەکات: چاو هەر دەیجوڵێنێت
+Turn the shapes slowly, so the drift changes direction. 0 holds them still	شێوەکان هێواش بسووڕێنە، تا ئاراستەی خلیسکان بگۆڕێت. 0 جێگیریان دەکات
+Classic, the theme's colours (taken when picked) or two colours of your own	کلاسیک، ڕەنگەکانی ڕووکار (کاتی هەڵبژاردن وەردەگیرێن) یان دوو ڕەنگی خۆت
+Which way the field seems to go: turn round the centre, out, in, or in waves	مەیدانەکە وا دیارە بەرەو کوێ دەڕوات: سووڕان بە دەوری ناوەڕاست، دەرچوون، هاتن، یان بە شەپۆل
+Slide the rows back and forth, so the wall bends and straightens. 0 holds it still	ڕیزەکان بەرەو پێش و دواوە بخلیسکێنە، تا دیوارەکە بچەمێتەوە و ڕاست ببێتەوە. 0 جێگیری دەکات
+How fast the crosses turn. They always turn a little: the dots vanish only while they move	خاچەکان چەند خێرا دەسووڕێن. هەمیشە کەمێک دەسووڕێن: خاڵەکان تەنها کاتی جووڵەیان ون دەبن
+Drift (still shapes that seem to turn), ouchi (a disc that floats), cafe (straight rows that look tilted), vanish (dots that disappear while you stare), grid (dots that flicker and are not there) or dancer (it spins whichever way you see it)	خلیسکان (شێوەی جێگیر کە وا دیارە دەسووڕێن)، ouchi (دیسکێک کە مەلە دەکات)، کافێ (ڕیزی ڕاست کە لار دیارن)، ونبوون (خاڵ کە کاتی سەیرکردن ون دەبن)، تۆڕ (خاڵ کە دەلەرزن و لەوێ نین) یان سەماکەر (بەو ئاراستەیەی دەیبینیت دەسووڕێت)

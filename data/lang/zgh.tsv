@@ -4710,3 +4710,81 @@ listens to the live input while one is open, else the playlist	ⵉⵙⴼⵍⵉ�
 TUTORIAL: no lesson running	TUTORIAL: ⵓⵔ ⵉⵜⴷⴷⵓ ⵓⵙⵍⵎⴷ
 TUTORIAL: expected START, SHOWME, SKIP, STEP <n>, RESTART, EXIT, STATUS or SCREENS	TUTORIAL: ⵉⵜⵜⵓⵔⴰⵊⵓ START, SHOWME, SKIP, STEP <n>, RESTART, EXIT, STATUS ⵏⵖ SCREENS
 cursor across	ⴰⵏⴽⴰⴹ ⵙ ⵜⴰⴳⵍⴰⵢⵜ
+Edge	ⵉⵔⵉ
+Flip	ⴰⵇⵍⵍⴱ
+Form	ⵜⴰⵍⵖⴰ
+flip	ⴰⵇⵍⵍⴱ
+form	ⵜⴰⵍⵖⴰ
+pose	ⵜⴰⴱⴷⴷⴰ
+Count	ⴰⵎⴹⴰⵏ
+count	ⴰⵎⴹⴰⵏ
+disc x	ⴰⴹⴱⵙⵉ x
+disc y	ⴰⴹⴱⵙⵉ y
+mortar	ⴰⵍⵍⵓⴹ
+offset	ⴰⵙⵎⵓⵜⵜⵉ
+wander	ⴰⵎⵓⴷⴷⵓ
+RESTART	ⴰⵍⵙ ⴰⵙⵏⵜⵉ
+crosses	ⵉⵙⵍⵉⴱⵏ
+squares	ⵉⵎⴽⵓⵥⵏ
+Colour 1	ⵉⵏⵉ 1
+Colour 2	ⵉⵏⵉ 2
+ILLUSION	ⴰⵙⵍⵍⵓⵙ
+Illusion	ⴰⵙⵍⵍⵓⵙ
+colour 1	ⵉⵏⵉ 1
+colour 2	ⵉⵏⵉ 2
+dot size	ⵜⵉⴷⴷⵉ ⵏ ⵜⵏⵇⵇⵉⴹⵜ
+disc size	ⵜⵉⴷⴷⵉ ⵏ ⵓⴹⴱⵙⵉ
+cross size	ⵜⵉⴷⴷⵉ ⵏ ⵓⵙⵍⵉⴱ
+dot colour	ⵉⵏⵉ ⵏ ⵜⵏⵇⵇⵉⴹⵜ
+edge width	ⵜⴰⵍⴱⴰⴹⵜ ⵏ ⵉⵔⵉ
+mortar grey	ⴰⵖⵉⵖⴷⴰⵏ ⵏ ⵓⵍⵍⵓⴹ
+street grey	ⴰⵖⵉⵖⴷⴰⵏ ⵏ ⵓⵖⴰⵔⴰⵙ
+tile length	ⵜⵉⵖⵥⵉ ⵏ ⵓⵣⵍⵍⵉⵊ
+cross colour	ⵉⵏⵉ ⵏ ⵓⵙⵍⵉⴱ
+shape colour	ⵉⵏⵉ ⵏ ⵜⵍⵖⴰ
+street width	ⵜⴰⵍⴱⴰⴹⵜ ⵏ ⵓⵖⴰⵔⴰⵙ
+ground colour	ⵉⵏⵉ ⵏ ⵡⴰⴽⴰⵍ
+tile thickness	ⵜⵓⵣⵓⵔⵜ ⵏ ⵓⵣⵍⵍⵉⵊ
+How big each tile is	ⵜⵉⴷⴷⵉ ⵏ ⴽⵔⴰⵢⴳⴰⵜⵜ ⴰⵣⵍⵍⵉⵊ
+How big each cross is	ⵜⵉⴷⴷⵉ ⵏ ⴽⵔⴰⵢⴳⴰⵜⵜ ⴰⵙⵍⵉⴱ
+How long each tile is	ⵜⵉⵖⵥⵉ ⵏ ⴽⵔⴰⵢⴳⴰⵜⵜ ⴰⵣⵍⵍⵉⵊ
+How tall the dancer is	ⵜⵉⵖⵥⵉ ⵏ ⵓⵎⴰⵀⵡⴰⵛ
+0-100%: 0 holds it still	0-100%: 0 ⴰⵔ ⵜ ⵉⵜⵜⴰⵟⵟⴰⴼ ⴱⵍⴰ ⴰⵎⵓⵙⵙⵓ
+0 classic, 1 theme, 2 hues	0 ⴰⵎⵏⵙⴰⵢ, 1 ⴰⵙⵏⵜⵍ, 2 ⵉⵏⵉⵜⵏ
+Leaf, petal, scale or ring	ⵉⴼⵔ, ⵉⴼⵔ ⵏ ⵜⵊⵊⵉⴳⵜ, ⵜⴰⵇⵛⵔⵜ ⵏⵖ ⵜⴰⵅⴰⵜⵎⵜ
+0 or 1: the other way round	0 ⵏⵖ 1: ⵜⴰⵏⵉⵍⴰ ⵢⴰⴹⵏ
+0 turn, 1 out, 2 in, 3 wave	0 ⵣⵣⵉ, 1 ⴱⵔⵔⴰ, 2 ⵖ, 3 ⵜⴰⵎⵡⵊⵜ
+How big the floating disc is	ⵜⵉⵎⵖⵓⵔⵉ ⵏ ⵜⵡⵔⵉⵇⵜ ⵍⵍⵉ ⵉⵜⵜⵎⵓⵜⵜⵓⵢⵏ
+How light the grey lines are	ⵜⴰⴼⴰⵡⵜ ⵏ ⵉⵣⵉⵔⵉⴳⵏ ⵉⵖⵉⵖⴷⴰⵏⵏ
+select an illusion cue first	ⵙⵜⵉ cue ⵏ ⵓⵖⵓⵕⵕⵓ ⴷ ⴰⵎⵣⵡⴰⵔⵓ
+Turn the crosses the other way	ⵣⵣⵉ ⵜⵉⵎⵣⴳⴰⵔⵉⵏ ⵙ ⵜⴰⵏⵉⵍⴰ ⵢⴰⴹⵏ
+Illusion (Pictures that move!?)	ⴰⵖⵓⵕⵕⵓ ⵏ ⵜⵉⵟⵟ (ⵜⵉⵡⵍⴰⴼⵉⵏ ⵍⵍⵉ ⵉⵜⵜⵎⵓⵜⵜⵓⵢⵏ!?)
+0 leaf, 1 petal, 2 scale, 3 ring	0 ⵉⴼⵔ, 1 ⵉⴼⵔ ⵏ ⵜⵊⵊⵉⴳⵜ, 2 ⵜⴰⵇⵛⵔⵜ, 3 ⵜⴰⵅⴰⵜⵎⵜ
+How many shapes across the screen	ⵎⵏⵛⴽ ⵏ ⵜⵍⵖⵉⵡⵉⵏ ⵖ ⵓⴳⴷⵉⵍ ⵙⴳ ⵓⵥⵍⵎⴰⴹ ⵙ ⵓⴼⴰⵙⵙⵉ
+How many crosses across the screen	ⵎⵏⵛⴽ ⵏ ⵜⵉⵎⵣⴳⴰⵔⵉⵏ ⵖ ⵓⴳⴷⵉⵍ ⵙⴳ ⵓⵥⵍⵎⴰⴹ ⵙ ⵓⴼⴰⵙⵙⵉ
+How many squares across the screen	ⵎⵏⵛⴽ ⵏ ⵉⵎⴽⵓⵥⵏ ⵖ ⵓⴳⴷⵉⵍ ⵙⴳ ⵓⵥⵍⵎⴰⴹ ⵙ ⵓⴼⴰⵙⵙⵉ
+Where the disc sits, left to right	ⴰⴷⵖⴰⵔ ⵏ ⵜⵡⵔⵉⵇⵜ, ⵙⴳ ⵓⵥⵍⵎⴰⴹ ⵙ ⵓⴼⴰⵙⵙⵉ
+Where the disc sits, top to bottom	ⴰⴷⵖⴰⵔ ⵏ ⵜⵡⵔⵉⵇⵜ, ⵙⴳ ⵓⴼⵍⵍⴰ ⵙ ⵡⴰⴷⴷⴰ
+0-100%: 0 black, 100 the light tile	0-100%: 0 ⴰⵙⴳⵏⵓ, 100 ⵜⴰⵥⵍⵉⵊⵜ ⵉⴼⴰⵡⵏ
+How much of its place each shape fills	ⵎⵏⵛⴽ ⵙ ⵜⵜⵄⵎⵎⴰⵔ ⴽⵓ ⵜⴰⵍⵖⴰ ⴰⴷⵖⴰⵔ ⵏⵏⵙ
+Where the dancer stands, left to right	ⴰⴷⵖⴰⵔ ⵏ ⵓⵎⴰⵀⵡⴰⵛ, ⵙⴳ ⵓⵥⵍⵎⴰⴹ ⵙ ⵓⴼⴰⵙⵙⵉ
+Where the dancer stands, top to bottom	ⴰⴷⵖⴰⵔ ⵏ ⵓⵎⴰⵀⵡⴰⵛ, ⵙⴳ ⵓⴼⵍⵍⴰ ⵙ ⵡⴰⴷⴷⴰ
+Collapse/expand the illusion's controls	ⵙⵎⵥⵉ/ⵙⵎⵖⵓⵔ ⵉⵎⵙⵙⵓⴷⵓⵙⵏ ⵏ ⵓⵖⵓⵕⵕⵓ
+How far the free leg and the arms reach	ⴰⵡⴰⴹ ⵏ ⵓⴹⴰⵕ ⵉⵍⵍⵉⵍⵏ ⴷ ⵉⵖⴰⵍⵏ
+Slide the grid slowly. 0 holds it still	ⵙⵎⵓⵜⵜⵉ ⴰⴼⵔⵔⵓⴳ ⵙ ⵜⵍⵉⵡⵉⵜ. 0 ⴰⵔ ⵜ ⵉⵜⵜⴰⵟⵟⴰⴼ ⴱⵍⴰ ⴰⵎⵓⵙⵙⵓ
+The first colour, round the colour wheel	ⵉⵏⵉ ⴰⵎⵣⵡⴰⵔⵓ, ⵖ ⵜⵡⵔⵉⵇⵜ ⵏ ⵉⵏⵉ
+The second colour, round the colour wheel	ⵉⵏⵉ ⵡⵉⵙⵙ ⵙⵉⵏ, ⵖ ⵜⵡⵔⵉⵇⵜ ⵏ ⵉⵏⵉ
+How thick each tile is, against its length	ⵜⴰⵣⵓⵔⵜ ⵏ ⴽⵓ ⵜⴰⵥⵍⵉⵊⵜ ⵙ ⵓⵙⵎⵣⴰⵣⴰⵍ ⴷ ⵜⵉⵖⵥⵉ ⵏⵏⵙ
+Where the centre point sits, left to right	ⴰⴷⵖⴰⵔ ⵏ ⵜⵏⵇⵇⵉⴹⵜ ⵏ ⵓⵍⵓⵎⵎⴰⵙ, ⵙⴳ ⵓⵥⵍⵎⴰⴹ ⵙ ⵓⴼⴰⵙⵙⵉ
+Where the centre point sits, top to bottom	ⴰⴷⵖⴰⵔ ⵏ ⵜⵏⵇⵇⵉⴹⵜ ⵏ ⵓⵍⵓⵎⵎⴰⵙ, ⵙⴳ ⵓⴼⵍⵍⴰ ⵙ ⵡⴰⴷⴷⴰ
+How thick the grey line between the rows is	ⵜⴰⵣⵓⵔⵜ ⵏ ⵉⵣⵉⵔⵉ ⴰⵖⵉⵖⴷⴰⵏ ⴳⵔ ⵉⵙⵡⵉⵔⵏ
+How big the light discs at the crossings are	ⵜⵉⵎⵖⵓⵔⵉ ⵏ ⵜⵡⵔⵉⵇⵉⵏ ⵉⴼⴰⵡⵏ ⵖ ⵉⵎⵣⴳⴰⵔⵏ
+Where the field's centre sits, left to right	ⴰⴷⵖⴰⵔ ⵏ ⵓⵍⵓⵎⵎⴰⵙ ⵏ ⵢⵉⴳⵔ, ⵙⴳ ⵓⵥⵍⵎⴰⴹ ⵙ ⵓⴼⴰⵙⵙⵉ
+Where the field's centre sits, top to bottom	ⴰⴷⵖⴰⵔ ⵏ ⵓⵍⵓⵎⵎⴰⵙ ⵏ ⵢⵉⴳⵔ, ⵙⴳ ⵓⴼⵍⵍⴰ ⵙ ⵡⴰⴷⴷⴰ
+How wide the grey lines between the squares are	ⵜⵉⵔⵓⵜ ⵏ ⵉⵣⵉⵔⵉⴳⵏ ⵉⵖⵉⵖⴷⴰⵏⵏ ⴳⵔ ⵉⵎⴽⵓⵥⵏ
+How fast the dancer turns. It always turns a little	ⵜⴰⵣⵣⵍⴰ ⵏ ⵓⵣⵣⵉ ⵏ ⵓⵎⴰⵀⵡⴰⵛ. ⴷⵉⵎⴰ ⴰⵔ ⵉⵜⵜⵣⵣⵉ ⵉⵎⵉⴽ
+0 drift, 1 ouchi, 2 cafe, 3 vanish, 4 grid, 5 dancer	0 ⴰⵎⵓⵜⵉ, 1 ouchi, 2 ⵜⴰⵇⴰⵀⵡⴰⵢⵜ, 3 ⴰⵖⴰⴱ, 4 ⴰⴼⵔⵔⵓⴳ, 5 ⴰⵎⴰⵀⵡⴰⵛ
+How light the grey line is. Mid grey tilts the rows most	ⵜⴰⴼⴰⵡⵜ ⵏ ⵉⵣⵉⵔⵉ ⴰⵖⵉⵖⴷⴰⵏ. ⴰⵖⵉⵖⴷⴰⵏ ⴰⵏⴰⵎⵎⴰⵙ ⴰⵔ ⵉⵙⵎⵢⴰⵍ ⵉⵙⵡⵉⵔⵏ ⵓⴳⴳⴰⵔ
+How big the three dots are. Small dots vanish more easily	ⵜⵉⵎⵖⵓⵔⵉ ⵏ ⴽⵔⴰⴹ ⵜⵏⵇⵇⵉⴹⵉⵏ. ⵜⵉⵏⵇⵇⵉⴹⵉⵏ ⵎⵥⵥⵉⵏⵉⵏ ⴰⵔ ⵖⴰⴱⵏⵜ ⵙ ⵜⵉⴼⵙⵙⵉ ⵓⴳⴳⴰⵔ
+Swap the black and white edges: the field drifts the other way	ⵙⵏⴼⵍ ⵉⵔⴰⵏ ⵉⵙⴳⵏⴰⵡⵏ ⴷ ⵉⵎⵍⵍⴰⵍⵏ: ⵉⴳⵔ ⴰⵔ ⵉⵜⵜⵎⵓⵜⵜⵓ ⵙ ⵜⴰⵏⵉⵍⴰ ⵢⴰⴹⵏ
+How much of the black and white edges shows. They make the drift	ⵎⵏⵛⴽ ⴰⵢ ⵉⵙⵙⴽⴰⵏⵏ ⵙⴳ ⵉⵔⴰⵏ ⵉⵙⴳⵏⴰⵡⵏ ⴷ ⵉⵎⵍⵍⴰⵍⵏ. ⵏⵜⵏⵉ ⴰⵢ ⵉⵙⴽⴰⵔⵏ ⴰⵎⵓⵜⵉ

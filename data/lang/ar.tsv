@@ -4712,3 +4712,91 @@ listens to the live input while one is open, else the playlist	يتبع الدخ
 TUTORIAL: no lesson running	TUTORIAL: لا يوجد درس قيد التشغيل
 TUTORIAL: expected START, SHOWME, SKIP, STEP <n>, RESTART, EXIT, STATUS or SCREENS	TUTORIAL: المتوقع: START, SHOWME, SKIP, STEP <n>, RESTART, EXIT, STATUS أو SCREENS
 cursor across	المؤشر أفقياً
+Edge	الحافة
+Flip	قلب
+Form	الهيئة
+flip	قلب
+form	الهيئة
+pose	الوضعية
+Count	العدد
+count	العدد
+disc x	القرص x
+disc y	القرص y
+mortar	الملاط
+offset	إزاحة
+wander	تجوال
+RESTART	إعادة التشغيل
+crosses	صلبان
+squares	مربعات
+Colour 1	اللون 1
+Colour 2	اللون 2
+ILLUSION	خداع بصري
+Illusion	خداع بصري
+colour 1	اللون 1
+colour 2	اللون 2
+dot size	حجم النقطة
+disc size	حجم القرص
+cross size	حجم الصليب
+dot colour	لون النقطة
+edge width	عرض الحافة
+mortar grey	رمادي الملاط
+street grey	رمادي الشارع
+tile length	طول البلاطة
+cross colour	لون الصليب
+shape colour	لون الشكل
+street width	عرض الشارع
+ground colour	لون الأرضية
+tile thickness	سماكة البلاطة
+How big each tile is	حجم كل بلاطة
+How big each cross is	حجم كل صليب
+How long each tile is	طول كل بلاطة
+How tall the dancer is	طول الراقصة
+0-100%: 0 holds it still	0-100%: 0 يثبّته
+0 classic, 1 theme, 2 hues	0 كلاسيكي، 1 السمة، 2 تدرجات لونية
+Leaf, petal, scale or ring	ورقة أو بتلة أو حرشفة أو حلقة
+0 or 1: the other way round	0 أو 1: في الاتجاه المعاكس
+0 turn, 1 out, 2 in, 3 wave	0 دوران، 1 خروج، 2 دخول، 3 موجة
+How big the floating disc is	حجم القرص العائم
+How light the grey lines are	درجة سطوع الخطوط الرمادية
+select an illusion cue first	اختر كيو خداع بصري أولاً
+Turn the crosses the other way	أدر الصلبان في الاتجاه المعاكس
+Illusion (Pictures that move!?)	خداع بصري (صور تتحرك!؟)
+0 leaf, 1 petal, 2 scale, 3 ring	0 ورقة، 1 بتلة، 2 حرشفة، 3 حلقة
+How many shapes across the screen	عدد الأشكال عبر الشاشة
+How many crosses across the screen	عدد الصلبان عبر الشاشة
+How many squares across the screen	عدد المربعات عبر الشاشة
+Where the disc sits, left to right	موضع القرص، من اليسار إلى اليمين
+Where the disc sits, top to bottom	موضع القرص، من الأعلى إلى الأسفل
+0-100%: 0 black, 100 the light tile	0-100%: 0 أسود، 100 البلاطة الفاتحة
+How much of its place each shape fills	مقدار ما يملؤه كل شكل من مكانه
+Where the dancer stands, left to right	موضع الراقصة، من اليسار إلى اليمين
+Where the dancer stands, top to bottom	موضع الراقصة، من الأعلى إلى الأسفل
+Collapse/expand the illusion's controls	طيّ/توسيع عناصر تحكم الخداع البصري
+How far the free leg and the arms reach	مدى امتداد الساق الحرة والذراعين
+Slide the grid slowly. 0 holds it still	حرّك الشبكة ببطء. 0 يثبّتها
+The first colour, round the colour wheel	اللون الأول على دائرة الألوان
+The second colour, round the colour wheel	اللون الثاني على دائرة الألوان
+How thick each tile is, against its length	سماكة كل بلاطة نسبةً إلى طولها
+Where the centre point sits, left to right	موضع نقطة المركز، من اليسار إلى اليمين
+Where the centre point sits, top to bottom	موضع نقطة المركز، من الأعلى إلى الأسفل
+How thick the grey line between the rows is	سماكة الخط الرمادي بين الصفوف
+How big the light discs at the crossings are	حجم الأقراص الفاتحة عند التقاطعات
+Where the field's centre sits, left to right	موضع مركز الحقل، من اليسار إلى اليمين
+Where the field's centre sits, top to bottom	موضع مركز الحقل، من الأعلى إلى الأسفل
+How wide the grey lines between the squares are	عرض الخطوط الرمادية بين المربعات
+How fast the dancer turns. It always turns a little	سرعة دوران الراقصة. تدور دائماً قليلاً
+0 drift, 1 ouchi, 2 cafe, 3 vanish, 4 grid, 5 dancer	0 انجراف، 1 ouchi، 2 مقهى، 3 اختفاء، 4 شبكة، 5 راقصة
+How light the grey line is. Mid grey tilts the rows most	درجة سطوع الخط الرمادي. الرمادي المتوسط يميل الصفوف أكثر
+How big the three dots are. Small dots vanish more easily	حجم النقاط الثلاث. النقاط الصغيرة تختفي بسهولة أكبر
+Swap the black and white edges: the field drifts the other way	بدّل الحواف السوداء والبيضاء: ينجرف الحقل في الاتجاه المعاكس
+How much of the black and white edges shows. They make the drift	مقدار ظهور الحواف السوداء والبيضاء. هي ما يصنع الانجراف
+LFO: size, count, edge, speed, centrex, centrey, grey, hue1 or hue2	LFO: size, count, edge, speed, centrex, centrey, grey, hue1 أو hue2
+How far each row is shifted. This makes the straight rows look tilted	مقدار إزاحة كل صف. هذا يجعل الصفوف المستقيمة تبدو مائلة
+Spin the other way. Most people cannot tell which way it turns anyway	الدوران في الاتجاه المعاكس. معظم الناس لا يميّزون اتجاه دورانه أصلاً
+Move the disc in a small loop. 0 holds it still: the eye moves it anyway	تحريك القرص في دائرة صغيرة. 0 يثبّته: العين تحرّكه على أي حال
+Turn the shapes slowly, so the drift changes direction. 0 holds them still	تدوير الأشكال ببطء ليتغيّر اتجاه الانجراف. 0 يثبّتها
+Classic, the theme's colours (taken when picked) or two colours of your own	كلاسيكي، أو ألوان السمة (تؤخذ عند الاختيار)، أو لونان من اختيارك
+Which way the field seems to go: turn round the centre, out, in, or in waves	الاتجاه الظاهري للحقل: دوران حول الوسط، خروج، دخول، أو موجات
+Slide the rows back and forth, so the wall bends and straightens. 0 holds it still	انزلاق الصفوف ذهاباً وإياباً، فينحني الجدار ثم يستقيم. 0 يثبّته
+How fast the crosses turn. They always turn a little: the dots vanish only while they move	سرعة دوران الصلبان. تدور دائماً قليلاً: النقاط تختفي فقط أثناء حركتها
+Drift (still shapes that seem to turn), ouchi (a disc that floats), cafe (straight rows that look tilted), vanish (dots that disappear while you stare), grid (dots that flicker and are not there) or dancer (it spins whichever way you see it)	انجراف (أشكال ثابتة تبدو وكأنها تدور)، ouchi (قرص يطفو)، مقهى (صفوف مستقيمة تبدو مائلة)، اختفاء (نقاط تختفي أثناء التحديق)، شبكة (نقاط ترفرف وليست موجودة) أو راقصة (تدور في الاتجاه الذي تراه)

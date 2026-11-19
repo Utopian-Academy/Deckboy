@@ -3238,13 +3238,26 @@ inspector says "made by Deckboy" in place of a pattern picker.
     lines. The rows are straight and look tilted. **tile size**, **offset**
     (how far each row shifts: the tilt), **mortar** (the grey line's
     thickness), **mortar grey** and **slide** (rows slide back and forth, so
-    the wall bends and straightens).
+    the wall bends and straightens);
+  - **vanish** — blue crosses turn round three still yellow dots. Stare at the
+    point in the middle and the dots disappear, one or two at a time, and come
+    back. **crosses**, **cross size**, **dot size**, **turn** (they always turn
+    a little: the dots vanish only while something moves), **centre x /
+    centre y** and **flip**;
+  - **grid** — grey streets between dark squares, with a light disc at every
+    crossing. Dark dots flicker in the discs you are not looking at; there are
+    none. **squares**, **street width**, **disc size**, **street grey** and
+    **drift**;
+  - **dancer** — a flat silhouette spinning in place. Nothing in it says which
+    way it turns: half a room sees one way, half the other, and it can flip as
+    you watch. **size**, **pose** (how far the free leg and the arms reach),
+    **spin**, **centre x / centre y** and **flip**.
 
   **palette**: classic (black and white; the drift field's orange on green),
   theme (taken when picked, as Moire's) or hues (two colours of your own; the
   drift's black and white edges always stay, they are what makes it drift).
   Every number has a **~**. Over the wire: `ILLUSION [STATUS]`,
-  `ILLUSION SHAPE drift|ouchi|cafe`, `ILLUSION FORM|FLOW|PALETTE <name or number>`,
+  `ILLUSION SHAPE drift|ouchi|cafe|vanish|grid|dancer`, `ILLUSION FORM|FLOW|PALETTE <name or number>`,
   `ILLUSION FLIP ON|OFF`, `ILLUSION SIZE|COUNT|EDGE|SPEED|CENTREX|CENTREY|GREY <0-100>`,
   `ILLUSION HUE1|HUE2 <0-360>` and `ILLUSION LFO <control> ...`. For a
   stereogram, put the **stereogram** effect on any cue (a Text cue floats a

@@ -49,6 +49,12 @@ CASES = [
     ("illusion:ouchi,scale,count=0.9,edge=0.9", 1),
     ("illusion:cafe,count=1,grey=0.3", 1),
     ("illusion:cafe,speed=0.7,palette=2,hue2=0.8", 2),
+    ("illusion:vanish", 2),
+    ("illusion:vanish,count=0.9,edge=0.9,size=0.8,palette=2", 3),
+    ("illusion:grid", 1),
+    ("illusion:grid,speed=0.5,count=0.2,edge=0.8", 2),
+    ("illusion:dancer", 1),
+    ("illusion:dancer,edge=1,size=1,flip,speed=0.6", 2.2),
 ]
 MEAN_MAX = 1.0      # the CPU reads its rim and glow from tables
 FAR_MAX = 0.01      # % of pixels more than 8 levels apart (panel edges)

@@ -4691,3 +4691,90 @@ listens to the live input while one is open, else the playlist	hlýðir beinu in
 TUTORIAL: no lesson running	TUTORIAL: engin lexía í gangi
 TUTORIAL: expected START, SHOWME, SKIP, STEP <n>, RESTART, EXIT, STATUS or SCREENS	TUTORIAL: vænst er START, SHOWME, SKIP, STEP <n>, RESTART, EXIT, STATUS eða SCREENS
 cursor across	bendill þvert
+Edge	Jaðar
+Flip	Snúa við
+flip	snúa við
+pose	stelling
+Count	Fjöldi
+count	fjöldi
+disc x	skífa x
+disc y	skífa y
+mortar	múr
+offset	hliðrun
+wander	ráf
+RESTART	ENDURRÆSA
+crosses	krossar
+squares	ferningar
+Colour 1	Litur 1
+Colour 2	Litur 2
+ILLUSION	SJÓNHVERFING
+Illusion	Sjónhverfing
+colour 1	litur 1
+colour 2	litur 2
+dot size	punktastærð
+disc size	skífustærð
+cross size	krossastærð
+dot colour	punktalitur
+edge width	jaðarbreidd
+mortar grey	múrgrátt
+street grey	götugrátt
+tile length	flísalengd
+cross colour	krossalitur
+shape colour	litur lögunar
+street width	götubreidd
+ground colour	grunnlitur
+tile thickness	flísaþykkt
+How big each tile is	Stærð hverrar flísar
+How big each cross is	Stærð hvers kross
+How long each tile is	Lengd hverrar flísar
+How tall the dancer is	Hæð dansarans
+0-100%: 0 holds it still	0-100%: 0 heldur því kyrru
+0 classic, 1 theme, 2 hues	0 sígilt, 1 þema, 2 litbrigði
+Leaf, petal, scale or ring	Lauf, krónublað, hreistur eða hringur
+0 or 1: the other way round	0 eða 1: í öfuga átt
+0 turn, 1 out, 2 in, 3 wave	0 snúa, 1 út, 2 inn, 3 bylgja
+How big the floating disc is	Stærð fljótandi skífunnar
+How light the grey lines are	Hve ljósar gráu línurnar eru
+select an illusion cue first	veldu fyrst cue með sjónhverfingu
+Turn the crosses the other way	Snúa krossunum í öfuga átt
+Illusion (Pictures that move!?)	Sjónhverfing (Myndir sem hreyfast!?)
+0 leaf, 1 petal, 2 scale, 3 ring	0 lauf, 1 krónublað, 2 hreistur, 3 hringur
+How many shapes across the screen	Fjöldi forma þvert yfir skjáinn
+How many crosses across the screen	Hve margir krossar þvert yfir skjáinn
+How many squares across the screen	Hve margir ferningar þvert yfir skjáinn
+Where the disc sits, left to right	Staða skífunnar, frá vinstri til hægri
+Where the disc sits, top to bottom	Staða skífunnar, frá toppi til botns
+0-100%: 0 black, 100 the light tile	0-100%: 0 svart, 100 ljósa flísin
+How much of its place each shape fills	Hve mikið af sínum stað hvert form fyllir
+Where the dancer stands, left to right	Staða dansarans, frá vinstri til hægri
+Where the dancer stands, top to bottom	Staða dansarans, frá toppi til botns
+Collapse/expand the illusion's controls	Fella saman/opna stjórntæki sjónhverfingarinnar
+How far the free leg and the arms reach	Hve langt lausi fóturinn og handleggirnir ná
+Slide the grid slowly. 0 holds it still	Renna hnitanetinu hægt. 0 heldur því kyrru
+The first colour, round the colour wheel	Fyrri liturinn, á litahringnum
+The second colour, round the colour wheel	Seinni liturinn, á litahringnum
+How thick each tile is, against its length	Þykkt hverrar flísar miðað við lengd hennar
+Where the centre point sits, left to right	Staða miðpunktsins, frá vinstri til hægri
+Where the centre point sits, top to bottom	Staða miðpunktsins, frá toppi til botns
+How thick the grey line between the rows is	Þykkt gráu línunnar milli raðanna
+How big the light discs at the crossings are	Stærð ljósu skífanna á skurðpunktunum
+Where the field's centre sits, left to right	Staða miðju sviðsins, frá vinstri til hægri
+Where the field's centre sits, top to bottom	Staða miðju sviðsins, frá toppi til botns
+How wide the grey lines between the squares are	Breidd gráu línanna milli ferninganna
+How fast the dancer turns. It always turns a little	Hve hratt dansarinn snýst. Hann snýst alltaf aðeins
+0 drift, 1 ouchi, 2 cafe, 3 vanish, 4 grid, 5 dancer	0 rek, 1 ouchi, 2 kaffihús, 3 hverfa, 4 hnitanet, 5 dansari
+How light the grey line is. Mid grey tilts the rows most	Hve ljós gráa línan er. Miðgrátt hallar röðunum mest
+How big the three dots are. Small dots vanish more easily	Stærð punktanna þriggja. Litlir punktar hverfa frekar
+Swap the black and white edges: the field drifts the other way	Víxla svörtu og hvítu brúnunum: sviðið rekur í hina áttina
+How much of the black and white edges shows. They make the drift	Hve mikið sést af svörtu og hvítu brúnunum. Þær valda rekinu
+LFO: size, count, edge, speed, centrex, centrey, grey, hue1 or hue2	LFO: size, count, edge, speed, centrex, centrey, grey, hue1 eða hue2
+How far each row is shifted. This makes the straight rows look tilted	Hve mikið hver lína hliðrast. Þá virðast beinu línurnar hallast
+Spin the other way. Most people cannot tell which way it turns anyway	Snúa í hina áttina. Flestir sjá hvort sem er ekki í hvaða átt hún snýst
+Move the disc in a small loop. 0 holds it still: the eye moves it anyway	Færa skífuna í lítilli lykkju. 0 heldur henni kyrri: augað hreyfir hana samt
+Turn the shapes slowly, so the drift changes direction. 0 holds them still	Snúa lögununum hægt svo rekið skipti um átt. 0 heldur þeim kyrrum
+Classic, the theme's colours (taken when picked) or two colours of your own	Sígilt, litir þemans (teknir við val) eða tveir eigin litir
+Which way the field seems to go: turn round the centre, out, in, or in waves	Í hvaða átt sviðið virðist fara: snúa um miðju, út, inn eða í bylgjum
+Slide the rows back and forth, so the wall bends and straightens. 0 holds it still	Renna línunum fram og aftur svo veggurinn bognar og réttist. 0 heldur honum kyrrum
+How fast the crosses turn. They always turn a little: the dots vanish only while they move	Hve hratt krossarnir snúast. Þeir snúast alltaf aðeins: punktarnir hverfa bara meðan þeir hreyfast
+Drift (still shapes that seem to turn), ouchi (a disc that floats), cafe (straight rows that look tilted), vanish (dots that disappear while you stare), grid (dots that flicker and are not there) or dancer (it spins whichever way you see it)	drift (kyrr lögun sem virðist snúast), ouchi (skífa sem svífur), cafe (beinar línur sem virðast hallast), vanish (punktar sem hverfa meðan þú starir), grid (punktar sem flökta og eru ekki þar) eða dancer (snýst í þá átt sem þú sérð)
+STATUS | SHAPE drift|ouchi|cafe|vanish|grid|dancer | FORM leaf|petal|scale|ring | FLOW turn|out|in|wave | FLIP ON|OFF | PALETTE classic|theme|hues | SIZE|COUNT|EDGE|SPEED|CENTREX|CENTREY|GREY <0-100> | HUE1|HUE2 <0-360> | LFO <control> <setting>	STATUS | SHAPE drift|ouchi|cafe|vanish|grid|dancer | FORM leaf|petal|scale|ring | FLOW turn|out|in|wave | FLIP ON|OFF | PALETTE classic|theme|hues | SIZE|COUNT|EDGE|SPEED|CENTREX|CENTREY|GREY <0-100> | HUE1|HUE2 <0-360> | LFO <stýring> <stilling>

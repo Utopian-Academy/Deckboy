@@ -4699,3 +4699,81 @@ listens to the live input while one is open, else the playlist	слушает ж
 TUTORIAL: no lesson running	TUTORIAL: ни один урок не работает
 TUTORIAL: expected START, SHOWME, SKIP, STEP <n>, RESTART, EXIT, STATUS or SCREENS	TUTORIAL: ожидается START, SHOWME, SKIP, STEP <n>, RESTART, EXIT, STATUS или SCREENS
 cursor across	курсор по горизонтали
+Edge	Край
+Flip	Переворот
+Form	Форма
+flip	переворот
+form	форма
+pose	поза
+Count	Количество
+count	количество
+disc x	диск x
+disc y	диск y
+mortar	шов
+offset	сдвиг
+wander	блуждание
+RESTART	ПЕРЕЗАПУСК
+crosses	кресты
+squares	квадраты
+Colour 1	Цвет 1
+Colour 2	Цвет 2
+ILLUSION	ИЛЛЮЗИЯ
+Illusion	Иллюзия
+colour 1	цвет 1
+colour 2	цвет 2
+dot size	размер точки
+disc size	размер диска
+cross size	размер креста
+dot colour	цвет точки
+edge width	ширина края
+mortar grey	серый тон шва
+street grey	серый тон улиц
+tile length	длина плитки
+cross colour	цвет креста
+shape colour	цвет формы
+street width	ширина улиц
+ground colour	цвет фона
+tile thickness	толщина плитки
+How big each tile is	Размер каждой плитки
+How big each cross is	Размер каждого креста
+How long each tile is	Длина каждой плитки
+How tall the dancer is	Рост танцора
+0-100%: 0 holds it still	0-100%: 0 останавливает движение
+0 classic, 1 theme, 2 hues	0 классика, 1 тема, 2 оттенки
+Leaf, petal, scale or ring	Лист, лепесток, чешуя или кольцо
+0 or 1: the other way round	0 или 1: в обратную сторону
+0 turn, 1 out, 2 in, 3 wave	0 поворот, 1 наружу, 2 внутрь, 3 волна
+How big the floating disc is	Размер парящего диска
+How light the grey lines are	Яркость серых линий
+select an illusion cue first	сначала выберите cue иллюзии
+Turn the crosses the other way	Повернуть кресты в другую сторону
+Illusion (Pictures that move!?)	Иллюзия (Картинки, которые движутся!?)
+0 leaf, 1 petal, 2 scale, 3 ring	0 лист, 1 лепесток, 2 чешуя, 3 кольцо
+How many shapes across the screen	Сколько фигур по ширине экрана
+How many crosses across the screen	Сколько крестов по ширине экрана
+How many squares across the screen	Сколько квадратов по ширине экрана
+Where the disc sits, left to right	Положение диска, слева направо
+Where the disc sits, top to bottom	Положение диска, сверху вниз
+0-100%: 0 black, 100 the light tile	0-100%: 0 чёрный, 100 светлая плитка
+How much of its place each shape fills	Какую часть своего места заполняет каждая фигура
+Where the dancer stands, left to right	Положение танцора, слева направо
+Where the dancer stands, top to bottom	Положение танцора, сверху вниз
+Collapse/expand the illusion's controls	Свернуть/развернуть настройки иллюзии
+How far the free leg and the arms reach	Размах свободной ноги и рук
+Slide the grid slowly. 0 holds it still	Медленно сдвигает сетку. 0 останавливает её
+The first colour, round the colour wheel	Первый цвет на цветовом круге
+The second colour, round the colour wheel	Второй цвет на цветовом круге
+How thick each tile is, against its length	Толщина каждой плитки относительно её длины
+Where the centre point sits, left to right	Положение центральной точки, слева направо
+Where the centre point sits, top to bottom	Положение центральной точки, сверху вниз
+How thick the grey line between the rows is	Толщина серой линии между рядами
+How big the light discs at the crossings are	Размер светлых дисков на пересечениях
+Where the field's centre sits, left to right	Положение центра поля, слева направо
+Where the field's centre sits, top to bottom	Положение центра поля, сверху вниз
+How wide the grey lines between the squares are	Ширина серых линий между квадратами
+How fast the dancer turns. It always turns a little	Скорость вращения танцора. Он всегда немного вращается
+0 drift, 1 ouchi, 2 cafe, 3 vanish, 4 grid, 5 dancer	0 дрейф, 1 ouchi, 2 кафе, 3 исчезание, 4 сетка, 5 танцор
+How light the grey line is. Mid grey tilts the rows most	Яркость серой линии. Средний серый сильнее всего наклоняет ряды
+How big the three dots are. Small dots vanish more easily	Размер трёх точек. Маленькие точки исчезают легче
+Swap the black and white edges: the field drifts the other way	Поменять местами чёрные и белые края: поле дрейфует в другую сторону
+How much of the black and white edges shows. They make the drift	Насколько видны чёрные и белые края. Они создают дрейф

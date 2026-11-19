@@ -4683,3 +4683,92 @@ listens to the live input while one is open, else the playlist	isell i unekcum s
 TUTORIAL: no lesson running	TUTORIAL: ulac tamsirt yettedden
 TUTORIAL: expected START, SHOWME, SKIP, STEP <n>, RESTART, EXIT, STATUS or SCREENS	TUTORIAL: ilaq START, SHOWME, SKIP, STEP <n>, RESTART, EXIT, STATUS neɣ SCREENS
 cursor across	taḥnaccaṭ s teɣzi
+Edge	Iri
+Flip	Qelleb
+Form	Talɣa
+flip	qelleb
+form	talɣa
+pose	addad
+Count	Amḍan
+count	amḍan
+disc x	aḍebsi x
+disc y	aḍebsi y
+mortar	lǧir
+offset	asmutti
+wander	anuddu
+RESTART	ALES ASENKER
+crosses	ikrusen
+squares	imkuẓen
+Colour 1	Ini 1
+Colour 2	Ini 2
+ILLUSION	AWHAM
+Illusion	Awham
+colour 1	ini 1
+colour 2	ini 2
+dot size	tiddi n tenqiḍt
+disc size	tiddi n uḍebsi
+cross size	tiddi n ukrus
+dot colour	ini n tenqiḍt
+edge width	tehri n yiri
+mortar grey	aɣiɣdan n lǧir
+street grey	aɣiɣdan n uzniq
+tile length	teɣzi n uẓelliw
+cross colour	ini n ukrus
+shape colour	ini n talɣa
+street width	tehri n uzniq
+ground colour	ini n ugilal
+tile thickness	tuzert n uẓelliw
+How big each tile is	Tiddi n yal aẓelliw
+How big each cross is	Tiddi n yal akrus
+How long each tile is	Teɣzi n yal aẓelliw
+How tall the dancer is	Teɣzi n umcaṭeḥ
+0-100%: 0 holds it still	0-100%: 0 yeṭṭef-it ur yettḥerrik ara
+0 classic, 1 theme, 2 hues	0 amensay, 1 asentel, 2 initen
+Leaf, petal, scale or ring	Ifer, tifrit, tiqcert neɣ taxatemt
+0 or 1: the other way round	0 neɣ 1: ɣer tanila tayeḍ
+0 turn, 1 out, 2 in, 3 wave	0 zzi, 1 tuffɣa, 2 anekcum, 3 tamewwejt
+How big the floating disc is	Tiddi n uḍebsi yettɛumun
+How light the grey lines are	Acḥal d ifawen yizirigen iɣiɣdanen
+select an illusion cue first	fren cue n uɣurru deg tazwara
+Turn the crosses the other way	Zzi tigelzimin ɣer tanila tayeḍ
+Illusion (Pictures that move!?)	Aɣurru (Tugniwin yettḥerrikent!?)
+0 leaf, 1 petal, 2 scale, 3 ring	0 ifer, 1 tifrit, 2 tiqcert, 3 taxatemt
+How many shapes across the screen	Acḥal n talɣiwin s tehri n ugdil
+How many crosses across the screen	Acḥal n tgelzimin s tehri n ugdil
+How many squares across the screen	Acḥal n yimkuẓen s tehri n ugdil
+Where the disc sits, left to right	Anida yella uḍebsi, seg zelmaḍ ɣer yeffus
+Where the disc sits, top to bottom	Anida yella uḍebsi, seg ufella ɣer wadda
+0-100%: 0 black, 100 the light tile	0-100%: 0 aberkan, 100 taɣnacit tafawant
+How much of its place each shape fills	Acḥal i teččur yal talɣa seg wadeg-is
+Where the dancer stands, left to right	Anida i ibedd umcaṭeḥ, seg zelmaḍ ɣer yeffus
+Where the dancer stands, top to bottom	Anida i ibedd umcaṭeḥ, seg ufella ɣer wadda
+Collapse/expand the illusion's controls	Ffer/sken iferdisen n usenqed n uɣurru
+How far the free leg and the arms reach	Acḥal i ttawḍen uḍar ilelli d yiɣallen
+Slide the grid slowly. 0 holds it still	Zleg aferrug s ttawil. 0 yeṭṭef-it
+The first colour, round the colour wheel	Ini amezwaru, ɣef tewriqt n yini
+The second colour, round the colour wheel	Ini wis sin, ɣef tewriqt n yini
+How thick each tile is, against its length	Tazurant n yal taɣnacit ɣef teɣzi-ines
+Where the centre point sits, left to right	Anida tella tneqqiḍt talemmast, seg zelmaḍ ɣer yeffus
+Where the centre point sits, top to bottom	Anida tella tneqqiḍt talemmast, seg ufella ɣer wadda
+How thick the grey line between the rows is	Tazurant n yizirig aɣiɣdan gar yizirigen
+How big the light discs at the crossings are	Tiddi n yiḍebsiyen ifawanen anda myagaren yizirigen
+Where the field's centre sits, left to right	Anida tella tlemmast n wurti, seg zelmaḍ ɣer yeffus
+Where the field's centre sits, top to bottom	Anida tella tlemmast n wurti, seg ufella ɣer wadda
+How wide the grey lines between the squares are	Tehri n yizirigen iɣiɣdanen gar yimkuẓen
+How fast the dancer turns. It always turns a little	Arured n tuzzya n umcaṭeḥ. Dima yettezzi cwiṭ
+0 drift, 1 ouchi, 2 cafe, 3 vanish, 4 grid, 5 dancer	0 amuti, 1 ouchi, 2 lqahwa, 3 tuffra, 4 aferrug, 5 amcaṭeḥ
+How light the grey line is. Mid grey tilts the rows most	Acḥal d ifaw yizirig aɣiɣdan. Aɣiɣdan alemmas yessenẓal izirigen s waṭas
+How big the three dots are. Small dots vanish more easily	Tiddi n tneqqiḍin tiṛaḍ. Tineqqiḍin timeẓyanin ttruḥunt s sshala
+Swap the black and white edges: the field drifts the other way	Beddel iran iberkanen d imellalen: urti ad yemmuti ɣer tanila tayeḍ
+How much of the black and white edges shows. They make the drift	Acḥal i d-ttbanen yiran iberkanen d imellalen. D nutni i d-yesskaren amuti
+LFO: size, count, edge, speed, centrex, centrey, grey, hue1 or hue2	LFO: size, count, edge, speed, centrex, centrey, grey, hue1 neɣ hue2
+How far each row is shifted. This makes the straight rows look tilted	Acḥal i yettwazzal yal izirig. Aya yettarra izirigen usriden ad d-banen d imaylen
+Spin the other way. Most people cannot tell which way it turns anyway	Zzi ɣer tama nniḍen. Aṭas n medden ur ẓren ara anida i yettezzi
+Move the disc in a small loop. 0 holds it still: the eye moves it anyway	Smenyef aḍebsi deg tneḍt tamecṭuḥt. 0 yeṭṭef-it: tiṭ tesmussu-t ɣas akken
+Turn the shapes slowly, so the drift changes direction. 0 holds them still	Zzi talɣiwin s leɛqel, akken ad tbeddel tanila n umuti. 0 yeṭṭef-itent
+Classic, the theme's colours (taken when picked) or two colours of your own	Amensay, initen n usentel (ttwaṭṭfen mi ara yettwafren) neɣ sin yiniten-ik
+Which way the field seems to go: turn round the centre, out, in, or in waves	Tanila i d-yettban yetteddu wurti: zzi ɣef ulemmas, tuffɣa, anekcum, neɣ s tmewjin
+Slide the rows back and forth, so the wall bends and straightens. 0 holds it still	Zleg izirigen sdat d deffir, akken aɣrab ad yettwennay syin ad yesrid. 0 yeṭṭef-it
+How fast the crosses turn. They always turn a little: the dots vanish only while they move	Arured n tuzzya n yiṣliben. Ttezzin dima cwiṭ: tineqqiḍin ttruḥunt kan mi ara mussun
+Drift (still shapes that seem to turn), ouchi (a disc that floats), cafe (straight rows that look tilted), vanish (dots that disappear while you stare), grid (dots that flicker and are not there) or dancer (it spins whichever way you see it)	drift (talɣiwin yeḥbsen i d-yettbanen ttezzint), ouchi (aḍebsi yettɛummun), cafe (izirigen usriden i d-yettbanen imaylen), vanish (tineqqiḍin yettruḥun mi ara tmuqleḍ), grid (tineqqiḍin yesseddiren ur llint ara) neɣ dancer (tettezzi ɣer tanila i tt-twalaḍ)
+STATUS | SHAPE drift|ouchi|cafe|vanish|grid|dancer | FORM leaf|petal|scale|ring | FLOW turn|out|in|wave | FLIP ON|OFF | PALETTE classic|theme|hues | SIZE|COUNT|EDGE|SPEED|CENTREX|CENTREY|GREY <0-100> | HUE1|HUE2 <0-360> | LFO <control> <setting>	STATUS | SHAPE drift|ouchi|cafe|vanish|grid|dancer | FORM leaf|petal|scale|ring | FLOW turn|out|in|wave | FLIP ON|OFF | PALETTE classic|theme|hues | SIZE|COUNT|EDGE|SPEED|CENTREX|CENTREY|GREY <0-100> | HUE1|HUE2 <0-360> | LFO <asenqed> <aɣewwar>

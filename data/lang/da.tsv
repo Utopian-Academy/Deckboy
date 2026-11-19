@@ -4653,3 +4653,87 @@ listens to the live input while one is open, else the playlist	lytter til live-i
 TUTORIAL: no lesson running	TUTORIAL: ingen lektion kører
 TUTORIAL: expected START, SHOWME, SKIP, STEP <n>, RESTART, EXIT, STATUS or SCREENS	TUTORIAL: forventer START, SHOWME, SKIP, STEP <n>, RESTART, EXIT, STATUS eller SCREENS
 cursor across	markør på tværs
+Edge	Kant
+Flip	Vend
+flip	vend
+pose	positur
+Count	Antal
+count	antal
+disc x	skive x
+disc y	skive y
+mortar	mørtel
+offset	forskydning
+wander	vandring
+RESTART	GENSTART
+crosses	krydser
+squares	firkanter
+Colour 1	Farve 1
+Colour 2	Farve 2
+colour 1	farve 1
+colour 2	farve 2
+dot size	prikstørrelse
+disc size	skivestørrelse
+cross size	krydsstørrelse
+dot colour	prikfarve
+edge width	kantbredde
+mortar grey	mørtelgrå
+street grey	gadegrå
+tile length	fliselængde
+cross colour	krydsfarve
+shape colour	formfarve
+street width	gadebredde
+ground colour	baggrundsfarve
+tile thickness	flisetykkelse
+How big each tile is	Hvor stor hver flise er
+How big each cross is	Hvor stort hvert kryds er
+How long each tile is	Hvor lang hver flise er
+How tall the dancer is	Hvor høj danseren er
+0-100%: 0 holds it still	0-100%: 0 holder det stille
+0 classic, 1 theme, 2 hues	0 klassisk, 1 tema, 2 nuancer
+Leaf, petal, scale or ring	Blad, kronblad, skæl eller ring
+0 or 1: the other way round	0 eller 1: den anden vej rundt
+0 turn, 1 out, 2 in, 3 wave	0 drejning, 1 ud, 2 ind, 3 bølge
+How big the floating disc is	Hvor stor den svævende skive er
+How light the grey lines are	Hvor lyse de grå linjer er
+select an illusion cue first	vælg først et illusions-cue
+Turn the crosses the other way	Drej krydsene den anden vej
+Illusion (Pictures that move!?)	Illusion (Billeder der bevæger sig!?)
+0 leaf, 1 petal, 2 scale, 3 ring	0 blad, 1 kronblad, 2 skæl, 3 ring
+How many shapes across the screen	Hvor mange former på tværs af skærmen
+How many crosses across the screen	Hvor mange kryds på tværs af skærmen
+How many squares across the screen	Hvor mange firkanter på tværs af skærmen
+Where the disc sits, left to right	Skivens placering, venstre mod højre
+Where the disc sits, top to bottom	Skivens placering, top mod bund
+0-100%: 0 black, 100 the light tile	0-100%: 0 sort, 100 den lyse flise
+How much of its place each shape fills	Hvor meget af sin plads hver form fylder
+Where the dancer stands, left to right	Danserens placering, venstre mod højre
+Where the dancer stands, top to bottom	Danserens placering, top mod bund
+Collapse/expand the illusion's controls	Fold illusionens styring ind/ud
+How far the free leg and the arms reach	Hvor langt det frie ben og armene rækker
+Slide the grid slowly. 0 holds it still	Lad gitteret glide langsomt. 0 holder det stille
+The first colour, round the colour wheel	Den første farve, på farvehjulet
+The second colour, round the colour wheel	Den anden farve, på farvehjulet
+How thick each tile is, against its length	Hvor tyk hver flise er i forhold til længden
+Where the centre point sits, left to right	Midtpunktets placering, venstre mod højre
+Where the centre point sits, top to bottom	Midtpunktets placering, top mod bund
+How thick the grey line between the rows is	Hvor tyk den grå linje mellem rækkerne er
+How big the light discs at the crossings are	Hvor store de lyse skiver ved krydsningerne er
+Where the field's centre sits, left to right	Feltets midte, venstre mod højre
+Where the field's centre sits, top to bottom	Feltets midte, top mod bund
+How wide the grey lines between the squares are	Hvor brede de grå linjer mellem firkanterne er
+How fast the dancer turns. It always turns a little	Hvor hurtigt danseren drejer. Danseren drejer altid lidt
+0 drift, 1 ouchi, 2 cafe, 3 vanish, 4 grid, 5 dancer	0 drift, 1 ouchi, 2 café, 3 forsvind, 4 gitter, 5 danser
+How light the grey line is. Mid grey tilts the rows most	Hvor lys den grå linje er. Mellemgrå hælder rækkerne mest
+How big the three dots are. Small dots vanish more easily	Hvor store de tre prikker er. Små prikker forsvinder lettere
+Swap the black and white edges: the field drifts the other way	Byt de sorte og hvide kanter: feltet driver den anden vej
+How much of the black and white edges shows. They make the drift	Hvor meget af de sorte og hvide kanter der vises. De skaber driften
+LFO: size, count, edge, speed, centrex, centrey, grey, hue1 or hue2	LFO: size, count, edge, speed, centrex, centrey, grey, hue1 eller hue2
+How far each row is shifted. This makes the straight rows look tilted	Hvor meget hver række forskydes. Det får de lige rækker til at se skrå ud
+Spin the other way. Most people cannot tell which way it turns anyway	Drej den anden vej. De fleste kan alligevel ikke se, hvilken vej den drejer
+Move the disc in a small loop. 0 holds it still: the eye moves it anyway	Flyt skiven i en lille løkke. 0 holder den stille: øjet flytter den alligevel
+Turn the shapes slowly, so the drift changes direction. 0 holds them still	Drej formerne langsomt, så driften skifter retning. 0 holder dem stille
+Classic, the theme's colours (taken when picked) or two colours of your own	Klassisk, temaets farver (hentet ved valget) eller to af dine egne farver
+Which way the field seems to go: turn round the centre, out, in, or in waves	Hvilken vej feltet synes at gå: drejning om midten, ud, ind eller i bølger
+Slide the rows back and forth, so the wall bends and straightens. 0 holds it still	Lad rækkerne glide frem og tilbage, så muren bøjer og retter sig ud. 0 holder den stille
+How fast the crosses turn. They always turn a little: the dots vanish only while they move	Hvor hurtigt krydsene drejer. De drejer altid lidt: prikkerne forsvinder kun, mens de bevæger sig
+Drift (still shapes that seem to turn), ouchi (a disc that floats), cafe (straight rows that look tilted), vanish (dots that disappear while you stare), grid (dots that flicker and are not there) or dancer (it spins whichever way you see it)	Drift (stille former, der synes at dreje), ouchi (en skive, der svæver), café (lige rækker, der ser skrå ud), forsvind (prikker, der forsvinder, mens du stirrer), gitter (prikker, der flimrer og ikke er der) eller danser (den drejer, som du ser den)

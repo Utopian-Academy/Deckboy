@@ -4662,3 +4662,92 @@ listens to the live input while one is open, else the playlist	hoʻolohe i ka ko
 TUTORIAL: no lesson running	TUTORIAL: ʻaʻohe haʻawina e holo ana
 TUTORIAL: expected START, SHOWME, SKIP, STEP <n>, RESTART, EXIT, STATUS or SCREENS	TUTORIAL: pono START, SHOWME, SKIP, STEP <n>, RESTART, EXIT, STATUS a i ʻole SCREENS
 cursor across	kuhikuhi ma ʻō
+Edge	Lihi
+Flip	Huli
+Form	Kinona
+flip	huli
+form	kinona
+pose	kūlana
+Count	Helu
+count	helu
+disc x	pā poepoe x
+disc y	pā poepoe y
+mortar	puna
+offset	neʻe
+wander	auwana
+RESTART	HOʻOMAKA HOU
+crosses	nā kea
+squares	nā huinahā
+Colour 1	Kala 1
+Colour 2	Kala 2
+ILLUSION	HOʻOPUNIPUNI
+Illusion	Hoʻopunipuni
+colour 1	kala 1
+colour 2	kala 2
+dot size	nui kiko
+disc size	nui pā poepoe
+cross size	nui kea
+dot colour	kala kiko
+edge width	ākea lihi
+mortar grey	ʻāhinahina puna
+street grey	ʻāhinahina alanui
+tile length	lōʻihi tile
+cross colour	kala kea
+shape colour	kala kinona
+street width	ākea alanui
+ground colour	kala kahua
+tile thickness	mānoanoa tile
+How big each tile is	Ka nui o kēlā me kēia ʻāpana
+How big each cross is	Ka nui o kēlā me kēia kea
+How long each tile is	Ka lōʻihi o kēlā me kēia ʻāpana
+How tall the dancer is	Ke kiʻekiʻe o ka mea hula
+0-100%: 0 holds it still	0-100%: paʻa ma 0
+0 classic, 1 theme, 2 hues	0 kahiko, 1 kumuhana, 2 nā waihoʻoluʻu
+Leaf, petal, scale or ring	Lau, lihilihi pua, unahi a i ʻole apo
+0 or 1: the other way round	0 a i ʻole 1: ma ke ala ʻē
+0 turn, 1 out, 2 in, 3 wave	0 huli, 1 puka, 2 komo, 3 ale
+How big the floating disc is	Ka nui o ka pā lana
+How light the grey lines are	Ka mālamalama o nā laina ʻāhinahina
+select an illusion cue first	koho mua i kekahi cue hoʻopunipuni maka
+Turn the crosses the other way	Huli i nā keʻa ma ke ala ʻē
+Illusion (Pictures that move!?)	Hoʻopunipuni maka (Nā kiʻi e neʻe ana!?)
+0 leaf, 1 petal, 2 scale, 3 ring	0 lau, 1 lihilihi pua, 2 unahi, 3 apo
+How many shapes across the screen	ʻEhia kinona ma ka papakaumaka
+How many crosses across the screen	ʻEhia keʻa ma ka papakaumaka
+How many squares across the screen	ʻEhia huinahā ma ka papakaumaka
+Where the disc sits, left to right	Kahi o ka pā, hema a ʻākau
+Where the disc sits, top to bottom	Kahi o ka pā, luna a lalo
+0-100%: 0 black, 100 the light tile	0-100%: 0 ʻeleʻele, 100 ka ʻāpana mālamalama
+How much of its place each shape fills	Ka nui o kona wahi e piha ai i kēlā me kēia kinona
+Where the dancer stands, left to right	Kahi e kū ai ka mea hula, hema a ʻākau
+Where the dancer stands, top to bottom	Kahi e kū ai ka mea hula, luna a lalo
+Collapse/expand the illusion's controls	Peʻe/hōʻike i nā mana hoʻopunipuni maka
+How far the free leg and the arms reach	Ka mamao e hiki ai ka wāwae kaʻawale a me nā lima
+Slide the grid slowly. 0 holds it still	Hoʻopaheʻe mālie i ka makaʻaha. Paʻa ma 0
+The first colour, round the colour wheel	Ka waihoʻoluʻu mua, a puni ka huila waihoʻoluʻu
+The second colour, round the colour wheel	Ka waihoʻoluʻu ʻelua, a puni ka huila waihoʻoluʻu
+How thick each tile is, against its length	Ka mānoanoa o kēlā me kēia ʻāpana, e like me kona lōʻihi
+Where the centre point sits, left to right	Kahi o ke kiko waena, hema a ʻākau
+Where the centre point sits, top to bottom	Kahi o ke kiko waena, luna a lalo
+How thick the grey line between the rows is	Ka mānoanoa o ka laina ʻāhinahina ma waena o nā lālani
+How big the light discs at the crossings are	Ka nui o nā pā mālamalama ma nā kahi e hui ai nā laina
+Where the field's centre sits, left to right	Kahi o ke waena o ke kahua, hema a ʻākau
+Where the field's centre sits, top to bottom	Kahi o ke waena o ke kahua, luna a lalo
+How wide the grey lines between the squares are	Ka laulā o nā laina ʻāhinahina ma waena o nā huinahā
+How fast the dancer turns. It always turns a little	Ka wikiwiki o ka huli ʻana o ka mea hula. Huli mau iki ia
+0 drift, 1 ouchi, 2 cafe, 3 vanish, 4 grid, 5 dancer	0 ʻeʻe, 1 ouchi, 2 hale kope, 3 nalo, 4 makaʻaha, 5 mea hula
+How light the grey line is. Mid grey tilts the rows most	Ka mālamalama o ka laina ʻāhinahina. Kapakahi loa nā lālani ma ka ʻāhinahina waena
+How big the three dots are. Small dots vanish more easily	Ka nui o nā kiko ʻekolu. Nalo maʻalahi nā kiko liʻiliʻi
+Swap the black and white edges: the field drifts the other way	Hoʻololi i nā lihi ʻeleʻele a keʻokeʻo: ʻeʻe ke kahua ma ke ala ʻē
+How much of the black and white edges shows. They make the drift	Ka nui o nā lihi ʻeleʻele a keʻokeʻo e hōʻike ʻia. Na lākou ka ʻeʻe
+LFO: size, count, edge, speed, centrex, centrey, grey, hue1 or hue2	LFO: size, count, edge, speed, centrex, centrey, grey, hue1 a i ʻole hue2
+How far each row is shifted. This makes the straight rows look tilted	Ka mamao e neʻe ai kēlā me kēia lalani. Me he mea lā ua kapakahi nā lalani pololei
+Spin the other way. Most people cannot tell which way it turns anyway	Wili i kēlā ʻaoʻao. ʻAʻole ʻike ka hapa nui i ke ala o ka huli ʻana
+Move the disc in a small loop. 0 holds it still: the eye moves it anyway	Hoʻoneʻe i ka pā ma kahi pōʻai liʻiliʻi. Paʻa ma 0: na ka maka nō e hoʻoneʻe
+Turn the shapes slowly, so the drift changes direction. 0 holds them still	Huli mālie i nā kinona, i loli ke ala o ka ʻeʻe. Paʻa lākou ma 0
+Classic, the theme's colours (taken when picked) or two colours of your own	Kahiko, nā waihoʻoluʻu o ke kumuhana (lawe ʻia i ke koho ʻana) a i ʻole ʻelua waihoʻoluʻu nou iho
+Which way the field seems to go: turn round the centre, out, in, or in waves	Ke ala e like me ka neʻe o ke kahua: huli pōʻai a puni ka waena, puka, komo, a i ʻole ma nā nalu
+Slide the rows back and forth, so the wall bends and straightens. 0 holds it still	Paheʻe i nā lalani i mua a i hope, i pelu a pololei ka paia. Paʻa ma 0
+How fast the crosses turn. They always turn a little: the dots vanish only while they move	Ka māmā o ka huli ʻana o nā kea. Huli iki mau lākou: nalowale nā kiko i ka wā e neʻe ana wale nō
+Drift (still shapes that seem to turn), ouchi (a disc that floats), cafe (straight rows that look tilted), vanish (dots that disappear while you stare), grid (dots that flicker and are not there) or dancer (it spins whichever way you see it)	drift (nā kinona paʻa e like me ka huli), ouchi (he pā e lana ana), cafe (nā lalani pololei e like me ke kapakahi), vanish (nā kiko e nalowale ke nānā pono ʻoe), grid (nā kiko e ʻōlapa ana akā ʻaʻole i laila) a i ʻole dancer (wili ma ke ala āu e ʻike ai)
+STATUS | SHAPE drift|ouchi|cafe|vanish|grid|dancer | FORM leaf|petal|scale|ring | FLOW turn|out|in|wave | FLIP ON|OFF | PALETTE classic|theme|hues | SIZE|COUNT|EDGE|SPEED|CENTREX|CENTREY|GREY <0-100> | HUE1|HUE2 <0-360> | LFO <control> <setting>	STATUS | SHAPE drift|ouchi|cafe|vanish|grid|dancer | FORM leaf|petal|scale|ring | FLOW turn|out|in|wave | FLIP ON|OFF | PALETTE classic|theme|hues | SIZE|COUNT|EDGE|SPEED|CENTREX|CENTREY|GREY <0-100> | HUE1|HUE2 <0-360> | LFO <kaohi> <hoʻonohonoho>

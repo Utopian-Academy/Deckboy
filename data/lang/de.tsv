@@ -4668,3 +4668,88 @@ listens to the live input while one is open, else the playlist	hört auf den Liv
 TUTORIAL: no lesson running	TUTORIAL: keine Lektion läuft
 TUTORIAL: expected START, SHOWME, SKIP, STEP <n>, RESTART, EXIT, STATUS or SCREENS	TUTORIAL: erwartet START, SHOWME, SKIP, STEP <n>, RESTART, EXIT, STATUS oder SCREENS
 cursor across	Cursor quer
+Edge	Kante
+Flip	Spiegeln
+flip	Spiegeln
+form	Form
+pose	Pose
+Count	Anzahl
+count	Anzahl
+disc x	Scheibe x
+disc y	Scheibe y
+mortar	Mörtel
+offset	Versatz
+wander	Wandern
+RESTART	NEUSTART
+crosses	Kreuze
+squares	Quadrate
+Colour 1	Farbe 1
+Colour 2	Farbe 2
+colour 1	Farbe 1
+colour 2	Farbe 2
+dot size	Punktgröße
+disc size	Scheibengröße
+cross size	Kreuzgröße
+dot colour	Punktfarbe
+edge width	Kantenbreite
+mortar grey	Mörtelgrau
+street grey	Straßengrau
+tile length	Kachellänge
+cross colour	Kreuzfarbe
+shape colour	Formfarbe
+street width	Straßenbreite
+ground colour	Grundfarbe
+tile thickness	Kacheldicke
+How big each tile is	Wie groß jede Kachel ist
+How big each cross is	Wie groß jedes Kreuz ist
+How long each tile is	Wie lang jede Kachel ist
+How tall the dancer is	Wie groß die Tänzerin ist
+0-100%: 0 holds it still	0-100%: 0 hält es still
+0 classic, 1 theme, 2 hues	0 klassisch, 1 Thema, 2 Farbtöne
+Leaf, petal, scale or ring	Blatt, Blütenblatt, Schuppe oder Ring
+0 or 1: the other way round	0 oder 1: andersherum
+0 turn, 1 out, 2 in, 3 wave	0 Drehung, 1 aus, 2 ein, 3 Welle
+How big the floating disc is	Wie groß die schwebende Scheibe ist
+How light the grey lines are	Wie hell die grauen Linien sind
+select an illusion cue first	zuerst einen Illusions-Cue wählen
+Turn the crosses the other way	Die Kreuze andersherum drehen
+Illusion (Pictures that move!?)	Illusion (Bilder, die sich bewegen!?)
+0 leaf, 1 petal, 2 scale, 3 ring	0 Blatt, 1 Blütenblatt, 2 Schuppe, 3 Ring
+How many shapes across the screen	Wie viele Formen über den Bildschirm
+How many crosses across the screen	Wie viele Kreuze über den Bildschirm
+How many squares across the screen	Wie viele Quadrate über den Bildschirm
+Where the disc sits, left to right	Scheibenposition, links nach rechts
+Where the disc sits, top to bottom	Scheibenposition, oben nach unten
+0-100%: 0 black, 100 the light tile	0-100%: 0 schwarz, 100 die helle Kachel
+How much of its place each shape fills	Wie viel ihres Platzes jede Form füllt
+Where the dancer stands, left to right	Position der Tänzerin, links nach rechts
+Where the dancer stands, top to bottom	Position der Tänzerin, oben nach unten
+Collapse/expand the illusion's controls	Steuerung der Illusion ein-/ausklappen
+How far the free leg and the arms reach	Wie weit das freie Bein und die Arme reichen
+Slide the grid slowly. 0 holds it still	Das Raster langsam verschieben. 0 hält es still
+The first colour, round the colour wheel	Die erste Farbe, auf dem Farbkreis
+The second colour, round the colour wheel	Die zweite Farbe, auf dem Farbkreis
+How thick each tile is, against its length	Wie dick jede Kachel im Verhältnis zur Länge ist
+Where the centre point sits, left to right	Mittelpunkt, links nach rechts
+Where the centre point sits, top to bottom	Mittelpunkt, oben nach unten
+How thick the grey line between the rows is	Wie dick die graue Linie zwischen den Reihen ist
+How big the light discs at the crossings are	Wie groß die hellen Scheiben an den Kreuzungen sind
+Where the field's centre sits, left to right	Mitte des Feldes, links nach rechts
+Where the field's centre sits, top to bottom	Mitte des Feldes, oben nach unten
+How wide the grey lines between the squares are	Wie breit die grauen Linien zwischen den Quadraten sind
+How fast the dancer turns. It always turns a little	Wie schnell die Tänzerin dreht. Sie dreht sich immer ein wenig
+0 drift, 1 ouchi, 2 cafe, 3 vanish, 4 grid, 5 dancer	0 Drift, 1 Ouchi, 2 Café, 3 Verschwinden, 4 Raster, 5 Tänzerin
+How light the grey line is. Mid grey tilts the rows most	Wie hell die graue Linie ist. Mittelgrau neigt die Reihen am stärksten
+How big the three dots are. Small dots vanish more easily	Wie groß die drei Punkte sind. Kleine Punkte verschwinden leichter
+Swap the black and white edges: the field drifts the other way	Schwarze und weiße Kanten tauschen: Das Feld driftet andersherum
+How much of the black and white edges shows. They make the drift	Wie viel der schwarzen und weißen Kanten sichtbar ist. Sie erzeugen die Drift
+LFO: size, count, edge, speed, centrex, centrey, grey, hue1 or hue2	LFO: size, count, edge, speed, centrex, centrey, grey, hue1 oder hue2
+How far each row is shifted. This makes the straight rows look tilted	Wie weit jede Zeile versetzt ist. So wirken die geraden Zeilen schräg
+Spin the other way. Most people cannot tell which way it turns anyway	Andersherum drehen. Die meisten sehen ohnehin nicht, in welche Richtung es dreht
+Move the disc in a small loop. 0 holds it still: the eye moves it anyway	Bewegt die Scheibe in einer kleinen Schleife. 0 hält sie still: das Auge bewegt sie trotzdem
+Turn the shapes slowly, so the drift changes direction. 0 holds them still	Dreht die Formen langsam, sodass die Drift die Richtung wechselt. 0 hält sie still
+Classic, the theme's colours (taken when picked) or two colours of your own	Klassisch, die Farben des Themas (beim Auswählen übernommen) oder zwei eigene Farben
+Which way the field seems to go: turn round the centre, out, in, or in waves	Wohin das Feld zu gehen scheint: Drehung um die Mitte, nach außen, nach innen oder in Wellen
+Slide the rows back and forth, so the wall bends and straightens. 0 holds it still	Lässt die Zeilen hin und her gleiten, sodass die Wand sich biegt und streckt. 0 hält sie still
+How fast the crosses turn. They always turn a little: the dots vanish only while they move	Wie schnell sich die Kreuze drehen. Sie drehen sich immer etwas: die Punkte verschwinden nur, solange sie sich bewegen
+Drift (still shapes that seem to turn), ouchi (a disc that floats), cafe (straight rows that look tilted), vanish (dots that disappear while you stare), grid (dots that flicker and are not there) or dancer (it spins whichever way you see it)	Drift (stille Formen, die sich zu drehen scheinen), ouchi (eine schwebende Scheibe), Café (gerade Zeilen, die schräg wirken), Verschwinden (Punkte, die beim Hinstarren verschwinden), Raster (Punkte, die flackern und nicht da sind) oder Tänzerin (sie dreht sich so, wie du sie siehst)

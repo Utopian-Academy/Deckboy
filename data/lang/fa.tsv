@@ -4710,3 +4710,92 @@ listens to the live input while one is open, else the playlist	تا وقتی و�
 TUTORIAL: no lesson running	TUTORIAL: هیچ درسی در حال اجرا نیست
 TUTORIAL: expected START, SHOWME, SKIP, STEP <n>, RESTART, EXIT, STATUS or SCREENS	TUTORIAL: قالب مورد انتظار: START, SHOWME, SKIP, STEP <n>, RESTART, EXIT, STATUS یا SCREENS
 cursor across	مکان‌نمای افقی
+Edge	لبه
+Flip	وارونه
+Form	شکل
+flip	وارونه
+form	شکل
+pose	ژست
+Count	تعداد
+count	تعداد
+disc x	دیسک x
+disc y	دیسک y
+mortar	ملات
+offset	جابه‌جایی
+wander	پرسه
+RESTART	شروع دوباره
+crosses	صلیب‌ها
+squares	مربع‌ها
+Colour 1	رنگ 1
+Colour 2	رنگ 2
+ILLUSION	خطای دید
+Illusion	خطای دید
+colour 1	رنگ 1
+colour 2	رنگ 2
+dot size	اندازهٔ نقطه
+disc size	اندازهٔ دیسک
+cross size	اندازهٔ صلیب
+dot colour	رنگ نقطه
+edge width	پهنای لبه
+mortar grey	خاکستری ملات
+street grey	خاکستری خیابان
+tile length	طول کاشی
+cross colour	رنگ صلیب
+shape colour	رنگ شکل
+street width	پهنای خیابان
+ground colour	رنگ زمینه
+tile thickness	ضخامت کاشی
+How big each tile is	اندازهٔ هر کاشی
+How big each cross is	اندازهٔ هر صلیب
+How long each tile is	طول هر کاشی
+How tall the dancer is	قد رقصنده
+0-100%: 0 holds it still	0-100%: در 0 ثابت می‌ماند
+0 classic, 1 theme, 2 hues	0 کلاسیک، 1 پوسته، 2 رنگ‌مایه‌ها
+Leaf, petal, scale or ring	برگ، گلبرگ، فلس یا حلقه
+0 or 1: the other way round	0 یا 1: برعکس
+0 turn, 1 out, 2 in, 3 wave	0 گردش، 1 بیرون، 2 درون، 3 موج
+How big the floating disc is	اندازهٔ قرص شناور
+How light the grey lines are	روشنی خطوط خاکستری
+select an illusion cue first	ابتدا یک کیوی خطای دید انتخاب کنید
+Turn the crosses the other way	گرداندن صلیب‌ها در جهت مخالف
+Illusion (Pictures that move!?)	خطای دید (تصاویری که حرکت می‌کنند!؟)
+0 leaf, 1 petal, 2 scale, 3 ring	0 برگ، 1 گلبرگ، 2 فلس، 3 حلقه
+How many shapes across the screen	تعداد شکل‌ها در عرض صفحه‌نمایش
+How many crosses across the screen	تعداد صلیب‌ها در عرض صفحه‌نمایش
+How many squares across the screen	تعداد مربع‌ها در عرض صفحه‌نمایش
+Where the disc sits, left to right	جای قرص، چپ به راست
+Where the disc sits, top to bottom	جای قرص، بالا به پایین
+0-100%: 0 black, 100 the light tile	0-100%: 0 سیاه، 100 کاشی روشن
+How much of its place each shape fills	میزان پرشدن جای هر شکل
+Where the dancer stands, left to right	جای رقصنده، چپ به راست
+Where the dancer stands, top to bottom	جای رقصنده، بالا به پایین
+Collapse/expand the illusion's controls	بستن/بازکردن کنترل‌های خطای دید
+How far the free leg and the arms reach	دسترس پای آزاد و بازوها
+Slide the grid slowly. 0 holds it still	لغزش آرام شبکه. 0 ثابت نگه می‌دارد
+The first colour, round the colour wheel	رنگ نخست، روی چرخهٔ رنگ
+The second colour, round the colour wheel	رنگ دوم، روی چرخهٔ رنگ
+How thick each tile is, against its length	ضخامت هر کاشی نسبت به طولش
+Where the centre point sits, left to right	جای نقطهٔ مرکزی، چپ به راست
+Where the centre point sits, top to bottom	جای نقطهٔ مرکزی، بالا به پایین
+How thick the grey line between the rows is	ضخامت خط خاکستری میان ردیف‌ها
+How big the light discs at the crossings are	اندازهٔ قرص‌های روشن در محل تقاطع‌ها
+Where the field's centre sits, left to right	جای مرکز میدان، چپ به راست
+Where the field's centre sits, top to bottom	جای مرکز میدان، بالا به پایین
+How wide the grey lines between the squares are	پهنای خطوط خاکستری میان مربع‌ها
+How fast the dancer turns. It always turns a little	سرعت گردش رقصنده. همیشه کمی می‌چرخد
+0 drift, 1 ouchi, 2 cafe, 3 vanish, 4 grid, 5 dancer	0 رانش، 1 اوچی، 2 کافه، 3 ناپدیدشدن، 4 شبکه، 5 رقصنده
+How light the grey line is. Mid grey tilts the rows most	روشنی خط خاکستری. خاکستری میانه ردیف‌ها را بیش از همه کج می‌کند
+How big the three dots are. Small dots vanish more easily	اندازهٔ سه نقطه. نقطه‌های کوچک آسان‌تر ناپدید می‌شوند
+Swap the black and white edges: the field drifts the other way	جابه‌جاکردن لبه‌های سیاه و سفید: میدان در جهت مخالف رانش می‌یابد
+How much of the black and white edges shows. They make the drift	میزان نمایش لبه‌های سیاه و سفید. رانش را همین‌ها می‌سازند
+LFO: size, count, edge, speed, centrex, centrey, grey, hue1 or hue2	LFO: اندازه، تعداد، لبه، سرعت، میانه x، میانه y، خاکستری، فام1 یا فام2
+How far each row is shifted. This makes the straight rows look tilted	میزان جابه‌جایی هر ردیف. این کار ردیف‌های مستقیم را کج نشان می‌دهد
+Spin the other way. Most people cannot tell which way it turns anyway	چرخش در جهت مخالف. به‌هرحال بیشتر مردم نمی‌فهمند به کدام سو می‌چرخد
+Move the disc in a small loop. 0 holds it still: the eye moves it anyway	دیسک را در یک حلقهٔ کوچک جابه‌جا می‌کند. 0 آن را ثابت نگه می‌دارد: چشم به‌هرحال حرکتش می‌دهد
+Turn the shapes slowly, so the drift changes direction. 0 holds them still	شکل‌ها را آهسته می‌گرداند تا جهت رانش عوض شود. 0 آن‌ها را ثابت نگه می‌دارد
+Classic, the theme's colours (taken when picked) or two colours of your own	کلاسیک، رنگ‌های پوسته (هنگام انتخاب گرفته می‌شود) یا دو رنگ دلخواه
+Which way the field seems to go: turn round the centre, out, in, or in waves	میدان ظاهراً به کدام سو می‌رود: گردش دور مرکز، خروجی، ورودی یا موجی
+Slide the rows back and forth, so the wall bends and straightens. 0 holds it still	ردیف‌ها را عقب و جلو می‌لغزاند تا دیوار خم و صاف شود. 0 آن را ثابت نگه می‌دارد
+How fast the crosses turn. They always turn a little: the dots vanish only while they move	سرعت گردش صلیب‌ها. همیشه کمی می‌گردند: نقطه‌ها فقط هنگام حرکت ناپدید می‌شوند
+Drift (still shapes that seem to turn), ouchi (a disc that floats), cafe (straight rows that look tilted), vanish (dots that disappear while you stare), grid (dots that flicker and are not there) or dancer (it spins whichever way you see it)	رانش (شکل‌های ثابتی که به نظر می‌چرخند)، ouchi (دیسکی که شناور است)، کافه (ردیف‌های مستقیمی که کج به نظر می‌رسند)، محو (نقطه‌هایی که وقتی خیره می‌شوید ناپدید می‌شوند)، شبکه (نقطه‌هایی که سوسو می‌زنند و وجود ندارند) یا رقصنده (به هر سو که ببینیدش می‌چرخد)
+STATUS | SHAPE drift|ouchi|cafe|vanish|grid|dancer | FORM leaf|petal|scale|ring | FLOW turn|out|in|wave | FLIP ON|OFF | PALETTE classic|theme|hues | SIZE|COUNT|EDGE|SPEED|CENTREX|CENTREY|GREY <0-100> | HUE1|HUE2 <0-360> | LFO <control> <setting>	STATUS | SHAPE drift|ouchi|cafe|vanish|grid|dancer | FORM leaf|petal|scale|ring | FLOW turn|out|in|wave | FLIP ON|OFF | PALETTE classic|theme|hues | SIZE|COUNT|EDGE|SPEED|CENTREX|CENTREY|GREY <0-100> | HUE1|HUE2 <0-360> | LFO <کنترل> <تنظیم>

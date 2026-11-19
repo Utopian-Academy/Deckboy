@@ -3120,7 +3120,7 @@
       [this]() { addMoireCue(); }
     });
     contextItems_.push_back({
-      "  Illusion (still pictures that move)",
+      "  Illusion (Pictures that move!?)",
       {0, 0, 0, 0},
       [this]() { addIllusionCue(); }
     });
@@ -3515,7 +3515,7 @@
       list.emplace_back("draw",           "Draw (what you draw on the monitor)");
       list.emplace_back("swirl",          "Swirl (melting pixel greens)");
       list.emplace_back("moire-field",    "Moire (interference bands)");
-      list.emplace_back("illusion",       "Illusion (still pictures that move)");
+      list.emplace_back("illusion",       "Illusion (Pictures that move!?)");
       list.emplace_back("lumia",          "Lumia (laser light and mirrors)");
       list.emplace_back("isf",            "Shader (an ISF .fs file)");
       list.emplace_back("code",           "Code (live expression)");

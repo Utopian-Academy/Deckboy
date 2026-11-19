@@ -743,6 +743,13 @@ struct MoireSettings {
 //             disc seems to float and slide as the eyes move.
 //   cafe   -- black and white tiles offset row to row, split by thin grey
 //             mortar. The straight rows look tilted; as they slide, they bend.
+//   vanish -- motion-induced blindness: crosses turn round three still dots;
+//             stare at the centre and the dots go, and come back.
+//   grid   -- the scintillating grid: dark dots flicker in light discs that
+//             have none.
+//   dancer -- a flat silhouette spinning in place: which way it turns is up
+//             to whoever is looking, and it can flip.
+// (The last three were James's pick from a second list, 2026-11-18.)
 //
 // The controls are shared and named for each shape on the desk, as an
 // effect's are. Every number is 0-1 so an oscillator can swing it.
@@ -758,12 +765,12 @@ enum IllusionLfoSlot : int {
   kIllusionLfoHue2,
   kIllusionLfoSlots
 };
-inline constexpr int kIllusionShapeCount = 3;
+inline constexpr int kIllusionShapeCount = 6;
 inline constexpr int kIllusionFormCount = 4;
 inline constexpr int kIllusionFlowCount = 4;
 inline constexpr int kIllusionPaletteCount = 3;
 inline const char* illusionShapeName(int shape) {
-  static const char* kNames[kIllusionShapeCount] = {"drift", "ouchi", "cafe"};
+  static const char* kNames[kIllusionShapeCount] = {"drift", "ouchi", "cafe", "vanish", "grid", "dancer"};
   return kNames[shape >= 0 && shape < kIllusionShapeCount ? shape : 0];
 }
 inline const char* illusionFormName(int form) {

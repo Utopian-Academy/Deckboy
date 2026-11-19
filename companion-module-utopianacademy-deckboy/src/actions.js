@@ -1326,7 +1326,7 @@ export function buildActions(self) {
 		illusion_set: {
 			name: 'Illusion: set a control',
 			description:
-				'For the selected Illusion cue. Shape: drift, ouchi or cafe. Form: leaf, petal, scale or ring. Flow: turn, out, in or wave. Palette: classic, theme or hues. Flip: on or off. Hue1 and Hue2 take 0 to 360; the rest take 0 to 100.',
+				'For the selected Illusion cue. Shape: drift, ouchi, cafe, vanish, grid or dancer. Form: leaf, petal, scale or ring. Flow: turn, out, in or wave. Palette: classic, theme or hues. Flip: on or off. Hue1 and Hue2 take 0 to 360; the rest take 0 to 100.',
 			options: [
 				{
 					type: 'dropdown',
