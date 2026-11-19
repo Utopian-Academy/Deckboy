@@ -76,8 +76,11 @@
       g.fillStyle = '#fcfe1f'; g.beginPath(); g.arc(x, y, 22, 0, 7); g.fill();
     };
     const tick = (now) => {
-      if (!paused && now - last >= 1000 / fps) {
-        last = now; frame++;
+      // Step the clock by whole frame intervals. Setting last = now would add
+      // each frame's lateness to the next one, and 24 would show as 20.
+      const step = 1000 / fps;
+      if (!paused && now - last >= step - 1) {
+        last = now - last > 2 * step ? now : last + step; frame++;
         draw(now / 1000);
         count.textContent = frame;
       }
@@ -282,7 +285,11 @@
     const render = () => {
       const ips = NAMES.map((_, i) => ipValue($('ip-' + i).value));
       const out = [];
-      NAMES.forEach((n, i) => { if (ips[i] === null) out.push(n + ': this is not a valid address. Use four numbers from 0 to 255.'); });
+      NAMES.forEach((n, i) => {
+        if (ips[i] === null) out.push(n + ': this is not a valid address. Use four numbers from 0 to 255.');
+        // With the mask 255.255.255.0, .0 names the network and .255 is broadcast.
+        else if ((ips[i] & 255) === 0 || (ips[i] & 255) === 255) out.push(n + ': the last number cannot be 0 or 255. Those two are reserved. Use 1 to 254.');
+      });
       if (!out.length) {
         const mask = maskValue(24);
         for (let i = 0; i < 4; i++) for (let j = i + 1; j < 4; j++) {
@@ -303,8 +310,13 @@
       if (a === null || b === null) { $('mask-read').textContent = 'Use four numbers from 0 to 255.'; return; }
       const m = maskValue(bits), net = (a & m) >>> 0, last = (net | (~m >>> 0)) >>> 0;
       const same = ((b & m) >>> 0) === net;
+      if (a === b) { $('mask-read').textContent = 'The two addresses are the same. That is a conflict: each address can be used once.'; return; }
+      // The first and last address of a network are reserved (not on /31, /32).
+      const reserved = bits <= 30 ? [a, b].find((v) => { const n = (v & m) >>> 0; return v === n || v === ((n | (~m >>> 0)) >>> 0); }) : undefined;
       const count = bits >= 31 ? 2 ** (32 - bits) : 2 ** (32 - bits) - 2;
-      $('mask-read').textContent = (same ? 'Neighbours: they can talk directly.' : 'Not neighbours: they need a router between them.') +
+      const verdict = reserved !== undefined ? ipText(reserved) + ' is reserved. A device cannot use it.'
+        : same ? 'Neighbours: they can talk directly.' : 'Not neighbours: they need a router between them.';
+      $('mask-read').textContent = verdict +
         ' This network runs from ' + ipText(net) + ' to ' + ipText(last) + ', with ' + count.toLocaleString('en') + ' usable addresses.';
     };
     ['mask-a', 'mask-b', 'mask-m'].forEach((id) => $(id).addEventListener('input', render));
