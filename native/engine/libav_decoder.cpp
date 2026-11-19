@@ -1960,6 +1960,46 @@ bool decodeImageRgba(const std::string& path, int& width, int& height,
     if (sws_scale(sws, frame->data, frame->linesize, 0, frame->height, dst, dstStride) != frame->height) break;
     width = frame->width;
     height = frame->height;
+#if defined(__ANDROID__)
+    // A phone's portrait photo is stored sideways with an orientation note
+    // (EXIF, which the decoder hands over as a display matrix): turn it
+    // upright, as every gallery does. The desk's stills go through the
+    // ffmpeg program, which does the same.
+    {
+      const AVFrameSideData* sd = av_frame_get_side_data(frame, AV_FRAME_DATA_DISPLAYMATRIX);
+      const AVPacketSideData* psd = sd ? nullptr : av_packet_side_data_get(
+        fmt->streams[stream]->codecpar->coded_side_data, fmt->streams[stream]->codecpar->nb_coded_side_data,
+        AV_PKT_DATA_DISPLAYMATRIX);
+      const int32_t* matrix = sd && sd->size >= 9 * sizeof(int32_t) ? reinterpret_cast<const int32_t*>(sd->data)
+                            : psd && psd->size >= 9 * sizeof(int32_t) ? reinterpret_cast<const int32_t*>(psd->data) : nullptr;
+      if (matrix) {
+        const double rot = av_display_rotation_get(matrix);
+        if (std::isfinite(rot)) {
+          double cw = std::fmod(-rot, 360.0);
+          if (cw < 0) cw += 360.0;
+          const int q = static_cast<int>(std::lround(cw / 90.0)) % 4;
+          if (q != 0) {
+            std::vector<std::uint8_t> turned(rgba.size());
+            const int w = width, h = height;
+            const auto* in = reinterpret_cast<const std::uint32_t*>(rgba.data());
+            auto* out = reinterpret_cast<std::uint32_t*>(turned.data());
+            const int ow = (q % 2) ? h : w;
+            for (int y = 0; y < h; ++y) {
+              for (int x = 0; x < w; ++x) {
+                int ox = x, oy = y;
+                if (q == 1) { ox = h - 1 - y; oy = x; }
+                else if (q == 2) { ox = w - 1 - x; oy = h - 1 - y; }
+                else { ox = y; oy = w - 1 - x; }
+                out[static_cast<std::size_t>(oy) * ow + ox] = in[static_cast<std::size_t>(y) * w + x];
+              }
+            }
+            rgba.swap(turned);
+            if (q % 2) std::swap(width, height);
+          }
+        }
+      }
+    }
+#endif
     ok = true;
   } while (false);
   if (sws) sws_freeContext(sws);
