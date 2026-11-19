@@ -36,8 +36,13 @@
 #include <string>
 #include <vector>
 
-#if defined(SDL_PLATFORM_ANDROID) && defined(DECKBOY_INPROC_DECODE)
+#include <cctype>
+#include <mutex>
+
+#if defined(SDL_PLATFORM_ANDROID)
 #include <jni.h>
+#endif
+#if defined(SDL_PLATFORM_ANDROID) && defined(DECKBOY_INPROC_DECODE)
 extern "C" {
 #include <libavcodec/jni.h>
 }
@@ -73,6 +78,93 @@ const char* const kBundledData[] = {
 std::string joinPath(const std::string& a, const std::string& b) {
   if (a.empty()) return b;
   return a.back() == '/' ? a + b : a + "/" + b;
+}
+
+#if defined(SDL_PLATFORM_ANDROID)
+// -- Android's Java side (PocketBridge.java) --
+// Called on SDL's main thread, which Java started, so FindClass sees the
+// app's own classes.
+jobject appContext() {
+  static jobject context = nullptr;
+  if (!context) {
+    auto* env = static_cast<JNIEnv*>(SDL_GetAndroidJNIEnv());
+    jobject local = static_cast<jobject>(SDL_GetAndroidActivity());
+    if (env && local) {
+      context = env->NewGlobalRef(local);
+      env->DeleteLocalRef(local);
+    }
+  }
+  return context;
+}
+
+jclass bridgeClass(JNIEnv* env) {
+  static jclass cls = nullptr;
+  if (!cls) {
+    jclass local = env->FindClass("io/github/utopian_academy/deckboy/pocket/PocketBridge");
+    if (!local) {
+      env->ExceptionClear();
+      return nullptr;
+    }
+    cls = static_cast<jclass>(env->NewGlobalRef(local));
+    env->DeleteLocalRef(local);
+  }
+  return cls;
+}
+
+std::string bridgeString(const char* method, const std::string& uri) {
+  auto* env = static_cast<JNIEnv*>(SDL_GetAndroidJNIEnv());
+  jclass cls = env ? bridgeClass(env) : nullptr;
+  if (!cls) return "";
+  jmethodID m = env->GetStaticMethodID(cls, method, "(Landroid/content/Context;Ljava/lang/String;)Ljava/lang/String;");
+  if (!m) { env->ExceptionClear(); return ""; }
+  jstring arg = env->NewStringUTF(uri.c_str());
+  auto* result = static_cast<jstring>(env->CallStaticObjectMethod(cls, m, appContext(), arg));
+  env->DeleteLocalRef(arg);
+  if (env->ExceptionCheck()) { env->ExceptionClear(); return ""; }
+  std::string out;
+  if (result) {
+    const char* chars = env->GetStringUTFChars(result, nullptr);
+    out = chars ? chars : "";
+    env->ReleaseStringUTFChars(result, chars);
+    env->DeleteLocalRef(result);
+  }
+  return out;
+}
+
+void bridgeKeepAccess(const std::string& uri) {
+  auto* env = static_cast<JNIEnv*>(SDL_GetAndroidJNIEnv());
+  jclass cls = env ? bridgeClass(env) : nullptr;
+  if (!cls) return;
+  jmethodID m = env->GetStaticMethodID(cls, "keepAccess", "(Landroid/content/Context;Ljava/lang/String;)Z");
+  if (!m) { env->ExceptionClear(); return; }
+  jstring arg = env->NewStringUTF(uri.c_str());
+  env->CallStaticBooleanMethod(cls, m, appContext(), arg);
+  env->DeleteLocalRef(arg);
+  if (env->ExceptionCheck()) env->ExceptionClear();
+}
+
+int bridgeRenderPdf(const std::string& uri, const std::string& outDir, int width) {
+  auto* env = static_cast<JNIEnv*>(SDL_GetAndroidJNIEnv());
+  jclass cls = env ? bridgeClass(env) : nullptr;
+  if (!cls) return -1;
+  jmethodID m = env->GetStaticMethodID(cls, "renderPdf", "(Landroid/content/Context;Ljava/lang/String;Ljava/lang/String;I)I");
+  if (!m) { env->ExceptionClear(); return -1; }
+  jstring a = env->NewStringUTF(uri.c_str());
+  jstring b = env->NewStringUTF(outDir.c_str());
+  const jint pages = env->CallStaticIntMethod(cls, m, appContext(), a, b, static_cast<jint>(width));
+  env->DeleteLocalRef(a);
+  env->DeleteLocalRef(b);
+  if (env->ExceptionCheck()) { env->ExceptionClear(); return -1; }
+  return pages;
+}
+#endif
+
+bool endsWithNoCase(const std::string& s, const std::string& tail) {
+  if (s.size() < tail.size()) return false;
+  for (std::size_t i = 0; i < tail.size(); ++i) {
+    if (std::tolower(static_cast<unsigned char>(s[s.size() - tail.size() + i])) != tail[i]) return false;
+  }
+  return true;
 }
 
 // Copy the bundled data into app storage and point Deckboy's paths at it.
@@ -274,6 +366,8 @@ class Pocket {
     if (auto* env = static_cast<JNIEnv*>(SDL_GetAndroidJNIEnv())) {
       JavaVM* vm = nullptr;
       if (env->GetJavaVM(&vm) == JNI_OK && vm) av_jni_set_java_vm(vm, nullptr);
+      // ...and files the system picker hands over (content://) through the app.
+      if (jobject ctx = appContext()) av_jni_set_android_app_ctx(ctx, nullptr);
     }
 #endif
     engine_ = std::make_unique<MediaEngine>(renderer_, audio_);
@@ -329,7 +423,7 @@ class Pocket {
         continue;
       }
       Cue cue = std::move(*probed);
-      cue.id = "pocket-" + std::to_string(cues_.size() + 1);
+      cue.id = "pocket-" + std::to_string(++nextId_);
       if (cue.kind == CueKind::Image) cue.stillDurationSeconds = 0.0;  // a still holds until the next GO
       cue.pauseOnLastFrame = true;
       cues_.push_back(std::move(cue));
@@ -359,6 +453,7 @@ class Pocket {
           case SDLK_UP: select(selected_ - 1); break;
           case SDLK_DOWN: select(selected_ + 1); break;
           case SDLK_B: black_ = !black_; break;
+          case SDLK_MENU: case SDLK_A: openPicker(); break;
           case SDLK_AC_BACK: return true;   // the system Back gesture does not quit mid-show
           default: break;
         }
@@ -377,6 +472,7 @@ class Pocket {
   }
 
   void frame() {
+    takePicks();
     engine_->update();
     layout();
     SDL_Renderer* r = renderer_;
@@ -436,7 +532,11 @@ class Pocket {
   void drawProgram() {
     SDL_Renderer* r = renderer_;
     const float u = unit_;
-    text_.draw(pixel_, "DECKBOY POCKET", kPrint, header_);
+    if (SDL_GetTicks() < noticeUntil_) {
+      text_.draw(mono_, notice_, kPrint, header_);
+    } else {
+      text_.draw(pixel_, "DECKBOY POCKET", kPrint, header_);
+    }
     fillRound(r, kBezel, program_, 3 * u);
     // the LED: lit while something is on air and not blacked out
     const bool live = active_ >= 0 && !black_;
@@ -523,10 +623,114 @@ class Pocket {
     fillRound(r, black_ || pressed_ == Pressed::Black ? kDark : kPill, blackPill_, 2 * u);
     fillRound(r, pressed_ == Pressed::Menu ? kDark : kPill, menuPill_, 2 * u);
     text_.draw(pixelSmall_, "BLACK", kPrint, {blackPill_.x - 2 * u, blackPill_.y + 5 * u, blackPill_.w + 4 * u, 3 * u}, true);
-    text_.draw(pixelSmall_, "MENU", kPrint, {menuPill_.x - 2 * u, menuPill_.y + 5 * u, menuPill_.w + 4 * u, 3 * u}, true);
+    text_.draw(pixelSmall_, "ADD", kPrint, {menuPill_.x - 2 * u, menuPill_.y + 5 * u, menuPill_.w + 4 * u, 3 * u}, true);
   }
 
-  // ── Input ──
+  // -- Adding media: the system picker --
+  //
+  // Android's own picker (Gallery, Files, Drive): the phone gives Pocket the
+  // files picked and nothing else, so Pocket never asks to read every photo.
+
+  static void SDLCALL picked(void* self, const char* const* files, int) {
+    auto* p = static_cast<Pocket*>(self);
+    std::lock_guard<std::mutex> hold(p->pickLock_);
+    p->pickerOpen_ = false;
+    if (!files) return;   // an error; nothing picked
+    for (const char* const* f = files; *f; ++f) p->picks_.emplace_back(*f);
+  }
+
+  void openPicker() {
+    {
+      std::lock_guard<std::mutex> hold(pickLock_);
+      if (pickerOpen_) return;
+      pickerOpen_ = true;
+    }
+    static const SDL_DialogFileFilter kFilters[] = {
+        {"Video, pictures, sound and PDF decks",
+         "mp4;mov;m4v;mkv;webm;avi;mxf;jpg;jpeg;png;heic;heif;webp;gif;mp3;wav;m4a;aac;flac;ogg;pdf"},
+    };
+    SDL_ShowOpenFileDialog(&Pocket::picked, this, window_, kFilters, 1, nullptr, true);
+  }
+
+  // Main thread: turn what was picked into cues.
+  void takePicks() {
+    std::vector<std::string> picks;
+    {
+      std::lock_guard<std::mutex> hold(pickLock_);
+      picks.swap(picks_);
+    }
+    for (const std::string& uri : picks) addPicked(uri);
+  }
+
+  void addPicked(const std::string& uri) {
+    std::string name, mime;
+#if defined(SDL_PLATFORM_ANDROID)
+    name = bridgeString("displayName", uri);
+    mime = bridgeString("mimeType", uri);
+    bridgeKeepAccess(uri);
+#endif
+    if (name.empty()) name = uri.substr(uri.find_last_of('/') + 1);
+    const std::string stem = name.substr(0, name.find_last_of('.'));
+    const std::size_t before = cues_.size();
+    if (mime == "application/pdf" || endsWithNoCase(name, ".pdf")) {
+      addPdf(uri, stem);
+    } else if (std::optional<Cue> probed = deckboy::core::media::probeCue(dbfs::path(uri))) {
+      Cue cue = std::move(*probed);
+      cue.path = uri;
+      cue.name = stem;
+      if (mime.rfind("image/", 0) == 0) cue.kind = CueKind::Image;
+      else if (mime.rfind("audio/", 0) == 0) cue.kind = CueKind::Audio;
+      if (cue.kind == CueKind::Image) cue.stillDurationSeconds = 0.0;
+      cue.pauseOnLastFrame = true;
+      cue.id = "pocket-" + std::to_string(++nextId_);
+      cues_.push_back(std::move(cue));
+    } else {
+      SDL_Log("pocket: could not read %s (%s)", name.c_str(), uri.c_str());
+      notice_ = "Could not read " + name;
+      noticeUntil_ = SDL_GetTicks() + 4000;
+    }
+    if (cues_.size() > before) {
+      notice_ = cues_.size() - before == 1 ? "Added " + stem
+                                          : "Added " + std::to_string(cues_.size() - before) + " cues from " + stem;
+      noticeUntil_ = SDL_GetTicks() + 3000;
+      select(static_cast<int>(before));
+    }
+  }
+
+  // A PDF deck: every page rendered once, now, by Android's own PDF engine,
+  // into an image cue per page -- the desk's import, on the phone.
+  void addPdf(const std::string& uri, const std::string& stem) {
+#if defined(SDL_PLATFORM_ANDROID)
+    const char* root = SDL_getenv("DECKBOY_STATE_DIR");
+    const std::string dir = joinPath(root ? root : ".", "slides/deck-" + std::to_string(++nextId_));
+    const int pages = bridgeRenderPdf(uri, dir, 1920);
+    if (pages <= 0) {
+      notice_ = "Could not open the PDF " + stem;
+      noticeUntil_ = SDL_GetTicks() + 4000;
+      return;
+    }
+    for (int i = 1; i <= pages; ++i) {
+      char file[32];
+      std::snprintf(file, sizeof file, "page-%03d.png", i);
+      const std::string path = joinPath(dir, file);
+      std::optional<Cue> probed = deckboy::core::media::probeCue(dbfs::path(path));
+      Cue cue = probed ? std::move(*probed) : Cue {};
+      cue.kind = CueKind::Image;
+      cue.path = path;
+      cue.name = stem + "  " + std::to_string(i) + "/" + std::to_string(pages);
+      cue.stillDurationSeconds = 0.0;
+      cue.pauseOnLastFrame = true;
+      cue.id = "pocket-" + std::to_string(++nextId_);
+      cues_.push_back(std::move(cue));
+    }
+#else
+    (void) uri;
+    notice_ = "PDF decks open on the phone: " + stem;
+    noticeUntil_ = SDL_GetTicks() + 3000;
+#endif
+  }
+
+  // -- Input --
 
   void press(Pressed p) {
     pressed_ = p;
@@ -550,7 +754,7 @@ class Pocket {
     const SDL_FRect blackHit {blackPill_.x - 2 * u, blackPill_.y - 3 * u, blackPill_.w + 4 * u, blackPill_.h + 9 * u};
     const SDL_FRect menuHit {menuPill_.x - 2 * u, menuPill_.y - 3 * u, menuPill_.w + 4 * u, menuPill_.h + 9 * u};
     if (inside(blackHit, x, y)) { press(Pressed::Black); black_ = !black_; return; }
-    if (inside(menuHit, x, y)) { press(Pressed::Menu); return; }
+    if (inside(menuHit, x, y)) { press(Pressed::Menu); openPicker(); return; }
     if (inside(listLcd_, x, y) && rowH_ > 0) {
       select(scroll_ + static_cast<int>((y - listLcd_.y) / rowH_));
     }
@@ -594,6 +798,12 @@ class Pocket {
 
   std::vector<Cue> cues_;
   std::string mediaDir_;
+  int nextId_ = 0;
+  std::mutex pickLock_;
+  std::vector<std::string> picks_;
+  bool pickerOpen_ = false;
+  std::string notice_;
+  Uint64 noticeUntil_ = 0;
   int selected_ = 0;
   int active_ = -1;
   int scroll_ = 0;
