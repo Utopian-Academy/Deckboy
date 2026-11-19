@@ -8,6 +8,8 @@ import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.pdf.PdfRenderer;
 import android.net.Uri;
+import android.os.BatteryManager;
+import android.os.PowerManager;
 import android.os.ParcelFileDescriptor;
 import android.provider.OpenableColumns;
 import android.util.Log;
@@ -59,6 +61,30 @@ public final class PocketBridge {
         } catch (Exception e) {
             // Not every provider offers lasting access; the file still plays now.
             return false;
+        }
+    }
+
+    /** Battery percent, or -1; while charging, 1000 + percent. */
+    public static int battery(Context context) {
+        try {
+            BatteryManager bm = (BatteryManager) context.getSystemService(Context.BATTERY_SERVICE);
+            int pct = bm.getIntProperty(BatteryManager.BATTERY_PROPERTY_CAPACITY);
+            return bm.isCharging() ? 1000 + pct : pct;
+        } catch (Exception e) {
+            return -1;
+        }
+    }
+
+    /**
+     * Android's own heat level: 0 none, 1 light, 2 moderate, 3 severe (the
+     * phone is slowing itself down), 4 critical, 5 emergency, 6 shutdown.
+     */
+    public static int thermal(Context context) {
+        try {
+            PowerManager pm = (PowerManager) context.getSystemService(Context.POWER_SERVICE);
+            return pm.getCurrentThermalStatus();
+        } catch (Exception e) {
+            return 0;
         }
     }
 

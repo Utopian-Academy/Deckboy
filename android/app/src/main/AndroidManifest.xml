@@ -79,6 +79,8 @@
          -->
 
         <activity android:name=".PocketActivity"
+            android:supportsPictureInPicture="true"
+            android:resizeableActivity="true"
             android:label="@string/app_name"
             android:alwaysRetainTaskState="true"
             android:launchMode="singleInstance"

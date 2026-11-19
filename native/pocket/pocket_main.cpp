@@ -32,6 +32,7 @@
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
+#include <atomic>
 #include <functional>
 #include <map>
 #include <memory>
@@ -136,6 +137,17 @@ std::string bridgeString(const char* method, const std::string& uri) {
   return out;
 }
 
+int bridgeInt(const char* method) {
+  auto* env = static_cast<JNIEnv*>(SDL_GetAndroidJNIEnv());
+  jclass cls = env ? bridgeClass(env) : nullptr;
+  if (!cls) return -1;
+  jmethodID m = env->GetStaticMethodID(cls, method, "(Landroid/content/Context;)I");
+  if (!m) { env->ExceptionClear(); return -1; }
+  const jint v = env->CallStaticIntMethod(cls, m, appContext());
+  if (env->ExceptionCheck()) { env->ExceptionClear(); return -1; }
+  return v;
+}
+
 void bridgeKeepAccess(const std::string& uri) {
   auto* env = static_cast<JNIEnv*>(SDL_GetAndroidJNIEnv());
   jclass cls = env ? bridgeClass(env) : nullptr;
@@ -183,6 +195,12 @@ OutputScreen& outputScreen() {
   return screen;
 }
 
+// Picture-in-picture, shared with Java's UI thread.
+std::atomic<bool> gWantsPip {false};    // a cue is live: leaving Pocket keeps it up
+std::atomic<bool> gInPip {false};
+std::mutex gPipLock;
+std::vector<int> gPipActions;          // 1 GO, 2 BACK, 3 BLACK from the floating window
+
 }  // namespace
 
 #if defined(SDL_PLATFORM_ANDROID)
@@ -210,6 +228,22 @@ Java_io_github_utopian_1academy_deckboy_pocket_PocketActivity_nativeSetOutputSur
     }
   }
   ++out.generation;
+}
+
+extern "C" JNIEXPORT jboolean JNICALL
+Java_io_github_utopian_1academy_deckboy_pocket_PocketActivity_nativeWantsPip(JNIEnv*, jclass) {
+  return gWantsPip.load() ? JNI_TRUE : JNI_FALSE;
+}
+
+extern "C" JNIEXPORT void JNICALL
+Java_io_github_utopian_1academy_deckboy_pocket_PocketActivity_nativeSetPip(JNIEnv*, jclass, jboolean on) {
+  gInPip.store(on == JNI_TRUE);
+}
+
+extern "C" JNIEXPORT void JNICALL
+Java_io_github_utopian_1academy_deckboy_pocket_PocketActivity_nativePipAction(JNIEnv*, jclass, jint action) {
+  std::lock_guard<std::mutex> hold(gPipLock);
+  gPipActions.push_back(static_cast<int>(action));
 }
 #endif
 
@@ -438,6 +472,9 @@ class Pocket {
  public:
   bool init() {
     const std::string data = prepareDataDir();
+    // Keep running when Pocket is not in front: picture-in-picture and the
+    // HDMI output both need the show to go on while another app has the screen.
+    SDL_SetHint(SDL_HINT_ANDROID_BLOCK_ON_PAUSE, "0");
     if (!SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_EVENTS)) {
       SDL_Log("pocket: SDL_Init failed: %s", SDL_GetError());
       return false;
@@ -566,8 +603,13 @@ class Pocket {
           case SDLK_UP: select(selected_ - 1); break;
           case SDLK_DOWN: select(selected_ + 1); break;
           case SDLK_B: black_ = !black_; break;
-          case SDLK_MENU: case SDLK_A: openPicker(); break;
-          case SDLK_AC_BACK: return true;   // the system Back gesture does not quit mid-show
+          case SDLK_MENU: menuOpen_ = !menuOpen_; break;
+          case SDLK_A: openPicker(); break;
+          case SDLK_AC_BACK:   // Back closes what is open; it never quits mid-show
+            if (phoneFull_) phoneFull_ = false;
+            else if (sheet_ >= 0) sheet_ = -1;
+            else if (menuOpen_) menuOpen_ = false;
+            return true;
           default: break;
         }
         break;
@@ -605,6 +647,9 @@ class Pocket {
       }
     }
     followEnd();
+    takePipActions();
+    pollHealth();
+    gWantsPip.store(active_ >= 0 && !black_);
     // Hold a cue for its sheet.
     if (holdRow_ >= 0 && SDL_GetTicks() - holdStart_ > 450) {
       openSheet(holdRow_);
@@ -615,10 +660,18 @@ class Pocket {
     layout();
     SDL_Renderer* r = renderer_;
     hits_.clear();
+    // Picture-in-picture and full screen: the program alone.
+    if (gInPip.load() || phoneFull_) {
+      drawProgramAlone(phoneFull_ && !gInPip.load());
+      SDL_RenderPresent(r);
+      return;
+    }
     fillRect(r, kShell, {0, 0, pxW_, pxH_});
     drawProgram();
     if (sheet_ >= 0) {
       drawSheet();
+    } else if (menuOpen_) {
+      drawMenu();
     } else {
       drawCueList();
       drawControls();
@@ -678,10 +731,18 @@ class Pocket {
   void drawProgram() {
     SDL_Renderer* r = renderer_;
     const float u = unit_;
+    const std::string health = healthLabel();
+    int hw = 0, hh = 0;
+    if (pixelSmall_ && !health.empty()) TTF_GetStringSize(pixelSmall_, health.c_str(), 0, &hw, &hh);
+    const SDL_FRect left {header_.x, header_.y, header_.w - static_cast<float>(hw) - 2 * u, header_.h};
     if (SDL_GetTicks() < noticeUntil_) {
-      text_.draw(mono_, notice_, kPrint, header_);
+      text_.draw(mono_, notice_, kPrint, left);
     } else {
-      text_.draw(pixel_, "DECKBOY POCKET", kPrint, header_);
+      text_.draw(pixel_, "DECKBOY POCKET", kPrint, left);
+    }
+    if (!health.empty()) {
+      text_.draw(pixelSmall_, health, thermal_ >= 3 ? Ink {150, 30, 30} : kPrint,
+                 {header_.x + header_.w - static_cast<float>(hw), header_.y, static_cast<float>(hw) + 1, header_.h});
     }
     fillRound(r, kBezel, program_, 3 * u);
     // the LED: lit while something is on air and not blacked out
@@ -734,6 +795,156 @@ class Pocket {
     button({lcd.x + u, y, bw, 5 * u}, paused ? "PLAY" : "PAUSE", [this, paused] { paused ? engine_->play() : engine_->pause(); }, onAir != nullptr);
     button({lcd.x + 2 * u + bw, y, bw, 5 * u}, "SET IN", [this] { setInOut(true); }, canTrim);
     button({lcd.x + 3 * u + 2 * bw, y, bw, 5 * u}, "SET OUT", [this] { setInOut(false); }, canTrim);
+  }
+
+  // The program alone, filling the screen: picture-in-picture, or full screen
+  // on the phone (turned on its side, so a 16:9 picture fills a portrait phone).
+  void drawProgramAlone(bool turned) {
+    SDL_Renderer* r = renderer_;
+    int w = 0, h = 0;
+    SDL_GetRenderOutputSize(r, &w, &h);
+    const float W = static_cast<float>(w), H = static_cast<float>(h);
+    fillRect(r, kBlack, {0, 0, W, H});
+    if (!programTex_) return;
+    if (turned && H > W) {
+      // Rotated 90 degrees: the picture's width runs down the phone.
+      float pw = H, ph = H * 9.0f / 16.0f;
+      if (ph > W) { ph = W; pw = W * 16.0f / 9.0f; }
+      const SDL_FRect dst {(W - pw) / 2, (H - ph) / 2, pw, ph};
+      SDL_RenderTextureRotated(r, programTex_, nullptr, &dst, 90.0, nullptr, SDL_FLIP_NONE);
+    } else {
+      float pw = W, ph = W * 9.0f / 16.0f;
+      if (ph > H) { ph = H; pw = H * 16.0f / 9.0f; }
+      const SDL_FRect dst {(W - pw) / 2, (H - ph) / 2, pw, ph};
+      SDL_RenderTexture(r, programTex_, nullptr, &dst);
+    }
+  }
+
+  void takePipActions() {
+#if defined(SDL_PLATFORM_ANDROID)
+    std::vector<int> actions;
+    {
+      std::lock_guard<std::mutex> hold(gPipLock);
+      actions.swap(gPipActions);
+    }
+    for (int a : actions) {
+      if (a == 1) go();
+      else if (a == 2) back();
+      else if (a == 3) black_ = !black_;
+    }
+#endif
+  }
+
+  // Battery and heat, every five seconds: what can end a show on a phone.
+  void pollHealth() {
+#if defined(SDL_PLATFORM_ANDROID)
+    const Uint64 now = SDL_GetTicks();
+    if (now < nextHealth_) return;
+    nextHealth_ = now + 5000;
+    const int b = bridgeInt("battery");
+    charging_ = b >= 1000;
+    battery_ = b >= 1000 ? b - 1000 : b;
+    thermal_ = bridgeInt("thermal");
+#endif
+  }
+
+  // The header's right side: heat first (it is what slows a show down), then battery.
+  std::string healthLabel() const {
+    std::string s;
+    if (thermal_ >= 3) s = "TOO HOT  ";
+    else if (thermal_ == 2) s = "WARM  ";
+    if (battery_ >= 0) s += std::to_string(battery_) + (charging_ ? "% +" : "%");
+    return s;
+  }
+
+  // -- MENU --
+  void drawMenu() {
+    SDL_Renderer* r = renderer_;
+    const float u = unit_;
+    const float x = safe_.x + 2 * u, w = 68 * u;
+    float y = program_.y + program_.h + 2 * u;
+    const SDL_FRect panel {x, y, w, safe_.y + safe_.h - u - y};
+    fillRound(r, kBezel, panel, 3 * u);
+    const SDL_FRect lcd {x + 2.5f * u, y + 2.5f * u, w - 5 * u, panel.h - 5 * u};
+    fillRect(r, kLight, lcd);
+    const float lx = lcd.x + u, lw = lcd.w - 2 * u;
+    y = lcd.y + u;
+    text_.draw(pixelSmall_, "MENU", kDark, {lx, y, 20 * u, 4.5f * u});
+    button({lx + lw - 14 * u, y, 14 * u, 4.5f * u}, "CLOSE", [this] { menuOpen_ = false; });
+    y += 6.5f * u;
+
+    auto heading = [&](const char* t) {
+      text_.draw(pixelSmall_, t, kDark, {lx, y, lw, 3.5f * u});
+      y += 4.2f * u;
+    };
+    auto item = [&](const std::string& label, std::function<void()> fn, bool on = false) {
+      button({lx, y, lw, 5 * u}, label, std::move(fn), true, on);
+      y += 6 * u;
+    };
+
+    heading("ADD");
+    item("CLIPS, PICTURES, SOUND, PDF", [this] { menuOpen_ = false; openPicker(); });
+    {
+      // Made by Deckboy: one button per generator, two to a row.
+      static const std::pair<const char*, const char*> kMade[] = {
+          {"smpte-bars", "BARS"}, {"pocket-test", "POCKET TEST"}, {"illusion", "ILLUSION"},
+          {"swirl", "SWIRL"}, {"lumia", "LUMIA"}, {"fireside", "FIRESIDE"}};
+      const float bw = (lw - u) / 2;
+      for (int i = 0; i < 6; ++i) {
+        const char* type = kMade[i].first;
+        button({lx + static_cast<float>(i % 2) * (bw + u), y, bw, 4.5f * u}, kMade[i].second, [this, type] { addGenerator(type); });
+        if (i % 2 == 1) y += 5.5f * u;
+      }
+      y += 1.5f * u;
+    }
+
+    heading("OUTPUT");
+    {
+      OutputScreen& out = outputScreen();
+      std::string line = "No screen connected. Plug in USB-C to HDMI.";
+      {
+        std::lock_guard<std::mutex> hold(out.lock);
+#if defined(SDL_PLATFORM_ANDROID)
+        if (out.window) {
+          char b[160];
+          std::snprintf(b, sizeof b, "%s  %dx%d  %.4g Hz", out.name.empty() ? "Screen" : out.name.c_str(),
+                        out.width, out.height, static_cast<double>(out.refreshHz));
+          line = b;
+        }
+#endif
+      }
+      text_.draw(mono_, line, kDeep, {lx, y, lw, 4.5f * u});
+      y += 5.5f * u;
+      const float bw = (lw - u) / 2;
+      button({lx, y, bw, 5 * u}, testPattern_ ? "TEST PATTERN ON" : "TEST PATTERN", [this] { testPattern_ = !testPattern_; }, true, testPattern_);
+      button({lx + bw + u, y, bw, 5 * u}, "IDENTIFY", [this] { identifyUntil_ = SDL_GetTicks() + 4000; });
+      y += 6.5f * u;
+      item("PHONE FULL SCREEN", [this] { menuOpen_ = false; phoneFull_ = true; });
+    }
+
+    heading("PHONE");
+    text_.draw(mono_, healthLabel().empty() ? "-" : "Battery " + healthLabel(), kDeep, {lx, y, lw, 4.5f * u});
+  }
+
+  void addGenerator(const char* type) {
+    Cue cue;
+    cue.kind = CueKind::Pattern;
+    cue.path = std::string("pattern://") + type;
+    const std::string generated = generatorPatternName(type);
+    cue.name = generated.empty() ? (std::string(type) == "smpte-bars" ? "SMPTE colour bars" : "Pocket Test") : generated;
+    cue.width = kProgramW;
+    cue.height = kProgramH;
+    cue.formatName = "generated";
+    cue.pauseOnLastFrame = true;
+    cue.stillDurationSeconds = 0.0;
+    cue.hasAudio = cue.audioEnabled = (std::string(type) == "pocket-test");
+    cue.id = "pocket-" + std::to_string(++nextId_);
+    const int at = std::min(selected_ + 1, static_cast<int>(cues_.size()));
+    cues_.insert(cues_.begin() + at, cue);
+    if (active_ >= at) ++active_;
+    select(at);
+    notice_ = "Added " + cue.name;
+    noticeUntil_ = SDL_GetTicks() + 2500;
   }
 
   // A button on the LCD: drawn, and registered for this frame's taps.
@@ -855,7 +1066,7 @@ class Pocket {
     fillRound(r, black_ || pressed_ == Pressed::Black ? kDark : kPill, blackPill_, 2 * u);
     fillRound(r, pressed_ == Pressed::Menu ? kDark : kPill, menuPill_, 2 * u);
     text_.draw(pixelSmall_, "BLACK", kPrint, {blackPill_.x - 2 * u, blackPill_.y + 5 * u, blackPill_.w + 4 * u, 3 * u}, true);
-    text_.draw(pixelSmall_, "ADD", kPrint, {menuPill_.x - 2 * u, menuPill_.y + 5 * u, menuPill_.w + 4 * u, 3 * u}, true);
+    text_.draw(pixelSmall_, "MENU", kPrint, {menuPill_.x - 2 * u, menuPill_.y + 5 * u, menuPill_.w + 4 * u, 3 * u}, true);
   }
 
   // The program picture, 16:9, as the engine draws an output: into a texture of
@@ -917,12 +1128,45 @@ class Pocket {
     SDL_SetRenderTarget(renderer_, outputTex_);
     SDL_SetRenderDrawColor(renderer_, 0, 0, 0, 255);
     SDL_RenderClear(renderer_);
-    if (programTex_) {
+    if (testPattern_) {
+      // Bars across the whole screen, the screen's own size written on them:
+      // the operator sees the edges, the shape and what the screen reports.
+      static const Ink kBars[7] = {{192, 192, 192}, {192, 192, 0}, {0, 192, 192}, {0, 192, 0}, {192, 0, 192}, {192, 0, 0}, {0, 0, 192}};
+      const float barW = static_cast<float>(bw) / 7.0f;
+      for (int i = 0; i < 7; ++i) fillRect(renderer_, kBars[i], {static_cast<float>(i) * barW, 0, barW + 1, static_cast<float>(bh) * 0.7f});
+      fillRect(renderer_, kBlack, {0, static_cast<float>(bh) * 0.7f, static_cast<float>(bw), static_cast<float>(bh) * 0.3f});
+      SDL_SetRenderDrawColor(renderer_, 255, 255, 255, 255);
+      const SDL_FRect edge {1, 1, static_cast<float>(bw) - 2, static_cast<float>(bh) - 2};
+      SDL_RenderRect(renderer_, &edge);
+    } else if (programTex_) {
       // 16:9 picture, letterboxed into the screen's shape.
       float pw = static_cast<float>(bw), ph = pw * 9.0f / 16.0f;
       if (ph > static_cast<float>(bh)) { ph = static_cast<float>(bh); pw = ph * 16.0f / 9.0f; }
       const SDL_FRect dst {(static_cast<float>(bw) - pw) / 2, (static_cast<float>(bh) - ph) / 2, pw, ph};
       SDL_RenderTexture(renderer_, programTex_, nullptr, &dst);
+    }
+    if (testPattern_ || SDL_GetTicks() < identifyUntil_) {
+      char id[160];
+      std::snprintf(id, sizeof id, "DECKBOY POCKET  OUTPUT 1  %dx%d", ow, oh);
+      if (!identifyFont_ || identifyFontH_ != bh) {
+        if (identifyFont_) TTF_CloseFont(identifyFont_);
+        const char* root = SDL_getenv("DECKBOY_ROOT");
+        identifyFont_ = TTF_OpenFont((std::string(root ? root : ".") + "/data/PressStart2P.ttf").c_str(), static_cast<float>(bh) / 24.0f);
+        identifyFontH_ = bh;
+      }
+      if (identifyFont_) {
+        SDL_Surface* t = TTF_RenderText_Blended(identifyFont_, id, 0, SDL_Color {255, 255, 255, 255});
+        if (t) {
+          SDL_Texture* tt = SDL_CreateTextureFromSurface(renderer_, t);
+          const SDL_FRect box {(static_cast<float>(bw) - static_cast<float>(t->w)) / 2 - 20, static_cast<float>(bh) * 0.82f - 16,
+                               static_cast<float>(t->w) + 40, static_cast<float>(t->h) + 32};
+          fillRect(renderer_, kBlack, box);
+          const SDL_FRect dst {box.x + 20, box.y + 16, static_cast<float>(t->w), static_cast<float>(t->h)};
+          if (tt) SDL_RenderTexture(renderer_, tt, nullptr, &dst);
+          if (tt) SDL_DestroyTexture(tt);
+          SDL_DestroySurface(t);
+        }
+      }
     }
     SDL_Surface* shot = SDL_RenderReadPixels(renderer_, nullptr);
     SDL_SetRenderTarget(renderer_, nullptr);
@@ -1069,6 +1313,10 @@ class Pocket {
   void onDown(float x, float y) {
     downX_ = x;
     downY_ = y;
+    if (phoneFull_) {   // full screen: a tap brings the controls back
+      phoneFull_ = false;
+      return;
+    }
     // Sheet controls and LCD buttons first (the last drawn sit on top).
     if (sheet_ >= 0) {
       Cue& c = cues_[static_cast<std::size_t>(sheet_)];
@@ -1344,7 +1592,7 @@ class Pocket {
     const SDL_FRect blackHit {blackPill_.x - 2 * u, blackPill_.y - 3 * u, blackPill_.w + 4 * u, blackPill_.h + 9 * u};
     const SDL_FRect menuHit {menuPill_.x - 2 * u, menuPill_.y - 3 * u, menuPill_.w + 4 * u, menuPill_.h + 9 * u};
     if (inside(blackHit, x, y)) { press(Pressed::Black); black_ = !black_; return; }
-    if (inside(menuHit, x, y)) { press(Pressed::Menu); openPicker(); return; }
+    if (inside(menuHit, x, y)) { press(Pressed::Menu); menuOpen_ = true; sheet_ = -1; return; }
     if (inside(listLcd_, x, y) && rowH_ > 0) {
       select(scroll_ + static_cast<int>((y - listLcd_.y) / rowH_));
     }
@@ -1405,6 +1653,15 @@ class Pocket {
   int holdRow_ = -1;
   Uint64 holdStart_ = 0;
   int sheet_ = -1;
+  bool menuOpen_ = false;
+  bool phoneFull_ = false;
+  bool testPattern_ = false;
+  Uint64 identifyUntil_ = 0;
+  TTF_Font* identifyFont_ = nullptr;
+  int identifyFontH_ = 0;
+  int battery_ = -1, thermal_ = 0;
+  bool charging_ = false;
+  Uint64 nextHealth_ = 0;
   bool confirmDelete_ = false;
   SDL_FRect scrub_ {}, trimBar_ {}, volumeBar_ {};
   SDL_Texture* outputTex_ = nullptr;
