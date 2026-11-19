@@ -223,6 +223,11 @@
     }
 
     std::string command = toUpper(parts[0]);
+    // The sync conductor's verbs (app_network.ipp, SYNC_DESIGN.md).
+    if (command == "FOLLOW" || command == "UNFOLLOW" || command == "TIME" || command == "SYNC") {
+      handleSyncCommand(parts);
+      return;
+    }
     // A verb a private extra brought (see core/private_extras.hpp).
     if (const auto* extra = deckboy::extras::findCommand(command)) {
       if (command == "TABLE" && !project_.tabletopUnlocked) {

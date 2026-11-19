@@ -13156,6 +13156,13 @@ class App {
   // Server-thread only: what was last pushed, so subscribers get a frame when
   // the tally CHANGES rather than one per tick.
   std::string vmixLastPushedTally_;
+  // SYNC conductor (app_network.ipp): leading, its followers, what was sent.
+  bool syncLead_ = false;
+  std::vector<SyncFollower> syncFollowers_;
+  std::string syncLastKey_;
+  std::uint64_t syncLastSentNs_ = 0;
+  SocketHandle remoteReplyTo_ = kInvalidSocket;
+  std::uint64_t remoteReplyGeneration_ = 0;
   std::mutex companionClientsMutex_;  // protects companionClients_ + companionClientBuffers_
   std::vector<SocketHandle> companionClients_;
   std::map<SocketHandle, std::string> companionClientBuffers_;
