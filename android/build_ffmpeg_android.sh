@@ -9,7 +9,7 @@ API=29
 TC=$NDK/toolchains/llvm/prebuilt/linux-x86_64
 PREFIX=$ROOT/prefix/arm64-v8a
 SRC=$ROOT/src/ffmpeg
-BUILD=$ROOT/build/ffmpeg-arm64
+BUILD=$SRC   # in-tree: an out-of-tree configure links "src", and X: refuses symlinks from WSL
 mkdir -p "$BUILD" "$PREFIX"
 cd "$BUILD"
 "$SRC/configure" \
