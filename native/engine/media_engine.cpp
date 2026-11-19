@@ -7137,6 +7137,7 @@ void MediaEngine::clearAudio() {
   // Safe here: callers only clear audio after decode threads are stopped,
   // and the sync pop runs on this (main) thread.
   audioDelayFifo_.clear();
+  syncPopNextSeconds_ = -1.0;   // the sync pop starts again from the clock
   audioDelayHeldFrames_.store(0, std::memory_order_relaxed);
   // Open the limiter back up: a new cue must not start ducked by whatever
   // transient the previous one ended on.
@@ -7172,8 +7173,15 @@ void MediaEngine::queuePocketSyncAudio() {
     return;
   }
   setOutputPaused(false);
-  const double startSeconds =
-    static_cast<double>(SDL_GetTicks()) / 1000.0 + queuedSeconds;
+  // Each chunk carries on where the last one ended. Keying every chunk to
+  // "now + queued" alone re-synthesised the same pop two or three times
+  // wherever the platform pulls audio out of the stream early into a buffer
+  // of its own (Android's AAudio): the queue reads short, every chunk is
+  // stamped too early, and the pop repeats. Resync only on real drift.
+  const double wantedSeconds = static_cast<double>(SDL_GetTicks()) / 1000.0 + queuedSeconds;
+  double startSeconds = syncPopNextSeconds_;
+  if (startSeconds < 0.0 || std::fabs(startSeconds - wantedSeconds) > 0.25) startSeconds = wantedSeconds;
+  syncPopNextSeconds_ = startSeconds + static_cast<double>(kChunkFrames) / kRate;
   const double gain = static_cast<double>(volume_.load())
                     * static_cast<double>(masterGain_.load())
                     * audioCueGain_.load(std::memory_order_relaxed)

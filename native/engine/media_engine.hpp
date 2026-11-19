@@ -1255,6 +1255,9 @@ class MediaEngine {
   int audioPrimeFrames() const { return audioRate_ / 50; }
   static constexpr int kAudioPrimeFrames = 960;
 
+  // Where the Pocket Test sync pop's next chunk starts (wall seconds), so the
+  // chunks join up; -1 until the first, and after the audio is cleared.
+  double syncPopNextSeconds_ = -1.0;
   bool audioPrimePending_ = false;
   std::chrono::steady_clock::time_point audioPrimeStartedAt_ {};
 
