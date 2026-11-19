@@ -35,8 +35,8 @@ import java.util.ArrayList;
  *    to the background, where Android would throttle it.
  */
 public class PocketActivity extends SDLActivity {
-    private static final String ACTION_PIP = "io.github.utopian_academy.deckboy.pocket.PIP";
-    private static final int PIP_GO = 1, PIP_BACK = 2, PIP_BLACK = 3;
+    static final String ACTION_PIP = "io.github.utopian_academy.deckboy.pocket.PIP";
+    static final int PIP_GO = 1, PIP_BACK = 2, PIP_BLACK = 3, PIP_PAUSE = 4;
 
     private DisplayManager displays;
     private OutputPresentation output;
@@ -48,8 +48,26 @@ public class PocketActivity extends SDLActivity {
     static native boolean nativeWantsPip();
     /** Picture-in-picture began or ended. */
     static native void nativeSetPip(boolean on);
-    /** A button in the picture-in-picture window: 1 GO, 2 BACK, 3 BLACK. */
+    /** A button in the picture-in-picture window or the notification: 1 GO, 2 BACK, 3 BLACK, 4 PAUSE. */
     static native void nativePipAction(int action);
+
+    private static PocketActivity current;
+    private static String showTitle = "";
+
+    /**
+     * From the native side, on any change: the live cue's name, or "" when
+     * nothing is live. Starts, updates or stops the "show running" service.
+     */
+    static void setShowRunning(final String title) {
+        final PocketActivity a = current;
+        if (a == null) return;
+        a.main.post(() -> {
+            if (title.equals(showTitle)) return;
+            showTitle = title;
+            if (title.isEmpty()) ShowService.hide(a);
+            else ShowService.show(a, title + " live");
+        });
+    }
 
     @Override
     protected String[] getLibraries() {
@@ -61,6 +79,12 @@ public class PocketActivity extends SDLActivity {
         super.onCreate(savedInstanceState);
         // A show must not be cut by the screen going to sleep.
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+        current = this;
+        // The "show running" notification needs this once, on Android 13 and later.
+        if (Build.VERSION.SDK_INT >= 33 && checkSelfPermission(android.Manifest.permission.POST_NOTIFICATIONS)
+                != android.content.pm.PackageManager.PERMISSION_GRANTED) {
+            requestPermissions(new String[] {android.Manifest.permission.POST_NOTIFICATIONS}, 7);
+        }
         displays = (DisplayManager) getSystemService(Context.DISPLAY_SERVICE);
         displays.registerDisplayListener(listener, main);
         IntentFilter filter = new IntentFilter(ACTION_PIP);
@@ -81,6 +105,9 @@ public class PocketActivity extends SDLActivity {
     protected void onDestroy() {
         if (displays != null) displays.unregisterDisplayListener(listener);
         try { unregisterReceiver(pipReceiver); } catch (Exception ignored) {}
+        ShowService.hide(this);
+        showTitle = "";
+        if (current == this) current = null;
         closeOutput();
         super.onDestroy();
     }

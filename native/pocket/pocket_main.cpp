@@ -475,6 +475,7 @@ class Pocket {
     // Keep running when Pocket is not in front: picture-in-picture and the
     // HDMI output both need the show to go on while another app has the screen.
     SDL_SetHint(SDL_HINT_ANDROID_BLOCK_ON_PAUSE, "0");
+    SDL_setenv_unsafe("DECKBOY_SYNC_POP_TRACE", "1", 1);   // TEMPORARY: measuring the doubled pop
     if (!SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_EVENTS)) {
       SDL_Log("pocket: SDL_Init failed: %s", SDL_GetError());
       return false;
@@ -650,6 +651,7 @@ class Pocket {
     takePipActions();
     pollHealth();
     gWantsPip.store(active_ >= 0 && !black_);
+    updateShowRunning();
     // Hold a cue for its sheet.
     if (holdRow_ >= 0 && SDL_GetTicks() - holdStart_ > 450) {
       openSheet(holdRow_);
@@ -831,7 +833,33 @@ class Pocket {
       if (a == 1) go();
       else if (a == 2) back();
       else if (a == 3) black_ = !black_;
+      else if (a == 4 && active_ >= 0) {
+        engine_->state() == TransportState::Paused ? engine_->play() : engine_->pause();
+      }
     }
+#endif
+  }
+
+  // "Show running": tell Android (PocketActivity.setShowRunning) whenever the
+  // live cue changes, so its foreground service keeps the show playing
+  // behind other apps. Only on a change: the Java side posts to its thread.
+  void updateShowRunning() {
+#if defined(SDL_PLATFORM_ANDROID)
+    const std::string title = (active_ >= 0 && !black_) ? cues_[static_cast<std::size_t>(active_)].name : std::string();
+    if (title == showRunningTitle_) return;
+    showRunningTitle_ = title;
+    auto* env = static_cast<JNIEnv*>(SDL_GetAndroidJNIEnv());
+    if (!env) return;
+    jclass cls = env->FindClass("io/github/utopian_academy/deckboy/pocket/PocketActivity");
+    if (!cls) { env->ExceptionClear(); return; }
+    jmethodID m = env->GetStaticMethodID(cls, "setShowRunning", "(Ljava/lang/String;)V");
+    if (m) {
+      jstring t = env->NewStringUTF(title.c_str());
+      env->CallStaticVoidMethod(cls, m, t);
+      env->DeleteLocalRef(t);
+    }
+    if (env->ExceptionCheck()) env->ExceptionClear();
+    env->DeleteLocalRef(cls);
 #endif
   }
 
@@ -1679,6 +1707,7 @@ class Pocket {
   TTF_Font* identifyFont_ = nullptr;
   int identifyFontH_ = 0;
   int battery_ = -1, thermal_ = 0;
+  std::string showRunningTitle_;
   bool charging_ = false;
   Uint64 nextHealth_ = 0;
   bool confirmDelete_ = false;

@@ -7182,6 +7182,13 @@ void MediaEngine::queuePocketSyncAudio() {
   double startSeconds = syncPopNextSeconds_;
   if (startSeconds < 0.0 || std::fabs(startSeconds - wantedSeconds) > 0.25) startSeconds = wantedSeconds;
   syncPopNextSeconds_ = startSeconds + static_cast<double>(kChunkFrames) / kRate;
+  if (const char* trace = std::getenv("DECKBOY_SYNC_POP_TRACE"); trace && trace[0] == '1') {
+    SDL_AudioSpec src {}, dst {};
+    if (audioStream_) SDL_GetAudioStreamFormat(audioStream_, &src, &dst);
+    SDL_Log("syncpop now=%.4f queued=%.4f wanted=%.4f start=%.4f rate=%d src=%d/%d dst=%d/%d",
+            static_cast<double>(SDL_GetTicks()) / 1000.0, queuedSeconds, wantedSeconds, startSeconds, kRate,
+            src.freq, src.channels, dst.freq, dst.channels);
+  }
   const double gain = static_cast<double>(volume_.load())
                     * static_cast<double>(masterGain_.load())
                     * audioCueGain_.load(std::memory_order_relaxed)
