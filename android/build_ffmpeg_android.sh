@@ -28,7 +28,13 @@ cd "$BUILD"
   --disable-programs --disable-doc --disable-avdevice --disable-postproc \
   --disable-debug --disable-symver \
   --extra-cflags="-O3 -fPIC" \
-  --extra-ldflags="-Wl,-z,max-page-size=16384"
+  --extra-ldflags="-Wl,-z,max-page-size=16384 -Wl,--no-mmap-output-file"
+# The build links libfoo.so to libfoo.so.N, and X: refuses symlinks from WSL.
+# Android loads libfoo.so by that name (the soname), so a copy is all it needs.
+sed -i 's/^LN_S=.*/LN_S=cp -f/' ffbuild/config.mak
+# Gradle strips the libraries when it packs the app; llvm-strip in place on
+# X: (drvfs) corrupted libavfilter's string table, so the install does not strip.
+sed -i 's/^STRIP=.*/STRIP=true/' ffbuild/config.mak
 make -j"$(nproc)"
 make install
 ls -la "$PREFIX/lib"
