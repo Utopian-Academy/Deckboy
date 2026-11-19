@@ -769,6 +769,7 @@ class Pocket {
   }
 
   void frame() {
+    const Uint64 t0 = SDL_GetPerformanceCounter();
     takePicks();
     engine_->update();
     // Animated generators (Swirl, Fireside, Lumia...) are redrawn every tick
@@ -780,6 +781,7 @@ class Pocket {
         engine_->rebuildPatternFrame(c, static_cast<double>(SDL_GetTicks()) / 1000.0);
       }
     }
+    const Uint64 t1 = SDL_GetPerformanceCounter();
     followEnd();
     takePipActions();
     pollHealth();
@@ -791,7 +793,9 @@ class Pocket {
       holdRow_ = -1;
     }
     drawProgramTexture();
+    const Uint64 t2 = SDL_GetPerformanceCounter();
     drawOutputScreen();
+    const Uint64 t3 = SDL_GetPerformanceCounter();
     layout();
     SDL_Renderer* r = renderer_;
     hits_.clear();
@@ -812,6 +816,7 @@ class Pocket {
       drawControls();
     }
     SDL_RenderPresent(r);
+    traceFrame(t0, t1, t2, t3, SDL_GetPerformanceCounter());
     if (pressedUntil_ && SDL_GetTicks() > pressedUntil_) pressed_ = Pressed::None, pressedUntil_ = 0;
   }
 
@@ -956,6 +961,32 @@ class Pocket {
     }
   }
 
+  // TEMPORARY with the sync-pop trace: frames per second and where the time
+  // goes (engine update + pattern rebuild, program draw, output, phone UI).
+  void traceFrame(Uint64 t0, Uint64 t1, Uint64 t2, Uint64 t3, Uint64 t4) {
+    const char* trace = SDL_getenv("DECKBOY_SYNC_POP_TRACE");
+    if (!trace || trace[0] != '1') return;
+    const double f = 1000.0 / static_cast<double>(SDL_GetPerformanceFrequency());
+    perf_[0] += (t1 - t0) * f;
+    perf_[1] += (t2 - t1) * f;
+    perf_[2] += (t3 - t2) * f;
+    perf_[3] += (t4 - t3) * f;
+    ++perfFrames_;
+    const Uint64 now = SDL_GetTicks();
+    if (perfSince_ == 0) perfSince_ = now;
+    if (now - perfSince_ >= 2000) {
+      const double n = static_cast<double>(perfFrames_);
+      SDL_Log("pocketperf fps=%.1f update=%.1f program=%.1f output=%.1f ui+present=%.1f ms", n * 1000.0 / static_cast<double>(now - perfSince_),
+              perf_[0] / n, perf_[1] / n, perf_[2] / n, perf_[3] / n);
+      perf_[0] = perf_[1] = perf_[2] = perf_[3] = 0;
+      perfFrames_ = 0;
+      perfSince_ = now;
+    }
+  }
+  double perf_[4] {};
+  int perfFrames_ = 0;
+  Uint64 perfSince_ = 0;
+
   void takePipActions() {
 #if defined(SDL_PLATFORM_ANDROID)
     std::vector<int> actions;
@@ -1031,9 +1062,16 @@ class Pocket {
     fillRect(r, kLight, lcd);
     const float lx = lcd.x + u, lw = lcd.w - 2 * u;
     y = lcd.y + u;
-    text_.draw(pixelSmall_, "MENU", kDark, {lx, y, 20 * u, 4.5f * u});
-    button({lx + lw - 14 * u, y, 14 * u, 4.5f * u}, "CLOSE", [this] { menuOpen_ = false; });
-    y += 6.5f * u;
+    {
+      const float cw = 14 * u;
+      const float tw = (lw - cw - 4 * u) / 3;
+      const char* kTabs[3] = {"ADD", "OUTPUT", "SKIN"};
+      for (int t = 0; t < 3; ++t) {
+        button({lx + static_cast<float>(t) * (tw + u), y, tw, 5 * u}, kTabs[t], [this, t] { menuTab_ = t; }, true, menuTab_ == t);
+      }
+      button({lx + lw - cw, y, cw, 5 * u}, "CLOSE", [this] { menuOpen_ = false; });
+    }
+    y += 7.5f * u;
 
     auto heading = [&](const char* t) {
       text_.draw(pixelSmall_, t, kDark, {lx, y, lw, 3.5f * u});
@@ -1044,6 +1082,7 @@ class Pocket {
       y += 6 * u;
     };
 
+    if (menuTab_ == 0) {
     heading("ADD");
     item("CLIPS, PICTURES, SOUND, PDF", [this] { menuOpen_ = false; openPicker(); });
     {
@@ -1060,6 +1099,8 @@ class Pocket {
       y += 1.5f * u;
     }
 
+    }
+    if (menuTab_ == 1) {
     heading("OUTPUT");
     {
       OutputScreen& out = outputScreen();
@@ -1084,6 +1125,8 @@ class Pocket {
       item("PHONE FULL SCREEN", [this] { menuOpen_ = false; phoneFull_ = true; });
     }
 
+    }
+    if (menuTab_ == 2) {
     heading("SKIN");
     {
       const float bw = 9 * u;
@@ -1099,6 +1142,7 @@ class Pocket {
 
     heading("PHONE");
     text_.draw(mono_, healthLabel().empty() ? "-" : "Battery " + healthLabel(), kDeep, {lx, y, lw, 4.5f * u});
+    }
   }
 
   void addGenerator(const char* type) {
@@ -1889,6 +1933,7 @@ class Pocket {
   Uint64 holdStart_ = 0;
   int sheet_ = -1;
   bool menuOpen_ = false;
+  int menuTab_ = 0;   // ADD, OUTPUT, SKIN
   bool phoneFull_ = false;
   bool testPattern_ = false;
   Uint64 identifyUntil_ = 0;

@@ -7173,15 +7173,20 @@ void MediaEngine::queuePocketSyncAudio() {
     return;
   }
   setOutputPaused(false);
-  // Each chunk carries on where the last one ended. Keying every chunk to
-  // "now + queued" alone re-synthesised the same pop two or three times
-  // wherever the platform pulls audio out of the stream early into a buffer
-  // of its own (Android's AAudio): the queue reads short, every chunk is
-  // stamped too early, and the pop repeats. Resync only on real drift.
+  // FILL TO DEPTH, NEVER STEP BACK. This used to add one 21 ms chunk per call,
+  // which keeps up only while the main loop runs at 60 fps: at the 19 fps a
+  // phone managed with the card on its CPU, the queue ran dry every frame and
+  // each chunk was stamped "now" -- so the pop's timeline slid and jumped, and
+  // came out two or three times over, drifting in and out of phase. Now each
+  // call tops the queue up to its 120 ms, every chunk follows on from the last,
+  // and the timeline only ever moves FORWARD to the clock after a gap (what was
+  // missed was never played; going back is what repeats a pop).
+  for (int chunk = 0; chunk < 8 && queuedSeconds <= 0.12; ++chunk) {
   const double wantedSeconds = static_cast<double>(SDL_GetTicks()) / 1000.0 + queuedSeconds;
   double startSeconds = syncPopNextSeconds_;
-  if (startSeconds < 0.0 || std::fabs(startSeconds - wantedSeconds) > 0.25) startSeconds = wantedSeconds;
+  if (startSeconds < wantedSeconds - 0.002 || startSeconds > wantedSeconds + 0.25) startSeconds = wantedSeconds;
   syncPopNextSeconds_ = startSeconds + static_cast<double>(kChunkFrames) / kRate;
+  queuedSeconds += static_cast<double>(kChunkFrames) / kRate;
   if (const char* trace = std::getenv("DECKBOY_SYNC_POP_TRACE"); trace && trace[0] == '1') {
     SDL_AudioSpec src {}, dst {};
     if (audioStream_) SDL_GetAudioStreamFormat(audioStream_, &src, &dst);
@@ -7220,6 +7225,7 @@ void MediaEngine::queuePocketSyncAudio() {
   // the wall clock, so adjusting the audio delay visibly/audibly shifts the
   // pop against the flash — that's the dial-in workflow.
   queueDelayedAudio(samples);
+  }
 }
 
 // Thread-safe query of the current frame queue depth. Used by update() to
