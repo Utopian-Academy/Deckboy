@@ -23,6 +23,7 @@ android {
             cmake {
                 arguments "-DANDROID_PLATFORM=android-29", "-DANDROID_STL=c++_shared",
                           "-DPOCKET_DEPS=" + (System.getenv("POCKET_DEPS") ?: "X:/android")
+                targets "main"
                 // abiFilters 'armeabi-v7a', 'arm64-v8a', 'x86', 'x86_64'
                 abiFilters 'arm64-v8a'
             }
@@ -59,6 +60,19 @@ android {
         abortOnError = false
     }
 }
+
+// Deckboy's data that Pocket ships (fonts, the Pocket theme), copied into the
+// APK's assets; the app copies them out to its own storage on first launch.
+def pocketAssets = layout.buildDirectory.dir("pocket-assets")
+tasks.register("copyPocketAssets", Copy) {
+    from("${rootDir}/../data") {
+        include "PressStart2P.ttf", "fonts/LiberationSans-Regular.ttf", "fonts/LiberationMono-Regular.ttf",
+                "fonts/LICENSE-Liberation.txt", "themes/pocket/**"
+    }
+    into pocketAssets.map { it.dir("data") }
+}
+android.sourceSets.main.assets.srcDirs += pocketAssets
+preBuild.dependsOn("copyPocketAssets")
 
 dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')

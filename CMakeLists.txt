@@ -1362,6 +1362,34 @@ if(DECKBOY_BUILD_MINI)
   endif()
 endif()
 
+# ── Deckboy Pocket (Android) ──────────────────────────────────────────────────
+# The phone app: native/pocket/pocket_main.cpp around the same engine, built as
+# the shared library SDL's Android activity loads (libmain.so). Like Mini it
+# takes the desk target's finished configuration -- every source except the
+# desk's own main.cpp, every define, include path and library -- so a feature
+# switched off for the phone is switched off the same way. Built by Gradle from
+# android/ (see android/README.md), which asks for this target only.
+option(DECKBOY_BUILD_POCKET "Build Deckboy Pocket's native library (Android)" OFF)
+if(DECKBOY_BUILD_POCKET)
+  get_target_property(_desk_sources deckboy-native SOURCES)
+  set(_pocket_sources native/pocket/pocket_main.cpp)
+  foreach(_src IN LISTS _desk_sources)
+    if(NOT _src MATCHES "native/main\.cpp$" AND NOT _src MATCHES "\.(rc|plist|icns|manifest|mm)$")
+      list(APPEND _pocket_sources "${_src}")
+    endif()
+  endforeach()
+  add_library(main SHARED ${_pocket_sources})
+  foreach(_prop COMPILE_DEFINITIONS COMPILE_OPTIONS COMPILE_FEATURES INCLUDE_DIRECTORIES
+                LINK_LIBRARIES LINK_OPTIONS LINK_DIRECTORIES CXX_STANDARD CXX_STANDARD_REQUIRED)
+    get_target_property(_value deckboy-native ${_prop})
+    if(_value)
+      set_property(TARGET main PROPERTY ${_prop} "${_value}")
+    endif()
+  endforeach()
+  target_link_options(main PRIVATE "-Wl,-z,max-page-size=16384")
+  add_dependencies(main deckboy_generate_version)
+endif()
+
 include(CTest)
 option(DECKBOY_SANITIZE_BROADCAST_CHECK "Instrument the transport regression target with ASan and UBSan" OFF)
 if(BUILD_TESTING)
