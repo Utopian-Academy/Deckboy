@@ -3,6 +3,13 @@ project(deckboy_pocket LANGUAGES C CXX)
 
 # Sources that are not in the repository (SDL, SDL_ttf, the FFmpeg build) live
 # under POCKET_DEPS (default X:/android); see android/README.md.
+# Optimised even in a debug APK: Gradle's debug variant builds native code at
+# -O0, and Deckboy's engine at -O0 ran Pocket Test's card at 87 ms a frame
+# (11 fps) on the phone. Debug symbols stay, so crash stacks still read.
+# (The NDK toolchain sets its own CMAKE_*_FLAGS_DEBUG, so the flag goes on
+# every target directly; it comes after -O0 on the command line and wins.)
+add_compile_options(-O2)
+
 # Every library 16 KB-page ready (Android 15+ phones with 16 KB pages refuse
 # the rest): SDL and SDL_ttf are built here too, not only Pocket's own.
 string(APPEND CMAKE_SHARED_LINKER_FLAGS " -Wl,-z,max-page-size=16384")

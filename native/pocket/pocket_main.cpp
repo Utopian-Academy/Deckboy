@@ -32,6 +32,7 @@
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
+#include <array>
 #include <atomic>
 #include <functional>
 #include <map>
@@ -73,6 +74,9 @@ Ink kPrint {46, 46, 70};
 constexpr Ink kBlack {0, 0, 0};
 constexpr Ink kInOut {35, 73, 127};   // IN and OUT marks: blue, apart from the four inks
 
+double gThemeHueCycle = 0.0;              // seconds per turn; 0 = still
+std::array<Ink, 10> gThemeBase {};          // the theme's own inks, before any turn
+
 Ink mixInk(Ink a, Ink b, float t) {
   auto m = [t](Uint8 x, Uint8 y) { return static_cast<Uint8>(std::lround(x + (y - x) * t)); };
   return {m(a.r, b.r), m(a.g, b.g), m(a.b, b.b)};
@@ -102,11 +106,23 @@ bool applyTheme(const std::string& dataDir, const std::string& name) {
     const std::string key = line.substr(0, tab);
     std::string hex = line.substr(tab + 1);
     while (!hex.empty() && (hex.back() == '\r' || hex.back() == ' ')) hex.pop_back();
+    if (key == "hue_cycle") {   // seconds for one turn of the colour wheel (Rainbow Road)
+      gThemeHueCycle = std::atof(hex.c_str());
+      continue;
+    }
     if (hex.size() < 6) continue;
     const unsigned long v = std::strtoul(hex.substr(0, 6).c_str(), nullptr, 16);
     c[key] = Ink {static_cast<Uint8>(v >> 16), static_cast<Uint8>(v >> 8), static_cast<Uint8>(v)};
   }
   if (!c.count("screen_light") || !c.count("screen_deep") || !c.count("shell_outer")) return false;
+  gThemeHueCycle = 0.0;
+  for (std::size_t at2 = 0; at2 < all.size();) {   // hue_cycle, read again now the theme is known good
+    std::size_t end2 = all.find('\n', at2);
+    if (end2 == std::string::npos) end2 = all.size();
+    const std::string line2 = all.substr(at2, end2 - at2);
+    at2 = end2 + 1;
+    if (line2.rfind("hue_cycle\t", 0) == 0) gThemeHueCycle = std::atof(line2.c_str() + 10);
+  }
   auto get = [&](const char* k, Ink fallback) { auto it = c.find(k); return it == c.end() ? fallback : it->second; };
   kLight = c["screen_light"];
   kDeep = c["screen_deep"];
@@ -122,7 +138,26 @@ bool applyTheme(const std::string& dataDir, const std::string& name) {
   kPill = get("button_bezel", mixInk(kShell, shadow, 0.6f));
   // Print on the shell: the theme's dark on a light case, light on a dark one.
   kPrint = lumaOf(kShell) > 0.45f ? mixInk(shadow, Ink {0, 0, 40}, 0.4f) : mixInk(kShell, Ink {255, 255, 255}, 0.75f);
+  gThemeBase = {kLight, kMid, kDark, kDeep, kShell, kShellShade, kBezel, kPad, kPill, kPrint};
   return true;
+}
+
+// A cycling theme (hue_cycle): every ink but the buttons' (danger stays red)
+// turned round the wheel, keeping its brightness, as the desk does.
+Ink rotateHue(Ink c, double degrees) {
+  const double a = degrees * 3.14159265358979 / 180.0, co = std::cos(a), si = std::sin(a);
+  const double m[9] = {
+    0.2126 + co * 0.7874 - si * 0.2126, 0.7152 - co * 0.7152 - si * 0.7152, 0.0722 - co * 0.0722 + si * 0.9278,
+    0.2126 - co * 0.2126 + si * 0.1430, 0.7152 + co * 0.2848 + si * 0.1400, 0.0722 - co * 0.0722 - si * 0.2830,
+    0.2126 - co * 0.2126 - si * 0.7874, 0.7152 - co * 0.7152 + si * 0.7152, 0.0722 + co * 0.9278 + si * 0.0722,
+  };
+  auto ch = [](double v) { return static_cast<Uint8>(std::clamp(std::lround(v), 0L, 255L)); };
+  return {ch(m[0] * c.r + m[1] * c.g + m[2] * c.b), ch(m[3] * c.r + m[4] * c.g + m[5] * c.b), ch(m[6] * c.r + m[7] * c.g + m[8] * c.b)};
+}
+
+void turnTheme(double degrees) {
+  Ink* targets[10] = {&kLight, &kMid, &kDark, &kDeep, &kShell, &kShellShade, &kBezel, &kPad, &kPill, &kPrint};
+  for (int i = 0; i < 10; ++i) *targets[i] = rotateHue(gThemeBase[static_cast<std::size_t>(i)], degrees);
 }
 
 // What a first launch copies out of the APK, so Deckboy's file-based code
@@ -663,10 +698,42 @@ class Pocket {
     setTheme(want);
   }
 
+  // Where this phone starts on the wheel: picked once per install and kept,
+  // so two phones (or a phone and a desk) on Rainbow Road look different at a
+  // glance -- the point of a cycling theme. (Every phone calls itself
+  // "localhost", so the desk's computer-name rule cannot work here.)
+  double huePhase() {
+    if (huePhase_ >= 0.0) return huePhase_;
+    const char* state = SDL_getenv("DECKBOY_STATE_DIR");
+    const std::string file = std::string(state ? state : ".") + "/pocket_phase.txt";
+    size_t n = 0;
+    if (char* saved = static_cast<char*>(SDL_LoadFile(file.c_str(), &n))) {
+      huePhase_ = std::atof(std::string(saved, n).c_str());
+      SDL_free(saved);
+    }
+    if (!(huePhase_ >= 0.0 && huePhase_ < 1.0)) {
+      huePhase_ = static_cast<double>(SDL_rand(3600)) / 3600.0;
+      const std::string text = std::to_string(huePhase_);
+      SDL_SaveFile(file.c_str(), text.data(), text.size());
+    }
+    return huePhase_;
+  }
+
+  void serviceThemeHue() {
+    if (gThemeHueCycle <= 0.0) return;
+    const double turns = static_cast<double>(SDL_GetTicks()) / 1000.0 / gThemeHueCycle + huePhase();
+    const int step = static_cast<int>((turns - std::floor(turns)) * 180.0) % 180;
+    if (step == hueStep_) return;
+    hueStep_ = step;
+    turnTheme(step * 2.0);
+    text_.clear();
+  }
+
   void setTheme(const std::string& name) {
     const std::string data = std::string(SDL_getenv("DECKBOY_ROOT") ? SDL_getenv("DECKBOY_ROOT") : ".") + "/data/";
     if (!applyTheme(data, name)) return;
     theme_ = name;
+    hueStep_ = -1;
     text_.clear();   // cached labels carry the old inks
     if (const char* state = SDL_getenv("DECKBOY_STATE_DIR")) {
       const std::string line = "theme\t" + name + "\n";
@@ -785,6 +852,7 @@ class Pocket {
     followEnd();
     takePipActions();
     pollHealth();
+    serviceThemeHue();
     gWantsPip.store(active_ >= 0 && !black_);
     updateShowRunning();
     // Hold a cue for its sheet.
@@ -1942,6 +2010,8 @@ class Pocket {
   int battery_ = -1, thermal_ = 0;
   std::string showRunningTitle_;
   std::vector<std::string> themes_;
+  double huePhase_ = -1.0;
+  int hueStep_ = -1;
   std::string theme_ = "pocket";
   bool charging_ = false;
   Uint64 nextHealth_ = 0;
