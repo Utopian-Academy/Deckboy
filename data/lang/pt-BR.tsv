@@ -4738,3 +4738,8 @@ How big the three dots are. Small dots vanish more easily	Tamanho dos três pont
 Swap the black and white edges: the field drifts the other way	Inverte as bordas pretas e brancas: o campo deriva no sentido oposto
 How much of the black and white edges shows. They make the drift	Quanto aparece das bordas pretas e brancas. Elas criam a deriva
 LFO: size, count, edge, speed, centrex, centrey, grey, hue1 or hue2	LFO: size, count, edge, speed, centrex, centrey, grey, hue1 ou hue2
+SYNC LEAD ON or OFF	SYNC LEAD ON ou OFF
+{1} is following this desk	{1} está seguindo esta mesa
+SYNC LEAD ON|OFF or SYNC STATUS	SYNC LEAD ON|OFF ou SYNC STATUS
+FOLLOW needs a network connection that stays open	FOLLOW exige uma conexão de rede persistente
+this desk is not leading (SYNC LEAD ON, or Settings > Network > SYNC)	esta mesa não está liderando (SYNC LEAD ON, ou Ajustes > Rede > SYNC)

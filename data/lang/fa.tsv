@@ -4799,3 +4799,8 @@ Slide the rows back and forth, so the wall bends and straightens. 0 holds it sti
 How fast the crosses turn. They always turn a little: the dots vanish only while they move	سرعت گردش صلیب‌ها. همیشه کمی می‌گردند: نقطه‌ها فقط هنگام حرکت ناپدید می‌شوند
 Drift (still shapes that seem to turn), ouchi (a disc that floats), cafe (straight rows that look tilted), vanish (dots that disappear while you stare), grid (dots that flicker and are not there) or dancer (it spins whichever way you see it)	رانش (شکل‌های ثابتی که به نظر می‌چرخند)، ouchi (دیسکی که شناور است)، کافه (ردیف‌های مستقیمی که کج به نظر می‌رسند)، محو (نقطه‌هایی که وقتی خیره می‌شوید ناپدید می‌شوند)، شبکه (نقطه‌هایی که سوسو می‌زنند و وجود ندارند) یا رقصنده (به هر سو که ببینیدش می‌چرخد)
 STATUS | SHAPE drift|ouchi|cafe|vanish|grid|dancer | FORM leaf|petal|scale|ring | FLOW turn|out|in|wave | FLIP ON|OFF | PALETTE classic|theme|hues | SIZE|COUNT|EDGE|SPEED|CENTREX|CENTREY|GREY <0-100> | HUE1|HUE2 <0-360> | LFO <control> <setting>	STATUS | SHAPE drift|ouchi|cafe|vanish|grid|dancer | FORM leaf|petal|scale|ring | FLOW turn|out|in|wave | FLIP ON|OFF | PALETTE classic|theme|hues | SIZE|COUNT|EDGE|SPEED|CENTREX|CENTREY|GREY <0-100> | HUE1|HUE2 <0-360> | LFO <کنترل> <تنظیم>
+SYNC LEAD ON or OFF	SYNC LEAD ON یا OFF
+{1} is following this desk	{1} این اپراتور را دنبال می‌کند
+SYNC LEAD ON|OFF or SYNC STATUS	SYNC LEAD ON|OFF یا SYNC STATUS
+FOLLOW needs a network connection that stays open	FOLLOW به اتصال شبکه‌ای نیاز دارد که باز بماند
+this desk is not leading (SYNC LEAD ON, or Settings > Network > SYNC)	این اپراتور رهبری نمی‌کند (SYNC LEAD ON، یا تنظیمات > شبکه > SYNC)

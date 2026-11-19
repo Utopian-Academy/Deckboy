@@ -4787,3 +4787,8 @@ Which way the field seems to go: turn round the centre, out, in, or in waves	م�
 Slide the rows back and forth, so the wall bends and straightens. 0 holds it still	ڕیزەکان بەرەو پێش و دواوە بخلیسکێنە، تا دیوارەکە بچەمێتەوە و ڕاست ببێتەوە. 0 جێگیری دەکات
 How fast the crosses turn. They always turn a little: the dots vanish only while they move	خاچەکان چەند خێرا دەسووڕێن. هەمیشە کەمێک دەسووڕێن: خاڵەکان تەنها کاتی جووڵەیان ون دەبن
 Drift (still shapes that seem to turn), ouchi (a disc that floats), cafe (straight rows that look tilted), vanish (dots that disappear while you stare), grid (dots that flicker and are not there) or dancer (it spins whichever way you see it)	خلیسکان (شێوەی جێگیر کە وا دیارە دەسووڕێن)، ouchi (دیسکێک کە مەلە دەکات)، کافێ (ڕیزی ڕاست کە لار دیارن)، ونبوون (خاڵ کە کاتی سەیرکردن ون دەبن)، تۆڕ (خاڵ کە دەلەرزن و لەوێ نین) یان سەماکەر (بەو ئاراستەیەی دەیبینیت دەسووڕێت)
+SYNC LEAD ON or OFF	SYNC LEAD ON یان OFF
+{1} is following this desk	{1} شوێن ئەم مێزی کۆنترۆڵە دەکەوێت
+SYNC LEAD ON|OFF or SYNC STATUS	SYNC LEAD ON|OFF یان SYNC STATUS
+FOLLOW needs a network connection that stays open	FOLLOW پێویستی بە پەیوەندیی تۆڕێکە کە کراوە بمێنێتەوە
+this desk is not leading (SYNC LEAD ON, or Settings > Network > SYNC)	ئەم مێزی کۆنترۆڵە پێشەنگ نییە (SYNC LEAD ON، یان ڕێکخستنەکان > تۆڕ > SYNC)

@@ -6165,7 +6165,7 @@ bool looksLikeHttpRequestLine(const std::string& line) {
       syncFollowers_.push_back(f);
       syncLastSentNs_ = 0;   // the newcomer gets the state at once
       showLog("SYNC", "follower " + f.name + " (" + f.kind + ", " + f.role + ") joined");
-      triggerToast(f.name + " is following this desk");
+      triggerToast(deckboy::core::i18n::format("{1} is following this desk", {f.name}));
       remoteCommandDetail_ = "following deck " + std::to_string(project_.focusedDeckIndex + 1);
       return;
     }

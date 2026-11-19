@@ -4751,3 +4751,8 @@ Slide the rows back and forth, so the wall bends and straightens. 0 holds it sti
 How fast the crosses turn. They always turn a little: the dots vanish only while they move	Ka māmā o ka huli ʻana o nā kea. Huli iki mau lākou: nalowale nā kiko i ka wā e neʻe ana wale nō
 Drift (still shapes that seem to turn), ouchi (a disc that floats), cafe (straight rows that look tilted), vanish (dots that disappear while you stare), grid (dots that flicker and are not there) or dancer (it spins whichever way you see it)	drift (nā kinona paʻa e like me ka huli), ouchi (he pā e lana ana), cafe (nā lalani pololei e like me ke kapakahi), vanish (nā kiko e nalowale ke nānā pono ʻoe), grid (nā kiko e ʻōlapa ana akā ʻaʻole i laila) a i ʻole dancer (wili ma ke ala āu e ʻike ai)
 STATUS | SHAPE drift|ouchi|cafe|vanish|grid|dancer | FORM leaf|petal|scale|ring | FLOW turn|out|in|wave | FLIP ON|OFF | PALETTE classic|theme|hues | SIZE|COUNT|EDGE|SPEED|CENTREX|CENTREY|GREY <0-100> | HUE1|HUE2 <0-360> | LFO <control> <setting>	STATUS | SHAPE drift|ouchi|cafe|vanish|grid|dancer | FORM leaf|petal|scale|ring | FLOW turn|out|in|wave | FLIP ON|OFF | PALETTE classic|theme|hues | SIZE|COUNT|EDGE|SPEED|CENTREX|CENTREY|GREY <0-100> | HUE1|HUE2 <0-360> | LFO <kaohi> <hoʻonohonoho>
+SYNC LEAD ON or OFF	SYNC LEAD ON a i ʻole OFF
+{1} is following this desk	Ke hahai nei ʻo {1} i kēia papa
+SYNC LEAD ON|OFF or SYNC STATUS	SYNC LEAD ON|OFF a i ʻole SYNC STATUS
+FOLLOW needs a network connection that stays open	Pono ʻo FOLLOW i kahi pili pūnaewele e wehe mau ana
+this desk is not leading (SYNC LEAD ON, or Settings > Network > SYNC)	ʻaʻole alakaʻi kēia papa (SYNC LEAD ON, a i ʻole Settings > Network > SYNC)

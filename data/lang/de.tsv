@@ -4753,3 +4753,8 @@ Which way the field seems to go: turn round the centre, out, in, or in waves	Woh
 Slide the rows back and forth, so the wall bends and straightens. 0 holds it still	Lässt die Zeilen hin und her gleiten, sodass die Wand sich biegt und streckt. 0 hält sie still
 How fast the crosses turn. They always turn a little: the dots vanish only while they move	Wie schnell sich die Kreuze drehen. Sie drehen sich immer etwas: die Punkte verschwinden nur, solange sie sich bewegen
 Drift (still shapes that seem to turn), ouchi (a disc that floats), cafe (straight rows that look tilted), vanish (dots that disappear while you stare), grid (dots that flicker and are not there) or dancer (it spins whichever way you see it)	Drift (stille Formen, die sich zu drehen scheinen), ouchi (eine schwebende Scheibe), Café (gerade Zeilen, die schräg wirken), Verschwinden (Punkte, die beim Hinstarren verschwinden), Raster (Punkte, die flackern und nicht da sind) oder Tänzerin (sie dreht sich so, wie du sie siehst)
+SYNC LEAD ON or OFF	SYNC LEAD ON oder OFF
+{1} is following this desk	{1} folgt diesem Pult
+SYNC LEAD ON|OFF or SYNC STATUS	SYNC LEAD ON|OFF oder SYNC STATUS
+FOLLOW needs a network connection that stays open	FOLLOW braucht eine dauerhaft offene Netzwerkverbindung
+this desk is not leading (SYNC LEAD ON, or Settings > Network > SYNC)	dieses Pult führt nicht (SYNC LEAD ON oder Einstellungen > Netzwerk > SYNC)

@@ -4775,3 +4775,8 @@ How big the three dots are. Small dots vanish more easily	三个圆点的大小�
 Swap the black and white edges: the field drifts the other way	交换黑白边缘：场向反方向漂移
 How much of the black and white edges shows. They make the drift	黑白边缘显示的程度。它们造成漂移
 LFO: size, count, edge, speed, centrex, centrey, grey, hue1 or hue2	LFO: 请选择 size、count、edge、speed、centrex、centrey、grey、hue1 或 hue2
+SYNC LEAD ON or OFF	SYNC LEAD ON 或 OFF
+{1} is following this desk	{1} 正在跟随此控制台
+SYNC LEAD ON|OFF or SYNC STATUS	SYNC LEAD ON|OFF 或 SYNC STATUS
+FOLLOW needs a network connection that stays open	FOLLOW 需要保持打开的网络连接
+this desk is not leading (SYNC LEAD ON, or Settings > Network > SYNC)	此控制台未作为主导（SYNC LEAD ON，或 设置 > 网络 > SYNC）

@@ -4737,3 +4737,8 @@ Which way the field seems to go: turn round the centre, out, in, or in waves	Hvi
 Slide the rows back and forth, so the wall bends and straightens. 0 holds it still	Lad rækkerne glide frem og tilbage, så muren bøjer og retter sig ud. 0 holder den stille
 How fast the crosses turn. They always turn a little: the dots vanish only while they move	Hvor hurtigt krydsene drejer. De drejer altid lidt: prikkerne forsvinder kun, mens de bevæger sig
 Drift (still shapes that seem to turn), ouchi (a disc that floats), cafe (straight rows that look tilted), vanish (dots that disappear while you stare), grid (dots that flicker and are not there) or dancer (it spins whichever way you see it)	Drift (stille former, der synes at dreje), ouchi (en skive, der svæver), café (lige rækker, der ser skrå ud), forsvind (prikker, der forsvinder, mens du stirrer), gitter (prikker, der flimrer og ikke er der) eller danser (den drejer, som du ser den)
+SYNC LEAD ON or OFF	SYNC LEAD ON eller OFF
+{1} is following this desk	{1} følger denne pult
+SYNC LEAD ON|OFF or SYNC STATUS	SYNC LEAD ON|OFF eller SYNC STATUS
+FOLLOW needs a network connection that stays open	FOLLOW kræver en netværksforbindelse, der forbliver åben
+this desk is not leading (SYNC LEAD ON, or Settings > Network > SYNC)	denne pult leder ikke (SYNC LEAD ON eller Indstillinger > Netværk > SYNC)

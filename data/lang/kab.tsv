@@ -4772,3 +4772,8 @@ Slide the rows back and forth, so the wall bends and straightens. 0 holds it sti
 How fast the crosses turn. They always turn a little: the dots vanish only while they move	Arured n tuzzya n yiṣliben. Ttezzin dima cwiṭ: tineqqiḍin ttruḥunt kan mi ara mussun
 Drift (still shapes that seem to turn), ouchi (a disc that floats), cafe (straight rows that look tilted), vanish (dots that disappear while you stare), grid (dots that flicker and are not there) or dancer (it spins whichever way you see it)	drift (talɣiwin yeḥbsen i d-yettbanen ttezzint), ouchi (aḍebsi yettɛummun), cafe (izirigen usriden i d-yettbanen imaylen), vanish (tineqqiḍin yettruḥun mi ara tmuqleḍ), grid (tineqqiḍin yesseddiren ur llint ara) neɣ dancer (tettezzi ɣer tanila i tt-twalaḍ)
 STATUS | SHAPE drift|ouchi|cafe|vanish|grid|dancer | FORM leaf|petal|scale|ring | FLOW turn|out|in|wave | FLIP ON|OFF | PALETTE classic|theme|hues | SIZE|COUNT|EDGE|SPEED|CENTREX|CENTREY|GREY <0-100> | HUE1|HUE2 <0-360> | LFO <control> <setting>	STATUS | SHAPE drift|ouchi|cafe|vanish|grid|dancer | FORM leaf|petal|scale|ring | FLOW turn|out|in|wave | FLIP ON|OFF | PALETTE classic|theme|hues | SIZE|COUNT|EDGE|SPEED|CENTREX|CENTREY|GREY <0-100> | HUE1|HUE2 <0-360> | LFO <asenqed> <aɣewwar>
+SYNC LEAD ON or OFF	SYNC LEAD ON neɣ OFF
+{1} is following this desk	{1} yeṭṭafar ṭṭabla-agi
+SYNC LEAD ON|OFF or SYNC STATUS	SYNC LEAD ON|OFF neɣ SYNC STATUS
+FOLLOW needs a network connection that stays open	FOLLOW yesra tuqqna n uẓeṭṭa ara yeqqimen teldi
+this desk is not leading (SYNC LEAD ON, or Settings > Network > SYNC)	ṭṭabla-agi ur tezwir ara (SYNC LEAD ON, neɣ Settings > Network > SYNC)

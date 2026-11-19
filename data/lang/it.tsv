@@ -4754,3 +4754,8 @@ Slide the rows back and forth, so the wall bends and straightens. 0 holds it sti
 How fast the crosses turn. They always turn a little: the dots vanish only while they move	Velocità di rotazione delle croci. Ruotano sempre un po': i punti svaniscono solo durante il movimento
 Drift (still shapes that seem to turn), ouchi (a disc that floats), cafe (straight rows that look tilted), vanish (dots that disappear while you stare), grid (dots that flicker and are not there) or dancer (it spins whichever way you see it)	drift (forme ferme che sembrano ruotare), ouchi (un disco che fluttua), cafe (righe dritte che sembrano inclinate), vanish (punti che spariscono mentre li fissi), grid (punti che sfarfallano e non ci sono) o dancer (gira nel verso in cui la vedi)
 STATUS | SHAPE drift|ouchi|cafe|vanish|grid|dancer | FORM leaf|petal|scale|ring | FLOW turn|out|in|wave | FLIP ON|OFF | PALETTE classic|theme|hues | SIZE|COUNT|EDGE|SPEED|CENTREX|CENTREY|GREY <0-100> | HUE1|HUE2 <0-360> | LFO <control> <setting>	STATUS | SHAPE drift|ouchi|cafe|vanish|grid|dancer | FORM leaf|petal|scale|ring | FLOW turn|out|in|wave | FLIP ON|OFF | PALETTE classic|theme|hues | SIZE|COUNT|EDGE|SPEED|CENTREX|CENTREY|GREY <0-100> | HUE1|HUE2 <0-360> | LFO <controllo> <impostazione>
+SYNC LEAD ON or OFF	SYNC LEAD ON o OFF
+{1} is following this desk	{1} segue questa console
+SYNC LEAD ON|OFF or SYNC STATUS	SYNC LEAD ON|OFF o SYNC STATUS
+FOLLOW needs a network connection that stays open	FOLLOW richiede una connessione di rete sempre aperta
+this desk is not leading (SYNC LEAD ON, or Settings > Network > SYNC)	questa console non è leader (SYNC LEAD ON, o Impostazioni > Rete > SYNC)

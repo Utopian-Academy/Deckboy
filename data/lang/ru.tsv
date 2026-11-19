@@ -4778,3 +4778,8 @@ How big the three dots are. Small dots vanish more easily	Размер трёх 
 Swap the black and white edges: the field drifts the other way	Поменять местами чёрные и белые края: поле дрейфует в другую сторону
 How much of the black and white edges shows. They make the drift	Насколько видны чёрные и белые края. Они создают дрейф
 LFO: size, count, edge, speed, centrex, centrey, grey, hue1 or hue2	LFO: size, count, edge, speed, centrex, centrey, grey, hue1 или hue2
+SYNC LEAD ON or OFF	SYNC LEAD ON или OFF
+{1} is following this desk	{1} следует за этим оператором
+SYNC LEAD ON|OFF or SYNC STATUS	SYNC LEAD ON|OFF или SYNC STATUS
+FOLLOW needs a network connection that stays open	FOLLOW требует постоянного сетевого подключения
+this desk is not leading (SYNC LEAD ON, or Settings > Network > SYNC)	этот оператор не ведущий (SYNC LEAD ON или Настройки > Сеть > SYNC)

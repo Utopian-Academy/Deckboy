@@ -4778,3 +4778,8 @@ Slide the rows back and forth, so the wall bends and straightens. 0 holds it sti
 How fast the crosses turn. They always turn a little: the dots vanish only while they move	Xaç çiqas bilez dizivirin. Ew hergav hinekî dizivirin: xal tenê dema ew tevger dikin winda dibin
 Drift (still shapes that seem to turn), ouchi (a disc that floats), cafe (straight rows that look tilted), vanish (dots that disappear while you stare), grid (dots that flicker and are not there) or dancer (it spins whichever way you see it)	drift (şiklên sabît ku xuya dikin dizivirin), ouchi (diskeke ku li hewayê dimîne), cafe (rêzên rast ku xwar xuya dikin), vanish (xalên ku dema tu lê dinêrî winda dibin), grid (xalên ku dilerizin û ne li wir in) an dancer (bi kîjan alî ku tu bibînî dizivire)
 STATUS | SHAPE drift|ouchi|cafe|vanish|grid|dancer | FORM leaf|petal|scale|ring | FLOW turn|out|in|wave | FLIP ON|OFF | PALETTE classic|theme|hues | SIZE|COUNT|EDGE|SPEED|CENTREX|CENTREY|GREY <0-100> | HUE1|HUE2 <0-360> | LFO <control> <setting>	STATUS | SHAPE drift|ouchi|cafe|vanish|grid|dancer | FORM leaf|petal|scale|ring | FLOW turn|out|in|wave | FLIP ON|OFF | PALETTE classic|theme|hues | SIZE|COUNT|EDGE|SPEED|CENTREX|CENTREY|GREY <0-100> | HUE1|HUE2 <0-360> | LFO <kontrol> <mîheng>
+SYNC LEAD ON or OFF	SYNC LEAD ON an OFF
+{1} is following this desk	{1} vê maseya kontrolê dişopîne
+SYNC LEAD ON|OFF or SYNC STATUS	SYNC LEAD ON|OFF an SYNC STATUS
+FOLLOW needs a network connection that stays open	FOLLOW girêdaneke torê ya ku vekirî bimîne dixwaze
+this desk is not leading (SYNC LEAD ON, or Settings > Network > SYNC)	ev maseya kontrolê pêşengiyê nake (SYNC LEAD ON, an Settings > Network > SYNC)

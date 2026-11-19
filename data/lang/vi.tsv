@@ -4762,3 +4762,8 @@ How big the three dots are. Small dots vanish more easily	Kích thước ba ch�
 Swap the black and white edges: the field drifts the other way	Đổi cạnh đen và trắng: trường trôi theo hướng ngược lại
 How much of the black and white edges shows. They make the drift	Mức hiện của cạnh đen và trắng. Chúng tạo ra sự trôi
 LFO: size, count, edge, speed, centrex, centrey, grey, hue1 or hue2	LFO: size, count, edge, speed, centrex, centrey, grey, hue1 hoặc hue2
+SYNC LEAD ON or OFF	SYNC LEAD ON hoặc OFF
+{1} is following this desk	{1} đang theo bàn này
+SYNC LEAD ON|OFF or SYNC STATUS	SYNC LEAD ON|OFF hoặc SYNC STATUS
+FOLLOW needs a network connection that stays open	FOLLOW cần kết nối mạng luôn mở
+this desk is not leading (SYNC LEAD ON, or Settings > Network > SYNC)	bàn này không dẫn (SYNC LEAD ON, hoặc Cài đặt > Mạng > SYNC)

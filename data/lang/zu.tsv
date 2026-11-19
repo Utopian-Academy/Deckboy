@@ -4763,3 +4763,8 @@ How big the three dots are. Small dots vanish more easily	Ubukhulu bamachashaza 
 Swap the black and white edges: the field drifts the other way	Shintshanisa imiphetho emnyama nemhlophe: inkambu intanta ngenye indlela
 How much of the black and white edges shows. They make the drift	Izinga imiphetho emnyama nemhlophe ebonakala ngalo. Yiyo edala ukuntanta
 LFO: size, count, edge, speed, centrex, centrey, grey, hue1 or hue2	LFO: size, count, edge, speed, centrex, centrey, grey, hue1 noma hue2
+SYNC LEAD ON or OFF	SYNC LEAD ON noma OFF
+{1} is following this desk	{1} ilandela leli deski
+SYNC LEAD ON|OFF or SYNC STATUS	SYNC LEAD ON|OFF noma SYNC STATUS
+FOLLOW needs a network connection that stays open	i-FOLLOW idinga uxhumano lwenethiwekhi oluhlala luvuliwe
+this desk is not leading (SYNC LEAD ON, or Settings > Network > SYNC)	leli deski aliholi (SYNC LEAD ON, noma Izilungiselelo > Inethiwekhi > SYNC)
