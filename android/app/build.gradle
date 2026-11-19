@@ -74,6 +74,17 @@ tasks.register("copyPocketAssets", Copy) {
 android.sourceSets.main.assets.srcDirs += pocketAssets
 preBuild.dependsOn("copyPocketAssets")
 
+// The Android FFmpeg build's shared libraries (build_ffmpeg_android.sh), packed
+// beside libmain.so. Absent until that build has run; Pocket then has no video.
+def pocketDeps = System.getenv("POCKET_DEPS") ?: "X:/android"
+def pocketJni = layout.buildDirectory.dir("pocket-jni")
+tasks.register("copyFfmpegLibs", Copy) {
+    from("${pocketDeps}/prefix/arm64-v8a/lib") { include "*.so" }
+    into pocketJni.map { it.dir("arm64-v8a") }
+}
+android.sourceSets.main.jniLibs.srcDirs += pocketJni
+preBuild.dependsOn("copyFfmpegLibs")
+
 dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
 }

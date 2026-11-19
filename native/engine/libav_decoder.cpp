@@ -211,6 +211,10 @@ AVHWDeviceType preferredHwDeviceType() {
   return AV_HWDEVICE_TYPE_D3D11VA;
 #elif defined(__APPLE__)
   return AV_HWDEVICE_TYPE_VIDEOTOOLBOX;
+#elif defined(__ANDROID__)
+  // The phone's decoders are MediaCodec, which ffmpeg exposes as separate
+  // decoders (mediacodecDecoderFor), not as a device to attach.
+  return AV_HWDEVICE_TYPE_NONE;
 #elif defined(__linux__)
   return AV_HWDEVICE_TYPE_VAAPI;
 #else
@@ -257,6 +261,8 @@ AVPixelFormat hwPixelFormat() {
   return AV_PIX_FMT_D3D11;
 #elif defined(__APPLE__)
   return AV_PIX_FMT_VIDEOTOOLBOX;
+#elif defined(__ANDROID__)
+  return AV_PIX_FMT_NONE;
 #elif defined(__linux__)
   return AV_PIX_FMT_VAAPI;
 #else
@@ -266,7 +272,14 @@ AVPixelFormat hwPixelFormat() {
 
 // The name to say out loud, for --decode-bench and the logs. "hardware" on its
 // own is not a useful answer when the question is why a machine is slow.
+#if defined(__ANDROID__)
+bool androidHwDecodeDisabled();
+#endif
+
 const char* hwDeviceName() {
+#if defined(__ANDROID__)
+  if (!androidHwDecodeDisabled()) return "mediacodec";
+#endif
   const AVHWDeviceType type = preferredHwDeviceType();
   if (type == AV_HWDEVICE_TYPE_NONE) {
     return "software";
@@ -275,7 +288,39 @@ const char* hwDeviceName() {
   return name ? name : "hardware";
 }
 
-#if defined(__linux__)
+#if defined(__ANDROID__)
+// ── ANDROID: THE PHONE'S OWN DECODERS ────────────────────────────────────────
+//
+// MediaCodec, as ffmpeg's separate "*_mediacodec" decoders -- the same shape
+// as a Pi's V4L2 decoders below. With no output surface they hand frames over
+// in ordinary memory (NV12 on most phones), so everything after the decoder is
+// the software path unchanged. Needs the Java VM (av_jni_set_java_vm), which
+// Pocket sets at start. DECKBOY_NO_HW_DECODE=1 turns it off, as everywhere.
+bool androidHwDecodeDisabled() {
+  static const bool disabled = [] {
+    const char* env = std::getenv("DECKBOY_NO_HW_DECODE");
+    return env && env[0] && env[0] != '0';
+  }();
+  return disabled;
+}
+
+const AVCodec* mediacodecDecoderFor(AVCodecID id) {
+  const char* name = nullptr;
+  switch (id) {
+    case AV_CODEC_ID_H264:       name = "h264_mediacodec"; break;
+    case AV_CODEC_ID_HEVC:       name = "hevc_mediacodec"; break;
+    case AV_CODEC_ID_AV1:        name = "av1_mediacodec"; break;
+    case AV_CODEC_ID_VP8:        name = "vp8_mediacodec"; break;
+    case AV_CODEC_ID_VP9:        name = "vp9_mediacodec"; break;
+    case AV_CODEC_ID_MPEG2VIDEO: name = "mpeg2_mediacodec"; break;
+    case AV_CODEC_ID_MPEG4:      name = "mpeg4_mediacodec"; break;
+    default: return nullptr;
+  }
+  return avcodec_find_decoder_by_name(name);
+}
+#endif
+
+#if defined(__linux__) && !defined(__ANDROID__)
 // ── THE OTHER KIND OF LINUX HARDWARE DECODER ─────────────────────────────────
 //
 // VAAPI is a hwaccel: the ordinary decoder with the heavy lifting handed to a
@@ -563,7 +608,28 @@ struct VideoPipeline::Impl {
       return true;
     }
 
-#if defined(__linux__)
+#if defined(__ANDROID__)
+    // The phone's hardware decoder. One that will not take this stream fails
+    // at avcodec_open2, and the ordinary software decoder below runs instead.
+    // Never for datamosh: it needs the decoder to see broken references.
+    if (tryHw && !datamosh.load() && !androidHwDecodeDisabled()) {
+      if (const AVCodec* mc = mediacodecDecoderFor(stream->codecpar->codec_id)) {
+        codecCtx = avcodec_alloc_context3(mc);
+        if (codecCtx && avcodec_parameters_to_context(codecCtx, stream->codecpar) >= 0) {
+          codecCtx->opaque = nullptr;
+          codecCtx->get_format = &pickDecodeFormat;
+          if (avcodec_open2(codecCtx, mc, nullptr) >= 0) {
+            hwDecode = true;
+            zeroCopy = false;
+            return finishOpen();
+          }
+        }
+        avcodec_free_context(&codecCtx);
+      }
+    }
+#endif
+
+#if defined(__linux__) && !defined(__ANDROID__)
     // A V4L2 decoder (the Pi's) when there is no VAAPI. A device that will
     // not take this stream fails at avcodec_open2, and the ordinary decoder
     // below runs as before. Never for datamosh, for the reason given there.

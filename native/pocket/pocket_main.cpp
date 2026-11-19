@@ -21,6 +21,8 @@
 #include <SDL3_ttf/SDL_ttf.h>
 
 #include "core/constants.hpp"
+#include "core/fs.hpp"
+#include "core/media_probe.hpp"
 #include "core/pattern_helpers.hpp"
 #include "core/types.hpp"
 #include "engine/media_engine.hpp"
@@ -33,6 +35,13 @@
 #include <memory>
 #include <string>
 #include <vector>
+
+#if defined(SDL_PLATFORM_ANDROID) && defined(DECKBOY_INPROC_DECODE)
+#include <jni.h>
+extern "C" {
+#include <libavcodec/jni.h>
+}
+#endif
 
 namespace {
 
@@ -259,12 +268,21 @@ class Pocket {
     audio_ = SDL_OpenAudioDeviceStream(SDL_AUDIO_DEVICE_DEFAULT_PLAYBACK, &spec, nullptr, nullptr);
     if (!audio_) SDL_Log("pocket: no audio (%s); picture only", SDL_GetError());
 
+#if defined(SDL_PLATFORM_ANDROID) && defined(DECKBOY_INPROC_DECODE)
+    // The phone's hardware decoders (MediaCodec) are Java objects underneath;
+    // ffmpeg reaches them through the VM.
+    if (auto* env = static_cast<JNIEnv*>(SDL_GetAndroidJNIEnv())) {
+      JavaVM* vm = nullptr;
+      if (env->GetJavaVM(&vm) == JNI_OK && vm) av_jni_set_java_vm(vm, nullptr);
+    }
+#endif
     engine_ = std::make_unique<MediaEngine>(renderer_, audio_);
     engine_->setDrawsOwnTexture(true);
     engine_->setVolume(0.8f);
 
-    // A first show: what Deckboy makes itself. Real shows (and video, once the
-    // Android FFmpeg build is in) come next.
+    loadMediaFolder();
+    // Then what Deckboy makes itself. Real shows (.deckboy files and bundles)
+    // come next.
     const std::pair<const char*, const char*> kFirstShow[] = {
         {"smpte-bars", "SMPTE colour bars"}, {"pocket-test", "Pocket Test"}, {"illusion", ""},
         {"swirl", ""}, {"lumia", ""}, {"fireside", ""}, {"crosshatch", "Crosshatch"}};
@@ -284,6 +302,39 @@ class Pocket {
     }
     loadFonts();
     return true;
+  }
+
+  // Every playable file in the app's media folder, in name order:
+  // Android/data/<app>/files/media on the phone (copy files there over USB).
+  void loadMediaFolder() {
+    std::string base;
+#if defined(SDL_PLATFORM_ANDROID)
+    if (const char* ext = SDL_GetAndroidExternalStoragePath()) base = ext;
+#endif
+    if (base.empty()) base = SDL_GetPrefPath("Deckboy", "Pocket");
+    mediaDir_ = joinPath(base, "media");
+    SDL_CreateDirectory(mediaDir_.c_str());
+    std::vector<dbfs::path> files;
+    std::error_code ec;
+    for (const auto& entry : dbfs::directory_iterator(dbfs::path(mediaDir_), ec)) {
+      if (entry.is_regular_file(ec) && deckboy::core::media::isAcceptableMediaPath(entry.path())) {
+        files.push_back(entry.path());
+      }
+    }
+    std::sort(files.begin(), files.end());
+    for (const dbfs::path& f : files) {
+      std::optional<Cue> probed = deckboy::core::media::probeCue(f);
+      if (!probed) {
+        SDL_Log("pocket: could not read %s", f.string().c_str());
+        continue;
+      }
+      Cue cue = std::move(*probed);
+      cue.id = "pocket-" + std::to_string(cues_.size() + 1);
+      if (cue.kind == CueKind::Image) cue.stillDurationSeconds = 0.0;  // a still holds until the next GO
+      cue.pauseOnLastFrame = true;
+      cues_.push_back(std::move(cue));
+    }
+    SDL_Log("pocket: %zu media cues from %s", cues_.size(), mediaDir_.c_str());
   }
 
   void shutdown() {
@@ -542,6 +593,7 @@ class Pocket {
   TTF_Font* mono_ = nullptr;
 
   std::vector<Cue> cues_;
+  std::string mediaDir_;
   int selected_ = 0;
   int active_ = -1;
   int scroll_ = 0;
