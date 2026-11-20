@@ -1329,6 +1329,8 @@ class Pocket {
     }
     if (best < ghostHits_.size()) {
       auto fn = ghostHits_[best].fn;
+      ghostPressed_ = static_cast<int>(best);
+      ghostPressedAt_ = now;
       ghostUntil_ = now + 3500;
       fn();
     } else {
@@ -1336,10 +1338,82 @@ class Pocket {
     }
   }
 
+  // The ghost's outline: rounded top corners, straight sides, and a hem of
+  // scallops that ripple with `wave`. `grow` widens it all round (the halo).
+  std::vector<SDL_FPoint> ghostOutline(const SDL_FRect& b0, float u, float wave, float grow) const {
+    const SDL_FRect b {b0.x - grow, b0.y - grow, b0.w + 2 * grow, b0.h + 2 * grow};
+    const float pi = 3.14159265f;
+    const float rad = std::min(b.w / 2, b.h * 0.55f);
+    std::vector<SDL_FPoint> pts;
+    for (int i = 0; i <= 8; ++i) {   // top left corner, then top right
+      const float a = pi + (pi / 2) * static_cast<float>(i) / 8;
+      pts.push_back({b.x + rad + rad * std::cos(a), b.y + rad + rad * std::sin(a)});
+    }
+    for (int i = 0; i <= 8; ++i) {
+      const float a = 1.5f * pi + (pi / 2) * static_cast<float>(i) / 8;
+      pts.push_back({b.x + b.w - rad + rad * std::cos(a), b.y + rad + rad * std::sin(a)});
+    }
+    const int scallops = std::max(3, static_cast<int>(std::lround(b.w / (5 * u))));
+    const float amp = std::min(1.1f * u, b.h * 0.14f);
+    const int steps = scallops * 8;
+    for (int k = 0; k <= steps; ++k) {   // the hem, right to left
+      const float f = static_cast<float>(k) / static_cast<float>(steps);
+      const float y = b.y + b.h - amp * (0.5f + 0.5f * std::cos(2 * pi * f * static_cast<float>(scallops) + wave));
+      pts.push_back({b.x + b.w - b.w * f, y});
+    }
+    return pts;
+  }
+
+  void ghostBlob(const SDL_FRect& b, float u, float wave, float grow, Ink ink, float alpha) {
+    const std::vector<SDL_FPoint> pts = ghostOutline(b, u, wave, grow);
+    const SDL_FColor c {ink.r / 255.0f, ink.g / 255.0f, ink.b / 255.0f, alpha};
+    std::vector<SDL_Vertex> v;
+    v.reserve(pts.size() * 3);
+    const SDL_FPoint centre {b.x + b.w / 2, b.y + b.h * 0.5f};
+    for (std::size_t i = 0; i < pts.size(); ++i) {
+      const SDL_FPoint& p0 = pts[i];
+      const SDL_FPoint& p1 = pts[(i + 1) % pts.size()];
+      v.push_back({centre, c, {0, 0}});
+      v.push_back({p0, c, {0, 0}});
+      v.push_back({p1, c, {0, 0}});
+    }
+    SDL_RenderGeometry(renderer_, nullptr, v.data(), static_cast<int>(v.size()), nullptr, 0);
+  }
+
+  // The bright edge: the outline as a ribbon a third of a unit wide.
+  void ghostRim(const SDL_FRect& b, float u, float wave, float alpha) {
+    const std::vector<SDL_FPoint> pts = ghostOutline(b, u, wave, 0);
+    const SDL_FColor c {1, 1, 1, alpha};
+    const float t = 0.32f * u;
+    std::vector<SDL_Vertex> v;
+    for (std::size_t i = 0; i < pts.size(); ++i) {
+      const SDL_FPoint p0 = pts[i], p1 = pts[(i + 1) % pts.size()];
+      const float dx = p1.x - p0.x, dy = p1.y - p0.y;
+      const float len = std::max(0.001f, std::sqrt(dx * dx + dy * dy));
+      const float nx = -dy / len * t / 2, ny = dx / len * t / 2;
+      const SDL_FPoint a {p0.x + nx, p0.y + ny}, bb {p0.x - nx, p0.y - ny}, cc {p1.x + nx, p1.y + ny}, d {p1.x - nx, p1.y - ny};
+      for (const SDL_FPoint& q : {a, bb, cc, bb, d, cc}) v.push_back({q, c, {0, 0}});
+    }
+    SDL_RenderGeometry(renderer_, nullptr, v.data(), static_cast<int>(v.size()), nullptr, 0);
+  }
+
+  void ghostOval(SDL_FPoint centre, float rx, float ry, Ink ink, float alpha) {
+    const SDL_FColor c {ink.r / 255.0f, ink.g / 255.0f, ink.b / 255.0f, alpha};
+    std::vector<SDL_Vertex> v;
+    const int n = 20;
+    for (int i = 0; i < n; ++i) {
+      const float a0 = 6.2831853f * static_cast<float>(i) / n, a1 = 6.2831853f * static_cast<float>(i + 1) / n;
+      v.push_back({centre, c, {0, 0}});
+      v.push_back({{centre.x + rx * std::cos(a0), centre.y + ry * std::sin(a0)}, c, {0, 0}});
+      v.push_back({{centre.x + rx * std::cos(a1), centre.y + ry * std::sin(a1)}, c, {0, 0}});
+    }
+    SDL_RenderGeometry(renderer_, nullptr, v.data(), static_cast<int>(v.size()), nullptr, 0);
+  }
+
   void drawGhost(float W, float H, bool turn) {
     const Uint64 now = SDL_GetTicks();
     ghostHits_.clear();
-    if (now >= ghostUntil_) return;
+    if (now >= ghostUntil_) { ghostWasShown_ = false; return; }
     SDL_Renderer* r = renderer_;
     ghostTurned_ = turn;
     ghostW_ = turn ? H : W;
@@ -1360,14 +1434,43 @@ class Pocket {
     SDL_SetRenderDrawBlendMode(r, SDL_BLENDMODE_BLEND);
     const float u = std::min(ghostW_, ghostH_) / 72.0f;   // the short side is 72 units, as everywhere
     const Ink white {255, 255, 255};
-    // a ghost button: a soft halo, a faint face, a bright edge, white words
-    auto ghost = [&](const SDL_FRect& b, const std::string& label, std::function<void()> fn, bool lit = false) {
-      const float rad = std::min(b.w, b.h) / 2;
-      fillRoundAlpha(r, white, 0.06f, {b.x - 0.8f * u, b.y - 0.8f * u, b.w + 1.6f * u, b.h + 1.6f * u}, rad + 0.8f * u);
-      fillRoundAlpha(r, white, lit ? 0.42f : 0.55f, b, rad);
-      fillRoundAlpha(r, kBlack, lit ? 0.25f : 0.62f, {b.x + 0.35f * u, b.y + 0.35f * u, b.w - 0.7f * u, b.h - 0.7f * u}, rad - 0.35f * u);
-      text_.draw(pixelSmall_, label, white, b, true);
-      ghostHits_.push_back({b, std::move(fn)});
+    const double secs = static_cast<double>(now) / 1000.0;
+    if (!ghostWasShown_) ghostShownAt_ = now;   // just appeared: they rise into place
+    ghostWasShown_ = true;
+    const float rise = std::clamp(static_cast<float>(now - ghostShownAt_) / 450.0f, 0.0f, 1.0f);
+    // A little ghost: round on top, a hem that ripples like something liquid,
+    // and see-through, with a glowing rim, a glassy shine and dot eyes. Each
+    // one bobs at its own pace and squishes like jelly when pressed. Labels
+    // carry a soft shadow so they read over a bright picture.
+    auto ghost = [&](const SDL_FRect& hit, const std::string& label, std::function<void()> fn, bool lit = false, bool big = false) {
+      const std::size_t k = ghostHits_.size();
+      const float phase = static_cast<float>(k) * 1.7f;
+      SDL_FRect b = hit;
+      b.y += static_cast<float>(std::sin(secs * 2.1 + phase)) * 0.7f * u + (1.0f - rise) * 4 * u;
+      if (static_cast<int>(k) == ghostPressed_ && now - ghostPressedAt_ < 260) {
+        const float q = std::sin(3.14159f * static_cast<float>(now - ghostPressedAt_) / 260.0f);
+        const float sx = 1 + 0.12f * q, sy = 1 - 0.14f * q;
+        b = {b.x + b.w * (1 - sx) / 2, b.y + b.h * (1 - sy), b.w * sx, b.h * sy};
+      }
+      ghostBlob(b, u, static_cast<float>(secs * 3.2) + phase, 0.9f * u, white, 0.07f);   // halo
+      ghostBlob(b, u, static_cast<float>(secs * 3.2) + phase, 0.0f, white, lit ? 0.34f : 0.16f);   // body
+      ghostRim(b, u, static_cast<float>(secs * 3.2) + phase, 0.6f);
+      ghostOval({b.x + b.w * 0.3f, b.y + std::min(b.h * 0.2f, 2.2f * u)}, b.w * 0.13f, std::min(b.h * 0.08f, 0.9f * u), white, 0.5f);   // shine
+      const float eyeY = b.y + b.h * (big ? 0.34f : 0.26f);
+      const float eyeR = big ? 1.1f * u : 0.45f * u;
+      if (b.h >= 8 * u) {
+        const Ink ink {40, 30, 70};
+        ghostOval({b.x + b.w * 0.5f - (big ? 3.2f : 1.6f) * u, eyeY}, eyeR * 0.8f, eyeR, ink, 0.85f);
+        ghostOval({b.x + b.w * 0.5f + (big ? 3.2f : 1.6f) * u, eyeY}, eyeR * 0.8f, eyeR, ink, 0.85f);
+        if (big) {   // blush
+          ghostOval({b.x + b.w * 0.5f - 5.2f * u, eyeY + 1.6f * u}, 1.3f * u, 0.6f * u, Ink {255, 140, 180}, 0.55f);
+          ghostOval({b.x + b.w * 0.5f + 5.2f * u, eyeY + 1.6f * u}, 1.3f * u, 0.6f * u, Ink {255, 140, 180}, 0.55f);
+        }
+      }
+      const SDL_FRect words {b.x, b.h >= 8 * u ? b.y + b.h * (big ? 0.42f : 0.3f) : b.y, b.w, b.h >= 8 * u ? b.h * (big ? 0.45f : 0.62f) : b.h};
+      text_.draw(big ? pixel_ : pixelSmall_, label, Ink {30, 20, 60}, {words.x + 0.2f * u, words.y + 0.2f * u, words.w, words.h}, true);
+      text_.draw(big ? pixel_ : pixelSmall_, label, white, words, true);
+      ghostHits_.push_back({hit, std::move(fn)});
     };
     // the cue and its time, top left; EXIT top right
     const Cue* onAir = active_ >= 0 ? &cues_[static_cast<std::size_t>(active_)] : nullptr;
@@ -1377,7 +1480,8 @@ class Pocket {
       title += "   " + timecode(std::max(0.0, pos - cueIn(*onAir)), onAir->fps) + "  -" +
                timecode(std::max(0.0, cueOut(*onAir) - pos), onAir->fps);
     }
-    fillRoundAlpha(r, kBlack, 0.45f, {3 * u, 3 * u, ghostW_ * 0.6f, 6 * u}, 3 * u);
+    ghostBlob({3 * u, 3 * u, ghostW_ * 0.6f, 6 * u}, u, static_cast<float>(secs * 2.0), 0.0f, white, 0.12f);
+    text_.draw(mono_, title, Ink {30, 20, 60}, {5.2f * u, 3.2f * u, ghostW_ * 0.6f - 4 * u, 6 * u});
     text_.draw(mono_, title, white, {5 * u, 3 * u, ghostW_ * 0.6f - 4 * u, 6 * u});
     ghost({ghostW_ - 22 * u, 3 * u, 19 * u, 7 * u}, "EXIT", [this] { phoneFull_ = false; ghostUntil_ = 0; });
     // the transport along the bottom, GO the biggest and furthest right
@@ -1397,7 +1501,7 @@ class Pocket {
           [this, paused] { if (active_ >= 0) { paused ? engine_->play() : engine_->pause(); } });
     bx += k * 1.6f + u;
     ghost({bx, by + 1 * u, k, bh - 2 * u}, "+10", [this] { skipBy(10); });
-    ghost({ghostW_ - 26 * u, by - 6 * u, 22 * u, 17 * u}, "GO", [this] { go(); buzz("go"); });
+    ghost({ghostW_ - 26 * u, by - 6 * u, 22 * u, 17 * u}, "GO", [this] { go(); buzz("go"); }, false, true);
     // the hairline scrub above it all
     if (onAir && cueHasTimeline(*onAir) && onAir->duration > 0) {
       const SDL_FRect line {4 * u, by - 4 * u, ghostW_ - 34 * u, 0.5f * u};
@@ -1409,7 +1513,8 @@ class Pocket {
     // fade in the last half second
     const float left = static_cast<float>(ghostUntil_ - now);
     const float alpha = std::clamp(left / 500.0f, 0.0f, 1.0f);
-    SDL_SetTextureBlendMode(ghostTex_, SDL_BLENDMODE_BLEND);
+    SDL_SetTextureBlendMode(ghostTex_, SDL_BLENDMODE_BLEND_PREMULTIPLIED);
+    SDL_SetTextureColorModFloat(ghostTex_, alpha, alpha, alpha);   // premultiplied: fade the colour with the alpha
     SDL_SetTextureAlphaModFloat(ghostTex_, alpha);
     if (turn) {
       const SDL_FRect box {(W - H) / 2, (H - W) / 2, H, W};
@@ -5286,6 +5391,9 @@ class Pocket {
   int ghostTexW_ = 0, ghostTexH_ = 0;
   float ghostW_ = 0, ghostH_ = 0;
   bool ghostTurned_ = false;
+  bool ghostWasShown_ = false;
+  Uint64 ghostShownAt_ = 0, ghostPressedAt_ = 0;
+  int ghostPressed_ = -1;
   Uint64 pillDownAt_ = 0;
   // the cue sheet's pages and numbers
   Page page_ = Page::Play;
