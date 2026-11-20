@@ -1345,17 +1345,17 @@ class Pocket {
     const float pi = 3.14159265f;
     const float rad = std::min(b.w / 2, b.h * 0.55f);
     std::vector<SDL_FPoint> pts;
-    for (int i = 0; i <= 8; ++i) {   // top left corner, then top right
-      const float a = pi + (pi / 2) * static_cast<float>(i) / 8;
+    for (int i = 0; i <= 16; ++i) {   // top left corner, then top right
+      const float a = pi + (pi / 2) * static_cast<float>(i) / 16;
       pts.push_back({b.x + rad + rad * std::cos(a), b.y + rad + rad * std::sin(a)});
     }
-    for (int i = 0; i <= 8; ++i) {
-      const float a = 1.5f * pi + (pi / 2) * static_cast<float>(i) / 8;
+    for (int i = 0; i <= 16; ++i) {
+      const float a = 1.5f * pi + (pi / 2) * static_cast<float>(i) / 16;
       pts.push_back({b.x + b.w - rad + rad * std::cos(a), b.y + rad + rad * std::sin(a)});
     }
     const int scallops = std::max(2, static_cast<int>(std::lround(b.w / (7 * u))));
     const float amp = std::min(1.9f * u, b.h * 0.2f);
-    const int steps = scallops * 8;
+    const int steps = scallops * 20;
     for (int k = 0; k <= steps; ++k) {   // the hem, right to left
       const float f = static_cast<float>(k) / static_cast<float>(steps);
       const float y = b.y + b.h - amp * (0.5f + 0.5f * std::cos(2 * pi * f * static_cast<float>(scallops) + wave));
@@ -1371,20 +1371,89 @@ class Pocket {
     return pts;
   }
 
-  void ghostBlob(const SDL_FRect& b, float u, float wave, float grow, Ink ink, float alpha) {
+  void ghostBlob(const SDL_FRect& b, float u, float wave, float grow, Ink ink, float alpha, float centreAlpha = -1) {
     const std::vector<SDL_FPoint> pts = ghostOutline(b, u, wave, grow);
     const SDL_FColor c {ink.r / 255.0f, ink.g / 255.0f, ink.b / 255.0f, alpha};
+    const SDL_FColor mid {c.r, c.g, c.b, centreAlpha < 0 ? alpha : centreAlpha};
     std::vector<SDL_Vertex> v;
     v.reserve(pts.size() * 3);
     const SDL_FPoint centre {b.x + b.w / 2, b.y + b.h * 0.5f};
     for (std::size_t i = 0; i < pts.size(); ++i) {
       const SDL_FPoint& p0 = pts[i];
       const SDL_FPoint& p1 = pts[(i + 1) % pts.size()];
-      v.push_back({centre, c, {0, 0}});
+      v.push_back({centre, mid, {0, 0}});
       v.push_back({p0, c, {0, 0}});
       v.push_back({p1, c, {0, 0}});
     }
     SDL_RenderGeometry(renderer_, nullptr, v.data(), static_cast<int>(v.size()), nullptr, 0);
+  }
+
+  // Gloss: a bright crescent across the crown, inside the edge, fading out
+  // at both ends, as light catches the top of a drop.
+  void ghostGloss(const SDL_FRect& b, float u) {
+    const float pi = 3.14159265f;
+    const float rad = std::min(b.w / 2, b.h * 0.55f);
+    const float inset = 0.9f * u;
+    const float cx = b.x + b.w / 2, cy = b.y + rad;
+    const float rx = b.w / 2 - inset, ry = rad - inset;
+    std::vector<SDL_Vertex> v;
+    const int n = 24;
+    for (int i = 0; i < n; ++i) {
+      const float f0 = static_cast<float>(i) / n, f1 = static_cast<float>(i + 1) / n;
+      const float a0 = pi * (1.12f + 0.42f * f0), a1 = pi * (1.12f + 0.42f * f1);   // the upper left of the crown
+      const float w0 = std::sin(pi * f0) * 0.75f * u, w1 = std::sin(pi * f1) * 0.75f * u;
+      const SDL_FColor c0 {1, 1, 1, 0.8f * std::sin(pi * f0)}, c1 {1, 1, 1, 0.8f * std::sin(pi * f1)};
+      const SDL_FPoint o0 {cx + rx * std::cos(a0), cy + ry * std::sin(a0)}, o1 {cx + rx * std::cos(a1), cy + ry * std::sin(a1)};
+      const SDL_FPoint i0 {cx + (rx - w0) * std::cos(a0), cy + (ry - w0) * std::sin(a0)}, i1 {cx + (rx - w1) * std::cos(a1), cy + (ry - w1) * std::sin(a1)};
+      for (const auto& [q, c] : {std::pair{o0, c0}, std::pair{i0, c0}, std::pair{o1, c1}, std::pair{i0, c0}, std::pair{i1, c1}, std::pair{o1, c1}})
+        v.push_back({q, c, {0, 0}});
+    }
+    SDL_RenderGeometry(renderer_, nullptr, v.data(), static_cast<int>(v.size()), nullptr, 0);
+  }
+
+  // Melting: from each tip of the hem a drip grows, swells, and lets go as a
+  // drop that falls and fades, each on its own clock (like the Melt effect).
+  void ghostDrips(const SDL_FRect& b, float u, float wave, double t, float phase, float alpha) {
+    const std::vector<SDL_FPoint> pts = ghostOutline(b, u, wave, 0);
+    const SDL_FColor c {1, 1, 1, alpha};
+    std::vector<SDL_Vertex> v;
+    auto oval = [&](SDL_FPoint o, float rx, float ry, float a) {
+      const SDL_FColor cc {1, 1, 1, a};
+      for (int i = 0; i < 14; ++i) {
+        const float a0 = 6.2831853f * static_cast<float>(i) / 14, a1 = 6.2831853f * static_cast<float>(i + 1) / 14;
+        v.push_back({o, cc, {0, 0}});
+        v.push_back({{o.x + rx * std::cos(a0), o.y + ry * std::sin(a0)}, cc, {0, 0}});
+        v.push_back({{o.x + rx * std::cos(a1), o.y + ry * std::sin(a1)}, cc, {0, 0}});
+      }
+    };
+    int tip = 0;
+    for (std::size_t i = 34; i + 1 < pts.size(); ++i) {   // the hem starts after the two crown corners (17 + 17 points)
+      if (!(pts[i].y >= pts[i - 1].y && pts[i].y > pts[i + 1].y)) continue;
+      const float own = phase + static_cast<float>(tip) * 1.37f;
+      const double cyc = t * (0.16 + 0.05 * std::sin(own)) + own * 0.159;
+      const float f = static_cast<float>(cyc - std::floor(cyc));
+      const SDL_FPoint o = pts[i];
+      const float maxL = 2.4f * u;
+      float len, bulb;
+      if (f < 0.75f) {   // growing
+        const float g = f / 0.75f;
+        len = maxL * g * g;
+        bulb = (0.25f + 0.3f * g) * u;
+      } else {           // let go: the stem draws back up, the drop falls
+        const float g = (f - 0.75f) / 0.25f;
+        len = maxL * (1 - g) * 0.6f;
+        bulb = 0.3f * u * (1 - g);
+        const float fall = maxL + g * g * 9 * u;
+        oval({o.x, o.y + fall}, 0.42f * u, 0.55f * u, alpha * (1 - g));
+      }
+      // the stem: a narrow ribbon, wide at the hem, thin at the bulb
+      const float w0 = 0.55f * u, w1 = 0.2f * u;
+      const SDL_FPoint a {o.x - w0, o.y - 0.3f * u}, bb {o.x + w0, o.y - 0.3f * u}, cc {o.x - w1, o.y + len}, d {o.x + w1, o.y + len};
+      for (const SDL_FPoint& q : {a, bb, cc, bb, d, cc}) v.push_back({q, c, {0, 0}});
+      if (bulb > 0.05f * u) oval({o.x, o.y + len}, bulb, bulb * 1.2f, alpha);
+      ++tip;
+    }
+    if (!v.empty()) SDL_RenderGeometry(renderer_, nullptr, v.data(), static_cast<int>(v.size()), nullptr, 0);
   }
 
   // The bright edge: the outline as a ribbon a third of a unit wide.
@@ -1451,18 +1520,28 @@ class Pocket {
     // carry a soft shadow so they read over a bright picture.
     auto ghost = [&](const SDL_FRect& hit, const std::string& label, std::function<void()> fn, bool lit = false, bool big = false) {
       const std::size_t k = ghostHits_.size();
-      const float phase = static_cast<float>(k) * 1.7f;
+      // Each ghost keeps its own time: its own speed (golden-ratio spread, so
+      // no two match) and its own start, and a bob of two slow waves, so they
+      // never fall into step with each other.
+      const float kf = static_cast<float>(k);
+      const float speed = 0.7f + 0.6f * (kf * 0.618034f - std::floor(kf * 0.618034f));
+      const float phase = kf * 2.39996f;
+      const double t = secs * speed;
       SDL_FRect b = hit;
-      b.y += static_cast<float>(std::sin(secs * 0.9 + phase)) * 0.9f * u + (1.0f - rise) * 4 * u;
+      b.y += static_cast<float>(std::sin(t * 0.9 + phase) * 0.65 + std::sin(t * 0.37 + phase * 1.9) * 0.35) * 1.0f * u +
+             (1.0f - rise) * 4 * u;
+      b.x += static_cast<float>(std::sin(t * 0.43 + phase * 0.7)) * 0.35f * u;
       if (static_cast<int>(k) == ghostPressed_ && now - ghostPressedAt_ < 520) {
         const float q = std::sin(3.14159f * static_cast<float>(now - ghostPressedAt_) / 520.0f);
         const float sx = 1 + 0.12f * q, sy = 1 - 0.14f * q;
         b = {b.x + b.w * (1 - sx) / 2, b.y + b.h * (1 - sy), b.w * sx, b.h * sy};
       }
-      ghostBlob(b, u, static_cast<float>(secs * 1.3) + phase, 0.9f * u, white, 0.07f);   // halo
-      ghostBlob(b, u, static_cast<float>(secs * 1.3) + phase, 0.0f, white, lit ? 0.34f : 0.16f);   // body
-      ghostRim(b, u, static_cast<float>(secs * 1.3) + phase, 0.6f);
-      ghostOval({b.x + b.w * 0.3f, b.y + std::min(b.h * 0.2f, 2.2f * u)}, b.w * 0.13f, std::min(b.h * 0.08f, 0.9f * u), white, 0.5f);   // shine
+      ghostBlob(b, u, static_cast<float>(t * 1.3) + phase, 0.9f * u, white, 0.07f);   // halo
+      ghostDrips(b, u, static_cast<float>(t * 1.3) + phase, t, phase, lit ? 0.38f : 0.26f);
+      ghostBlob(b, u, static_cast<float>(t * 1.3) + phase, 0.0f, white, lit ? 0.42f : 0.28f, lit ? 0.2f : 0.07f);   // body: clear middle, dense edge
+      ghostRim(b, u, static_cast<float>(t * 1.3) + phase, 0.6f);
+      ghostGloss(b, u);
+      ghostOval({b.x + b.w * 0.74f, b.y + std::min(b.h * 0.22f, 2.4f * u)}, 0.45f * u, 0.45f * u, white, 0.85f);   // sparkle
       const float eyeY = b.y + b.h * (big ? 0.34f : 0.26f);
       const float eyeR = big ? 1.1f * u : 0.45f * u;
       if (b.h >= 8 * u) {
@@ -1497,16 +1576,19 @@ class Pocket {
     float bx = 4 * u;
     ghost({bx, by + 1 * u, 18 * u, bh - 2 * u}, pillName(pill_), [this] { doPill(); }, pillLit());
     bx += 22 * u;
+    // Gaps wide enough for each ghost's halo, sway and squish: they move on
+    // their own clocks and must never touch.
+    const float gap = 3.5f * u;
     const float midW = ghostW_ - bx - 32 * u;
-    const float k = midW / 5.6f;
+    const float k = (midW - 3 * gap) / 5.0f;
     const bool paused = onAir && engine_->state() == TransportState::Paused;
     ghost({bx, by + 1 * u, k * 1.2f, bh - 2 * u}, "BACK", [this] { back(); buzz("back"); });
-    bx += k * 1.2f + u;
+    bx += k * 1.2f + gap;
     ghost({bx, by + 1 * u, k, bh - 2 * u}, "-10", [this] { skipBy(-10); });
-    bx += k + u;
+    bx += k + gap;
     ghost({bx, by + 1 * u, k * 1.6f, bh - 2 * u}, paused ? "PLAY" : "PAUSE",
           [this, paused] { if (active_ >= 0) { paused ? engine_->play() : engine_->pause(); } });
-    bx += k * 1.6f + u;
+    bx += k * 1.6f + gap;
     ghost({bx, by + 1 * u, k, bh - 2 * u}, "+10", [this] { skipBy(10); });
     ghost({ghostW_ - 26 * u, by - 6 * u, 22 * u, 17 * u}, "GO", [this] { go(); buzz("go"); }, false, true);
     // the hairline scrub above it all
