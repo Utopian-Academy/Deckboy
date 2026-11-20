@@ -61,6 +61,7 @@
 #endif
 
 #include "core/constants.hpp"
+#include "core/loading_quips.hpp"
 #include "core/show_control.hpp"
 #include "core/midi_map.hpp"
 #include "core/bugswat.hpp"

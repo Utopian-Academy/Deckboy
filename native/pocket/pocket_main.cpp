@@ -27,6 +27,7 @@
 #include "core/pattern_helpers.hpp"
 #include "core/show_file.hpp"
 #include "core/lava_lamp.hpp"
+#include "core/loading_quips.hpp"
 #include "engine/gpu_effects.hpp"
 #include "deckboy_version.hpp"
 #include "core/types.hpp"
@@ -727,6 +728,7 @@ class Pocket {
     loadDefaults();
     loadUnlocks();
     loadHelpers();
+    loadSplash();
     {
       size_t n = 0;
       const char* state = SDL_getenv("DECKBOY_STATE_DIR");
@@ -902,6 +904,7 @@ class Pocket {
     const Uint64 now = SDL_GetTicks();
     if (active_ >= 0 && !black_) return false;
     if (now - lastInputMs_ < 3000) return false;
+    if (splashing()) return false;
     if (follow_ != Follow::Off || hostEditing_ || renameIndex_ != -1 || calcOpen_ || pickerOpen_) return false;
     if (now < noticeUntil_ || now < ghostUntil_ || (undoCue_ && now < undoUntil_)) return false;
     if (!fingers_.empty() || drag_ != Drag::None) return false;
@@ -1293,7 +1296,9 @@ class Pocket {
     const float meterX = right - static_cast<float>(hw) - u - meterW;
     drawMeter({meterX, program_.y + 1.0f * u, meterW, 3.4f * u}, false);
     const SDL_FRect title {program_.x + 5 * u, program_.y + 1.2f * u, meterX - program_.x - 6 * u, 3.2f * u};
-    if (SDL_GetTicks() < noticeUntil_) {
+    if (splashing()) {
+      text_.draw(pixelSmall_, std::string("DECKBOY POCKET ") + deckboy::core::version::kVersion, Ink {235, 225, 160}, title);
+    } else if (SDL_GetTicks() < noticeUntil_) {
       text_.draw(pixelSmall_, notice_, Ink {235, 225, 160}, title);
     } else if (follow_ != Follow::Off) {
       text_.draw(pixelSmall_, followHeadline(), follow_ == Follow::Following ? Ink {170, 170, 180} : Ink {230, 80, 70}, title);
@@ -1310,6 +1315,7 @@ class Pocket {
       const SDL_FRect fitted = fitProgram(pic);
       SDL_RenderTexture(r, programTex_, nullptr, &fitted);
     }
+    drawSplashArt(pic);
     drawHelpers(pic);
     if (editing_) return;   // editing: the picture alone
     // the name and the time on one line, the scrub bar (portrait), the buttons
@@ -1941,9 +1947,14 @@ class Pocket {
       y += 6.5f * u;
     }
     heading("PHONE");
-    button({lx, y, lw, 5 * u}, haptics_ ? "BUTTONS YOU CAN FEEL: ON" : "BUTTONS YOU CAN FEEL: OFF",
-           [this] { setHaptics(!haptics_); }, true, haptics_);
-    y += 6.5f * u;
+    {
+      const float hw = (lw - u) * 0.66f;
+      button({lx, y, hw, 5 * u}, haptics_ ? "BUTTONS YOU CAN FEEL: ON" : "BUTTONS YOU CAN FEEL: OFF",
+             [this] { setHaptics(!haptics_); }, true, haptics_);
+      button({lx + hw + u, y, lw - hw - u, 5 * u}, splashOn_ ? "SPLASH: ON" : "SPLASH: OFF",
+             [this] { splashOn_ = !splashOn_; saveHelpers(); }, true, splashOn_);
+      y += 6.5f * u;
+    }
     heading("ON THE PICTURE (THE PHONE ONLY)");
     {
       const float tw = (lw - 2 * u) / 3;
@@ -2614,6 +2625,10 @@ class Pocket {
     if (selected_ >= scroll_ + visible) scroll_ = selected_ - visible + 1;
     listLcd_ = lcd;
     SDL_SetRenderClipRect(r, nullptr);
+    if (splashing()) {
+      drawSplashList(lcd);
+      return;
+    }
     if (cues_.empty()) {
       text_.draw(mono_, "No cues yet.", kDark, {lcd.x + 2 * u, lcd.y + 2 * u, lcd.w - 4 * u, 5 * u});
       text_.draw(mono_, "MENU > SOURCES adds them.", kDark, {lcd.x + 2 * u, lcd.y + 7 * u, lcd.w - 4 * u, 5 * u});
@@ -3023,6 +3038,15 @@ class Pocket {
         return out + "\n";
       }
       return err("SHOW SAVE|OPEN|NEW|PLAYLIST|LIST");
+    }
+    if (verb == "SPLASH") {   // SPLASH: show it again (for checking)
+      if (splashTex_) SDL_DestroyTexture(splashTex_);
+      splashTex_ = nullptr;
+      const bool was = splashOn_;
+      splashOn_ = true;
+      loadSplash();
+      splashOn_ = was;
+      return splashTex_ ? ok() : err("no splash art in this build");
     }
     if (verb == "HELPERS") {   // HELPERS CLOCK OFF|24|12|ANALOG | HELPERS REMAINING ON|OFF | HELPERS FPS ON|OFF
       std::istringstream a(rest);
@@ -4420,6 +4444,93 @@ class Pocket {
     SDL_SaveFile((std::string(state ? state : ".") + "/pocket_unlocks.txt").c_str(), text.data(), text.size());
   }
 
+  // ── The splash: the desk's art in the picture window while Pocket wakes ──
+  //
+  // One of the desk's as-made splash pieces (data/pocket-splash: phone-size
+  // copies), the name and version on the header, and the desk's loading lines
+  // in the list (core/loading_quips.hpp), for a couple of seconds or until a
+  // tap. Off with SPLASH on MENU > PHONE, as on the desk.
+
+  static constexpr Uint64 kSplashMs = 2200;
+
+  bool splashing() const { return splashTex_ && SDL_GetTicks() < splashUntil_; }
+
+  // A JPEG from the app's assets as a texture (assets are not files on
+  // Android, and libav reads files: copied out first, as the shells are).
+  SDL_Texture* loadAssetJpeg(const std::string& rel) {
+#if defined(DECKBOY_INPROC_DECODE)
+    const char* root = SDL_getenv("DECKBOY_ROOT");
+    const std::string file = std::string(root ? root : ".") + "/" + rel;
+    {
+      size_t n = 0;
+      if (void* bytes = SDL_LoadFile(rel.c_str(), &n)) {
+        SDL_CreateDirectory(file.substr(0, file.find_last_of('/')).c_str());
+        SDL_SaveFile(file.c_str(), bytes, n);
+        SDL_free(bytes);
+      }
+    }
+    int w = 0, h = 0;
+    std::vector<std::uint8_t> rgba;
+    if (!deckboy::libav::decodeImageRgba(file, w, h, rgba) || w <= 0 || h <= 0) return nullptr;
+    SDL_Texture* t = SDL_CreateTexture(renderer_, SDL_PIXELFORMAT_RGBA32, SDL_TEXTUREACCESS_STATIC, w, h);
+    if (t) {
+      SDL_UpdateTexture(t, nullptr, rgba.data(), w * 4);
+      SDL_SetTextureScaleMode(t, SDL_SCALEMODE_LINEAR);
+      SDL_SetTextureBlendMode(t, SDL_BLENDMODE_BLEND);
+    }
+    return t;
+#else
+    (void)rel;
+    return nullptr;
+#endif
+  }
+
+  void loadSplash() {
+    if (!splashOn_) return;
+    size_t n = 0;
+    char* index = static_cast<char*>(SDL_LoadFile("data/pocket-splash/index.txt", &n));
+    if (!index) return;
+    std::vector<std::string> names;
+    std::istringstream in(std::string(index, n));
+    SDL_free(index);
+    for (std::string line; std::getline(in, line);) {
+      while (!line.empty() && (line.back() == '\r' || line.back() == ' ')) line.pop_back();
+      if (!line.empty()) names.push_back(line);
+    }
+    if (names.empty()) return;
+    const Uint64 seed = SDL_GetPerformanceCounter();
+    splashTex_ = loadAssetJpeg("data/pocket-splash/" + names[static_cast<std::size_t>(seed % names.size())]);
+    splashQuip_ = static_cast<int>((seed / 7) % deckboy::core::kLoadingQuipCount);
+    splashUntil_ = SDL_GetTicks() + kSplashMs;
+  }
+
+  void drawSplashArt(const SDL_FRect& pic) {
+    if (!splashing()) return;
+    const float left = static_cast<float>(splashUntil_ - SDL_GetTicks());
+    SDL_SetTextureAlphaModFloat(splashTex_, std::clamp(left / 350.0f, 0.0f, 1.0f));   // fades out at the end
+    float tw = 0, th = 0;
+    SDL_GetTextureSize(splashTex_, &tw, &th);
+    // Cover the picture window, cropped to its shape.
+    const float k = std::max(pic.w / tw, pic.h / th);
+    const float sw = pic.w / k, sh = pic.h / k;
+    const SDL_FRect src {(tw - sw) / 2, (th - sh) / 2, sw, sh};
+    SDL_RenderTexture(renderer_, splashTex_, &src, &pic);
+  }
+
+  void drawSplashList(const SDL_FRect& lcd) {
+    const float u = unit_;
+    const Uint64 now = SDL_GetTicks();
+    const Uint64 started = splashUntil_ - kSplashMs;
+    text_.draw(pixel_, "DECKBOY POCKET", kDeep, {lcd.x + 2 * u, lcd.y + 2 * u, lcd.w - 4 * u, 5 * u});
+    text_.draw(mono_, deckboy::core::version::kVersion, kDark, {lcd.x + 2 * u, lcd.y + 7.5f * u, lcd.w - 4 * u, 4.5f * u});
+    const int q = static_cast<int>((splashQuip_ + static_cast<int>((now - started) / 1400)) % deckboy::core::kLoadingQuipCount);
+    text_.draw(mono_, std::string(deckboy::core::kLoadingQuips[q]) + "...", kDeep, {lcd.x + 2 * u, lcd.y + 13 * u, lcd.w - 4 * u, 4.5f * u});
+    const SDL_FRect bar {lcd.x + 2 * u, lcd.y + lcd.h - 4 * u, lcd.w - 4 * u, 1.2f * u};
+    fillRect(renderer_, kMid, bar);
+    const float f = std::clamp(static_cast<float>(now - started) / static_cast<float>(kSplashMs), 0.0f, 1.0f);
+    fillRect(renderer_, kDeep, {bar.x, bar.y, bar.w * f, bar.h});
+  }
+
   // ── On-screen helpers, over the phone's own picture (never the output) ──
   //
   // Eddie's Clock (the desk's name and its four modes: off, 24 hour, 12
@@ -4439,7 +4550,7 @@ class Pocket {
 
   void saveHelpers() {
     const std::string text = "clock\t" + std::to_string(static_cast<int>(clock_)) + "\nremaining\t" + (showRemaining_ ? "1" : "0") +
-                             "\nfps\t" + (showFps_ ? "1" : "0") + "\n";
+                             "\nfps\t" + (showFps_ ? "1" : "0") + "\nsplash\t" + (splashOn_ ? "1" : "0") + "\n";
     SDL_SaveFile(statePath("pocket_helpers.txt").c_str(), text.data(), text.size());
   }
 
@@ -4455,6 +4566,7 @@ class Pocket {
       if (key == "clock") clock_ = static_cast<ClockMode>(std::clamp(v, 0, 3));
       else if (key == "remaining") showRemaining_ = v != 0;
       else if (key == "fps") showFps_ = v != 0;
+      else if (key == "splash") splashOn_ = v != 0;
     }
   }
 
@@ -4638,6 +4750,10 @@ class Pocket {
   void onDown(float x, float y) {
     downX_ = x;
     downY_ = y;
+    if (splashing()) {
+      splashUntil_ = 0;
+      return;
+    }
     if (phoneFull_) {   // full screen: a tap shows the ghost controls (EXIT leaves)
       ghostTap(x, y);
       return;
@@ -6608,6 +6724,10 @@ class Pocket {
   bool powerSave_ = false;
   ClockMode clock_ = ClockMode::Off;
   bool showRemaining_ = false, showFps_ = false;
+  bool splashOn_ = true;
+  SDL_Texture* splashTex_ = nullptr;
+  Uint64 splashUntil_ = 0;
+  int splashQuip_ = 0;
   Uint64 fpsSince_ = 0;
   int fpsFrames_ = 0;
   double fps_ = 0;

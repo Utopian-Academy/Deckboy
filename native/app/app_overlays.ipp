@@ -412,37 +412,8 @@
     // 2026-10-30: "perhaps a few could allude to the secret codes").
     // Allusions only, never the way in: tools/audit_spoilers.py rules the
     // published text, and these lines are written to the same standard.
-    static const char* kQuips[] = {
-      "waking the cue gremlins",
-      "counting frames by hand",
-      "buttering the playhead",
-      "reticulating playlists",
-      "asking the drive nicely",
-      "warming the flux capacitor",
-      "alphabetising the sprockets",
-      "feeding the terrarium",
-      "blood for the blood code",
-      "the terrarium remembers an old cheat for thirty lives",
-      "something in the walls smells of pizza",
-      "dad says hi. from the hole. don't ask",
-      "Baba says: knock three times for the good bottle",
-      "the dice are in the About box. don't tell anyone",
-      "folding the Lower Thirds",
-      "polishing the crossfades",
-      "reminding the strobe about epilepsy warnings",
-      "counting the cues called Untitled",
-      "letting the dolphin out",
-      "untangling a fade from a fade",
-      "explaining 1983 to Prof. Video",
-      "Dr. Pixel is labelling the labels",
-      "teaching the eel the Thames",
-      "rounding the timecode to the nearest feeling",
-      "consulting the vectorscope",
-      "persuading the projector it is straight",
-      "loading the playlist the long way round",
-      "finding the second screen",
-    };
-    constexpr int kQuipCount = static_cast<int>(sizeof(kQuips) / sizeof(kQuips[0]));
+    const auto& kQuips = deckboy::core::kLoadingQuips;   // core/loading_quips.hpp, shared with Pocket
+    constexpr int kQuipCount = deckboy::core::kLoadingQuipCount;
     const int quip = static_cast<int>(((nowMs / 1400) + loadingQuipSeed_) % kQuipCount);
     drawCenteredTextSafe(controlRenderer_, fontSmall_,
                          quipRow,
