@@ -136,6 +136,10 @@ public final class PocketBridge {
                 used = new int[] {TICK};
                 c.addPrimitive(TICK, 0.7f);
                 break;
+            case "tap":   // any on-screen button: the lightest touch
+                used = new int[] {TICK};
+                c.addPrimitive(TICK, 0.4f);
+                break;
             case "black":
                 used = new int[] {CLICK};
                 c.addPrimitive(CLICK, 1.0f).addPrimitive(CLICK, 1.0f, 70);
@@ -170,7 +174,7 @@ public final class PocketBridge {
         switch (kind) {
             case "go": return android.os.VibrationEffect.createPredefined(android.os.VibrationEffect.EFFECT_HEAVY_CLICK);
             case "black": case "end": return android.os.VibrationEffect.createPredefined(android.os.VibrationEffect.EFFECT_DOUBLE_CLICK);
-            case "pad": case "menu": return android.os.VibrationEffect.createPredefined(android.os.VibrationEffect.EFFECT_TICK);
+            case "pad": case "menu": case "tap": return android.os.VibrationEffect.createPredefined(android.os.VibrationEffect.EFFECT_TICK);
             default: return android.os.VibrationEffect.createPredefined(android.os.VibrationEffect.EFFECT_CLICK);
         }
     }

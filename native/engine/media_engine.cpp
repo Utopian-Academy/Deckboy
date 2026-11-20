@@ -2171,8 +2171,19 @@ void MediaEngine::render(SDL_Rect target) {
   SDL_SetRenderDrawColor(outputRenderer_, 0, 0, 0, 255);
   SDL_RenderFillRect(outputRenderer_, nullptr);
 
-  bool drewCurrent = drawTextureFitted(texture_, textureWidth_, textureHeight_, target, 255);
-  drawTransitionOverlay(target, drewCurrent);
+  // Push, wipe and iris place the incoming picture themselves (it slides in,
+  // or shows through only part of the frame); every other style draws it
+  // whole and lays the outgoing one over it.
+  const bool geometric = transitionActive_ && !transitionWaitingForFirstFrame_ && transitionTexture_ &&
+                         ((transitionStyle_ >= TransitionStyle::PushLeft && transitionStyle_ <= TransitionStyle::WipeDown) ||
+                          transitionStyle_ == TransitionStyle::Iris);
+  bool drewCurrent = false;
+  if (geometric) {
+    drewCurrent = drawGeometricTransition(target);
+  } else {
+    drewCurrent = drawTextureFitted(texture_, textureWidth_, textureHeight_, target, 255);
+    drawTransitionOverlay(target, drewCurrent);
+  }
 
 
 
@@ -6112,6 +6123,9 @@ void MediaEngine::clearTransitionTexture() {
     SDL_DestroyTexture(transitionTexture_);
   }
   transitionTexture_ = nullptr;
+  if (transitionLayer_ && !sdlTornDown()) SDL_DestroyTexture(transitionLayer_);
+  transitionLayer_ = nullptr;
+  transitionLayerW_ = transitionLayerH_ = 0;
   transitionTextureWidth_ = 0;
   transitionTextureHeight_ = 0;
   transitionActive_ = false;
@@ -6379,8 +6393,9 @@ void MediaEngine::drawTransitionOverlay(const SDL_Rect& target, bool drewCurrent
     return;
   }
 
-  if (transitionStyle_ == TransitionStyle::DipBlack) {
-    // Dip-to-black: two halves
+  if (transitionStyle_ == TransitionStyle::DipBlack || transitionStyle_ == TransitionStyle::DipWhite) {
+    // Dip to black (or white, a flash rather than a blink): two halves
+    const Uint8 dip = transitionStyle_ == TransitionStyle::DipWhite ? 255 : 0;
     if (progress < 0.5) {
       // First half: outgoing fades to black (0→100% black overlay)
       Uint8 srcA = static_cast<Uint8>(transitionSourceGain_ * 255.0f);
@@ -6388,17 +6403,17 @@ void MediaEngine::drawTransitionOverlay(const SDL_Rect& target, bool drewCurrent
       SDL_SetRenderDrawBlendMode(outputRenderer_, SDL_BLENDMODE_BLEND);
       double blackAlpha = std::clamp(progress * 2.0, 0.0, 1.0);
       if (transitionSourceGain_ < 1.0f) blackAlpha = std::max(blackAlpha, 1.0 - transitionSourceGain_);
-      SDL_SetRenderDrawColor(outputRenderer_, 0, 0, 0, static_cast<Uint8>(blackAlpha * 255.0));
+      SDL_SetRenderDrawColor(outputRenderer_, dip, dip, dip, static_cast<Uint8>(blackAlpha * 255.0));
       SDL_RenderFillRect(outputRenderer_, nullptr);
     } else {
       // Second half: incoming emerges from black (100%→0% black overlay)
       if (!drewCurrent) {
-        SDL_SetRenderDrawColor(outputRenderer_, 0, 0, 0, 255);
+        SDL_SetRenderDrawColor(outputRenderer_, dip, dip, dip, 255);
         SDL_RenderFillRect(outputRenderer_, nullptr);
       }
       double fadeOutBlack = std::clamp(1.0 - (progress - 0.5) * 2.0, 0.0, 1.0);
       SDL_SetRenderDrawBlendMode(outputRenderer_, SDL_BLENDMODE_BLEND);
-      SDL_SetRenderDrawColor(outputRenderer_, 0, 0, 0, static_cast<Uint8>(fadeOutBlack * 255.0));
+      SDL_SetRenderDrawColor(outputRenderer_, dip, dip, dip, static_cast<Uint8>(fadeOutBlack * 255.0));
       SDL_RenderFillRect(outputRenderer_, nullptr);
     }
     return;
@@ -6407,6 +6422,101 @@ void MediaEngine::drawTransitionOverlay(const SDL_Rect& target, bool drewCurrent
   // Crossfade: outgoing fades out linearly over the transition duration
   Uint8 alphaValue = static_cast<Uint8>(transitionSourceGain_ * std::clamp(1.0 - progress, 0.0, 1.0) * 255.0);
   drawTextureFitted(transitionTexture_, transitionTextureWidth_, transitionTextureHeight_, target, alphaValue, true);
+}
+
+// Push, wipe and iris for an engine that draws its own picture (Mini, Pocket;
+// the desk's output compositor has its own). The outgoing snapshot and the
+// incoming frame are each drawn with their own cue's geometry; a push slides
+// both, a wipe shows each through its side of a travelling edge, an iris
+// shows the incoming picture through an opening circle.
+bool MediaEngine::drawGeometricTransition(const SDL_Rect& target) {
+  const double elapsed = std::chrono::duration<double>(std::chrono::steady_clock::now() - transitionStartedAt_).count();
+  const double linear = transitionDurationSeconds_ <= 0.0001 ? 1.0 : std::clamp(elapsed / transitionDurationSeconds_, 0.0, 1.0);
+  if (linear >= 1.0) {
+    clearTransitionTexture();
+    return drawTextureFitted(texture_, textureWidth_, textureHeight_, target, 255);
+  }
+  const double p = linear * linear * (3.0 - 2.0 * linear);   // eased: a move starts and lands gently
+  const Uint8 outAlpha = static_cast<Uint8>(transitionSourceGain_ * 255.0f);
+  const int W = target.w, H = target.h;
+  SDL_Rect savedClip {};
+  const bool hadClip = SDL_RenderClipEnabled(outputRenderer_);
+  if (hadClip) SDL_GetRenderClipRect(outputRenderer_, &savedClip);
+  auto clip = [&](const SDL_Rect& r) { SDL_SetRenderClipRect(outputRenderer_, &r); };
+  auto restore = [&] { SDL_SetRenderClipRect(outputRenderer_, hadClip ? &savedClip : nullptr); };
+  auto outAt = [&](int dx, int dy) {
+    drawTextureFitted(transitionTexture_, transitionTextureWidth_, transitionTextureHeight_,
+                      SDL_Rect {target.x + dx, target.y + dy, W, H}, outAlpha, true);
+  };
+  auto inAt = [&](int dx, int dy) {
+    return drawTextureFitted(texture_, textureWidth_, textureHeight_, SDL_Rect {target.x + dx, target.y + dy, W, H}, 255);
+  };
+  const int px = static_cast<int>(std::lround(p * W)), py = static_cast<int>(std::lround(p * H));
+  bool drew = false;
+  switch (transitionStyle_) {
+    case TransitionStyle::PushLeft:  clip(target); outAt(-px, 0); drew = inAt(W - px, 0); restore(); break;
+    case TransitionStyle::PushRight: clip(target); outAt(px, 0); drew = inAt(px - W, 0); restore(); break;
+    case TransitionStyle::PushUp:    clip(target); outAt(0, -py); drew = inAt(0, H - py); restore(); break;
+    case TransitionStyle::PushDown:  clip(target); outAt(0, py); drew = inAt(0, py - H); restore(); break;
+    case TransitionStyle::WipeLeft:     // the edge travels leftwards: the new picture comes in from the right
+      clip({target.x, target.y, W - px, H}); outAt(0, 0);
+      clip({target.x + W - px, target.y, px, H}); drew = inAt(0, 0); restore(); break;
+    case TransitionStyle::WipeRight:
+      clip({target.x + px, target.y, W - px, H}); outAt(0, 0);
+      clip({target.x, target.y, px, H}); drew = inAt(0, 0); restore(); break;
+    case TransitionStyle::WipeUp:
+      clip({target.x, target.y, W, H - py}); outAt(0, 0);
+      clip({target.x, target.y + H - py, W, py}); drew = inAt(0, 0); restore(); break;
+    case TransitionStyle::WipeDown:
+      clip({target.x, target.y + py, W, H - py}); outAt(0, 0);
+      clip({target.x, target.y, W, py}); drew = inAt(0, 0); restore(); break;
+    case TransitionStyle::Iris: {
+      outAt(0, 0);
+      // the incoming picture into a layer the size of the target, on black
+      if (!transitionLayer_ || transitionLayerW_ != W || transitionLayerH_ != H) {
+        if (transitionLayer_) SDL_DestroyTexture(transitionLayer_);
+        transitionLayer_ = SDL_CreateTexture(outputRenderer_, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, W, H);
+        transitionLayerW_ = W;
+        transitionLayerH_ = H;
+      }
+      if (!transitionLayer_) { drew = inAt(0, 0); break; }
+      SDL_Texture* previous = SDL_GetRenderTarget(outputRenderer_);
+      SDL_SetRenderTarget(outputRenderer_, transitionLayer_);
+      SDL_SetRenderClipRect(outputRenderer_, nullptr);
+      SDL_SetRenderDrawColor(outputRenderer_, 0, 0, 0, 255);
+      SDL_RenderClear(outputRenderer_);
+      drew = drawTextureFitted(texture_, textureWidth_, textureHeight_, SDL_Rect {0, 0, W, H}, 255);
+      SDL_SetRenderTarget(outputRenderer_, previous);
+      restore();
+      // ...shown through a circle opening from the centre
+      const float cx = target.x + W * 0.5f, cy = target.y + H * 0.5f;
+      const float radius = static_cast<float>(p) * std::sqrt(W * W * 0.25f + H * H * 0.25f) * 1.02f;
+      constexpr int kSides = 96;
+      std::vector<SDL_Vertex> v;
+      std::vector<int> idx;
+      v.reserve(kSides + 1);
+      const SDL_FColor white {1, 1, 1, 1};
+      v.push_back({{cx, cy}, white, {0.5f, 0.5f}});
+      for (int i = 0; i < kSides; ++i) {
+        const float a = static_cast<float>(i) * 6.2831853f / kSides;
+        const float x = cx + radius * std::cos(a), y = cy + radius * std::sin(a);
+        v.push_back({{x, y}, white, {(x - target.x) / W, (y - target.y) / H}});
+        idx.push_back(0);
+        idx.push_back(1 + i);
+        idx.push_back(1 + (i + 1) % kSides);
+      }
+      SDL_SetTextureBlendMode(transitionLayer_, SDL_BLENDMODE_NONE);
+      clip(target);   // the circle grows past the frame's corners; keep it inside the target
+      SDL_RenderGeometry(outputRenderer_, transitionLayer_, v.data(), static_cast<int>(v.size()), idx.data(),
+                         static_cast<int>(idx.size()));
+      restore();
+      break;
+    }
+    default:
+      drew = inAt(0, 0);
+      break;
+  }
+  return drew;
 }
 
 // ---------------------------------------------------------------------------

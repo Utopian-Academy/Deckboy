@@ -1120,6 +1120,7 @@ class MediaEngine {
   void initStillTimer(const Cue& cue, bool autoplay);     // set up duration timer for still/pattern/browser cues
   void beginTransition(double seconds, TransitionStyle style, float sourceGain = 1.0f); // start a visual transition
   void clearTransitionTexture();                           // release the outgoing-cue snapshot texture
+  bool drawGeometricTransition(const SDL_Rect& target);     // push / wipe / iris, drawing the incoming picture itself
   bool drawTextureFitted(SDL_Texture* texture, int width, int height, const SDL_Rect& target, Uint8 alphaValue, bool useOutgoingGeometry = false); // draw texture with scale mode; outgoing=true reads the transition* snapshot instead of the live cue's
   void drawTransitionOverlay(const SDL_Rect& target, bool drewCurrent); // render the transition blend
   void handlePlaybackEnd();                                // called when playback naturally reaches the end
@@ -1547,6 +1548,10 @@ class MediaEngine {
 
   // -- State: transition (crossfade / dip-to-black) ----------------------------
   SDL_Texture* transitionTexture_ = nullptr; // snapshot of the outgoing cue's last frame
+  // The incoming picture drawn once into a layer the size of the target, for
+  // a transition that reveals it through a shape (Iris). Own-texture path only.
+  SDL_Texture* transitionLayer_ = nullptr;
+  int transitionLayerW_ = 0, transitionLayerH_ = 0;
   int transitionTextureWidth_ = 0;
   int transitionTextureHeight_ = 0;
   bool transitionActive_ = false;            // true while a transition is in progress

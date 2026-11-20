@@ -687,6 +687,7 @@ class Pocket {
       cue.pauseOnLastFrame = true;
       cue.stillDurationSeconds = 0.0;
       cue.hasAudio = cue.audioEnabled = (std::string(type) == "pocket-test");
+      cue.id = "pocket-" + std::to_string(++nextId_);   // the queue, the shuffle and SYNC find cues by id
       cues_.push_back(cue);
     }
     loadThemes();
@@ -849,6 +850,8 @@ class Pocket {
               followHost_ += *c;
             }
           }
+        } else if (renameIndex_ >= 0 && renameText_.size() < 200) {
+          renameText_ += e.text.text;   // any language: SDL hands over UTF-8
         }
         break;
       case SDL_EVENT_KEY_DOWN:
@@ -856,6 +859,19 @@ class Pocket {
           if (e.key.key == SDLK_BACKSPACE && !followHost_.empty()) followHost_.pop_back();
           else if (e.key.key == SDLK_RETURN || e.key.key == SDLK_KP_ENTER) { endHostEdit(); startFollowing(); }
           else if (e.key.key == SDLK_AC_BACK || e.key.key == SDLK_ESCAPE) endHostEdit();
+          return true;
+        }
+        if (renameIndex_ >= 0) {
+          if (e.key.key == SDLK_BACKSPACE && !renameText_.empty()) {
+            // one whole character, however many bytes it took
+            std::size_t cut = renameText_.size() - 1;
+            while (cut > 0 && (static_cast<unsigned char>(renameText_[cut]) & 0xC0) == 0x80) --cut;
+            renameText_.erase(cut);
+          } else if (e.key.key == SDLK_RETURN || e.key.key == SDLK_KP_ENTER) {
+            endRename(true);
+          } else if (e.key.key == SDLK_AC_BACK || e.key.key == SDLK_ESCAPE) {
+            endRename(false);
+          }
           return true;
         }
         switch (e.key.key) {
@@ -944,7 +960,8 @@ class Pocket {
     if (shellTex_) drawShell();
     else fillRect(r, kShell, {0, 0, pxW_, pxH_});
     drawProgram();
-    if (hostEditing_) drawHostEditor();
+    if (hostEditing_) drawTextEditor("DESK ADDRESS", followHost_, "ENTER TO FOLLOW");
+    if (renameIndex_ >= 0) drawTextEditor("CUE NAME", renameText_, "ENTER TO KEEP, BACK TO LEAVE IT");
     if (sheet_ >= 0) {
       drawSheet();
     } else if (menuOpen_) {
@@ -1080,12 +1097,18 @@ class Pocket {
       text_.draw(mono_, onAir ? "holds until GO" : "", kDark, {lcd.x + u, y, lcd.w - 2 * u, 4 * u});
     }
     y += 4.5f * u;
-    const float bw = (lcd.w - 2 * u - 2 * u) / 3;
     const bool paused = onAir && engine_->state() == TransportState::Paused;
     const bool canTrim = onAir && cueHasTimeline(*onAir);
-    button({lcd.x + u, y, bw, 5 * u}, paused ? "PLAY" : "PAUSE", [this, paused] { paused ? engine_->play() : engine_->pause(); }, onAir != nullptr);
-    button({lcd.x + 2 * u + bw, y, bw, 5 * u}, "SET IN", [this] { setInOut(true); }, canTrim);
-    button({lcd.x + 3 * u + 2 * bw, y, bw, 5 * u}, "SET OUT", [this] { setInOut(false); }, canTrim);
+    // -10 s, PAUSE, +10 s, SET IN, SET OUT (PAUSE the widest: it is pressed most)
+    const float gap = 0.8f * u;
+    const float small = (lcd.w - 2 * u - 4 * gap) * 0.17f;
+    const float wide = (lcd.w - 2 * u - 4 * gap - 4 * small);
+    float bx = lcd.x + u;
+    button({bx, y, small, 5 * u}, "-10", [this] { skipBy(-10); }, canTrim); bx += small + gap;
+    button({bx, y, wide, 5 * u}, paused ? "PLAY" : "PAUSE", [this, paused] { paused ? engine_->play() : engine_->pause(); }, onAir != nullptr); bx += wide + gap;
+    button({bx, y, small, 5 * u}, "+10", [this] { skipBy(10); }, canTrim); bx += small + gap;
+    button({bx, y, small, 5 * u}, "IN", [this] { setInOut(true); }, canTrim); bx += small + gap;
+    button({bx, y, small, 5 * u}, "OUT", [this] { setInOut(false); }, canTrim);
   }
 
   // The program alone, filling the screen: picture-in-picture, or full screen
@@ -1212,13 +1235,13 @@ class Pocket {
     const float lx = lcd.x + u, lw = lcd.w - 2 * u;
     y = lcd.y + u;
     {
-      const float cw = 14 * u;
-      const float tw = (lw - cw - 5 * u) / 4;
-      const char* kTabs[4] = {"ADD", "OUTPUT", "SYNC", "SKIN"};
-      for (int t = 0; t < 4; ++t) {
+      const float cw = 7 * u;
+      const float tw = (lw - cw - 5 * u) / 5;
+      const char* kTabs[5] = {"ADD", "OUT", "LIST", "SYNC", "SKIN"};
+      for (int t = 0; t < 5; ++t) {
         button({lx + static_cast<float>(t) * (tw + u), y, tw, 5 * u}, kTabs[t], [this, t] { menuTab_ = t; }, true, menuTab_ == t);
       }
-      button({lx + lw - cw, y, cw, 5 * u}, "CLOSE", [this] { menuOpen_ = false; endHostEdit(); });
+      button({lx + lw - cw, y, cw, 5 * u}, "X", [this] { menuOpen_ = false; endHostEdit(); });
     }
     y += 7.5f * u;
 
@@ -1276,9 +1299,12 @@ class Pocket {
 
     }
     if (menuTab_ == 2) {
-      drawSyncTab(lx, lw, y);
+      drawListTab(lx, lw, y);
     }
     if (menuTab_ == 3) {
+      drawSyncTab(lx, lw, y);
+    }
+    if (menuTab_ == 4) {
     heading("SHELL");
     {
       const float bw = 9 * u;
@@ -1374,15 +1400,23 @@ class Pocket {
     if (trim) engine_->applyActiveCueTrimEdit(c);
   }
 
-  // A cue set to NEXT takes the one after it when it ends.
+  // A cue set to NEXT takes what is selected when it ends (the next cue, or
+  // what the queue, the shuffle or the loop chose) -- unless STOP AFTER THIS
+  // was asked for, or the list has run out. Handled once per take.
   void followEnd() {
-    if (active_ < 0) return;
+    if (active_ < 0 || endHandled_) return;
     const Cue& c = cues_[static_cast<std::size_t>(active_)];
     if (endModeOf(c) != EndMode::Next || !engine_->reachedEnd()) return;
-    if (active_ + 1 < static_cast<int>(cues_.size())) {
-      take(active_ + 1);
-      select(active_ + 1);
+    endHandled_ = true;
+    if (endAfter_) {
+      endAfter_ = false;
+      notice_ = "Stopped after that cue, as asked";
+      noticeUntil_ = SDL_GetTicks() + 2500;
+      return;
     }
+    if (listEnded_ && selected_ == active_) return;   // the end of the list: hold here
+    take(selected_);
+    advanceFrom(active_);
   }
 
   void drawCueList() {
@@ -1422,7 +1456,9 @@ class Pocket {
       const Ink soft = isLive ? kMid : isSel ? kDeep : kDark;
       text_.draw(mono_, std::to_string(i + 1), isSel && !isLive ? kLight : soft, {row.x + 1.5f * u, row.y, 5 * u, row.h});
       text_.draw(mono_, c.name, ink, {row.x + 7 * u, row.y, row.w - 26 * u, row.h});
-      text_.draw(pixelSmall_, kindTag(c), soft, {row.x + row.w - 18.5f * u, row.y, 9 * u, row.h}, true);
+      const int qp = queuePlace(c);
+      text_.draw(pixelSmall_, qp ? "NEXT " + std::to_string(qp) : std::string(kindTag(c)), soft,
+                 {row.x + row.w - 18.5f * u, row.y, 9 * u, row.h}, true);
       const EndMode m = endModeOf(c);
       std::string right = m == EndMode::Loop ? "LOOP" : m == EndMode::Next ? "NEXT" : "HOLD";
       if (cueHasTimeline(c) && m != EndMode::Loop) {
@@ -1713,10 +1749,109 @@ class Pocket {
     if (verb == "PING") return ok();
     if (verb == "HELP") {
       return "OK HELP\nPocket answers: PING STATUS GO BACK TAKE <n> SELECT <n> NEXT PREV PLAY PAUSE STOP\n"
-             "SEEK <seconds> BLACK [ON|OFF] VOLUME <0-100> DECK 1 SYNC FOLLOW <desk> SYNC STOP SYNC STATUS\n";
+             "SEEK <seconds|+s|-s> BLACK [ON|OFF] VOLUME <0-100> MUTE DECK 1 SKIP SKIPBACK\n"
+             "SHUFFLE LOOP ENDAFTER [ON|OFF|TOGGLE] CROSSFADE <s> QUEUE <n>|CLEAR RENAME <n> <name>\n"
+             "DIRECTION <n> FORWARD|REVERSE|BOUNCE SHELL <name>|FLAT SNAP <file.bmp>\n"
+             "SYNC FOLLOW <desk> SYNC STOP SYNC STATUS\n";
     }
     if (verb == "STATUS" || verb == "STATE") return remoteStatus();
     if (verb == "DECK") return rest.empty() || rest == "1" ? ok() : err("Pocket has one deck");
+    // Playing the list (Mini's verbs, so one Companion page drives both).
+    auto onOff = [&](bool current, bool& out) {
+      std::string a = rest;
+      for (char& ch : a) ch = static_cast<char>(std::toupper(static_cast<unsigned char>(ch)));
+      if (a == "ON") out = true;
+      else if (a == "OFF") out = false;
+      else if (a.empty() || a == "TOGGLE") out = !current;
+      else return false;
+      return true;
+    };
+    if (verb == "VIEW") {   // VIEW HOME | MENU <ADD|OUT|LIST|SYNC|SKIN> | SHEET <cue>: what the screen shows
+      std::istringstream args(rest);
+      std::string what, arg;
+      args >> what >> arg;
+      for (char& ch : what) ch = static_cast<char>(std::toupper(static_cast<unsigned char>(ch)));
+      for (char& ch : arg) ch = static_cast<char>(std::toupper(static_cast<unsigned char>(ch)));
+      if (what == "HOME") { menuOpen_ = false; sheet_ = -1; return ok(); }
+      if (what == "MENU") {
+        const char* tabs[] = {"ADD", "OUT", "LIST", "SYNC", "SKIN"};
+        for (int t = 0; t < 5; ++t) if (arg == tabs[t] || (t == 1 && arg == "OUTPUT")) menuTab_ = t;
+        menuOpen_ = true;
+        sheet_ = -1;
+        return ok();
+      }
+      if (what == "SHEET") {
+        const int n = std::atoi(arg.c_str());
+        if (n < 1 || n > count) return err("no cue " + arg);
+        openSheet(n - 1);
+        return ok();
+      }
+      return err("VIEW HOME, VIEW MENU <tab> or VIEW SHEET <cue>");
+    }
+    if (verb == "SHUFFLE") { bool v; if (!onOff(shuffle_, v)) return err("ON, OFF or TOGGLE"); setShuffle(v); return ok(); }
+    if (verb == "LOOP") { bool v; if (!onOff(loopList_, v)) return err("ON, OFF or TOGGLE"); loopList_ = v; return ok(); }
+    if (verb == "ENDAFTER") { bool v; if (!onOff(endAfter_, v)) return err("ON, OFF or TOGGLE"); endAfter_ = v; return ok(); }
+    if (verb == "MUTE") { bool v; if (!onOff(muted_, v)) return err("ON, OFF or TOGGLE"); setMuted(v); return ok(); }
+    if (verb == "TRANSITION") {   // TRANSITION <cue|LIST> <style> [seconds]
+      std::istringstream args(rest);
+      std::string which, token;
+      double seconds = -1;
+      args >> which >> token >> seconds;
+      bool known = false;
+      const TransitionStyle style = deckboy::core::utils::parseTransitionStyleToken(token, &known);
+      if (!known) return err("a style: cut crossfade dipblack dipwhite pushleft... wipeleft... iris");
+      std::string w = which;
+      for (char& ch : w) ch = static_cast<char>(std::toupper(static_cast<unsigned char>(ch)));
+      if (w == "LIST") {
+        listStyle_ = drawableStyle(style);
+        if (seconds >= 0) glideSeconds_ = std::min(seconds, 10.0);
+        return ok();
+      }
+      const int n = std::atoi(which.c_str());
+      if (n < 1 || n > count) return err("no cue " + which);
+      Cue& c = cues_[static_cast<std::size_t>(n - 1)];
+      c.cueTransitionStyle = deckboy::core::utils::transitionStyleToken(style);
+      if (seconds >= 0) c.cueTransitionSeconds = std::min(seconds, 10.0);
+      return ok();
+    }
+    if (verb == "CROSSFADE" || verb == "GLIDE") {
+      char* end = nullptr;
+      const double v = std::strtod(rest.c_str(), &end);
+      if (end == rest.c_str() || v < 0 || v > 10) return err("seconds, 0-10 (0 is a cut)");
+      glideSeconds_ = v;
+      return ok();
+    }
+    if (verb == "QUEUE") {
+      std::string a = rest;
+      for (char& ch : a) ch = static_cast<char>(std::toupper(static_cast<unsigned char>(ch)));
+      if (a == "CLEAR") { queueIds_.clear(); return ok(); }
+      if (a.empty()) {
+        std::string list;
+        for (const std::string& id : queueIds_) {
+          const int q = indexOfCue(id);
+          if (q >= 0) list += (list.empty() ? "" : " ") + std::to_string(q + 1);
+        }
+        return "OK QUEUE: " + (list.empty() ? std::string("empty") : list) + "\n";
+      }
+      int n = 0;
+      if (!cueNumber(n)) return err("no cue " + rest);
+      toggleQueued(n);
+      return ok();
+    }
+    if (verb == "SKIP") { if (followLocked()) return err("following a desk"); go(); return ok(); }
+    if (verb == "SKIPBACK") { if (followLocked()) return err("following a desk"); back(); return ok(); }
+    if (verb == "RENAME") {
+      std::istringstream args(rest);
+      int n = 0;
+      args >> n;
+      std::string name;
+      std::getline(args, name);
+      while (!name.empty() && name.front() == ' ') name.erase(name.begin());
+      if (n < 1 || n > count || name.empty()) return err("RENAME <cue> <name>");
+      cues_[static_cast<std::size_t>(n - 1)].name = name;
+      cueEdited(n - 1, false);
+      return ok();
+    }
     if (verb == "DIRECTION") {   // DIRECTION <cue> FORWARD|REVERSE|BOUNCE (the desk's verb)
       std::istringstream args(rest);
       int n = 0;
@@ -1791,7 +1926,9 @@ class Pocket {
       if (active_ < 0) return err("nothing is live");
       char* end = nullptr;
       const double t = std::strtod(rest.c_str(), &end);
-      if (end == rest.c_str() || t < 0) return err("seconds, please");
+      if (end == rest.c_str()) return err("seconds, please");
+      if (!rest.empty() && (rest[0] == '+' || rest[0] == '-')) { skipBy(t); return ok(); }   // SEEK +10 / SEEK -10
+      if (t < 0) return err("seconds, please");
       const Cue& c = cues_[static_cast<std::size_t>(active_)];
       if (cueHasTimeline(c) && t > c.duration) return err("past the end");
       engine_->seek(t);
@@ -1811,7 +1948,7 @@ class Pocket {
       const double v = std::strtod(rest.c_str(), &end);
       if (end == rest.c_str() || v < 0 || v > 100) return err("a percent, 0-100");   // never clamped silently
       volume_ = static_cast<int>(std::lround(v));
-      engine_->setVolume(static_cast<float>(volume_) / 100.0f);
+      setMuted(muted_);   // the new level, still silent while muted
       return ok();
     }
     return "ERR unknown command: " + verb + "\n";
@@ -1826,8 +1963,11 @@ class Pocket {
     o << "DECK 1 name=\"Pocket\" status=" << state << " selected=" << (cues_.empty() ? 0 : selected_ + 1)
       << " active=" << active_ + 1 << " cues=" << cues_.size() << " cue=\"" << (live ? live->name : std::string()) << "\""
       << " pos=" << (live ? clock(engine_->position()) : std::string("--:--"))
-      << " dur=" << (live && live->duration > 0 ? clock(live->duration) : std::string("--:--")) << "\n";
-    o << "OUTPUT 1 name=\"" << (outputLabel_.empty() ? "phone" : outputLabel_) << "\" enabled=" << (black_ ? "off" : "on")
+      << " dur=" << (live && live->duration > 0 ? clock(live->duration) : std::string("--:--"))
+      << " shuffle=" << (shuffle_ ? "on" : "off") << " loop=" << (loopList_ ? "on" : "off")
+      << " endafter=" << (endAfter_ ? "on" : "off") << " crossfade=" << listGlide() << " queued=" << queueIds_.size()
+      << " muted=" << (muted_ ? "on" : "off") << "\n";
+    o << "OUTPUT 1 name=\""<< (outputLabel_.empty() ? "phone" : outputLabel_) << "\" enabled=" << (black_ ? "off" : "on")
       << " raster=" << programW_ << "x" << programH_ << "\n";
     o << "SYNC " << syncStatusFields() << "\n";
     return o.str();
@@ -2229,7 +2369,7 @@ class Pocket {
       const TransitionStyle style = deckboy::core::utils::parseTransitionStyleToken(sync.transStyle);
       const double fade = style == TransitionStyle::Cut ? 0.0 : std::max(0.0, sync.transSeconds);
       engine_->loadCue(&c, sync.state == "playing" || sync.state == "black", fade,
-                       fade > 0 ? TransitionStyle::Crossfade : TransitionStyle::Cut);
+                       fade > 0 ? drawableStyle(style) : TransitionStyle::Cut);
       selected_ = std::min(local + 1, static_cast<int>(cues_.size()) - 1);
       seekHoldUntil_ = 0;
     }
@@ -2299,6 +2439,60 @@ class Pocket {
     return o.str();
   }
 
+  // MENU > LIST: how the list plays.
+  void drawListTab(float lx, float lw, float& y) {
+    const float u = unit_;
+    auto heading = [&](const char* t) {
+      text_.draw(pixelSmall_, t, kDark, {lx, y, lw, 3.5f * u});
+      y += 4.2f * u;
+    };
+    const float bw = (lw - u) / 2;
+    heading("PLAYING THE LIST");
+    button({lx, y, bw, 5 * u}, shuffle_ ? "SHUFFLE ON" : "SHUFFLE", [this] { setShuffle(!shuffle_); }, true, shuffle_);
+    button({lx + bw + u, y, bw, 5 * u}, loopList_ ? "LOOP LIST ON" : "LOOP LIST", [this] {
+      loopList_ = !loopList_;
+      if (loopList_ && listEnded_ && active_ >= 0) advanceFrom(active_);   // the end was reached: go round
+    }, true, loopList_);
+    y += 6 * u;
+    button({lx, y, lw, 5 * u}, endAfter_ ? "STOPS AFTER THIS CUE" : "STOP AFTER THIS CUE", [this] { endAfter_ = !endAfter_; },
+           active_ >= 0, endAfter_);
+    y += 6.5f * u;
+    heading("BETWEEN CUES");
+    {
+      const double steps[] = {0.0, 0.5, 1.0, 2.0};
+      const char* names[] = {"CUT", "0.5 S", "1 S", "2 S"};
+      const float qw = (lw - 3 * u) / 4;
+      for (int k = 0; k < 4; ++k) {
+        const double v = steps[k];
+        button({lx + static_cast<float>(k) * (qw + u), y, qw, 5 * u}, names[k], [this, v] { glideSeconds_ = v; },
+               true, std::fabs(listGlide() - v) < 1e-6);
+      }
+      y += 6 * u;
+      const float sw = 9 * u;
+      button({lx, y, sw, 5 * u}, "<", [this] { listStyle_ = stepStyle(listStyle_, -1); });
+      text_.draw(mono_, styleName(listStyle_), kDeep, {lx + sw + u, y, lw - 2 * sw - 2 * u, 5 * u}, true);
+      button({lx + lw - sw, y, sw, 5 * u}, ">", [this] { listStyle_ = stepStyle(listStyle_, 1); });
+      y += 6 * u;
+      text_.draw(mono_, "A cue's own TRANSITION and STYLE win.", kDark, {lx, y, lw, 4 * u});
+      y += 5 * u;
+    }
+    heading("PLAY NEXT");
+    {
+      std::string line = "Nothing queued. PLAY NEXT is on each cue's sheet.";
+      if (!queueIds_.empty()) {
+        const int q = indexOfCue(queueIds_.front());
+        line = (q >= 0 ? std::to_string(q + 1) + " " + cues_[static_cast<std::size_t>(q)].name : std::string("?")) +
+               (queueIds_.size() > 1 ? " +" + std::to_string(queueIds_.size() - 1) + " more" : std::string());
+      }
+      text_.draw(mono_, line, kDeep, {lx, y, lw - 18 * u, 5 * u});
+      button({lx + lw - 17 * u, y, 17 * u, 5 * u}, "CLEAR", [this] { queueIds_.clear(); }, !queueIds_.empty());
+      y += 6.5f * u;
+    }
+    heading("SOUND");
+    button({lx, y, lw, 5 * u}, muted_ ? "MUTED: TAP FOR SOUND" : "MUTE", [this] { setMuted(!muted_); }, true, muted_);
+    y += 6 * u;
+  }
+
   void drawSyncTab(float lx, float lw, float& y) {
     const float u = unit_;
     text_.draw(pixelSmall_, "FOLLOW A DESK", kDark, {lx, y, lw, 3.5f * u});
@@ -2352,16 +2546,37 @@ class Pocket {
   }
 
   // While typing, the address sits over the picture: the keyboard covers the menu.
-  void drawHostEditor() {
+  void beginRename(int i) {
+    if (i < 0 || i >= static_cast<int>(cues_.size())) return;
+    endHostEdit();
+    renameIndex_ = i;
+    renameText_ = cues_[static_cast<std::size_t>(i)].name;
+    SDL_StartTextInput(window_);
+  }
+
+  void endRename(bool keep) {
+    if (renameIndex_ < 0) return;
+    std::string name = renameText_;
+    while (!name.empty() && name.back() == ' ') name.pop_back();
+    if (keep && !name.empty() && renameIndex_ < static_cast<int>(cues_.size())) {
+      cues_[static_cast<std::size_t>(renameIndex_)].name = name;
+      cueEdited(renameIndex_, false);
+    }
+    renameIndex_ = -1;
+    SDL_StopTextInput(window_);
+  }
+
+  // While typing, the text sits over the picture: the keyboard covers the lower half.
+  void drawTextEditor(const char* title, const std::string& value, const char* hint) {
     const float u = unit_;
     const SDL_FRect box {program_.x, program_.y, program_.w, 16 * u};
     fillRound(renderer_, kBezel, box, 3 * u);
-    text_.draw(pixelSmall_, "DESK ADDRESS", Ink {170, 170, 180}, {box.x + 3 * u, box.y + 1.5f * u, box.w - 6 * u, 3.2f * u});
+    text_.draw(pixelSmall_, title, Ink {170, 170, 180}, {box.x + 3 * u, box.y + 1.5f * u, box.w - 6 * u, 3.2f * u});
     const SDL_FRect field {box.x + 2.5f * u, box.y + 5.5f * u, box.w - 5 * u, 6 * u};
     fillRect(renderer_, kLight, field);
     const bool caret = (SDL_GetTicks() / 500) % 2 == 0;
-    text_.draw(mono_, followHost_ + (caret ? "_" : " "), kDeep, {field.x + u, field.y, field.w - 2 * u, field.h});
-    text_.draw(pixelSmall_, "ENTER TO FOLLOW", Ink {170, 170, 180}, {box.x + 3 * u, box.y + 12.3f * u, box.w - 6 * u, 3.2f * u});
+    text_.draw(mono_, value + (caret ? "_" : " "), kDeep, {field.x + u, field.y, field.w - 2 * u, field.h});
+    text_.draw(pixelSmall_, hint, Ink {170, 170, 180}, {box.x + 3 * u, box.y + 12.3f * u, box.w - 6 * u, 3.2f * u});
   }
 
   // -- Direction: reversed and bounced copies, made in the background --
@@ -2787,12 +3002,32 @@ class Pocket {
         return;
       }
     }
-    for (auto it = hits_.rbegin(); it != hits_.rend(); ++it) {
-      if (inside(it->rect, x, y)) {
-        auto fn = it->fn;   // the handler may rebuild hits_
+    // A finger is not a mouse: every button answers across at least Android's
+    // 48 dp touch target (about 9 mm), even where it is drawn smaller. A touch
+    // inside a button is that button; a touch near several goes to the
+    // nearest one, so growing the targets never makes a neighbour unreachable.
+    {
+      auto fire = [this](std::size_t k) {
+        auto fn = hits_[k].fn;   // the handler may rebuild hits_
+        buzz("tap");
         fn();
-        return;
+      };
+      for (std::size_t k = hits_.size(); k-- > 0;) {
+        if (inside(hits_[k].rect, x, y)) { fire(k); return; }
       }
+      const float minPx = 48.0f * std::max(1.0f, SDL_GetWindowDisplayScale(window_));
+      std::size_t best = hits_.size();
+      float bestD = 1e9f;
+      for (std::size_t k = 0; k < hits_.size(); ++k) {
+        const SDL_FRect& b = hits_[k].rect;
+        const float gw = std::max(0.0f, (minPx - b.w) / 2), gh = std::max(0.0f, (minPx - b.h) / 2);
+        if (!inside({b.x - gw, b.y - gh, b.w + 2 * gw, b.h + 2 * gh}, x, y)) continue;
+        const float dx = std::max({b.x - x, 0.0f, x - (b.x + b.w)});
+        const float dy = std::max({b.y - y, 0.0f, y - (b.y + b.h)});
+        const float d = dx * dx + dy * dy;
+        if (d < bestD) { bestD = d; best = k; }
+      }
+      if (best < hits_.size()) { fire(best); return; }
     }
     if (sheet_ >= 0) return;
     if (active_ >= 0 && cueHasTimeline(cues_[static_cast<std::size_t>(active_)]) && inside(grow(scrub_, unit_), x, y)) {
@@ -2919,8 +3154,10 @@ class Pocket {
     auto secs = [](double v) { char b[16]; std::snprintf(b, sizeof b, "%.1f s", v); return std::string(b); };
     stepper("FADE IN", secs(c.fadeInSeconds), [this] { bump(&Cue::fadeInSeconds, -0.5); }, [this] { bump(&Cue::fadeInSeconds, 0.5); });
     stepper("FADE OUT", secs(c.fadeOutSeconds), [this] { bump(&Cue::fadeOutSeconds, -0.5); }, [this] { bump(&Cue::fadeOutSeconds, 0.5); });
-    stepper("CROSSFADE", c.cueTransitionSeconds < 0 ? "0.5 s (usual)" : secs(c.cueTransitionSeconds),
+    stepper("TRANSITION", c.cueTransitionSeconds < 0 ? secs(listGlide()) + " (list)" : secs(c.cueTransitionSeconds),
             [this] { bumpTransition(-0.5); }, [this] { bumpTransition(0.5); });
+    stepper("STYLE", c.cueTransitionStyle.empty() ? styleName(listStyle_) + " (list)" : styleName(cueStyle(c)),
+            [this] { stepCueStyle(-1); }, [this] { stepCueStyle(1); });
 
     // HOLD / LOOP / NEXT
     text_.draw(pixelSmall_, "AT THE END", kDark, {lx, y, 22 * u, 4.5f * u});
@@ -2969,8 +3206,15 @@ class Pocket {
       volumeBar_ = {};
     }
 
-    // DUPLICATE, UP, DOWN, DELETE
-    y = std::max(y + u, lcd.y + lcd.h - 6 * u);
+    // PLAY NEXT, RENAME, then DUPLICATE, UP, DOWN, DELETE
+    y = std::max(y + u, lcd.y + lcd.h - 12 * u);
+    {
+      const float hw = (lw - u) / 2;
+      const int qp = queuePlace(c);
+      button({lx, y, hw, 5 * u}, qp ? "QUEUED " + std::to_string(qp) : std::string("PLAY NEXT"), [this] { toggleQueued(sheet_); }, true, qp > 0);
+      button({lx + hw + u, y, hw, 5 * u}, "RENAME", [this] { beginRename(sheet_); });
+      y += 6 * u;
+    }
     const float qw = (lw - 3 * u) / 4;
     button({lx, y, qw, 5 * u}, "COPY", [this] { duplicateSheetCue(); });
     button({lx + qw + u, y, qw, 5 * u}, "UP", [this] { moveSheetCue(-1); }, sheet_ > 0);
@@ -2992,6 +3236,12 @@ class Pocket {
     Cue& c = cues_[static_cast<std::size_t>(sheet_)];
     c.*field = std::clamp(c.*field + by, 0.0, 30.0);
     cueEdited(sheet_, false);
+  }
+
+  void stepCueStyle(int by) {
+    if (sheet_ < 0) return;
+    Cue& c = cues_[static_cast<std::size_t>(sheet_)];
+    c.cueTransitionStyle = deckboy::core::utils::transitionStyleToken(stepStyle(cueStyle(c), by));
   }
 
   void bumpTransition(double by) {
@@ -3073,14 +3323,22 @@ class Pocket {
   void select(int i) {
     if (cues_.empty()) return;
     selected_ = std::clamp(i, 0, static_cast<int>(cues_.size()) - 1);
+    listEnded_ = false;
   }
 
-  // GO takes the selected cue and moves the selection on, as the desk does.
+  // GO takes the selected cue and moves the selection on (advanceFrom: the
+  // queue, the shuffle, the next cue, the loop), as the desk does.
   void go() {
     if (followLocked()) return;
     if (cues_.empty()) return;
+    if (listEnded_ && selected_ == active_) {
+      notice_ = "End of the list. LOOP LIST in MENU > LIST plays it again.";
+      noticeUntil_ = SDL_GetTicks() + 2500;
+      buzz("end");
+      return;
+    }
     take(selected_);
-    select(selected_ + 1);
+    advanceFrom(active_);
   }
 
   void back() {
@@ -3095,9 +3353,127 @@ class Pocket {
     if (i < 0 || i >= static_cast<int>(cues_.size())) return;
     active_ = i;
     black_ = false;
+    endHandled_ = false;
     const Cue& c = cues_[static_cast<std::size_t>(i)];
-    const double fade = c.cueTransitionSeconds >= 0 ? c.cueTransitionSeconds : 0.5;
-    engine_->loadCue(&c, true, fade, fade > 0 ? TransitionStyle::Crossfade : TransitionStyle::Cut);
+    const double fade = c.cueTransitionSeconds >= 0 ? c.cueTransitionSeconds : listGlide();
+    const TransitionStyle style = cueStyle(c);
+    engine_->loadCue(&c, true, style == TransitionStyle::Cut ? 0.0 : fade, fade > 0 ? style : TransitionStyle::Cut);
+  }
+
+  // -- Playing the list: shuffle, loop, stop after this, play next --
+  //
+  // Every mode answers one question -- what is selected after a take -- so
+  // the list always shows what GO (and a NEXT cue's end) takes, and the two
+  // cannot disagree. The order: anything queued with PLAY NEXT, then the
+  // shuffle (every cue once before any repeats), then simply the next cue;
+  // at the end of the list LOOP starts it again, or the list stops there.
+
+  double listGlide() const { return glideSeconds_ >= 0 ? glideSeconds_ : 0.5; }
+
+  // The styles Pocket's own drawing has (engine: drawTransitionOverlay and
+  // drawGeometricTransition). Portal, Shatter, Clouds and Ghastly are drawn by
+  // the desk's output compositor; here they play as a crossfade for now.
+  static constexpr TransitionStyle kPocketStyles[] = {
+      TransitionStyle::Crossfade, TransitionStyle::Cut, TransitionStyle::DipBlack, TransitionStyle::DipWhite,
+      TransitionStyle::PushLeft, TransitionStyle::PushRight, TransitionStyle::PushUp, TransitionStyle::PushDown,
+      TransitionStyle::WipeLeft, TransitionStyle::WipeRight, TransitionStyle::WipeUp, TransitionStyle::WipeDown,
+      TransitionStyle::Iris};
+
+  static TransitionStyle drawableStyle(TransitionStyle s) {
+    for (TransitionStyle k : kPocketStyles) if (k == s) return s;
+    return TransitionStyle::Crossfade;
+  }
+
+  TransitionStyle cueStyle(const Cue& c) const {
+    if (c.cueTransitionStyle.empty()) return listStyle_;
+    return drawableStyle(deckboy::core::utils::parseTransitionStyleToken(c.cueTransitionStyle));
+  }
+
+  static TransitionStyle stepStyle(TransitionStyle now, int by) {
+    constexpr int n = static_cast<int>(sizeof(kPocketStyles) / sizeof(kPocketStyles[0]));
+    int i = 0;
+    for (int k = 0; k < n; ++k) if (kPocketStyles[k] == now) i = k;
+    return kPocketStyles[((i + by) % n + n) % n];
+  }
+
+  static std::string styleName(TransitionStyle s) { return deckboy::core::utils::transitionStyleLabel(s); }
+
+  int indexOfCue(const std::string& id) const {
+    for (std::size_t k = 0; k < cues_.size(); ++k) if (cues_[k].id == id) return static_cast<int>(k);
+    return -1;
+  }
+
+  void refillShuffle(int except) {
+    shuffleBag_.clear();
+    for (std::size_t k = 0; k < cues_.size(); ++k) {
+      if (static_cast<int>(k) != except) shuffleBag_.push_back(cues_[k].id);
+    }
+  }
+
+  void advanceFrom(int took) {
+    listEnded_ = false;
+    if (took >= 0 && took < static_cast<int>(cues_.size())) {   // just played: out of this round's draw
+      const std::string& id = cues_[static_cast<std::size_t>(took)].id;
+      shuffleBag_.erase(std::remove(shuffleBag_.begin(), shuffleBag_.end(), id), shuffleBag_.end());
+    }
+    const int n = static_cast<int>(cues_.size());
+    while (!queueIds_.empty()) {
+      const int q = indexOfCue(queueIds_.front());
+      queueIds_.erase(queueIds_.begin());
+      if (q >= 0) { selected_ = q; return; }
+    }
+    if (shuffle_) {
+      for (;;) {
+        if (shuffleBag_.empty() && loopList_) refillShuffle(took);
+        if (shuffleBag_.empty()) break;
+        const std::size_t k = static_cast<std::size_t>(SDL_rand(static_cast<Sint32>(shuffleBag_.size())));
+        const int pick = indexOfCue(shuffleBag_[k]);
+        shuffleBag_.erase(shuffleBag_.begin() + static_cast<std::ptrdiff_t>(k));
+        if (pick >= 0) { selected_ = pick; return; }
+      }
+    } else if (took + 1 < n) {
+      selected_ = took + 1;
+      return;
+    } else if (loopList_ && n > 0) {
+      selected_ = 0;
+      return;
+    }
+    selected_ = std::clamp(took, 0, std::max(0, n - 1));
+    listEnded_ = true;
+  }
+
+  void setShuffle(bool on) {
+    shuffle_ = on;
+    if (on) refillShuffle(-1); else shuffleBag_.clear();   // a new round: every cue in the draw
+    notice_ = on ? "Shuffle: every cue once before any repeats" : "Shuffle off";
+    noticeUntil_ = SDL_GetTicks() + 2000;
+    if (on) buzz("spin");
+  }
+
+  void toggleQueued(int i) {
+    if (i < 0 || i >= static_cast<int>(cues_.size())) return;
+    const std::string& id = cues_[static_cast<std::size_t>(i)].id;
+    auto at = std::find(queueIds_.begin(), queueIds_.end(), id);
+    if (at != queueIds_.end()) queueIds_.erase(at);
+    else queueIds_.push_back(id);
+  }
+
+  int queuePlace(const Cue& c) const {
+    auto at = std::find(queueIds_.begin(), queueIds_.end(), c.id);
+    return at == queueIds_.end() ? 0 : static_cast<int>(at - queueIds_.begin()) + 1;
+  }
+
+  void setMuted(bool on) {
+    muted_ = on;
+    engine_->setVolume(on ? 0.0f : static_cast<float>(volume_) / 100.0f);
+  }
+
+  // Seconds forwards or back in the cue on air, inside its IN and OUT.
+  void skipBy(double seconds) {
+    if (active_ < 0) return;
+    const Cue& c = cues_[static_cast<std::size_t>(active_)];
+    if (!cueHasTimeline(c)) return;
+    engine_->seek(std::clamp(engine_->position() + seconds, cueIn(c), cueOut(c) - cueFrame(c)));
   }
 
   SDL_Window* window_ = nullptr;
@@ -3129,7 +3505,7 @@ class Pocket {
   Uint64 holdStart_ = 0;
   int sheet_ = -1;
   bool menuOpen_ = false;
-  int menuTab_ = 0;   // ADD, OUTPUT, SYNC, SKIN
+  int menuTab_ = 0;   // ADD, OUTPUT, LIST, SYNC, SKIN
   bool phoneFull_ = false;
   bool testPattern_ = false;
   Uint64 identifyUntil_ = 0;
@@ -3161,6 +3537,13 @@ class Pocket {
   bool hostEditing_ = false;
   std::string snapPath_;
   bool haptics_ = true;
+  int renameIndex_ = -1;
+  std::string renameText_;
+  // playing the list
+  bool shuffle_ = false, loopList_ = false, endAfter_ = false, listEnded_ = false, endHandled_ = false, muted_ = false;
+  std::vector<std::string> queueIds_, shuffleBag_;
+  double glideSeconds_ = -1.0;   // between cues that set none; -1 = 0.5 s
+  TransitionStyle listStyle_ = TransitionStyle::Crossfade;
   // direction copies (one worker)
   std::thread dirThread_;
   std::atomic<bool> dirBusy_ {false}, dirCancel_ {false}, dirFinished_ {false};
