@@ -955,7 +955,8 @@ if(ENABLE_SIPHON OR ENABLE_SPOUT)
 endif()
 
 if(DECKBOY_INPROC_DECODE_ACTIVE)
-  target_sources(deckboy-native PRIVATE native/engine/libav_decoder.cpp native/engine/direction_remux.cpp)
+  target_sources(deckboy-native PRIVATE native/engine/libav_decoder.cpp native/engine/direction_remux.cpp
+                 native/engine/direction_inproc.cpp)
   target_include_directories(deckboy-native PRIVATE ${DECKBOY_AVCODEC_INCLUDE_DIR})
   target_link_libraries(deckboy-native PRIVATE
     ${DECKBOY_AVCODEC_LIBRARY}

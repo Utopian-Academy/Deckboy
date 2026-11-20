@@ -31,6 +31,8 @@
 #if defined(DECKBOY_INPROC_DECODE)
 #include "engine/libav_decoder.hpp"   // the rendered shells' JPEGs
 #endif
+#include "engine/direction_inproc.hpp"
+#include "core/cue_helpers.hpp"
 #include "platform/network.hpp"
 using namespace deckboy::platform;   // the remote port (sockets)
 
@@ -50,6 +52,7 @@ using namespace deckboy::platform;   // the remote port (sockets)
 #include <cctype>
 #include <cerrno>
 #include <mutex>
+#include <thread>
 #include <sstream>
 #include <iomanip>
 #ifndef _WIN32
@@ -811,6 +814,8 @@ class Pocket {
   }
 
   void shutdown() {
+    dirCancel_ = true;
+    if (dirThread_.joinable()) dirThread_.join();
     dropFollowSocket();
     if (shellTex_) SDL_DestroyTexture(shellTex_);
     for (RemoteClient& c : clients_) closeSocket(c.socket);
@@ -887,6 +892,7 @@ class Pocket {
     takePicks();
     pollRemote();
     pollFollow();
+    serviceDirection();
     if (follow_ != loggedFollow_) {
       SDL_Log("pocket: sync %s -> %s %s", followHeadline(loggedFollow_).c_str(), followHeadline(follow_).c_str(),
               followError_.c_str());
@@ -1700,6 +1706,21 @@ class Pocket {
     }
     if (verb == "STATUS" || verb == "STATE") return remoteStatus();
     if (verb == "DECK") return rest.empty() || rest == "1" ? ok() : err("Pocket has one deck");
+    if (verb == "DIRECTION") {   // DIRECTION <cue> FORWARD|REVERSE|BOUNCE (the desk's verb)
+      std::istringstream args(rest);
+      int n = 0;
+      std::string d;
+      args >> n >> d;
+      for (char& ch : d) ch = static_cast<char>(std::toupper(static_cast<unsigned char>(ch)));
+      if (n < 1 || n > count) return err("DIRECTION <cue> FORWARD|REVERSE|BOUNCE");
+      const int k = d == "FORWARD" ? 0 : d == "REVERSE" ? 1 : d == "BOUNCE" ? 2 : -1;
+      if (k < 0) return err("FORWARD, REVERSE or BOUNCE");
+      Cue& c = cues_[static_cast<std::size_t>(n - 1)];
+      if (k != 0 && !cueDirectionApplies(c)) return err("only a video cue plays backwards");
+      c.playDirection = k;
+      cueEdited(n - 1, false);
+      return ok();
+    }
     if (verb == "SHELL") {   // a rendered shell by its slug, or FLAT
       std::string want = rest;
       for (char& ch : want) ch = static_cast<char>(std::tolower(static_cast<unsigned char>(ch)));
@@ -2331,6 +2352,124 @@ class Pocket {
     text_.draw(pixelSmall_, "ENTER TO FOLLOW", Ink {170, 170, 180}, {box.x + 3 * u, box.y + 12.3f * u, box.w - 6 * u, 3.2f * u});
   }
 
+  // -- Direction: reversed and bounced copies, made in the background --
+  //
+  // engine/direction_inproc.cpp makes them with libav (Pocket has no ffmpeg
+  // program): the range decoded once, every frame a JPEG, written last-first.
+  // One copy at a time; a cue starts its copy once its direction and trim
+  // have held still for 1.5 s (dragging a trim would otherwise start a dozen).
+  // Until the copy lands, the cue plays forwards, as the desk's does.
+
+  struct DirectionJob { std::string cueId, source, dest, key; double in = 0, out = 0; bool bounce = false; };
+
+  std::string directionFile(const Cue& c, const std::string& key) const {
+    const char* state = SDL_getenv("DECKBOY_STATE_DIR");
+    std::size_t h = std::hash<std::string> {}(c.path + "#" + key);
+    char name[64];
+    std::snprintf(name, sizeof name, "/direction/%016llx.mov", static_cast<unsigned long long>(h));
+    return std::string(state ? state : ".") + name;
+  }
+
+  bool directionReady(const Cue& c) const {
+    if (!cueDirectionCopyFits(c)) return false;
+    SDL_PathInfo info;
+    return SDL_GetPathInfo(c.directionPath.c_str(), &info) && info.size > 0;
+  }
+
+  std::string directionStatus(const Cue& c) const {
+    if (directionReady(c)) return c.playDirection == kCueBounce ? "Bounces, copy ready" : "Reversed, copy ready";
+    if (dirBusy_.load() && dirJob_.cueId == c.id && dirJob_.key == cueDirectionKey(c)) {
+      char b[64];
+      std::snprintf(b, sizeof b, "Making the copy... %d%%", static_cast<int>(dirProgress_.load() * 100));
+      return b;
+    }
+    if (!dirFailed_.empty() && dirFailedKey_ == c.id + "|" + cueDirectionKey(c)) return "No copy: " + dirFailed_;
+    return "Plays forwards until the copy is made";
+  }
+
+  void serviceDirection() {
+    // A finished job: give the cue its copy if it still wants that one.
+    if (dirFinished_.load()) {
+      if (dirThread_.joinable()) dirThread_.join();
+      dirFinished_ = false;
+      dirBusy_ = false;
+      for (std::size_t i = 0; i < cues_.size(); ++i) {
+        Cue& c = cues_[i];
+        if (c.id != dirJob_.cueId) continue;
+        if (dirResult_ == deckboy::engine::RemuxResult::Done && cueDirectionKey(c) == dirJob_.key) {
+          c.directionPath = dirJob_.dest;
+          c.directionKey = dirJob_.key;
+          c.directionSeconds = dirMade_.seconds;
+          notice_ = (c.playDirection == kCueBounce ? "Bounce ready: " : "Reverse ready: ") + c.name;
+          noticeUntil_ = SDL_GetTicks() + 2500;
+          // On air: start the copy now, from its beginning, with a short mix.
+          if (static_cast<int>(i) == active_) engine_->loadCue(&c, engine_->state() == TransportState::Playing, 0.2,
+                                                                TransitionStyle::Crossfade);
+        } else if (dirResult_ != deckboy::engine::RemuxResult::Done && dirResult_ != deckboy::engine::RemuxResult::Cancelled) {
+          dirFailed_ = dirWhy_;
+          dirFailedKey_ = c.id + "|" + dirJob_.key;
+          SDL_Log("pocket: direction copy failed for %s: %s", c.name.c_str(), dirWhy_.c_str());
+        }
+      }
+    }
+    if (dirBusy_.load()) {
+      // A copy nobody wants any more (direction or trim changed): stop it.
+      bool wanted = false;
+      for (const Cue& c : cues_) wanted |= c.id == dirJob_.cueId && cueDirectionKey(c) == dirJob_.key && c.playDirection != kCueForward;
+      if (!wanted) dirCancel_ = true;
+      return;
+    }
+    // The next cue that needs a copy, once it has held still.
+    const Uint64 now = SDL_GetTicks();
+    for (const Cue& c : cues_) {
+      if (c.playDirection == kCueForward || !cueDirectionApplies(c) || directionReady(c)) continue;
+      const std::string want = c.id + "|" + cueDirectionKey(c);
+      if (want == dirFailedKey_) continue;   // failed once: not again until it changes
+      if (want != dirWaitKey_) { dirWaitKey_ = want; dirWaitSince_ = now; return; }
+      if (now - dirWaitSince_ < 1500) return;
+      DirectionJob job;
+      job.cueId = c.id;
+      job.source = c.path;
+      job.key = cueDirectionKey(c);
+      job.dest = directionFile(c, job.key);
+      job.in = cueDirectionIn(c);
+      job.out = cueDirectionOut(c);
+      job.bounce = c.playDirection == kCueBounce;
+      SDL_CreateDirectory(job.dest.substr(0, job.dest.find_last_of('/')).c_str());
+      dirJob_ = job;
+      dirProgress_ = 0.0;
+      dirCancel_ = false;
+      dirBusy_ = true;
+      dirThread_ = std::thread([this, job] {
+        std::string why;
+        deckboy::engine::DirectionCopy made;
+        const auto result = deckboy::engine::bakeDirectionInProcess(job.source, job.dest, job.in, job.out, job.bounce,
+                                                                    1920, &dirProgress_, &dirCancel_, &why, &made);
+        dirResult_ = result;
+        dirWhy_ = why;
+        dirMade_ = made;
+        dirFinished_ = true;
+      });
+      return;
+    }
+  }
+
+  static std::string speedLabel(double s) {
+    char b[24];
+    std::snprintf(b, sizeof b, "%.2gx", s);
+    return std::fabs(s - 1.0) < 1e-6 ? std::string("1x (normal)") : std::string(b);
+  }
+
+  void stepSpeed(int by) {
+    if (sheet_ < 0) return;
+    static const double kSteps[] = {0.25, 0.5, 0.75, 1.0, 1.25, 1.5, 2.0, 3.0, 4.0};
+    Cue& c = cues_[static_cast<std::size_t>(sheet_)];
+    int i = 3;
+    for (int k = 0; k < 9; ++k) if (std::fabs(kSteps[k] - c.playbackSpeed) < 1e-6) i = k;
+    c.playbackSpeed = kSteps[std::clamp(i + by, 0, 8)];
+    if (sheet_ == active_) engine_->refreshActiveCueRuntime(&c);
+  }
+
   // -- Rendered shells (pocket-skins/devices.py, TALL family) --
   //
   // A shell is a photograph of the device straight down, rendered in Blender
@@ -2759,6 +2898,24 @@ class Pocket {
     }
     y += 5.5f * u;
 
+    // PLAYS: forward, reverse, bounce (there and back). A clip decodes only
+    // forwards, so the other two play a copy made once in the background.
+    if (cueDirectionApplies(c)) {
+      text_.draw(pixelSmall_, "PLAYS", kDark, {lx, y, 22 * u, 4.5f * u});
+      const char* dirs[] = {"FORWARD", "REVERSE", "BOUNCE"};
+      for (int k = 0; k < 3; ++k) {
+        button({lx + 23 * u + static_cast<float>(k) * sw, y, sw - 0.5f * u, 4.5f * u}, dirs[k],
+               [this, k] { Cue& cc = cues_[static_cast<std::size_t>(sheet_)]; cc.playDirection = k; cueEdited(sheet_, false); },
+               true, c.playDirection == k);
+      }
+      y += 5.5f * u;
+      if (c.playDirection != kCueForward) {
+        text_.draw(mono_, directionStatus(c), kDeep, {lx + 23 * u, y - 0.5f * u, lw - 23 * u, 4 * u});
+        y += 4.5f * u;
+      }
+      stepper("SPEED", speedLabel(c.playbackSpeed), [this] { stepSpeed(-1); }, [this] { stepSpeed(1); });
+    }
+
     // VOLUME: -40 dB to +6 dB
     if (c.hasAudio || c.kind == CueKind::Audio) {
       text_.draw(pixelSmall_, "VOLUME", kDark, {lx, y, 22 * u, 4.5f * u});
@@ -2966,6 +3123,15 @@ class Pocket {
   bool seekLanding_ = false;
   bool hostEditing_ = false;
   std::string snapPath_;
+  // direction copies (one worker)
+  std::thread dirThread_;
+  std::atomic<bool> dirBusy_ {false}, dirCancel_ {false}, dirFinished_ {false};
+  std::atomic<double> dirProgress_ {0.0};
+  DirectionJob dirJob_;
+  deckboy::engine::RemuxResult dirResult_ = deckboy::engine::RemuxResult::Failed;
+  deckboy::engine::DirectionCopy dirMade_;
+  std::string dirWhy_, dirFailed_, dirFailedKey_, dirWaitKey_;
+  Uint64 dirWaitSince_ = 0;
   // rendered shells
   std::vector<ShellInfo> shells_;
   std::string shell_;
