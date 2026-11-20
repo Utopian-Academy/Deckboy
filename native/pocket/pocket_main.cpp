@@ -26,6 +26,7 @@
 #include "core/media_probe.hpp"
 #include "core/pattern_helpers.hpp"
 #include "core/show_file.hpp"
+#include "core/lava_lamp.hpp"
 #include "deckboy_version.hpp"
 #include "core/types.hpp"
 #include "core/utils.hpp"
@@ -711,6 +712,7 @@ class Pocket {
       cue.id = "pocket-" + std::to_string(++nextId_);   // the queue, the shuffle and SYNC find cues by id
       cues_.push_back(cue);
     }
+    deckboy::lava::registerGenerator();   // hidden until found, as on the desk
     if (!demoList) restoreList();
     loadThemes();
     loadFonts();
@@ -1740,6 +1742,10 @@ class Pocket {
     fillRect(r, kLight, lcd);
     const float lx = lcd.x + u, lw = lcd.w - 2 * u;
     y = lcd.y + u;
+    if (calcOpen_) {   // the calculator takes the whole panel while it is open
+      drawCalc(lcd);
+      return;
+    }
     if (menuTab_ < 0) {   // the six tiles
       drawTiles(lcd);
       return;
@@ -1777,6 +1783,7 @@ class Pocket {
       std::vector<std::pair<const char*, const char*>> made(std::begin(kMade), std::end(kMade));
       if (terrariumUnlocked_) made.push_back({"terrarium", "TERRARIUM"});
       if (tabletopUnlocked_) made.push_back({"tabletop", "TABLETOP"});
+      if (lavaFound_) made.push_back({"lava-lamp", "LAVA LAMP"});
       const float bw = (lw - u) / 2;
       for (int i = 0; i < static_cast<int>(made.size()); ++i) {
         const char* type = made[static_cast<std::size_t>(i)].first;
@@ -3633,6 +3640,27 @@ class Pocket {
   }
 
   // MENU > LIST: how the list plays.
+  // JUMP TO CUE: a number picks that cue (what GO takes next).
+  void jumpToCue(int n) {
+    if (n >= 1 && n <= static_cast<int>(cues_.size())) {
+      select(n - 1);
+      menuOpen_ = false;
+      notice_ = "Cue " + std::to_string(n) + ": " + cues_[static_cast<std::size_t>(n - 1)].name;
+      noticeUntil_ = SDL_GetTicks() + 2500;
+      return;
+    }
+    if (n == 420 && !lavaFound_) {
+      lavaFound_ = true;
+      saveUnlocks();
+      notice_ = "Something mellow is in SOURCES";
+      noticeUntil_ = SDL_GetTicks() + 4000;
+      buzz("go");
+      return;
+    }
+    notice_ = "There is no cue " + std::to_string(n);
+    noticeUntil_ = SDL_GetTicks() + 2500;
+  }
+
   void drawListTab(float lx, float lw, float& y) {
     const float u = unit_;
     auto heading = [&](const char* t) {
@@ -3640,6 +3668,18 @@ class Pocket {
       y += 4.2f * u;
     };
     const float bw = (lw - u) / 2;
+    {
+      NumSpec n;
+      n.label = "JUMP TO CUE";
+      n.live = false;
+      n.min = 1;
+      n.max = 9999;
+      n.step = 1;
+      n.get = [this] { return static_cast<double>(selected_ + 1); };
+      n.set = [this](double v) { jumpToCue(static_cast<int>(std::lround(v))); };
+      button({lx, y, lw, 6 * u}, "JUMP TO CUE...", [this, n] { openCalc(n); });
+      y += 7.5f * u;
+    }
     heading("PLAYING THE LIST");
     button({lx, y, bw, 5 * u}, shuffle_ ? "SHUFFLE ON" : "SHUFFLE", [this] { setShuffle(!shuffle_); }, true, shuffle_);
     button({lx + bw + u, y, bw, 5 * u}, loopList_ ? "LOOP LIST ON" : "LOOP LIST", [this] {
@@ -4254,7 +4294,7 @@ class Pocket {
 
   void saveUnlocks() {
     const char* state = SDL_getenv("DECKBOY_STATE_DIR");
-    const std::string text = std::string("terrarium\t") + (terrariumUnlocked_ ? "1" : "0") + "\ntabletop\t" + (tabletopUnlocked_ ? "1" : "0") + "\n";
+    const std::string text = std::string("terrarium\t") + (terrariumUnlocked_ ? "1" : "0") + "\ntabletop\t" + (tabletopUnlocked_ ? "1" : "0") + "\nlava\t" + (lavaFound_ ? "1" : "0") + "\n";
     SDL_SaveFile((std::string(state ? state : ".") + "/pocket_unlocks.txt").c_str(), text.data(), text.size());
   }
 
@@ -4267,6 +4307,7 @@ class Pocket {
     SDL_free(saved);
     terrariumUnlocked_ = text.find("terrarium\t1") != std::string::npos;
     tabletopUnlocked_ = text.find("tabletop\t1") != std::string::npos;
+    lavaFound_ = text.find("lava\t1") != std::string::npos;
   }
 
   // The left pill (SELECT on a handheld): BLACK unless you choose otherwise.
@@ -4582,6 +4623,7 @@ class Pocket {
     double percentOf = 0;   // what "25%" means when typed (0: a plain hundredth)
     int lfoSlot = -1;       // a Cue::geometryLfo slot: the row gets a ~ chip
     std::string zeroText;   // what 0 says, when 0 means something ("until GO")
+    bool live = true;       // the calculator applies each key as typed; false: only OK does (an action, not a value)
     std::function<double()> get;
     std::function<void(double)> set;
     std::vector<std::pair<std::string, double>> presets;
@@ -5187,6 +5229,7 @@ class Pocket {
     } else if (calcExpr_.size() < 40) {
       calcExpr_ += key == "x" ? std::string("*") : key;
     }
+    if (!calcSpec_.live) return;
     if (const auto v = calcValue()) setNum(calcSpec_, *v);   // the picture follows
   }
 
@@ -5236,7 +5279,7 @@ class Pocket {
     }
     const float tw = (lw - 2 * gap) / 3;
     button({lx, y, tw, kh}, "RESET", [this] { setNum(calcSpec_, calcSpec_.reset); calcOpen_ = false; });
-    button({lx + tw + gap, y, tw, kh}, "CANCEL", [this] { calcSpec_.set(calcBefore_); calcOpen_ = false; });
+    button({lx + tw + gap, y, tw, kh}, "CANCEL", [this] { if (calcSpec_.live) calcSpec_.set(calcBefore_); calcOpen_ = false; });
     button({lx + 2 * (tw + gap), y, tw, kh}, "OK", [this] {
       if (const auto val = calcValue()) setNum(calcSpec_, *val);
       calcOpen_ = false;
@@ -5856,7 +5899,7 @@ class Pocket {
   Pill pill_ = Pill::Black;
   int codeIndex_ = 0;
   Uint64 codeLastMs_ = 0;
-  bool terrariumUnlocked_ = false, tabletopUnlocked_ = false;
+  bool terrariumUnlocked_ = false, tabletopUnlocked_ = false, lavaFound_ = false;
   std::vector<Pressed> code2Seen_;
   Uint64 code2LastMs_ = 0;
   // ghost controls over full screen
