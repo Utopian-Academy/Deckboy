@@ -230,12 +230,20 @@ class MediaEngine {
   // A last step on a CPU frame's pixels before they are uploaded. Mini and
   // Pocket run the cue's effect stack here (the desk runs it in its output
   // compositor instead). The pixels are a copy; the frame stays as decoded.
-  using PixelHook = std::function<void(std::vector<std::uint8_t>& rgba, int width, int height, std::uint64_t frameIndex)>;
+  // The hook may make the picture smaller (width and height are in/out): the
+  // smaller picture is what is uploaded, and draws in the same place, so
+  // effects can run at the size the picture is drawn (as the desk's
+  // layerFxShrinkFor does).
+  using PixelHook = std::function<void(std::vector<std::uint8_t>& rgba, int& width, int& height, std::uint64_t frameIndex)>;
   void setPixelHook(PixelHook hook) { pixelHook_ = std::move(hook); }
   // Runs the hook again on the frame on screen: an effect that moves on a
   // still, or a frame between a video's frames. Skipped when a frame was
   // uploaded within the last few milliseconds.
   void refreshPixelHook();
+  // A frame made elsewhere, look and all (Pocket builds animated generators
+  // on a worker thread): shown as it is, without the pixel hook. Swaps
+  // buffers, so `frame` comes back holding the previous one for reuse.
+  void showBuiltFrame(DecodedFrame& frame);
   // Whether a cue's look needs RGBA frames rather than the NV12 fast path.
   bool cueDecodesAsRgba(const Cue& cue) const;
 
@@ -1143,6 +1151,7 @@ class MediaEngine {
   void uploadFrame(const DecodedFrame& frame);             // push decoded frame pixels to GPU texture
   PixelHook pixelHook_;
   Uint64 pixelHookRanAt_ = 0;
+  bool skipPixelHook_ = false;   // showBuiltFrame: the look is already on it
   void stopImageThread();                                  // join and clean up the still-image decode thread
   std::pair<int, int> currentOutputSizeHint() const;       // get output dimensions for ffmpeg -s flag
   std::string mediaPathForCue(const Cue& cue) const;       // resolve cue path (may use CuePathResolver callback)

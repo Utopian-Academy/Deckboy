@@ -6826,6 +6826,16 @@ void MediaEngine::showImportedFrame(const DecodedFrame& frame) {
 // active, pixels are copied into keyedPixelsScratch_ and mutated there so
 // the source frame stays intact for re-processing on parameter changes.
 // ---------------------------------------------------------------------------
+void MediaEngine::showBuiltFrame(DecodedFrame& frame) {
+  if (frame.pixels.empty() || frame.width <= 0 || frame.height <= 0) return;
+  if (!displayFrame_) displayFrame_.emplace();
+  std::swap(*displayFrame_, frame);
+  displayFrame_->index = ++displayFrameSerial_;
+  skipPixelHook_ = true;
+  uploadFrame(*displayFrame_);
+  skipPixelHook_ = false;
+}
+
 void MediaEngine::refreshPixelHook() {
   if (!pixelHook_ || !displayFrame_ || displayFrame_->pixels.empty() || displayFrame_->isGpu() ||
       displayFrame_->format != FramePixelFormat::RGBA32) {
@@ -6853,8 +6863,27 @@ void MediaEngine::uploadFrame(const DecodedFrame& frame) {
   if (frame.width <= 0 || frame.height <= 0 || frame.pixels.empty()) {
     return;
   }
+  // The pixel hook (Mini, Pocket): the grade, then the hook, on a copy; it
+  // may hand back a smaller picture, which is the size uploaded.
+  int upW = frame.width, upH = frame.height;
+  bool hooked = false;
+  if (pixelHook_ && !skipPixelHook_ && frame.format == FramePixelFormat::RGBA32) {
+    keyedPixelsScratch_.assign(frame.pixels.begin(), frame.pixels.end());
+    if (chromaKeyEnabled_ || colorControlsActive(brightness_, contrast_, saturation_, hueShift_)) {
+      applyCueVisualEffectsToPixels(keyedPixelsScratch_, chromaKeyEnabled_, chromaKeyColor_, chromaKeyTolerance_,
+                                    chromaKeySoftness_, brightness_, contrast_, saturation_, hueShift_);
+    }
+    pixelHook_(keyedPixelsScratch_, upW, upH, frame.index);
+    if (upW <= 0 || upH <= 0 || keyedPixelsScratch_.size() < static_cast<std::size_t>(upW) * static_cast<std::size_t>(upH) * 4) {
+      upW = frame.width;   // a hook that broke its promise: show the frame as decoded
+      upH = frame.height;
+      keyedPixelsScratch_.assign(frame.pixels.begin(), frame.pixels.end());
+    }
+    hooked = true;
+    pixelHookRanAt_ = SDL_GetTicks();
+  }
   const Uint32 wantFormat = sdlPixelFormat(frame.format);
-  const bool sizeChanged = textureWidth_ != frame.width || textureHeight_ != frame.height;
+  const bool sizeChanged = textureWidth_ != upW || textureHeight_ != upH;
   const bool formatChanged = textureFormat_ != wantFormat ||
                             deckboyTextureColorspace(texture_) != frameColorspace(frame);
   if (!texture_ || sizeChanged || formatChanged) {
@@ -6863,14 +6892,14 @@ void MediaEngine::uploadFrame(const DecodedFrame& frame) {
       outputRenderer_,
       wantFormat,
       SDL_TEXTUREACCESS_STREAMING,
-      frame.width,
-      frame.height, frameColorspace(frame)
+      upW,
+      upH, frameColorspace(frame)
     );
     if (!texture_) {
       return;
     }
-    textureWidth_ = frame.width;
-    textureHeight_ = frame.height;
+    textureWidth_ = upW;
+    textureHeight_ = upH;
     textureFormat_ = wantFormat;
   }
   if (frame.format == FramePixelFormat::NV12 || frame.format == FramePixelFormat::P010) {
@@ -6890,7 +6919,9 @@ void MediaEngine::uploadFrame(const DecodedFrame& frame) {
   // upload — needed because render() may call uploadFrame again when effect
   // parameters change without a new frame arriving.
   const std::uint8_t* uploadPixels = frame.pixels.data();
-  if (chromaKeyEnabled_ || colorControlsActive(brightness_, contrast_, saturation_, hueShift_)) {
+  if (hooked) {
+    uploadPixels = keyedPixelsScratch_.data();
+  } else if (chromaKeyEnabled_ || colorControlsActive(brightness_, contrast_, saturation_, hueShift_)) {
     keyedPixelsScratch_.assign(frame.pixels.begin(), frame.pixels.end());
     applyCueVisualEffectsToPixels(
       keyedPixelsScratch_,
@@ -6904,12 +6935,6 @@ void MediaEngine::uploadFrame(const DecodedFrame& frame) {
       hueShift_);
     uploadPixels = keyedPixelsScratch_.data();
   }
-  if (pixelHook_) {
-    if (uploadPixels != keyedPixelsScratch_.data()) keyedPixelsScratch_.assign(frame.pixels.begin(), frame.pixels.end());
-    pixelHook_(keyedPixelsScratch_, frame.width, frame.height, frame.index);
-    uploadPixels = keyedPixelsScratch_.data();
-    pixelHookRanAt_ = SDL_GetTicks();
-  }
   // LOCK, don't UPDATE. SDL_UpdateTexture on a STREAMING texture makes the
   // backend stage the pixels through a temporary resource, and when updates
   // outpace presents those temporaries pile up: measured on a 4K text-mode
@@ -6922,7 +6947,7 @@ void MediaEngine::uploadFrame(const DecodedFrame& frame) {
   // accumulate. SDL_UpdateTexture stays as the fallback for the case where a
   // lock is refused, which is rare but must not black the picture out.
   const auto uploadStarted = std::chrono::steady_clock::now();
-  writeStreamingTexture(texture_, uploadPixels, frame.width, frame.height);
+  writeStreamingTexture(texture_, uploadPixels, upW, upH);
   countUpload(uploadStarted);
 
   // RETIRE THE UPLOAD.

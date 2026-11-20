@@ -58,6 +58,7 @@ using namespace deckboy::platform;   // the remote port (sockets)
 #include <cerrno>
 #include <mutex>
 #include <thread>
+#include <condition_variable>
 #include <sstream>
 #include <iomanip>
 #ifndef _WIN32
@@ -713,7 +714,6 @@ class Pocket {
       cues_.push_back(cue);
     }
     deckboy::lava::registerGenerator();   // hidden until found, as on the desk
-    engine_->setPixelHook([this](std::vector<std::uint8_t>& px, int w, int h, std::uint64_t index) { runEffects(px, w, h, index); });
     if (!demoList) restoreList();
     loadThemes();
     loadFonts();
@@ -721,6 +721,7 @@ class Pocket {
     loadShells();
     loadDefaults();
     loadUnlocks();
+    loadHelpers();
     {
       size_t n = 0;
       const char* state = SDL_getenv("DECKBOY_STATE_DIR");
@@ -862,6 +863,12 @@ class Pocket {
   }
 
   void shutdown() {
+    {
+      std::lock_guard<std::mutex> hold(genLock_);
+      genQuit_ = true;
+    }
+    genCv_.notify_all();
+    if (genThread_.joinable()) genThread_.join();
     if (stillsThread_.joinable()) stillsThread_.join();
     for (auto& [id, list] : stillsTex_) for (SDL_Texture* t : list) if (t) SDL_DestroyTexture(t);
     dirCancel_ = true;
@@ -998,6 +1005,8 @@ class Pocket {
       const Uint64 nowMs = SDL_GetTicks();
       if (nowMs - fpsSince_ >= 1000) {
         fps_ = static_cast<double>(fpsFrames_) * 1000.0 / static_cast<double>(nowMs - fpsSince_);
+        picFps_ = static_cast<double>(genShown_) * 1000.0 / static_cast<double>(nowMs - fpsSince_);
+        genShown_ = 0;
         fpsFrames_ = 0;
         fpsSince_ = nowMs;
       }
@@ -1041,15 +1050,18 @@ class Pocket {
     // show their first frame and stop.
     if (active_ >= 0) {
       const Cue& c = cues_[static_cast<std::size_t>(active_)];
-      if (c.kind == CueKind::Pattern && patternTypeIsAnimated(c.path) && engine_->hasPictureToShow()) {
+      if (builtOnWorker(c) && engine_->hasPictureToShow()) {
+        serviceGenerator(c);
+      } else if (c.kind == CueKind::Pattern && patternTypeIsAnimated(c.path) && engine_->hasPictureToShow()) {
         engine_->rebuildPatternFrame(c, static_cast<double>(SDL_GetTicks()) / 1000.0);
       } else if (c.kind == CueKind::VideoSynth) {
         engine_->rebuildVideoSynthFrame(c, static_cast<double>(SDL_GetTicks()) / 1000.0, engine_->programAudioLevel01());
       }
     }
+    updatePixelHook();
     if (active_ >= 0 && !black_) {
       const Cue& live = cues_[static_cast<std::size_t>(active_)];
-      if (deckboy::effects::cueEffectStackActive(live.effects) && effectsMove(live.effects)) engine_->refreshPixelHook();
+      if (!builtOnWorker(live) && deckboy::effects::cueEffectStackActive(live.effects) && effectsMove(live.effects)) engine_->refreshPixelHook();
     }
     const Uint64 t1 = SDL_GetPerformanceCounter();
     followEnd();
@@ -1259,6 +1271,7 @@ class Pocket {
       const SDL_FRect fitted = fitProgram(pic);
       SDL_RenderTexture(r, programTex_, nullptr, &fitted);
     }
+    drawHelpers(pic);
     if (editing_) return;   // editing: the picture alone
     // the name and the time on one line, the scrub bar (portrait), the buttons
     float y = pic.y + pic.h + 1.2f * u;
@@ -1653,6 +1666,11 @@ class Pocket {
   // (engine update + pattern rebuild, program draw, output, phone UI), every
   // two seconds in the log. How the 87 ms -O0 frame was found (11-19).
   void traceFrame(Uint64 t0, Uint64 t1, Uint64 t2, Uint64 t3, Uint64 t4) {
+    {   // always: each stage's time, smoothed, for STATUS stages=
+      const double f = 1000.0 / static_cast<double>(SDL_GetPerformanceFrequency());
+      const double now[4] = {(t1 - t0) * f, (t2 - t1) * f, (t3 - t2) * f, (t4 - t3) * f};
+      for (int k = 0; k < 4; ++k) stageMs_[k] = stageMs_[k] * 0.97 + now[k] * 0.03;
+    }
     const char* trace = SDL_getenv("DECKBOY_POCKET_PERF");
     if (!trace || trace[0] != '1') return;
     const double f = 1000.0 / static_cast<double>(SDL_GetPerformanceFrequency());
@@ -1885,6 +1903,15 @@ class Pocket {
     button({lx, y, lw, 5 * u}, haptics_ ? "BUTTONS YOU CAN FEEL: ON" : "BUTTONS YOU CAN FEEL: OFF",
            [this] { setHaptics(!haptics_); }, true, haptics_);
     y += 6.5f * u;
+    heading("ON THE PICTURE (THE PHONE ONLY)");
+    {
+      const float tw = (lw - 2 * u) / 3;
+      button({lx, y, tw, 5 * u}, std::string("CLOCK ") + clockName(clock_),
+             [this] { clock_ = static_cast<ClockMode>((static_cast<int>(clock_) + 1) % 4); saveHelpers(); }, true, clock_ != ClockMode::Off);
+      button({lx + tw + u, y, tw, 5 * u}, "REMAINING", [this] { showRemaining_ = !showRemaining_; saveHelpers(); }, true, showRemaining_);
+      button({lx + 2 * (tw + u), y, tw, 5 * u}, "FPS", [this] { showFps_ = !showFps_; saveHelpers(); }, true, showFps_);
+      y += 6.5f * u;
+    }
     text_.draw(mono_, healthLabel().empty() ? "-" : "Battery " + healthLabel(), kDeep, {lx, y, lw, 4.5f * u});
     y += 5.5f * u;
     button({lx, y, lw, 5 * u}, "ABOUT", [this] { menuTab_ = 6; });
@@ -2956,6 +2983,20 @@ class Pocket {
       }
       return err("SHOW SAVE|OPEN|NEW|PLAYLIST|LIST");
     }
+    if (verb == "HELPERS") {   // HELPERS CLOCK OFF|24|12|ANALOG | HELPERS REMAINING ON|OFF | HELPERS FPS ON|OFF
+      std::istringstream a(rest);
+      std::string what, v;
+      a >> what >> v;
+      for (char& ch : what) ch = static_cast<char>(std::toupper(static_cast<unsigned char>(ch)));
+      for (char& ch : v) ch = static_cast<char>(std::toupper(static_cast<unsigned char>(ch)));
+      if (what == "CLOCK") clock_ = v == "24" ? ClockMode::H24 : v == "12" ? ClockMode::H12 : v == "ANALOG" ? ClockMode::Analog : ClockMode::Off;
+      else if (what == "REMAINING") showRemaining_ = v == "ON";
+      else if (what == "FPS") showFps_ = v == "ON";
+      else return err("HELPERS CLOCK|REMAINING|FPS <setting>");
+      saveHelpers();
+      return ok();
+    }
+    if (verb == "FXSIZE") { fxShrinkOn_ = rest != "FULL"; fxMs_ = 0; return ok(); }   // FXSIZE FULL | DRAWN: for measuring
     if (verb == "FX") {   // FX <cue> ADD <effect token> | FX <cue> CLEAR | FX <cue> LIST
       std::istringstream a(rest);
       int n = 0;
@@ -3196,7 +3237,9 @@ class Pocket {
       << " dur=" << (live && live->duration > 0 ? clock(live->duration) : std::string("--:--"))
       << " shuffle=" << (shuffle_ ? "on" : "off") << " loop=" << (loopList_ ? "on" : "off")
       << " endafter=" << (endAfter_ ? "on" : "off") << " crossfade=" << listGlide() << " queued=" << queueIds_.size()
-      << " muted=" << (muted_ ? "on" : "off") << " fps=" << static_cast<int>(fps_ + 0.5) << "\n";
+      << " muted=" << (muted_ ? "on" : "off") << " fps=" << static_cast<int>(fps_ + 0.5) << " pic_fps=" << static_cast<int>(picFps_ + 0.5) << " fx_ms=" << static_cast<int>(fxMs_ * 10 + 0.5) / 10.0
+      << " stages=" << static_cast<int>(stageMs_[0] * 10 + 0.5) / 10.0 << "/" << static_cast<int>(stageMs_[1] * 10 + 0.5) / 10.0 << "/"
+      << static_cast<int>(stageMs_[2] * 10 + 0.5) / 10.0 << "/" << static_cast<int>(stageMs_[3] * 10 + 0.5) / 10.0 << "\n";
     o << "OUTPUT 1 name=\""<< (outputLabel_.empty() ? "phone" : outputLabel_) << "\" enabled=" << (black_ ? "off" : "on")
       << " raster=" << programW_ << "x" << programH_ << "\n";
     o << "SYNC " << syncStatusFields() << "\n";
@@ -4335,6 +4378,123 @@ class Pocket {
     SDL_SaveFile((std::string(state ? state : ".") + "/pocket_unlocks.txt").c_str(), text.data(), text.size());
   }
 
+  // ── On-screen helpers, over the phone's own picture (never the output) ──
+  //
+  // Eddie's Clock (the desk's name and its four modes: off, 24 hour, 12
+  // hour, analog), the live cue's time remaining, and the frame rate. Set on
+  // MENU > PHONE; kept in state/pocket_helpers.txt.
+
+  enum class ClockMode { Off, H24, H12, Analog };
+
+  static const char* clockName(ClockMode m) {
+    switch (m) {
+      case ClockMode::H24: return "24 HOUR";
+      case ClockMode::H12: return "12 HOUR";
+      case ClockMode::Analog: return "ANALOG";
+      default: return "OFF";
+    }
+  }
+
+  void saveHelpers() {
+    const std::string text = "clock\t" + std::to_string(static_cast<int>(clock_)) + "\nremaining\t" + (showRemaining_ ? "1" : "0") +
+                             "\nfps\t" + (showFps_ ? "1" : "0") + "\n";
+    SDL_SaveFile(statePath("pocket_helpers.txt").c_str(), text.data(), text.size());
+  }
+
+  void loadHelpers() {
+    size_t n = 0;
+    char* saved = static_cast<char*>(SDL_LoadFile(statePath("pocket_helpers.txt").c_str(), &n));
+    if (!saved) return;
+    std::istringstream in(std::string(saved, n));
+    SDL_free(saved);
+    std::string key;
+    int v = 0;
+    while (in >> key >> v) {
+      if (key == "clock") clock_ = static_cast<ClockMode>(std::clamp(v, 0, 3));
+      else if (key == "remaining") showRemaining_ = v != 0;
+      else if (key == "fps") showFps_ = v != 0;
+    }
+  }
+
+  // A dark rounded chip with words on it, so they read over any picture.
+  void helperChip(float x, float y, const std::string& text, TTF_Font* font, Ink ink, bool alignRight) {
+    const float u = unit_;
+    int tw = 0, th = 0;
+    TTF_GetStringSize(font, text.c_str(), 0, &tw, &th);
+    const float w = static_cast<float>(tw) + 2 * u, h = static_cast<float>(th) + 0.8f * u;
+    const SDL_FRect box {alignRight ? x - w : x, y, w, h};
+    fillRoundAlpha(renderer_, kBlack, 0.55f, box, 1.2f * u);
+    text_.draw(font, text, ink, box, true);
+  }
+
+  void drawHelpers(const SDL_FRect& pic) {
+    const float u = unit_;
+    const float pad = 1.2f * u;
+    if (clock_ != ClockMode::Off) {
+      const std::time_t now = std::time(nullptr);
+      std::tm local {};
+#if defined(_WIN32)
+      localtime_s(&local, &now);
+#else
+      localtime_r(&now, &local);
+#endif
+      if (clock_ == ClockMode::Analog) {
+        drawAnalogClock({pic.x + pad + 4.5f * u, pic.y + pad + 4.5f * u}, 4.5f * u, local);
+      } else {
+        char t[16];
+        if (clock_ == ClockMode::H24) {
+          std::snprintf(t, sizeof t, "%02d:%02d:%02d", local.tm_hour, local.tm_min, local.tm_sec);
+        } else {
+          const int h12 = local.tm_hour % 12 == 0 ? 12 : local.tm_hour % 12;
+          std::snprintf(t, sizeof t, "%d:%02d:%02d %s", h12, local.tm_min, local.tm_sec, local.tm_hour < 12 ? "AM" : "PM");
+        }
+        helperChip(pic.x + pad, pic.y + pad, t, mono_, Ink {235, 235, 235}, false);
+      }
+    }
+    if (showFps_) {
+      helperChip(pic.x + pic.w - pad, pic.y + pad, std::to_string(static_cast<int>(fps_ + 0.5)) + " FPS", pixelSmall_,
+                 fps_ < 55 ? Ink {255, 170, 60} : Ink {150, 230, 150}, true);
+    }
+    if (showRemaining_ && active_ >= 0) {
+      const Cue& c = cues_[static_cast<std::size_t>(active_)];
+      if (cueHasTimeline(c)) {
+        const double left = std::max(0.0, cueOut(c) - engine_->position());
+        const int whole = static_cast<int>(std::ceil(left));
+        char t[24];
+        std::snprintf(t, sizeof t, "-%d:%02d", whole / 60, whole % 60);
+        int tw = 0, th = 0;
+        TTF_GetStringSize(pixel_, t, 0, &tw, &th);
+        helperChip(pic.x + pic.w - pad, pic.y + pic.h - pad - static_cast<float>(th) - 0.8f * u, t, pixel_,
+                   left < 10.0 ? Ink {255, 90, 80} : Ink {240, 240, 240}, true);
+      }
+    }
+  }
+
+  void drawAnalogClock(SDL_FPoint c, float rad, const std::tm& t) {
+    const float u = unit_;
+    ghostOval(c, rad, rad, kBlack, 0.55f);
+    ghostOval(c, rad * 0.92f, rad * 0.92f, Ink {235, 235, 235}, 0.12f);
+    const float pi = 3.14159265f;
+    auto hand = [&](float turns, float len, float width, Ink ink) {
+      const float a = turns * 2 * pi - pi / 2;
+      const float dx = std::cos(a), dy = std::sin(a);
+      const float nx = -dy * width / 2, ny = dx * width / 2;
+      const SDL_FColor col {ink.r / 255.0f, ink.g / 255.0f, ink.b / 255.0f, 1};
+      const SDL_FPoint p0 {c.x - dx * len * 0.15f, c.y - dy * len * 0.15f}, p1 {c.x + dx * len, c.y + dy * len};
+      const SDL_Vertex v[6] = {{{p0.x + nx, p0.y + ny}, col, {0, 0}}, {{p0.x - nx, p0.y - ny}, col, {0, 0}}, {{p1.x + nx, p1.y + ny}, col, {0, 0}},
+                               {{p0.x - nx, p0.y - ny}, col, {0, 0}}, {{p1.x - nx, p1.y - ny}, col, {0, 0}}, {{p1.x + nx, p1.y + ny}, col, {0, 0}}};
+      SDL_RenderGeometry(renderer_, nullptr, v, 6, nullptr, 0);
+    };
+    for (int k = 0; k < 12; ++k) {   // the hour marks
+      const float a = static_cast<float>(k) / 12 * 2 * pi;
+      ghostOval({c.x + std::cos(a) * rad * 0.8f, c.y + std::sin(a) * rad * 0.8f}, 0.18f * u, 0.18f * u, Ink {235, 235, 235}, 0.8f);
+    }
+    const float sec = static_cast<float>(t.tm_sec), min = static_cast<float>(t.tm_min) + sec / 60, hr = static_cast<float>(t.tm_hour % 12) + min / 60;
+    hand(hr / 12, rad * 0.5f, 0.45f * u, Ink {240, 240, 240});
+    hand(min / 60, rad * 0.75f, 0.32f * u, Ink {240, 240, 240});
+    hand(sec / 60, rad * 0.8f, 0.15f * u, Ink {255, 90, 80});
+  }
+
   void loadUnlocks() {
     size_t n = 0;
     const char* state = SDL_getenv("DECKBOY_STATE_DIR");
@@ -4802,14 +4962,163 @@ class Pocket {
     return false;
   }
 
-  void runEffects(std::vector<std::uint8_t>& px, int w, int h, std::uint64_t index) {
+  // ── Smooth by construction ──
+  //
+  // Measured on the phone (11-20): Swirl rebuilt on the main thread at
+  // 1920x1080 took 21 ms a frame, longer than a frame lasts, and warmed the
+  // phone. So an animated generator is built on a worker thread, at the
+  // size the picture is drawn, with its effects; the main thread only shows
+  // the newest finished frame and never waits for one. If a generator cannot
+  // keep up, its picture changes less often; the phone's own screen and
+  // touch stay at the display's rate. (A drawing cue keeps the engine's own
+  // path: its clock and change detection live there.)
+
+  static bool builtOnWorker(const Cue& c) {
+    if (c.kind != CueKind::Pattern || !patternTypeIsAnimated(c.path)) return false;
+    return stripPatternMotionSuffix(normalizePatternTypeId(c.path)) != "draw";
+  }
+
+  // The size to build at: the program raster halved while half is still at
+  // least as wide as the picture is drawn.
+  std::pair<int, int> generatorSize() const {
+    int w = programW_, h = programH_;
+    const float drawn = std::max(1.0f, pictureDrawnWidth());
+    while (static_cast<float>(w / 2) >= drawn && h / 2 >= 16) { w /= 2; h /= 2; }
+    return {w & ~1, h & ~1};
+  }
+
+  void serviceGenerator(const Cue& c) {
+    if (!genThread_.joinable()) genThread_ = std::thread([this] { generatorLoop(); });
+    std::lock_guard<std::mutex> hold(genLock_);
+    if (genReady_) {
+      engine_->showBuiltFrame(genOut_);   // genOut_ now holds the old buffer
+      genReady_ = false;
+      ++genShown_;
+      if (genSpare_.pixels.empty()) std::swap(genSpare_, genOut_);
+    }
+    if (!genBusy_) {
+      const auto [w, h] = generatorSize();
+      genCue_ = c;
+      genTime_ = static_cast<double>(SDL_GetTicksNS()) / 1e9;
+      genW_ = w;
+      genH_ = h;
+      genScale_ = static_cast<double>(w) / std::max(1, programW_);
+      genAudio_ = engine_->programAudioLevel01();
+      genHaveJob_ = true;
+      genBusy_ = true;
+      genCv_.notify_one();
+    }
+  }
+
+  void generatorLoop() {
+    std::uint64_t lastTake = 0;
+    std::vector<std::vector<std::uint8_t>> state;   // what this worker's effects remember
+    for (;;) {
+      std::unique_lock<std::mutex> lk(genLock_);
+      genCv_.wait(lk, [this] { return genQuit_ || genHaveJob_; });
+      if (genQuit_) return;
+      const Cue cue = genCue_;
+      const double t = genTime_, scale = genScale_, audio = genAudio_;
+      const int w = genW_, h = genH_;
+      const std::uint64_t take = genTake_;
+      genHaveJob_ = false;
+      DecodedFrame f = std::move(genSpare_);
+      genSpare_ = DecodedFrame {};
+      lk.unlock();
+
+      MediaEngine::buildPatternFrameInto(f, cue, t, w, h);
+      if (!f.pixels.empty() && deckboy::effects::cueEffectStackActive(cue.effects)) {
+        if (take != lastTake) state.clear();
+        if (state.size() < cue.effects.size()) state.resize(cue.effects.size());
+        deckboy::effects::CueEffectContext ctx;
+        ctx.width = f.width;
+        ctx.height = f.height;
+        ctx.frameIndex = ++genFrames_;
+        ctx.seconds = t;
+        ctx.pixelScale = scale;
+        ctx.effectState = &state;
+        std::vector<deckboy::effects::CueEffect> modulated;
+        const bool moving = deckboy::effects::modulateCueEffectStack(cue.effects, t, t * 2.0, modulated, audio);
+        deckboy::effects::applyCueEffectStack(f.pixels, moving ? modulated : cue.effects, ctx);
+      }
+      lastTake = take;
+
+      lk.lock();
+      if (take == genTake_ && !f.pixels.empty()) {
+        std::swap(genOut_, f);
+        genReady_ = true;
+      }
+      if (genSpare_.pixels.empty()) genSpare_ = std::move(f);
+      genBusy_ = false;
+    }
+  }
+
+  // The engine's pixel hook only while the live cue has a look for it (a
+  // hooked frame is copied first); a worker-built frame brings its own.
+  void updatePixelHook() {
+    bool want = false;
+    if (active_ >= 0 && active_ < static_cast<int>(cues_.size())) {
+      const Cue& c = cues_[static_cast<std::size_t>(active_)];
+      want = !builtOnWorker(c) && deckboy::effects::cueEffectStackActive(c.effects);
+    }
+    if (want == hookSet_) return;
+    hookSet_ = want;
+    if (want) engine_->setPixelHook([this](std::vector<std::uint8_t>& px, int& w, int& h, std::uint64_t index) { runEffects(px, w, h, index); });
+    else engine_->setPixelHook(nullptr);
+  }
+
+  // How wide the picture is drawn, in screen pixels: the output's width when
+  // one is connected, else the phone's own picture.
+  float pictureDrawnWidth() const {
+    if (!outputLabel_.empty()) return static_cast<float>(programW_);
+    if (phoneFull_) return std::max(pxW_, pxH_);
+    return picRect_.w;
+  }
+
+  void runEffects(std::vector<std::uint8_t>& px, int& w, int& h, std::uint64_t index) {
     if (active_ < 0 || active_ >= static_cast<int>(cues_.size())) return;
     const Cue& c = cues_[static_cast<std::size_t>(active_)];
     if (!deckboy::effects::cueEffectStackActive(c.effects)) return;
     if (fxState_.size() < c.effects.size()) fxState_.resize(c.effects.size());
+    const Uint64 started = SDL_GetPerformanceCounter();
+    // At the size the picture is drawn (the desk's layerFxShrinkFor): halved
+    // while half is still at least as wide as it is shown. Box-averaged, so
+    // nothing is lost that the screen could have shown.
+    int shrink = 1;
+    const float drawn = std::max(1.0f, pictureDrawnWidth());
+    while (fxShrinkOn_ && static_cast<float>(w / (shrink * 2)) >= drawn && h / (shrink * 2) >= 16) shrink *= 2;
+    if (shrink > 1) {
+      const int sw = w / shrink, sh = h / shrink;
+      fxSmall_.resize(static_cast<std::size_t>(sw) * static_cast<std::size_t>(sh) * 4);
+      const std::uint8_t* src = px.data();
+      std::uint8_t* dst = fxSmall_.data();
+      const int stride = w * 4, area = shrink * shrink;
+      deckboy::effects::detail::parallelRows(sh, sw, [&](int y0, int y1) {
+        for (int y = y0; y < y1; ++y) {
+          for (int x = 0; x < sw; ++x) {
+            unsigned sum[4] = {0, 0, 0, 0};
+            for (int dy = 0; dy < shrink; ++dy) {
+              const std::uint8_t* row = src + static_cast<std::size_t>(y * shrink + dy) * stride + static_cast<std::size_t>(x * shrink) * 4;
+              for (int dx = 0; dx < shrink; ++dx) {
+                sum[0] += row[dx * 4];
+                sum[1] += row[dx * 4 + 1];
+                sum[2] += row[dx * 4 + 2];
+                sum[3] += row[dx * 4 + 3];
+              }
+            }
+            std::uint8_t* o = dst + (static_cast<std::size_t>(y) * sw + x) * 4;
+            for (int k = 0; k < 4; ++k) o[k] = static_cast<std::uint8_t>(sum[k] / area);
+          }
+        }
+      });
+      px.swap(fxSmall_);
+      w = sw;
+      h = sh;
+    }
     deckboy::effects::CueEffectContext ctx;
     ctx.width = w;
     ctx.height = h;
+    ctx.pixelScale = 1.0 / shrink;
     ctx.frameIndex = index;
     const double secs = static_cast<double>(SDL_GetTicksNS()) / 1e9;
     ctx.seconds = secs;
@@ -4817,6 +5126,9 @@ class Pocket {
     std::vector<deckboy::effects::CueEffect> modulated;
     const bool moving = deckboy::effects::modulateCueEffectStack(c.effects, secs, secs * 2.0, modulated, engine_->programAudioLevel01());
     deckboy::effects::applyCueEffectStack(px, moving ? modulated : c.effects, ctx);
+    // the time effects take, averaged over about a second (STATUS fx_ms=)
+    const double ms = static_cast<double>(SDL_GetPerformanceCounter() - started) * 1000.0 / static_cast<double>(SDL_GetPerformanceFrequency());
+    fxMs_ = fxMs_ * 0.97 + ms * 0.03;
   }
 
   // An edit that can change whether the cue on air needs CPU frames: it
@@ -5911,7 +6223,13 @@ class Pocket {
   void take(int i) {
     if (i < 0 || i >= static_cast<int>(cues_.size())) return;
     fxState_.clear();   // an effect that remembers starts fresh on each take
+    {
+      std::lock_guard<std::mutex> hold(genLock_);
+      ++genTake_;          // a frame still being built for the last cue is dropped
+      genReady_ = false;
+    }
     active_ = i;
+    updatePixelHook();
     black_ = false;
     endHandled_ = false;
     const Cue& c = cues_[static_cast<std::size_t>(i)];
@@ -6190,8 +6508,27 @@ class Pocket {
   // effects: what each effect in the live stack remembers, the effect the FX
   // page shows, and the picker
   std::vector<std::vector<std::uint8_t>> fxState_;
+  std::vector<std::uint8_t> fxSmall_;   // the reduced picture effects run on
+  bool hookSet_ = false;
+  // the generator worker (see builtOnWorker)
+  std::thread genThread_;
+  std::mutex genLock_;
+  std::condition_variable genCv_;
+  bool genQuit_ = false, genHaveJob_ = false, genBusy_ = false, genReady_ = false;
+  Cue genCue_;
+  double genTime_ = 0, genScale_ = 1, genAudio_ = 0;
+  int genW_ = 0, genH_ = 0;
+  std::uint64_t genTake_ = 0, genFrames_ = 0;
+  DecodedFrame genOut_, genSpare_;
+  int genShown_ = 0;
+  double picFps_ = 0;   // worker-built frames shown per second
+  double fxMs_ = 0;
+  double stageMs_[4] = {0, 0, 0, 0};   // update, program, output, phone UI + present
+  bool fxShrinkOn_ = true;
   int fxShown_ = 0, fxPickPage_ = 0;
   bool fxPicking_ = false;
+  ClockMode clock_ = ClockMode::Off;
+  bool showRemaining_ = false, showFps_ = false;
   Uint64 fpsSince_ = 0;
   int fpsFrames_ = 0;
   double fps_ = 0;
