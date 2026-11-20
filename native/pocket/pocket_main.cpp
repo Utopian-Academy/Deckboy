@@ -680,12 +680,16 @@ class Pocket {
     listen_ = createBoundSocket(SOCK_STREAM, kRemotePort, true, false);
     if (listen_ == kInvalidSocket) SDL_Log("pocket: remote port %d is taken; remote control is off", kRemotePort);
     loadMediaFolder();
-    // Then what Deckboy makes itself. Real shows (.deckboy files and bundles)
-    // come next.
+    // The list starts with what is in the media folder and nothing else
+    // (James, 11-20: it need not open with a row of patterns). Tests ask for
+    // the demo list with DECKBOY_POCKET_DEMO=1.
+    const char* demo = SDL_getenv("DECKBOY_POCKET_DEMO");
+    const bool demoList = demo && demo[0] == '1';
     const std::pair<const char*, const char*> kFirstShow[] = {
         {"smpte-bars", "SMPTE colour bars"}, {"pocket-test", "Pocket Test"}, {"illusion", ""},
         {"swirl", ""}, {"lumia", ""}, {"fireside", ""}, {"crosshatch", "Crosshatch"}};
     for (const auto& [type, label] : kFirstShow) {
+      if (!demoList) break;
       Cue cue;
       cue.kind = CueKind::Pattern;
       cue.path = std::string("pattern://") + type;
@@ -941,6 +945,17 @@ class Pocket {
         drag_ = Drag::None;
         activeSlider_ = -1;
         holdRow_ = -1;
+        if (swiping_ && swipeRow_ >= 0 && -swipeDx_ >= kSwipeDelete * unit_) {
+          if (swipeRow_ == active_) {
+            notice_ = "On air: take another cue first, or DELETE it in its sheet";
+            noticeUntil_ = SDL_GetTicks() + 3000;
+          } else {
+            deleteCueAt(swipeRow_);
+          }
+        }
+        swipeRow_ = -1;
+        swiping_ = false;
+        swipeDx_ = 0;
         picHoldSince_ = 0;
         if (pillDownAt_ && fingers_.empty()) {   // a tap on the left pill, not a hold
           pillDownAt_ = 0;
@@ -1946,6 +1961,31 @@ class Pocket {
     advanceFrom(active_);
   }
 
+  // The swiped row: DELETE grows in from the right under the finger, and
+  // fills the row once letting go would delete it.
+  void drawSwipe(const SDL_FRect& row, bool isLive) {
+    SDL_Renderer* r = renderer_;
+    const float u = unit_;
+    const float w = std::min(row.w, -swipeDx_);
+    const bool armed = -swipeDx_ >= kSwipeDelete * u;
+    const SDL_FRect bar {row.x + row.w - w, row.y, w, row.h};
+    fillRect(r, armed ? kDeep : kDark, bar);
+    text_.draw(pixelSmall_, isLive ? "ON AIR" : armed ? "LET GO TO DELETE" : "DELETE", kLight,
+               {bar.x + u, bar.y, std::max(0.0f, bar.w - 2 * u), bar.h}, true);
+  }
+
+  // After a delete: the cue's name and UNDO along the foot of the list.
+  void drawUndoBar(const SDL_FRect& lcd) {
+    if (!undoCue_ || SDL_GetTicks() >= undoUntil_) return;
+    SDL_Renderer* r = renderer_;
+    const float u = unit_;
+    const float h = 6.5f * u;
+    const SDL_FRect bar {lcd.x, lcd.y + lcd.h - h, lcd.w, h};
+    fillRect(r, kDeep, bar);
+    text_.draw(mono_, "Deleted " + undoCue_->name, kLight, {bar.x + 1.5f * u, bar.y, bar.w - 22 * u, h});
+    button({bar.x + bar.w - 19 * u, bar.y + 0.75f * u, 18 * u, h - 1.5f * u}, "UNDO", [this] { undoDelete(); });
+  }
+
   void drawCueList() {
     SDL_Renderer* r = renderer_;
     const float u = unit_;
@@ -1959,6 +1999,10 @@ class Pocket {
     if (selected_ >= scroll_ + visible) scroll_ = selected_ - visible + 1;
     listLcd_ = lcd;
     SDL_SetRenderClipRect(r, nullptr);
+    if (cues_.empty()) {
+      text_.draw(mono_, "No cues yet.", kDark, {lcd.x + 2 * u, lcd.y + 2 * u, lcd.w - 4 * u, 5 * u});
+      text_.draw(mono_, "MENU > SOURCES adds them.", kDark, {lcd.x + 2 * u, lcd.y + 7 * u, lcd.w - 4 * u, 5 * u});
+    }
     for (int i = scroll_; i < static_cast<int>(cues_.size()) && i < scroll_ + visible; ++i) {
       const SDL_FRect row {lcd.x, lcd.y + static_cast<float>(i - scroll_) * rowH_, lcd.w, rowH_};
       const bool isLive = (i == active_);
@@ -1988,6 +2032,7 @@ class Pocket {
                  {row.x + row.w - 22.5f * u, row.y, 13 * u, row.h}, true);
       const EndMode m = endModeOf(c);
       std::string right = m == EndMode::Loop ? "LOOP" : m == EndMode::Next ? "NEXT" : "HOLD";
+      const bool swiped = swiping_ && i == swipeRow_;
       if (cueHasTimeline(c) && m != EndMode::Loop) {
         const int secs = static_cast<int>(std::lround(cueOut(c) - cueIn(c)));
         char len[16];
@@ -1995,7 +2040,9 @@ class Pocket {
         right = m == EndMode::Next ? std::string(len) + ">" : len;
       }
       text_.draw(mono_, right, ink, {row.x + row.w - 9 * u, row.y, 8.5f * u, row.h});
+      if (swiped) drawSwipe(row, isLive);
     }
+    drawUndoBar(lcd);
   }
 
   void drawControls() {
@@ -2331,6 +2378,14 @@ class Pocket {
       }
       return err("VIEW HOME, VIEW MENU <tab> or VIEW SHEET <cue>");
     }
+    if (verb == "DELETE") {   // DELETE <cue>: as a swipe does (the cue on air is refused)
+      const int n = std::atoi(rest.c_str());
+      if (n < 1 || n > static_cast<int>(cues_.size())) return err("DELETE <cue number>");
+      if (n - 1 == active_) return err("that cue is on air");
+      deleteCueAt(n - 1);
+      return ok();
+    }
+    if (verb == "UNDO") { if (!undoCue_) return err("nothing to undo"); undoDelete(); return ok(); }
     if (verb == "ADD") {   // ADD <generator type> (smpte-bars, swirl, lumia...) or ADD video-synth
       if (rest.empty()) return err("ADD <generator> or ADD video-synth");
       if (rest == "video-synth" || rest == "VIDEO-SYNTH") addVideoSynth();
@@ -3803,6 +3858,9 @@ class Pocket {
       if (row >= 0 && row < static_cast<int>(cues_.size())) {
         holdRow_ = row;
         holdStart_ = SDL_GetTicks();
+        swipeRow_ = row;
+        swiping_ = false;
+        swipeDx_ = 0;
       }
     }
     tap(x, y);
@@ -3810,6 +3868,17 @@ class Pocket {
 
   void onMove(float x, float y) {
     if (holdRow_ >= 0 && (std::fabs(x - downX_) > 2 * unit_ || std::fabs(y - downY_) > 2 * unit_)) holdRow_ = -1;
+    if (swipeRow_ >= 0) {
+      const float dx = x - downX_, dy = y - downY_;
+      if (!swiping_ && std::fabs(dx) > 2.5f * unit_ && std::fabs(dx) > std::fabs(dy) * 1.5f) swiping_ = true;
+      else if (!swiping_ && std::fabs(dy) > 2.5f * unit_) swipeRow_ = -1;   // a scroll, not a swipe
+      if (swiping_) {
+        const bool wasArmed = -swipeDx_ >= kSwipeDelete * unit_;
+        swipeDx_ = std::min(0.0f, dx);
+        if (!wasArmed && -swipeDx_ >= kSwipeDelete * unit_) buzz("tap");   // you can feel where it will delete
+        return;
+      }
+    }
     if (picHoldSince_ && (std::fabs(x - downX_) > 2 * unit_ || std::fabs(y - downY_) > 2 * unit_)) picHoldSince_ = 0;
     if (drag_ == Drag::Slider && activeSlider_ >= 0 && activeSlider_ < static_cast<int>(sliders_.size())) {
       // By how far the finger moved, not where it is. A finger dragged
@@ -4202,7 +4271,7 @@ class Pocket {
                     {"COPY", [this] { duplicateSheetCue(); }},
                     {"UP", [this] { moveSheetCue(-1); }},
                     {"DOWN", [this] { moveSheetCue(1); }},
-                    {confirmDelete_ ? "SURE?" : "DELETE", [this] { deleteSheetCue(); }}},
+                    {confirmDelete_ ? "ON AIR. SURE?" : "DELETE", [this] { deleteSheetCue(); }}},
               {qp > 0, false, false, false, false, confirmDelete_});
     }});
     (void)u;
@@ -4886,22 +4955,48 @@ class Pocket {
     select(to);
   }
 
+  // The sheet's DELETE: one tap, with UNDO after. Only the cue on air asks
+  // first, because deleting it clears the picture.
   void deleteSheetCue() {
     if (sheet_ < 0) return;
-    if (!confirmDelete_) {
+    if (sheet_ == active_ && !confirmDelete_) {
       confirmDelete_ = true;
       return;
     }
-    if (sheet_ == active_) {
-      engine_->clear();
-      active_ = -1;
-    } else if (active_ > sheet_) {
-      --active_;
-    }
-    cues_.erase(cues_.begin() + sheet_);
+    const int i = sheet_;
     sheet_ = -1;
     confirmDelete_ = false;
-    select(std::min(selected_, static_cast<int>(cues_.size()) - 1));
+    deleteCueAt(i);
+  }
+
+  // Removes a cue, keeping it for UNDO for six seconds.
+  void deleteCueAt(int i) {
+    if (i < 0 || i >= static_cast<int>(cues_.size())) return;
+    if (i == active_) {
+      engine_->clear();
+      active_ = -1;
+    } else if (active_ > i) {
+      --active_;
+    }
+    undoCue_ = cues_[static_cast<std::size_t>(i)];
+    undoAt_ = i;
+    undoUntil_ = SDL_GetTicks() + 6000;
+    queueIds_.erase(std::remove(queueIds_.begin(), queueIds_.end(), undoCue_->id), queueIds_.end());
+    cues_.erase(cues_.begin() + i);
+    if (selected_ > i) --selected_;
+    selected_ = std::clamp(selected_, 0, std::max(0, static_cast<int>(cues_.size()) - 1));
+    buzz("back");
+  }
+
+  void undoDelete() {
+    if (!undoCue_) return;
+    const int at = std::clamp(undoAt_, 0, static_cast<int>(cues_.size()));
+    cues_.insert(cues_.begin() + at, *undoCue_);
+    if (active_ >= at) ++active_;
+    undoCue_.reset();
+    undoUntil_ = 0;
+    select(at);
+    buzz("go");
   }
 
   void tap(float x, float y) {
@@ -5256,6 +5351,14 @@ class Pocket {
   bool charging_ = false;
   Uint64 nextHealth_ = 0;
   bool confirmDelete_ = false;
+  // swipe a row left to delete it; UNDO for a while after
+  static constexpr float kSwipeDelete = 24.0f;   // units: a third of the row
+  int swipeRow_ = -1;
+  bool swiping_ = false;
+  float swipeDx_ = 0;
+  std::optional<Cue> undoCue_;
+  int undoAt_ = 0;
+  Uint64 undoUntil_ = 0;
   SDL_FRect scrub_ {}, trimBar_ {}, volumeBar_ {};
   SDL_Texture* outputTex_ = nullptr;
   int outputTexW_ = 0, outputTexH_ = 0, outputGeneration_ = -1;
