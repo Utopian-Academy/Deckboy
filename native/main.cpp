@@ -12066,6 +12066,9 @@ class App {
   // When each flying cue left its perch, keyed by cue id. Runtime only: the
   // name is the state, so nothing here is saved and nothing needs cleaning up.
   std::map<std::string, Uint64> flightTakeoffMs_;
+  struct Flight { SDL_Rect row; int deckIndex; int index; };
+  std::vector<Flight> flights_;   // cues in flight this frame (renderFlights)
+  bool flightPass_ = false;
 
   bool mascotHidden_ = false;   // something is live, so the face is not on the monitor
   // When the programme last had a picture up; 0 = not yet this session.

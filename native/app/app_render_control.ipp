@@ -1509,6 +1509,7 @@
         Primitives::strokeRect(controlRenderer_, ring, edge);
       }
     }
+    renderFlights();
     // The title names the show and follows the deck count (Super Deckboy),
     // and the one-shot evolution draws over everything while it is playing.
     refreshWindowTitle();
@@ -2065,6 +2066,23 @@
     SDL_SetRenderDrawBlendMode(controlRenderer_, SDL_BLENDMODE_NONE);
   }
 
+  // The cues in flight this frame, drawn over everything once the rest of
+  // the window is down (see renderCueRow).
+  void renderFlights() {
+    if (flights_.empty()) return;
+    const std::vector<Flight> now = std::move(flights_);
+    flights_.clear();
+    SDL_SetRenderClipRect(controlRenderer_, nullptr);
+    flightPass_ = true;
+    for (const Flight& f : now) {
+      if (f.deckIndex < static_cast<int>(project_.decks.size()) &&
+          f.index < static_cast<int>(project_.decks[static_cast<std::size_t>(f.deckIndex)].cues.size())) {
+        renderCueRow(f.row, f.deckIndex, f.index);
+      }
+    }
+    flightPass_ = false;
+  }
+
   void renderCueRow(const SDL_Rect& rowIn, int deckIndex, int index) {
     if (rowIn.y + rowIn.h < 0 || rowIn.y > 2000) {
       return;
@@ -2100,22 +2118,59 @@
         takeoff = animationNow_;
       }
       const double t = static_cast<double>(animationNow_ - takeoff) / 1000.0;
-      flap = std::sin(t * 9.0);
-      // Eased so it gathers itself, then goes. Linear from a standing start
-      // looks like a slide; this looks like something deciding to leave.
-      constexpr double kFlightSeconds = 3.2;
-      const double u = std::clamp(t / kFlightSeconds, 0.0, 1.0);
-      const double eased = u * u;
-      // Up and to the right, with the wingbeat rocking it as it climbs.
-      row.x = rowIn.x + static_cast<int>(std::lround(eased * (rowIn.w + 240.0)));
-      row.y = rowIn.y - static_cast<int>(std::lround(eased * 420.0 - flap * 6.0));
-      flightAlpha = std::clamp(1.0 - eased * 1.15, 0.0, 1.0);
-      if (flightAlpha <= 0.01) {
+      // The flight: it gathers itself and rises out of its row (kRise), flaps
+      // one lazy figure-eight around the top of the desk (kCircle), then
+      // leaves off the right edge (kLeave). It is drawn LAST, over the whole
+      // window (renderFlights, before the present): drawn here, inside the
+      // playlist's clip, it dipped out of sight behind the deck's edge
+      // (James, 11-20: it should be seen, flapping around a while).
+      constexpr double kRise = 1.2, kCircle = 3.2, kLeave = 1.6;
+      if (t >= kRise + kCircle + kLeave) {
         // Gone. The row keeps its place in the list, empty, so the playlist
         // does not reshuffle itself around a joke.
         drawEmptyPerch(rowIn);
         return;
       }
+      if (!flightPass_) {
+        drawEmptyPerch(rowIn);
+        flights_.push_back({rowIn, deckIndex, index});
+        return;
+      }
+      flap = std::sin(t * 9.0);
+      int winW = 0, winH = 0;
+      SDL_GetCurrentRenderOutputSize(controlRenderer_, &winW, &winH);
+      const double pi = 3.14159265358979;
+      const double topY = uiScaled(64), ampX = winW * 0.28, ampY = uiScaled(24);
+      auto loop = [&](double s) {   // one figure-eight in kCircle seconds, centred on the window
+        const double w = 2.0 * pi / kCircle;
+        return SDL_FPoint {static_cast<float>(winW * 0.5 + ampX * std::sin(w * s)), static_cast<float>(topY + ampY * std::sin(2.0 * w * s))};
+      };
+      const double startX = rowIn.x + rowIn.w / 2.0, startY = rowIn.y + rowIn.h / 2.0;
+      double cx = startX, cy = startY, scale = 1.0;
+      if (t < kRise) {
+        const double s = t / kRise, e = s * s * (3.0 - 2.0 * s);
+        const SDL_FPoint a = loop(0.0);
+        cx = startX + (a.x - startX) * e;
+        cy = startY + (a.y - startY) * e;
+        scale = 1.0 - 0.4 * e;
+      } else if (t < kRise + kCircle) {
+        const SDL_FPoint a = loop(t - kRise);
+        cx = a.x;
+        cy = a.y;
+        scale = 0.6;
+      } else {
+        // Eased so it gathers speed and goes, the way it leaves the loop: right and up.
+        const double s = (t - kRise - kCircle) / kLeave, e = s * s;
+        const SDL_FPoint a = loop(kCircle);
+        cx = a.x + e * winW * 0.75;
+        cy = a.y - e * uiScaled(200);
+        scale = 0.6;
+      }
+      row.w = static_cast<int>(std::lround(rowIn.w * scale));
+      row.h = rowIn.h;
+      row.x = static_cast<int>(std::lround(cx - row.w / 2.0));
+      row.y = static_cast<int>(std::lround(cy - row.h / 2.0 - flap * 6.0));
+      flightAlpha = 1.0;
     }
     bool isOverlay = std::any_of(deck.overlayActiveIndices.begin(), deck.overlayActiveIndices.end(),
                                   [&](int i) { return i == index; });
