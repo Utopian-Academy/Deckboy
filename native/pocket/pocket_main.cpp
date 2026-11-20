@@ -25,6 +25,7 @@
 #include "core/fs.hpp"
 #include "core/media_probe.hpp"
 #include "core/pattern_helpers.hpp"
+#include "deckboy_version.hpp"
 #include "core/types.hpp"
 #include "core/utils.hpp"
 #include "engine/media_engine.hpp"
@@ -1040,6 +1041,7 @@ class Pocket {
       drawSheet();
     } else if (menuOpen_) {
       drawMenu();
+      if (aboutPage()) drawControls();
     } else {
       drawCueList();
       drawControls();
@@ -1092,6 +1094,25 @@ class Pocket {
   // LANDSCAPE (Advance-style): the pad and BLACK / MENU on the left, the
   // picture and the cue list in the middle, GO and BACK on the right.
   // Editing: the picture on the left, the page on the right.
+  // The portrait strip of buttons (pad, GO, BACK, the two pills), where the
+  // rendered faces draw theirs. Placed in every portrait layout: the show
+  // screen uses them, and ABOUT keeps them in reach for the codes.
+  void placeButtons(float H) {
+    const float u = unit_, x0 = safe_.x, y0 = safe_.y;
+    auto at = [&](float x, float y) { return SDL_FPoint {x0 + x * u, y0 + y * u}; };
+    const float stripH = 44.0f;   // the rendered faces are drawn with this strip
+    strip_ = {x0, y0 + (H - stripH) * u, safe_.w, stripH * u};
+    const float cy = (H - stripH) + (stripH - 10) / 2;
+    padCentre_ = at(17, cy);
+    goCentre_ = at(57, cy - 5);
+    backCentre_ = at(41, cy + 8);
+    blackPill_ = {x0 + 18 * u, y0 + (H - 9.5f) * u, 12 * u, 4 * u};
+    menuPill_ = {x0 + 36 * u, y0 + (H - 9.5f) * u, 12 * u, 4 * u};
+  }
+
+  // MENU > PHONE > ABOUT, upright: the buttons below it do nothing but listen.
+  bool aboutPage() const { return menuOpen_ && menuTab_ == 6 && !landscape_; }
+
   void layout() {
     const float u = unit_, x0 = safe_.x, y0 = safe_.y;
     landscape_ = safe_.w > safe_.h;
@@ -1105,21 +1126,16 @@ class Pocket {
         picRect_ = {program_.x + 3.5f * u, program_.y + 6 * u, 61 * u, picH * u};
         sheetRect_ = {x0 + 2 * u, program_.y + program_.h + 1.5f * u, 68 * u, 0};
         sheetRect_.h = y0 + safe_.h - u - sheetRect_.y;
+        placeButtons(H);
+        if (aboutPage()) sheetRect_.h = strip_.y - u - sheetRect_.y;   // the buttons stay in reach
       } else {
         const float picH = (68 - 7) * 9.0f / 16.0f;
         // title 5, picture, name and time 4.5, scrub 4, buttons 6, margins
         program_ = {x0 + 2 * u, y0 + 1.5f * u, 68 * u, (5 + 1 + picH + 1.2f + 4.5f + 4 + 6 + 2.5f) * u};
         picRect_ = {program_.x + 3.5f * u, program_.y + 6 * u, 61 * u, picH * u};
-        const float stripH = 44.0f;   // the rendered faces are drawn with this strip
-        strip_ = {x0, y0 + (H - stripH) * u, safe_.w, stripH * u};
+        placeButtons(H);
         list_ = {x0 + 2 * u, program_.y + program_.h + 1.5f * u, 68 * u, 0};
         list_.h = std::max(16 * u, strip_.y - list_.y - 1.5f * u);
-        const float cy = (H - stripH) + (stripH - 10) / 2;
-        padCentre_ = at(17, cy);
-        goCentre_ = at(57, cy - 5);
-        backCentre_ = at(41, cy + 8);
-        blackPill_ = {x0 + 18 * u, y0 + (H - 9.5f) * u, 12 * u, 4 * u};
-        menuPill_ = {x0 + 36 * u, y0 + (H - 9.5f) * u, 12 * u, 4 * u};
       }
     } else {
       if (editing_) {
@@ -1501,11 +1517,11 @@ class Pocket {
     }
     {
       // a page: its name at the top, back to the tiles and CLOSE along the bottom (thumb reach)
-      static const char* kNames[6] = {"SOURCES", "OUTPUT", "LIST", "SYNC", "PHONE", "SHOW"};
-      text_.draw(pixel_, kNames[std::clamp(menuTab_, 0, 5)], kDark, {lx, y, lw, 5 * u});
+      static const char* kNames[7] = {"SOURCES", "OUTPUT", "LIST", "SYNC", "PHONE", "SHOW", "ABOUT"};
+      text_.draw(pixel_, kNames[std::clamp(menuTab_, 0, 6)], kDark, {lx, y, lw, 5 * u});
       const float bh = 7 * u, by = lcd.y + lcd.h - bh - 0.5f * u;
       const float bw = (lw - u) / 2;
-      button({lx, by, bw, bh}, "< MENU", [this] { menuTab_ = -1; endHostEdit(); });
+      button({lx, by, bw, bh}, menuTab_ == 6 ? "< PHONE" : "< MENU", [this] { menuTab_ = menuTab_ == 6 ? 4 : -1; endHostEdit(); });
       button({lx + bw + u, by, bw, bh}, "CLOSE", [this] { menuOpen_ = false; endHostEdit(); });
     }
     y += 7 * u;
@@ -1527,15 +1543,18 @@ class Pocket {
       static const std::pair<const char*, const char*> kMade[] = {
           {"smpte-bars", "BARS"}, {"pocket-test", "POCKET TEST"}, {"illusion", "ILLUSION"},
           {"swirl", "SWIRL"}, {"lumia", "LUMIA"}, {"fireside", "FIRESIDE"}, {"crosshatch", "CROSSHATCH"},
-          {"video-synth", "VIDEO SYNTH"}, {"terrarium", "TERRARIUM"}};
+          {"video-synth", "VIDEO SYNTH"}};
+      std::vector<std::pair<const char*, const char*>> made(std::begin(kMade), std::end(kMade));
+      if (terrariumUnlocked_) made.push_back({"terrarium", "TERRARIUM"});
+      if (tabletopUnlocked_) made.push_back({"tabletop", "TABLETOP"});
       const float bw = (lw - u) / 2;
-      for (int i = 0; i < (terrariumUnlocked_ ? 9 : 8); ++i) {
-        const char* type = kMade[i].first;
-        button({lx + static_cast<float>(i % 2) * (bw + u), y, bw, 4.5f * u}, kMade[i].second,
+      for (int i = 0; i < static_cast<int>(made.size()); ++i) {
+        const char* type = made[static_cast<std::size_t>(i)].first;
+        button({lx + static_cast<float>(i % 2) * (bw + u), y, bw, 4.5f * u}, made[static_cast<std::size_t>(i)].second,
                [this, type] { if (std::string(type) == "video-synth") addVideoSynth(); else addGenerator(type); });
         if (i % 2 == 1) y += 5.5f * u;
       }
-      y += terrariumUnlocked_ ? 7 * u : 1.5f * u;
+      y += made.size() % 2 == 1 ? 7 * u : 1.5f * u;
     }
 
     }
@@ -1610,6 +1629,11 @@ class Pocket {
            [this] { setHaptics(!haptics_); }, true, haptics_);
     y += 6.5f * u;
     text_.draw(mono_, healthLabel().empty() ? "-" : "Battery " + healthLabel(), kDeep, {lx, y, lw, 4.5f * u});
+    y += 5.5f * u;
+    button({lx, y, lw, 5 * u}, "ABOUT", [this] { menuTab_ = 6; });
+    }
+    if (menuTab_ == 6) {
+      drawAboutPage(lx, lw, y);
     }
   }
 
@@ -1819,6 +1843,22 @@ class Pocket {
     noticeUntil_ = SDL_GetTicks() + 2500;
   }
 
+  // MENU > PHONE > ABOUT: what this is, and the way to the big Deckboy.
+  void drawAboutPage(float lx, float lw, float& y) {
+    const float u = unit_;
+    text_.draw(pixel_, std::string("DECKBOY POCKET ") + deckboy::core::version::kVersion, kDeep, {lx, y, lw, 5 * u});
+    y += 6 * u;
+    text_.draw(mono_, "Free software: GPL-3.0 or later.", kDark, {lx, y, lw, 4.5f * u});
+    y += 4.5f * u;
+    text_.draw(mono_, "The phone half of Deckboy.", kDark, {lx, y, lw, 4.5f * u});
+    y += 5.5f * u;
+    const float bw = (lw - 2 * u) / 3;
+    button({lx, y, bw, 6 * u}, "DECKBOY", [] { SDL_OpenURL("https://utopian-academy.github.io/Deckboy/"); });
+    button({lx + bw + u, y, bw, 6 * u}, "MANUAL", [] { SDL_OpenURL("https://utopian-academy.github.io/Deckboy/manual"); });
+    button({lx + 2 * (bw + u), y, bw, 6 * u}, "SOURCE", [] { SDL_OpenURL("https://github.com/Utopian-Academy/Deckboy"); });
+    y += 7 * u;
+  }
+
   void addGenerator(const char* type) {
     Cue cue;
     cue.kind = CueKind::Pattern;
@@ -1826,7 +1866,7 @@ class Pocket {
     const std::string generated = generatorPatternName(type);
     const std::string t = type;
     cue.name = !generated.empty() ? generated : t == "smpte-bars" ? "SMPTE colour bars" : t == "pocket-test" ? "Pocket Test"
-             : t == "terrarium" ? "Terrarium" : t;
+             : t == "terrarium" ? "Terrarium" : t == "tabletop" ? "Tabletop" : t;
     cue.width = programW_;
     cue.height = programH_;
     cue.formatName = "generated";
@@ -1961,7 +2001,7 @@ class Pocket {
   void drawControls() {
     SDL_Renderer* r = renderer_;
     const float u = unit_;
-    if (shellFace()) {
+    if (shellTex_ && !landscape_ && (!editing_ || aboutPage())) {
       drawShellPresses();
       return;
     }
@@ -2268,6 +2308,7 @@ class Pocket {
         if (arg == "ADD") menuTab_ = 0;
         if (arg == "OUT") menuTab_ = 1;
         if (arg == "SKIN") menuTab_ = 4;
+        if (arg == "ABOUT") menuTab_ = 6;
         menuOpen_ = true;
         sheet_ = -1;
         phoneFull_ = false;
@@ -3519,6 +3560,41 @@ class Pocket {
 
   // Returns true when the press must do nothing else.
   bool codeKey(Pressed p) {
+    const bool other = aboutPage() && codeKey2(p);
+    return codeKey1(p) || other;
+  }
+
+  bool codeKey2(Pressed p) {
+    static constexpr Pressed kCode[] = {Pressed::Go, Pressed::Back, Pressed::Go, Pressed::Up, Pressed::Go, Pressed::Back, Pressed::Back};
+    constexpr std::size_t kLen = sizeof(kCode) / sizeof(kCode[0]);
+    const Uint64 now = SDL_GetTicks();
+    if (now - code2LastMs_ > 3000) code2Seen_.clear();
+    code2LastMs_ = now;
+    code2Seen_.push_back(p);
+    if (code2Seen_.size() > kLen) code2Seen_.erase(code2Seen_.begin());
+    if (code2Seen_.size() == kLen && std::equal(code2Seen_.begin(), code2Seen_.end(), kCode)) {
+      code2Seen_.clear();
+      unlockTabletop();
+      return true;
+    }
+    return false;
+  }
+
+  void unlockTabletop() {
+    if (tabletopUnlocked_) {
+      notice_ = "Tabletop is in MENU > SOURCES";
+      noticeUntil_ = SDL_GetTicks() + 3000;
+      return;
+    }
+    tabletopUnlocked_ = true;
+    saveUnlocks();
+    addGenerator("tabletop");
+    notice_ = "TABLETOP UNLOCKED";
+    noticeUntil_ = SDL_GetTicks() + 4000;
+    buzz("go");
+  }
+
+  bool codeKey1(Pressed p) {
     static constexpr Pressed kCode[] = {Pressed::Up, Pressed::Up, Pressed::Down, Pressed::Down, Pressed::Left, Pressed::Right,
                                         Pressed::Left, Pressed::Right, Pressed::Back, Pressed::Go, Pressed::Menu};
     constexpr int kLen = static_cast<int>(sizeof(kCode) / sizeof(kCode[0]));
@@ -3550,7 +3626,7 @@ class Pocket {
 
   void saveUnlocks() {
     const char* state = SDL_getenv("DECKBOY_STATE_DIR");
-    const std::string text = std::string("terrarium\t") + (terrariumUnlocked_ ? "1" : "0") + "\n";
+    const std::string text = std::string("terrarium\t") + (terrariumUnlocked_ ? "1" : "0") + "\ntabletop\t" + (tabletopUnlocked_ ? "1" : "0") + "\n";
     SDL_SaveFile((std::string(state ? state : ".") + "/pocket_unlocks.txt").c_str(), text.data(), text.size());
   }
 
@@ -3562,6 +3638,7 @@ class Pocket {
     const std::string text(saved, n);
     SDL_free(saved);
     terrariumUnlocked_ = text.find("terrarium\t1") != std::string::npos;
+    tabletopUnlocked_ = text.find("tabletop\t1") != std::string::npos;
   }
 
   // The left pill (SELECT on a handheld): BLACK unless you choose otherwise.
@@ -3715,6 +3792,7 @@ class Pocket {
       if (best < hits_.size()) { fire(best); return; }
     }
     if (sheet_ >= 0) return;
+    if (menuOpen_) { tap(x, y); return; }
     if (active_ >= 0 && cueHasTimeline(cues_[static_cast<std::size_t>(active_)]) && inside(grow(scrub_, unit_), x, y)) {
       drag_ = Drag::Scrub;
       onMove(x, y);
@@ -4829,6 +4907,19 @@ class Pocket {
   void tap(float x, float y) {
     const float u = unit_;
     auto within = [&](SDL_FPoint c, float rad) { return (x - c.x) * (x - c.x) + (y - c.y) * (y - c.y) <= rad * rad; };
+    if (menuOpen_ || sheet_ >= 0) {
+      if (!aboutPage()) return;   // under a page the buttons are covered: a tap there is not a press
+      Pressed p = Pressed::None;
+      const float dx = x - padCentre_.x, dy = y - padCentre_.y;
+      if (within(goCentre_, 10 * u)) p = Pressed::Go;
+      else if (within(backCentre_, 8.5f * u)) p = Pressed::Back;
+      else if (std::fabs(dx) < 15 * u && std::fabs(dy) < 15 * u)
+        p = std::fabs(dx) > std::fabs(dy) ? (dx > 0 ? Pressed::Right : Pressed::Left) : (dy > 0 ? Pressed::Down : Pressed::Up);
+      else if (inside(grow(menuPill_, 2 * u), x, y)) p = Pressed::Menu;
+      else if (inside(grow(blackPill_, 2 * u), x, y)) p = Pressed::Black;
+      if (p != Pressed::None) { press(p); codeKey(p); }
+      return;
+    }
     if (within(goCentre_, 10 * u)) { press(Pressed::Go); if (!codeKey(Pressed::Go)) go(); return; }
     if (within(backCentre_, 8.5f * u)) { press(Pressed::Back); if (!codeKey(Pressed::Back)) back(); return; }
     const float dx = x - padCentre_.x, dy = y - padCentre_.y;
@@ -5090,7 +5181,9 @@ class Pocket {
   Pill pill_ = Pill::Black;
   int codeIndex_ = 0;
   Uint64 codeLastMs_ = 0;
-  bool terrariumUnlocked_ = false;
+  bool terrariumUnlocked_ = false, tabletopUnlocked_ = false;
+  std::vector<Pressed> code2Seen_;
+  Uint64 code2LastMs_ = 0;
   // ghost controls over full screen
   Uint64 ghostUntil_ = 0;
   std::vector<Hit> ghostHits_;
