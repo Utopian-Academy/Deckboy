@@ -1,0 +1,9 @@
+brushed-steel	Brushed Steel	89 89 97
+fire-engine	Fire Engine	246 246 248
+glow	Glow	108 149 108
+grape-soda	Grape Soda	253 249 255
+ice	Ice	249 249 252
+mint-pearl	Mint Pearl	89 149 129
+pocket-grey	Pocket Grey	108 108 134
+smoke	Smoke	246 246 248
+terrazzo	Terrazzo	108 101 97

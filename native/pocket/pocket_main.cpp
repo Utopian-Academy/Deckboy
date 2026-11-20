@@ -28,6 +28,9 @@
 #include "core/types.hpp"
 #include "core/utils.hpp"
 #include "engine/media_engine.hpp"
+#if defined(DECKBOY_INPROC_DECODE)
+#include "engine/libav_decoder.hpp"   // the rendered shells' JPEGs
+#endif
 #include "platform/network.hpp"
 using namespace deckboy::platform;   // the remote port (sockets)
 
@@ -421,11 +424,11 @@ void fillRect(SDL_Renderer* r, Ink c, const SDL_FRect& rect) {
 }
 
 // A filled shape from its outline (a triangle fan around the centre).
-void fillOutline(SDL_Renderer* r, Ink c, const std::vector<SDL_FPoint>& outline, SDL_FPoint centre) {
+void fillOutline(SDL_Renderer* r, Ink c, const std::vector<SDL_FPoint>& outline, SDL_FPoint centre, float alpha = 1.0f) {
   if (outline.size() < 3) return;
   std::vector<SDL_Vertex> v;
   std::vector<int> idx;
-  const SDL_FColor col {c.r / 255.0f, c.g / 255.0f, c.b / 255.0f, 1.0f};
+  const SDL_FColor col {c.r / 255.0f, c.g / 255.0f, c.b / 255.0f, alpha};
   v.push_back({centre, col, {0, 0}});
   for (const SDL_FPoint& p : outline) v.push_back({p, col, {0, 0}});
   const int n = static_cast<int>(outline.size());
@@ -456,6 +459,11 @@ std::vector<SDL_FPoint> roundRectOutline(const SDL_FRect& b, float radius) {
 
 void fillRound(SDL_Renderer* r, Ink c, const SDL_FRect& b, float radius) {
   fillOutline(r, c, roundRectOutline(b, radius), {b.x + b.w / 2, b.y + b.h / 2});
+}
+
+// See-through, for marks laid over a rendered shell (a press, BLACK on).
+void fillRoundAlpha(SDL_Renderer* r, Ink c, float alpha, const SDL_FRect& b, float radius) {
+  fillOutline(r, c, roundRectOutline(b, radius), {b.x + b.w / 2, b.y + b.h / 2}, alpha);
 }
 
 void fillCircle(SDL_Renderer* r, Ink c, SDL_FPoint centre, float radius) {
@@ -682,6 +690,7 @@ class Pocket {
     loadThemes();
     loadFonts();
     loadSyncSettings();
+    loadShells();
     return true;
   }
 
@@ -804,6 +813,7 @@ class Pocket {
 
   void shutdown() {
     dropFollowSocket();
+    if (shellTex_) SDL_DestroyTexture(shellTex_);
     for (RemoteClient& c : clients_) closeSocket(c.socket);
     if (listen_ != kInvalidSocket) closeSocket(listen_);
     engine_.reset();
@@ -918,7 +928,8 @@ class Pocket {
       SDL_RenderPresent(r);
       return;
     }
-    fillRect(r, kShell, {0, 0, pxW_, pxH_});
+    if (shellTex_) drawShell();
+    else fillRect(r, kShell, {0, 0, pxW_, pxH_});
     drawProgram();
     if (hostEditing_) drawHostEditor();
     if (sheet_ >= 0) {
@@ -928,6 +939,13 @@ class Pocket {
     } else {
       drawCueList();
       drawControls();
+    }
+    if (!snapPath_.empty()) {
+      if (SDL_Surface* shot = SDL_RenderReadPixels(r, nullptr)) {
+        if (!SDL_SaveBMP(shot, snapPath_.c_str())) SDL_Log("pocket: SNAP failed: %s", SDL_GetError());
+        SDL_DestroySurface(shot);
+      }
+      snapPath_.clear();
     }
     SDL_RenderPresent(r);
     traceFrame(t0, t1, t2, t3, SDL_GetPerformanceCounter());
@@ -989,18 +1007,19 @@ class Pocket {
     int hw = 0, hh = 0;
     if (pixelSmall_ && !health.empty()) TTF_GetStringSize(pixelSmall_, health.c_str(), 0, &hw, &hh);
     const SDL_FRect left {header_.x, header_.y, header_.w - static_cast<float>(hw) - 2 * u, header_.h};
+    const Ink print = shellTex_ ? shellInk_ : kPrint;   // a rendered shell has its own print colour
     if (SDL_GetTicks() < noticeUntil_) {
-      text_.draw(mono_, notice_, kPrint, left);
+      text_.draw(mono_, notice_, print, left);
     } else if (follow_ != Follow::Off) {
-      text_.draw(pixel_, followHeadline(), follow_ == Follow::Following ? kPrint : Ink {170, 40, 30}, left);
+      text_.draw(pixel_, followHeadline(), follow_ == Follow::Following ? print : Ink {170, 40, 30}, left);
     } else {
-      text_.draw(pixel_, "DECKBOY POCKET", kPrint, left);
+      text_.draw(pixel_, "DECKBOY POCKET", print, left);
     }
     if (!health.empty()) {
-      text_.draw(pixelSmall_, health, thermal_ >= 3 ? Ink {150, 30, 30} : kPrint,
+      text_.draw(pixelSmall_, health, thermal_ >= 3 ? Ink {150, 30, 30} : print,
                  {header_.x + header_.w - static_cast<float>(hw), header_.y, static_cast<float>(hw) + 1, header_.h});
     }
-    fillRound(r, kBezel, program_, 3 * u);
+    if (!shellTex_) fillRound(r, kBezel, program_, 3 * u);
     // the LED: lit while something is on air and not blacked out
     const bool live = active_ >= 0 && !black_;
     fillCircle(r, live ? Ink {255, 50, 30} : Ink {70, 20, 20}, {program_.x + 3 * u, program_.y + 2.8f * u}, 0.9f * u);
@@ -1246,7 +1265,16 @@ class Pocket {
       drawSyncTab(lx, lw, y);
     }
     if (menuTab_ == 3) {
-    heading("SKIN");
+    heading("SHELL");
+    {
+      const float bw = 9 * u;
+      button({lx, y, bw, 5 * u}, "<", [this] { stepShell(-1); });
+      text_.draw(mono_, shells_.empty() ? std::string("No shells in this build") : shellName(), kDeep,
+                 {lx + bw + u, y, lw - 2 * bw - 2 * u, 5 * u}, true);
+      button({lx + lw - bw, y, bw, 5 * u}, ">", [this] { stepShell(1); });
+      y += 6.5f * u;
+    }
+    heading("SCREEN COLOURS");
     {
       const float bw = 9 * u;
       button({lx, y, bw, 5 * u}, "<", [this] { stepTheme(-1); });
@@ -1343,7 +1371,7 @@ class Pocket {
   void drawCueList() {
     SDL_Renderer* r = renderer_;
     const float u = unit_;
-    fillRound(r, kBezel, list_, 3 * u);
+    if (!shellTex_) fillRound(r, kBezel, list_, 3 * u);
     const SDL_FRect lcd {list_.x + 2.5f * u, list_.y + 2.5f * u, list_.w - 5 * u, list_.h - 5 * u};
     fillRect(r, kLight, lcd);
     rowH_ = 5.2f * u;
@@ -1393,6 +1421,10 @@ class Pocket {
   void drawControls() {
     SDL_Renderer* r = renderer_;
     const float u = unit_;
+    if (shellTex_) {
+      drawShellPresses();
+      return;
+    }
     // the pad: up/down pick a cue, left/right are BACK/GO (as a clicker's are)
     const float arm = 13 * u, half = 4.6f * u;
     const SDL_FPoint c = padCentre_;
@@ -1668,6 +1700,18 @@ class Pocket {
     }
     if (verb == "STATUS" || verb == "STATE") return remoteStatus();
     if (verb == "DECK") return rest.empty() || rest == "1" ? ok() : err("Pocket has one deck");
+    if (verb == "SHELL") {   // a rendered shell by its slug, or FLAT
+      std::string want = rest;
+      for (char& ch : want) ch = static_cast<char>(std::tolower(static_cast<unsigned char>(ch)));
+      if (want == "flat" || want.empty()) { setShell(""); return ok(); }
+      setShell(want);
+      return shell_ == want ? ok() : err("no shell " + rest);
+    }
+    if (verb == "SNAP") {    // the next frame as a BMP file, for checking the screen without touching it
+      if (rest.empty()) return err("SNAP <file.bmp>");
+      snapPath_ = rest;
+      return ok();
+    }
     if (verb == "SYNC") {
       std::istringstream args(rest);
       std::string sub, host;
@@ -2285,6 +2329,150 @@ class Pocket {
     text_.draw(pixelSmall_, "ENTER TO FOLLOW", Ink {170, 170, 180}, {box.x + 3 * u, box.y + 12.3f * u, box.w - 6 * u, 3.2f * u});
   }
 
+  // -- Rendered shells (pocket-skins/devices.py, TALL family) --
+  //
+  // A shell is a photograph of the device straight down, rendered in Blender
+  // from Pocket's own layout (72 mm wide, 156 tall at u = 1 mm), with the
+  // screens left dark. Pocket draws the picture, the cue list, the header and
+  // button presses into it. A phone taller or shorter than 156 mm of layout
+  // stretches only a band through the middle of the cue list, which holds
+  // nothing but the bezel's straight sides.
+
+  struct ShellInfo { std::string slug, name; Ink ink; };
+
+  void loadShells() {
+    size_t n = 0;
+    char* index = static_cast<char*>(SDL_LoadFile("data/pocket-shells/index.txt", &n));
+    if (!index) return;
+    std::istringstream in(std::string(index, n));
+    SDL_free(index);
+    std::string line;
+    while (std::getline(in, line)) {
+      if (!line.empty() && line.back() == '\r') line.pop_back();
+      const std::size_t a = line.find('\t'), b = a == std::string::npos ? a : line.find('\t', a + 1);
+      if (b == std::string::npos) continue;
+      ShellInfo info;
+      info.slug = line.substr(0, a);
+      info.name = line.substr(a + 1, b - a - 1);
+      int cr = 46, cg = 46, cb = 70;
+      std::sscanf(line.c_str() + b + 1, "%d %d %d", &cr, &cg, &cb);
+      info.ink = {static_cast<Uint8>(cr), static_cast<Uint8>(cg), static_cast<Uint8>(cb)};
+      shells_.push_back(info);
+    }
+    size_t m = 0;
+    const char* state = SDL_getenv("DECKBOY_STATE_DIR");
+    if (char* saved = static_cast<char*>(SDL_LoadFile((std::string(state ? state : ".") + "/pocket_shell.txt").c_str(), &m))) {
+      std::string want(saved, m);
+      SDL_free(saved);
+      while (!want.empty() && (want.back() == '\n' || want.back() == '\r' || want.back() == ' ')) want.pop_back();
+      setShell(want);
+    }
+  }
+
+  // "" is the flat drawn chrome (the theme's own colours).
+  void setShell(const std::string& slug) {
+    if (shellTex_) {
+      SDL_DestroyTexture(shellTex_);
+      shellTex_ = nullptr;
+    }
+    shell_.clear();
+    const auto it = std::find_if(shells_.begin(), shells_.end(), [&](const ShellInfo& s) { return s.slug == slug; });
+    if (!slug.empty() && it != shells_.end()) {
+#if defined(DECKBOY_INPROC_DECODE)
+      // libav reads files, and an Android app's assets are not files: copy it out once.
+      const char* root = SDL_getenv("DECKBOY_ROOT");
+      const std::string file = std::string(root ? root : ".") + "/data/pocket-shells/" + slug + ".jpg";
+      SDL_PathInfo info;
+      if (!SDL_GetPathInfo(file.c_str(), &info) || info.size == 0) {
+        size_t n = 0;
+        if (void* bytes = SDL_LoadFile(("data/pocket-shells/" + slug + ".jpg").c_str(), &n)) {
+          SDL_CreateDirectory(file.substr(0, file.find_last_of('/')).c_str());
+          SDL_SaveFile(file.c_str(), bytes, n);
+          SDL_free(bytes);
+        }
+      }
+      int w = 0, h = 0;
+      std::vector<std::uint8_t> rgba;
+      if (deckboy::libav::decodeImageRgba(file, w, h, rgba) && w > 0 && h > 0) {
+        shellTex_ = SDL_CreateTexture(renderer_, SDL_PIXELFORMAT_RGBA32, SDL_TEXTUREACCESS_STATIC, w, h);
+        if (shellTex_) {
+          SDL_UpdateTexture(shellTex_, nullptr, rgba.data(), w * 4);
+          SDL_SetTextureScaleMode(shellTex_, SDL_SCALEMODE_LINEAR);   // a photograph, drawn smaller than it is
+          shellW_ = w;
+          shellH_ = h;
+          shell_ = slug;
+          shellInk_ = it->ink;
+        }
+      } else {
+        SDL_Log("pocket: could not read the shell %s", file.c_str());
+      }
+#endif
+    }
+    text_.clear();   // the header's ink changed
+    const char* state = SDL_getenv("DECKBOY_STATE_DIR");
+    const std::string text = shell_ + "\n";
+    SDL_SaveFile((std::string(state ? state : ".") + "/pocket_shell.txt").c_str(), text.data(), text.size());
+  }
+
+  void stepShell(int by) {
+    // -1 is the flat chrome, then each shell in order
+    int i = -1;
+    for (std::size_t k = 0; k < shells_.size(); ++k) if (shells_[k].slug == shell_) i = static_cast<int>(k);
+    const int count = static_cast<int>(shells_.size()) + 1;
+    i = ((i + 1 + by) % count + count) % count - 1;
+    setShell(i < 0 ? std::string() : shells_[static_cast<std::size_t>(i)].slug);
+  }
+
+  std::string shellName() const {
+    for (const ShellInfo& s : shells_) if (s.slug == shell_) return s.name;
+    return "Flat";
+  }
+
+  void drawShell() {
+    SDL_Renderer* r = renderer_;
+    fillRect(r, kBlack, {0, 0, pxW_, pxH_});   // the phone's own black round the shell
+    const float u = unit_;
+    const float k = static_cast<float>(shellW_) / 72.0f;   // shell pixels per mm
+    const float tall = safe_.h / u;                         // the layout's height in mm
+    auto part = [&](float fromMm, float toMm, float atMm, float heightMm) {
+      const SDL_FRect src {0, fromMm * k, static_cast<float>(shellW_), (toMm - fromMm) * k};
+      const SDL_FRect dst {safe_.x, safe_.y + atMm * u, safe_.w, heightMm * u};
+      SDL_RenderTexture(r, shellTex_, &src, &dst);
+    };
+    const float plateMm = static_cast<float>(shellH_) / k;   // 156
+    if (std::fabs(tall - plateMm) < 0.5f || tall < plateMm - 24.0f) {
+      part(0, plateMm, 0, plateMm);   // the same height (or too short to cut): as it is
+      return;
+    }
+    // the top to just inside the cue list, the bottom from just inside it, the band between stretched
+    part(0, 76, 0, 76);
+    part(plateMm - 56, plateMm, tall - 56, 56);
+    part(76, plateMm - 56, 76, tall - 56 - 76);
+  }
+
+  // The shell's buttons are in the picture; a press darkens the one pressed,
+  // and BLACK shows red while the output is blacked out.
+  void drawShellPresses() {
+    SDL_Renderer* r = renderer_;
+    const float u = unit_;
+    SDL_SetRenderDrawBlendMode(r, SDL_BLENDMODE_BLEND);
+    auto dim = [&](const SDL_FRect& rect, float radius) { fillRoundAlpha(r, kBlack, 0.35f, rect, radius); };
+    const float arm = 13 * u, half = 4.6f * u;
+    const SDL_FPoint c = padCentre_;
+    switch (pressed_) {
+      case Pressed::Up: dim({c.x - half, c.y - arm, 2 * half, arm - half}, 1.2f * u); break;
+      case Pressed::Down: dim({c.x - half, c.y + half, 2 * half, arm - half}, 1.2f * u); break;
+      case Pressed::Left: dim({c.x - arm, c.y - half, arm - half, 2 * half}, 1.2f * u); break;
+      case Pressed::Right: dim({c.x + half, c.y - half, arm - half, 2 * half}, 1.2f * u); break;
+      case Pressed::Go: dim({goCentre_.x - 7.5f * u, goCentre_.y - 7.5f * u, 15 * u, 15 * u}, 7.5f * u); break;
+      case Pressed::Back: dim({backCentre_.x - 6 * u, backCentre_.y - 6 * u, 12 * u, 12 * u}, 6 * u); break;
+      case Pressed::Menu: dim(menuPill_, 2 * u); break;
+      case Pressed::Black: dim(blackPill_, 2 * u); break;
+      default: break;
+    }
+    if (black_) fillRoundAlpha(r, Ink {220, 30, 30}, 0.6f, blackPill_, 2 * u);
+  }
+
   // -- Adding media: the system picker --
   //
   // Android's own picker (Gallery, Files, Drive): the phone gives Pocket the
@@ -2775,6 +2963,13 @@ class Pocket {
   int syncSeeks_ = 0;
   bool seekLanding_ = false;
   bool hostEditing_ = false;
+  std::string snapPath_;
+  // rendered shells
+  std::vector<ShellInfo> shells_;
+  std::string shell_;
+  SDL_Texture* shellTex_ = nullptr;
+  int shellW_ = 0, shellH_ = 0;
+  Ink shellInk_ {46, 46, 70};
   std::vector<std::string> themes_;
   double huePhase_ = -1.0;
   int hueStep_ = -1;
