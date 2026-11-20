@@ -1019,7 +1019,11 @@ class Pocket {
       SDL_RenderPresent(r);
       return;
     }
-    if (shellFace()) drawShell();
+    // The shell stays behind every portrait screen, menus and pages included:
+    // a flat sheet behind MENU read as a white page (James, 11-20). Only the
+    // show screen lets the shell's own windows and buttons stand in for
+    // Pocket's (shellFace); editing draws its panels over the shell.
+    if (shellTex_ && !landscape_) drawShell();
     else fillRect(r, kShell, {0, 0, pxW_, pxH_});
     drawProgram();
     if (hostEditing_) drawTextEditor("DESK ADDRESS", followHost_, "ENTER TO FOLLOW");
