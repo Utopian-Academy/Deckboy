@@ -325,6 +325,8 @@ void MediaEngine::loadCue(const Cue* cue, bool autoplay, double transitionSecond
   outputOffsetX_ = cue ? cue->outputOffsetX : 0.0f;
   outputOffsetY_ = cue ? cue->outputOffsetY : 0.0f;
   outputRotationDegrees_ = cue ? cue->outputRotationDegrees : 0.0f;
+  flipHorizontal_ = cue && cue->flipHorizontal;
+  flipVertical_ = cue && cue->flipVertical;
   cropLeft_ = cue ? cue->cropLeft : 0.0f;
   cropRight_ = cue ? cue->cropRight : 0.0f;
   cropTop_ = cue ? cue->cropTop : 0.0f;
@@ -2134,6 +2136,8 @@ void MediaEngine::syncPixelEffectsFromCue() {
     outputOffsetX_ = activeCue_->outputOffsetX;
     outputOffsetY_ = activeCue_->outputOffsetY;
     outputRotationDegrees_ = activeCue_->outputRotationDegrees;
+    flipHorizontal_ = activeCue_->flipHorizontal;
+    flipVertical_ = activeCue_->flipVertical;
     cropLeft_ = activeCue_->cropLeft;
     cropRight_ = activeCue_->cropRight;
     cropTop_ = activeCue_->cropTop;
@@ -6093,6 +6097,8 @@ void MediaEngine::beginTransition(double seconds, TransitionStyle style, float s
   transitionOffsetX_ = outputOffsetX_;
   transitionOffsetY_ = outputOffsetY_;
   transitionRotationDegrees_ = outputRotationDegrees_;
+  transitionFlipHorizontal_ = flipHorizontal_;
+  transitionFlipVertical_ = flipVertical_;
   transitionCropLeft_ = cropLeft_;
   transitionCropRight_ = cropRight_;
   transitionCropTop_ = cropTop_;
@@ -6125,6 +6131,7 @@ void MediaEngine::clearTransitionTexture() {
   transitionOffsetX_ = 0.0f;
   transitionOffsetY_ = 0.0f;
   transitionRotationDegrees_ = 0.0f;
+  transitionFlipHorizontal_ = transitionFlipVertical_ = false;
   transitionCropLeft_ = 0.0f;
   transitionCropRight_ = 0.0f;
   transitionCropTop_ = 0.0f;
@@ -6263,6 +6270,9 @@ bool MediaEngine::drawTextureFitted(SDL_Texture* texture, int width, int height,
   const float outputOffsetX = useOutgoingGeometry ? transitionOffsetX_ : outputOffsetX_;
   const float outputOffsetY = useOutgoingGeometry ? transitionOffsetY_ : outputOffsetY_;
   const float outputRotationDegrees = useOutgoingGeometry ? transitionRotationDegrees_ : outputRotationDegrees_;
+  const bool flipH = useOutgoingGeometry ? transitionFlipHorizontal_ : flipHorizontal_;
+  const bool flipV = useOutgoingGeometry ? transitionFlipVertical_ : flipVertical_;
+  const SDL_FlipMode flip = static_cast<SDL_FlipMode>((flipH ? SDL_FLIP_HORIZONTAL : 0) | (flipV ? SDL_FLIP_VERTICAL : 0));
 
   // Step 1: Compute the source rect after cropping (fractions → pixel offsets)
   int cropL = std::clamp(static_cast<int>(std::lround(static_cast<double>(width) * cropLeft)), 0, width - 1);
@@ -6320,7 +6330,7 @@ bool MediaEngine::drawTextureFitted(SDL_Texture* texture, int width, int height,
   SDL_SetTextureBlendMode(texture, SDL_BLENDMODE_BLEND);
   SDL_SetTextureAlphaMod(texture, alphaValue);
   SDL_Point center {destination.w / 2, destination.h / 2};
-  SDL_RenderTextureRotated(outputRenderer_, texture, &source, &destination, outputRotationDegrees, &center, SDL_FLIP_NONE);
+  SDL_RenderTextureRotated(outputRenderer_, texture, &source, &destination, outputRotationDegrees, &center, flip);
   SDL_SetTextureAlphaMod(texture, 255);  // reset alpha mod to avoid leaking to other draws
   return true;
 }

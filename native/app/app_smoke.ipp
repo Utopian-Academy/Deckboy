@@ -2300,6 +2300,7 @@
       cue.cueTransitionSeconds = 1.25;
       cue.cueTransitionStyle = "crossfade";
       cue.outputRotationDegrees = 17.5f;
+      cue.flipHorizontal = true;
       cue.cropLeft = 0.10f;
       cue.cropRight = 0.05f;
       cue.cropTop = 0.02f;
@@ -2945,7 +2946,7 @@
           // Moire fields went in, only two of five checks were bumped, and the
           // other three trimmed nothing but Moire -- passing without testing
           // the show they were named for.
-          constexpr int kAfterTrackerFields = 72;   // + direction, its copy, key, length, the voice and the sting (ten), the illusion (sixteen)
+          constexpr int kAfterTrackerFields = 74;   // + direction, its copy, key, length, the voice and the sting (ten), the illusion (sixteen), flip H and V (two)
           // A show from immediately before the fixture patch (one tail field
           // fewer) keeps its mic channel and has no fixture levels.
           {
@@ -3105,7 +3106,7 @@
         // the spine and trimming 3 stopped reaching preWaitSeconds -- the test
         // failed loudly, which is the only reason this comment exists rather
         // than a silent hole in the backward-compatibility check.
-        constexpr int kSpineTailFields = 165;  // preWait, postWait, continue, masters,
+        constexpr int kSpineTailFields = 167;  // preWait, postWait, continue, masters, (flip H/V added the last two)
                                               // target id/deck/verb, armed, panel w/h,
                                               // fade secs/to/what/curve/stop,
                                               // fireside view, overlay lower-third
@@ -3639,6 +3640,7 @@
                loadedCue.gotoTarget == "Q12",
                "cue parity fields persisted");
         expect(std::abs(loadedCue.outputRotationDegrees - 17.5f) < 0.01f, "cue rotation persisted");
+        expect(loadedCue.flipHorizontal && !loadedCue.flipVertical, "cue flip persisted");
         expect(std::abs(loadedCue.cropLeft - 0.10f) < 0.001f &&
                std::abs(loadedCue.cropRight - 0.05f) < 0.001f &&
                std::abs(loadedCue.cropTop - 0.02f) < 0.001f &&
