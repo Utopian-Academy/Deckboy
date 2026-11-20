@@ -599,7 +599,12 @@ const char* kindTag(const Cue& c) {
     case CueKind::Video: return "VIDEO";
     case CueKind::Image: return "STILL";
     case CueKind::Audio: return "SOUND";
-    case CueKind::Pattern: return "MADE";
+    // James 11-20: PATTERN for patterns (bars, test cards), SYNTH for synths
+    // (the moving generators and the desk's Video Synth). Was MADE for all.
+    case CueKind::Pattern:
+      return generatorPatternName(normalizePatternTypeId(c.path.rfind("pattern://", 0) == 0 ? c.path.substr(10) : c.path)).empty()
+                 ? "PATTERN" : "SYNTH";
+    case CueKind::VideoSynth: return "SYNTH";
     default: return "CUE";
   }
 }
@@ -990,6 +995,8 @@ class Pocket {
       const Cue& c = cues_[static_cast<std::size_t>(active_)];
       if (c.kind == CueKind::Pattern && patternTypeIsAnimated(c.path) && engine_->hasPictureToShow()) {
         engine_->rebuildPatternFrame(c, static_cast<double>(SDL_GetTicks()) / 1000.0);
+      } else if (c.kind == CueKind::VideoSynth) {
+        engine_->rebuildVideoSynthFrame(c, static_cast<double>(SDL_GetTicks()) / 1000.0, engine_->programAudioLevel01());
       }
     }
     const Uint64 t1 = SDL_GetPerformanceCounter();
@@ -1513,11 +1520,13 @@ class Pocket {
       // Made by Deckboy: one button per generator, two to a row.
       static const std::pair<const char*, const char*> kMade[] = {
           {"smpte-bars", "BARS"}, {"pocket-test", "POCKET TEST"}, {"illusion", "ILLUSION"},
-          {"swirl", "SWIRL"}, {"lumia", "LUMIA"}, {"fireside", "FIRESIDE"}};
+          {"swirl", "SWIRL"}, {"lumia", "LUMIA"}, {"fireside", "FIRESIDE"}, {"crosshatch", "CROSSHATCH"},
+          {"video-synth", "VIDEO SYNTH"}};
       const float bw = (lw - u) / 2;
-      for (int i = 0; i < 6; ++i) {
+      for (int i = 0; i < 8; ++i) {
         const char* type = kMade[i].first;
-        button({lx + static_cast<float>(i % 2) * (bw + u), y, bw, 4.5f * u}, kMade[i].second, [this, type] { addGenerator(type); });
+        button({lx + static_cast<float>(i % 2) * (bw + u), y, bw, 4.5f * u}, kMade[i].second,
+               [this, type] { if (std::string(type) == "video-synth") addVideoSynth(); else addGenerator(type); });
         if (i % 2 == 1) y += 5.5f * u;
       }
       y += 1.5f * u;
@@ -1781,6 +1790,29 @@ class Pocket {
     text_.draw(mono_, "Opening and saving shows arrives here next.", kDark, {lx, y, lw, 4 * u});
   }
 
+  // The desk's Video Synth (oscillators, feedback, mirroring), as the desk
+  // makes it: its own cue kind, not a pattern; the engine draws it.
+  void addVideoSynth() {
+    Cue cue;
+    cue.kind = CueKind::VideoSynth;
+    cue.path = "vsynth://";
+    cue.name = "Video Synth";
+    cue.width = programW_;
+    cue.height = programH_;
+    cue.color = {90, 50, 120, 255};
+    cue.formatName = "generated";
+    cue.pauseOnLastFrame = true;
+    cue.stillDurationSeconds = 0.0;
+    cue.id = "pocket-" + std::to_string(++nextId_);
+    applyDefaults(cue);   // what new cues start with (MENU > SHOW)
+    const int at = std::min(selected_ + 1, static_cast<int>(cues_.size()));
+    cues_.insert(cues_.begin() + at, cue);
+    if (active_ >= at) ++active_;
+    select(at);
+    notice_ = "Added Video Synth";
+    noticeUntil_ = SDL_GetTicks() + 2500;
+  }
+
   void addGenerator(const char* type) {
     Cue cue;
     cue.kind = CueKind::Pattern;
@@ -1902,10 +1934,10 @@ class Pocket {
       // selected row, where the soft ink would sink into the fill.
       const Ink soft = isLive ? kMid : isSel ? kDeep : kDark;
       text_.draw(mono_, std::to_string(i + 1), isSel && !isLive ? kLight : soft, {row.x + 1.5f * u, row.y, 5 * u, row.h});
-      text_.draw(mono_, c.name, ink, {row.x + 7 * u, row.y, row.w - 26 * u, row.h});
+      text_.draw(mono_, c.name, ink, {row.x + 7 * u, row.y, row.w - 30 * u, row.h});
       const int qp = queuePlace(c);
       text_.draw(pixelSmall_, qp ? "NEXT " + std::to_string(qp) : std::string(kindTag(c)), soft,
-                 {row.x + row.w - 18.5f * u, row.y, 9 * u, row.h}, true);
+                 {row.x + row.w - 22.5f * u, row.y, 13 * u, row.h}, true);
       const EndMode m = endModeOf(c);
       std::string right = m == EndMode::Loop ? "LOOP" : m == EndMode::Next ? "NEXT" : "HOLD";
       if (cueHasTimeline(c) && m != EndMode::Loop) {
@@ -2250,6 +2282,12 @@ class Pocket {
       }
       return err("VIEW HOME, VIEW MENU <tab> or VIEW SHEET <cue>");
     }
+    if (verb == "ADD") {   // ADD <generator type> (smpte-bars, swirl, lumia...) or ADD video-synth
+      if (rest.empty()) return err("ADD <generator> or ADD video-synth");
+      if (rest == "video-synth" || rest == "VIDEO-SYNTH") addVideoSynth();
+      else addGenerator(rest.c_str());
+      return ok();
+    }
     if (verb == "SHUFFLE") { bool v; if (!onOff(shuffle_, v)) return err("ON, OFF or TOGGLE"); setShuffle(v); return ok(); }
     if (verb == "LOOP") { bool v; if (!onOff(loopList_, v)) return err("ON, OFF or TOGGLE"); loopList_ = v; return ok(); }
     if (verb == "ENDAFTER") { bool v; if (!onOff(endAfter_, v)) return err("ON, OFF or TOGGLE"); endAfter_ = v; return ok(); }
@@ -2458,6 +2496,11 @@ class Pocket {
     o << "OUTPUT 1 name=\""<< (outputLabel_.empty() ? "phone" : outputLabel_) << "\" enabled=" << (black_ ? "off" : "on")
       << " raster=" << programW_ << "x" << programH_ << "\n";
     o << "SYNC " << syncStatusFields() << "\n";
+    for (std::size_t i = 0; i < cues_.size(); ++i) {   // one line per cue: what the list shows
+      const EndMode m = endModeOf(cues_[i]);
+      o << "CUE " << i + 1 << " kind=" << kindTag(cues_[i])
+        << " end=" << (m == EndMode::Loop ? "loop" : m == EndMode::Next ? "next" : "hold") << " name=\"" << cues_[i].name << "\"\n";
+    }
     return o.str();
   }
 
