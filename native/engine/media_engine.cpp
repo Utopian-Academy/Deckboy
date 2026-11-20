@@ -6138,6 +6138,7 @@ void MediaEngine::beginTransition(double seconds, TransitionStyle style, float s
   transitionSourceGain_ = std::clamp(sourceGain, 0.0f, 1.0f);
   transitionActive_ = true;
   transitionWaitingForFirstFrame_ = true;  // timer starts when incoming cue provides first frame
+  ++transitionSeed_;
 }
 
 // Release the transition snapshot texture and reset all transition state.
@@ -6464,6 +6465,16 @@ void MediaEngine::drawTransitionOverlay(const SDL_Rect& target, bool drewCurrent
   }
 
   // Crossfade: outgoing fades out linearly over the transition duration
+  if (transitionLayerHook_ && (transitionStyle_ == TransitionStyle::Portal || transitionStyle_ == TransitionStyle::Shatter ||
+                               transitionStyle_ == TransitionStyle::Clouds || transitionStyle_ == TransitionStyle::Ghastly)) {
+    if (SDL_Texture* layer = transitionLayerHook_(transitionTexture_, transitionTextureWidth_, transitionTextureHeight_, transitionStyle_,
+                                                  progress, elapsed, transitionSeed_)) {
+      SDL_SetTextureBlendMode(layer, SDL_BLENDMODE_BLEND);
+      drawTextureFitted(layer, transitionTextureWidth_, transitionTextureHeight_, target,
+                        static_cast<Uint8>(std::lround(transitionSourceGain_ * 255.0f)), true);
+      return;
+    }
+  }
   Uint8 alphaValue = static_cast<Uint8>(transitionSourceGain_ * std::clamp(1.0 - progress, 0.0, 1.0) * 255.0);
   drawTextureFitted(transitionTexture_, transitionTextureWidth_, transitionTextureHeight_, target, alphaValue, true);
 }

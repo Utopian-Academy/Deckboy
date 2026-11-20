@@ -247,6 +247,13 @@ class MediaEngine {
   // A texture to draw in place of the uploaded frame: the frame with its
   // look already applied on the GPU (Pocket: runGpuEffects). Owned by the
   // caller and kept valid until replaced; null draws the frame as uploaded.
+  // Portal, Shatter, Clouds and Ghastly, made by whoever can (Pocket: the
+  // desk's GPU kernel, runGpuTransition): given the outgoing picture as a
+  // texture, returns the outgoing LAYER (its alpha open where the incoming
+  // shows), drawn with the outgoing cue's geometry. Null: a crossfade.
+  using TransitionLayerHook = std::function<SDL_Texture*(SDL_Texture* outgoing, int width, int height, TransitionStyle style,
+                                                         double progress, double elapsedSeconds, std::uint64_t seed)>;
+  void setTransitionLayerHook(TransitionLayerHook hook) { transitionLayerHook_ = std::move(hook); }
   void setLookTexture(SDL_Texture* texture, int width, int height) {
     lookTexture_ = texture;
     lookWidth_ = width;
@@ -1161,6 +1168,8 @@ class MediaEngine {
   Uint64 pixelHookRanAt_ = 0;
   bool skipPixelHook_ = false;   // showBuiltFrame: the look is already on it
   SDL_Texture* lookTexture_ = nullptr;
+  TransitionLayerHook transitionLayerHook_;
+  std::uint64_t transitionSeed_ = 0;
   int lookWidth_ = 0, lookHeight_ = 0;
   SDL_Texture* shownTexture() const { return lookTexture_ ? lookTexture_ : texture_; }
   int shownWidth() const { return lookTexture_ ? lookWidth_ : textureWidth_; }

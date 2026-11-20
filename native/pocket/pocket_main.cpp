@@ -720,6 +720,19 @@ class Pocket {
     // SDL_GPU (Vulkan on Android): null otherwise, and then the CPU runs them.
     gpuFx_ = deckboy::gpu::createGpuEffects(renderer_);
     SDL_Log("pocket: GPU effects %s", gpuFx_ ? deckboy::gpu::gpuEffectsBackend(gpuFx_).c_str() : "off (the CPU runs them)");
+    // Portal, Shatter, Clouds and Ghastly: the desk's own plan and kernel.
+    if (gpuFx_) {
+      engine_->setTransitionLayerHook([this](SDL_Texture* outgoing, int w, int h, TransitionStyle style, double progress, double elapsed,
+                                             std::uint64_t seed) -> SDL_Texture* {
+        if (!gpuFx_ || !outgoing || w < 2 || h < 2) return nullptr;
+        deckboy::gpu::TransitionPlan plan;
+        if (!MediaEngine::planGpuTransition(style, w & ~1, h & ~1, progress, elapsed, seed, plan)) return nullptr;
+        deckboy::gpu::TransitionSource source;
+        source.texture = outgoing;
+        source.stamp = (seed << 1) | 1u;   // the same picture for the whole transition: fetched once
+        return deckboy::gpu::runGpuTransition(gpuFx_, kTransitionSlot, source, plan);
+      });
+    }
     if (!demoList) restoreList();
     loadThemes();
     loadFonts();
@@ -6664,16 +6677,22 @@ class Pocket {
 
   double listGlide() const { return glideSeconds_ >= 0 ? glideSeconds_ : 0.5; }
 
-  // The styles Pocket's own drawing has (engine: drawTransitionOverlay and
-  // drawGeometricTransition). Portal, Shatter, Clouds and Ghastly are drawn by
-  // the desk's output compositor; here they play as a crossfade for now.
+  // The styles Pocket can draw (engine: drawTransitionOverlay and
+  // drawGeometricTransition). Portal, Shatter, Clouds and Ghastly need the
+  // GPU (the desk's kernel, through the engine's transition-layer hook);
+  // without it they play as a crossfade.
   static constexpr TransitionStyle kPocketStyles[] = {
       TransitionStyle::Crossfade, TransitionStyle::Cut, TransitionStyle::DipBlack, TransitionStyle::DipWhite,
       TransitionStyle::PushLeft, TransitionStyle::PushRight, TransitionStyle::PushUp, TransitionStyle::PushDown,
       TransitionStyle::WipeLeft, TransitionStyle::WipeRight, TransitionStyle::WipeUp, TransitionStyle::WipeDown,
-      TransitionStyle::Iris};
+      TransitionStyle::Iris, TransitionStyle::Portal, TransitionStyle::Shatter, TransitionStyle::Clouds, TransitionStyle::Ghastly};
+  static constexpr int kTransitionSlot = 7;   // the GPU effects slot the transitions use
+  static bool gpuStyle(TransitionStyle s) {
+    return s == TransitionStyle::Portal || s == TransitionStyle::Shatter || s == TransitionStyle::Clouds || s == TransitionStyle::Ghastly;
+  }
 
-  static TransitionStyle drawableStyle(TransitionStyle s) {
+  TransitionStyle drawableStyle(TransitionStyle s) const {
+    if (gpuStyle(s) && !gpuFx_) return TransitionStyle::Crossfade;
     for (TransitionStyle k : kPocketStyles) if (k == s) return s;
     return TransitionStyle::Crossfade;
   }
@@ -6683,11 +6702,13 @@ class Pocket {
     return drawableStyle(deckboy::core::utils::parseTransitionStyleToken(c.cueTransitionStyle));
   }
 
-  static TransitionStyle stepStyle(TransitionStyle now, int by) {
-    constexpr int n = static_cast<int>(sizeof(kPocketStyles) / sizeof(kPocketStyles[0]));
+  TransitionStyle stepStyle(TransitionStyle now, int by) const {
+    std::vector<TransitionStyle> styles;
+    for (TransitionStyle k : kPocketStyles) if (!gpuStyle(k) || gpuFx_) styles.push_back(k);
+    const int n = static_cast<int>(styles.size());
     int i = 0;
-    for (int k = 0; k < n; ++k) if (kPocketStyles[k] == now) i = k;
-    return kPocketStyles[((i + by) % n + n) % n];
+    for (int k = 0; k < n; ++k) if (styles[static_cast<std::size_t>(k)] == now) i = k;
+    return styles[static_cast<std::size_t>(((i + by) % n + n) % n)];
   }
 
   static std::string styleName(TransitionStyle s) { return deckboy::core::utils::transitionStyleLabel(s); }
