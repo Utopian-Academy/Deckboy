@@ -704,6 +704,7 @@ class Pocket {
     loadSyncSettings();
     loadShells();
     loadDefaults();
+    loadUnlocks();
     {
       size_t n = 0;
       const char* state = SDL_getenv("DECKBOY_STATE_DIR");
@@ -1526,15 +1527,15 @@ class Pocket {
       static const std::pair<const char*, const char*> kMade[] = {
           {"smpte-bars", "BARS"}, {"pocket-test", "POCKET TEST"}, {"illusion", "ILLUSION"},
           {"swirl", "SWIRL"}, {"lumia", "LUMIA"}, {"fireside", "FIRESIDE"}, {"crosshatch", "CROSSHATCH"},
-          {"video-synth", "VIDEO SYNTH"}};
+          {"video-synth", "VIDEO SYNTH"}, {"terrarium", "TERRARIUM"}};
       const float bw = (lw - u) / 2;
-      for (int i = 0; i < 8; ++i) {
+      for (int i = 0; i < (terrariumUnlocked_ ? 9 : 8); ++i) {
         const char* type = kMade[i].first;
         button({lx + static_cast<float>(i % 2) * (bw + u), y, bw, 4.5f * u}, kMade[i].second,
                [this, type] { if (std::string(type) == "video-synth") addVideoSynth(); else addGenerator(type); });
         if (i % 2 == 1) y += 5.5f * u;
       }
-      y += 1.5f * u;
+      y += terrariumUnlocked_ ? 7 * u : 1.5f * u;
     }
 
     }
@@ -1823,7 +1824,9 @@ class Pocket {
     cue.kind = CueKind::Pattern;
     cue.path = std::string("pattern://") + type;
     const std::string generated = generatorPatternName(type);
-    cue.name = generated.empty() ? (std::string(type) == "smpte-bars" ? "SMPTE colour bars" : "Pocket Test") : generated;
+    const std::string t = type;
+    cue.name = !generated.empty() ? generated : t == "smpte-bars" ? "SMPTE colour bars" : t == "pocket-test" ? "Pocket Test"
+             : t == "terrarium" ? "Terrarium" : t;
     cue.width = programW_;
     cue.height = programH_;
     cue.formatName = "generated";
@@ -3514,6 +3517,53 @@ class Pocket {
     }
   }
 
+  // Returns true when the press must do nothing else.
+  bool codeKey(Pressed p) {
+    static constexpr Pressed kCode[] = {Pressed::Up, Pressed::Up, Pressed::Down, Pressed::Down, Pressed::Left, Pressed::Right,
+                                        Pressed::Left, Pressed::Right, Pressed::Back, Pressed::Go, Pressed::Menu};
+    constexpr int kLen = static_cast<int>(sizeof(kCode) / sizeof(kCode[0]));
+    const Uint64 now = SDL_GetTicks();
+    if (now - codeLastMs_ > 3000) codeIndex_ = 0;
+    codeLastMs_ = now;
+    if (p == kCode[codeIndex_]) {
+      ++codeIndex_;
+      if (codeIndex_ >= kLen) {
+        codeIndex_ = 0;
+        unlockTerrarium();
+        return true;
+      }
+      return codeIndex_ > 4;
+    }
+    codeIndex_ = p == kCode[0] ? (codeIndex_ == 2 ? 2 : 1) : 0;
+    return false;
+  }
+
+  void unlockTerrarium() {
+    terrariumUnlocked_ = true;
+    saveUnlocks();
+    addGenerator("terrarium");
+    if (selected_ >= 0 && selected_ < static_cast<int>(cues_.size())) cues_[static_cast<std::size_t>(selected_)].name = "TERRARIUM (secret)";
+    notice_ = "TERRARIUM UNLOCKED";
+    noticeUntil_ = SDL_GetTicks() + 4000;
+    buzz("go");
+  }
+
+  void saveUnlocks() {
+    const char* state = SDL_getenv("DECKBOY_STATE_DIR");
+    const std::string text = std::string("terrarium\t") + (terrariumUnlocked_ ? "1" : "0") + "\n";
+    SDL_SaveFile((std::string(state ? state : ".") + "/pocket_unlocks.txt").c_str(), text.data(), text.size());
+  }
+
+  void loadUnlocks() {
+    size_t n = 0;
+    const char* state = SDL_getenv("DECKBOY_STATE_DIR");
+    char* saved = static_cast<char*>(SDL_LoadFile((std::string(state ? state : ".") + "/pocket_unlocks.txt").c_str(), &n));
+    if (!saved) return;
+    const std::string text(saved, n);
+    SDL_free(saved);
+    terrariumUnlocked_ = text.find("terrarium\t1") != std::string::npos;
+  }
+
   // The left pill (SELECT on a handheld): BLACK unless you choose otherwise.
   enum class Pill { Black, PlayPause, Mute, PlayNext, StopAfter, Shuffle, FullScreen, Identify, Count };
 
@@ -4779,10 +4829,12 @@ class Pocket {
   void tap(float x, float y) {
     const float u = unit_;
     auto within = [&](SDL_FPoint c, float rad) { return (x - c.x) * (x - c.x) + (y - c.y) * (y - c.y) <= rad * rad; };
-    if (within(goCentre_, 10 * u)) { press(Pressed::Go); go(); return; }
-    if (within(backCentre_, 8.5f * u)) { press(Pressed::Back); back(); return; }
+    if (within(goCentre_, 10 * u)) { press(Pressed::Go); if (!codeKey(Pressed::Go)) go(); return; }
+    if (within(backCentre_, 8.5f * u)) { press(Pressed::Back); if (!codeKey(Pressed::Back)) back(); return; }
     const float dx = x - padCentre_.x, dy = y - padCentre_.y;
     if (std::fabs(dx) < 15 * u && std::fabs(dy) < 15 * u) {
+      const Pressed pad = std::fabs(dx) > std::fabs(dy) ? (dx > 0 ? Pressed::Right : Pressed::Left) : (dy > 0 ? Pressed::Down : Pressed::Up);
+      if (codeKey(pad)) { press(pad); return; }
       if (std::fabs(dx) > std::fabs(dy)) {
         const bool paused = active_ >= 0 && engine_->state() == TransportState::Paused &&
                             cueHasTimeline(cues_[static_cast<std::size_t>(active_)]);
@@ -4805,7 +4857,12 @@ class Pocket {
       press(Pressed::Black);
       return;
     }
-    if (inside(menuHit, x, y)) { press(Pressed::Menu); menuOpen_ = true; menuTab_ = -1; sheet_ = -1; return; }
+    if (inside(menuHit, x, y)) {
+      press(Pressed::Menu);
+      if (codeKey(Pressed::Menu)) return;
+      menuOpen_ = true; menuTab_ = -1; sheet_ = -1;
+      return;
+    }
     if (inside(listLcd_, x, y) && rowH_ > 0) {
       select(scroll_ + static_cast<int>((y - listLcd_.y) / rowH_));
     }
@@ -5031,6 +5088,9 @@ class Pocket {
   bool haptics_ = true;
   Defaults defaults_;
   Pill pill_ = Pill::Black;
+  int codeIndex_ = 0;
+  Uint64 codeLastMs_ = 0;
+  bool terrariumUnlocked_ = false;
   // ghost controls over full screen
   Uint64 ghostUntil_ = 0;
   std::vector<Hit> ghostHits_;
