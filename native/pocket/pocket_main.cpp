@@ -2312,8 +2312,10 @@ class Pocket {
     y += u;
     text_.draw(pixelSmall_, "ON THE DESK", kDark, {lx, y, lw, 3.5f * u});
     y += 4.2f * u;
-    line("Settings > Network: allow network control.", kDeep);
-    line("Then SYNC LEAD ON. Media must be on both.", kDeep);
+    line("Settings > Network: Listen on ALL INTERFACES,", kDeep);
+    line("Lead other machines: LEADING.", kDeep);
+    line("Last refused: ALLOW this phone.", kDeep);
+    line("Put the same media on both.", kDeep);
   }
 
   // While typing, the address sits over the picture: the keyboard covers the menu.
