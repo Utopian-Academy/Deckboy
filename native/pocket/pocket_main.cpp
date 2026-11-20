@@ -4140,7 +4140,7 @@ class Pocket {
       y += 9 * u;
     }
     const float bottom = lcd.y + lcd.h - u;
-    const float rowH = std::min(9.0f * u, (bottom - y) / 7.0f);
+    const float rowH = std::min(9.0f * u, (bottom - y) / (slot == kGeoLfoRotation ? 8.0f : 7.0f));
     auto row = [&](float weight) { const SDL_FRect rr {lx, y, lw, rowH * weight}; y += rowH * weight; return rr; };
     chipRow(row(1), {{L.on ? "MOVING" : "STILL", [this, i, slot] {
                         auto& l = cues_[static_cast<std::size_t>(i)].geometryLfo[static_cast<std::size_t>(slot)];
@@ -4164,6 +4164,22 @@ class Pocket {
       }
       chipRow(row(1), chips, on);
     }
+    if (slot == kGeoLfoRotation) {
+      // A whole turn every cycle, round and round: a ramp across the full
+      // range, whose two ends are the same angle, so it never jumps.
+      auto spin = [this, i, slot](bool right) {
+        return [this, i, slot, right] {
+          auto& l = cues_[static_cast<std::size_t>(i)].geometryLfo[static_cast<std::size_t>(slot)];
+          l.on = true;
+          l.shape = right ? deckboy::effects::LfoShape::Saw : deckboy::effects::LfoShape::Ramp;
+          l.depth = 1.0f;
+          buzz("spin");
+        };
+      };
+      const bool spinning = L.on && L.depth >= 0.999f;
+      chipRow(row(1), {{"SPIN RIGHT", spin(true)}, {"SPIN LEFT", spin(false)}},
+              {spinning && L.shape == deckboy::effects::LfoShape::Saw, spinning && L.shape == deckboy::effects::LfoShape::Ramp});
+    }
     chipRow(row(1), {{"FREE", [this, i, slot] { cues_[static_cast<std::size_t>(i)].geometryLfo[static_cast<std::size_t>(slot)].beatSync = false; }},
                      {"ON THE BEAT", [this, i, slot] { cues_[static_cast<std::size_t>(i)].geometryLfo[static_cast<std::size_t>(slot)].beatSync = true; }}},
             {!L.beatSync, L.beatSync});
@@ -4181,8 +4197,10 @@ class Pocket {
         n.get = [this, i, slot] { return static_cast<double>(cues_[static_cast<std::size_t>(i)].geometryLfo[static_cast<std::size_t>(slot)].beats); };
         n.set = [this, i, slot](double v) { cues_[static_cast<std::size_t>(i)].geometryLfo[static_cast<std::size_t>(slot)].beats = static_cast<float>(v); };
       } else {
-        n.label = "RATE";
-        n.unit = "Hz";
+        const bool spinning = slot == kGeoLfoRotation && L.depth >= 0.999f &&
+                              (L.shape == deckboy::effects::LfoShape::Saw || L.shape == deckboy::effects::LfoShape::Ramp);
+        n.label = spinning ? "TURNS" : "RATE";
+        n.unit = spinning ? "/ s" : "Hz";
         n.decimals = 2;
         n.min = 0.01;
         n.max = 8;
