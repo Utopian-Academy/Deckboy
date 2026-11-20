@@ -4767,3 +4767,10 @@ SYNC LEAD ON or OFF	SYNC LEAD ON hoặc OFF
 SYNC LEAD ON|OFF or SYNC STATUS	SYNC LEAD ON|OFF hoặc SYNC STATUS
 FOLLOW needs a network connection that stays open	FOLLOW cần kết nối mạng luôn mở
 this desk is not leading (SYNC LEAD ON, or Settings > Network > SYNC)	bàn này không dẫn (SYNC LEAD ON, hoặc Cài đặt > Mạng > SYNC)
+LEADING	ĐANG DẪN
+No longer leading	Không còn dẫn
+Lead other machines	Dẫn các máy khác
+Following this desk: {1}	Đang theo bàn này: {1}
+Leading. Nobody is following yet.	Đang dẫn. Chưa có ai theo.
+Leading: other machines may follow this desk	Đang dẫn: các máy khác có thể theo bàn này
+Not leading: no other machine can follow this desk.	Không dẫn: không máy nào khác có thể theo bàn này.

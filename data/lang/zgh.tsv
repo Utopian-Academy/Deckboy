@@ -4794,3 +4794,10 @@ SYNC LEAD ON or OFF	SYNC LEAD ON ⵏⵖ OFF
 SYNC LEAD ON|OFF or SYNC STATUS	SYNC LEAD ON|OFF ⵏⵖ SYNC STATUS
 FOLLOW needs a network connection that stays open	FOLLOW ⵉⵅⵚⵚⴰ ⴰⵙ ⵓⵣⴷⴰⵢ ⵏ ⵓⵥⵟⵟⴰ ⵉⵇⵇⵉⵎⵏ ⵉⵕⵥⵎ
 this desk is not leading (SYNC LEAD ON, or Settings > Network > SYNC)	ⵜⴰⴼⵉⵍⵓⵜ ⴰⴷ ⵓⵔ ⵜⵜⵣⵡⴰⵔ (SYNC LEAD ON, ⵏⵖ ⵜⵉⵙⵖⴰⵍ > ⴰⵥⵟⵟⴰ > SYNC)
+LEADING	ⵉⵜⵜⵣⵡⵉⵔ
+No longer leading	ⵓⵔ ⵙⵓⵍ ⵉⵜⵜⵣⵡⵉⵔ
+Lead other machines	ⵣⵡⵓⵔ ⵉ ⵜⵎⴰⵛⵉⵏⵉⵏ ⵢⴰⴹⵏ
+Following this desk: {1}	ⵉⵜⵜⴹⴼⴰⵔⵏ ⵜⴰⴼⵉⵍⵓⵜ ⴰⴷ: {1}
+Leading. Nobody is following yet.	ⵉⵜⵜⵣⵡⵉⵔ. ⵃⵜⵜⴰ ⵢⴰⵏ ⵓⵔ ⵉⵜⵜⴹⴼⴰⵔ ⵖⵉⵍⴰ.
+Leading: other machines may follow this desk	ⵉⵜⵜⵣⵡⵉⵔ: ⵜⵉⵎⴰⵛⵉⵏⵉⵏ ⵢⴰⴹⵏ ⵣⵎⵔⵏⵜ ⴰⴷ ⴹⴼⵔⵏⵜ ⵜⴰⴼⵉⵍⵓⵜ ⴰⴷ
+Not leading: no other machine can follow this desk.	ⵓⵔ ⵉⵜⵜⵣⵡⵉⵔ: ⵓⵔ ⵜⵣⵎⵉⵔ ⵃⵜⵜⴰ ⵜⴰⵎⴰⵛⵉⵏⵜ ⵢⴰⴹⵏ ⴰⴷ ⵜⴹⴼⵔ ⵜⴰⴼⵉⵍⵓⵜ ⴰⴷ.

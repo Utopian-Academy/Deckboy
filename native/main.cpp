@@ -10395,6 +10395,7 @@ class App {
   static constexpr int kSettingsActionMiamiCursorToggle = 884;
   static constexpr int kSettingsActionLessonVoice = 60200;   // CHIP / EXPERIMENTAL / OFF
   static constexpr int kSettingsActionBeastModeToggle = 885;
+  static constexpr int kSettingsActionSyncLeadToggle = 886;
   // The MIDI map page (app_midi_map.ipp). 1100-1179: the page's controls,
   // then one per visible table row from kSettingsActionMidiMapRowBase.
   static constexpr int kSettingsActionMidiMapOpen = 1100;
@@ -13157,7 +13158,6 @@ class App {
   // the tally CHANGES rather than one per tick.
   std::string vmixLastPushedTally_;
   // SYNC conductor (app_network.ipp): leading, its followers, what was sent.
-  bool syncLead_ = false;
   std::vector<SyncFollower> syncFollowers_;
   std::string syncLastKey_;
   std::uint64_t syncLastSentNs_ = 0;

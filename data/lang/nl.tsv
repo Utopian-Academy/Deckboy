@@ -4733,3 +4733,10 @@ SYNC LEAD ON or OFF	SYNC LEAD ON of OFF
 SYNC LEAD ON|OFF or SYNC STATUS	SYNC LEAD ON|OFF of SYNC STATUS
 FOLLOW needs a network connection that stays open	FOLLOW vereist een netwerkverbinding die open blijft
 this desk is not leading (SYNC LEAD ON, or Settings > Network > SYNC)	deze regietafel leidt niet (SYNC LEAD ON, of Instellingen > Netwerk > SYNC)
+LEADING	LEIDEND
+No longer leading	Niet langer leidend
+Lead other machines	Andere machines leiden
+Following this desk: {1}	Volgen deze regietafel: {1}
+Leading. Nobody is following yet.	Leidend. Nog niemand volgt.
+Leading: other machines may follow this desk	Leidend: andere machines mogen deze regietafel volgen
+Not leading: no other machine can follow this desk.	Niet leidend: geen andere machine kan deze regietafel volgen.

@@ -4789,3 +4789,10 @@ SYNC LEAD ON or OFF	SYNC LEAD ON tai OFF
 SYNC LEAD ON|OFF or SYNC STATUS	SYNC LEAD ON|OFF tai SYNC STATUS
 FOLLOW needs a network connection that stays open	FOLLOW tarvitsee verkkoyhteyden, joka pysyy auki
 this desk is not leading (SYNC LEAD ON, or Settings > Network > SYNC)	tämä pöytä ei johda (SYNC LEAD ON tai Asetukset > Verkko > SYNC)
+LEADING	JOHTAA
+No longer leading	Ei enää johda
+Lead other machines	Johda muita koneita
+Following this desk: {1}	Tätä pöytää seuraa: {1}
+Leading. Nobody is following yet.	Johtaa. Kukaan ei seuraa vielä.
+Leading: other machines may follow this desk	Johtaa: muut koneet voivat seurata tätä pöytää
+Not leading: no other machine can follow this desk.	Ei johda: mikään muu kone ei voi seurata tätä pöytää.

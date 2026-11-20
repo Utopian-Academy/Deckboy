@@ -4783,3 +4783,10 @@ SYNC LEAD ON or OFF	SYNC LEAD ON или OFF
 SYNC LEAD ON|OFF or SYNC STATUS	SYNC LEAD ON|OFF или SYNC STATUS
 FOLLOW needs a network connection that stays open	FOLLOW требует постоянного сетевого подключения
 this desk is not leading (SYNC LEAD ON, or Settings > Network > SYNC)	этот оператор не ведущий (SYNC LEAD ON или Настройки > Сеть > SYNC)
+LEADING	ВЕДУЩИЙ
+No longer leading	Больше не ведущий
+Lead other machines	Вести другие устройства
+Following this desk: {1}	За этим оператором следуют: {1}
+Leading. Nobody is following yet.	Ведущий. Пока никто не следует.
+Leading: other machines may follow this desk	Ведущий: другие устройства могут следовать за этим оператором
+Not leading: no other machine can follow this desk.	Не ведущий: никакое другое устройство не может следовать за этим оператором.

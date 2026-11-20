@@ -4769,3 +4769,10 @@ SYNC LEAD ON or OFF	SYNC LEAD ON of OFF
 SYNC LEAD ON|OFF or SYNC STATUS	SYNC LEAD ON|OFF of SYNC STATUS
 FOLLOW needs a network connection that stays open	FOLLOW mester un conexion di red cu ta keda habri
 this desk is not leading (SYNC LEAD ON, or Settings > Network > SYNC)	e mesa aki no ta guia (SYNC LEAD ON, of Settings > Network > SYNC)
+LEADING	TA GUIA
+No longer leading	No ta guia mas
+Lead other machines	Guia otro maquina
+Following this desk: {1}	Ta sigui e mesa aki: {1}
+Leading. Nobody is following yet.	Ta guia. Ningun hende no ta sigui ainda.
+Leading: other machines may follow this desk	Ta guia: otro maquina por sigui e mesa aki
+Not leading: no other machine can follow this desk.	No ta guia: ningun otro maquina no por sigui e mesa aki.

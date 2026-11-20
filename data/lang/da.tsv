@@ -4742,3 +4742,10 @@ SYNC LEAD ON or OFF	SYNC LEAD ON eller OFF
 SYNC LEAD ON|OFF or SYNC STATUS	SYNC LEAD ON|OFF eller SYNC STATUS
 FOLLOW needs a network connection that stays open	FOLLOW kræver en netværksforbindelse, der forbliver åben
 this desk is not leading (SYNC LEAD ON, or Settings > Network > SYNC)	denne pult leder ikke (SYNC LEAD ON eller Indstillinger > Netværk > SYNC)
+LEADING	FØRER
+No longer leading	Fører ikke længere
+Lead other machines	Før andre maskiner
+Following this desk: {1}	Følger denne pult: {1}
+Leading. Nobody is following yet.	Fører. Ingen følger endnu.
+Leading: other machines may follow this desk	Fører: andre maskiner kan følge denne pult
+Not leading: no other machine can follow this desk.	Fører ikke: ingen anden maskine kan følge denne pult.

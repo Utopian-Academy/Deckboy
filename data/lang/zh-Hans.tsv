@@ -4780,3 +4780,10 @@ SYNC LEAD ON or OFF	SYNC LEAD ON 或 OFF
 SYNC LEAD ON|OFF or SYNC STATUS	SYNC LEAD ON|OFF 或 SYNC STATUS
 FOLLOW needs a network connection that stays open	FOLLOW 需要保持打开的网络连接
 this desk is not leading (SYNC LEAD ON, or Settings > Network > SYNC)	此控制台未作为主导（SYNC LEAD ON，或 设置 > 网络 > SYNC）
+LEADING	主导中
+No longer leading	不再主导
+Lead other machines	主导其他机器
+Following this desk: {1}	正在跟随此控制台：{1}
+Leading. Nobody is following yet.	主导中。尚无人跟随。
+Leading: other machines may follow this desk	主导中：其他机器可跟随此控制台
+Not leading: no other machine can follow this desk.	未主导：其他机器无法跟随此控制台。

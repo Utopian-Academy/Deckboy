@@ -4768,3 +4768,10 @@ SYNC LEAD ON or OFF	SYNC LEAD ON noma OFF
 SYNC LEAD ON|OFF or SYNC STATUS	SYNC LEAD ON|OFF noma SYNC STATUS
 FOLLOW needs a network connection that stays open	i-FOLLOW idinga uxhumano lwenethiwekhi oluhlala luvuliwe
 this desk is not leading (SYNC LEAD ON, or Settings > Network > SYNC)	leli deski aliholi (SYNC LEAD ON, noma Izilungiselelo > Inethiwekhi > SYNC)
+LEADING	IYAHOLA
+No longer leading	ayisaholi
+Lead other machines	Hola eminye imishini
+Following this desk: {1}	Ilandela leli deski: {1}
+Leading. Nobody is following yet.	Iyahola. Akekho olandelayo okwamanje.
+Leading: other machines may follow this desk	Iyahola: eminye imishini ingalandela leli deski
+Not leading: no other machine can follow this desk.	Ayiholi: awukho omunye umshini ongalandela leli deski.

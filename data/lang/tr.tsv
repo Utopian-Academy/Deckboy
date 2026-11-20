@@ -4774,3 +4774,10 @@ SYNC LEAD ON or OFF	SYNC LEAD ON veya OFF
 SYNC LEAD ON|OFF or SYNC STATUS	SYNC LEAD ON|OFF veya SYNC STATUS
 FOLLOW needs a network connection that stays open	FOLLOW sürekli açık kalan bir ağ bağlantısı gerektirir
 this desk is not leading (SYNC LEAD ON, or Settings > Network > SYNC)	bu operatör lider değil (SYNC LEAD ON veya Ayarlar > Ağ > SYNC)
+LEADING	LİDER
+No longer leading	Artık lider değil
+Lead other machines	Diğer makinelere liderlik et
+Following this desk: {1}	Bu operatörü izleyen: {1}
+Leading. Nobody is following yet.	Lider. Henüz izleyen yok.
+Leading: other machines may follow this desk	Lider: diğer makineler bu operatörü izleyebilir
+Not leading: no other machine can follow this desk.	Lider değil: başka hiçbir makine bu operatörü izleyemez.

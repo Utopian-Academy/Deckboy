@@ -4788,3 +4788,10 @@ SYNC LEAD ON or OFF	SYNC LEAD ON 또는 OFF
 SYNC LEAD ON|OFF or SYNC STATUS	SYNC LEAD ON|OFF 또는 SYNC STATUS
 FOLLOW needs a network connection that stays open	FOLLOW에는 계속 열려 있는 네트워크 연결이 필요합니다
 this desk is not leading (SYNC LEAD ON, or Settings > Network > SYNC)	이 콘솔이 리드하지 않음 (SYNC LEAD ON 또는 설정 > 네트워크 > SYNC)
+LEADING	리드 중
+No longer leading	더 이상 리드하지 않음
+Lead other machines	다른 기계 리드하기
+Following this desk: {1}	이 콘솔을 따르는 중: {1}
+Leading. Nobody is following yet.	리드 중. 아직 아무도 따르지 않음.
+Leading: other machines may follow this desk	리드 중: 다른 기계가 이 콘솔을 따를 수 있음
+Not leading: no other machine can follow this desk.	리드 안 함: 다른 기계가 이 콘솔을 따를 수 없음.

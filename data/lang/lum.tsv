@@ -4803,3 +4803,10 @@ SYNC LEAD ON or OFF	SYNC LEAD ON o OFF
 SYNC LEAD ON|OFF or SYNC STATUS	SYNC LEAD ON|OFF o SYNC STATUS
 FOLLOW needs a network connection that stays open	FOLLOW peni retadora gurfeso
 this desk is not leading (SYNC LEAD ON, or Settings > Network > SYNC)	dekadora nakae va muni (SYNC LEAD ON, o Settings > Network > SYNC)
+LEADING	MUNI
+No longer leading	Vamuni novtok
+Lead other machines	Muni seto janaku
+Following this desk: {1}	Novtoki so dekadora nakae: {1}
+Leading. Nobody is following yet.	Muni. Va wia novtoki so.
+Leading: other machines may follow this desk	Muni: seto janaku pel novtoki so dekadora nakae
+Not leading: no other machine can follow this desk.	Vamuni: seto jana vapel novtoki so dekadora nakae.

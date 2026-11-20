@@ -4783,3 +4783,10 @@ SYNC LEAD ON or OFF	SYNC LEAD ON an OFF
 SYNC LEAD ON|OFF or SYNC STATUS	SYNC LEAD ON|OFF an SYNC STATUS
 FOLLOW needs a network connection that stays open	FOLLOW girêdaneke torê ya ku vekirî bimîne dixwaze
 this desk is not leading (SYNC LEAD ON, or Settings > Network > SYNC)	ev maseya kontrolê pêşengiyê nake (SYNC LEAD ON, an Settings > Network > SYNC)
+LEADING	PÊŞENGÎ
+No longer leading	Êdî ne pêşeng e
+Lead other machines	Pêşengiya makîneyên din bike
+Following this desk: {1}	Vê maseya kontrolê dişopînin: {1}
+Leading. Nobody is following yet.	Pêşeng e. Hêj tu kes naşopîne.
+Leading: other machines may follow this desk	Pêşeng: makîneyên din dikarin vê maseya kontrolê bişopînin
+Not leading: no other machine can follow this desk.	Ne pêşeng: tu makîneya din nikare vê maseya kontrolê bişopîne.

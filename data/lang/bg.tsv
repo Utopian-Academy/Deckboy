@@ -4791,3 +4791,10 @@ SYNC LEAD ON or OFF	SYNC LEAD ON или OFF
 SYNC LEAD ON|OFF or SYNC STATUS	SYNC LEAD ON|OFF или SYNC STATUS
 FOLLOW needs a network connection that stays open	FOLLOW изисква мрежова връзка, която остава отворена
 this desk is not leading (SYNC LEAD ON, or Settings > Network > SYNC)	този пулт не е водещ (SYNC LEAD ON или Настройки > Мрежа > SYNC)
+LEADING	ВОДЕЩ
+No longer leading	Вече не е водещ
+Lead other machines	Води другите машини
+Following this desk: {1}	Следват този пулт: {1}
+Leading. Nobody is following yet.	Водещ. Още никой не следва.
+Leading: other machines may follow this desk	Водещ: други машини могат да следват този пулт
+Not leading: no other machine can follow this desk.	Не е водещ: никоя друга машина не може да следва този пулт.

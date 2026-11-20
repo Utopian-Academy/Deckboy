@@ -4777,3 +4777,10 @@ SYNC LEAD ON or OFF	SYNC LEAD ON neɣ OFF
 SYNC LEAD ON|OFF or SYNC STATUS	SYNC LEAD ON|OFF neɣ SYNC STATUS
 FOLLOW needs a network connection that stays open	FOLLOW yesra tuqqna n uẓeṭṭa ara yeqqimen teldi
 this desk is not leading (SYNC LEAD ON, or Settings > Network > SYNC)	ṭṭabla-agi ur tezwir ara (SYNC LEAD ON, neɣ Settings > Network > SYNC)
+LEADING	YETTWELLIH
+No longer leading	Ur yettwellih ara tura
+Lead other machines	Wellah iselkimen nniḍen
+Following this desk: {1}	Ṭṭafaren ṭṭabla-agi: {1}
+Leading. Nobody is following yet.	Yettwellih. Ula yiwen ur yeṭṭafar ara yakan.
+Leading: other machines may follow this desk	Yettwellih: iselkimen nniḍen zemren ad ḍfren ṭṭabla-agi
+Not leading: no other machine can follow this desk.	Ur yettwellih ara: ula yiwen n uselkim nniḍen ur yezmir ara ad yeḍfer ṭṭabla-agi.

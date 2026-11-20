@@ -4760,3 +4760,10 @@ SYNC LEAD ON or OFF	SYNC LEAD ON o OFF
 SYNC LEAD ON|OFF or SYNC STATUS	SYNC LEAD ON|OFF o SYNC STATUS
 FOLLOW needs a network connection that stays open	FOLLOW necesita una conexión de red que se quede abierta
 this desk is not leading (SYNC LEAD ON, or Settings > Network > SYNC)	esta mesa no está liderando (SYNC LEAD ON, o Ajustes > Red > SYNC)
+LEADING	LIDERANDO
+No longer leading	Ya no lidera
+Lead other machines	Liderar otras máquinas
+Following this desk: {1}	Siguiendo esta mesa: {1}
+Leading. Nobody is following yet.	Liderando. Todavía nadie está siguiendo.
+Leading: other machines may follow this desk	Liderando: otras máquinas pueden seguir esta mesa
+Not leading: no other machine can follow this desk.	Sin liderar: ninguna otra máquina puede seguir esta mesa.

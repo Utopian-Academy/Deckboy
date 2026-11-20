@@ -4792,3 +4792,10 @@ SYNC LEAD ON or OFF	SYNC LEAD ON یان OFF
 SYNC LEAD ON|OFF or SYNC STATUS	SYNC LEAD ON|OFF یان SYNC STATUS
 FOLLOW needs a network connection that stays open	FOLLOW پێویستی بە پەیوەندیی تۆڕێکە کە کراوە بمێنێتەوە
 this desk is not leading (SYNC LEAD ON, or Settings > Network > SYNC)	ئەم مێزی کۆنترۆڵە پێشەنگ نییە (SYNC LEAD ON، یان ڕێکخستنەکان > تۆڕ > SYNC)
+LEADING	ڕابەر
+No longer leading	چیتر ڕابەر نییە
+Lead other machines	ڕابەرایەتی ئامێرەکانی تر بکە
+Following this desk: {1}	شوێن ئەم مێزی کۆنترۆڵە دەکەون: {1}
+Leading. Nobody is following yet.	ڕابەر. هێشتا هیچ کەس شوێنی ناکەوێت.
+Leading: other machines may follow this desk	ڕابەر: ئامێرەکانی تر دەتوانن شوێن ئەم مێزی کۆنترۆڵە بکەون
+Not leading: no other machine can follow this desk.	ڕابەر نییە: هیچ ئامێرێکی تر ناتوانێت شوێن ئەم مێزی کۆنترۆڵە بکەوێت.

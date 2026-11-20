@@ -4804,3 +4804,10 @@ SYNC LEAD ON or OFF	SYNC LEAD ON یا OFF
 SYNC LEAD ON|OFF or SYNC STATUS	SYNC LEAD ON|OFF یا SYNC STATUS
 FOLLOW needs a network connection that stays open	FOLLOW به اتصال شبکه‌ای نیاز دارد که باز بماند
 this desk is not leading (SYNC LEAD ON, or Settings > Network > SYNC)	این اپراتور رهبری نمی‌کند (SYNC LEAD ON، یا تنظیمات > شبکه > SYNC)
+LEADING	در حال رهبری
+No longer leading	دیگر رهبری نمی‌کند
+Lead other machines	رهبری دستگاه‌های دیگر
+Following this desk: {1}	این اپراتور را دنبال می‌کند: {1}
+Leading. Nobody is following yet.	در حال رهبری. هنوز هیچ‌کس دنبال نمی‌کند.
+Leading: other machines may follow this desk	در حال رهبری: دستگاه‌های دیگر می‌توانند این اپراتور را دنبال کنند
+Not leading: no other machine can follow this desk.	بدون رهبری: هیچ دستگاه دیگری نمی‌تواند این اپراتور را دنبال کند.

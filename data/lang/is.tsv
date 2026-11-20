@@ -4783,3 +4783,10 @@ SYNC LEAD ON or OFF	SYNC LEAD ON eða OFF
 SYNC LEAD ON|OFF or SYNC STATUS	SYNC LEAD ON|OFF eða SYNC STATUS
 FOLLOW needs a network connection that stays open	FOLLOW þarf nettengingu sem helst opin
 this desk is not leading (SYNC LEAD ON, or Settings > Network > SYNC)	þetta stjórnborð leiðir ekki (SYNC LEAD ON, eða Stillingar > Net > SYNC)
+LEADING	Í FORYSTU
+No longer leading	Ekki lengur í forystu
+Lead other machines	Leiða aðrar vélar
+Following this desk: {1}	Fylgja þessu stjórnborði: {1}
+Leading. Nobody is following yet.	Í forystu. Ekkert fylgir enn.
+Leading: other machines may follow this desk	Í forystu: aðrar vélar mega fylgja þessu stjórnborði
+Not leading: no other machine can follow this desk.	Ekki í forystu: engin önnur vél getur fylgt þessu stjórnborði.

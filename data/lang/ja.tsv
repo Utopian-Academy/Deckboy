@@ -4790,3 +4790,10 @@ SYNC LEAD ON or OFF	SYNC LEAD ON または OFF
 SYNC LEAD ON|OFF or SYNC STATUS	SYNC LEAD ON|OFF または SYNC STATUS
 FOLLOW needs a network connection that stays open	FOLLOWには開いたままのネットワーク接続が必要です
 this desk is not leading (SYNC LEAD ON, or Settings > Network > SYNC)	この操作卓はリードしていません（SYNC LEAD ON、または 設定 > ネットワーク > SYNC）
+LEADING	主導中
+No longer leading	主導を解除しました
+Lead other machines	他のマシンを主導する
+Following this desk: {1}	この操作卓に連動中: {1}
+Leading. Nobody is following yet.	主導中。連動しているマシンはまだなし。
+Leading: other machines may follow this desk	主導中: 他のマシンがこの操作卓に連動できます
+Not leading: no other machine can follow this desk.	主導していません: 他のマシンはこの操作卓に連動できません。

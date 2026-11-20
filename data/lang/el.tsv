@@ -4785,3 +4785,10 @@ SYNC LEAD ON or OFF	SYNC LEAD ON ή OFF
 SYNC LEAD ON|OFF or SYNC STATUS	SYNC LEAD ON|OFF ή SYNC STATUS
 FOLLOW needs a network connection that stays open	Το FOLLOW απαιτεί σύνδεση δικτύου που μένει ανοιχτή
 this desk is not leading (SYNC LEAD ON, or Settings > Network > SYNC)	αυτή η κονσόλα δεν ηγείται (SYNC LEAD ON ή Ρυθμίσεις > Δίκτυο > SYNC)
+LEADING	ΟΔΗΓΕΙ
+No longer leading	Δεν οδηγεί πλέον
+Lead other machines	Οδήγηση άλλων συσκευών
+Following this desk: {1}	Ακολουθούν αυτή την κονσόλα: {1}
+Leading. Nobody is following yet.	Οδηγεί. Κανείς δεν ακολουθεί ακόμη.
+Leading: other machines may follow this desk	Οδηγεί: άλλες συσκευές μπορούν να ακολουθούν αυτή την κονσόλα
+Not leading: no other machine can follow this desk.	Δεν οδηγεί: καμία άλλη συσκευή δεν μπορεί να ακολουθήσει αυτή την κονσόλα.

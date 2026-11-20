@@ -4805,3 +4805,10 @@ SYNC LEAD ON or OFF	SYNC LEAD ON أو OFF
 SYNC LEAD ON|OFF or SYNC STATUS	SYNC LEAD ON|OFF أو SYNC STATUS
 FOLLOW needs a network connection that stays open	يتطلب FOLLOW اتصال شبكة يبقى مفتوحًا
 this desk is not leading (SYNC LEAD ON, or Settings > Network > SYNC)	طاولة التحكم هذه ليست القائدة (SYNC LEAD ON، أو الإعدادات > الشبكة > SYNC)
+LEADING	يقود
+No longer leading	لم يعد يقود
+Lead other machines	قيادة الأجهزة الأخرى
+Following this desk: {1}	يتبع طاولة التحكم هذه: {1}
+Leading. Nobody is following yet.	يقود. لا أحد يتبع بعد.
+Leading: other machines may follow this desk	يقود: يمكن للأجهزة الأخرى أن تتبع طاولة التحكم هذه
+Not leading: no other machine can follow this desk.	لا يقود: لا يمكن لأي جهاز آخر أن يتبع طاولة التحكم هذه.

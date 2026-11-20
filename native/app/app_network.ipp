@@ -6157,7 +6157,7 @@ bool looksLikeHttpRequestLine(const std::string& line) {
         failRemoteCommand("FOLLOW needs a network connection that stays open");
         return;
       }
-      if (!syncLead_) {
+      if (!project_.syncLead) {
         failRemoteCommand("this desk is not leading (SYNC LEAD ON, or Settings > Network > SYNC)");
         return;
       }
@@ -6188,14 +6188,14 @@ bool looksLikeHttpRequestLine(const std::string& line) {
     const std::string sub = parts.size() > 1 ? toUpper(parts[1]) : std::string("STATUS");
     if (sub == "LEAD") {
       const std::string v = parts.size() > 2 ? toUpper(parts[2]) : std::string();
-      if (v == "ON") syncLead_ = true;
-      else if (v == "OFF") { syncLead_ = false; syncFollowers_.clear(); }
+      if (v == "ON") project_.syncLead = true;
+      else if (v == "OFF") { project_.syncLead = false; syncFollowers_.clear(); }
       else { failRemoteCommand("SYNC LEAD ON or OFF"); return; }
       return;
     }
     if (sub == "STATUS") {
       std::ostringstream o;
-      o << "lead=" << (syncLead_ ? "on" : "off") << " followers=" << syncFollowers_.size();
+      o << "lead=" << (project_.syncLead ? "on" : "off") << " followers=" << syncFollowers_.size();
       for (const auto& f : syncFollowers_) o << " [" << f.name << " " << f.kind << " " << f.role << "]";
       remoteCommandDetail_ = o.str();
       return;
@@ -6252,7 +6252,7 @@ bool looksLikeHttpRequestLine(const std::string& line) {
   // Every tick: drop followers whose connection went, and send the state on
   // a change or after 250 ms.
   void serviceSyncLead() {
-    if (!syncLead_ || syncFollowers_.empty()) return;
+    if (!project_.syncLead || syncFollowers_.empty()) return;
     syncFollowers_.erase(std::remove_if(syncFollowers_.begin(), syncFollowers_.end(),
                                         [&](const SyncFollower& f) {
                                           const bool gone = !companionClientAlive(f.socket, f.generation);
