@@ -190,6 +190,16 @@ public final class PocketBridge {
         }
     }
 
+    /** 1 while Battery Saver is on (it slows the phone down), else 0. */
+    public static int powerSave(Context context) {
+        try {
+            PowerManager pm = (PowerManager) context.getSystemService(Context.POWER_SERVICE);
+            return pm.isPowerSaveMode() ? 1 : 0;
+        } catch (Exception e) {
+            return 0;
+        }
+    }
+
     /**
      * Android's own heat level: 0 none, 1 light, 2 moderate, 3 severe (the
      * phone is slowing itself down), 4 critical, 5 emergency, 6 shutdown.

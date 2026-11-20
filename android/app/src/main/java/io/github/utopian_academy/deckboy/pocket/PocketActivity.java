@@ -79,6 +79,15 @@ public class PocketActivity extends SDLActivity {
         super.onCreate(savedInstanceState);
         // A show must not be cut by the screen going to sleep.
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+        // Steady clocks rather than bursts and throttling, where the phone
+        // offers it: a show wants the same speed in the second hour as the first.
+        try {
+            android.os.PowerManager pm = (android.os.PowerManager) getSystemService(Context.POWER_SERVICE);
+            if (Build.VERSION.SDK_INT >= 24 && pm.isSustainedPerformanceModeSupported()) {
+                getWindow().setSustainedPerformanceMode(true);
+            }
+        } catch (Exception ignored) {
+        }
         current = this;
         // The "show running" notification needs this once, on Android 13 and later.
         if (Build.VERSION.SDK_INT >= 33 && checkSelfPermission(android.Manifest.permission.POST_NOTIFICATIONS)

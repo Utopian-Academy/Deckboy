@@ -1776,6 +1776,7 @@ class Pocket {
     charging_ = b >= 1000;
     battery_ = b >= 1000 ? b - 1000 : b;
     thermal_ = bridgeInt("thermal");
+    powerSave_ = bridgeInt("powerSave") == 1;
 #endif
   }
 
@@ -1784,6 +1785,7 @@ class Pocket {
     std::string s;
     if (thermal_ >= 3) s = "TOO HOT  ";
     else if (thermal_ == 2) s = "WARM  ";
+    if (powerSave_) s += "SAVER  ";   // Battery Saver slows the phone: worth knowing before a show
     if (battery_ >= 0) s += std::to_string(battery_) + (charging_ ? "% +" : "%");
     return s;
   }
@@ -6554,6 +6556,7 @@ class Pocket {
   int fxShown_ = 0, fxPickPage_ = 0;
   bool fxPicking_ = false;
   Uint64 lastInputMs_ = 0;
+  bool powerSave_ = false;
   ClockMode clock_ = ClockMode::Off;
   bool showRemaining_ = false, showFps_ = false;
   Uint64 fpsSince_ = 0;
