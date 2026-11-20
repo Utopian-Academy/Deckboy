@@ -1437,7 +1437,12 @@ class Pocket {
   // behind other apps. Only on a change: the Java side posts to its thread.
   void updateShowRunning() {
 #if defined(SDL_PLATFORM_ANDROID)
-    const std::string title = (active_ >= 0 && !black_) ? cues_[static_cast<std::size_t>(active_)].name : std::string();
+    // The show runs (and the phone stays awake) while a cue is live, while it
+    // is held in BLACK, and while Pocket follows a desk: a long show parked in
+    // black between segments must not be frozen to save battery.
+    std::string title;
+    if (active_ >= 0) title = cues_[static_cast<std::size_t>(active_)].name + (black_ ? " (in black)" : " live");
+    else if (follow_ != Follow::Off) title = "Following " + followHost_;
     if (title == showRunningTitle_) return;
     showRunningTitle_ = title;
     auto* env = static_cast<JNIEnv*>(SDL_GetAndroidJNIEnv());

@@ -65,7 +65,7 @@ public class PocketActivity extends SDLActivity {
             if (title.equals(showTitle)) return;
             showTitle = title;
             if (title.isEmpty()) ShowService.hide(a);
-            else ShowService.show(a, title + " live");
+            else ShowService.show(a, title);
         });
     }
 

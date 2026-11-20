@@ -10,7 +10,9 @@ import android.content.Intent;
 import android.content.pm.ServiceInfo;
 import android.graphics.drawable.Icon;
 import android.os.Build;
+import android.net.wifi.WifiManager;
 import android.os.IBinder;
+import android.os.PowerManager;
 
 /**
  * "Show running": a foreground service while a cue is live, so Android keeps
@@ -18,11 +20,20 @@ import android.os.IBinder;
  * off, instead of freezing or killing it to save battery. Its notification
  * carries the show's name and BACK / GO / BLACK / PAUSE, which reach the
  * native side the same way the picture-in-picture buttons do.
+ *
+ * For a long show it also holds the phone awake while it runs: a partial wake
+ * lock keeps the CPU going with the screen off (a silent picture on an output,
+ * or following a desk, holds nothing else), and a low-latency Wi-Fi lock stops
+ * the radio dozing between packets, which would stall SYNC. Both go when the
+ * service stops. (The screen itself is kept on by the activity's
+ * FLAG_KEEP_SCREEN_ON.)
  */
 public class ShowService extends Service {
     static final String CHANNEL = "show";
     static final String EXTRA_TITLE = "title";
     private static final int ID = 7;
+    private PowerManager.WakeLock cpu;
+    private WifiManager.WifiLock wifi;
 
     /** Start, or update the text of, the running notification. */
     static void show(Context context, String title) {
@@ -49,7 +60,38 @@ public class ShowService extends Service {
         } else {
             startForeground(ID, n);
         }
+        holdAwake();
         return START_NOT_STICKY;
+    }
+
+    private void holdAwake() {
+        try {
+            if (cpu == null) {
+                PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
+                cpu = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "deckboy:show");
+                cpu.setReferenceCounted(false);
+            }
+            if (!cpu.isHeld()) cpu.acquire();
+            if (wifi == null) {
+                WifiManager wm = (WifiManager) getApplicationContext().getSystemService(Context.WIFI_SERVICE);
+                int mode = Build.VERSION.SDK_INT >= 29 ? WifiManager.WIFI_MODE_FULL_LOW_LATENCY : WifiManager.WIFI_MODE_FULL_HIGH_PERF;
+                wifi = wm.createWifiLock(mode, "deckboy:show");
+                wifi.setReferenceCounted(false);
+            }
+            if (!wifi.isHeld()) wifi.acquire();
+        } catch (Exception ignored) {
+            // a phone that refuses a lock still plays; it may doze with the screen off
+        }
+    }
+
+    @Override
+    public void onDestroy() {
+        try {
+            if (cpu != null && cpu.isHeld()) cpu.release();
+            if (wifi != null && wifi.isHeld()) wifi.release();
+        } catch (Exception ignored) {
+        }
+        super.onDestroy();
     }
 
     private Notification build(String title) {

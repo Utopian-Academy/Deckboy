@@ -52,6 +52,8 @@
 
     <!-- Allow access to the vibrator -->
     <uses-permission android:name="android.permission.VIBRATE" />
+    <!-- A long show: the CPU and the Wi-Fi stay awake while it runs (ShowService) -->
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
 
     <!-- The network: the remote (Companion, the desk) and NDI -->
     <uses-permission android:name="android.permission.INTERNET" />
