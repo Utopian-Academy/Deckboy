@@ -25,6 +25,7 @@
 #include "core/fs.hpp"
 #include "core/media_probe.hpp"
 #include "core/pattern_helpers.hpp"
+#include "core/show_file.hpp"
 #include "deckboy_version.hpp"
 #include "core/types.hpp"
 #include "core/utils.hpp"
@@ -606,6 +607,12 @@ const char* kindTag(const Cue& c) {
       return generatorPatternName(normalizePatternTypeId(c.path.rfind("pattern://", 0) == 0 ? c.path.substr(10) : c.path)).empty()
                  ? "PATTERN" : "SYNTH";
     case CueKind::VideoSynth: return "SYNTH";
+    case CueKind::Text: return "TEXT";
+    case CueKind::LowerThird: return "LOWER THIRD";
+    case CueKind::Timer: return "TIMER";
+    case CueKind::Tone: return "TONE";
+    case CueKind::Camera: return "CAMERA";
+    case CueKind::Browser: return "WEB";
     default: return "CUE";
   }
 }
@@ -704,6 +711,7 @@ class Pocket {
       cue.id = "pocket-" + std::to_string(++nextId_);   // the queue, the shuffle and SYNC find cues by id
       cues_.push_back(cue);
     }
+    if (!demoList) restoreList();
     loadThemes();
     loadFonts();
     loadSyncSettings();
@@ -824,6 +832,8 @@ class Pocket {
     if (base.empty()) base = SDL_GetPrefPath("Deckboy", "Pocket");
     mediaDir_ = joinPath(base, "media");
     SDL_CreateDirectory(mediaDir_.c_str());
+    showsDir_ = joinPath(base, "shows");
+    SDL_CreateDirectory(showsDir_.c_str());
     std::vector<dbfs::path> files;
     std::error_code ec;
     for (const auto& entry : dbfs::directory_iterator(dbfs::path(mediaDir_), ec)) {
@@ -870,7 +880,12 @@ class Pocket {
   bool event(const SDL_Event& e) {
     switch (e.type) {
       case SDL_EVENT_QUIT:
+        autosaveList();
         return false;
+      case SDL_EVENT_WILL_ENTER_BACKGROUND:
+      case SDL_EVENT_TERMINATING:
+        autosaveList();   // Android may end Pocket from here without asking
+        break;
       case SDL_EVENT_TEXT_INPUT:
         if (hostEditing_) {
           for (const char* c = e.text.text; *c; ++c) {
@@ -878,7 +893,7 @@ class Pocket {
               followHost_ += *c;
             }
           }
-        } else if (renameIndex_ >= 0 && renameText_.size() < 200) {
+        } else if (renameIndex_ != -1 && renameText_.size() < 200) {
           renameText_ += e.text.text;   // any language: SDL hands over UTF-8
         }
         break;
@@ -889,7 +904,7 @@ class Pocket {
           else if (e.key.key == SDLK_AC_BACK || e.key.key == SDLK_ESCAPE) endHostEdit();
           return true;
         }
-        if (renameIndex_ >= 0) {
+        if (renameIndex_ != -1) {
           if (e.key.key == SDLK_BACKSPACE && !renameText_.empty()) {
             // one whole character, however many bytes it took
             std::size_t cut = renameText_.size() - 1;
@@ -975,6 +990,10 @@ class Pocket {
   void frame() {
     const Uint64 t0 = SDL_GetPerformanceCounter();
     takePicks();
+    if (SDL_GetTicks() >= autosaveAt_) {
+      autosaveAt_ = SDL_GetTicks() + 4000;
+      autosaveList();
+    }
     pollRemote();
     pollFollow();
     serviceDirection();
@@ -1052,6 +1071,7 @@ class Pocket {
     drawProgram();
     if (hostEditing_) drawTextEditor("DESK ADDRESS", followHost_, "ENTER TO FOLLOW");
     if (renameIndex_ >= 0) drawTextEditor("CUE NAME", renameText_, "ENTER TO KEEP, BACK TO LEAVE IT");
+    if (renameIndex_ == kNamingShow) drawTextEditor("SHOW NAME", renameText_, "ENTER TO SAVE, BACK TO LEAVE IT");
     if (sheet_ >= 0) {
       drawSheet();
     } else if (menuOpen_) {
@@ -1726,11 +1746,12 @@ class Pocket {
     }
     {
       // a page: its name at the top, back to the tiles and CLOSE along the bottom (thumb reach)
-      static const char* kNames[7] = {"SOURCES", "OUTPUT", "LIST", "SYNC", "PHONE", "SHOW", "ABOUT"};
-      text_.draw(pixel_, kNames[std::clamp(menuTab_, 0, 6)], kDark, {lx, y, lw, 5 * u});
+      static const char* kNames[9] = {"SOURCES", "OUTPUT", "LIST", "SYNC", "PHONE", "SHOW", "ABOUT", "NEW CUES", "OPEN A SHOW"};
+      text_.draw(pixel_, kNames[std::clamp(menuTab_, 0, 8)], kDark, {lx, y, lw, 5 * u});
       const float bh = 7 * u, by = lcd.y + lcd.h - bh - 0.5f * u;
       const float bw = (lw - u) / 2;
-      button({lx, by, bw, bh}, menuTab_ == 6 ? "< PHONE" : "< MENU", [this] { menuTab_ = menuTab_ == 6 ? 4 : -1; endHostEdit(); });
+      const int up = menuTab_ == 6 ? 4 : (menuTab_ == 7 || menuTab_ == 8) ? 5 : -1;
+      button({lx, by, bw, bh}, up == 4 ? "< PHONE" : up == 5 ? "< SHOW" : "< MENU", [this, up] { menuTab_ = up; confirmOpen_.clear(); endHostEdit(); });
       button({lx + bw + u, by, bw, bh}, "CLOSE", [this] { menuOpen_ = false; endHostEdit(); });
     }
     y += 7 * u;
@@ -1801,6 +1822,12 @@ class Pocket {
     }
     if (menuTab_ == 5) {
       drawShowPage(lx, lw, y);
+    }
+    if (menuTab_ == 7) {
+      drawDefaultsPage(lx, lw, y);
+    }
+    if (menuTab_ == 8) {
+      drawOpenPage(lx, lw, y);
     }
     if (menuTab_ == 4) {
     heading("SHELL");
@@ -1884,9 +1911,9 @@ class Pocket {
     };
     switch (page) {
       case 5:   // SHOW
+        line(showName(), true);
+        if (show_.decks.size() > 1) line("playlist " + std::to_string(showDeck_ + 1) + " of " + std::to_string(show_.decks.size()));
         line(std::to_string(cues_.size()) + " cues");
-        line("fade " + std::to_string(defaults_.fadeIn).substr(0, 3) + " s in");
-        line(defaults_.end == EndMode::Next ? "then NEXT" : defaults_.end == EndMode::Loop ? "then LOOP" : "then HOLD");
         break;
       case 2: {  // LIST: what is on air and what comes next
         if (active_ >= 0) line(std::to_string(active_ + 1) + " " + cues_[static_cast<std::size_t>(active_)].name, true);
@@ -1984,7 +2011,7 @@ class Pocket {
 
   // MENU > SHOW: what new cues start with. (Opening and saving .deckboy
   // shows joins this page with the desk's own show code.)
-  void drawShowPage(float lx, float lw, float& y) {
+  void drawDefaultsPage(float lx, float lw, float& y) {
     const float u = unit_;
     text_.draw(pixelSmall_, "NEW CUES START WITH", kDark, {lx, y, lw, 3.5f * u});
     y += 4.5f * u;
@@ -2026,7 +2053,312 @@ class Pocket {
                                     noticeUntil_ = SDL_GetTicks() + 2500;
                                   }}}, {false});
     y += 8 * u;
-    text_.draw(mono_, "Opening and saving shows arrives here next.", kDark, {lx, y, lw, 4 * u});
+  }
+
+  // ── Shows: the desk's .deckboy files, read and written by the desk's own
+  // code (deckboy::showfile) ──
+  //
+  // Pocket plays one playlist of a show at a time. show_ keeps the whole show
+  // (every playlist, its outputs, its settings), so saving writes back what
+  // Pocket did not touch exactly as it came; cues_ is the playlist in hand.
+  // The list in hand is also saved every few seconds (state/pocket_list.deckboy)
+  // and comes back when Pocket starts again.
+
+  static constexpr int kNamingShow = -2;   // renameIndex_: the name editor is naming the show
+
+  std::string showName() const {
+    if (showFile_.empty()) return cues_.empty() ? "New list" : "Unsaved list";
+    const std::string f = showFile_.substr(showFile_.find_last_of("/\\") + 1);
+    return f.substr(0, f.rfind('.'));
+  }
+
+  // The show as it stands: the playlist in hand written back into the rest.
+  Project currentShow() const {
+    Project p = show_;
+    if (p.decks.empty()) p.decks.resize(1);
+    const std::size_t d = static_cast<std::size_t>(std::clamp(showDeck_, 0, static_cast<int>(p.decks.size()) - 1));
+    p.decks[d].cues = cues_;
+    p.decks[d].selectedIndex = cues_.empty() ? -1 : selected_;
+    p.focusedDeckIndex = static_cast<int>(d);
+    return p;
+  }
+
+  std::string statePath(const char* name) const {
+    const char* state = SDL_getenv("DECKBOY_STATE_DIR");
+    return std::string(state ? state : ".") + "/" + name;
+  }
+
+  // Only when something changed: the bytes are compared with the last save.
+  void autosaveList() {
+    const std::string path = statePath("pocket_list.deckboy");
+    const std::string tmp = path + ".tmp";
+    if (!deckboy::showfile::save(tmp, currentShow())) return;
+    size_t n = 0;
+    char* bytes = static_cast<char*>(SDL_LoadFile(tmp.c_str(), &n));
+    if (!bytes) return;
+    std::string now(bytes, n);
+    SDL_free(bytes);
+    if (now == lastAutosave_) {
+      SDL_RemovePath(tmp.c_str());
+      return;
+    }
+    SDL_RemovePath(path.c_str());
+    if (SDL_RenamePath(tmp.c_str(), path.c_str())) lastAutosave_ = std::move(now);
+    const std::string where = "file\t" + showFile_ + "\ndeck\t" + std::to_string(showDeck_) + "\n";
+    SDL_SaveFile(statePath("pocket_show.txt").c_str(), where.data(), where.size());
+  }
+
+  // At start: the list as it was left, with anything new in the media folder after it.
+  void restoreList() {
+    const std::string path = statePath("pocket_list.deckboy");
+    std::error_code ec;
+    if (!dbfs::exists(dbfs::path(path), ec)) return;
+    const std::vector<Cue> folder = cues_;
+    show_ = deckboy::showfile::load(path);
+    size_t n = 0;
+    if (char* saved = static_cast<char*>(SDL_LoadFile(statePath("pocket_show.txt").c_str(), &n))) {
+      std::istringstream in(std::string(saved, n));
+      SDL_free(saved);
+      std::string line;
+      while (std::getline(in, line)) {
+        const std::size_t tab = line.find('\t');
+        if (tab == std::string::npos) continue;
+        if (line.compare(0, tab, "file") == 0) showFile_ = line.substr(tab + 1);
+        if (line.compare(0, tab, "deck") == 0) showDeck_ = std::atoi(line.c_str() + tab + 1);
+      }
+    }
+    takePlaylist(std::clamp(showDeck_, 0, std::max(0, static_cast<int>(show_.decks.size()) - 1)));
+    for (const Cue& c : folder) {
+      const bool known = std::any_of(cues_.begin(), cues_.end(), [&](const Cue& k) { return k.path == c.path; });
+      if (!known) cues_.push_back(c);
+    }
+    size_t m = 0;
+    if (char* bytes = static_cast<char*>(SDL_LoadFile(path.c_str(), &m))) {
+      lastAutosave_.assign(bytes, m);
+      SDL_free(bytes);
+    }
+  }
+
+  // A file the show names that is not on this phone: the same file name in
+  // Pocket's media folder stands in (a show made on the desk names the
+  // desk's own disks).
+  void relinkMedia(Cue& c) const {
+    const std::string& p = c.path;
+    if (p.empty() || p.find("://") != std::string::npos) return;   // made by Deckboy, a stream, a phone link
+    std::error_code ec;
+    if (dbfs::exists(dbfs::path(p), ec)) return;
+    const std::string file = p.substr(p.find_last_of("/\\") + 1);
+    const std::string here = joinPath(mediaDir_, file);
+    if (dbfs::exists(dbfs::path(here), ec)) c.path = here;
+  }
+
+  // The playlist in hand becomes playlist `d` of the open show.
+  void takePlaylist(int d) {
+    if (show_.decks.empty()) show_.decks.resize(1);
+    showDeck_ = std::clamp(d, 0, static_cast<int>(show_.decks.size()) - 1);
+    cues_ = show_.decks[static_cast<std::size_t>(showDeck_)].cues;
+    for (Cue& c : cues_) {
+      relinkMedia(c);
+      if (c.id.empty()) c.id = "pocket-" + std::to_string(++nextId_);
+      if (c.id.rfind("pocket-", 0) == 0) nextId_ = std::max(nextId_, std::atoi(c.id.c_str() + 7));
+    }
+    engine_->clear();
+    active_ = -1;
+    queueIds_.clear();
+    listEnded_ = false;
+    endHandled_ = false;
+    undoCue_.reset();
+    sheet_ = -1;
+    scroll_ = 0;
+    selected_ = 0;
+    const int sel = show_.decks[static_cast<std::size_t>(showDeck_)].selectedIndex;
+    if (sel >= 0 && sel < static_cast<int>(cues_.size())) selected_ = sel;
+    if (shuffle_) refillShuffle(-1);
+  }
+
+  void switchPlaylist(int by) {
+    if (show_.decks.size() < 2) return;
+    show_ = currentShow();   // keep what was done to this one
+    const int n = static_cast<int>(show_.decks.size());
+    takePlaylist(((showDeck_ + by) % n + n) % n);
+    notice_ = "Playlist " + std::to_string(showDeck_ + 1) + ": " + show_.decks[static_cast<std::size_t>(showDeck_)].name;
+    noticeUntil_ = SDL_GetTicks() + 2500;
+  }
+
+  bool saveShowTo(const std::string& path) {
+    const Project p = currentShow();
+    if (!deckboy::showfile::save(path, p)) {
+      notice_ = "Could not save the show";
+      noticeUntil_ = SDL_GetTicks() + 4000;
+      return false;
+    }
+    show_ = p;
+    showFile_ = path;
+    autosaveList();
+    return true;
+  }
+
+  void saveShow() {
+    if (showFile_.empty()) { beginSaveAs(); return; }
+    if (saveShowTo(showFile_)) {
+      notice_ = "Saved " + showName();
+      noticeUntil_ = SDL_GetTicks() + 2500;
+      buzz("go");
+    }
+  }
+
+  void beginSaveAs() {
+    endHostEdit();
+    renameIndex_ = kNamingShow;
+    renameText_ = showFile_.empty() ? std::string() : showName();
+    SDL_StartTextInput(window_);
+  }
+
+  void saveShowAs(std::string name) {
+    for (char& ch : name) if (std::strchr("/\\:*?\"<>|", ch)) ch = '-';
+    const std::string path = joinPath(showsDir_, name + ".deckboy");
+    show_.title = name;
+    if (saveShowTo(path)) {
+      notice_ = "Saved as " + name;
+      noticeUntil_ = SDL_GetTicks() + 2500;
+      buzz("go");
+    }
+  }
+
+  // Opening replaces the list in hand: a saved show is saved first, and an
+  // unsaved list asks (OPEN pressed twice).
+  void openShow(const std::string& path) {
+    std::error_code ec;
+    if (!dbfs::exists(dbfs::path(path), ec)) {
+      notice_ = "That show is not there any more";
+      noticeUntil_ = SDL_GetTicks() + 3000;
+      return;
+    }
+    if (!showFile_.empty() && showFile_ != path) saveShowTo(showFile_);
+    show_ = deckboy::showfile::load(path);
+    showFile_ = path;
+    takePlaylist(show_.focusedDeckIndex);
+    confirmOpen_.clear();
+    menuOpen_ = false;
+    notice_ = "Opened " + showName() + (show_.decks.size() > 1 ? " (" + std::to_string(show_.decks.size()) + " playlists)" : "");
+    noticeUntil_ = SDL_GetTicks() + 3000;
+    buzz("go");
+    autosaveList();
+  }
+
+  void newShow() {
+    if (!showFile_.empty()) saveShowTo(showFile_);
+    show_ = Project {};
+    show_.decks.resize(1);
+    show_.decks[0].name = "Pocket";
+    showFile_.clear();
+    takePlaylist(0);
+    cues_.clear();
+    confirmNew_ = false;
+    notice_ = "A new list";
+    noticeUntil_ = SDL_GetTicks() + 2500;
+    autosaveList();
+  }
+
+  std::vector<std::string> savedShows() const {
+    std::vector<std::pair<dbfs::file_time_type, std::string>> found;
+    std::error_code ec;
+    for (const auto& e : dbfs::directory_iterator(dbfs::path(showsDir_), ec)) {
+      if (e.is_regular_file(ec) && endsWithNoCase(e.path().string(), ".deckboy")) found.push_back({e.last_write_time(ec), e.path().string()});
+    }
+    std::sort(found.begin(), found.end(), [](const auto& a, const auto& b) { return a.first > b.first; });   // newest first
+    std::vector<std::string> out;
+    for (auto& f : found) out.push_back(std::move(f.second));
+    return out;
+  }
+
+  // A show from anywhere on the phone (Downloads, a drive, a message): copied
+  // into Pocket's shows folder, then opened.
+  void importShow(const std::string& uri) {
+    std::string name;
+#if defined(SDL_PLATFORM_ANDROID)
+    name = bridgeString("displayName", uri);
+#endif
+    if (name.empty()) name = uri.substr(uri.find_last_of("/\\") + 1);
+    if (!endsWithNoCase(name, ".deckboy")) {
+      notice_ = name + " is not a Deckboy show";
+      noticeUntil_ = SDL_GetTicks() + 3500;
+      return;
+    }
+    size_t n = 0;
+    char* bytes = static_cast<char*>(SDL_LoadFile(uri.c_str(), &n));
+    if (!bytes) {
+      notice_ = "Could not read " + name;
+      noticeUntil_ = SDL_GetTicks() + 3500;
+      return;
+    }
+    const std::string path = joinPath(showsDir_, name);
+    const bool ok = SDL_SaveFile(path.c_str(), bytes, n);
+    SDL_free(bytes);
+    if (ok) openShow(path);
+  }
+
+  void openShowPicker() {
+    {
+      std::lock_guard<std::mutex> hold(pickLock_);
+      if (pickerOpen_) return;
+      pickerOpen_ = true;
+      pickingShow_ = true;
+    }
+    SDL_ShowOpenFileDialog(&Pocket::picked, this, window_, nullptr, 0, nullptr, false);
+  }
+
+  void drawShowPage(float lx, float lw, float& y) {
+    const float u = unit_;
+    text_.draw(pixel_, showName(), kDeep, {lx, y, lw, 5 * u});
+    y += 5.5f * u;
+    text_.draw(mono_, std::to_string(cues_.size()) + (cues_.size() == 1 ? " cue" : " cues") +
+                          (showFile_.empty() ? std::string(", not saved yet") : std::string()),
+               kDark, {lx, y, lw, 4.5f * u});
+    y += 6 * u;
+    if (show_.decks.size() > 1) {
+      text_.draw(pixelSmall_, "PLAYLIST", kDark, {lx, y, lw, 3.5f * u});
+      y += 4.2f * u;
+      const float bw = 9 * u;
+      button({lx, y, bw, 6 * u}, "<", [this] { switchPlaylist(-1); });
+      text_.draw(mono_, std::to_string(showDeck_ + 1) + "/" + std::to_string(show_.decks.size()) + "  " +
+                            show_.decks[static_cast<std::size_t>(showDeck_)].name,
+                 kDeep, {lx + bw + u, y, lw - 2 * bw - 2 * u, 6 * u}, true);
+      button({lx + lw - bw, y, bw, 6 * u}, ">", [this] { switchPlaylist(1); });
+      y += 7.5f * u;
+    }
+    const float bw = (lw - u) / 2;
+    button({lx, y, bw, 7 * u}, "SAVE", [this] { saveShow(); });
+    button({lx + bw + u, y, bw, 7 * u}, "SAVE AS", [this] { beginSaveAs(); });
+    y += 8 * u;
+    button({lx, y, bw, 7 * u}, "OPEN", [this] { menuTab_ = 8; confirmOpen_.clear(); });
+    button({lx + bw + u, y, bw, 7 * u}, confirmNew_ ? "SURE? NEW" : "NEW",
+           [this] { if (confirmNew_ || (showFile_.empty() && cues_.empty()) || !showFile_.empty()) newShow(); else confirmNew_ = true; },
+           true, false, confirmNew_);
+    y += 9 * u;
+    button({lx, y, lw, 7 * u}, "NEW CUES START WITH  >", [this] { menuTab_ = 7; });
+    y += 8 * u;
+  }
+
+  void drawOpenPage(float lx, float lw, float& y) {
+    const float u = unit_;
+    button({lx, y, lw, 7 * u}, "FROM THE PHONE'S FILES", [this] { openShowPicker(); });
+    y += 8.5f * u;
+    text_.draw(pixelSmall_, "IN POCKET", kDark, {lx, y, lw, 3.5f * u});
+    y += 4.5f * u;
+    const std::vector<std::string> shows = savedShows();
+    if (shows.empty()) text_.draw(mono_, "No saved shows yet.", kDark, {lx, y, lw, 4.5f * u});
+    const bool unsaved = showFile_.empty() && !cues_.empty();
+    for (const std::string& path : shows) {
+      if (y + 6.5f * u > sheetRect_.y + sheetRect_.h - 12 * u) break;   // room left above < SHOW / CLOSE
+      std::string name = path.substr(path.find_last_of("/\\") + 1);
+      name = name.substr(0, name.rfind('.'));
+      const bool asking = confirmOpen_ == path;
+      button({lx, y, lw, 6 * u}, asking ? "THE LIST IS NOT SAVED. OPEN " + name + "?" : name,
+             [this, path, unsaved] { if (!unsaved || confirmOpen_ == path) openShow(path); else confirmOpen_ = path; },
+             true, path == showFile_, asking);
+      y += 7 * u;
+    }
   }
 
   // The desk's Video Synth (oscillators, feedback, mirroring), as the desk
@@ -2572,6 +2904,36 @@ class Pocket {
       }
       return err("VIEW HOME, VIEW MENU <tab> or VIEW SHEET <cue>");
     }
+    if (verb == "SHOW") {   // SHOW SAVE [name] | SHOW OPEN <name or path> | SHOW NEW | SHOW PLAYLIST <n> | SHOW LIST
+      std::istringstream a(rest);
+      std::string sub;
+      a >> sub;
+      std::string arg;
+      std::getline(a, arg);
+      while (!arg.empty() && arg.front() == ' ') arg.erase(arg.begin());
+      for (char& ch : sub) ch = static_cast<char>(std::toupper(static_cast<unsigned char>(ch)));
+      if (sub == "SAVE") { if (arg.empty()) { if (showFile_.empty()) return err("SHOW SAVE <name>: not saved yet"); saveShow(); } else saveShowAs(arg); return ok(); }
+      if (sub == "OPEN") {
+        if (arg.empty()) return err("SHOW OPEN <name>");
+        std::string path = arg.find_first_of("/\\") != std::string::npos ? arg : joinPath(showsDir_, endsWithNoCase(arg, ".deckboy") ? arg : arg + ".deckboy");
+        openShow(path);
+        return ok();
+      }
+      if (sub == "NEW") { newShow(); return ok(); }
+      if (sub == "PLAYLIST") {
+        const int n = std::atoi(arg.c_str());
+        if (n < 1 || n > static_cast<int>(show_.decks.size())) return err("SHOW PLAYLIST <1.." + std::to_string(show_.decks.size()) + ">");
+        show_ = currentShow();
+        takePlaylist(n - 1);
+        return ok();
+      }
+      if (sub == "LIST") {
+        std::string out = "OK SHOW";
+        for (const std::string& f : savedShows()) out += " | " + f.substr(f.find_last_of("/\\") + 1);
+        return out + "\n";
+      }
+      return err("SHOW SAVE|OPEN|NEW|PLAYLIST|LIST");
+    }
     if (verb == "DELETE") {   // DELETE <cue>: as a swipe does (the cue on air is refused)
       const int n = std::atoi(rest.c_str());
       if (n < 1 || n > static_cast<int>(cues_.size())) return err("DELETE <cue number>");
@@ -2794,6 +3156,8 @@ class Pocket {
     o << "OUTPUT 1 name=\""<< (outputLabel_.empty() ? "phone" : outputLabel_) << "\" enabled=" << (black_ ? "off" : "on")
       << " raster=" << programW_ << "x" << programH_ << "\n";
     o << "SYNC " << syncStatusFields() << "\n";
+    o << "SHOW name=\"" << showName() << "\" file=\"" << showFile_ << "\" playlist=" << showDeck_ + 1 << "/" << std::max<std::size_t>(1, show_.decks.size())
+      << "\n";
     for (std::size_t i = 0; i < cues_.size(); ++i) {   // one line per cue: what the list shows
       const EndMode m = endModeOf(cues_[i]);
       o << "CUE " << i + 1 << " kind=" << kindTag(cues_[i])
@@ -3384,9 +3748,15 @@ class Pocket {
   }
 
   void endRename(bool keep) {
-    if (renameIndex_ < 0) return;
+    if (renameIndex_ == -1) return;
     std::string name = renameText_;
     while (!name.empty() && name.back() == ' ') name.pop_back();
+    if (renameIndex_ == kNamingShow) {
+      renameIndex_ = -1;
+      SDL_StopTextInput(window_);
+      if (keep && !name.empty()) saveShowAs(name);
+      return;
+    }
     if (keep && !name.empty() && renameIndex_ < static_cast<int>(cues_.size())) {
       cues_[static_cast<std::size_t>(renameIndex_)].name = name;
       cueEdited(renameIndex_, false);
@@ -3719,7 +4089,16 @@ class Pocket {
       std::lock_guard<std::mutex> hold(pickLock_);
       picks.swap(picks_);
     }
-    for (const std::string& uri : picks) addPicked(uri);
+    bool show = false;
+    {
+      std::lock_guard<std::mutex> hold(pickLock_);
+      if (!pickerOpen_ && !picks.empty()) { show = pickingShow_; pickingShow_ = false; }
+      else if (!pickerOpen_) pickingShow_ = false;
+    }
+    for (const std::string& uri : picks) {
+      if (show) importShow(uri);
+      else addPicked(uri);
+    }
   }
 
   void addPicked(const std::string& uri) {
@@ -5421,6 +5800,13 @@ class Pocket {
   std::mutex pickLock_;
   std::vector<std::string> picks_;
   bool pickerOpen_ = false;
+  bool pickingShow_ = false;   // the open picker is choosing a show, not media
+  // the open show (see currentShow)
+  Project show_;
+  int showDeck_ = 0;
+  std::string showFile_, showsDir_, lastAutosave_, confirmOpen_;
+  bool confirmNew_ = false;
+  Uint64 autosaveAt_ = 0;
   std::string notice_;
   Uint64 noticeUntil_ = 0;
   int programW_ = 1920, programH_ = 1080;
