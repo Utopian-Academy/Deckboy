@@ -693,6 +693,14 @@ class Pocket {
     loadFonts();
     loadSyncSettings();
     loadShells();
+    {
+      size_t n = 0;
+      const char* state = SDL_getenv("DECKBOY_STATE_DIR");
+      if (char* saved = static_cast<char*>(SDL_LoadFile((std::string(state ? state : ".") + "/pocket_haptics.txt").c_str(), &n))) {
+        haptics_ = !(n > 0 && saved[0] == '0');
+        SDL_free(saved);
+      }
+    }
     return true;
   }
 
@@ -1294,6 +1302,9 @@ class Pocket {
     }
 
     heading("PHONE");
+    button({lx, y, lw, 5 * u}, haptics_ ? "BUTTONS YOU CAN FEEL: ON" : "BUTTONS YOU CAN FEEL: OFF",
+           [this] { setHaptics(!haptics_); }, true, haptics_);
+    y += 6.5f * u;
     text_.draw(mono_, healthLabel().empty() ? "-" : "Battery " + healthLabel(), kDeep, {lx, y, lw, 4.5f * u});
     }
   }
@@ -2106,6 +2117,7 @@ class Pocket {
   void takeFollowLine(const std::string& line) {
     const Uint64 now = SDL_GetTicks();
     if (line.rfind("OK FOLLOW", 0) == 0) {
+      if (follow_ != Follow::Following) buzz("lock");
       follow_ = Follow::Following;
       followError_.clear();
       lastHeard_ = now;
@@ -2723,6 +2735,31 @@ class Pocket {
   void press(Pressed p) {
     pressed_ = p;
     pressedUntil_ = SDL_GetTicks() + 160;
+    switch (p) {   // each control its own feel (PocketBridge.haptic)
+      case Pressed::Go: buzz("go"); break;
+      case Pressed::Back: buzz("back"); break;
+      case Pressed::Up: case Pressed::Down: case Pressed::Left: case Pressed::Right: buzz("pad"); break;
+      case Pressed::Black: buzz("black"); break;
+      case Pressed::Menu: buzz("menu"); break;
+      default: break;
+    }
+  }
+
+  void buzz(const char* kind) {
+    if (!haptics_) return;
+#if defined(SDL_PLATFORM_ANDROID)
+    bridgeString("haptic", kind);
+#else
+    (void)kind;
+#endif
+  }
+
+  void setHaptics(bool on) {
+    haptics_ = on;
+    const char* state = SDL_getenv("DECKBOY_STATE_DIR");
+    const std::string text = on ? "1\n" : "0\n";
+    SDL_SaveFile((std::string(state ? state : ".") + "/pocket_haptics.txt").c_str(), text.data(), text.size());
+    if (on) buzz("go");
   }
 
   enum class Drag { None, Scrub, TrimIn, TrimOut, Volume };
@@ -2905,7 +2942,7 @@ class Pocket {
       const char* dirs[] = {"FORWARD", "REVERSE", "BOUNCE"};
       for (int k = 0; k < 3; ++k) {
         button({lx + 23 * u + static_cast<float>(k) * sw, y, sw - 0.5f * u, 4.5f * u}, dirs[k],
-               [this, k] { Cue& cc = cues_[static_cast<std::size_t>(sheet_)]; cc.playDirection = k; cueEdited(sheet_, false); },
+               [this, k] { Cue& cc = cues_[static_cast<std::size_t>(sheet_)]; cc.playDirection = k; cueEdited(sheet_, false); if (k) buzz("spin"); },
                true, c.playDirection == k);
       }
       y += 5.5f * u;
@@ -3123,6 +3160,7 @@ class Pocket {
   bool seekLanding_ = false;
   bool hostEditing_ = false;
   std::string snapPath_;
+  bool haptics_ = true;
   // direction copies (one worker)
   std::thread dirThread_;
   std::atomic<bool> dirBusy_ {false}, dirCancel_ {false}, dirFinished_ {false};

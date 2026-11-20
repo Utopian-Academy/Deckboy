@@ -78,6 +78,103 @@ public final class PocketBridge {
         return android.os.Build.MODEL != null ? android.os.Build.MODEL : "";
     }
 
+    /**
+     * A feel for each control, built from Android's haptic primitives where the
+     * phone has them (Android 11+, most recent flagships) and from its preset
+     * clicks where it does not:
+     *   go     a rising swoop into a thud ("whoomp")
+     *   back   a falling flick
+     *   pad    a light tick
+     *   black  two heavy clunks, like a shutter
+     *   menu   a low tick
+     *   spin   a spin (reverse, bounce, shuffle)
+     *   lock   a click as a follower locks to its desk
+     *   end    three quick ticks at the end of the list
+     * Returns "" always (the C++ side calls this through its String bridge).
+     */
+    public static String haptic(Context context, String kind) {
+        try {
+            android.os.Vibrator v;
+            if (android.os.Build.VERSION.SDK_INT >= 31) {
+                v = ((android.os.VibratorManager) context.getSystemService(Context.VIBRATOR_MANAGER_SERVICE)).getDefaultVibrator();
+            } else {
+                v = (android.os.Vibrator) context.getSystemService(Context.VIBRATOR_SERVICE);
+            }
+            if (v == null || !v.hasVibrator()) return "";
+            android.os.VibrationEffect effect = null;
+            if (android.os.Build.VERSION.SDK_INT >= 30) effect = composed(v, kind);
+            if (effect == null) effect = preset(kind);
+            if (effect != null) v.vibrate(effect);
+        } catch (Exception e) {
+            // a phone with no motor, or one that refuses: no feel, no fault
+        }
+        return "";
+    }
+
+    @android.annotation.TargetApi(30)
+    private static android.os.VibrationEffect composed(android.os.Vibrator v, String kind) {
+        final int TICK = android.os.VibrationEffect.Composition.PRIMITIVE_TICK;
+        final int CLICK = android.os.VibrationEffect.Composition.PRIMITIVE_CLICK;
+        final int THUD = android.os.VibrationEffect.Composition.PRIMITIVE_THUD;
+        final int SPIN = android.os.VibrationEffect.Composition.PRIMITIVE_SPIN;
+        final int RISE = android.os.VibrationEffect.Composition.PRIMITIVE_QUICK_RISE;
+        final int FALL = android.os.VibrationEffect.Composition.PRIMITIVE_QUICK_FALL;
+        final int LOW = android.os.Build.VERSION.SDK_INT >= 31
+                ? android.os.VibrationEffect.Composition.PRIMITIVE_LOW_TICK : TICK;
+        android.os.VibrationEffect.Composition c = android.os.VibrationEffect.startComposition();
+        int[] used;
+        switch (kind) {
+            case "go":
+                used = new int[] {RISE, THUD};
+                c.addPrimitive(RISE, 0.5f).addPrimitive(THUD, 1.0f, 15);
+                break;
+            case "back":
+                used = new int[] {FALL};
+                c.addPrimitive(FALL, 0.8f);
+                break;
+            case "pad":
+                used = new int[] {TICK};
+                c.addPrimitive(TICK, 0.7f);
+                break;
+            case "black":
+                used = new int[] {CLICK};
+                c.addPrimitive(CLICK, 1.0f).addPrimitive(CLICK, 1.0f, 70);
+                break;
+            case "menu":
+                used = new int[] {LOW};
+                c.addPrimitive(LOW, 0.9f);
+                break;
+            case "spin":
+                used = new int[] {SPIN};
+                c.addPrimitive(SPIN, 0.9f);
+                break;
+            case "lock":
+                used = new int[] {RISE, CLICK};
+                c.addPrimitive(RISE, 0.4f).addPrimitive(CLICK, 0.9f, 10);
+                break;
+            case "end":
+                used = new int[] {TICK};
+                c.addPrimitive(TICK, 1.0f).addPrimitive(TICK, 1.0f, 40).addPrimitive(TICK, 1.0f, 40);
+                break;
+            default:
+                return null;
+        }
+        for (boolean ok : v.arePrimitivesSupported(used)) {
+            if (!ok) return null;   // one missing primitive: use the preset instead
+        }
+        return c.compose();
+    }
+
+    private static android.os.VibrationEffect preset(String kind) {
+        if (android.os.Build.VERSION.SDK_INT < 29) return null;
+        switch (kind) {
+            case "go": return android.os.VibrationEffect.createPredefined(android.os.VibrationEffect.EFFECT_HEAVY_CLICK);
+            case "black": case "end": return android.os.VibrationEffect.createPredefined(android.os.VibrationEffect.EFFECT_DOUBLE_CLICK);
+            case "pad": case "menu": return android.os.VibrationEffect.createPredefined(android.os.VibrationEffect.EFFECT_TICK);
+            default: return android.os.VibrationEffect.createPredefined(android.os.VibrationEffect.EFFECT_CLICK);
+        }
+    }
+
     /** Battery percent, or -1; while charging, 1000 + percent. */
     public static int battery(Context context) {
         try {
