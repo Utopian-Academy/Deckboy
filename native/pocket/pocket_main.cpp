@@ -1831,12 +1831,12 @@ class Pocket {
     }
     {
       // a page: its name at the top, back to the tiles and CLOSE along the bottom (thumb reach)
-      static const char* kNames[9] = {"SOURCES", "OUTPUT", "LIST", "SYNC", "PHONE", "SHOW", "ABOUT", "NEW CUES", "OPEN A SHOW"};
-      text_.draw(pixel_, kNames[std::clamp(menuTab_, 0, 8)], kDark, {lx, y, lw, 5 * u});
+      static const char* kNames[10] = {"SOURCES", "OUTPUT", "LIST", "SYNC", "PHONE", "SHOW", "ABOUT", "NEW CUES", "OPEN A SHOW", "MAP"};
+      text_.draw(pixel_, kNames[std::clamp(menuTab_, 0, 9)], kDark, {lx, y, lw, 5 * u});
       const float bh = 7 * u, by = lcd.y + lcd.h - bh - 0.5f * u;
       const float bw = (lw - u) / 2;
-      const int up = menuTab_ == 6 ? 4 : (menuTab_ == 7 || menuTab_ == 8) ? 5 : -1;
-      button({lx, by, bw, bh}, up == 4 ? "< PHONE" : up == 5 ? "< SHOW" : "< MENU", [this, up] { menuTab_ = up; confirmOpen_.clear(); endHostEdit(); });
+      const int up = menuTab_ == 6 ? 4 : (menuTab_ == 7 || menuTab_ == 8) ? 5 : menuTab_ == 9 ? 1 : -1;
+      button({lx, by, bw, bh}, up == 4 ? "< PHONE" : up == 5 ? "< SHOW" : up == 1 ? "< OUTPUT" : "< MENU", [this, up] { menuTab_ = up; confirmOpen_.clear(); endHostEdit(); });
       button({lx + bw + u, by, bw, bh}, "CLOSE", [this] { menuOpen_ = false; endHostEdit(); });
     }
     y += 7 * u;
@@ -1897,6 +1897,7 @@ class Pocket {
       button({lx + bw + u, y, bw, 5 * u}, "IDENTIFY", [this] { identifyUntil_ = SDL_GetTicks() + 4000; });
       y += 6.5f * u;
       item("PHONE FULL SCREEN", [this] { menuOpen_ = false; phoneFull_ = true; ghostUntil_ = SDL_GetTicks() + 3500; });
+      item(warpOn() ? "MAP: CORNER PIN ON  >" : "MAP: CORNER PIN  >", [this] { menuTab_ = 9; }, warpOn());
     }
 
     }
@@ -1914,6 +1915,9 @@ class Pocket {
     }
     if (menuTab_ == 8) {
       drawOpenPage(lx, lw, y);
+    }
+    if (menuTab_ == 9) {
+      drawMapPage(lx, lw, y);
     }
     if (menuTab_ == 4) {
     heading("SHELL");
@@ -2813,7 +2817,16 @@ class Pocket {
       outputTexH_ = bh;
     }
     if (!outputTex_) return;
-    SDL_SetRenderTarget(renderer_, outputTex_);
+    // With a corner pin the picture is drawn flat first, then through the pin.
+    const bool pinned = warpOn();
+    if (pinned && (!flatTex_ || flatTexW_ != bw || flatTexH_ != bh)) {
+      if (flatTex_) SDL_DestroyTexture(flatTex_);
+      flatTex_ = SDL_CreateTexture(renderer_, SDL_PIXELFORMAT_RGBA32, SDL_TEXTUREACCESS_TARGET, bw, bh);
+      if (flatTex_) SDL_SetTextureScaleMode(flatTex_, SDL_SCALEMODE_LINEAR);
+      flatTexW_ = bw;
+      flatTexH_ = bh;
+    }
+    SDL_SetRenderTarget(renderer_, pinned && flatTex_ ? flatTex_ : outputTex_);
     SDL_SetRenderDrawColor(renderer_, 0, 0, 0, 255);
     SDL_RenderClear(renderer_);
     if (testPattern_) {
@@ -2853,6 +2866,12 @@ class Pocket {
           SDL_DestroySurface(t);
         }
       }
+    }
+    if (pinned && flatTex_) {   // through the pin: offsets in the screen's pixels, the buffer may be smaller
+      SDL_SetRenderTarget(renderer_, outputTex_);
+      SDL_SetRenderDrawColor(renderer_, 0, 0, 0, 255);
+      SDL_RenderClear(renderer_);
+      drawPinned(flatTex_, pinnedCorners({0, 0, static_cast<float>(bw), static_cast<float>(bh)}, static_cast<float>(bw) / static_cast<float>(ow)));
     }
     SDL_Surface* shot = SDL_RenderReadPixels(renderer_, nullptr);
     SDL_SetRenderTarget(renderer_, nullptr);
@@ -2986,6 +3005,7 @@ class Pocket {
         if (arg == "OUT") menuTab_ = 1;
         if (arg == "SKIN") menuTab_ = 4;
         if (arg == "ABOUT") menuTab_ = 6;
+        if (arg == "MAP") menuTab_ = 9;
         menuOpen_ = true;
         sheet_ = -1;
         phoneFull_ = false;
@@ -3038,6 +3058,26 @@ class Pocket {
         return out + "\n";
       }
       return err("SHOW SAVE|OPEN|NEW|PLAYLIST|LIST");
+    }
+    if (verb == "MAP") {   // MAP ON|OFF|RESET | MAP TL|TR|BR|BL <dx> <dy> (output pixels)
+      std::istringstream a(rest);
+      std::string what;
+      a >> what;
+      for (char& ch : what) ch = static_cast<char>(std::toupper(static_cast<unsigned char>(ch)));
+      if (what == "ON" || what == "OFF") { mapOutput().warpEnabled = what == "ON"; mapOutput().warpMode = "perspective"; return ok(); }
+      if (what == "RESET") { for (int k = 0; k < 4; ++k) { *mapCorner(k, false) = 0; *mapCorner(k, true) = 0; } return ok(); }
+      static const char* kC[4] = {"TL", "TR", "BR", "BL"};
+      for (int k = 0; k < 4; ++k) {
+        if (what != kC[k]) continue;
+        float dx = 0, dy = 0;
+        a >> dx >> dy;
+        *mapCorner(k, false) += dx;
+        *mapCorner(k, true) += dy;
+        mapOutput().warpEnabled = true;
+        mapOutput().warpMode = "perspective";
+        return ok();
+      }
+      return err("MAP ON|OFF|RESET | MAP TL|TR|BR|BL <dx> <dy>");
     }
     if (verb == "SPLASH") {   // SPLASH: show it again (for checking)
       if (splashTex_) SDL_DestroyTexture(splashTex_);
@@ -4531,6 +4571,183 @@ class Pocket {
     fillRect(renderer_, kDeep, {bar.x, bar.y, bar.w * f, bar.h});
   }
 
+  // ── MAP: the output's corner pin (the desk's output warp) ──
+  //
+  // Stored where the desk keeps it, on the show's first output
+  // (OutputTarget warpEnabled + four corner offsets IN OUTPUT PIXELS), so a
+  // show maps the same on the desk and the phone. The output is drawn
+  // through a perspective-correct mesh: the flat picture into one texture,
+  // then through the pin into the output.
+
+  OutputTarget& mapOutput() {
+    if (show_.outputs.empty()) show_.outputs.resize(1);
+    return show_.outputs[0];
+  }
+  const OutputTarget* mapOutputC() const { return show_.outputs.empty() ? nullptr : &show_.outputs[0]; }
+
+  bool warpOn() const {
+    const OutputTarget* o = mapOutputC();
+    return o && o->warpEnabled &&
+           (o->warpTopLeftX != 0 || o->warpTopLeftY != 0 || o->warpTopRightX != 0 || o->warpTopRightY != 0 ||
+            o->warpBottomRightX != 0 || o->warpBottomRightY != 0 || o->warpBottomLeftX != 0 || o->warpBottomLeftY != 0);
+  }
+
+  // The output's own size in pixels (what the offsets are in): the screen
+  // when one is connected, else the program raster.
+  std::pair<float, float> mapOutputSize() const {
+#if defined(SDL_PLATFORM_ANDROID)
+    OutputScreen& out = outputScreen();
+    std::lock_guard<std::mutex> hold(out.lock);
+    if (out.window && out.width > 0 && out.height > 0) return {static_cast<float>(out.width), static_cast<float>(out.height)};
+#endif
+    return {static_cast<float>(programW_), static_cast<float>(programH_)};
+  }
+
+  float* mapCorner(int k, bool y) {
+    OutputTarget& o = mapOutput();
+    switch (k) {
+      case 0: return y ? &o.warpTopLeftY : &o.warpTopLeftX;
+      case 1: return y ? &o.warpTopRightY : &o.warpTopRightX;
+      case 2: return y ? &o.warpBottomRightY : &o.warpBottomRightX;
+      default: return y ? &o.warpBottomLeftY : &o.warpBottomLeftX;
+    }
+  }
+
+  // The four corners of `r` with the pin applied, `k` output pixels to one of r's.
+  std::array<SDL_FPoint, 4> pinnedCorners(const SDL_FRect& r, float k) {
+    std::array<SDL_FPoint, 4> c {SDL_FPoint {r.x, r.y}, SDL_FPoint {r.x + r.w, r.y}, SDL_FPoint {r.x + r.w, r.y + r.h}, SDL_FPoint {r.x, r.y + r.h}};
+    if (!mapOutputC() || !mapOutputC()->warpEnabled) return c;
+    for (int i = 0; i < 4; ++i) {
+      c[static_cast<std::size_t>(i)].x += *mapCorner(i, false) * k;
+      c[static_cast<std::size_t>(i)].y += *mapCorner(i, true) * k;
+    }
+    return c;
+  }
+
+  // `tex` (its whole picture) drawn into the quad `q` (TL, TR, BR, BL) through
+  // the homography of the unit square onto it: a 16 x 16 mesh, so straight
+  // lines stay straight and the picture keeps its perspective.
+  void drawPinned(SDL_Texture* tex, const std::array<SDL_FPoint, 4>& q) {
+    // unit square -> quad (Heckbert)
+    const double x0 = q[0].x, y0 = q[0].y, x1 = q[1].x, y1 = q[1].y, x2 = q[2].x, y2 = q[2].y, x3 = q[3].x, y3 = q[3].y;
+    const double sx = x0 - x1 + x2 - x3, sy = y0 - y1 + y2 - y3;
+    double a, b, c, d, e, f, g, h;
+    if (std::fabs(sx) < 1e-9 && std::fabs(sy) < 1e-9) {
+      a = x1 - x0; b = x2 - x1; c = x0; d = y1 - y0; e = y2 - y1; f = y0; g = 0; h = 0;
+    } else {
+      const double dx1 = x1 - x2, dx2 = x3 - x2, dy1 = y1 - y2, dy2 = y3 - y2;
+      const double den = dx1 * dy2 - dx2 * dy1;
+      if (std::fabs(den) < 1e-12) return;
+      g = (sx * dy2 - dx2 * sy) / den;
+      h = (dx1 * sy - sx * dy1) / den;
+      a = x1 - x0 + g * x1; b = x3 - x0 + h * x3; c = x0;
+      d = y1 - y0 + g * y1; e = y3 - y0 + h * y3; f = y0;
+    }
+    auto at = [&](double u, double v) {
+      const double w = g * u + h * v + 1.0;
+      return SDL_FPoint {static_cast<float>((a * u + b * v + c) / w), static_cast<float>((d * u + e * v + f) / w)};
+    };
+    constexpr int N = 16;
+    std::vector<SDL_Vertex> v;
+    std::vector<int> idx;
+    v.reserve((N + 1) * (N + 1));
+    const SDL_FColor white {1, 1, 1, 1};
+    for (int j = 0; j <= N; ++j) {
+      for (int i = 0; i <= N; ++i) {
+        const double u = static_cast<double>(i) / N, vv = static_cast<double>(j) / N;
+        v.push_back({at(u, vv), white, {static_cast<float>(u), static_cast<float>(vv)}});
+      }
+    }
+    for (int j = 0; j < N; ++j) {
+      for (int i = 0; i < N; ++i) {
+        const int k = j * (N + 1) + i;
+        idx.insert(idx.end(), {k, k + 1, k + N + 1, k + 1, k + N + 2, k + N + 1});
+      }
+    }
+    SDL_RenderGeometry(renderer_, tex, v.data(), static_cast<int>(v.size()), idx.data(), static_cast<int>(idx.size()));
+  }
+
+  void drawMapPage(float lx, float lw, float& y) {
+    const float u = unit_;
+    OutputTarget& o = mapOutput();
+    const auto [ow, oh] = mapOutputSize();
+    {
+      const float bw = (lw - u) / 2;
+      button({lx, y, bw, 6 * u}, o.warpEnabled ? "CORNER PIN: ON" : "CORNER PIN: OFF",
+             [this] { mapOutput().warpEnabled = !mapOutput().warpEnabled; mapOutput().warpMode = "perspective"; }, true, o.warpEnabled);
+      button({lx + bw + u, y, bw, 6 * u}, "RESET", [this] {
+        for (int k = 0; k < 4; ++k) { *mapCorner(k, false) = 0; *mapCorner(k, true) = 0; }
+      });
+      y += 7.5f * u;
+    }
+    // The output, small, through its pin: drag a corner to move it.
+    const float boxW = lw - 8 * u;
+    const float boxH = boxW * oh / std::max(1.0f, ow);
+    mapBox_ = {lx + 4 * u, y + 2 * u, boxW, boxH};
+    fillRect(renderer_, kBlack, {mapBox_.x - 2 * u, mapBox_.y - 2 * u, mapBox_.w + 4 * u, mapBox_.h + 4 * u});
+    mapScale_ = boxW / std::max(1.0f, ow);   // box pixels per output pixel
+    const auto q = pinnedCorners(mapBox_, mapScale_);
+    if (programTex_) drawPinned(programTex_, q);
+    static const char* kNames[4] = {"TL", "TR", "BR", "BL"};
+    for (int k = 0; k < 4; ++k) {
+      const SDL_FPoint p = q[static_cast<std::size_t>(k)];
+      const bool sel = k == mapCorner_;
+      fillRoundAlpha(renderer_, sel ? Ink {255, 210, 60} : Ink {240, 240, 240}, 0.9f, {p.x - 1.6f * u, p.y - 1.6f * u, 3.2f * u, 3.2f * u}, 1.6f * u);
+      (void)kNames;
+    }
+    y = mapBox_.y + mapBox_.h + 3.5f * u;
+    // which corner, and nudges in output pixels
+    {
+      const float cw = (lw - 3 * u) / 4;
+      for (int k = 0; k < 4; ++k) {
+        button({lx + static_cast<float>(k) * (cw + u), y, cw, 5.5f * u}, kNames[k], [this, k] { mapCorner_ = k; }, true, mapCorner_ == k);
+      }
+      y += 7 * u;
+      char where[64];
+      std::snprintf(where, sizeof where, "%s  %+.0f, %+.0f px", kNames[mapCorner_], *mapCorner(mapCorner_, false), *mapCorner(mapCorner_, true));
+      text_.draw(mono_, where, kDeep, {lx, y, lw, 4.5f * u});
+      y += 5.5f * u;
+      const float nw = (lw - 4 * u) / 5;
+      auto nudge = [this](float dx, float dy) {
+        return [this, dx, dy] {
+          const float k = mapFine_ ? 1.0f : 10.0f;
+          *mapCorner(mapCorner_, false) += dx * k;
+          *mapCorner(mapCorner_, true) += dy * k;
+          mapOutput().warpEnabled = true;
+          mapOutput().warpMode = "perspective";
+        };
+      };
+      button({lx, y, nw, 6 * u}, "<", nudge(-1, 0));
+      button({lx + nw + u, y, nw, 6 * u}, ">", nudge(1, 0));
+      button({lx + 2 * (nw + u), y, nw, 6 * u}, "UP", nudge(0, -1));
+      button({lx + 3 * (nw + u), y, nw, 6 * u}, "DOWN", nudge(0, 1));
+      button({lx + 4 * (nw + u), y, nw, 6 * u}, mapFine_ ? "1 PX" : "10 PX", [this] { mapFine_ = !mapFine_; }, true, mapFine_);
+      y += 7.5f * u;
+    }
+  }
+
+  // A finger on the MAP page's picture: the nearest corner follows it.
+  bool mapDown(float x, float y) {
+    if (!menuOpen_ || menuTab_ != 9 || mapBox_.w <= 0) return false;
+    const auto q = pinnedCorners(mapBox_, mapScale_);
+    int best = -1;
+    float bestD = 1e9f;
+    for (int k = 0; k < 4; ++k) {
+      const float dx = x - q[static_cast<std::size_t>(k)].x, dy = y - q[static_cast<std::size_t>(k)].y;
+      const float d = dx * dx + dy * dy;
+      if (d < bestD) { bestD = d; best = k; }
+    }
+    const float reach = 9 * unit_;
+    if (best < 0 || bestD > reach * reach) return false;
+    mapCorner_ = best;
+    drag_ = Drag::MapCorner;
+    mapLastX_ = x;
+    mapLastY_ = y;
+    mapOutput().warpEnabled = true;
+    mapOutput().warpMode = "perspective";
+    return true;
+  }
+
   // ── On-screen helpers, over the phone's own picture (never the output) ──
   //
   // Eddie's Clock (the desk's name and its four modes: off, 24 hour, 12
@@ -4745,7 +4962,7 @@ class Pocket {
     if (on) buzz("go");
   }
 
-  enum class Drag { None, Scrub, TrimIn, TrimOut, Volume, Slider };
+  enum class Drag { None, Scrub, TrimIn, TrimOut, Volume, Slider, MapCorner };
 
   void onDown(float x, float y) {
     downX_ = x;
@@ -4774,6 +4991,7 @@ class Pocket {
         return;
       }
     }
+    if (mapDown(x, y)) return;
     // A slider's lower half grabs it. Touching does not change the value; only
     // dragging does (onMove), so a thumb landing on a row is harmless.
     for (std::size_t k = sliders_.size(); k-- > 0;) {
@@ -4849,6 +5067,14 @@ class Pocket {
       }
     }
     if (picHoldSince_ && (std::fabs(x - downX_) > 2 * unit_ || std::fabs(y - downY_) > 2 * unit_)) picHoldSince_ = 0;
+    if (drag_ == Drag::MapCorner) {   // the corner moves with the finger, in output pixels
+      const float k = 1.0f / std::max(0.0001f, mapScale_);
+      *mapCorner(mapCorner_, false) += (x - mapLastX_) * k;
+      *mapCorner(mapCorner_, true) += (y - mapLastY_) * k;
+      mapLastX_ = x;
+      mapLastY_ = y;
+      return;
+    }
     if (drag_ == Drag::Slider && activeSlider_ >= 0 && activeSlider_ < static_cast<int>(sliders_.size())) {
       // By how far the finger moved, not where it is. A finger dragged
       // further above or below the row moves the value more finely: one
@@ -6724,6 +6950,13 @@ class Pocket {
   bool powerSave_ = false;
   ClockMode clock_ = ClockMode::Off;
   bool showRemaining_ = false, showFps_ = false;
+  // MAP
+  SDL_Texture* flatTex_ = nullptr;
+  int flatTexW_ = 0, flatTexH_ = 0;
+  SDL_FRect mapBox_ {};
+  float mapScale_ = 1, mapLastX_ = 0, mapLastY_ = 0;
+  int mapCorner_ = 0;
+  bool mapFine_ = false;
   bool splashOn_ = true;
   SDL_Texture* splashTex_ = nullptr;
   Uint64 splashUntil_ = 0;

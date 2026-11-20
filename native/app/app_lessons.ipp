@@ -2114,11 +2114,16 @@
            OutputTarget& o = focusedOutputMutable();
            pushUndoSnapshot();
            o.warpEnabled = true;
-           o.warpTopLeftX = 0.06f;
-           o.warpTopLeftY = 0.04f;
-           o.warpTopRightX = -0.03f;
-           o.warpBottomRightX = -0.06f;
-           o.warpBottomRightY = -0.02f;
+           // The output's warp is in OUTPUT PIXELS (its raster does not
+           // move); these were fractions, which drew a fraction of a pixel
+           // of warp: nothing to see, and the step's check still passed.
+           const auto [ow, oh] = outputRenderSizeForOutput(project_.focusedOutputIndex);
+           const float w = static_cast<float>(ow), h = static_cast<float>(oh);
+           o.warpTopLeftX = 0.06f * w;
+           o.warpTopLeftY = 0.04f * h;
+           o.warpTopRightX = -0.03f * w;
+           o.warpBottomRightX = -0.06f * w;
+           o.warpBottomRightY = -0.02f * h;
            markProjectDirty();
          },
          [this, menuOr] { return warpEditMode_ ? SDL_Rect {} : menuOr(kSettingsActionOutputWarpEdit); }, nullptr,

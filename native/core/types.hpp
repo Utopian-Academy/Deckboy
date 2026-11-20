@@ -2338,7 +2338,7 @@ struct Deck {
   // -- Warp geometry (projection mapping per-output) ---------------------------
   bool warpEnabled = false;                // enable warp mesh
   std::string warpMode = "linear";         // "linear" (bilinear) | "perspective" (4-corner pin)
-  float warpTopLeftX = 0.0f;              // corner offsets (normalized 0–1, relative to output)
+  float warpTopLeftX = 0.0f;              // corner offsets in OUTPUT PIXELS (the raster does not move; a layer's warp is in fractions)
   float warpTopLeftY = 0.0f;
   float warpTopRightX = 0.0f;
   float warpTopRightY = 0.0f;
