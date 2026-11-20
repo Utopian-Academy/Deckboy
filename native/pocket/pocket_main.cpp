@@ -4553,7 +4553,7 @@ class Pocket {
     if (names.empty()) return;
     const Uint64 seed = SDL_GetPerformanceCounter();
     splashTex_ = loadAssetJpeg("data/pocket-splash/" + names[static_cast<std::size_t>(seed % names.size())]);
-    splashQuip_ = static_cast<int>((seed / 7) % deckboy::core::kLoadingQuipCount);
+    splashQuip_ = static_cast<int>((seed / 7) % 997) * 2;   // starts on one of Pocket's own lines
     splashUntil_ = SDL_GetTicks() + kSplashMs;
   }
 
@@ -4576,8 +4576,11 @@ class Pocket {
     const Uint64 started = splashUntil_ - kSplashMs;
     text_.draw(pixel_, "DECKBOY POCKET", kDeep, {lcd.x + 2 * u, lcd.y + 2 * u, lcd.w - 4 * u, 5 * u});
     text_.draw(mono_, deckboy::core::version::kVersion, kDark, {lcd.x + 2 * u, lcd.y + 7.5f * u, lcd.w - 4 * u, 4.5f * u});
-    const int q = static_cast<int>((splashQuip_ + static_cast<int>((now - started) / 1400)) % deckboy::core::kLoadingQuipCount);
-    text_.draw(mono_, std::string(deckboy::core::kLoadingQuips[q]) + "...", kDeep, {lcd.x + 2 * u, lcd.y + 13 * u, lcd.w - 4 * u, 4.5f * u});
+    // Pocket's own lines and the desk's, alternating.
+    const int step = splashQuip_ + static_cast<int>((now - started) / 1400);
+    const char* line = step % 2 == 0 ? deckboy::core::kPocketLoadingQuips[(step / 2) % deckboy::core::kPocketLoadingQuipCount]
+                                     : deckboy::core::kLoadingQuips[(step / 2) % deckboy::core::kLoadingQuipCount];
+    text_.draw(mono_, std::string(line) + "...", kDeep, {lcd.x + 2 * u, lcd.y + 13 * u, lcd.w - 4 * u, 4.5f * u});
     const SDL_FRect bar {lcd.x + 2 * u, lcd.y + lcd.h - 4 * u, lcd.w - 4 * u, 1.2f * u};
     fillRect(renderer_, kMid, bar);
     const float f = std::clamp(static_cast<float>(now - started) / static_cast<float>(kSplashMs), 0.0f, 1.0f);

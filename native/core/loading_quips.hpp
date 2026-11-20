@@ -44,4 +44,49 @@ inline const char* const kLoadingQuips[] = {
 
 inline constexpr int kLoadingQuipCount = static_cast<int>(sizeof(kLoadingQuips) / sizeof(kLoadingQuips[0]));
 
+// Pocket's own, shown alongside the desk's on its splash (James, 11-20:
+// "phone should have its own loading lines ... in addition").
+inline const char* const kPocketLoadingQuips[] = {
+  "folding the desk into a pocket",
+  "warming up the thumbs",
+  "teaching the gyroscope which way is up",
+  "asking the battery nicely",
+  "polishing the shell",
+  "checking the pocket for lint",
+  "shrinking the cue gremlins to pocket size",
+  "persuading the screen to stay awake",
+  "the ghosts are rehearsing their float",
+  "calling the desk. it says hi",
+  "the ABOUT page listens more than it talks",
+  "the d-pad remembers an old trick",
+  "ironing the touch screen",
+  "counting the corners of a rounded phone",
+  "reminding the speaker it is small",
+  "the haptics are practising their purr",
+  "aligning the HDMI with the stars",
+  "setting the clock for Eddie",
+  "asking the notch to scoot over",
+  "putting the big show in a small box",
+  "finding the projector in the bag",
+  "untangling the USB-C",
+  "the swipe is stretching",
+  "pocket-sizing the playhead",
+  "fluffing the Wi-Fi",
+  "charging the confidence",
+  "the ghosts want a word with the buttons",
+  "something mellow waits for the right number",
+  "smoothing the swirl",
+  "thanking the battery in advance",
+  "wiping the glass",
+  "checking the screen is the right way up",
+  "tucking in the transitions",
+  "asking the gyroscope to calm down",
+  "polishing the d-pad",
+  "warming up the GO button",
+  "folding the timeline twice",
+  "teaching the shell to blink",
+};
+
+inline constexpr int kPocketLoadingQuipCount = static_cast<int>(sizeof(kPocketLoadingQuips) / sizeof(kPocketLoadingQuips[0]));
+
 }  // namespace deckboy::core
