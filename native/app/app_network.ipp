@@ -3202,6 +3202,15 @@ html,body{width:100%;height:100%;overflow:hidden}
       }
     };
 
+    // TIME (the sync clock, SYNC_DESIGN.md) is answered here, on the network
+    // thread, the moment it arrives: through the main thread's queue it waited
+    // up to a frame, the round trip read 100 ms on one machine, and the clock
+    // offset a follower works out from it was only good to half of that.
+    if (upper == "TIME" || upper.rfind("TIME ", 0) == 0) {
+      const std::string sent = upper.size() > 5 ? trim(query.substr(5)) : std::string("0");
+      sendSnapshot("OK TIME: " + sent + " " + std::to_string(SDL_GetTicksNS()) + "\n");
+      return true;
+    }
     if (upper == "STATUS ENCODER" || upper == "STATE ENCODER") {
       // Built on the main thread (updateStatusSnapshot); this thread only
       // copies the finished text out under the lock.
@@ -6224,6 +6233,19 @@ bool looksLikeHttpRequestLine(const std::string& line) {
       << " at=" << SDL_GetTicksNS()
       << " speed=" << (cue ? cue->playbackSpeed : 1.0)
       << " trans=" << transitionStyleToken(parseTransitionStyleToken(deck.transitionStyle)) << "/" << deck.transitionSeconds;
+    // Last, so it may hold spaces: a follower without this show's file finds
+    // its own copy of the cue by name, or by a file of that name.
+    std::string name = cue ? cue->name : std::string();
+    std::replace(name.begin(), name.end(), '"', '\'');
+    std::replace(name.begin(), name.end(), '\n', ' ');
+    // The media, so a follower with its own copy matches by what plays: a
+    // file's own name (no folders), or a generator's pattern:// type.
+    std::string file;
+    if (cue) {
+      file = cue->path.rfind("pattern://", 0) == 0 ? cue->path : dbfs::path(cue->path).filename().string();
+      std::replace(file.begin(), file.end(), '"', '\'');
+    }
+    o << " file=\"" << file << "\" name=\"" << name << "\"";
     return o.str();
   }
 
