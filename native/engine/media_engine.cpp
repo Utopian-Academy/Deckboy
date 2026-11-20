@@ -2185,7 +2185,7 @@ void MediaEngine::render(SDL_Rect target) {
   if (geometric) {
     drewCurrent = drawGeometricTransition(target);
   } else {
-    drewCurrent = drawTextureFitted(texture_, textureWidth_, textureHeight_, target, 255);
+    drewCurrent = drawTextureFitted(shownTexture(), shownWidth(), shownHeight(), target, 255);
     drawTransitionOverlay(target, drewCurrent);
   }
 
@@ -6074,8 +6074,27 @@ void MediaEngine::initStillTimer(const Cue& cue, bool autoplay) {
 // ---------------------------------------------------------------------------
 void MediaEngine::beginTransition(double seconds, TransitionStyle style, float sourceGain) {
   clearTransitionTexture();
+  // A look drawn in place of the frame (setLookTexture) belongs to whoever
+  // made it, and describes the OUTGOING cue: the transition keeps a copy of
+  // its own, and the incoming cue starts without one.
+  SDL_Texture* look = lookTexture_;
+  const int lookW = lookWidth_, lookH = lookHeight_;
+  lookTexture_ = nullptr;
   if (!texture_) {
     return;
+  }
+  if (look && seconds > 0.001 && lookW > 0 && lookH > 0) {
+    if (SDL_Texture* copy = SDL_CreateTexture(outputRenderer_, SDL_PIXELFORMAT_RGBA32, SDL_TEXTUREACCESS_TARGET, lookW, lookH)) {
+      SDL_Texture* previous = SDL_GetRenderTarget(outputRenderer_);
+      SDL_SetRenderTarget(outputRenderer_, copy);
+      SDL_SetTextureBlendMode(look, SDL_BLENDMODE_NONE);
+      SDL_RenderTexture(outputRenderer_, look, static_cast<const SDL_FRect*>(nullptr), static_cast<const SDL_FRect*>(nullptr));
+      SDL_SetRenderTarget(outputRenderer_, previous);
+      clearTexture();
+      texture_ = copy;   // moved into the transition below, as the frame would be
+      textureWidth_ = lookW;
+      textureHeight_ = lookH;
+    }
   }
   if (seconds <= 0.001) {
     // For cuts: discard the old frame immediately.  Entering the
@@ -6470,7 +6489,7 @@ bool MediaEngine::drawGeometricTransition(const SDL_Rect& target) {
   const double linear = transitionDurationSeconds_ <= 0.0001 ? 1.0 : std::clamp(elapsed / transitionDurationSeconds_, 0.0, 1.0);
   if (linear >= 1.0) {
     clearTransitionTexture();
-    return drawTextureFitted(texture_, textureWidth_, textureHeight_, target, 255);
+    return drawTextureFitted(shownTexture(), shownWidth(), shownHeight(), target, 255);
   }
   const double p = linear * linear * (3.0 - 2.0 * linear);   // eased: a move starts and lands gently
   const Uint8 outAlpha = static_cast<Uint8>(transitionSourceGain_ * 255.0f);
@@ -6485,7 +6504,7 @@ bool MediaEngine::drawGeometricTransition(const SDL_Rect& target) {
                       SDL_Rect {target.x + dx, target.y + dy, W, H}, outAlpha, true);
   };
   auto inAt = [&](int dx, int dy) {
-    return drawTextureFitted(texture_, textureWidth_, textureHeight_, SDL_Rect {target.x + dx, target.y + dy, W, H}, 255);
+    return drawTextureFitted(shownTexture(), shownWidth(), shownHeight(), SDL_Rect {target.x + dx, target.y + dy, W, H}, 255);
   };
   const int px = static_cast<int>(std::lround(p * W)), py = static_cast<int>(std::lround(p * H));
   bool drew = false;
@@ -6521,7 +6540,7 @@ bool MediaEngine::drawGeometricTransition(const SDL_Rect& target) {
       SDL_SetRenderClipRect(outputRenderer_, nullptr);
       SDL_SetRenderDrawColor(outputRenderer_, 0, 0, 0, 255);
       SDL_RenderClear(outputRenderer_);
-      drew = drawTextureFitted(texture_, textureWidth_, textureHeight_, SDL_Rect {0, 0, W, H}, 255);
+      drew = drawTextureFitted(shownTexture(), shownWidth(), shownHeight(), SDL_Rect {0, 0, W, H}, 255);
       SDL_SetRenderTarget(outputRenderer_, previous);
       restore();
       // ...shown through a circle opening from the centre

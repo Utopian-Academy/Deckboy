@@ -244,6 +244,14 @@ class MediaEngine {
   // on a worker thread): shown as it is, without the pixel hook. Swaps
   // buffers, so `frame` comes back holding the previous one for reuse.
   void showBuiltFrame(DecodedFrame& frame);
+  // A texture to draw in place of the uploaded frame: the frame with its
+  // look already applied on the GPU (Pocket: runGpuEffects). Owned by the
+  // caller and kept valid until replaced; null draws the frame as uploaded.
+  void setLookTexture(SDL_Texture* texture, int width, int height) {
+    lookTexture_ = texture;
+    lookWidth_ = width;
+    lookHeight_ = height;
+  }
   // Whether a cue's look needs RGBA frames rather than the NV12 fast path.
   bool cueDecodesAsRgba(const Cue& cue) const;
 
@@ -1152,6 +1160,11 @@ class MediaEngine {
   PixelHook pixelHook_;
   Uint64 pixelHookRanAt_ = 0;
   bool skipPixelHook_ = false;   // showBuiltFrame: the look is already on it
+  SDL_Texture* lookTexture_ = nullptr;
+  int lookWidth_ = 0, lookHeight_ = 0;
+  SDL_Texture* shownTexture() const { return lookTexture_ ? lookTexture_ : texture_; }
+  int shownWidth() const { return lookTexture_ ? lookWidth_ : textureWidth_; }
+  int shownHeight() const { return lookTexture_ ? lookHeight_ : textureHeight_; }
   void stopImageThread();                                  // join and clean up the still-image decode thread
   std::pair<int, int> currentOutputSizeHint() const;       // get output dimensions for ffmpeg -s flag
   std::string mediaPathForCue(const Cue& cue) const;       // resolve cue path (may use CuePathResolver callback)

@@ -27,6 +27,7 @@
 #include "core/pattern_helpers.hpp"
 #include "core/show_file.hpp"
 #include "core/lava_lamp.hpp"
+#include "engine/gpu_effects.hpp"
 #include "deckboy_version.hpp"
 #include "core/types.hpp"
 #include "core/utils.hpp"
@@ -714,6 +715,10 @@ class Pocket {
       cues_.push_back(cue);
     }
     deckboy::lava::registerGenerator();   // hidden until found, as on the desk
+    // The desk's effects as GPU compute shaders, where the renderer is
+    // SDL_GPU (Vulkan on Android): null otherwise, and then the CPU runs them.
+    gpuFx_ = deckboy::gpu::createGpuEffects(renderer_);
+    SDL_Log("pocket: GPU effects %s", gpuFx_ ? deckboy::gpu::gpuEffectsBackend(gpuFx_).c_str() : "off (the CPU runs them)");
     if (!demoList) restoreList();
     loadThemes();
     loadFonts();
@@ -869,6 +874,8 @@ class Pocket {
     }
     genCv_.notify_all();
     if (genThread_.joinable()) genThread_.join();
+    if (engine_) engine_->setLookTexture(nullptr, 0, 0);
+    if (gpuFx_) deckboy::gpu::destroyGpuEffects(gpuFx_);
     if (stillsThread_.joinable()) stillsThread_.join();
     for (auto& [id, list] : stillsTex_) for (SDL_Texture* t : list) if (t) SDL_DestroyTexture(t);
     dirCancel_ = true;
@@ -1085,6 +1092,12 @@ class Pocket {
       }
     }
     updatePixelHook();
+    // A look left over from effects since removed. (A take needs nothing
+    // here: the engine copies the outgoing look into its transition and
+    // starts the incoming cue without one.)
+    if (active_ < 0 || !deckboy::effects::cueEffectStackActive(cues_[static_cast<std::size_t>(active_)].effects)) {
+      engine_->setLookTexture(nullptr, 0, 0);
+    }
     if (active_ >= 0 && !black_) {
       const Cue& live = cues_[static_cast<std::size_t>(active_)];
       if (!builtOnWorker(live) && deckboy::effects::cueEffectStackActive(live.effects) && effectsMove(live.effects)) engine_->refreshPixelHook();
@@ -3024,6 +3037,7 @@ class Pocket {
       saveHelpers();
       return ok();
     }
+    if (verb == "FXGPU") { gpuOn_ = rest != "OFF"; fxMs_ = 0; engine_->setLookTexture(nullptr, 0, 0); return ok(); }   // FXGPU ON|OFF
     if (verb == "FXSIZE") { fxShrinkOn_ = rest != "FULL"; fxMs_ = 0; return ok(); }   // FXSIZE FULL | DRAWN: for measuring
     if (verb == "FX") {   // FX <cue> ADD <effect token> | FX <cue> CLEAR | FX <cue> LIST
       std::istringstream a(rest);
@@ -3265,7 +3279,7 @@ class Pocket {
       << " dur=" << (live && live->duration > 0 ? clock(live->duration) : std::string("--:--"))
       << " shuffle=" << (shuffle_ ? "on" : "off") << " loop=" << (loopList_ ? "on" : "off")
       << " endafter=" << (endAfter_ ? "on" : "off") << " crossfade=" << listGlide() << " queued=" << queueIds_.size()
-      << " muted=" << (muted_ ? "on" : "off") << " fps=" << static_cast<int>(fps_ + 0.5) << " pic_fps=" << static_cast<int>(picFps_ + 0.5) << " fx_ms=" << static_cast<int>(fxMs_ * 10 + 0.5) / 10.0
+      << " muted=" << (muted_ ? "on" : "off") << " fps=" << static_cast<int>(fps_ + 0.5) << " pic_fps=" << static_cast<int>(picFps_ + 0.5) << " fx_gpu=" << (gpuFx_ && gpuOn_ ? "on" : "off") << " fx_ms=" << static_cast<int>(fxMs_ * 10 + 0.5) / 10.0
       << " stages=" << static_cast<int>(stageMs_[0] * 10 + 0.5) / 10.0 << "/" << static_cast<int>(stageMs_[1] * 10 + 0.5) / 10.0 << "/"
       << static_cast<int>(stageMs_[2] * 10 + 0.5) / 10.0 << "/" << static_cast<int>(stageMs_[3] * 10 + 0.5) / 10.0 << "\n";
     o << "OUTPUT 1 name=\""<< (outputLabel_.empty() ? "phone" : outputLabel_) << "\" enabled=" << (black_ ? "off" : "on")
@@ -5019,6 +5033,8 @@ class Pocket {
     if (!genThread_.joinable()) genThread_ = std::thread([this] { generatorLoop(); });
     std::lock_guard<std::mutex> hold(genLock_);
     if (genReady_) {
+      if (genLookOnGpu_) gpuLook(genOut_.pixels.data(), genOut_.width, genOut_.height, c, ++genFrames_, genScale_);
+      else engine_->setLookTexture(nullptr, 0, 0);
       engine_->showBuiltFrame(genOut_);   // genOut_ now holds the old buffer
       genReady_ = false;
       ++genShown_;
@@ -5032,6 +5048,8 @@ class Pocket {
       genH_ = h;
       genScale_ = static_cast<double>(w) / std::max(1, programW_);
       genAudio_ = engine_->programAudioLevel01();
+      genLookOnGpu_ = gpuFx_ && gpuOn_ && deckboy::effects::cueEffectStackActive(c.effects) && deckboy::gpu::gpuEffectsSupportStack(c.effects);
+      genEffectsHere_ = !genLookOnGpu_;
       genHaveJob_ = true;
       genBusy_ = true;
       genCv_.notify_one();
@@ -5047,6 +5065,7 @@ class Pocket {
       if (genQuit_) return;
       const Cue cue = genCue_;
       const double t = genTime_, scale = genScale_, audio = genAudio_;
+      const bool effectsHere = genEffectsHere_;
       const int w = genW_, h = genH_;
       const std::uint64_t take = genTake_;
       genHaveJob_ = false;
@@ -5055,7 +5074,7 @@ class Pocket {
       lk.unlock();
 
       MediaEngine::buildPatternFrameInto(f, cue, t, w, h);
-      if (!f.pixels.empty() && deckboy::effects::cueEffectStackActive(cue.effects)) {
+      if (effectsHere && !f.pixels.empty() && deckboy::effects::cueEffectStackActive(cue.effects)) {
         if (take != lastTake) state.clear();
         if (state.size() < cue.effects.size()) state.resize(cue.effects.size());
         deckboy::effects::CueEffectContext ctx;
@@ -5093,6 +5112,32 @@ class Pocket {
     hookSet_ = want;
     if (want) engine_->setPixelHook([this](std::vector<std::uint8_t>& px, int& w, int& h, std::uint64_t index) { runEffects(px, w, h, index); });
     else engine_->setPixelHook(nullptr);
+  }
+
+  // The cue's whole stack on the GPU, if every effect in it has a GPU
+  // version: the engine draws the result in place of the frame. False when
+  // the CPU must run it (no GPU effects, an effect without a GPU version, or
+  // any GPU fault), and the engine is told to draw the frame as uploaded.
+  bool gpuLook(const std::uint8_t* px, int w, int h, const Cue& c, std::uint64_t index, double scale) {
+    if (!gpuFx_ || !gpuOn_ || !deckboy::gpu::gpuEffectsSupportStack(c.effects)) {
+      engine_->setLookTexture(nullptr, 0, 0);
+      return false;
+    }
+    deckboy::effects::CueEffectContext ctx;
+    ctx.width = w;
+    ctx.height = h;
+    ctx.frameIndex = index;
+    const double secs = static_cast<double>(SDL_GetTicksNS()) / 1e9;
+    ctx.seconds = secs;
+    ctx.pixelScale = scale;
+    std::vector<deckboy::effects::CueEffect> modulated;
+    const bool moving = deckboy::effects::modulateCueEffectStack(c.effects, secs, secs * 2.0, modulated, engine_->programAudioLevel01());
+    const Uint64 started = SDL_GetPerformanceCounter();
+    SDL_Texture* t = deckboy::gpu::runGpuEffects(gpuFx_, 0, px, w, h, moving ? modulated : c.effects, ctx);
+    const double ms = static_cast<double>(SDL_GetPerformanceCounter() - started) * 1000.0 / static_cast<double>(SDL_GetPerformanceFrequency());
+    fxMs_ = fxMs_ * 0.97 + ms * 0.03;
+    engine_->setLookTexture(t, w, h);
+    return t != nullptr;
   }
 
   // How wide the picture is drawn, in screen pixels: the output's width when
@@ -5143,6 +5188,7 @@ class Pocket {
       w = sw;
       h = sh;
     }
+    if (gpuLook(px.data(), w, h, c, index, 1.0 / shrink)) return;   // the frame goes up as it is; the look is drawn
     deckboy::effects::CueEffectContext ctx;
     ctx.width = w;
     ctx.height = h;
@@ -6548,6 +6594,9 @@ class Pocket {
   int genW_ = 0, genH_ = 0;
   std::uint64_t genTake_ = 0, genFrames_ = 0;
   DecodedFrame genOut_, genSpare_;
+  bool genLookOnGpu_ = false, genEffectsHere_ = true;
+  deckboy::gpu::GpuEffects* gpuFx_ = nullptr;
+  bool gpuOn_ = true;   // FXGPU OFF: the CPU only, for measuring
   int genShown_ = 0;
   double picFps_ = 0;   // worker-built frames shown per second
   double fxMs_ = 0;
