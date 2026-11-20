@@ -60,7 +60,7 @@ was modified before it.
 | Path | Purpose |
 |------|---------|
 | `native/main.cpp` | The App class, the CLI and the UI helpers. The show file used to live here too |
-| `native/core/project_file.ipp` | saveProject / loadProject — the whole `.deckboy` format. Included into main.cpp's anonymous namespace at the point the functions used to sit, so every helper they rely on is still in scope |
+| `native/core/project_file.ipp` | saveProject / loadProject — the whole `.deckboy` format. Included into anonymous namespaces in main.cpp and core/show_file.cpp. Both use core/show_helpers.ipp; non-desk consumers call deckboy::showfile::save/load from core/show_file.hpp. CTest show-file checks the standalone codec |
 | `native/engine/media_engine.cpp/hpp` | Core playback: decode, transport, fade, transition |
 | `native/core/types.hpp` | All domain types: `Cue`, `Deck`, `OutputTarget`, `Project` |
 | `native/core/audio_effects.hpp` | The per-cue AUDIO chain: nine ordinary effects, the five that read `AudioEffectContext` (the picture, the geometry, the length, the video clock, the hold), and eight BENDS (crush, word, skip, rail, resolution, scrub, short, ouroboros) that damage the signal the way a corrupted file does. Runs on the audio thread between the cue's gain and the peak limiter. Verify with `--audio-fx-check` |
