@@ -608,7 +608,6 @@ class Pocket {
     // Keep running when Pocket is not in front: picture-in-picture and the
     // HDMI output both need the show to go on while another app has the screen.
     SDL_SetHint(SDL_HINT_ANDROID_BLOCK_ON_PAUSE, "0");
-    SDL_setenv_unsafe("DECKBOY_SYNC_POP_TRACE", "1", 1);   // TEMPORARY: measuring the doubled pop
     if (!SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_EVENTS)) {
       SDL_Log("pocket: SDL_Init failed: %s", SDL_GetError());
       return false;
@@ -1059,10 +1058,10 @@ class Pocket {
     y += 4.5f * u;
     if (onAir && cueHasTimeline(*onAir)) {
       text_.draw(mono_, timecode(std::max(0.0, pos - cueIn(*onAir)), onAir->fps), kDeep, {lcd.x + u, y, lcd.w * 0.5f, 4 * u});
-      const std::string left = "-" + timecode(std::max(0.0, cueOut(*onAir) - pos), onAir->fps);
+      const std::string remain = "-" + timecode(std::max(0.0, cueOut(*onAir) - pos), onAir->fps);
       int tw = 0, th = 0;
-      if (mono_) TTF_GetStringSize(mono_, left.c_str(), 0, &tw, &th);
-      text_.draw(mono_, left, kDeep, {lcd.x + lcd.w - u - static_cast<float>(tw), y, static_cast<float>(tw) + 1, 4 * u});
+      if (mono_) TTF_GetStringSize(mono_, remain.c_str(), 0, &tw, &th);
+      text_.draw(mono_, remain, kDeep, {lcd.x + lcd.w - u - static_cast<float>(tw), y, static_cast<float>(tw) + 1, 4 * u});
     } else {
       text_.draw(mono_, onAir ? "holds until GO" : "", kDark, {lcd.x + u, y, lcd.w - 2 * u, 4 * u});
     }
@@ -1096,10 +1095,11 @@ class Pocket {
     }
   }
 
-  // TEMPORARY with the sync-pop trace: frames per second and where the time
-  // goes (engine update + pattern rebuild, program draw, output, phone UI).
+  // DECKBOY_POCKET_PERF=1: frames per second and where the time goes
+  // (engine update + pattern rebuild, program draw, output, phone UI), every
+  // two seconds in the log. How the 87 ms -O0 frame was found (11-19).
   void traceFrame(Uint64 t0, Uint64 t1, Uint64 t2, Uint64 t3, Uint64 t4) {
-    const char* trace = SDL_getenv("DECKBOY_SYNC_POP_TRACE");
+    const char* trace = SDL_getenv("DECKBOY_POCKET_PERF");
     if (!trace || trace[0] != '1') return;
     const double f = 1000.0 / static_cast<double>(SDL_GetPerformanceFrequency());
     perf_[0] += (t1 - t0) * f;
