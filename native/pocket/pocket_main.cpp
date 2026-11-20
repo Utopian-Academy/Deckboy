@@ -713,6 +713,7 @@ class Pocket {
       cues_.push_back(cue);
     }
     deckboy::lava::registerGenerator();   // hidden until found, as on the desk
+    engine_->setPixelHook([this](std::vector<std::uint8_t>& px, int w, int h, std::uint64_t index) { runEffects(px, w, h, index); });
     if (!demoList) restoreList();
     loadThemes();
     loadFonts();
@@ -992,6 +993,15 @@ class Pocket {
   void frame() {
     const Uint64 t0 = SDL_GetPerformanceCounter();
     takePicks();
+    {   // frames per second, for STATUS
+      ++fpsFrames_;
+      const Uint64 nowMs = SDL_GetTicks();
+      if (nowMs - fpsSince_ >= 1000) {
+        fps_ = static_cast<double>(fpsFrames_) * 1000.0 / static_cast<double>(nowMs - fpsSince_);
+        fpsFrames_ = 0;
+        fpsSince_ = nowMs;
+      }
+    }
     if (SDL_GetTicks() >= autosaveAt_) {
       autosaveAt_ = SDL_GetTicks() + 4000;
       autosaveList();
@@ -1036,6 +1046,10 @@ class Pocket {
       } else if (c.kind == CueKind::VideoSynth) {
         engine_->rebuildVideoSynthFrame(c, static_cast<double>(SDL_GetTicks()) / 1000.0, engine_->programAudioLevel01());
       }
+    }
+    if (active_ >= 0 && !black_) {
+      const Cue& live = cues_[static_cast<std::size_t>(active_)];
+      if (deckboy::effects::cueEffectStackActive(live.effects) && effectsMove(live.effects)) engine_->refreshPixelHook();
     }
     const Uint64 t1 = SDL_GetPerformanceCounter();
     followEnd();
@@ -2905,6 +2919,7 @@ class Pocket {
         if (pg == "PLACE") page_ = Page::Place;
         else if (pg == "LOOK") page_ = Page::Look;
         else if (pg == "SOUND") page_ = Page::Sound;
+        else if (pg == "FX") page_ = Page::Fx;
         else if (pg == "CALC" && !sliders_.empty()) openCalc(sliders_.front().spec);
         else if (pg == "LFO") { page_ = Page::Place; lfoSlot_ = kGeoLfoRotation; }
         return ok();
@@ -2940,6 +2955,28 @@ class Pocket {
         return out + "\n";
       }
       return err("SHOW SAVE|OPEN|NEW|PLAYLIST|LIST");
+    }
+    if (verb == "FX") {   // FX <cue> ADD <effect token> | FX <cue> CLEAR | FX <cue> LIST
+      std::istringstream a(rest);
+      int n = 0;
+      std::string sub, token;
+      a >> n >> sub >> token;
+      if (n < 1 || n > static_cast<int>(cues_.size())) return err("FX <cue> ADD <effect>|CLEAR|LIST");
+      for (char& ch : sub) ch = static_cast<char>(std::toupper(static_cast<unsigned char>(ch)));
+      Cue& c = cues_[static_cast<std::size_t>(n - 1)];
+      if (sub == "ADD") {
+        const auto kind = deckboy::effects::cueEffectFromToken(token);
+        if (kind == deckboy::effects::CueEffectKind::None) return err("no effect called " + token);
+        addEffect(n - 1, kind);
+        return ok();
+      }
+      if (sub == "CLEAR") { c.effects.clear(); fxState_.clear(); lookChanged(n - 1); return ok(); }
+      if (sub == "LIST") {
+        std::string out = "OK FX";
+        for (const auto& fx : c.effects) out += std::string(" | ") + deckboy::effects::cueEffectToken(fx.kind);
+        return out + "\n";
+      }
+      return err("FX <cue> ADD <effect>|CLEAR|LIST");
     }
     if (verb == "DELETE") {   // DELETE <cue>: as a swipe does (the cue on air is refused)
       const int n = std::atoi(rest.c_str());
@@ -3159,7 +3196,7 @@ class Pocket {
       << " dur=" << (live && live->duration > 0 ? clock(live->duration) : std::string("--:--"))
       << " shuffle=" << (shuffle_ ? "on" : "off") << " loop=" << (loopList_ ? "on" : "off")
       << " endafter=" << (endAfter_ ? "on" : "off") << " crossfade=" << listGlide() << " queued=" << queueIds_.size()
-      << " muted=" << (muted_ ? "on" : "off") << "\n";
+      << " muted=" << (muted_ ? "on" : "off") << " fps=" << static_cast<int>(fps_ + 0.5) << "\n";
     o << "OUTPUT 1 name=\""<< (outputLabel_.empty() ? "phone" : outputLabel_) << "\" enabled=" << (black_ ? "off" : "on")
       << " raster=" << programW_ << "x" << programH_ << "\n";
     o << "SYNC " << syncStatusFields() << "\n";
@@ -4614,7 +4651,7 @@ class Pocket {
   // moves, and a finger dragged further from the row moves the value more
   // finely. Tap the value to type it on a calculator (the desk's own sums).
 
-  enum class Page { Play, Place, Look, Sound };
+  enum class Page { Play, Place, Look, Fx, Sound };
 
   struct NumSpec {
     std::string label, unit;
@@ -4717,12 +4754,12 @@ class Pocket {
     const float barY = lcd.y + lcd.h - barH - 0.5f * u;
     {
       const std::vector<std::pair<const char*, Page>> tabs = {
-          {"PLAY", Page::Play}, {"PLACE", Page::Place}, {"LOOK", Page::Look}, {"SOUND", Page::Sound}};
+          {"PLAY", Page::Play}, {"PLACE", Page::Place}, {"LOOK", Page::Look}, {"FX", Page::Fx}, {"SOUND", Page::Sound}};
       const float dw = 12 * u, gap = 0.8f * u;
       const float tw = (lw - dw - gap * static_cast<float>(tabs.size())) / static_cast<float>(tabs.size());
       for (std::size_t k = 0; k < tabs.size(); ++k) {
         const Page pg = tabs[k].second;
-        button({lx + static_cast<float>(k) * (tw + gap), barY, tw, barH}, tabs[k].first, [this, pg] { page_ = pg; }, true, page_ == pg);
+        button({lx + static_cast<float>(k) * (tw + gap), barY, tw, barH}, tabs[k].first, [this, pg] { page_ = pg; fxPicking_ = false; }, true, page_ == pg);
       }
       button({lx + lw - dw, barY, dw, barH}, "DONE", [this] { sheet_ = -1; });
     }
@@ -4733,6 +4770,7 @@ class Pocket {
       case Page::Play: playItems(c, items); break;
       case Page::Place: placeItems(c, items); break;
       case Page::Look: lookItems(c, items); break;
+      case Page::Fx: fxItems(c, items); break;
       case Page::Sound: soundItems(c, items); break;
     }
     float total = 0;
@@ -4746,6 +4784,177 @@ class Pocket {
       it.draw({lx, y, lw, h});
       y += h;
     }
+  }
+
+  // ── Effects: the desk's effect stack, run on each frame (engine pixel hook) ──
+
+  static std::string upper(std::string t) {
+    for (char& ch : t) ch = static_cast<char>(std::toupper(static_cast<unsigned char>(ch)));
+    return t;
+  }
+
+  static bool effectsMove(const std::vector<deckboy::effects::CueEffect>& stack) {
+    if (deckboy::effects::cueEffectStackAnimates(stack)) return true;
+    for (const auto& fx : stack) {
+      if (fx.bypassed) continue;
+      for (const auto& l : fx.lfo) if (l.on) return true;
+    }
+    return false;
+  }
+
+  void runEffects(std::vector<std::uint8_t>& px, int w, int h, std::uint64_t index) {
+    if (active_ < 0 || active_ >= static_cast<int>(cues_.size())) return;
+    const Cue& c = cues_[static_cast<std::size_t>(active_)];
+    if (!deckboy::effects::cueEffectStackActive(c.effects)) return;
+    if (fxState_.size() < c.effects.size()) fxState_.resize(c.effects.size());
+    deckboy::effects::CueEffectContext ctx;
+    ctx.width = w;
+    ctx.height = h;
+    ctx.frameIndex = index;
+    const double secs = static_cast<double>(SDL_GetTicksNS()) / 1e9;
+    ctx.seconds = secs;
+    ctx.effectState = &fxState_;
+    std::vector<deckboy::effects::CueEffect> modulated;
+    const bool moving = deckboy::effects::modulateCueEffectStack(c.effects, secs, secs * 2.0, modulated, engine_->programAudioLevel01());
+    deckboy::effects::applyCueEffectStack(px, moving ? modulated : c.effects, ctx);
+  }
+
+  // An edit that can change whether the cue on air needs CPU frames: it
+  // takes the new look without restarting where the engine can.
+  void lookChanged(int i) {
+    if (i != active_ || i < 0) return;
+    const Cue& c = cues_[static_cast<std::size_t>(i)];
+    engine_->syncActiveCueSnapshot(c);
+    if (!engine_->adoptLookWithoutRestart(c)) take(i);
+  }
+
+  // The desk's order: the basics first, then the rest as they were added.
+  static std::vector<deckboy::effects::CueEffectKind> effectChoices() {
+    using deckboy::effects::CueEffectKind;
+    std::vector<CueEffectKind> out = {CueEffectKind::Levels, CueEffectKind::Curves, CueEffectKind::Colour,
+                                      CueEffectKind::ColourReplace, CueEffectKind::Blur, CueEffectKind::Sharpen,
+                                      CueEffectKind::Glow, CueEffectKind::Mirror, CueEffectKind::Mosaic,
+                                      CueEffectKind::Edges, CueEffectKind::LumaKey, CueEffectKind::Strobe};
+    for (int k = 1; k < static_cast<int>(CueEffectKind::Count); ++k) {
+      const auto kind = static_cast<CueEffectKind>(k);
+      if (std::find(out.begin(), out.end(), kind) == out.end()) out.push_back(kind);
+    }
+    return out;
+  }
+
+  void addEffect(int i, deckboy::effects::CueEffectKind kind) {
+    Cue& c = cues_[static_cast<std::size_t>(i)];
+    if (c.effects.size() >= 12) {
+      notice_ = "Twelve effects is the most a cue can have";
+      noticeUntil_ = SDL_GetTicks() + 3000;
+      return;
+    }
+    deckboy::effects::CueEffect fx;
+    fx.kind = kind;
+    fx.amount = 1.0f;
+    deckboy::effects::applyCueEffectArrivalDefaults(fx);
+    c.effects.push_back(fx);
+    fxShown_ = static_cast<int>(c.effects.size()) - 1;
+    fxPicking_ = false;
+    notice_ = "Added " + upper(deckboy::effects::cueEffectLabel(kind));
+    noticeUntil_ = SDL_GetTicks() + 2000;
+    lookChanged(i);
+  }
+
+  template <class Items>
+  void fxItems(Cue& c, Items& items) {
+    using namespace deckboy::effects;
+    const int i = sheet_;
+    if (fxPicking_) {   // the picker: two to a row, a page at a time
+      const std::vector<CueEffectKind> all = effectChoices();
+      constexpr int kPerPage = 16;
+      const int pages = (static_cast<int>(all.size()) + kPerPage - 1) / kPerPage;
+      fxPickPage_ = std::clamp(fxPickPage_, 0, pages - 1);
+      items.push_back({1.0f, [this, pages](const SDL_FRect& row) {
+        const float u = unit_, bw = 9 * u;
+        button({row.x, row.y + 0.4f * u, bw, row.h - 0.8f * u}, "<", [this] { --fxPickPage_; }, fxPickPage_ > 0);
+        text_.draw(pixelSmall_, "ADD AN EFFECT  " + std::to_string(fxPickPage_ + 1) + "/" + std::to_string(pages), kDeep,
+                   {row.x + bw + u, row.y, row.w - 2 * bw - 2 * u, row.h}, true);
+        button({row.x + row.w - bw, row.y + 0.4f * u, bw, row.h - 0.8f * u}, ">", [this] { ++fxPickPage_; }, fxPickPage_ < pages - 1);
+      }});
+      for (int k = 0; k < kPerPage; k += 2) {
+        const int a = fxPickPage_ * kPerPage + k;
+        if (a >= static_cast<int>(all.size())) break;
+        items.push_back({1.0f, [this, i, a, all](const SDL_FRect& row) {
+          const float u = unit_, bw = (row.w - u) / 2;
+          for (int q = 0; q < 2 && a + q < static_cast<int>(all.size()); ++q) {
+            const CueEffectKind kind = all[static_cast<std::size_t>(a + q)];
+            button({row.x + static_cast<float>(q) * (bw + u), row.y + 0.3f * u, bw, row.h - 0.6f * u}, upper(cueEffectLabel(kind)),
+                   [this, i, kind] { addEffect(i, kind); });
+          }
+        }});
+      }
+      items.push_back({1.0f, [this](const SDL_FRect& row) {
+        button({row.x, row.y + 0.3f * unit_, row.w, row.h - 0.6f * unit_}, "CANCEL", [this] { fxPicking_ = false; });
+      }});
+      return;
+    }
+    const int n = static_cast<int>(c.effects.size());
+    fxShown_ = std::clamp(fxShown_, 0, std::max(0, n - 1));
+    if (n == 0) {
+      items.push_back({1.0f, [this](const SDL_FRect& row) {
+        text_.draw(mono_, "No effects on this cue.", kDark, row);
+      }});
+    } else {
+      // which effect: < 2/3 Blur >, with ON and REMOVE
+      items.push_back({1.0f, [this, i, n](const SDL_FRect& row) {
+        const float u = unit_, bw = 8 * u;
+        Cue& cc = cues_[static_cast<std::size_t>(i)];
+        CueEffect& fx = cc.effects[static_cast<std::size_t>(fxShown_)];
+        button({row.x, row.y + 0.4f * u, bw, row.h - 0.8f * u}, "<", [this] { --fxShown_; }, fxShown_ > 0);
+        text_.draw(mono_, std::to_string(fxShown_ + 1) + "/" + std::to_string(n) + " " + upper(cueEffectLabel(fx.kind)), kDeep,
+                   {row.x + bw + u, row.y, row.w - 3 * bw - 13 * u, row.h});
+        button({row.x + row.w - 2 * bw - 13 * u, row.y + 0.4f * u, bw, row.h - 0.8f * u}, ">", [this] { ++fxShown_; }, fxShown_ < n - 1);
+        button({row.x + row.w - bw - 12 * u, row.y + 0.4f * u, 11 * u, row.h - 0.8f * u}, fx.bypassed ? "OFF" : "ON",
+               [this, i] { auto& f = cues_[static_cast<std::size_t>(i)].effects[static_cast<std::size_t>(fxShown_)]; f.bypassed = !f.bypassed; lookChanged(i); },
+               true, !fx.bypassed);
+        button({row.x + row.w - bw, row.y + 0.4f * u, bw, row.h - 0.8f * u}, "X", [this, i] {
+          auto& st = cues_[static_cast<std::size_t>(i)].effects;
+          st.erase(st.begin() + fxShown_);
+          fxState_.clear();
+          lookChanged(i);
+        });
+      }});
+      // the amount, then each parameter the effect names
+      auto param = [this, i](int which) {
+        return [this, i, which](const SDL_FRect& row) {
+          Cue& cc = cues_[static_cast<std::size_t>(i)];
+          if (fxShown_ >= static_cast<int>(cc.effects.size())) return;
+          const CueEffect& fx = cc.effects[static_cast<std::size_t>(fxShown_)];
+          NumSpec s;
+          s.label = which < 0 ? std::string("AMOUNT") : upper(cueEffectParamLabelFor(fx, which));
+          s.unit = "%";
+          s.min = 0;
+          s.max = 100;
+          s.step = 1;
+          s.reset = which < 0 ? 100 : 50;
+          s.get = [this, i, which] {
+            CueEffect& f = cues_[static_cast<std::size_t>(i)].effects[static_cast<std::size_t>(fxShown_)];
+            return (which < 0 ? f.amount : cueEffectParam(f, which)) * 100.0;
+          };
+          s.set = [this, i, which](double v) {
+            CueEffect& f = cues_[static_cast<std::size_t>(i)].effects[static_cast<std::size_t>(fxShown_)];
+            (which < 0 ? f.amount : cueEffectParam(f, which)) = static_cast<float>(v / 100.0);
+            cueEdited(i, false);
+          };
+          numberRow(row, s);
+        };
+      };
+      items.push_back({1.0f, param(-1)});
+      const CueEffect& shown = c.effects[static_cast<std::size_t>(fxShown_)];
+      for (int which = 0; which < kCueEffectParamSlots; ++which) {
+        const char* label = cueEffectParamLabelFor(shown, which);
+        if (label && *label) items.push_back({1.0f, param(which)});
+      }
+    }
+    items.push_back({1.0f, [this](const SDL_FRect& row) {
+      button({row.x, row.y + 0.3f * unit_, row.w, row.h - 0.6f * unit_}, "ADD AN EFFECT", [this] { fxPicking_ = true; });
+    }});
   }
 
   template <class Items>
@@ -5701,6 +5910,7 @@ class Pocket {
 
   void take(int i) {
     if (i < 0 || i >= static_cast<int>(cues_.size())) return;
+    fxState_.clear();   // an effect that remembers starts fresh on each take
     active_ = i;
     black_ = false;
     endHandled_ = false;
@@ -5977,6 +6187,14 @@ class Pocket {
   bool charging_ = false;
   Uint64 nextHealth_ = 0;
   bool confirmDelete_ = false;
+  // effects: what each effect in the live stack remembers, the effect the FX
+  // page shows, and the picker
+  std::vector<std::vector<std::uint8_t>> fxState_;
+  int fxShown_ = 0, fxPickPage_ = 0;
+  bool fxPicking_ = false;
+  Uint64 fpsSince_ = 0;
+  int fpsFrames_ = 0;
+  double fps_ = 0;
   // swipe a row left to delete it; UNDO for a while after
   static constexpr float kSwipeDelete = 24.0f;   // units: a third of the row
   int swipeRow_ = -1;

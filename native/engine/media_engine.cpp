@@ -6826,6 +6826,15 @@ void MediaEngine::showImportedFrame(const DecodedFrame& frame) {
 // active, pixels are copied into keyedPixelsScratch_ and mutated there so
 // the source frame stays intact for re-processing on parameter changes.
 // ---------------------------------------------------------------------------
+void MediaEngine::refreshPixelHook() {
+  if (!pixelHook_ || !displayFrame_ || displayFrame_->pixels.empty() || displayFrame_->isGpu() ||
+      displayFrame_->format != FramePixelFormat::RGBA32) {
+    return;
+  }
+  if (SDL_GetTicks() - pixelHookRanAt_ < 12) return;   // a fresh frame went up this tick
+  uploadFrame(*displayFrame_);
+}
+
 void MediaEngine::uploadFrame(const DecodedFrame& frame) {
   if (!drawsOwnTexture_) {
     return;   // nothing will draw it (setDrawsOwnTexture)
@@ -6894,6 +6903,12 @@ void MediaEngine::uploadFrame(const DecodedFrame& frame) {
       saturation_,
       hueShift_);
     uploadPixels = keyedPixelsScratch_.data();
+  }
+  if (pixelHook_) {
+    if (uploadPixels != keyedPixelsScratch_.data()) keyedPixelsScratch_.assign(frame.pixels.begin(), frame.pixels.end());
+    pixelHook_(keyedPixelsScratch_, frame.width, frame.height, frame.index);
+    uploadPixels = keyedPixelsScratch_.data();
+    pixelHookRanAt_ = SDL_GetTicks();
   }
   // LOCK, don't UPDATE. SDL_UpdateTexture on a STREAMING texture makes the
   // backend stage the pixels through a temporary resource, and when updates
