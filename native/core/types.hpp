@@ -1942,8 +1942,8 @@ struct Cue {
   // Geometry transforms applied by the output compositor (normalized/degrees)
   float outputScaleX = 1.0f;              // horizontal scale (1.0 = 100%)
   float outputScaleY = 1.0f;              // vertical scale   (1.0 = 100%)
-  float outputOffsetX = 0.0f;             // horizontal offset (fraction of output width)
-  float outputOffsetY = 0.0f;             // vertical offset   (fraction of output height)
+  float outputOffsetX = 0.0f;             // horizontal offset, in OUTPUT PIXELS (the desk's compositor
+  float outputOffsetY = 0.0f;             // and the engine's own drawing both read it so; not a fraction)
   float outputRotationDegrees = 0.0f;     // clockwise rotation in degrees
   float cropLeft = 0.0f;                  // crop fraction from left edge   (0–1)
   float cropRight = 0.0f;                 // crop fraction from right edge  (0–1)
