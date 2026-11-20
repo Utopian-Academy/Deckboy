@@ -1353,13 +1353,20 @@ class Pocket {
       const float a = 1.5f * pi + (pi / 2) * static_cast<float>(i) / 8;
       pts.push_back({b.x + b.w - rad + rad * std::cos(a), b.y + rad + rad * std::sin(a)});
     }
-    const int scallops = std::max(3, static_cast<int>(std::lround(b.w / (5 * u))));
-    const float amp = std::min(1.1f * u, b.h * 0.14f);
+    const int scallops = std::max(2, static_cast<int>(std::lround(b.w / (7 * u))));
+    const float amp = std::min(1.9f * u, b.h * 0.2f);
     const int steps = scallops * 8;
     for (int k = 0; k <= steps; ++k) {   // the hem, right to left
       const float f = static_cast<float>(k) / static_cast<float>(steps);
       const float y = b.y + b.h - amp * (0.5f + 0.5f * std::cos(2 * pi * f * static_cast<float>(scallops) + wave));
       pts.push_back({b.x + b.w - b.w * f, y});
+    }
+    // Liquid: the body sways like jelly, still at the crown and most at the
+    // hem, with the sway rolling down it.
+    const float sway = std::min(1.1f * u, b.w * 0.08f);
+    for (SDL_FPoint& q : pts) {
+      const float down = std::clamp((q.y - b.y) / std::max(1.0f, b.h), 0.0f, 1.0f);
+      q.x += sway * down * down * std::sin(wave * 0.7f - down * 2.4f);
     }
     return pts;
   }
@@ -1446,15 +1453,15 @@ class Pocket {
       const std::size_t k = ghostHits_.size();
       const float phase = static_cast<float>(k) * 1.7f;
       SDL_FRect b = hit;
-      b.y += static_cast<float>(std::sin(secs * 2.1 + phase)) * 0.7f * u + (1.0f - rise) * 4 * u;
-      if (static_cast<int>(k) == ghostPressed_ && now - ghostPressedAt_ < 260) {
-        const float q = std::sin(3.14159f * static_cast<float>(now - ghostPressedAt_) / 260.0f);
+      b.y += static_cast<float>(std::sin(secs * 0.9 + phase)) * 0.9f * u + (1.0f - rise) * 4 * u;
+      if (static_cast<int>(k) == ghostPressed_ && now - ghostPressedAt_ < 520) {
+        const float q = std::sin(3.14159f * static_cast<float>(now - ghostPressedAt_) / 520.0f);
         const float sx = 1 + 0.12f * q, sy = 1 - 0.14f * q;
         b = {b.x + b.w * (1 - sx) / 2, b.y + b.h * (1 - sy), b.w * sx, b.h * sy};
       }
-      ghostBlob(b, u, static_cast<float>(secs * 3.2) + phase, 0.9f * u, white, 0.07f);   // halo
-      ghostBlob(b, u, static_cast<float>(secs * 3.2) + phase, 0.0f, white, lit ? 0.34f : 0.16f);   // body
-      ghostRim(b, u, static_cast<float>(secs * 3.2) + phase, 0.6f);
+      ghostBlob(b, u, static_cast<float>(secs * 1.3) + phase, 0.9f * u, white, 0.07f);   // halo
+      ghostBlob(b, u, static_cast<float>(secs * 1.3) + phase, 0.0f, white, lit ? 0.34f : 0.16f);   // body
+      ghostRim(b, u, static_cast<float>(secs * 1.3) + phase, 0.6f);
       ghostOval({b.x + b.w * 0.3f, b.y + std::min(b.h * 0.2f, 2.2f * u)}, b.w * 0.13f, std::min(b.h * 0.08f, 0.9f * u), white, 0.5f);   // shine
       const float eyeY = b.y + b.h * (big ? 0.34f : 0.26f);
       const float eyeR = big ? 1.1f * u : 0.45f * u;
