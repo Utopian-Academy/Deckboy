@@ -4728,3 +4728,15 @@ Slide the rows back and forth, so the wall bends and straightens. 0 holds it sti
 How fast the crosses turn. They always turn a little: the dots vanish only while they move	Hoe snel de kruizen draaien. Ze draaien altijd een beetje: de stippen verdwijnen alleen zolang ze bewegen
 Drift (still shapes that seem to turn), ouchi (a disc that floats), cafe (straight rows that look tilted), vanish (dots that disappear while you stare), grid (dots that flicker and are not there) or dancer (it spins whichever way you see it)	drift (stilstaande vormen die lijken te draaien), ouchi (een schijf die zweeft), cafe (rechte rijen die scheef lijken), vanish (stippen die verdwijnen terwijl je staart), grid (stippen die flikkeren en er niet zijn) of dancer (draait de kant op die je ziet)
 STATUS | SHAPE drift|ouchi|cafe|vanish|grid|dancer | FORM leaf|petal|scale|ring | FLOW turn|out|in|wave | FLIP ON|OFF | PALETTE classic|theme|hues | SIZE|COUNT|EDGE|SPEED|CENTREX|CENTREY|GREY <0-100> | HUE1|HUE2 <0-360> | LFO <control> <setting>	STATUS | SHAPE drift|ouchi|cafe|vanish|grid|dancer | FORM leaf|petal|scale|ring | FLOW turn|out|in|wave | FLIP ON|OFF | PALETTE classic|theme|hues | SIZE|COUNT|EDGE|SPEED|CENTREX|CENTREY|GREY <0-100> | HUE1|HUE2 <0-360> | LFO <besturing> <instelling>
+SYNC LEAD ON or OFF	SYNC LEAD ON of OFF
+{1} is following this desk	{1} volgt deze regietafel
+SYNC LEAD ON|OFF or SYNC STATUS	SYNC LEAD ON|OFF of SYNC STATUS
+FOLLOW needs a network connection that stays open	FOLLOW vereist een netwerkverbinding die open blijft
+this desk is not leading (SYNC LEAD ON, or Settings > Network > SYNC)	deze regietafel leidt niet (SYNC LEAD ON, of Instellingen > Netwerk > SYNC)
+LEADING	LEIDEND
+No longer leading	Niet langer leidend
+Lead other machines	Andere machines leiden
+Following this desk: {1}	Volgen deze regietafel: {1}
+Leading. Nobody is following yet.	Leidend. Nog niemand volgt.
+Leading: other machines may follow this desk	Leidend: andere machines mogen deze regietafel volgen
+Not leading: no other machine can follow this desk.	Niet leidend: geen andere machine kan deze regietafel volgen.

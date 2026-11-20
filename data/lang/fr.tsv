@@ -4722,3 +4722,15 @@ Slide the rows back and forth, so the wall bends and straightens. 0 holds it sti
 How fast the crosses turn. They always turn a little: the dots vanish only while they move	Vitesse de rotation des croix. Elles tournent toujours un peu : les points ne disparaissent que pendant le mouvement
 Drift (still shapes that seem to turn), ouchi (a disc that floats), cafe (straight rows that look tilted), vanish (dots that disappear while you stare), grid (dots that flicker and are not there) or dancer (it spins whichever way you see it)	Dérive (formes fixes qui semblent tourner), ouchi (un disque qui flotte), café (lignes droites qui semblent inclinées), disparition (points qui s'effacent quand on les fixe), grille (points qui scintillent et n'existent pas) ou danseuse (elle tourne dans le sens où vous la voyez)
 STATUS | SHAPE drift|ouchi|cafe|vanish|grid|dancer | FORM leaf|petal|scale|ring | FLOW turn|out|in|wave | FLIP ON|OFF | PALETTE classic|theme|hues | SIZE|COUNT|EDGE|SPEED|CENTREX|CENTREY|GREY <0-100> | HUE1|HUE2 <0-360> | LFO <control> <setting>	STATUS | SHAPE drift|ouchi|cafe|vanish|grid|dancer | FORM leaf|petal|scale|ring | FLOW turn|out|in|wave | FLIP ON|OFF | PALETTE classic|theme|hues | SIZE|COUNT|EDGE|SPEED|CENTREX|CENTREY|GREY <0-100> | HUE1|HUE2 <0-360> | LFO <contrôle> <réglage>
+SYNC LEAD ON or OFF	SYNC LEAD ON ou OFF
+{1} is following this desk	{1} suit ce pupitre
+SYNC LEAD ON|OFF or SYNC STATUS	SYNC LEAD ON|OFF ou SYNC STATUS
+FOLLOW needs a network connection that stays open	FOLLOW nécessite une connexion réseau qui reste ouverte
+this desk is not leading (SYNC LEAD ON, or Settings > Network > SYNC)	ce pupitre n'est pas maître (SYNC LEAD ON, ou Réglages > Réseau > SYNC)
+LEADING	MENEUR
+No longer leading	N'est plus meneur
+Lead other machines	Mener d'autres machines
+Following this desk: {1}	Suivent ce pupitre : {1}
+Leading. Nobody is following yet.	Meneur. Personne ne suit encore.
+Leading: other machines may follow this desk	Meneur : d'autres machines peuvent suivre ce pupitre
+Not leading: no other machine can follow this desk.	Pas meneur : aucune autre machine ne peut suivre ce pupitre.

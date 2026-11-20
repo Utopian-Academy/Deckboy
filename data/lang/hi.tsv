@@ -4787,3 +4787,15 @@ Slide the rows back and forth, so the wall bends and straightens. 0 holds it sti
 How fast the crosses turn. They always turn a little: the dots vanish only while they move	क्रॉस कितनी तेज़ घूमें। वे हमेशा थोड़ा घूमते हैं: बिंदु केवल उनकी गति के दौरान गायब होते हैं
 Drift (still shapes that seem to turn), ouchi (a disc that floats), cafe (straight rows that look tilted), vanish (dots that disappear while you stare), grid (dots that flicker and are not there) or dancer (it spins whichever way you see it)	drift (स्थिर आकृतियाँ जो घूमती लगती हैं), ouchi (तैरती हुई डिस्क), cafe (सीधी पंक्तियाँ जो तिरछी दिखती हैं), vanish (बिंदु जो घूरने पर गायब होते हैं), grid (बिंदु जो झिलमिलाते हैं पर होते नहीं) या dancer (जैसे देखें, उसी दिशा में घूमती है)
 STATUS | SHAPE drift|ouchi|cafe|vanish|grid|dancer | FORM leaf|petal|scale|ring | FLOW turn|out|in|wave | FLIP ON|OFF | PALETTE classic|theme|hues | SIZE|COUNT|EDGE|SPEED|CENTREX|CENTREY|GREY <0-100> | HUE1|HUE2 <0-360> | LFO <control> <setting>	STATUS | SHAPE drift|ouchi|cafe|vanish|grid|dancer | FORM leaf|petal|scale|ring | FLOW turn|out|in|wave | FLIP ON|OFF | PALETTE classic|theme|hues | SIZE|COUNT|EDGE|SPEED|CENTREX|CENTREY|GREY <0-100> | HUE1|HUE2 <0-360> | LFO <नियंत्रण> <सेटिंग>
+SYNC LEAD ON or OFF	SYNC LEAD ON या OFF
+{1} is following this desk	{1} इस डेस्क का अनुसरण कर रहा है
+SYNC LEAD ON|OFF or SYNC STATUS	SYNC LEAD ON|OFF या SYNC STATUS
+FOLLOW needs a network connection that stays open	FOLLOW को लगातार खुला रहने वाला नेटवर्क कनेक्शन चाहिए
+this desk is not leading (SYNC LEAD ON, or Settings > Network > SYNC)	यह डेस्क लीड नहीं कर रहा (SYNC LEAD ON, या सेटिंग > नेटवर्क > SYNC)
+LEADING	अग्रणी
+No longer leading	अब अग्रणी नहीं
+Lead other machines	दूसरी मशीनों का नेतृत्व करें
+Following this desk: {1}	इस डेस्क का अनुसरण कर रहे हैं: {1}
+Leading. Nobody is following yet.	अग्रणी। अभी कोई अनुसरण नहीं कर रहा।
+Leading: other machines may follow this desk	अग्रणी: दूसरी मशीनें इस डेस्क का अनुसरण कर सकती हैं
+Not leading: no other machine can follow this desk.	अग्रणी नहीं: कोई दूसरी मशीन इस डेस्क का अनुसरण नहीं कर सकती।

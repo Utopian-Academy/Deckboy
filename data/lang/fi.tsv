@@ -4784,3 +4784,15 @@ Slide the rows back and forth, so the wall bends and straightens. 0 holds it sti
 How fast the crosses turn. They always turn a little: the dots vanish only while they move	Kuinka nopeasti ristit kääntyvät. Ne kääntyvät aina vähän: pisteet katoavat vain liikkeen aikana
 Drift (still shapes that seem to turn), ouchi (a disc that floats), cafe (straight rows that look tilted), vanish (dots that disappear while you stare), grid (dots that flicker and are not there) or dancer (it spins whichever way you see it)	Ajautuma (paikallaan olevat muodot, jotka näyttävät kääntyvän), ouchi (kelluva kiekko), kahvila (suorat rivit, jotka näyttävät vinoilta), katoaminen (pisteet, jotka katoavat, kun tuijotat), ruudukko (välkkyvät pisteet, joita ei ole) tai tanssija (pyörii siihen suuntaan, jonka näet)
 STATUS | SHAPE drift|ouchi|cafe|vanish|grid|dancer | FORM leaf|petal|scale|ring | FLOW turn|out|in|wave | FLIP ON|OFF | PALETTE classic|theme|hues | SIZE|COUNT|EDGE|SPEED|CENTREX|CENTREY|GREY <0-100> | HUE1|HUE2 <0-360> | LFO <control> <setting>	STATUS | SHAPE drift|ouchi|cafe|vanish|grid|dancer | FORM leaf|petal|scale|ring | FLOW turn|out|in|wave | FLIP ON|OFF | PALETTE classic|theme|hues | SIZE|COUNT|EDGE|SPEED|CENTREX|CENTREY|GREY <0-100> | HUE1|HUE2 <0-360> | LFO <ohjain> <asetus>
+SYNC LEAD ON or OFF	SYNC LEAD ON tai OFF
+{1} is following this desk	{1} seuraa tätä pöytää
+SYNC LEAD ON|OFF or SYNC STATUS	SYNC LEAD ON|OFF tai SYNC STATUS
+FOLLOW needs a network connection that stays open	FOLLOW tarvitsee verkkoyhteyden, joka pysyy auki
+this desk is not leading (SYNC LEAD ON, or Settings > Network > SYNC)	tämä pöytä ei johda (SYNC LEAD ON tai Asetukset > Verkko > SYNC)
+LEADING	JOHTAA
+No longer leading	Ei enää johda
+Lead other machines	Johda muita koneita
+Following this desk: {1}	Tätä pöytää seuraa: {1}
+Leading. Nobody is following yet.	Johtaa. Kukaan ei seuraa vielä.
+Leading: other machines may follow this desk	Johtaa: muut koneet voivat seurata tätä pöytää
+Not leading: no other machine can follow this desk.	Ei johda: mikään muu kone ei voi seurata tätä pöytää.

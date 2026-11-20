@@ -4769,3 +4769,15 @@ How big the three dots are. Small dots vanish more easily	Üç noktanın boyutu.
 Swap the black and white edges: the field drifts the other way	Siyah ve beyaz kenarları değiştir: alan ters yöne sürüklenir
 How much of the black and white edges shows. They make the drift	Siyah ve beyaz kenarların ne kadar göründüğü. Sürüklenmeyi onlar yaratır
 LFO: size, count, edge, speed, centrex, centrey, grey, hue1 or hue2	LFO: size, count, edge, speed, centrex, centrey, grey, hue1 veya hue2
+SYNC LEAD ON or OFF	SYNC LEAD ON veya OFF
+{1} is following this desk	{1} bu operatörü izliyor
+SYNC LEAD ON|OFF or SYNC STATUS	SYNC LEAD ON|OFF veya SYNC STATUS
+FOLLOW needs a network connection that stays open	FOLLOW sürekli açık kalan bir ağ bağlantısı gerektirir
+this desk is not leading (SYNC LEAD ON, or Settings > Network > SYNC)	bu operatör lider değil (SYNC LEAD ON veya Ayarlar > Ağ > SYNC)
+LEADING	LİDER
+No longer leading	Artık lider değil
+Lead other machines	Diğer makinelere liderlik et
+Following this desk: {1}	Bu operatörü izleyen: {1}
+Leading. Nobody is following yet.	Lider. Henüz izleyen yok.
+Leading: other machines may follow this desk	Lider: diğer makineler bu operatörü izleyebilir
+Not leading: no other machine can follow this desk.	Lider değil: başka hiçbir makine bu operatörü izleyemez.

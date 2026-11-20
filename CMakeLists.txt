@@ -45,7 +45,7 @@ endif()
 
 project(deckboy_native VERSION
   ${DECKBOY_VERSION_MAJOR}.${DECKBOY_VERSION_MINOR}.${DECKBOY_VERSION_PATCH}
-  LANGUAGES CXX
+  LANGUAGES C CXX
 )
 
 set(CMAKE_CXX_STANDARD 20)
@@ -593,6 +593,7 @@ endif()
 
 add_executable(deckboy-native
   native/main.cpp
+  native/core/show_file.cpp
   native/core/paths.cpp
   native/core/i18n.cpp
   native/core/utils.cpp
@@ -1406,6 +1407,28 @@ include(CTest)
 option(DECKBOY_SANITIZE_BROADCAST_CHECK "Instrument the transport regression target with ASan and UBSan" OFF)
 if(BUILD_TESTING)
   find_package(Threads REQUIRED)
+  # Standalone show codec: deliberately no main.cpp or engine sources.
+  add_executable(deckboy-show-file-check tools/show_file_check.cpp
+    native/core/show_file.cpp native/core/utils.cpp native/core/paths.cpp)
+  target_include_directories(deckboy-show-file-check PRIVATE native "${CMAKE_CURRENT_BINARY_DIR}/generated")
+  add_dependencies(deckboy-show-file-check deckboy_generate_version)
+  target_link_libraries(deckboy-show-file-check PRIVATE Threads::Threads)
+  if(DECKBOY_SDL_TARGET)
+    target_link_libraries(deckboy-show-file-check PRIVATE ${DECKBOY_SDL_TARGET})
+  else()
+    target_include_directories(deckboy-show-file-check PRIVATE ${DECKBOY_SDL_INCLUDE_DIRS})
+    target_link_libraries(deckboy-show-file-check PRIVATE ${DECKBOY_SDL_LINK_LIBS})
+  endif()
+  if(WIN32)
+    target_compile_definitions(deckboy-show-file-check PRIVATE NOMINMAX WIN32_LEAN_AND_MEAN _CRT_SECURE_NO_WARNINGS)
+    target_link_libraries(deckboy-show-file-check PRIVATE advapi32)
+  endif()
+  if(MSVC)
+    target_compile_options(deckboy-show-file-check PRIVATE /W3 /w14456 /w14457 /w14458 /w14189 /EHsc /utf-8)
+  else()
+    target_compile_options(deckboy-show-file-check PRIVATE -Wall -Wextra -Wshadow)
+  endif()
+  add_test(NAME show-file COMMAND deckboy-show-file-check "${CMAKE_CURRENT_BINARY_DIR}/show-file-check")
   foreach(board_check IN ITEMS 40k spearhead edges)
     add_executable(deckboy-tabletop-${board_check}-check tools/tabletop_${board_check}_check.cpp)
     target_include_directories(deckboy-tabletop-${board_check}-check PRIVATE native)

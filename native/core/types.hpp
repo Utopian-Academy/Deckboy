@@ -3021,6 +3021,9 @@ struct Project {
   // nobody asked it to. Checking never installs anything -- see
   // checkForUpdateAsync.
   bool updateCheckEnabled = false;
+  // SYNC: this desk leads other machines (Pockets, Minis, a backup desk) that
+  // connect and FOLLOW it. Saved with the show so a restarted desk leads again.
+  bool syncLead = false;
   // MEDIAMTX: the media router a show can share -- phones, cameras and OBS
   // publish into it, and Deckboy's programme goes out through it to any number
   // of viewers. Where it runs; empty means this computer. Its own default

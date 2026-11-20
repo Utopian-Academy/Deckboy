@@ -3202,6 +3202,15 @@ html,body{width:100%;height:100%;overflow:hidden}
       }
     };
 
+    // TIME (the sync clock, SYNC_DESIGN.md) is answered here, on the network
+    // thread, the moment it arrives: through the main thread's queue it waited
+    // up to a frame, the round trip read 100 ms on one machine, and the clock
+    // offset a follower works out from it was only good to half of that.
+    if (upper == "TIME" || upper.rfind("TIME ", 0) == 0) {
+      const std::string sent = upper.size() > 5 ? trim(query.substr(5)) : std::string("0");
+      sendSnapshot("OK TIME: " + sent + " " + std::to_string(SDL_GetTicksNS()) + "\n");
+      return true;
+    }
     if (upper == "STATUS ENCODER" || upper == "STATE ENCODER") {
       // Built on the main thread (updateStatusSnapshot); this thread only
       // copies the finished text out under the lock.
@@ -3254,7 +3263,7 @@ html,body{width:100%;height:100%;overflow:hidden}
     // without something saying so.
     if (upper == "HELP ALL" || upper == "HELP FULL" || upper == "?? ") {
       sendSnapshot(
-        "DECKBOY_0.01 every verb (403)\n"
+        "DECKBOY_0.01 every verb (407)\n"
         "ADDTIMER ALLGO ALLPAUSE ALLPLAY ALLSTOP ALLTAKE ANIM ANIMATION ARM AUDITION\n"
         "ARTNET ARTNETEVENT ARTNETPORT ART_NET_PORT ASCII ATEM ATEMEVENT\n"
         "ATEMTRIGGER AUDIO AUDIOCUE AUDIOENABLED AUDIOFX AUDIOGAIN AUDIOMONO\n"
@@ -3295,7 +3304,7 @@ html,body{width:100%;height:100%;overflow:hidden}
         "STANDBY STARTUP STILLDUR STOPALL STING STREAM SYNTH KEYS NOTESTEP PRESENTER SPLITNOTES PROMPTER\n"
         "STOP SUB SUBTITLE SUBTITLES SWIRL MOIRE ILLUSION LUMIA SHADER SYNCGO SYNCTAKE SYNTHNOTEOFF\n"
         "SYNTHNOTEON SYPHONCUE TAKE TAKEID TALLYEVENT TC TCMARK TIMECODE TONECUE\n"
-        "TIMECODEEXT\n"
+        "TIMECODEEXT FOLLOW UNFOLLOW SYNC TIME\n"
         "TIMECODELTC TIMECODEMARK TIMEOVERLAY TIMER TIMERCUE TOGGLE\n"
         "TRANSITION TRANSITIONSTYLE TRANSITIONTONEXT TRIM TRIMIN TRIMOUT\n"
         "TUTORIAL TRACKER SEQUENCE GEOLFO UNDO REDO TRIGGER MIDINOTE MIDIMAP MIDIIN OSCTRIGGER MEMOCUE MEMO DEVAMP CAPTIONS MEDIAMTX AUDIOTRACK MIC FIXTURE VIDEODIP\n"
@@ -6116,6 +6125,158 @@ bool looksLikeHttpRequestLine(const std::string& line) {
   // Write one line to a Companion client, from any thread. Takes the same lock
   // the network thread holds while it reads and answers queries, so the two
   // can't interleave mid-line, and skips a client that has since disconnected.
+  // ── SYNC: this desk as the conductor (private-notes/SYNC_DESIGN.md) ──
+  //
+  // Followers -- Pocket, Mini, another desk -- connect to the remote port and
+  // send FOLLOW <name> <kind> <role>. The desk then streams the focused
+  // deck's transport to them: on every change and four times a second (the
+  // heartbeat a backup listens for). TIME <ns> answers with this desk's clock
+  // so a follower can work out the offset between the two.
+  struct SyncFollower {
+    SocketHandle socket = kInvalidSocket;
+    std::uint64_t generation = 0;
+    std::string name, kind, role;
+    std::uint64_t joinedNs = 0;
+  };
+
+  bool companionClientAlive(SocketHandle client, std::uint64_t generation) {
+    std::lock_guard<std::mutex> lk(companionClientsMutex_);
+    const auto current = companionClientGenerations_.find(client);
+    if (generation && (current == companionClientGenerations_.end() || current->second != generation)) return false;
+    return std::find(companionClients_.begin(), companionClients_.end(), client) != companionClients_.end();
+  }
+
+  void handleSyncCommand(const std::vector<std::string>& parts) {
+    const std::string verb = toUpper(parts[0]);
+    if (verb == "TIME") {
+      remoteCommandDetail_ = (parts.size() > 1 ? parts[1] : std::string("0")) + " " + std::to_string(SDL_GetTicksNS());
+      return;
+    }
+    if (verb == "FOLLOW") {
+      if (remoteReplyTo_ == kInvalidSocket) {
+        failRemoteCommand("FOLLOW needs a network connection that stays open");
+        return;
+      }
+      if (!project_.syncLead) {
+        failRemoteCommand("this desk is not leading (SYNC LEAD ON, or Settings > Network > SYNC)");
+        return;
+      }
+      SyncFollower f;
+      f.socket = remoteReplyTo_;
+      f.generation = remoteReplyGeneration_;
+      f.name = parts.size() > 1 ? parts[1] : "follower";
+      f.kind = parts.size() > 2 ? parts[2] : "unknown";
+      f.role = parts.size() > 3 ? toLower(parts[3]) : "fleet";
+      f.joinedNs = SDL_GetTicksNS();
+      syncFollowers_.erase(std::remove_if(syncFollowers_.begin(), syncFollowers_.end(),
+                                          [&](const SyncFollower& o) { return o.socket == f.socket; }),
+                           syncFollowers_.end());
+      syncFollowers_.push_back(f);
+      syncLastSentNs_ = 0;   // the newcomer gets the state at once
+      showLog("SYNC", "follower " + f.name + " (" + f.kind + ", " + f.role + ") joined");
+      triggerToast(deckboy::core::i18n::format("{1} is following this desk", {f.name}));
+      remoteCommandDetail_ = "following deck " + std::to_string(project_.focusedDeckIndex + 1);
+      return;
+    }
+    if (verb == "UNFOLLOW") {
+      syncFollowers_.erase(std::remove_if(syncFollowers_.begin(), syncFollowers_.end(),
+                                          [&](const SyncFollower& o) { return o.socket == remoteReplyTo_; }),
+                           syncFollowers_.end());
+      return;
+    }
+    // SYNC LEAD ON|OFF, SYNC STATUS
+    const std::string sub = parts.size() > 1 ? toUpper(parts[1]) : std::string("STATUS");
+    if (sub == "LEAD") {
+      const std::string v = parts.size() > 2 ? toUpper(parts[2]) : std::string();
+      if (v == "ON") project_.syncLead = true;
+      else if (v == "OFF") { project_.syncLead = false; syncFollowers_.clear(); }
+      else { failRemoteCommand("SYNC LEAD ON or OFF"); return; }
+      return;
+    }
+    if (sub == "STATUS") {
+      std::ostringstream o;
+      o << "lead=" << (project_.syncLead ? "on" : "off") << " followers=" << syncFollowers_.size();
+      for (const auto& f : syncFollowers_) o << " [" << f.name << " " << f.kind << " " << f.role << "]";
+      remoteCommandDetail_ = o.str();
+      return;
+    }
+    failRemoteCommand("SYNC LEAD ON|OFF or SYNC STATUS");
+  }
+
+  // The focused deck's transport, as one line every follower reads.
+  std::string syncStateLine() {
+    const int deckIndex = project_.focusedDeckIndex;
+    const Cue* cue = activeCuePtr(deckIndex);
+    const MediaEngine* engine = mediaEngineForDeck(deckIndex);
+    std::string state = "stopped";
+    if (cue && engine) {
+      state = engine->state() == TransportState::Playing ? "playing"
+            : engine->state() == TransportState::Paused ? "paused" : "stopped";
+    }
+    if (masterDimmerTarget_ <= 0.001) state = "black";   // the master blackout
+    const Deck& deck = project_.decks[static_cast<std::size_t>(deckIndex)];
+    // The ON-AIR cue's number (the engine owns a copy, so match it by id),
+    // for a follower whose show matches by number when ids differ.
+    int liveNumber = 0;
+    if (cue) {
+      for (std::size_t i = 0; i < deck.cues.size(); ++i) {
+        if (deck.cues[i].id == cue->id) { liveNumber = static_cast<int>(i) + 1; break; }
+      }
+    }
+    std::ostringstream o;
+    o << std::fixed << std::setprecision(6);
+    o << "SYNC deck=" << (deckIndex + 1)
+      << " cue=" << (cue ? cue->id : std::string("-"))
+      << " num=" << liveNumber
+      << " state=" << state
+      << " pos=" << (engine ? engine->position() : 0.0)
+      << " at=" << SDL_GetTicksNS()
+      << " speed=" << (cue ? cue->playbackSpeed : 1.0)
+      << " trans=" << transitionStyleToken(parseTransitionStyleToken(deck.transitionStyle)) << "/" << deck.transitionSeconds;
+    // Last, so it may hold spaces: a follower without this show's file finds
+    // its own copy of the cue by name, or by a file of that name.
+    std::string name = cue ? cue->name : std::string();
+    std::replace(name.begin(), name.end(), '"', '\'');
+    std::replace(name.begin(), name.end(), '\n', ' ');
+    // The media, so a follower with its own copy matches by what plays: a
+    // file's own name (no folders), or a generator's pattern:// type.
+    std::string file;
+    if (cue) {
+      file = cue->path.rfind("pattern://", 0) == 0 ? cue->path : dbfs::path(cue->path).filename().string();
+      std::replace(file.begin(), file.end(), '"', '\'');
+    }
+    o << " file=\"" << file << "\" name=\"" << name << "\"";
+    return o.str();
+  }
+
+  // Every tick: drop followers whose connection went, and send the state on
+  // a change or after 250 ms.
+  void serviceSyncLead() {
+    if (!project_.syncLead || syncFollowers_.empty()) return;
+    syncFollowers_.erase(std::remove_if(syncFollowers_.begin(), syncFollowers_.end(),
+                                        [&](const SyncFollower& f) {
+                                          const bool gone = !companionClientAlive(f.socket, f.generation);
+                                          if (gone) showLog("SYNC", "follower " + f.name + " left");
+                                          return gone;
+                                        }),
+                         syncFollowers_.end());
+    if (syncFollowers_.empty()) return;
+    std::string line = syncStateLine();
+    // The change test leaves out pos= and at=, which move every tick.
+    std::string key = line;
+    for (const char* field : {" pos=", " at="}) {
+      const auto a = key.find(field);
+      if (a == std::string::npos) continue;
+      const auto b = key.find(' ', a + 1);
+      key.erase(a, b == std::string::npos ? std::string::npos : b - a);
+    }
+    const std::uint64_t now = SDL_GetTicksNS();
+    if (key == syncLastKey_ && now - syncLastSentNs_ < 250000000ull) return;
+    syncLastKey_ = key;
+    syncLastSentNs_ = now;
+    for (const auto& f : syncFollowers_) sendCompanionLine(f.socket, line, f.generation);
+  }
+
   void sendCompanionLine(SocketHandle client, const std::string& line, std::uint64_t generation = 0) {
     if (client == kInvalidSocket) {
       return;
@@ -6200,6 +6361,8 @@ bool looksLikeHttpRequestLine(const std::string& line) {
       // The phone counts as another machine too. Every level of a nested
       // command is checked against this in handleRemoteCommand.
       remoteCallerIsNetwork_ = command.fromNetworkPeer || command.webReply != nullptr;
+      remoteReplyTo_ = command.replyTo;          // FOLLOW keeps the caller's socket
+      remoteReplyGeneration_ = command.replyGeneration;
       const bool refusedBeforeRunning = !remoteCommandError_.empty();
       const Uint64 commandT0 = uiProfileEnabled_ ? SDL_GetTicksNS() : 0;
       if (remoteCommandError_.empty()) handleRemoteCommand(command.text);

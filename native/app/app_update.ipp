@@ -390,6 +390,7 @@
     vuFocusedDeck_.store(project_.focusedDeckIndex, std::memory_order_relaxed);
     serviceWindowFitScale();
     serviceThemeHue();
+    serviceSyncLead();
     serviceTestCardExport();
     serviceMicMeters(SDL_GetTicks());
     serviceHdrAuto(SDL_GetTicks());

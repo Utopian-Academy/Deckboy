@@ -4786,3 +4786,15 @@ Which way the field seems to go: turn round the centre, out, in, or in waves	Н�
 Slide the rows back and forth, so the wall bends and straightens. 0 holds it still	Плъзга редовете напред-назад, така стената се огъва и изправя. 0 я държи неподвижна
 How fast the crosses turn. They always turn a little: the dots vanish only while they move	Колко бързо се въртят кръстчетата. Винаги се въртят малко: точките изчезват само докато се движат
 Drift (still shapes that seem to turn), ouchi (a disc that floats), cafe (straight rows that look tilted), vanish (dots that disappear while you stare), grid (dots that flicker and are not there) or dancer (it spins whichever way you see it)	Дрейф (неподвижни форми, които сякаш се въртят), ouchi (диск, който плува), кафене (прави редове, които изглеждат наклонени), изчезване (точки, които изчезват, докато гледате), мрежа (точки, които трептят и ги няма) или танцьорка (върти се накъдето я видите)
+SYNC LEAD ON or OFF	SYNC LEAD ON или OFF
+{1} is following this desk	{1} следва този пулт
+SYNC LEAD ON|OFF or SYNC STATUS	SYNC LEAD ON|OFF или SYNC STATUS
+FOLLOW needs a network connection that stays open	FOLLOW изисква мрежова връзка, която остава отворена
+this desk is not leading (SYNC LEAD ON, or Settings > Network > SYNC)	този пулт не е водещ (SYNC LEAD ON или Настройки > Мрежа > SYNC)
+LEADING	ВОДЕЩ
+No longer leading	Вече не е водещ
+Lead other machines	Води другите машини
+Following this desk: {1}	Следват този пулт: {1}
+Leading. Nobody is following yet.	Водещ. Още никой не следва.
+Leading: other machines may follow this desk	Водещ: други машини могат да следват този пулт
+Not leading: no other machine can follow this desk.	Не е водещ: никоя друга машина не може да следва този пулт.

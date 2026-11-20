@@ -4783,3 +4783,15 @@ Slide the rows back and forth, so the wall bends and straightens. 0 holds it sti
 How fast the crosses turn. They always turn a little: the dots vanish only while they move	십자가 도는 속도. 항상 조금씩 돕니다: 점은 움직이는 동안에만 사라집니다
 Drift (still shapes that seem to turn), ouchi (a disc that floats), cafe (straight rows that look tilted), vanish (dots that disappear while you stare), grid (dots that flicker and are not there) or dancer (it spins whichever way you see it)	drift(정지한 모양이 도는 것처럼 보임), ouchi(떠다니는 원판), cafe(기울어져 보이는 직선 행), vanish(바라보는 동안 사라지는 점), grid(깜빡이지만 실제로는 없는 점) 또는 dancer(보는 대로 어느 방향으로든 스핀)
 STATUS | SHAPE drift|ouchi|cafe|vanish|grid|dancer | FORM leaf|petal|scale|ring | FLOW turn|out|in|wave | FLIP ON|OFF | PALETTE classic|theme|hues | SIZE|COUNT|EDGE|SPEED|CENTREX|CENTREY|GREY <0-100> | HUE1|HUE2 <0-360> | LFO <control> <setting>	STATUS | SHAPE drift|ouchi|cafe|vanish|grid|dancer | FORM leaf|petal|scale|ring | FLOW turn|out|in|wave | FLIP ON|OFF | PALETTE classic|theme|hues | SIZE|COUNT|EDGE|SPEED|CENTREX|CENTREY|GREY <0-100> | HUE1|HUE2 <0-360> | LFO <컨트롤> <설정>
+SYNC LEAD ON or OFF	SYNC LEAD ON 또는 OFF
+{1} is following this desk	{1}이(가) 이 콘솔을 따르는 중
+SYNC LEAD ON|OFF or SYNC STATUS	SYNC LEAD ON|OFF 또는 SYNC STATUS
+FOLLOW needs a network connection that stays open	FOLLOW에는 계속 열려 있는 네트워크 연결이 필요합니다
+this desk is not leading (SYNC LEAD ON, or Settings > Network > SYNC)	이 콘솔이 리드하지 않음 (SYNC LEAD ON 또는 설정 > 네트워크 > SYNC)
+LEADING	리드 중
+No longer leading	더 이상 리드하지 않음
+Lead other machines	다른 기계 리드하기
+Following this desk: {1}	이 콘솔을 따르는 중: {1}
+Leading. Nobody is following yet.	리드 중. 아직 아무도 따르지 않음.
+Leading: other machines may follow this desk	리드 중: 다른 기계가 이 콘솔을 따를 수 있음
+Not leading: no other machine can follow this desk.	리드 안 함: 다른 기계가 이 콘솔을 따를 수 없음.

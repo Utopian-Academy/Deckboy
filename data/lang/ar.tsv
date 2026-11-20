@@ -4800,3 +4800,15 @@ Which way the field seems to go: turn round the centre, out, in, or in waves	ا�
 Slide the rows back and forth, so the wall bends and straightens. 0 holds it still	انزلاق الصفوف ذهاباً وإياباً، فينحني الجدار ثم يستقيم. 0 يثبّته
 How fast the crosses turn. They always turn a little: the dots vanish only while they move	سرعة دوران الصلبان. تدور دائماً قليلاً: النقاط تختفي فقط أثناء حركتها
 Drift (still shapes that seem to turn), ouchi (a disc that floats), cafe (straight rows that look tilted), vanish (dots that disappear while you stare), grid (dots that flicker and are not there) or dancer (it spins whichever way you see it)	انجراف (أشكال ثابتة تبدو وكأنها تدور)، ouchi (قرص يطفو)، مقهى (صفوف مستقيمة تبدو مائلة)، اختفاء (نقاط تختفي أثناء التحديق)، شبكة (نقاط ترفرف وليست موجودة) أو راقصة (تدور في الاتجاه الذي تراه)
+SYNC LEAD ON or OFF	SYNC LEAD ON أو OFF
+{1} is following this desk	{1} يتبع طاولة التحكم هذه
+SYNC LEAD ON|OFF or SYNC STATUS	SYNC LEAD ON|OFF أو SYNC STATUS
+FOLLOW needs a network connection that stays open	يتطلب FOLLOW اتصال شبكة يبقى مفتوحًا
+this desk is not leading (SYNC LEAD ON, or Settings > Network > SYNC)	طاولة التحكم هذه ليست القائدة (SYNC LEAD ON، أو الإعدادات > الشبكة > SYNC)
+LEADING	يقود
+No longer leading	لم يعد يقود
+Lead other machines	قيادة الأجهزة الأخرى
+Following this desk: {1}	يتبع طاولة التحكم هذه: {1}
+Leading. Nobody is following yet.	يقود. لا أحد يتبع بعد.
+Leading: other machines may follow this desk	يقود: يمكن للأجهزة الأخرى أن تتبع طاولة التحكم هذه
+Not leading: no other machine can follow this desk.	لا يقود: لا يمكن لأي جهاز آخر أن يتبع طاولة التحكم هذه.

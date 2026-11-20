@@ -236,6 +236,7 @@ void writeProjectScalars(std::ostream& output, const Project& project) {
   output << "ltc_out_device\t" << escapeField(project.ltcOutputDeviceName) << '\n';
   output << "midi_device\t" << escapeField(project.midiDeviceName) << '\n';
   output << "update_check\t" << (project.updateCheckEnabled ? 1 : 0) << '\n';
+  output << "sync_lead\t" << (project.syncLead ? 1 : 0) << '\n';
   // The mask library, one line each (core/masks.hpp, serializeMask).
   for (const deckboy::masks::Mask& mask : project.masks) {
     output << "mask\t" << escapeField(deckboy::masks::serializeMask(mask, serializeGeometryLfos(mask.lfo)))
@@ -1526,6 +1527,8 @@ bool applyProjectScalarLine(Project& project, const std::vector<std::string>& fi
     project.mediamtxHost = safeString(fields, 1);
   } else if (fields[0] == "update_check") {
     project.updateCheckEnabled = safeBool(fields, 1, false);
+  } else if (fields[0] == "sync_lead") {
+    project.syncLead = safeBool(fields, 1, false);
   } else if (fields[0] == "mask") {
     deckboy::masks::Mask mask;
     std::string lfoText;

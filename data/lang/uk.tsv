@@ -4778,3 +4778,15 @@ How big the three dots are. Small dots vanish more easily	Розмір трьо�
 Swap the black and white edges: the field drifts the other way	Поміняти місцями чорні й білі краї: поле дрейфує в інший бік
 How much of the black and white edges shows. They make the drift	Наскільки видно чорні й білі краї. Вони створюють дрейф
 LFO: size, count, edge, speed, centrex, centrey, grey, hue1 or hue2	LFO: size, count, edge, speed, centrex, centrey, grey, hue1 або hue2
+SYNC LEAD ON or OFF	SYNC LEAD ON або OFF
+{1} is following this desk	{1} слідує за цим оператором
+SYNC LEAD ON|OFF or SYNC STATUS	SYNC LEAD ON|OFF або SYNC STATUS
+FOLLOW needs a network connection that stays open	FOLLOW потребує постійного мережевого з’єднання
+this desk is not leading (SYNC LEAD ON, or Settings > Network > SYNC)	цей оператор не ведучий (SYNC LEAD ON або Налаштування > Мережа > SYNC)
+LEADING	ВЕДУЧИЙ
+No longer leading	Більше не ведучий
+Lead other machines	Вести інші пристрої
+Following this desk: {1}	За цим оператором слідують: {1}
+Leading. Nobody is following yet.	Ведучий. Ще ніхто не слідує.
+Leading: other machines may follow this desk	Ведучий: інші пристрої можуть слідувати за цим оператором
+Not leading: no other machine can follow this desk.	Не ведучий: жоден інший пристрій не може слідувати за цим оператором.

@@ -4780,3 +4780,15 @@ Which way the field seems to go: turn round the centre, out, in, or in waves	Π�
 Slide the rows back and forth, so the wall bends and straightens. 0 holds it still	Ολίσθηση των γραμμών μπρος-πίσω, ώστε ο τοίχος να λυγίζει και να ισιώνει. Το 0 τον κρατά ακίνητο
 How fast the crosses turn. They always turn a little: the dots vanish only while they move	Πόσο γρήγορα γυρίζουν οι σταυροί. Πάντα γυρίζουν λίγο: οι κουκκίδες χάνονται μόνο όσο κινούνται
 Drift (still shapes that seem to turn), ouchi (a disc that floats), cafe (straight rows that look tilted), vanish (dots that disappear while you stare), grid (dots that flicker and are not there) or dancer (it spins whichever way you see it)	Ολίσθηση (ακίνητα σχήματα που μοιάζουν να γυρίζουν), ouchi (δίσκος που αιωρείται), καφενείο (ίσιες γραμμές που φαίνονται γερμένες), εξαφάνιση (κουκκίδες που χάνονται όσο τις κοιτάς), πλέγμα (κουκκίδες που τρεμοπαίζουν και δεν υπάρχουν) ή χορεύτρια (γυρίζει όπως τη βλέπεις)
+SYNC LEAD ON or OFF	SYNC LEAD ON ή OFF
+{1} is following this desk	{1} ακολουθεί αυτή την κονσόλα
+SYNC LEAD ON|OFF or SYNC STATUS	SYNC LEAD ON|OFF ή SYNC STATUS
+FOLLOW needs a network connection that stays open	Το FOLLOW απαιτεί σύνδεση δικτύου που μένει ανοιχτή
+this desk is not leading (SYNC LEAD ON, or Settings > Network > SYNC)	αυτή η κονσόλα δεν ηγείται (SYNC LEAD ON ή Ρυθμίσεις > Δίκτυο > SYNC)
+LEADING	ΟΔΗΓΕΙ
+No longer leading	Δεν οδηγεί πλέον
+Lead other machines	Οδήγηση άλλων συσκευών
+Following this desk: {1}	Ακολουθούν αυτή την κονσόλα: {1}
+Leading. Nobody is following yet.	Οδηγεί. Κανείς δεν ακολουθεί ακόμη.
+Leading: other machines may follow this desk	Οδηγεί: άλλες συσκευές μπορούν να ακολουθούν αυτή την κονσόλα
+Not leading: no other machine can follow this desk.	Δεν οδηγεί: καμία άλλη συσκευή δεν μπορεί να ακολουθήσει αυτή την κονσόλα.
