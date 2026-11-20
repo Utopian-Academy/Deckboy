@@ -887,7 +887,33 @@ class Pocket {
     SDL_Quit();
   }
 
+  // Idle: nothing on air, nobody touching for three seconds, nothing
+  // moving on the screen. Then a frame waits up to 100 ms for an event
+  // (without taking it), so the phone draws ten times a second instead of
+  // sixty and still wakes the moment a finger lands.
+  bool idle() const {
+    const Uint64 now = SDL_GetTicks();
+    if (active_ >= 0 && !black_) return false;
+    if (now - lastInputMs_ < 3000) return false;
+    if (follow_ != Follow::Off || hostEditing_ || renameIndex_ != -1 || calcOpen_ || pickerOpen_) return false;
+    if (now < noticeUntil_ || now < ghostUntil_ || (undoCue_ && now < undoUntil_)) return false;
+    if (!fingers_.empty() || drag_ != Drag::None) return false;
+    return true;
+  }
+
+  void waitIfIdle() {
+    if (idle()) SDL_WaitEventTimeout(nullptr, 100);
+  }
+
   bool event(const SDL_Event& e) {
+    switch (e.type) {   // a person doing something, not the system
+      case SDL_EVENT_FINGER_DOWN: case SDL_EVENT_FINGER_MOTION: case SDL_EVENT_FINGER_UP:
+      case SDL_EVENT_KEY_DOWN: case SDL_EVENT_TEXT_INPUT: case SDL_EVENT_MOUSE_BUTTON_DOWN: case SDL_EVENT_MOUSE_WHEEL:
+        lastInputMs_ = SDL_GetTicks();
+        break;
+      default:
+        break;
+    }
     switch (e.type) {
       case SDL_EVENT_QUIT:
         autosaveList();
@@ -6527,6 +6553,7 @@ class Pocket {
   bool fxShrinkOn_ = true;
   int fxShown_ = 0, fxPickPage_ = 0;
   bool fxPicking_ = false;
+  Uint64 lastInputMs_ = 0;
   ClockMode clock_ = ClockMode::Off;
   bool showRemaining_ = false, showFps_ = false;
   Uint64 fpsSince_ = 0;
@@ -6570,6 +6597,7 @@ SDL_AppResult SDL_AppEvent(void* state, SDL_Event* e) {
 }
 
 SDL_AppResult SDL_AppIterate(void* state) {
+  static_cast<Pocket*>(state)->waitIfIdle();
   static_cast<Pocket*>(state)->frame();
   return SDL_APP_CONTINUE;
 }
