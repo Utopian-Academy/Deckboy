@@ -83,6 +83,64 @@ AVCodecContext* openDecoder(AVStream* st) {
 
 }  // namespace
 
+bool decodeStills(const std::string& source, const std::vector<double>& times, int maxWidth, std::vector<Still>& out) {
+  out.assign(times.size(), Still {});
+  AVFormatContext* in = nullptr;
+  if (avformat_open_input(&in, source.c_str(), nullptr, nullptr) < 0) return false;
+  struct Close { AVFormatContext*& f; ~Close() { avformat_close_input(&f); } } closeIn {in};
+  if (avformat_find_stream_info(in, nullptr) < 0) return false;
+  const int v = av_find_best_stream(in, AVMEDIA_TYPE_VIDEO, -1, -1, nullptr, 0);
+  if (v < 0) return false;
+  AVStream* st = in->streams[v];
+  AVCodecContext* dec = openDecoder(st);
+  if (!dec) return false;
+  struct FreeDec { AVCodecContext*& c; ~FreeDec() { avcodec_free_context(&c); } } freeDec {dec};
+  AVFrame* frame = av_frame_alloc();
+  AVPacket* pkt = av_packet_alloc();
+  SwsContext* sws = nullptr;
+  const int64_t start = st->start_time != AV_NOPTS_VALUE ? st->start_time : 0;
+  bool any = false;
+  for (std::size_t k = 0; k < times.size(); ++k) {
+    const int64_t want = start + static_cast<int64_t>(times[k] / av_q2d(st->time_base));
+    if (av_seek_frame(in, v, want, AVSEEK_FLAG_BACKWARD) < 0) continue;
+    avcodec_flush_buffers(dec);
+    bool got = false;
+    int packets = 0;
+    while (!got && packets < 600 && av_read_frame(in, pkt) >= 0) {
+      if (pkt->stream_index == v && avcodec_send_packet(dec, pkt) >= 0) {
+        ++packets;
+        while (!got && avcodec_receive_frame(dec, frame) == 0) {
+          const int64_t ts = frame->best_effort_timestamp != AV_NOPTS_VALUE ? frame->best_effort_timestamp : frame->pts;
+          // the first frame at or past the time (a filmstrip forgives a frame or two)
+          if (ts == AV_NOPTS_VALUE || ts >= want - static_cast<int64_t>(0.04 / av_q2d(st->time_base))) {
+            int w = frame->width, h = frame->height;
+            if (maxWidth > 0 && w > maxWidth) { h = std::max(2, static_cast<int>(std::lround(static_cast<double>(h) * maxWidth / w))); w = maxWidth; }
+            sws = sws_getCachedContext(sws, frame->width, frame->height, static_cast<AVPixelFormat>(frame->format), w, h,
+                                       AV_PIX_FMT_RGBA, SWS_BILINEAR, nullptr, nullptr, nullptr);
+            if (sws) {
+              Still& s = out[k];
+              s.width = w;
+              s.height = h;
+              s.rgba.resize(static_cast<std::size_t>(w) * h * 4);
+              uint8_t* dst[1] = {s.rgba.data()};
+              int dstStride[1] = {w * 4};
+              sws_scale(sws, frame->data, frame->linesize, 0, frame->height, dst, dstStride);
+              any = true;
+            }
+            got = true;
+          }
+          av_frame_unref(frame);
+        }
+      }
+      av_packet_unref(pkt);
+    }
+  }
+  sws_freeContext(sws);
+  av_frame_free(&frame);
+  av_packet_free(&pkt);
+  return any;
+}
+
 RemuxResult bakeDirectionInProcess(const std::string& source, const std::string& dest, double in, double out,
                                    bool bounce, int maxWidth, std::atomic<double>* progress,
                                    std::atomic<bool>* cancel, std::string* why, DirectionCopy* made) {

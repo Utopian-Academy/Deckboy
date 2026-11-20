@@ -2198,6 +2198,10 @@ struct Cue {
   // whose trim or direction has moved on plays forwards until the new copy
   // lands. directionSeconds is the copy's own length.
   int playDirection = 0;  // 0 forward, 1 reverse, 2 bounce
+  // FLIP: the picture mirrored left-right and/or upside down (drawn by the
+  // desk's compositor and the engine's own drawing alike).
+  bool flipHorizontal = false;
+  bool flipVertical = false;
   std::string directionPath;
   std::string directionKey;
   double directionSeconds = 0.0;

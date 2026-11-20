@@ -1131,6 +1131,8 @@ void writeProjectRecords(std::ostream& output, const Project& project) {
         << '\t' << cue.illusion.hue2
         << '\t' << escapeField(serializeMoireInks(cue.illusion.themeInks))
         << '\t' << escapeField(serializeGeometryLfos(cue.illusion.lfo))
+        << '\t' << (cue.flipHorizontal ? 1 : 0)
+        << '\t' << (cue.flipVertical ? 1 : 0)
         << '\n';
   };
   for (size_t deckIndex = 0; deckIndex < project.decks.size(); ++deckIndex) {
@@ -3107,6 +3109,11 @@ Project loadProject(const fs::path& projectFile,
           il.hue2 = std::clamp(safeDouble(fields, vs + 219, fresh.hue2), 0.0, 1.0);
           il.themeInks = parseMoireInks(safeString(fields, vs + 220), fresh.themeInks);
           il.lfo = parseGeometryLfos(safeString(fields, vs + 221));
+        }
+        // FLIP (2026-11-19): absent before, so a show saved earlier is unflipped.
+        if (fields.size() >= static_cast<std::size_t>(vs + 224)) {
+          cue.flipHorizontal = safeBool(fields, vs + 222, false);
+          cue.flipVertical = safeBool(fields, vs + 223, false);
         }
       }
       // A MASTER CUE HAS NO PATH, and this gate would have dropped it on load

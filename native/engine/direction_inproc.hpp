@@ -24,6 +24,7 @@
 
 #include <atomic>
 #include <string>
+#include <vector>
 
 #include "engine/direction_remux.hpp"   // RemuxResult
 
@@ -35,13 +36,22 @@ struct DirectionCopy {
   bool sound = false;
 };
 
+// A still from a file, RGBA, for a filmstrip.
+struct Still { int width = 0, height = 0; std::vector<unsigned char> rgba; };
+
 #if defined(DECKBOY_INPROC_DECODE)
+// One still at each time (seconds from the file's start), maxWidth wide or
+// less: seek to the keyframe before it and decode forward to it. False when
+// the file cannot be read; stills that could not be found are left empty.
+bool decodeStills(const std::string& source, const std::vector<double>& times, int maxWidth, std::vector<Still>& out);
+
 // in/out: the range in seconds from the file's start. maxWidth caps the
 // picture (0 = the file's own size), so a phone does not make 4K JPEGs.
 RemuxResult bakeDirectionInProcess(const std::string& source, const std::string& dest, double in, double out,
                                    bool bounce, int maxWidth, std::atomic<double>* progress,
                                    std::atomic<bool>* cancel, std::string* why, DirectionCopy* made);
 #else
+inline bool decodeStills(const std::string&, const std::vector<double>&, int, std::vector<Still>&) { return false; }
 inline RemuxResult bakeDirectionInProcess(const std::string&, const std::string&, double, double, bool, int,
                                           std::atomic<double>*, std::atomic<bool>*, std::string* why,
                                           DirectionCopy*) {

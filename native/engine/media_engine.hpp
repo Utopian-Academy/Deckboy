@@ -931,6 +931,8 @@ class MediaEngine {
     c.outputOffsetX = transitionOffsetX_;
     c.outputOffsetY = transitionOffsetY_;
     c.outputRotationDegrees = transitionRotationDegrees_;
+    c.flipHorizontal = transitionFlipHorizontal_;
+    c.flipVertical = transitionFlipVertical_;
     c.cropLeft = transitionCropLeft_;
     c.cropRight = transitionCropRight_;
     c.cropTop = transitionCropTop_;
@@ -1586,6 +1588,8 @@ class MediaEngine {
   float outputOffsetX_ = 0.0f;
   float outputOffsetY_ = 0.0f;
   float outputRotationDegrees_ = 0.0f;
+  bool flipHorizontal_ = false, flipVertical_ = false;              // the live cue's flip
+  bool transitionFlipHorizontal_ = false, transitionFlipVertical_ = false;   // the outgoing cue's
   float cropLeft_ = 0.0f;
   float cropRight_ = 0.0f;
   float cropTop_ = 0.0f;

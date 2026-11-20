@@ -33,6 +33,8 @@
 #endif
 #include "engine/direction_inproc.hpp"
 #include "core/cue_helpers.hpp"
+#include "core/expression_parser.hpp"
+#include <optional>
 #include "platform/network.hpp"
 using namespace deckboy::platform;   // the remote port (sockets)
 
@@ -611,6 +613,8 @@ class Pocket {
     // Keep running when Pocket is not in front: picture-in-picture and the
     // HDMI output both need the show to go on while another app has the screen.
     SDL_SetHint(SDL_HINT_ANDROID_BLOCK_ON_PAUSE, "0");
+    // Turn with the phone: portrait for one hand, landscape for the Advance-style layout.
+    SDL_SetHint(SDL_HINT_ORIENTATIONS, "Portrait LandscapeLeft LandscapeRight");
     if (!SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_EVENTS)) {
       SDL_Log("pocket: SDL_Init failed: %s", SDL_GetError());
       return false;
@@ -694,6 +698,15 @@ class Pocket {
     loadFonts();
     loadSyncSettings();
     loadShells();
+    {
+      size_t n = 0;
+      const char* state = SDL_getenv("DECKBOY_STATE_DIR");
+      if (char* saved = static_cast<char*>(SDL_LoadFile((std::string(state ? state : ".") + "/pocket_pill.txt").c_str(), &n))) {
+        const int v = std::atoi(std::string(saved, n).c_str());
+        if (v >= 0 && v < static_cast<int>(Pill::Count)) pill_ = static_cast<Pill>(v);
+        SDL_free(saved);
+      }
+    }
     {
       size_t n = 0;
       const char* state = SDL_getenv("DECKBOY_STATE_DIR");
@@ -823,6 +836,8 @@ class Pocket {
   }
 
   void shutdown() {
+    if (stillsThread_.joinable()) stillsThread_.join();
+    for (auto& [id, list] : stillsTex_) for (SDL_Texture* t : list) if (t) SDL_DestroyTexture(t);
     dirCancel_ = true;
     if (dirThread_.joinable()) dirThread_.join();
     dropFollowSocket();
@@ -890,16 +905,38 @@ class Pocket {
           default: break;
         }
         break;
-      case SDL_EVENT_FINGER_DOWN:
-        onDown(e.tfinger.x * pxW_, e.tfinger.y * pxH_);
+      case SDL_EVENT_FINGER_DOWN: {
+        const SDL_FPoint pt {e.tfinger.x * pxW_, e.tfinger.y * pxH_};
+        fingers_[e.tfinger.fingerID] = pt;
+        if (gesture_ || (sheet_ >= 0 && page_ == Page::Place && !calcOpen_ && inside(picRect_, pt.x, pt.y))) {
+          beginGesture();
+        } else if (fingers_.size() == 1) {
+          onDown(pt.x, pt.y);
+        }
         break;
-      case SDL_EVENT_FINGER_MOTION:
-        onMove(e.tfinger.x * pxW_, e.tfinger.y * pxH_);
+      }
+      case SDL_EVENT_FINGER_MOTION: {
+        const SDL_FPoint pt {e.tfinger.x * pxW_, e.tfinger.y * pxH_};
+        fingers_[e.tfinger.fingerID] = pt;
+        if (gesture_) moveGesture();
+        else if (fingers_.size() == 1) onMove(pt.x, pt.y);
         break;
+      }
       case SDL_EVENT_FINGER_UP:
       case SDL_EVENT_FINGER_CANCELED:
+        fingers_.erase(e.tfinger.fingerID);
+        if (gesture_) {
+          if (fingers_.empty()) gesture_ = false;
+          else beginGesture();   // one finger lifted: carry on from here with the rest
+        }
         drag_ = Drag::None;
+        activeSlider_ = -1;
         holdRow_ = -1;
+        picHoldSince_ = 0;
+        if (pillDownAt_ && fingers_.empty()) {   // a tap on the left pill, not a hold
+          pillDownAt_ = 0;
+          doPill();
+        }
         break;
       case SDL_EVENT_WINDOW_PIXEL_SIZE_CHANGED:
       case SDL_EVENT_WINDOW_SAFE_AREA_CHANGED:
@@ -917,6 +954,27 @@ class Pocket {
     pollRemote();
     pollFollow();
     serviceDirection();
+    serviceStills();
+    serviceMeter();
+    // holding the left pill opens its choices (MENU > SKIN > LEFT BUTTON)
+    if (pillDownAt_ && SDL_GetTicks() - pillDownAt_ > 600) {
+      pillDownAt_ = 0;
+      menuOpen_ = true;
+      menuTab_ = 4;
+      sheet_ = -1;
+      buzz("lock");
+      notice_ = "Choose what the left button does";
+      noticeUntil_ = SDL_GetTicks() + 2500;
+    }
+    // holding the picture during a show opens PLACE for the live cue
+    if (picHoldSince_ && SDL_GetTicks() - picHoldSince_ > 500) {
+      picHoldSince_ = 0;
+      if (active_ >= 0 && sheet_ < 0) {
+        openSheet(active_);
+        page_ = Page::Place;
+        buzz("lock");
+      }
+    }
     if (follow_ != loggedFollow_) {
       SDL_Log("pocket: sync %s -> %s %s", followHeadline(loggedFollow_).c_str(), followHeadline(follow_).c_str(),
               followError_.c_str());
@@ -951,13 +1009,14 @@ class Pocket {
     layout();
     SDL_Renderer* r = renderer_;
     hits_.clear();
+    sliders_.clear();
     // Picture-in-picture and full screen: the program alone.
     if (gInPip.load() || phoneFull_) {
       drawProgramAlone(phoneFull_ && !gInPip.load());
       SDL_RenderPresent(r);
       return;
     }
-    if (shellTex_) drawShell();
+    if (shellFace()) drawShell();
     else fillRect(r, kShell, {0, 0, pxW_, pxH_});
     drawProgram();
     if (hostEditing_) drawTextEditor("DESK ADDRESS", followHost_, "ENTER TO FOLLOW");
@@ -998,7 +1057,7 @@ class Pocket {
     const float sx = ww > 0 ? pxW_ / static_cast<float>(ww) : 1.0f;
     const float sy = wh > 0 ? pxH_ / static_cast<float>(wh) : 1.0f;
     safe_ = {safe.x * sx, safe.y * sy, safe.w * sx, safe.h * sy};
-    unit_ = safe_.w / 72.0f;
+    unit_ = std::min(safe_.w, safe_.h) / 72.0f;   // the short side is 72 units, turned either way
     const float u = unit_;
     const std::string data = std::string(SDL_getenv("DECKBOY_ROOT") ? SDL_getenv("DECKBOY_ROOT") : ".") + "/data/";
     text_.clear();
@@ -1010,96 +1069,153 @@ class Pocket {
     if (!pixel_ || !mono_) SDL_Log("pocket: fonts missing under %s (%s)", data.c_str(), SDL_GetError());
   }
 
+  // Where everything goes, from the phone's own shape.
+  //
+  // PORTRAIT: the program panel on top (its title strip carries LIVE, the
+  // output, notices, the meter and the battery), the cue list taking every
+  // millimetre left, the buttons at the bottom. A short phone (status bar and
+  // gesture bar taking their share) gets a shorter button strip before the
+  // list loses a row. Editing (a cue sheet or MENU open), the program shrinks
+  // to its picture and the page takes the rest.
+  //
+  // LANDSCAPE (Advance-style): the pad and BLACK / MENU on the left, the
+  // picture and the cue list in the middle, GO and BACK on the right.
+  // Editing: the picture on the left, the page on the right.
   void layout() {
     const float u = unit_, x0 = safe_.x, y0 = safe_.y;
-    header_ = {x0 + 3 * u, y0 + 1.5f * u, 66 * u, 5 * u};
-    // Program panel: a title line, the 16:9 picture, a name and clock line.
-    const float picH = (68 - 5 - 2) * u * 9.0f / 16.0f;
-    // ...then the scrub bar, the time line and PAUSE / SET IN / SET OUT.
-    program_ = {x0 + 2 * u, y0 + 7 * u, 68 * u, 5 * u + u + picH + 1.2f * u + 4 * u + 4.5f * u + 4 * u + 6 * u + 2.5f * u};
-    const float stripH = 50 * u;
-    const float bottom = safe_.y + safe_.h;
-    strip_ = {x0, bottom - stripH, safe_.w, stripH};
-    list_ = {x0 + 2 * u, program_.y + program_.h + 2 * u, 68 * u, 0};
-    list_.h = std::max(20 * u, strip_.y - list_.y - 1.5f * u);
-    const float cy = strip_.y + 19 * u;
-    padCentre_ = {x0 + 17 * u, cy};
-    goCentre_ = {x0 + 57 * u, cy - 5 * u};
-    backCentre_ = {x0 + 41 * u, cy + 8 * u};
-    blackPill_ = {x0 + 18 * u, strip_.y + 39 * u, 12 * u, 4 * u};
-    menuPill_ = {x0 + 36 * u, strip_.y + 39 * u, 12 * u, 4 * u};
+    landscape_ = safe_.w > safe_.h;
+    editing_ = sheet_ >= 0 || menuOpen_;
+    const float W = safe_.w / u, H = safe_.h / u;   // the layout's size, in units
+    auto at = [&](float x, float y) { return SDL_FPoint {x0 + x * u, y0 + y * u}; };
+    if (!landscape_) {
+      if (editing_) {
+        const float picH = (68 - 7) * 9.0f / 16.0f;
+        program_ = {x0 + 2 * u, y0 + 1.5f * u, 68 * u, (5 + 1 + picH + 1 + 2.5f) * u};
+        picRect_ = {program_.x + 3.5f * u, program_.y + 6 * u, 61 * u, picH * u};
+        sheetRect_ = {x0 + 2 * u, program_.y + program_.h + 1.5f * u, 68 * u, 0};
+        sheetRect_.h = y0 + safe_.h - u - sheetRect_.y;
+      } else {
+        const float picH = (68 - 7) * 9.0f / 16.0f;
+        // title 5, picture, name and time 4.5, scrub 4, buttons 6, margins
+        program_ = {x0 + 2 * u, y0 + 1.5f * u, 68 * u, (5 + 1 + picH + 1.2f + 4.5f + 4 + 6 + 2.5f) * u};
+        picRect_ = {program_.x + 3.5f * u, program_.y + 6 * u, 61 * u, picH * u};
+        const float stripH = 44.0f;   // the rendered faces are drawn with this strip
+        strip_ = {x0, y0 + (H - stripH) * u, safe_.w, stripH * u};
+        list_ = {x0 + 2 * u, program_.y + program_.h + 1.5f * u, 68 * u, 0};
+        list_.h = std::max(16 * u, strip_.y - list_.y - 1.5f * u);
+        const float cy = (H - stripH) + (stripH - 10) / 2;
+        padCentre_ = at(17, cy);
+        goCentre_ = at(57, cy - 5);
+        backCentre_ = at(41, cy + 8);
+        blackPill_ = {x0 + 18 * u, y0 + (H - 9.5f) * u, 12 * u, 4 * u};
+        menuPill_ = {x0 + 36 * u, y0 + (H - 9.5f) * u, 12 * u, 4 * u};
+      }
+    } else {
+      if (editing_) {
+        // the picture on the left at the height's use, the page on the right
+        const float pw = std::min(W * 0.48f, (H - 12) * 16.0f / 9.0f + 7);
+        const float picW = pw - 7, picH = picW * 9.0f / 16.0f;
+        program_ = {x0 + 1.5f * u, y0 + 1.5f * u, pw * u, (5 + 1 + picH + 1 + 2.5f) * u};
+        picRect_ = {program_.x + 3.5f * u, program_.y + 6 * u, picW * u, picH * u};
+        sheetRect_ = {program_.x + program_.w + 1.5f * u, y0 + 1.5f * u, 0, (H - 3) * u};
+        sheetRect_.w = x0 + safe_.w - 1.5f * u - sheetRect_.x;
+      } else {
+        // the middle: the program (title, picture, buttons) over the cue list
+        const float side = 34;
+        const float cw = W - 2 * side;
+        const float listRows = 3;
+        const float listH = listRows * 5.2f + 5;
+        const float maxPicH = H - 3 - 5 - 1 - 1.2f - 6 - 2.5f - 1.5f - listH;
+        const float picW = std::min(cw - 7, maxPicH * 16.0f / 9.0f);
+        const float picH = picW * 9.0f / 16.0f;
+        const float pw = picW + 7;
+        program_ = {x0 + (W - pw) / 2 * u, y0 + 1.5f * u, pw * u, (5 + 1 + picH + 1.2f + 6 + 2.5f) * u};
+        picRect_ = {program_.x + 3.5f * u, program_.y + 6 * u, picW * u, picH * u};
+        list_ = {x0 + (side + 1) * u, program_.y + program_.h + 1.5f * u, (cw - 2) * u, 0};
+        list_.h = y0 + safe_.h - 1.5f * u - list_.y;
+        strip_ = {};
+        padCentre_ = at(17, 26);
+        blackPill_ = {x0 + 4 * u, y0 + (H - 13) * u, 12 * u, 4 * u};
+        menuPill_ = {x0 + 18 * u, y0 + (H - 13) * u, 12 * u, 4 * u};
+        goCentre_ = at(W - 13, 24);
+        backCentre_ = at(W - 26, 41);
+      }
+    }
+    header_ = {program_.x + 5 * u, program_.y + 1.2f * u, program_.w - 21 * u, 3.2f * u};
   }
 
   void drawProgram() {
     SDL_Renderer* r = renderer_;
     const float u = unit_;
+    if (!shellFace()) fillRound(r, kBezel, program_, 3 * u);
+    // the title strip: the LED, then a notice (or what this phone follows, or
+    // LIVE and the output), the meter and the battery at the right
+    const bool live = active_ >= 0 && !black_;
+    fillCircle(r, live ? Ink {255, 50, 30} : Ink {70, 20, 20}, {program_.x + 3 * u, program_.y + 2.8f * u}, 0.9f * u);
     const std::string health = healthLabel();
     int hw = 0, hh = 0;
     if (pixelSmall_ && !health.empty()) TTF_GetStringSize(pixelSmall_, health.c_str(), 0, &hw, &hh);
-    const SDL_FRect left {header_.x, header_.y, header_.w - static_cast<float>(hw) - 2 * u, header_.h};
-    const Ink print = shellTex_ ? shellInk_ : kPrint;   // a rendered shell has its own print colour
-    if (SDL_GetTicks() < noticeUntil_) {
-      text_.draw(mono_, notice_, print, left);
-    } else if (follow_ != Follow::Off) {
-      text_.draw(pixel_, followHeadline(), follow_ == Follow::Following ? print : Ink {170, 40, 30}, left);
-    } else {
-      text_.draw(pixel_, "DECKBOY POCKET", print, left);
-    }
+    const float right = program_.x + program_.w - 2.5f * u;
     if (!health.empty()) {
-      text_.draw(pixelSmall_, health, thermal_ >= 3 ? Ink {150, 30, 30} : print,
-                 {header_.x + header_.w - static_cast<float>(hw), header_.y, static_cast<float>(hw) + 1, header_.h});
+      text_.draw(pixelSmall_, health, thermal_ >= 3 ? Ink {230, 80, 70} : Ink {170, 170, 180},
+                 {right - static_cast<float>(hw), program_.y + 1.2f * u, static_cast<float>(hw) + 1, 3.2f * u});
     }
-    if (!shellTex_) fillRound(r, kBezel, program_, 3 * u);
-    // the LED: lit while something is on air and not blacked out
-    const bool live = active_ >= 0 && !black_;
-    fillCircle(r, live ? Ink {255, 50, 30} : Ink {70, 20, 20}, {program_.x + 3 * u, program_.y + 2.8f * u}, 0.9f * u);
-    text_.draw(pixelSmall_, live ? "LIVE" : (black_ ? "BLACK" : "READY"), Ink {170, 170, 180},
-               {program_.x + 5 * u, program_.y + 1.2f * u, 20 * u, 3.2f * u});
-    text_.draw(pixelSmall_, outputLabel_.empty() ? "NO OUTPUT" : outputLabel_, Ink {170, 170, 180},
-               {program_.x + 24 * u, program_.y + 1.2f * u, program_.w - 27 * u, 3.2f * u});
+    const float meterW = 11 * u;
+    const float meterX = right - static_cast<float>(hw) - u - meterW;
+    drawMeter({meterX, program_.y + 1.0f * u, meterW, 3.4f * u}, false);
+    const SDL_FRect title {program_.x + 5 * u, program_.y + 1.2f * u, meterX - program_.x - 6 * u, 3.2f * u};
+    if (SDL_GetTicks() < noticeUntil_) {
+      text_.draw(pixelSmall_, notice_, Ink {235, 225, 160}, title);
+    } else if (follow_ != Follow::Off) {
+      text_.draw(pixelSmall_, followHeadline(), follow_ == Follow::Following ? Ink {170, 170, 180} : Ink {230, 80, 70}, title);
+    } else {
+      text_.draw(pixelSmall_, std::string(live ? "LIVE" : (black_ ? "BLACK" : "READY")) + "   " +
+                                  (outputLabel_.empty() ? std::string("NO OUTPUT") : outputLabel_),
+                 Ink {170, 170, 180}, title);
+    }
     const SDL_FRect lcd {program_.x + 2.5f * u, program_.y + 5 * u, program_.w - 5 * u, program_.h - 7.5f * u};
     fillRect(r, kLight, lcd);
-    // The picture: 16:9, the engine's own render.
-    const float pw = lcd.w - 2 * u;
-    const float ph = pw * 9.0f / 16.0f;
-    const SDL_FRect pic {lcd.x + u, lcd.y + u, pw, ph};
+    const SDL_FRect pic = picRect_;
     fillRect(r, kBlack, pic);
     if (programTex_) {
       const SDL_FRect fitted = fitProgram(pic);
       SDL_RenderTexture(r, programTex_, nullptr, &fitted);
     }
-    // The name, then the scrub bar (the media's whole length, IN and OUT
-    // marked, drag to seek), the time from IN and to OUT, and the buttons.
+    if (editing_) return;   // editing: the picture alone
+    // the name and the time on one line, the scrub bar (portrait), the buttons
     float y = pic.y + pic.h + 1.2f * u;
     const Cue* onAir = active_ >= 0 ? &cues_[static_cast<std::size_t>(active_)] : nullptr;
-    text_.draw(mono_, onAir ? onAir->name : "Nothing on air", kDeep, {lcd.x + u, y, lcd.w - 2 * u, 4 * u});
-    y += 4.5f * u;
-    scrub_ = {lcd.x + u, y, lcd.w - 2 * u, 3.4f * u};
     const double pos = onAir ? engine_->position() : 0.0;
-    fillRect(r, kMid, {scrub_.x, scrub_.y + 1.2f * u, scrub_.w, 1.0f * u});
+    std::string clockText = onAir ? "holds until GO" : "";
     if (onAir && cueHasTimeline(*onAir)) {
-      const double len = onAir->duration;
-      auto xAt = [&](double t) { return scrub_.x + scrub_.w * static_cast<float>(std::clamp(t / len, 0.0, 1.0)); };
-      const float xi = xAt(cueIn(*onAir)), xo = xAt(cueOut(*onAir)), xp = xAt(pos);
-      fillRect(r, kDeep, {xi, scrub_.y + 1.2f * u, std::max(0.0f, xp - xi), 1.0f * u});
-      fillRect(r, kInOut, {xi - 0.3f * u, scrub_.y, 0.6f * u, scrub_.h});
-      fillRect(r, kInOut, {xo - 0.3f * u, scrub_.y, 0.6f * u, scrub_.h});
-      fillRect(r, kDeep, {xp - 0.4f * u, scrub_.y - 0.3f * u, 0.8f * u, scrub_.h + 0.6f * u});
+      clockText = timecode(std::max(0.0, pos - cueIn(*onAir)), onAir->fps) + "  -" +
+                  timecode(std::max(0.0, cueOut(*onAir) - pos), onAir->fps);
+    }
+    int cw = 0, ch = 0;
+    if (mono_ && !clockText.empty()) TTF_GetStringSize(mono_, clockText.c_str(), 0, &cw, &ch);
+    text_.draw(mono_, onAir ? onAir->name : "Nothing on air", kDeep, {lcd.x + u, y, lcd.w - 3 * u - static_cast<float>(cw), 4 * u});
+    if (!clockText.empty()) {
+      text_.draw(mono_, clockText, kDeep, {lcd.x + lcd.w - u - static_cast<float>(cw), y, static_cast<float>(cw) + 1, 4 * u});
     }
     y += 4.5f * u;
-    if (onAir && cueHasTimeline(*onAir)) {
-      text_.draw(mono_, timecode(std::max(0.0, pos - cueIn(*onAir)), onAir->fps), kDeep, {lcd.x + u, y, lcd.w * 0.5f, 4 * u});
-      const std::string remain = "-" + timecode(std::max(0.0, cueOut(*onAir) - pos), onAir->fps);
-      int tw = 0, th = 0;
-      if (mono_) TTF_GetStringSize(mono_, remain.c_str(), 0, &tw, &th);
-      text_.draw(mono_, remain, kDeep, {lcd.x + lcd.w - u - static_cast<float>(tw), y, static_cast<float>(tw) + 1, 4 * u});
+    if (!landscape_) {
+      scrub_ = {lcd.x + u, y, lcd.w - 2 * u, 3.4f * u};
+      fillRect(r, kMid, {scrub_.x, scrub_.y + 1.2f * u, scrub_.w, 1.0f * u});
+      if (onAir && cueHasTimeline(*onAir)) {
+        const double len = onAir->duration;
+        auto xAt = [&](double t) { return scrub_.x + scrub_.w * static_cast<float>(std::clamp(t / len, 0.0, 1.0)); };
+        const float xi = xAt(cueIn(*onAir)), xo = xAt(cueOut(*onAir)), xp = xAt(pos);
+        fillRect(r, kDeep, {xi, scrub_.y + 1.2f * u, std::max(0.0f, xp - xi), 1.0f * u});
+        fillRect(r, kInOut, {xi - 0.3f * u, scrub_.y, 0.6f * u, scrub_.h});
+        fillRect(r, kInOut, {xo - 0.3f * u, scrub_.y, 0.6f * u, scrub_.h});
+        fillRect(r, kDeep, {xp - 0.4f * u, scrub_.y - 0.3f * u, 0.8f * u, scrub_.h + 0.6f * u});
+      }
+      y += 4 * u;
     } else {
-      text_.draw(mono_, onAir ? "holds until GO" : "", kDark, {lcd.x + u, y, lcd.w - 2 * u, 4 * u});
+      scrub_ = {};
     }
-    y += 4.5f * u;
     const bool paused = onAir && engine_->state() == TransportState::Paused;
     const bool canTrim = onAir && cueHasTimeline(*onAir);
-    // -10 s, PAUSE, +10 s, SET IN, SET OUT (PAUSE the widest: it is pressed most)
     const float gap = 0.8f * u;
     const float small = (lcd.w - 2 * u - 4 * gap) * 0.17f;
     const float wide = (lcd.w - 2 * u - 4 * gap - 4 * small);
@@ -1226,9 +1342,9 @@ class Pocket {
   void drawMenu() {
     SDL_Renderer* r = renderer_;
     const float u = unit_;
-    const float x = safe_.x + 2 * u, w = 68 * u;
-    float y = program_.y + program_.h + 2 * u;
-    const SDL_FRect panel {x, y, w, safe_.y + safe_.h - u - y};
+    const float x = sheetRect_.x, w = sheetRect_.w;
+    float y = sheetRect_.y;
+    const SDL_FRect panel = sheetRect_;
     fillRound(r, kBezel, panel, 3 * u);
     const SDL_FRect lcd {x + 2.5f * u, y + 2.5f * u, w - 5 * u, panel.h - 5 * u};
     fillRect(r, kLight, lcd);
@@ -1327,6 +1443,14 @@ class Pocket {
       y += 6.5f * u;
     }
 
+    heading("LEFT BUTTON");
+    {
+      const float bw = 9 * u;
+      button({lx, y, bw, 5 * u}, "<", [this] { setPill(static_cast<Pill>((static_cast<int>(pill_) + static_cast<int>(Pill::Count) - 1) % static_cast<int>(Pill::Count))); });
+      text_.draw(mono_, pillName(pill_), kDeep, {lx + bw + u, y, lw - 2 * bw - 2 * u, 5 * u}, true);
+      button({lx + lw - bw, y, bw, 5 * u}, ">", [this] { setPill(static_cast<Pill>((static_cast<int>(pill_) + 1) % static_cast<int>(Pill::Count))); });
+      y += 6.5f * u;
+    }
     heading("PHONE");
     button({lx, y, lw, 5 * u}, haptics_ ? "BUTTONS YOU CAN FEEL: ON" : "BUTTONS YOU CAN FEEL: OFF",
            [this] { setHaptics(!haptics_); }, true, haptics_);
@@ -1422,7 +1546,7 @@ class Pocket {
   void drawCueList() {
     SDL_Renderer* r = renderer_;
     const float u = unit_;
-    if (!shellTex_) fillRound(r, kBezel, list_, 3 * u);
+    if (!shellFace()) fillRound(r, kBezel, list_, 3 * u);
     const SDL_FRect lcd {list_.x + 2.5f * u, list_.y + 2.5f * u, list_.w - 5 * u, list_.h - 5 * u};
     fillRect(r, kLight, lcd);
     rowH_ = 5.2f * u;
@@ -1474,7 +1598,7 @@ class Pocket {
   void drawControls() {
     SDL_Renderer* r = renderer_;
     const float u = unit_;
-    if (shellTex_) {
+    if (shellFace()) {
       drawShellPresses();
       return;
     }
@@ -1505,9 +1629,9 @@ class Pocket {
     text_.draw(pixel_, "GO", {240, 225, 232}, {goCentre_.x - 8 * u, goCentre_.y - 3 * u, 16 * u, 6 * u}, true);
     text_.draw(pixelSmall_, "BACK", {240, 225, 232}, {backCentre_.x - 6 * u, backCentre_.y - 2 * u, 12 * u, 4 * u}, true);
     // BLACK and MENU
-    fillRound(r, black_ || pressed_ == Pressed::Black ? kDark : kPill, blackPill_, 2 * u);
+    fillRound(r, pillLit() || pressed_ == Pressed::Black ? kDark : kPill, blackPill_, 2 * u);
     fillRound(r, pressed_ == Pressed::Menu ? kDark : kPill, menuPill_, 2 * u);
-    text_.draw(pixelSmall_, "BLACK", kPrint, {blackPill_.x - 2 * u, blackPill_.y + 5 * u, blackPill_.w + 4 * u, 3 * u}, true);
+    text_.draw(pixelSmall_, pillName(pill_), kPrint, {blackPill_.x - 4 * u, blackPill_.y + 5 * u, blackPill_.w + 8 * u, 3 * u}, true);
     text_.draw(pixelSmall_, "MENU", kPrint, {menuPill_.x - 2 * u, menuPill_.y + 5 * u, menuPill_.w + 4 * u, 3 * u}, true);
   }
 
@@ -1784,6 +1908,13 @@ class Pocket {
         const int n = std::atoi(arg.c_str());
         if (n < 1 || n > count) return err("no cue " + arg);
         openSheet(n - 1);
+        std::string pg;
+        args >> pg;
+        for (char& ch : pg) ch = static_cast<char>(std::toupper(static_cast<unsigned char>(ch)));
+        if (pg == "PLACE") page_ = Page::Place;
+        else if (pg == "LOOK") page_ = Page::Look;
+        else if (pg == "SOUND") page_ = Page::Sound;
+        else if (pg == "CALC" && !sliders_.empty()) openCalc(sliders_.front().spec);
         return ok();
       }
       return err("VIEW HOME, VIEW MENU <tab> or VIEW SHEET <cue>");
@@ -2791,6 +2922,10 @@ class Pocket {
     setShell(i < 0 ? std::string() : shells_[static_cast<std::size_t>(i)].slug);
   }
 
+  // The rendered face covers the portrait show screen; editing pages and
+  // landscape have their own shapes and draw the flat chrome.
+  bool shellFace() const { return shellTex_ && !landscape_ && !editing_; }
+
   std::string shellName() const {
     for (const ShellInfo& s : shells_) if (s.slug == shell_) return s.name;
     return "Flat";
@@ -2798,24 +2933,30 @@ class Pocket {
 
   void drawShell() {
     SDL_Renderer* r = renderer_;
-    fillRect(r, kBlack, {0, 0, pxW_, pxH_});   // the phone's own black round the shell
+    fillRect(r, kBlack, {0, 0, pxW_, pxH_});
     const float u = unit_;
-    const float k = static_cast<float>(shellW_) / 72.0f;   // shell pixels per mm
-    const float tall = safe_.h / u;                         // the layout's height in mm
-    auto part = [&](float fromMm, float toMm, float atMm, float heightMm) {
-      const SDL_FRect src {0, fromMm * k, static_cast<float>(shellW_), (toMm - fromMm) * k};
-      const SDL_FRect dst {safe_.x, safe_.y + atMm * u, safe_.w, heightMm * u};
+    // The plate is the app's face (pocket-skins TALLAPP): 72 wide, Pocket's
+    // 156-unit show layout with plastic running on past its top and bottom,
+    // which fills a camera cut-out and a gesture bar. The band through the
+    // cue list (66 to 105.5 in the layout) stretches to fit the phone.
+    const float k = static_cast<float>(shellW_) / 72.0f;          // plate pixels per unit
+    const float plateUnits = static_cast<float>(shellH_) / k;     // 184
+    const float margin = std::max(0.0f, (plateUnits - 156.0f) / 2);
+    const float tall = safe_.h / u;
+    auto part = [&](float fromLayout, float toLayout, float atLayout, float heightLayout) {
+      const SDL_FRect src {0, (fromLayout + margin) * k, static_cast<float>(shellW_), (toLayout - fromLayout) * k};
+      const SDL_FRect dst {safe_.x, safe_.y + atLayout * u, safe_.w, heightLayout * u};
       SDL_RenderTexture(r, shellTex_, &src, &dst);
     };
-    const float plateMm = static_cast<float>(shellH_) / k;   // 156
-    if (std::fabs(tall - plateMm) < 0.5f || tall < plateMm - 24.0f) {
-      part(0, plateMm, 0, plateMm);   // the same height (or too short to cut): as it is
+    const float cutTop = 66.0f, cutBottom = 105.5f;   // the stretchable band, in the layout's units
+    const float below = 156.0f - cutBottom;            // 50.5: the list's foot and the button strip
+    if (tall < cutTop + below) {
+      part(-margin, 156.0f + margin, -margin, tall + 2 * margin);   // too short to cut: squeeze it whole
       return;
     }
-    // the top to just inside the cue list, the bottom from just inside it, the band between stretched
-    part(0, 76, 0, 76);
-    part(plateMm - 56, plateMm, tall - 56, 56);
-    part(76, plateMm - 56, 76, tall - 56 - 76);
+    part(-margin, cutTop, -margin, cutTop + margin);
+    part(cutBottom, 156.0f + margin, tall - below, below + margin);
+    part(cutTop, cutBottom, cutTop, tall - below - cutTop);
   }
 
   // The shell's buttons are in the picture; a press darkens the one pressed,
@@ -2838,7 +2979,9 @@ class Pocket {
       case Pressed::Black: dim(blackPill_, 2 * u); break;
       default: break;
     }
-    if (black_) fillRoundAlpha(r, Ink {220, 30, 30}, 0.6f, blackPill_, 2 * u);
+    if (pillLit()) fillRoundAlpha(r, Ink {220, 30, 30}, 0.6f, blackPill_, 2 * u);
+    // the face leaves this pill unlabelled: it does what you chose
+    text_.draw(pixelSmall_, pillName(pill_), shellInk_, {blackPill_.x - 4 * u, blackPill_.y + 5 * u, blackPill_.w + 8 * u, 3 * u}, true);
   }
 
   // -- Adding media: the system picker --
@@ -2960,6 +3103,63 @@ class Pocket {
     }
   }
 
+  // The left pill (SELECT on a handheld): BLACK unless you choose otherwise.
+  enum class Pill { Black, PlayPause, Mute, PlayNext, StopAfter, Shuffle, FullScreen, Identify, Count };
+
+  static const char* pillName(Pill p) {
+    switch (p) {
+      case Pill::Black: return "BLACK";
+      case Pill::PlayPause: return "PLAY/PAUSE";
+      case Pill::Mute: return "MUTE";
+      case Pill::PlayNext: return "PLAY NEXT";
+      case Pill::StopAfter: return "STOP AFTER";
+      case Pill::Shuffle: return "SHUFFLE";
+      case Pill::FullScreen: return "FULL SCREEN";
+      case Pill::Identify: return "IDENTIFY";
+      default: return "";
+    }
+  }
+
+  bool pillLit() const {
+    switch (pill_) {
+      case Pill::Black: return black_;
+      case Pill::Mute: return muted_;
+      case Pill::StopAfter: return endAfter_;
+      case Pill::Shuffle: return shuffle_;
+      case Pill::PlayPause: return active_ >= 0 && engine_->state() == TransportState::Paused;
+      default: return false;
+    }
+  }
+
+  void doPill() {
+    switch (pill_) {
+      case Pill::Black: black_ = !black_; buzz("black"); break;
+      case Pill::PlayPause:
+        if (active_ < 0) go();
+        else if (engine_->state() == TransportState::Playing) engine_->pause();
+        else engine_->play();
+        break;
+      case Pill::Mute: setMuted(!muted_); break;
+      case Pill::PlayNext:
+        toggleQueued(selected_);
+        notice_ = queuePlace(cues_[static_cast<std::size_t>(selected_)]) ? "Plays next: " + cues_[static_cast<std::size_t>(selected_)].name : "Off the queue";
+        noticeUntil_ = SDL_GetTicks() + 2000;
+        break;
+      case Pill::StopAfter: endAfter_ = !endAfter_; break;
+      case Pill::Shuffle: setShuffle(!shuffle_); break;
+      case Pill::FullScreen: phoneFull_ = true; break;
+      case Pill::Identify: identifyUntil_ = SDL_GetTicks() + 4000; break;
+      default: break;
+    }
+  }
+
+  void setPill(Pill p) {
+    pill_ = p;
+    const char* state = SDL_getenv("DECKBOY_STATE_DIR");
+    const std::string text = std::to_string(static_cast<int>(p)) + "\n";
+    SDL_SaveFile((std::string(state ? state : ".") + "/pocket_pill.txt").c_str(), text.data(), text.size());
+  }
+
   void buzz(const char* kind) {
     if (!haptics_) return;
 #if defined(SDL_PLATFORM_ANDROID)
@@ -2977,7 +3177,7 @@ class Pocket {
     if (on) buzz("go");
   }
 
-  enum class Drag { None, Scrub, TrimIn, TrimOut, Volume };
+  enum class Drag { None, Scrub, TrimIn, TrimOut, Volume, Slider };
 
   void onDown(float x, float y) {
     downX_ = x;
@@ -3002,6 +3202,20 @@ class Pocket {
         return;
       }
     }
+    // A slider's lower half grabs it. Touching does not change the value; only
+    // dragging does (onMove), so a thumb landing on a row is harmless.
+    for (std::size_t k = sliders_.size(); k-- > 0;) {
+      if (inside(sliders_[k].area, x, y)) {
+        activeSlider_ = static_cast<int>(k);
+        drag_ = Drag::Slider;
+        sliderStartX_ = x;
+        sliderStartY_ = y;
+        sliderStartValue_ = sliders_[k].spec.get();
+        return;
+      }
+    }
+    // Holding the picture during a show (no sheet, no menu) opens PLACE for the live cue.
+    if (sheet_ < 0 && !menuOpen_ && active_ >= 0 && inside(picRect_, x, y)) picHoldSince_ = SDL_GetTicks();
     // A finger is not a mouse: every button answers across at least Android's
     // 48 dp touch target (about 9 mm), even where it is drawn smaller. A touch
     // inside a button is that button; a touch near several goes to the
@@ -3047,6 +3261,21 @@ class Pocket {
 
   void onMove(float x, float y) {
     if (holdRow_ >= 0 && (std::fabs(x - downX_) > 2 * unit_ || std::fabs(y - downY_) > 2 * unit_)) holdRow_ = -1;
+    if (picHoldSince_ && (std::fabs(x - downX_) > 2 * unit_ || std::fabs(y - downY_) > 2 * unit_)) picHoldSince_ = 0;
+    if (drag_ == Drag::Slider && activeSlider_ >= 0 && activeSlider_ < static_cast<int>(sliders_.size())) {
+      // By how far the finger moved, not where it is. A finger dragged
+      // further above or below the row moves the value more finely: one
+      // tenth at about 4 cm away (the way a phone's media scrubber works).
+      const Slider& sl = sliders_[static_cast<std::size_t>(activeSlider_)];
+      const float away = std::fabs(y - (sl.track.y + sl.track.h / 2));
+      const double fine = std::clamp(1.0 - static_cast<double>(away / (40 * unit_)) * 0.9, 0.1, 1.0);
+      const double perPx = (sl.spec.max - sl.spec.min) / std::max(1.0f, sl.track.w);
+      setNum(sl.spec, sliderStartValue_ + (x - sliderStartX_) * perPx * fine);
+      // re-anchor, so changing fineness mid-drag does not jump the value
+      sliderStartValue_ = sl.spec.get();
+      sliderStartX_ = x;
+      return;
+    }
     if (drag_ == Drag::Scrub && active_ >= 0) {
       const Cue& c = cues_[static_cast<std::size_t>(active_)];
       const double t = c.duration * std::clamp(static_cast<double>((x - scrub_.x) / scrub_.w), 0.0, 1.0);
@@ -3067,159 +3296,827 @@ class Pocket {
     }
   }
 
+  // ── The picture as the control (PLACE): drag moves it, pinch scales it, two
+  // fingers turn it, a double-tap puts it back. Distances on the phone are
+  // turned into the program's own pixels, so a drag across the picture
+  // moves it across the output.
+  void beginGesture() {
+    if (sheet_ < 0) return;
+    const Cue& c = cues_[static_cast<std::size_t>(sheet_)];
+    if (!gesture_ && fingers_.size() == 1) {
+      const Uint64 now = SDL_GetTicks();
+      if (now - lastPicTap_ < 300) { resetPlace(sheet_); buzz("spin"); lastPicTap_ = 0; }
+      else lastPicTap_ = now;
+    }
+    gesture_ = true;
+    gestureFingers_ = fingers_.size();
+    SDL_FPoint c0 {0, 0};
+    for (const auto& [id, p] : fingers_) { c0.x += p.x; c0.y += p.y; }
+    c0.x /= static_cast<float>(fingers_.size());
+    c0.y /= static_cast<float>(fingers_.size());
+    gestureC0_ = c0;
+    gestureD0_ = 0;
+    gestureA0_ = 0;
+    if (fingers_.size() >= 2) {
+      auto it = fingers_.begin();
+      const SDL_FPoint a = it->second, b = (++it)->second;
+      gestureD0_ = std::hypot(b.x - a.x, b.y - a.y);
+      gestureA0_ = std::atan2(b.y - a.y, b.x - a.x);
+    }
+    gestureScale0_ = c.outputScaleX;
+    gestureScaleY0_ = c.outputScaleY;
+    gestureOffX0_ = c.outputOffsetX;
+    gestureOffY0_ = c.outputOffsetY;
+    gestureRot0_ = c.outputRotationDegrees;
+  }
+
+  void moveGesture() {
+    if (sheet_ < 0 || fingers_.empty()) return;
+    if (fingers_.size() != gestureFingers_) { beginGesture(); return; }
+    Cue& c = cues_[static_cast<std::size_t>(sheet_)];
+    SDL_FPoint cn {0, 0};
+    for (const auto& [id, p] : fingers_) { cn.x += p.x; cn.y += p.y; }
+    cn.x /= static_cast<float>(fingers_.size());
+    cn.y /= static_cast<float>(fingers_.size());
+    const float k = static_cast<float>(programW_) / std::max(1.0f, picRect_.w);   // program pixels per phone pixel
+    c.outputOffsetX = std::clamp(gestureOffX0_ + (cn.x - gestureC0_.x) * k, -static_cast<float>(programW_), static_cast<float>(programW_));
+    c.outputOffsetY = std::clamp(gestureOffY0_ + (cn.y - gestureC0_.y) * k, -static_cast<float>(programH_), static_cast<float>(programH_));
+    if (fingers_.size() >= 2 && gestureD0_ > 1) {
+      auto it = fingers_.begin();
+      const SDL_FPoint a = it->second, b = (++it)->second;
+      const float ratio = std::hypot(b.x - a.x, b.y - a.y) / gestureD0_;
+      c.outputScaleX = std::clamp(gestureScale0_ * ratio, 0.05f, 4.0f);
+      c.outputScaleY = linkScale_ ? c.outputScaleX : std::clamp(gestureScaleY0_ * ratio, 0.05f, 4.0f);
+      float turn = gestureRot0_ + (std::atan2(b.y - a.y, b.x - a.x) - gestureA0_) * 57.29578f;
+      while (turn > 180) turn -= 360;
+      while (turn < -180) turn += 360;
+      // within 2 degrees of level or a quarter turn, it settles there
+      for (float snap : {-180.0f, -90.0f, 0.0f, 90.0f, 180.0f}) if (std::fabs(turn - snap) < 2.0f) turn = snap;
+      c.outputRotationDegrees = turn;
+    }
+    cueEdited(sheet_, false);
+  }
+
   static SDL_FRect grow(const SDL_FRect& r, float by) { return {r.x - by, r.y - by, r.w + 2 * by, r.h + 2 * by}; }
 
   // ── The cue sheet: hold a cue ──
   void openSheet(int i) {
     if (i < 0 || i >= static_cast<int>(cues_.size())) return;
+    if (sheet_ != i) page_ = Page::Play;
+    calcOpen_ = false;
     sheet_ = i;
     select(i);
     confirmDelete_ = false;
+  }
+
+  // ── The cue sheet, in pages (board SDX2ThoeT8cixkEYepyLBd, approved 11-19) ──
+  //
+  // PLAY, PLACE, LOOK, SOUND: each page fills the panel below the picture,
+  // its rows share the height (about 9 mm each, a thumb's width), and nothing
+  // scrolls, so a drag is never mistaken for a scroll. The page tabs and DONE
+  // sit along the bottom, where a thumb holding the phone reaches.
+  //
+  // A number is a row: its name and value over a slider. Touching the slider
+  // does not change anything; only dragging does, by how far the finger
+  // moves, and a finger dragged further from the row moves the value more
+  // finely. Tap the value to type it on a calculator (the desk's own sums).
+
+  enum class Page { Play, Place, Look, Sound };
+
+  struct NumSpec {
+    std::string label, unit;
+    double min = 0, max = 1, zero = 0, step = 0, reset = 0;
+    int decimals = 0;
+    double percentOf = 0;   // what "25%" means when typed (0: a plain hundredth)
+    std::function<double()> get;
+    std::function<void(double)> set;
+    std::vector<std::pair<std::string, double>> presets;
+  };
+
+  struct Slider { SDL_FRect area, track; NumSpec spec; };
+
+  std::string numText(const NumSpec& n, double v) const {
+    char b[48];
+    std::snprintf(b, sizeof b, "%+.*f", n.decimals, v);
+    std::string t = (n.min >= 0) ? std::string(b + (b[0] == '+' ? 1 : 0)) : std::string(b);
+    return n.unit.empty() ? t : t + " " + n.unit;
+  }
+
+  void setNum(const NumSpec& n, double v) {
+    if (!(v == v)) return;
+    v = std::clamp(v, n.min, n.max);
+    if (n.step > 0) v = std::round(v / n.step) * n.step;
+    n.set(v);
+  }
+
+  // One number row: name, value (tap: calculator), slider under them.
+  void numberRow(const SDL_FRect& row, NumSpec n) {
+    SDL_Renderer* r = renderer_;
+    const float u = unit_;
+    const double v = n.get();
+    const float half = row.h * 0.5f;
+    text_.draw(pixelSmall_, n.label, kDark, {row.x, row.y, row.w * 0.45f, half});
+    const std::string vt = numText(n, v);
+    const SDL_FRect vbox {row.x + row.w * 0.48f, row.y + 0.3f * u, row.w * 0.52f, half - 0.3f * u};
+    button(vbox, vt, [this, n] { openCalc(n); });
+    // the slider: a line, a mark at zero, the stretch from zero to the value, the knob
+    const SDL_FRect track {row.x + 1.5f * u, row.y + half + 0.6f * u, row.w - 3 * u, half - 1.2f * u};
+    const float mid = track.y + track.h / 2;
+    fillRect(r, kDark, {track.x, mid - 0.15f * u, track.w, 0.3f * u});
+    auto at = [&](double val) {
+      return track.x + track.w * static_cast<float>(std::clamp((val - n.min) / (n.max - n.min), 0.0, 1.0));
+    };
+    const float xz = at(n.zero), xv = at(v);
+    fillRect(r, kDark, {xz - 0.15f * u, track.y + 0.4f * u, 0.3f * u, track.h - 0.8f * u});
+    fillRect(r, kDeep, {std::min(xz, xv), mid - 0.5f * u, std::fabs(xv - xz), u});
+    fillRect(r, kDeep, {xv - 1.2f * u, track.y, 2.4f * u, track.h});
+    fillRect(r, kMid, {row.x, row.y + row.h - 0.15f * u, row.w, 0.3f * u});
+    sliders_.push_back({{row.x, row.y + half, row.w, half}, track, std::move(n)});
+  }
+
+  // Chips: one row of choices, the chosen one lit.
+  void chipRow(const SDL_FRect& row, const std::vector<std::pair<std::string, std::function<void()>>>& chips,
+               const std::vector<bool>& on) {
+    const float u = unit_;
+    const float gap = 0.8f * u;
+    const float cw = (row.w - gap * static_cast<float>(chips.size() - 1)) / static_cast<float>(chips.size());
+    for (std::size_t k = 0; k < chips.size(); ++k) {
+      button({row.x + static_cast<float>(k) * (cw + gap), row.y + 0.5f * u, cw, row.h - u}, chips[k].first, chips[k].second,
+             true, k < on.size() && on[k]);
+    }
   }
 
   void drawSheet() {
     SDL_Renderer* r = renderer_;
     const float u = unit_;
     Cue& c = cues_[static_cast<std::size_t>(sheet_)];
-    const float x = safe_.x + 2 * u, w = 68 * u;
-    float y = program_.y + program_.h + 2 * u;
-    const float bottom = safe_.y + safe_.h - u;
-    const SDL_FRect panel {x, y, w, bottom - y};
+    const SDL_FRect panel = sheetRect_;
+    const float top = panel.y;
+    const float w = panel.w;
+    const float x = panel.x;
     fillRound(r, kBezel, panel, 3 * u);
-    const SDL_FRect lcd {x + 2.5f * u, y + 2.5f * u, w - 5 * u, panel.h - 5 * u};
+    const SDL_FRect lcd {x + 2 * u, top + 2 * u, w - 4 * u, panel.h - 4 * u};
     fillRect(r, kLight, lcd);
     const float lx = lcd.x + u, lw = lcd.w - 2 * u;
-    y = lcd.y + u;
-    // Title and DONE
-    text_.draw(pixelSmall_, "CUE " + std::to_string(sheet_ + 1), kDark, {lx, y, 20 * u, 4.5f * u});
-    button({lx + lw - 14 * u, y, 14 * u, 4.5f * u}, "DONE", [this] { sheet_ = -1; });
-    y += 5.5f * u;
-    text_.draw(mono_, c.name, kDeep, {lx, y, lw, 4 * u});
-    y += 4.2f * u;
-    char info[160];
-    if (cueHasTimeline(c)) {
-      std::snprintf(info, sizeof info, "%s%s%dx%d  %.4g fps  %s", c.videoCodec.c_str(), c.videoCodec.empty() ? "" : "  ",
-                    c.width, c.height, c.fps, timecode(c.duration, c.fps).c_str());
-    } else {
-      std::snprintf(info, sizeof info, "%s  holds until GO", kindTag(c));
+    if (calcOpen_) {   // the calculator takes the whole panel while it is open
+      drawCalc(lcd);
+      return;
     }
-    text_.draw(pixelSmall_, info, kDark, {lx, y, lw, 3.5f * u});
-    y += 5 * u;
-
-    if (cueHasTimeline(c)) {
-      // TRIM: the whole media; drag the IN and OUT handles.
-      text_.draw(pixelSmall_, "TRIM", kDark, {lx, y, 20 * u, 3.5f * u});
-      y += 4 * u;
-      trimBar_ = {lx, y, lw, 6 * u};
-      fillRect(r, kDeep, trimBar_);
-      const float xi = trimBar_.x + trimBar_.w * static_cast<float>(cueIn(c) / c.duration);
-      const float xo = trimBar_.x + trimBar_.w * static_cast<float>(cueOut(c) / c.duration);
-      fillRect(r, kMid, {xi, trimBar_.y + 0.6f * u, xo - xi, trimBar_.h - 1.2f * u});
-      for (float hx : {xi, xo}) fillRect(r, kInOut, {hx - 0.8f * u, trimBar_.y - 0.8f * u, 1.6f * u, trimBar_.h + 1.6f * u});
-      if (sheet_ == active_) {
-        const float xp = trimBar_.x + trimBar_.w * static_cast<float>(std::clamp(engine_->position() / c.duration, 0.0, 1.0));
-        fillRect(r, kLight, {xp - 0.25f * u, trimBar_.y, 0.5f * u, trimBar_.h});
+    // the cue, at the top (information only)
+    std::string title = std::to_string(sheet_ + 1) + " " + c.name;
+    if (sheet_ == active_) title += "  (LIVE)";
+    text_.draw(mono_, title, kDeep, {lx, lcd.y + 0.5f * u, lw, 4.5f * u});
+    // the tabs and DONE, along the bottom where the thumb is
+    const float barH = 7 * u;
+    const float barY = lcd.y + lcd.h - barH - 0.5f * u;
+    {
+      const std::vector<std::pair<const char*, Page>> tabs = {
+          {"PLAY", Page::Play}, {"PLACE", Page::Place}, {"LOOK", Page::Look}, {"SOUND", Page::Sound}};
+      const float dw = 12 * u, gap = 0.8f * u;
+      const float tw = (lw - dw - gap * static_cast<float>(tabs.size())) / static_cast<float>(tabs.size());
+      for (std::size_t k = 0; k < tabs.size(); ++k) {
+        const Page pg = tabs[k].second;
+        button({lx + static_cast<float>(k) * (tw + gap), barY, tw, barH}, tabs[k].first, [this, pg] { page_ = pg; }, true, page_ == pg);
       }
-      y += 7.5f * u;
-      const double f = cueFrame(c);
-      auto stepRow = [&](bool in) {
-        const float bw = 7 * u;
-        button({lx, y, bw, 4.5f * u}, "<", [this, in, f] { nudgeTrim(in, -f); });
-        text_.draw(mono_, std::string(in ? "IN  " : "OUT ") + timecode(in ? cueIn(c) : cueOut(c), c.fps), kDeep,
-                   {lx + bw + u, y, lw - 3 * bw - 3 * u, 4.5f * u}, true);
-        button({lx + lw - 2 * bw - u, y, bw, 4.5f * u}, ">", [this, in, f] { nudgeTrim(in, f); });
-        button({lx + lw - bw, y, bw, 4.5f * u}, "SET", [this, in] { if (sheet_ == active_) setInOut(in); }, sheet_ == active_);
-        y += 5.5f * u;
+      button({lx + lw - dw, barY, dw, barH}, "DONE", [this] { sheet_ = -1; });
+    }
+    // the page's rows share what is left
+    struct Item { float weight; std::function<void(const SDL_FRect&)> draw; };
+    std::vector<Item> items;
+    switch (page_) {
+      case Page::Play: playItems(c, items); break;
+      case Page::Place: placeItems(c, items); break;
+      case Page::Look: lookItems(c, items); break;
+      case Page::Sound: soundItems(c, items); break;
+    }
+    float total = 0;
+    for (const Item& it : items) total += it.weight;
+    const float y0 = lcd.y + 5.5f * u, y1 = barY - u;
+    // rows share the height: never more than 12 units, and never past the tabs
+    const float rowH = std::min((y1 - y0) / std::max(1.0f, total), 12.0f * u);
+    float y = y0;
+    for (const Item& it : items) {
+      const float h = rowH * it.weight;
+      it.draw({lx, y, lw, h});
+      y += h;
+    }
+  }
+
+  template <class Items>
+  void playItems(Cue& c, Items& items) {
+    const float u = unit_;
+    const int i = sheet_;
+    auto secs = [](double v) { char b[16]; std::snprintf(b, sizeof b, "%.1f s", v); return std::string(b); };
+    (void)secs;
+    if (cueHasTimeline(c)) {
+      // the filmstrip: the clip's own frames, IN and OUT handles to drag
+      items.push_back({1.6f, [this, &c](const SDL_FRect& row) { drawFilmstrip(c, row); }});
+      auto trimRow = [this, &c, i](bool in) {
+        return [this, &c, i, in](const SDL_FRect& row) {
+          const float uu = unit_;
+          const double f = cueFrame(c);
+          text_.draw(pixelSmall_, in ? "IN" : "OUT", kDark, {row.x, row.y, 8 * uu, row.h});
+          NumSpec n;
+          n.label = in ? "IN" : "OUT";
+          n.unit = "s";
+          n.decimals = 2;
+          n.min = in ? 0.0 : cueIn(c) + f;
+          n.max = in ? cueOut(c) - f : c.duration;
+          n.zero = n.min;
+          n.reset = in ? 0.0 : c.duration;
+          n.get = [this, i, in] { const Cue& cc = cues_[static_cast<std::size_t>(i)]; return in ? cueIn(cc) : cueOut(cc); };
+          n.set = [this, i, in](double t) {
+            Cue& cc = cues_[static_cast<std::size_t>(i)];
+            if (in) cc.inPointSeconds = t; else cc.outPointSeconds = t;
+            cueEdited(i, true);
+          };
+          const float bw = 8 * uu, g = 0.8f * uu;
+          button({row.x + 9 * uu, row.y + 0.5f * uu, row.w - 9 * uu - 3 * (bw + g), row.h - uu},
+                 timecode(in ? cueIn(c) : cueOut(c), c.fps), [this, n] { openCalc(n); });
+          button({row.x + row.w - 3 * bw - 2 * g, row.y + 0.5f * uu, bw, row.h - uu}, "<", [this, in, f] { nudgeTrim(in, -f); });
+          button({row.x + row.w - 2 * bw - g, row.y + 0.5f * uu, bw, row.h - uu}, ">", [this, in, f] { nudgeTrim(in, f); });
+          button({row.x + row.w - bw, row.y + 0.5f * uu, bw, row.h - uu}, "SET", [this, in] { if (sheet_ == active_) setInOut(in); },
+                 sheet_ == active_);
+        };
       };
-      stepRow(true);
-      stepRow(false);
-      text_.draw(mono_, "LENGTH " + timecode(cueOut(c) - cueIn(c), c.fps), kDeep, {lx, y, lw * 0.55f, 4.5f * u});
-      button({lx + lw * 0.58f, y, lw * 0.42f, 4.5f * u}, "PLAY FROM IN", [this] {
-        const int i = sheet_;
-        take(i);
-      });
-      y += 6.5f * u;
+      items.push_back({1.0f, trimRow(true)});
+      items.push_back({1.0f, trimRow(false)});
     } else {
       trimBar_ = {};
+      items.push_back({1.0f, [this, i](const SDL_FRect& row) {
+        NumSpec n;
+        n.label = "SHOW FOR";
+        n.unit = "s";
+        n.decimals = 1;
+        n.min = 0;
+        n.max = 120;
+        n.step = 0.5;
+        n.presets = {{"UNTIL GO", 0}, {"5 S", 5}, {"10 S", 10}};
+        n.get = [this, i] { return cues_[static_cast<std::size_t>(i)].stillDurationSeconds; };
+        n.set = [this, i](double v) { cues_[static_cast<std::size_t>(i)].stillDurationSeconds = v; cueEdited(i, false); };
+        numberRow(row, n);
+      }});
     }
-
-    // Fades and transition: - value +
-    auto stepper = [&](const char* label, std::string value, std::function<void()> less, std::function<void()> more) {
-      text_.draw(pixelSmall_, label, kDark, {lx, y, 22 * u, 4.5f * u});
-      button({lx + 23 * u, y, 7 * u, 4.5f * u}, "-", std::move(less));
-      text_.draw(mono_, value, kDeep, {lx + 31 * u, y, lw - 46 * u, 4.5f * u}, true);
-      button({lx + lw - 7 * u, y, 7 * u, 4.5f * u}, "+", std::move(more));
-      y += 5.5f * u;
-    };
-    auto secs = [](double v) { char b[16]; std::snprintf(b, sizeof b, "%.1f s", v); return std::string(b); };
-    stepper("FADE IN", secs(c.fadeInSeconds), [this] { bump(&Cue::fadeInSeconds, -0.5); }, [this] { bump(&Cue::fadeInSeconds, 0.5); });
-    stepper("FADE OUT", secs(c.fadeOutSeconds), [this] { bump(&Cue::fadeOutSeconds, -0.5); }, [this] { bump(&Cue::fadeOutSeconds, 0.5); });
-    stepper("TRANSITION", c.cueTransitionSeconds < 0 ? secs(listGlide()) + " (list)" : secs(c.cueTransitionSeconds),
-            [this] { bumpTransition(-0.5); }, [this] { bumpTransition(0.5); });
-    stepper("STYLE", c.cueTransitionStyle.empty() ? styleName(listStyle_) + " (list)" : styleName(cueStyle(c)),
-            [this] { stepCueStyle(-1); }, [this] { stepCueStyle(1); });
-
-    // HOLD / LOOP / NEXT
-    text_.draw(pixelSmall_, "AT THE END", kDark, {lx, y, 22 * u, 4.5f * u});
-    const EndMode m = endModeOf(c);
-    const float sw = (lw - 23 * u) / 3;
-    const std::pair<EndMode, const char*> modes[] = {{EndMode::Hold, "HOLD"}, {EndMode::Loop, "LOOP"}, {EndMode::Next, "NEXT"}};
-    for (int k = 0; k < 3; ++k) {
-      const EndMode mode = modes[k].first;
-      button({lx + 23 * u + static_cast<float>(k) * sw, y, sw - 0.5f * u, 4.5f * u}, modes[k].second,
-             [this, mode] { Cue& cc = cues_[static_cast<std::size_t>(sheet_)]; setEndMode(cc, mode); cueEdited(sheet_, false); },
-             true, m == mode);
-    }
-    y += 5.5f * u;
-
-    // PLAYS: forward, reverse, bounce (there and back). A clip decodes only
-    // forwards, so the other two play a copy made once in the background.
+    items.push_back({1.0f, [this, &c, i](const SDL_FRect& row) {
+      const EndMode m = endModeOf(c);
+      auto set = [this, i](EndMode md) { return [this, i, md] { setEndMode(cues_[static_cast<std::size_t>(i)], md); cueEdited(i, false); }; };
+      chipRow(row, {{"HOLD", set(EndMode::Hold)}, {"LOOP", set(EndMode::Loop)}, {"NEXT", set(EndMode::Next)}},
+              {m == EndMode::Hold, m == EndMode::Loop, m == EndMode::Next});
+    }});
     if (cueDirectionApplies(c)) {
-      text_.draw(pixelSmall_, "PLAYS", kDark, {lx, y, 22 * u, 4.5f * u});
-      const char* dirs[] = {"FORWARD", "REVERSE", "BOUNCE"};
-      for (int k = 0; k < 3; ++k) {
-        button({lx + 23 * u + static_cast<float>(k) * sw, y, sw - 0.5f * u, 4.5f * u}, dirs[k],
-               [this, k] { Cue& cc = cues_[static_cast<std::size_t>(sheet_)]; cc.playDirection = k; cueEdited(sheet_, false); if (k) buzz("spin"); },
-               true, c.playDirection == k);
-      }
-      y += 5.5f * u;
-      if (c.playDirection != kCueForward) {
-        text_.draw(mono_, directionStatus(c), kDeep, {lx + 23 * u, y - 0.5f * u, lw - 23 * u, 4 * u});
-        y += 4.5f * u;
-      }
-      stepper("SPEED", speedLabel(c.playbackSpeed), [this] { stepSpeed(-1); }, [this] { stepSpeed(1); });
+      items.push_back({1.0f, [this, &c, i](const SDL_FRect& row) {
+        auto set = [this, i](int k) { return [this, i, k] { cues_[static_cast<std::size_t>(i)].playDirection = k; cueEdited(i, false); if (k) buzz("spin"); }; };
+        std::string rev = "REVERSE", bou = "BOUNCE";
+        if (c.playDirection != kCueForward && !directionReady(c)) {
+          const int pct = dirBusy_.load() && dirJob_.cueId == c.id ? static_cast<int>(dirProgress_.load() * 100) : 0;
+          (c.playDirection == kCueReverse ? rev : bou) += " " + std::to_string(pct) + "%";
+        }
+        chipRow(row, {{"FORWARD", set(0)}, {rev, set(1)}, {bou, set(2)}},
+                {c.playDirection == 0, c.playDirection == 1, c.playDirection == 2});
+      }});
+      items.push_back({1.0f, [this, i](const SDL_FRect& row) {
+        NumSpec n;
+        n.label = "SPEED";
+        n.unit = "x";
+        n.decimals = 2;
+        n.min = 0.25;
+        n.max = 4;
+        n.zero = 1;
+        n.step = 0.05;
+        n.reset = 1;
+        n.presets = {{"HALF", 0.5}, {"NORMAL", 1}, {"DOUBLE", 2}};
+        n.get = [this, i] { return cues_[static_cast<std::size_t>(i)].playbackSpeed; };
+        n.set = [this, i](double v) {
+          Cue& cc = cues_[static_cast<std::size_t>(i)];
+          cc.playbackSpeed = v;
+          if (i == active_) engine_->refreshActiveCueRuntime(&cc);
+        };
+        numberRow(row, n);
+      }});
     }
+    auto secondsRow = [this, i](const char* label, double Cue::*field) {
+      return [this, i, label, field](const SDL_FRect& row) {
+        NumSpec n;
+        n.label = label;
+        n.unit = "s";
+        n.decimals = 1;
+        n.min = 0;
+        n.max = 10;
+        n.step = 0.1;
+        n.presets = {{"NONE", 0}, {"HALF", 0.5}, {"1 S", 1}};
+        n.get = [this, i, field] { return cues_[static_cast<std::size_t>(i)].*field; };
+        n.set = [this, i, field](double v) { cues_[static_cast<std::size_t>(i)].*field = v; cueEdited(i, false); };
+        numberRow(row, n);
+      };
+    };
+    items.push_back({1.0f, secondsRow("FADE IN", &Cue::fadeInSeconds)});
+    items.push_back({1.0f, secondsRow("FADE OUT", &Cue::fadeOutSeconds)});
+    items.push_back({1.0f, [this, &c, i](const SDL_FRect& row) {
+      const float uu = unit_;
+      text_.draw(pixelSmall_, "TRANSITION", kDark, {row.x, row.y, 20 * uu, row.h});
+      const float bw = 8 * uu;
+      button({row.x + 21 * uu, row.y + 0.5f * uu, bw, row.h - uu}, "<", [this] { stepCueStyle(-1); });
+      const std::string label = (c.cueTransitionStyle.empty() ? styleName(listStyle_) : styleName(cueStyle(c))) + ", " +
+                                (c.cueTransitionSeconds < 0 ? std::to_string(listGlide()).substr(0, 3) : std::to_string(c.cueTransitionSeconds).substr(0, 3)) + " s";
+      NumSpec n;
+      n.label = "TRANSITION";
+      n.unit = "s";
+      n.decimals = 1;
+      n.min = 0;
+      n.max = 10;
+      n.step = 0.1;
+      n.presets = {{"CUT", 0}, {"HALF", 0.5}, {"1 S", 1}};
+      n.get = [this, i] { const Cue& cc = cues_[static_cast<std::size_t>(i)]; return cc.cueTransitionSeconds < 0 ? listGlide() : cc.cueTransitionSeconds; };
+      n.set = [this, i](double v) { cues_[static_cast<std::size_t>(i)].cueTransitionSeconds = v; };
+      button({row.x + 22 * uu + bw, row.y + 0.5f * uu, row.w - 23 * uu - 2 * bw - uu, row.h - uu}, label, [this, n] { openCalc(n); });
+      button({row.x + row.w - bw, row.y + 0.5f * uu, bw, row.h - uu}, ">", [this] { stepCueStyle(1); });
+    }});
+    // what you do with the cue itself
+    items.push_back({1.0f, [this, i](const SDL_FRect& row) {
+      const int qp = queuePlace(cues_[static_cast<std::size_t>(i)]);
+      chipRow(row, {{qp ? "NEXT " + std::to_string(qp) : std::string("PLAY NEXT"), [this, i] { toggleQueued(i); }},
+                    {"RENAME", [this, i] { beginRename(i); }},
+                    {"COPY", [this] { duplicateSheetCue(); }},
+                    {"UP", [this] { moveSheetCue(-1); }},
+                    {"DOWN", [this] { moveSheetCue(1); }},
+                    {confirmDelete_ ? "SURE?" : "DELETE", [this] { deleteSheetCue(); }}},
+              {qp > 0, false, false, false, false, confirmDelete_});
+    }});
+    (void)u;
+  }
 
-    // VOLUME: -40 dB to +6 dB
-    if (c.hasAudio || c.kind == CueKind::Audio) {
-      text_.draw(pixelSmall_, "VOLUME", kDark, {lx, y, 22 * u, 4.5f * u});
-      volumeBar_ = {lx + 23 * u, y + 1.5f * u, lw - 36 * u, 1.5f * u};
-      fillRect(r, kMid, volumeBar_);
-      const float k = std::clamp((c.audioGainDb + 40.0f) / 46.0f, 0.0f, 1.0f);
-      fillRect(r, kDeep, {volumeBar_.x, volumeBar_.y, volumeBar_.w * k, volumeBar_.h});
-      fillRect(r, kDeep, {volumeBar_.x + volumeBar_.w * k - 0.6f * u, y + 0.3f * u, 1.2f * u, 3.9f * u});
-      char db[16];
-      std::snprintf(db, sizeof db, "%+.0f dB", static_cast<double>(c.audioGainDb));
-      text_.draw(mono_, db, kDeep, {lx + lw - 12 * u, y, 12 * u, 4.5f * u}, true);
-      y += 5.5f * u;
-    } else {
-      volumeBar_ = {};
+  template <class Items>
+  void placeItems(Cue& c, Items& items) {
+    const int i = sheet_;
+    const double W = static_cast<double>(programW_), H = static_cast<double>(programH_);
+    if (i != active_) {
+      items.push_back({0.6f, [this](const SDL_FRect& row) {
+        text_.draw(mono_, "Not on air: the picture shows it once taken.", kDark, row);
+      }});
     }
+    items.push_back({1.0f, [this, &c, i](const SDL_FRect& row) {
+      auto set = [this, i](ScaleMode m) { return [this, i, m] { cues_[static_cast<std::size_t>(i)].scaleMode = m; cueEdited(i, false); }; };
+      chipRow(row, {{"FIT", set(ScaleMode::Fit)}, {"FILL", set(ScaleMode::Fill)}, {"STRETCH", set(ScaleMode::Stretch)}, {"1:1", set(ScaleMode::Unscaled)}},
+              {c.scaleMode == ScaleMode::Fit, c.scaleMode == ScaleMode::Fill, c.scaleMode == ScaleMode::Stretch, c.scaleMode == ScaleMode::Unscaled});
+    }});
+    items.push_back({1.0f, [this, i](const SDL_FRect& row) {
+      NumSpec n;
+      n.label = linkScale_ ? "SCALE" : "WIDTH";
+      n.unit = "%";
+      n.min = 5;
+      n.max = 400;
+      n.zero = 100;
+      n.step = 1;
+      n.reset = 100;
+      n.presets = {{"HALF", 50}, {"100 %", 100}, {"DOUBLE", 200}};
+      n.get = [this, i] { return cues_[static_cast<std::size_t>(i)].outputScaleX * 100.0; };
+      n.set = [this, i](double v) {
+        Cue& cc = cues_[static_cast<std::size_t>(i)];
+        cc.outputScaleX = static_cast<float>(v / 100.0);
+        if (linkScale_) cc.outputScaleY = cc.outputScaleX;
+        cueEdited(i, false);
+      };
+      numberRow(row, n);
+    }});
+    if (!linkScale_) {
+      items.push_back({1.0f, [this, i](const SDL_FRect& row) {
+        NumSpec n;
+        n.label = "HEIGHT";
+        n.unit = "%";
+        n.min = 5;
+        n.max = 400;
+        n.zero = 100;
+        n.step = 1;
+        n.reset = 100;
+        n.get = [this, i] { return cues_[static_cast<std::size_t>(i)].outputScaleY * 100.0; };
+        n.set = [this, i](double v) { cues_[static_cast<std::size_t>(i)].outputScaleY = static_cast<float>(v / 100.0); cueEdited(i, false); };
+        numberRow(row, n);
+      }});
+    }
+    auto offsetRow = [this, i](bool horizontal, double extent) {
+      return [this, i, horizontal, extent](const SDL_FRect& row) {
+        NumSpec n;
+        n.label = horizontal ? "X" : "Y";
+        n.unit = "px";
+        n.min = -extent;
+        n.max = extent;
+        n.step = 1;
+        n.percentOf = extent;
+        n.presets = {{"CENTRE", 0}, {horizontal ? "LEFT HALF" : "UP HALF", -extent / 4}, {horizontal ? "RIGHT HALF" : "DOWN HALF", extent / 4}};
+        n.get = [this, i, horizontal] { const Cue& cc = cues_[static_cast<std::size_t>(i)]; return static_cast<double>(horizontal ? cc.outputOffsetX : cc.outputOffsetY); };
+        n.set = [this, i, horizontal](double v) {
+          Cue& cc = cues_[static_cast<std::size_t>(i)];
+          (horizontal ? cc.outputOffsetX : cc.outputOffsetY) = static_cast<float>(v);
+          cueEdited(i, false);
+        };
+        numberRow(row, n);
+      };
+    };
+    items.push_back({1.0f, offsetRow(true, W)});
+    items.push_back({1.0f, offsetRow(false, H)});
+    items.push_back({1.0f, [this, i](const SDL_FRect& row) {
+      NumSpec n;
+      n.label = "ROTATION";
+      n.unit = "deg";
+      n.decimals = 1;
+      n.min = -180;
+      n.max = 180;
+      n.step = 0.5;
+      n.presets = {{"LEVEL", 0}, {"90 LEFT", -90}, {"90 RIGHT", 90}};
+      n.get = [this, i] { return static_cast<double>(cues_[static_cast<std::size_t>(i)].outputRotationDegrees); };
+      n.set = [this, i](double v) { cues_[static_cast<std::size_t>(i)].outputRotationDegrees = static_cast<float>(v); cueEdited(i, false); };
+      numberRow(row, n);
+    }});
+    items.push_back({1.0f, [this, &c, i](const SDL_FRect& row) {
+      chipRow(row, {{"FLIP H", [this, i] { Cue& cc = cues_[static_cast<std::size_t>(i)]; cc.flipHorizontal = !cc.flipHorizontal; cueEdited(i, false); }},
+                    {"FLIP V", [this, i] { Cue& cc = cues_[static_cast<std::size_t>(i)]; cc.flipVertical = !cc.flipVertical; cueEdited(i, false); }},
+                    {"LINK W/H", [this, i] {
+                       linkScale_ = !linkScale_;
+                       if (linkScale_) { Cue& cc = cues_[static_cast<std::size_t>(i)]; cc.outputScaleY = cc.outputScaleX; cueEdited(i, false); }
+                     }}},
+              {c.flipHorizontal, c.flipVertical, linkScale_});
+    }});
+    auto cropPair = [this, i](const char* a, float Cue::*fa, const char* b, float Cue::*fb) {
+      return [this, i, a, fa, b, fb](const SDL_FRect& row) {
+        const float g = unit_;
+        for (int k = 0; k < 2; ++k) {
+          float Cue::*f = k ? fb : fa;
+          NumSpec n;
+          n.label = k ? b : a;
+          n.unit = "%";
+          n.min = 0;
+          n.max = 90;
+          n.step = 1;
+          n.get = [this, i, f] { return cues_[static_cast<std::size_t>(i)].*f * 100.0; };
+          n.set = [this, i, f](double v) { cues_[static_cast<std::size_t>(i)].*f = static_cast<float>(v / 100.0); cueEdited(i, false); };
+          numberRow({row.x + static_cast<float>(k) * (row.w / 2 + g / 2), row.y, row.w / 2 - g / 2, row.h}, n);
+        }
+      };
+    };
+    items.push_back({1.0f, cropPair("CROP L", &Cue::cropLeft, "CROP R", &Cue::cropRight)});
+    items.push_back({1.0f, cropPair("CROP TOP", &Cue::cropTop, "CROP BOT", &Cue::cropBottom)});
+    items.push_back({1.0f, [this, i](const SDL_FRect& row) {
+      chipRow(row, {{"RESET PLACE", [this, i] { resetPlace(i); }}}, {false});
+    }});
+  }
 
-    // PLAY NEXT, RENAME, then DUPLICATE, UP, DOWN, DELETE
-    y = std::max(y + u, lcd.y + lcd.h - 12 * u);
+  void resetPlace(int i) {
+    Cue& cc = cues_[static_cast<std::size_t>(i)];
+    cc.outputScaleX = cc.outputScaleY = 1.0f;
+    cc.outputOffsetX = cc.outputOffsetY = 0.0f;
+    cc.outputRotationDegrees = 0.0f;
+    cc.cropLeft = cc.cropRight = cc.cropTop = cc.cropBottom = 0.0f;
+    cc.flipHorizontal = cc.flipVertical = false;
+    cueEdited(i, false);
+  }
+
+  template <class Items>
+  void lookItems(Cue& c, Items& items) {
+    const int i = sheet_;
+    auto pctRow = [this, i](const char* label, float Cue::*f) {
+      return [this, i, label, f](const SDL_FRect& row) {
+        NumSpec n;
+        n.label = label;
+        n.unit = "%";
+        n.min = 0;
+        n.max = 200;
+        n.zero = 100;
+        n.step = 1;
+        n.reset = 100;
+        n.presets = {{"NONE", 0}, {"NORMAL", 100}, {"DOUBLE", 200}};
+        n.get = [this, i, f] { return cues_[static_cast<std::size_t>(i)].*f * 100.0; };
+        n.set = [this, i, f](double v) { cues_[static_cast<std::size_t>(i)].*f = static_cast<float>(v / 100.0); cueEdited(i, false); };
+        numberRow(row, n);
+      };
+    };
+    items.push_back({1.0f, pctRow("BRIGHTNESS", &Cue::brightness)});
+    items.push_back({1.0f, pctRow("CONTRAST", &Cue::contrast)});
+    items.push_back({1.0f, pctRow("SATURATION", &Cue::saturation)});
+    items.push_back({1.0f, [this, i](const SDL_FRect& row) {
+      NumSpec n;
+      n.label = "HUE";
+      n.unit = "deg";
+      n.min = -180;
+      n.max = 180;
+      n.step = 1;
+      n.get = [this, i] { return static_cast<double>(cues_[static_cast<std::size_t>(i)].hueShift); };
+      n.set = [this, i](double v) { cues_[static_cast<std::size_t>(i)].hueShift = static_cast<float>(v); cueEdited(i, false); };
+      numberRow(row, n);
+    }});
+    items.push_back({1.0f, [this, &c, i](const SDL_FRect& row) {
+      chipRow(row, {{c.chromaKeyEnabled ? "GREEN SCREEN ON" : "GREEN SCREEN", [this, i] {
+                       Cue& cc = cues_[static_cast<std::size_t>(i)];
+                       cc.chromaKeyEnabled = !cc.chromaKeyEnabled;
+                       cueEdited(i, false);
+                     }}}, {c.chromaKeyEnabled});
+    }});
+    if (c.chromaKeyEnabled) {
+      auto keyRow = [this, i](const char* label, float Cue::*f, double max) {
+        return [this, i, label, f, max](const SDL_FRect& row) {
+          NumSpec n;
+          n.label = label;
+          n.min = 0;
+          n.max = max;
+          n.step = 1;
+          n.get = [this, i, f] { return static_cast<double>(cues_[static_cast<std::size_t>(i)].*f); };
+          n.set = [this, i, f](double v) { cues_[static_cast<std::size_t>(i)].*f = static_cast<float>(v); cueEdited(i, false); };
+          numberRow(row, n);
+        };
+      };
+      items.push_back({1.0f, keyRow("KEY REACH", &Cue::chromaKeyTolerance, 255)});
+      items.push_back({1.0f, keyRow("KEY SOFTNESS", &Cue::chromaKeySoftness, 128)});
+    }
+    items.push_back({1.0f, [this, i](const SDL_FRect& row) {
+      chipRow(row, {{"RESET LOOK", [this, i] {
+                       Cue& cc = cues_[static_cast<std::size_t>(i)];
+                       cc.brightness = cc.contrast = cc.saturation = 1.0f;
+                       cc.hueShift = 0.0f;
+                       cc.chromaKeyEnabled = false;
+                       cueEdited(i, false);
+                     }}}, {false});
+    }});
+  }
+
+  template <class Items>
+  void soundItems(Cue& c, Items& items) {
+    const int i = sheet_;
+    items.push_back({1.4f, [this](const SDL_FRect& row) { drawMeter(row, true); }});
+    if (!(c.hasAudio || c.kind == CueKind::Audio)) {
+      items.push_back({1.0f, [this](const SDL_FRect& row) { text_.draw(mono_, "This cue has no sound.", kDark, row); }});
+      return;
+    }
+    items.push_back({1.0f, [this, &c, i](const SDL_FRect& row) {
+      chipRow(row, {{c.audioEnabled ? "SOUND ON" : "SOUND OFF", [this, i] {
+                       Cue& cc = cues_[static_cast<std::size_t>(i)];
+                       cc.audioEnabled = !cc.audioEnabled;
+                       if (i == active_) engine_->refreshActiveCueRuntime(&cc);
+                     }},
+                    {"MONO", [this, i] { Cue& cc = cues_[static_cast<std::size_t>(i)]; cc.audioMono = !cc.audioMono; cueEdited(i, false); }}},
+              {c.audioEnabled, c.audioMono});
+    }});
+    items.push_back({1.0f, [this, i](const SDL_FRect& row) {
+      NumSpec n;
+      n.label = "VOLUME";
+      n.unit = "dB";
+      n.min = -40;
+      n.max = 6;
+      n.step = 1;
+      n.presets = {{"-12 DB", -12}, {"0 DB", 0}, {"+6 DB", 6}};
+      n.get = [this, i] { return static_cast<double>(cues_[static_cast<std::size_t>(i)].audioGainDb); };
+      n.set = [this, i](double v) { cues_[static_cast<std::size_t>(i)].audioGainDb = static_cast<float>(v); cueEdited(i, false); };
+      numberRow(row, n);
+    }});
+    items.push_back({1.0f, [this, i](const SDL_FRect& row) {
+      NumSpec n;
+      n.label = "PAN";
+      n.min = -100;
+      n.max = 100;
+      n.step = 1;
+      n.presets = {{"LEFT", -100}, {"CENTRE", 0}, {"RIGHT", 100}};
+      n.get = [this, i] { return cues_[static_cast<std::size_t>(i)].audioPan * 100.0; };
+      n.set = [this, i](double v) { cues_[static_cast<std::size_t>(i)].audioPan = static_cast<float>(v / 100.0); cueEdited(i, false); };
+      numberRow(row, n);
+    }});
+    if (c.audioTrackCount > 1) {
+      items.push_back({1.0f, [this, &c, i](const SDL_FRect& row) {
+        std::vector<std::pair<std::string, std::function<void()>>> chips;
+        std::vector<bool> on;
+        for (int k = 0; k < std::min(c.audioTrackCount, 6); ++k) {
+          chips.push_back({"TRACK " + std::to_string(k + 1), [this, i, k] {
+                             Cue& cc = cues_[static_cast<std::size_t>(i)];
+                             cc.audioTrack = k;
+                             if (i == active_) engine_->refreshActiveCueRuntime(&cc);
+                           }});
+          on.push_back(c.audioTrack == k);
+        }
+        chipRow(row, chips, on);
+      }});
+    }
+  }
+
+  // The programme's sound, as Mini shows it: two small bars, green to amber
+  // to red, a peak that hangs a moment. big = the SOUND page's own row.
+  void drawMeter(const SDL_FRect& area, bool big) {
+    SDL_Renderer* r = renderer_;
+    const float u = unit_;
+    const float gap = big ? u : 0.4f * u;
+    const float bh = (area.h - gap * 3) / 2;
+    for (int ch = 0; ch < 2; ++ch) {
+      const SDL_FRect bar {area.x + (big ? 6 * u : 0), area.y + gap + static_cast<float>(ch) * (bh + gap), area.w - (big ? 6 * u : 0), bh};
+      if (big) text_.draw(pixelSmall_, ch ? "R" : "L", kDark, {area.x, bar.y, 5 * u, bar.h});
+      fillRect(r, kDeep, bar);
+      const int segs = big ? 30 : 12;
+      const float sw = bar.w / segs;
+      const int lit = static_cast<int>(std::round(meterLevel_[ch] * segs));
+      const int peak = static_cast<int>(std::round(meterPeak_[ch] * segs)) - 1;
+      for (int k = 0; k < segs; ++k) {
+        const float f = static_cast<float>(k) / segs;
+        const Ink on = f > 0.9f ? Ink {230, 60, 50} : f > 0.7f ? Ink {230, 180, 40} : Ink {120, 210, 90};
+        if (k < lit || k == peak) fillRect(r, on, {bar.x + k * sw + 0.15f * sw, bar.y + 0.15f * bar.h, sw * 0.7f, bar.h * 0.7f});
+      }
+    }
+  }
+
+  // Levels from the last 50 ms of programme sound, with a meter's ballistics:
+  // up at once, down gently; the peak holds a second, then falls.
+  void serviceMeter() {
+    static std::vector<float> recent;
+    recent.clear();
+    const std::size_t n = engine_->copyRecentProgramAudio(recent);
+    float pk[2] = {0, 0};
+    const std::size_t take = std::min<std::size_t>(n, 2400 * 2);
+    for (std::size_t k = n - take; k + 1 < n; k += 2) {
+      pk[0] = std::max(pk[0], std::fabs(recent[k]));
+      pk[1] = std::max(pk[1], std::fabs(recent[k + 1]));
+    }
+    const Uint64 now = SDL_GetTicks();
+    for (int ch = 0; ch < 2; ++ch) {
+      // a dB scale: -48 dB at the left, 0 dB full
+      const float db = pk[ch] > 1e-5f ? 20.0f * std::log10(pk[ch]) : -96.0f;
+      const float level = std::clamp((db + 48.0f) / 48.0f, 0.0f, 1.0f);
+      meterLevel_[ch] = level > meterLevel_[ch] ? level : std::max(level, meterLevel_[ch] - 0.04f);
+      if (level >= meterPeak_[ch]) { meterPeak_[ch] = level; meterPeakAt_[ch] = now; }
+      else if (now - meterPeakAt_[ch] > 1000) meterPeak_[ch] = std::max(level, meterPeak_[ch] - 0.02f);
+    }
+  }
+
+  // ── The calculator: typing a number ──
+  //
+  // The desk's own sums (core/expression_parser.hpp: + - x / and brackets,
+  // "1920x2", "960px*2"), plus NOW (the value as it stands), % (a share of
+  // the output for a position, else a hundredth), and the setting's presets.
+  // The picture follows as you type; CANCEL puts the value back.
+
+  void openCalc(const NumSpec& n) {
+    calcSpec_ = n;
+    calcBefore_ = n.get();
+    calcExpr_.clear();
+    calcOpen_ = true;
+  }
+
+  std::optional<double> calcValue() const {
+    std::string e;
+    for (std::size_t k = 0; k < calcExpr_.size(); ++k) {
+      if (calcExpr_.compare(k, 3, "NOW") == 0) {
+        e += "(" + std::to_string(calcBefore_) + ")";
+        k += 2;
+      } else if (calcExpr_[k] == '%') {
+        e += calcSpec_.percentOf > 0 ? "*" + std::to_string(calcSpec_.percentOf / 100.0) : std::string("/100");
+      } else {
+        e += calcExpr_[k];
+      }
+    }
+    if (e.empty()) return std::nullopt;
+    return parseNumericExpression(e);
+  }
+
+  void calcKey(const std::string& key) {
+    if (key == "DEL") {
+      if (calcExpr_.size() >= 3 && calcExpr_.compare(calcExpr_.size() - 3, 3, "NOW") == 0) calcExpr_.resize(calcExpr_.size() - 3);
+      else if (!calcExpr_.empty()) calcExpr_.pop_back();
+    } else if (key == "-X") {
+      calcExpr_ = calcExpr_.empty() ? std::string("-NOW") : "-(" + calcExpr_ + ")";
+    } else if (calcExpr_.size() < 40) {
+      calcExpr_ += key == "x" ? std::string("*") : key;
+    }
+    if (const auto v = calcValue()) setNum(calcSpec_, *v);   // the picture follows
+  }
+
+  void drawCalc(const SDL_FRect& lcd) {
+    const float u = unit_;
+    const float lx = lcd.x + u, lw = lcd.w - 2 * u;
+    float y = lcd.y + u;
+    // the sum and its answer
+    const SDL_FRect shown {lx, y, lw, 11 * u};
+    fillRect(renderer_, kDeep, shown);
+    text_.draw(pixelSmall_, calcSpec_.label, kMid, {shown.x + u, shown.y + 0.5f * u, lw - 2 * u, 3 * u});
+    text_.draw(mono_, calcExpr_.empty() ? std::string("type a value or a sum") : calcExpr_, kLight,
+               {shown.x + u, shown.y + 3.5f * u, lw - 2 * u, 4 * u});
+    const auto v = calcValue();
+    const std::string answer = calcExpr_.empty() ? "now " + numText(calcSpec_, calcBefore_)
+                               : v ? "= " + numText(calcSpec_, std::clamp(*v, calcSpec_.min, calcSpec_.max)) + "   (was " + numText(calcSpec_, calcBefore_) + ")"
+                                   : std::string("not a sum yet");
+    text_.draw(mono_, answer, kMid, {shown.x + u, shown.y + 7 * u, lw - 2 * u, 3.6f * u});
+    y += 12 * u;
+    // the keys: 5 across, rows sharing the height; presets and the answer keys last
+    std::vector<std::vector<std::string>> rows = {
+        {"7", "8", "9", "/", "("}, {"4", "5", "6", "x", ")"}, {"1", "2", "3", "-", "%"}, {"0", ".", "DEL", "+", "NOW"}};
+    const float gap = 0.8f * u;
+    const float bottom = lcd.y + lcd.h - u;
+    const int keyRows = 6;
+    const float kh = (bottom - y - gap * (keyRows - 1)) / keyRows;
+    const float kw = (lw - gap * 4) / 5;
+    for (const auto& row : rows) {
+      for (int k = 0; k < 5; ++k) {
+        const std::string key = row[static_cast<std::size_t>(k)];
+        button({lx + static_cast<float>(k) * (kw + gap), y, kw, kh}, key, [this, key] { calcKey(key); });
+      }
+      y += kh + gap;
+    }
+    // presets and -X
     {
-      const float hw = (lw - u) / 2;
-      const int qp = queuePlace(c);
-      button({lx, y, hw, 5 * u}, qp ? "QUEUED " + std::to_string(qp) : std::string("PLAY NEXT"), [this] { toggleQueued(sheet_); }, true, qp > 0);
-      button({lx + hw + u, y, hw, 5 * u}, "RENAME", [this] { beginRename(sheet_); });
-      y += 6 * u;
+      const auto& ps = calcSpec_.presets;
+      const int count = static_cast<int>(std::min<std::size_t>(ps.size(), 3));
+      const float pw = (lw - kw - gap * static_cast<float>(count)) / std::max(1, count);
+      for (int k = 0; k < count; ++k) {
+        const double pv = ps[static_cast<std::size_t>(k)].second;
+        button({lx + static_cast<float>(k) * (pw + gap), y, pw, kh}, ps[static_cast<std::size_t>(k)].first,
+               [this, pv] { calcExpr_ = numText({calcSpec_.label, "", 0, 0, 0, 0, 0, calcSpec_.decimals}, pv); setNum(calcSpec_, pv); });
+      }
+      button({lx + lw - kw, y, kw, kh}, "-X", [this] { calcKey("-X"); });
+      y += kh + gap;
     }
-    const float qw = (lw - 3 * u) / 4;
-    button({lx, y, qw, 5 * u}, "COPY", [this] { duplicateSheetCue(); });
-    button({lx + qw + u, y, qw, 5 * u}, "UP", [this] { moveSheetCue(-1); }, sheet_ > 0);
-    button({lx + 2 * (qw + u), y, qw, 5 * u}, "DOWN", [this] { moveSheetCue(1); }, sheet_ + 1 < static_cast<int>(cues_.size()));
-    button({lx + 3 * (qw + u), y, qw, 5 * u}, confirmDelete_ ? "SURE?" : "DELETE", [this] { deleteSheetCue(); }, true, false, true);
+    const float tw = (lw - 2 * gap) / 3;
+    button({lx, y, tw, kh}, "RESET", [this] { setNum(calcSpec_, calcSpec_.reset); calcOpen_ = false; });
+    button({lx + tw + gap, y, tw, kh}, "CANCEL", [this] { calcSpec_.set(calcBefore_); calcOpen_ = false; });
+    button({lx + 2 * (tw + gap), y, tw, kh}, "OK", [this] {
+      if (const auto val = calcValue()) setNum(calcSpec_, *val);
+      calcOpen_ = false;
+      buzz("tap");
+    }, true, true);
+  }
+
+  // ── The filmstrip: the clip's own frames along the trim (Final Cut style) ──
+  //
+  // Ten stills across the media, decoded once in the background with libav
+  // (engine/direction_inproc's decodeStills) and kept per cue and trim-free
+  // (the strip is the whole file; IN and OUT are drawn over it).
+
+  void drawFilmstrip(const Cue& c, const SDL_FRect& row) {
+    SDL_Renderer* r = renderer_;
+    const float u = unit_;
+    trimBar_ = {row.x, row.y + 0.6f * u, row.w, row.h - 1.2f * u};
+    fillRect(r, kDeep, trimBar_);
+    requestStills(c);
+    const auto it = stillsTex_.find(c.id);
+    if (it != stillsTex_.end() && !it->second.empty()) {
+      const float fw = trimBar_.w / static_cast<float>(it->second.size());
+      for (std::size_t k = 0; k < it->second.size(); ++k) {
+        SDL_Texture* t = it->second[k];
+        if (!t) continue;
+        float tw = 0, th = 0;
+        SDL_GetTextureSize(t, &tw, &th);
+        // each still fills its slot, centred, cropped to the slot's shape
+        const float slotAspect = fw / trimBar_.h, aspect = tw / std::max(1.0f, th);
+        SDL_FRect src {0, 0, tw, th};
+        if (aspect > slotAspect) { src.w = th * slotAspect; src.x = (tw - src.w) / 2; }
+        else { src.h = tw / slotAspect; src.y = (th - src.h) / 2; }
+        const SDL_FRect dst {trimBar_.x + static_cast<float>(k) * fw + 0.15f * u, trimBar_.y, fw - 0.3f * u, trimBar_.h};
+        SDL_RenderTexture(r, t, &src, &dst);
+      }
+    }
+    // outside IN..OUT dimmed, the handles, the playhead
+    const float xi = trimBar_.x + trimBar_.w * static_cast<float>(cueIn(c) / c.duration);
+    const float xo = trimBar_.x + trimBar_.w * static_cast<float>(cueOut(c) / c.duration);
+    fillRoundAlpha(r, kBlack, 0.6f, {trimBar_.x, trimBar_.y, xi - trimBar_.x, trimBar_.h}, 0);
+    fillRoundAlpha(r, kBlack, 0.6f, {xo, trimBar_.y, trimBar_.x + trimBar_.w - xo, trimBar_.h}, 0);
+    for (float hx : {xi, xo}) fillRect(r, kInOut, {hx - 0.8f * u, trimBar_.y - 0.6f * u, 1.6f * u, trimBar_.h + 1.2f * u});
+    if (sheet_ == active_) {
+      const float xp = trimBar_.x + trimBar_.w * static_cast<float>(std::clamp(engine_->position() / c.duration, 0.0, 1.0));
+      fillRect(r, kLight, {xp - 0.25f * u, trimBar_.y, 0.5f * u, trimBar_.h});
+    }
+  }
+
+  void requestStills(const Cue& c) {
+    if (stillsTex_.count(c.id) || stillsBusy_.load()) return;
+    if (stillsFor_ == c.id && stillsFailed_) return;
+    if (stillsThread_.joinable()) stillsThread_.join();
+    stillsFor_ = c.id;
+    stillsFailed_ = false;
+    stillsBusy_ = true;
+    const std::string path = c.path;
+    const double dur = c.duration;
+    stillsThread_ = std::thread([this, path, dur] {
+      std::vector<deckboy::engine::Still> got;
+      std::vector<double> at;
+      for (int k = 0; k < 10; ++k) at.push_back(dur * (k + 0.5) / 10.0);
+      const bool ok = deckboy::engine::decodeStills(path, at, 192, got);
+      std::lock_guard<std::mutex> hold(stillsLock_);
+      stillsReady_ = std::move(got);
+      stillsFailed_ = !ok;
+      stillsBusy_ = false;
+    });
+  }
+
+  // On the main thread: the decoded stills become textures.
+  void serviceStills() {
+    if (stillsBusy_.load() || stillsFor_.empty() || stillsTex_.count(stillsFor_)) return;
+    std::vector<deckboy::engine::Still> got;
+    {
+      std::lock_guard<std::mutex> hold(stillsLock_);
+      got.swap(stillsReady_);
+    }
+    if (got.empty()) return;
+    std::vector<SDL_Texture*> texes;
+    for (const auto& st : got) {
+      SDL_Texture* t = SDL_CreateTexture(renderer_, SDL_PIXELFORMAT_RGBA32, SDL_TEXTUREACCESS_STATIC, st.width, st.height);
+      if (t) {
+        SDL_UpdateTexture(t, nullptr, st.rgba.data(), st.width * 4);
+        SDL_SetTextureScaleMode(t, SDL_SCALEMODE_LINEAR);
+      }
+      texes.push_back(t);
+    }
+    stillsTex_[stillsFor_] = std::move(texes);
   }
 
   void nudgeTrim(bool in, double by) {
@@ -3313,7 +4210,11 @@ class Pocket {
     }
     const SDL_FRect blackHit {blackPill_.x - 2 * u, blackPill_.y - 3 * u, blackPill_.w + 4 * u, blackPill_.h + 9 * u};
     const SDL_FRect menuHit {menuPill_.x - 2 * u, menuPill_.y - 3 * u, menuPill_.w + 4 * u, menuPill_.h + 9 * u};
-    if (inside(blackHit, x, y)) { press(Pressed::Black); black_ = !black_; return; }
+    if (inside(blackHit, x, y)) {   // acts on release (a hold chooses what it does)
+      pillDownAt_ = SDL_GetTicks();
+      press(Pressed::Black);
+      return;
+    }
     if (inside(menuHit, x, y)) { press(Pressed::Menu); menuOpen_ = true; sheet_ = -1; return; }
     if (inside(listLcd_, x, y) && rowH_ > 0) {
       select(scroll_ + static_cast<int>((y - listLcd_.y) / rowH_));
@@ -3537,6 +4438,42 @@ class Pocket {
   bool hostEditing_ = false;
   std::string snapPath_;
   bool haptics_ = true;
+  Pill pill_ = Pill::Black;
+  Uint64 pillDownAt_ = 0;
+  // the cue sheet's pages and numbers
+  Page page_ = Page::Play;
+  std::vector<Slider> sliders_;
+  int activeSlider_ = -1;
+  float sliderStartX_ = 0, sliderStartY_ = 0;
+  double sliderStartValue_ = 0;
+  bool linkScale_ = true;
+  bool calcOpen_ = false;
+  NumSpec calcSpec_;
+  std::string calcExpr_;
+  double calcBefore_ = 0;
+  // the meter
+  float meterLevel_[2] {0, 0}, meterPeak_[2] {0, 0};
+  Uint64 meterPeakAt_[2] {0, 0};
+  // the filmstrip's stills
+  std::thread stillsThread_;
+  std::atomic<bool> stillsBusy_ {false};
+  std::mutex stillsLock_;
+  std::vector<deckboy::engine::Still> stillsReady_;
+  std::map<std::string, std::vector<SDL_Texture*>> stillsTex_;
+  std::string stillsFor_;
+  bool stillsFailed_ = false;
+  // the picture as a control (PLACE), and holding it during a show
+  SDL_FRect picRect_ {};
+  SDL_FRect sheetRect_ {};
+  bool landscape_ = false, editing_ = false;
+  std::map<SDL_FingerID, SDL_FPoint> fingers_;
+  bool gesture_ = false;
+  std::size_t gestureFingers_ = 0;
+  SDL_FPoint gestureC0_ {};
+  float gestureD0_ = 0, gestureA0_ = 0;
+  float gestureScale0_ = 1, gestureScaleY0_ = 1, gestureOffX0_ = 0, gestureOffY0_ = 0, gestureRot0_ = 0;
+  Uint64 lastPicTap_ = 0;
+  Uint64 picHoldSince_ = 0;
   int renameIndex_ = -1;
   std::string renameText_;
   // playing the list
