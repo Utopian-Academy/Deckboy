@@ -1378,7 +1378,15 @@ if(DECKBOY_BUILD_POCKET)
       list(APPEND _pocket_sources "${_src}")
     endif()
   endforeach()
-  add_library(main SHARED ${_pocket_sources})
+  # On Android Pocket is the shared library SDL's activity loads ("main"). On a
+  # desktop it is a phone-shaped window, for working on Pocket (and testing it
+  # against a desk) without a phone.
+  if(ANDROID)
+    add_library(main SHARED ${_pocket_sources})
+  else()
+    add_executable(main ${_pocket_sources})
+    set_target_properties(main PROPERTIES OUTPUT_NAME deckboy-pocket)
+  endif()
   foreach(_prop COMPILE_DEFINITIONS COMPILE_OPTIONS COMPILE_FEATURES INCLUDE_DIRECTORIES
                 LINK_LIBRARIES LINK_OPTIONS LINK_DIRECTORIES CXX_STANDARD CXX_STANDARD_REQUIRED)
     get_target_property(_value deckboy-native ${_prop})
@@ -1386,8 +1394,8 @@ if(DECKBOY_BUILD_POCKET)
       set_property(TARGET main PROPERTY ${_prop} "${_value}")
     endif()
   endforeach()
-  target_link_options(main PRIVATE "-Wl,-z,max-page-size=16384")
   if(ANDROID)
+    target_link_options(main PRIVATE "-Wl,-z,max-page-size=16384")
     target_link_libraries(main PRIVATE android log)   # the output screen's ANativeWindow
   endif()
   add_dependencies(main deckboy_generate_version)

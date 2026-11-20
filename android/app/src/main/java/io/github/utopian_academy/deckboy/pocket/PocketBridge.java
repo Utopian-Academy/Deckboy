@@ -64,6 +64,20 @@ public final class PocketBridge {
         }
     }
 
+    /**
+     * The phone's own name (Settings > About phone > Device name, "Galaxy S24
+     * FE"), else its model: what a desk shows in its list of followers.
+     */
+    public static String deviceName(Context context, String unused) {
+        try {
+            String name = android.provider.Settings.Global.getString(context.getContentResolver(), "device_name");
+            if (name != null && !name.isEmpty()) return name;
+        } catch (Exception e) {
+            // fall through to the model
+        }
+        return android.os.Build.MODEL != null ? android.os.Build.MODEL : "";
+    }
+
     /** Battery percent, or -1; while charging, 1000 + percent. */
     public static int battery(Context context) {
         try {
