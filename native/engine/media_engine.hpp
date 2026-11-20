@@ -1123,6 +1123,7 @@ class MediaEngine {
   void beginTransition(double seconds, TransitionStyle style, float sourceGain = 1.0f); // start a visual transition
   void clearTransitionTexture();                           // release the outgoing-cue snapshot texture
   bool drawGeometricTransition(const SDL_Rect& target);     // push / wipe / iris, drawing the incoming picture itself
+  double geometryLfoSwing(const deckboy::effects::ParamLfo& lfo) const;   // the live cue's position/size/turn LFOs (own drawing)
   bool drawTextureFitted(SDL_Texture* texture, int width, int height, const SDL_Rect& target, Uint8 alphaValue, bool useOutgoingGeometry = false); // draw texture with scale mode; outgoing=true reads the transition* snapshot instead of the live cue's
   void drawTransitionOverlay(const SDL_Rect& target, bool drewCurrent); // render the transition blend
   void handlePlaybackEnd();                                // called when playback naturally reaches the end

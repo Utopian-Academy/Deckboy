@@ -6287,6 +6287,21 @@ bool MediaEngine::drawTextureFitted(SDL_Texture* texture, int width, int height,
   const bool flipH = useOutgoingGeometry ? transitionFlipHorizontal_ : flipHorizontal_;
   const bool flipV = useOutgoingGeometry ? transitionFlipVertical_ : flipVertical_;
   const SDL_FlipMode flip = static_cast<SDL_FlipMode>((flipH ? SDL_FLIP_HORIZONTAL : 0) | (flipV ? SDL_FLIP_VERTICAL : 0));
+  // The live cue's geometry oscillators (Cue::geometryLfo), with the desk
+  // compositor's own arithmetic (app_render_output.ipp cuePlacementFor):
+  // position depth 1 is half the frame either way, size in octaves (depth 1
+  // is half to double), rotation half a turn either way.
+  float lfoOffX = 0.0f, lfoOffY = 0.0f, lfoScaleX = 1.0f, lfoScaleY = 1.0f, lfoTurn = 0.0f;
+  if (!useOutgoingGeometry && activeCue_) {
+    const auto& L = activeCue_->geometryLfo;
+    lfoOffX = static_cast<float>(geometryLfoSwing(L[kGeoLfoOffsetX]) * target.w);
+    lfoOffY = static_cast<float>(geometryLfoSwing(L[kGeoLfoOffsetY]) * target.h);
+    const auto& sx = L[kGeoLfoScaleX];
+    const auto& sy = L[kGeoLfoScaleY];
+    lfoScaleX = sx.on ? static_cast<float>(std::pow(2.0, geometryLfoSwing(sx) * 2.0)) : 1.0f;
+    lfoScaleY = sy.on ? static_cast<float>(std::pow(2.0, geometryLfoSwing(sy) * 2.0)) : lfoScaleX;
+    lfoTurn = static_cast<float>(geometryLfoSwing(L[kGeoLfoRotation]) * 360.0);
+  }
 
   // Step 1: Compute the source rect after cropping (fractions → pixel offsets)
   int cropL = std::clamp(static_cast<int>(std::lround(static_cast<double>(width) * cropLeft)), 0, width - 1);
@@ -6331,11 +6346,11 @@ bool MediaEngine::drawTextureFitted(SDL_Texture* texture, int width, int height,
   }
 
   // Step 4: Apply per-cue output scale (additional zoom) and center with offset
-  int scaledW = std::max(1, static_cast<int>(drawW * outputScaleX));
-  int scaledH = std::max(1, static_cast<int>(drawH * outputScaleY));
+  int scaledW = std::max(1, static_cast<int>(drawW * outputScaleX * lfoScaleX));
+  int scaledH = std::max(1, static_cast<int>(drawH * outputScaleY * lfoScaleY));
   SDL_Rect destination {
-    target.x + (target.w - scaledW) / 2 + static_cast<int>(outputOffsetX),
-    target.y + (target.h - scaledH) / 2 + static_cast<int>(outputOffsetY),
+    target.x + (target.w - scaledW) / 2 + static_cast<int>(outputOffsetX + lfoOffX),
+    target.y + (target.h - scaledH) / 2 + static_cast<int>(outputOffsetY + lfoOffY),
     scaledW,
     scaledH
   };
@@ -6344,7 +6359,7 @@ bool MediaEngine::drawTextureFitted(SDL_Texture* texture, int width, int height,
   SDL_SetTextureBlendMode(texture, SDL_BLENDMODE_BLEND);
   SDL_SetTextureAlphaMod(texture, alphaValue);
   SDL_Point center {destination.w / 2, destination.h / 2};
-  SDL_RenderTextureRotated(outputRenderer_, texture, &source, &destination, outputRotationDegrees, &center, flip);
+  SDL_RenderTextureRotated(outputRenderer_, texture, &source, &destination, outputRotationDegrees + lfoTurn, &center, flip);
   SDL_SetTextureAlphaMod(texture, 255);  // reset alpha mod to avoid leaking to other draws
   return true;
 }
@@ -6432,6 +6447,17 @@ void MediaEngine::drawTransitionOverlay(const SDL_Rect& target, bool drewCurrent
   // Crossfade: outgoing fades out linearly over the transition duration
   Uint8 alphaValue = static_cast<Uint8>(transitionSourceGain_ * std::clamp(1.0 - progress, 0.0, 1.0) * 255.0);
   drawTextureFitted(transitionTexture_, transitionTextureWidth_, transitionTextureHeight_, target, alphaValue, true);
+}
+
+// A geometry oscillator's swing now, as a share of its range: -depth/2 to
+// +depth/2, or 0 to depth for a one-sided shape (the sound). The clock is the
+// app's; the beat a steady 120 until the engine is told a tempo.
+double MediaEngine::geometryLfoSwing(const deckboy::effects::ParamLfo& lfo) const {
+  if (!lfo.on) return 0.0;
+  const double seconds = static_cast<double>(SDL_GetTicksNS()) / 1e9;
+  const double unit = deckboy::effects::lfoUnitValue(lfo, seconds, seconds * 2.0, programAudioLevel01());
+  return deckboy::effects::lfoShapeIsOneSided(lfo.shape) ? unit * static_cast<double>(lfo.depth)
+                                                         : (unit - 0.5) * static_cast<double>(lfo.depth);
 }
 
 // Push, wipe and iris for an engine that draws its own picture (Mini, Pocket;

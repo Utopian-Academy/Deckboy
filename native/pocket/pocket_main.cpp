@@ -846,7 +846,7 @@ class Pocket {
     if (listen_ != kInvalidSocket) closeSocket(listen_);
     engine_.reset();
     text_.clear();
-    for (TTF_Font* f : {pixel_, pixelSmall_, sans_, mono_}) if (f) TTF_CloseFont(f);
+    for (TTF_Font* f : {pixel_, pixelSmall_, sans_, mono_, printFont_}) if (f) TTF_CloseFont(f);
     if (audio_) SDL_DestroyAudioStream(audio_);
     if (renderer_) SDL_DestroyRenderer(renderer_);
     if (window_) SDL_DestroyWindow(window_);
@@ -1061,11 +1061,13 @@ class Pocket {
     const float u = unit_;
     const std::string data = std::string(SDL_getenv("DECKBOY_ROOT") ? SDL_getenv("DECKBOY_ROOT") : ".") + "/data/";
     text_.clear();
-    for (TTF_Font* f : {pixel_, pixelSmall_, sans_, mono_}) if (f) TTF_CloseFont(f);
+    for (TTF_Font* f : {pixel_, pixelSmall_, sans_, mono_, printFont_}) if (f) TTF_CloseFont(f);
     pixel_ = TTF_OpenFont((data + "PressStart2P.ttf").c_str(), 2.6f * u);
     pixelSmall_ = TTF_OpenFont((data + "PressStart2P.ttf").c_str(), 1.6f * u);
     sans_ = TTF_OpenFont((data + "fonts/LiberationSans-Regular.ttf").c_str(), 3.0f * u);
     mono_ = TTF_OpenFont((data + "fonts/LiberationMono-Regular.ttf").c_str(), 2.9f * u);
+    // the faces' own print: Liberation Mono at 2 mm (pocket-skins text size 2.0)
+    printFont_ = TTF_OpenFont((data + "fonts/LiberationMono-Regular.ttf").c_str(), 2.0f * u);
     if (!pixel_ || !mono_) SDL_Log("pocket: fonts missing under %s (%s)", data.c_str(), SDL_GetError());
   }
 
@@ -1915,6 +1917,7 @@ class Pocket {
         else if (pg == "LOOK") page_ = Page::Look;
         else if (pg == "SOUND") page_ = Page::Sound;
         else if (pg == "CALC" && !sliders_.empty()) openCalc(sliders_.front().spec);
+        else if (pg == "LFO") { page_ = Page::Place; lfoSlot_ = kGeoLfoRotation; }
         return ok();
       }
       return err("VIEW HOME, VIEW MENU <tab> or VIEW SHEET <cue>");
@@ -1981,6 +1984,32 @@ class Pocket {
       if (n < 1 || n > count || name.empty()) return err("RENAME <cue> <name>");
       cues_[static_cast<std::size_t>(n - 1)].name = name;
       cueEdited(n - 1, false);
+      return ok();
+    }
+    if (verb == "LFO") {   // LFO <cue> X|Y|SCALE|ROTATION ON|OFF [sine|tri|saw|ramp|square|steps|sound] [rate Hz] [depth %]
+      std::istringstream args(rest);
+      int n = 0;
+      std::string what, onoff, shape;
+      double rate = -1, depth = -1;
+      args >> n >> what >> onoff >> shape >> rate >> depth;
+      for (char& ch : what) ch = static_cast<char>(std::toupper(static_cast<unsigned char>(ch)));
+      for (char& ch : onoff) ch = static_cast<char>(std::toupper(static_cast<unsigned char>(ch)));
+      for (char& ch : shape) ch = static_cast<char>(std::tolower(static_cast<unsigned char>(ch)));
+      if (n < 1 || n > count) return err("LFO <cue> X|Y|SCALE|ROTATION ON|OFF [shape] [rate] [depth]");
+      const int slot = what == "X" ? kGeoLfoOffsetX : what == "Y" ? kGeoLfoOffsetY : what == "SCALE" ? kGeoLfoScaleX
+                     : what == "ROTATION" ? kGeoLfoRotation : -1;
+      if (slot < 0) return err("X, Y, SCALE or ROTATION");
+      using deckboy::effects::LfoShape;
+      auto& l = cues_[static_cast<std::size_t>(n - 1)].geometryLfo[static_cast<std::size_t>(slot)];
+      l.on = onoff != "OFF";
+      if (!shape.empty()) {
+        l.shape = shape == "tri" ? LfoShape::Triangle : shape == "saw" ? LfoShape::Saw : shape == "ramp" ? LfoShape::Ramp
+                : shape == "square" ? LfoShape::Square : shape == "steps" ? LfoShape::Sample : shape == "sound" ? LfoShape::Audio
+                : LfoShape::Sine;
+      }
+      if (rate > 0) l.rateHz = static_cast<float>(std::min(rate, 8.0));
+      if (depth >= 0) l.depth = static_cast<float>(std::min(depth, 100.0) / 100.0);
+      cueEdited(n - 1, false);   // the engine plays its own copy of the live cue
       return ok();
     }
     if (verb == "DIRECTION") {   // DIRECTION <cue> FORWARD|REVERSE|BOUNCE (the desk's verb)
@@ -2881,8 +2910,9 @@ class Pocket {
       // libav reads files, and an Android app's assets are not files: copy it out once.
       const char* root = SDL_getenv("DECKBOY_ROOT");
       const std::string file = std::string(root ? root : ".") + "/data/pocket-shells/" + slug + ".jpg";
-      SDL_PathInfo info;
-      if (!SDL_GetPathInfo(file.c_str(), &info) || info.size == 0) {
+      // Copied every time it is chosen (150 KB): a copy kept from an older
+      // install showed the old face after an update.
+      {
         size_t n = 0;
         if (void* bytes = SDL_LoadFile(("data/pocket-shells/" + slug + ".jpg").c_str(), &n)) {
           SDL_CreateDirectory(file.substr(0, file.find_last_of('/')).c_str());
@@ -2981,7 +3011,10 @@ class Pocket {
     }
     if (pillLit()) fillRoundAlpha(r, Ink {220, 30, 30}, 0.6f, blackPill_, 2 * u);
     // the face leaves this pill unlabelled: it does what you chose
-    text_.draw(pixelSmall_, pillName(pill_), shellInk_, {blackPill_.x - 4 * u, blackPill_.y + 5 * u, blackPill_.w + 8 * u, 3 * u}, true);
+    // ...printed as the face prints MENU: the same type, size, ink and place
+    // (centred 4.4 mm below the pill's centre)
+    text_.draw(printFont_ ? printFont_ : pixelSmall_, pillName(pill_), shellInk_,
+               {blackPill_.x - 4 * u, blackPill_.y + blackPill_.h / 2 + 4.4f * u - 1.5f * u, blackPill_.w + 8 * u, 3 * u}, true);
   }
 
   // -- Adding media: the system picker --
@@ -3364,6 +3397,7 @@ class Pocket {
     if (i < 0 || i >= static_cast<int>(cues_.size())) return;
     if (sheet_ != i) page_ = Page::Play;
     calcOpen_ = false;
+    lfoSlot_ = -1;
     sheet_ = i;
     select(i);
     confirmDelete_ = false;
@@ -3388,6 +3422,7 @@ class Pocket {
     double min = 0, max = 1, zero = 0, step = 0, reset = 0;
     int decimals = 0;
     double percentOf = 0;   // what "25%" means when typed (0: a plain hundredth)
+    int lfoSlot = -1;       // a Cue::geometryLfo slot: the row gets a ~ chip
     std::function<double()> get;
     std::function<void(double)> set;
     std::vector<std::pair<std::string, double>> presets;
@@ -3415,7 +3450,12 @@ class Pocket {
     const float u = unit_;
     const double v = n.get();
     const float half = row.h * 0.5f;
-    text_.draw(pixelSmall_, n.label, kDark, {row.x, row.y, row.w * 0.45f, half});
+    text_.draw(pixelSmall_, n.label, kDark, {row.x, row.y, row.w * (n.lfoSlot >= 0 ? 0.30f : 0.46f), half});
+    if (n.lfoSlot >= 0 && sheet_ >= 0) {
+      const int slot = n.lfoSlot;
+      const bool on = cues_[static_cast<std::size_t>(sheet_)].geometryLfo[static_cast<std::size_t>(slot)].on;
+      button({row.x + row.w * 0.33f, row.y + 0.3f * u, row.w * 0.12f, half - 0.3f * u}, "~", [this, slot] { openLfo(slot); }, true, on);
+    }
     const std::string vt = numText(n, v);
     const SDL_FRect vbox {row.x + row.w * 0.48f, row.y + 0.3f * u, row.w * 0.52f, half - 0.3f * u};
     button(vbox, vt, [this, n] { openCalc(n); });
@@ -3460,6 +3500,10 @@ class Pocket {
     const float lx = lcd.x + u, lw = lcd.w - 2 * u;
     if (calcOpen_) {   // the calculator takes the whole panel while it is open
       drawCalc(lcd);
+      return;
+    }
+    if (lfoSlot_ >= 0) {   // ...and so does an LFO
+      drawLfo(lcd, c);
       return;
     }
     // the cue, at the top (information only)
@@ -3662,6 +3706,7 @@ class Pocket {
     items.push_back({1.0f, [this, i](const SDL_FRect& row) {
       NumSpec n;
       n.label = linkScale_ ? "SCALE" : "WIDTH";
+      n.lfoSlot = kGeoLfoScaleX;
       n.unit = "%";
       n.min = 5;
       n.max = 400;
@@ -3697,6 +3742,7 @@ class Pocket {
       return [this, i, horizontal, extent](const SDL_FRect& row) {
         NumSpec n;
         n.label = horizontal ? "X" : "Y";
+        n.lfoSlot = horizontal ? kGeoLfoOffsetX : kGeoLfoOffsetY;
         n.unit = "px";
         n.min = -extent;
         n.max = extent;
@@ -3717,6 +3763,7 @@ class Pocket {
     items.push_back({1.0f, [this, i](const SDL_FRect& row) {
       NumSpec n;
       n.label = "ROTATION";
+      n.lfoSlot = kGeoLfoRotation;
       n.unit = "deg";
       n.decimals = 1;
       n.min = -180;
@@ -4034,6 +4081,140 @@ class Pocket {
       calcOpen_ = false;
       buzz("tap");
     }, true, true);
+  }
+
+  // ── An LFO: a number that moves by itself ──
+  //
+  // The cue's own oscillators (Cue::geometryLfo), as the desk keeps them:
+  // the same show file, the same arithmetic in the engine's drawing. ON, the
+  // shape, how fast (free in seconds, or on the beat), how far. The centre is
+  // the value you set, so turning one on never jumps the picture.
+
+  void openLfo(int slot) {
+    lfoSlot_ = slot;
+    buzz("tap");
+  }
+
+  static const char* lfoSlotName(int slot) {
+    switch (slot) {
+      case kGeoLfoOffsetX: return "X";
+      case kGeoLfoOffsetY: return "Y";
+      case kGeoLfoScaleX: return "SCALE";
+      case kGeoLfoScaleY: return "HEIGHT";
+      case kGeoLfoRotation: return "ROTATION";
+      default: return "LFO";
+    }
+  }
+
+  void drawLfo(const SDL_FRect& lcd, Cue& c) {
+    using deckboy::effects::LfoShape;
+    const float u = unit_;
+    const int i = sheet_;
+    const int slot = lfoSlot_;
+    auto& L = c.geometryLfo[static_cast<std::size_t>(slot)];
+    // the engine plays its own copy of the live cue: hand it this one's LFOs
+    if (i == active_) engine_->syncActiveCueSnapshot(c);
+    const float lx = lcd.x + u, lw = lcd.w - 2 * u;
+    float y = lcd.y + u;
+    text_.draw(pixelSmall_, std::string("~ ") + lfoSlotName(slot) + " MOVES BY ITSELF", kDark, {lx, y, lw, 4 * u});
+    y += 5 * u;
+    // a small picture of it moving: the wave, and where it is now
+    {
+      const SDL_FRect wave {lx, y, lw, 8 * u};
+      fillRect(renderer_, kDeep, wave);
+      const double now = static_cast<double>(SDL_GetTicksNS()) / 1e9;
+      const double rate = L.beatSync ? 2.0 / std::max(0.25f, L.beats) : std::max(0.01f, L.rateHz);
+      SDL_SetRenderDrawColor(renderer_, L.on ? 120 : 110, L.on ? 210 : 110, L.on ? 90 : 110, 255);
+      SDL_FPoint prev {};
+      for (int k = 0; k <= 60; ++k) {
+        const double t = now - 2.0 + 2.0 * k / 60.0;   // the last two seconds
+        deckboy::effects::ParamLfo probe = L;
+        probe.on = true;
+        const double v = L.shape == LfoShape::Audio ? engine_->programAudioLevel01()
+                                                    : deckboy::effects::lfoUnitValue(probe, t, t * 2.0, 0.0);
+        const SDL_FPoint pt {wave.x + wave.w * k / 60.0f, wave.y + wave.h * (1.0f - static_cast<float>(v)) * 0.85f + wave.h * 0.075f};
+        if (k) SDL_RenderLine(renderer_, prev.x, prev.y, pt.x, pt.y);
+        prev = pt;
+      }
+      (void)rate;
+      y += 9 * u;
+    }
+    const float bottom = lcd.y + lcd.h - u;
+    const float rowH = std::min(9.0f * u, (bottom - y) / 7.0f);
+    auto row = [&](float weight) { const SDL_FRect rr {lx, y, lw, rowH * weight}; y += rowH * weight; return rr; };
+    chipRow(row(1), {{L.on ? "MOVING" : "STILL", [this, i, slot] {
+                        auto& l = cues_[static_cast<std::size_t>(i)].geometryLfo[static_cast<std::size_t>(slot)];
+                        l.on = !l.on;
+                        if (l.on) buzz("spin");
+                      }}}, {L.on});
+    const std::vector<std::pair<const char*, LfoShape>> shapes = {
+        {"SINE", LfoShape::Sine}, {"TRI", LfoShape::Triangle}, {"SAW", LfoShape::Saw}, {"RAMP", LfoShape::Ramp},
+        {"SQUARE", LfoShape::Square}, {"STEPS", LfoShape::Sample}, {"SOUND", LfoShape::Audio}};
+    for (int line = 0; line < 2; ++line) {
+      std::vector<std::pair<std::string, std::function<void()>>> chips;
+      std::vector<bool> on;
+      for (std::size_t k = line ? 4 : 0; k < (line ? shapes.size() : 4); ++k) {
+        const LfoShape sh = shapes[k].second;
+        chips.push_back({shapes[k].first, [this, i, slot, sh] {
+                           auto& l = cues_[static_cast<std::size_t>(i)].geometryLfo[static_cast<std::size_t>(slot)];
+                           l.shape = sh;
+                           l.on = true;
+                         }});
+        on.push_back(L.shape == sh);
+      }
+      chipRow(row(1), chips, on);
+    }
+    chipRow(row(1), {{"FREE", [this, i, slot] { cues_[static_cast<std::size_t>(i)].geometryLfo[static_cast<std::size_t>(slot)].beatSync = false; }},
+                     {"ON THE BEAT", [this, i, slot] { cues_[static_cast<std::size_t>(i)].geometryLfo[static_cast<std::size_t>(slot)].beatSync = true; }}},
+            {!L.beatSync, L.beatSync});
+    {
+      NumSpec n;
+      if (L.beatSync) {
+        n.label = "EVERY";
+        n.unit = "beats";
+        n.decimals = 2;
+        n.min = 0.25;
+        n.max = 32;
+        n.step = 0.25;
+        n.reset = 4;
+        n.presets = {{"1 BEAT", 1}, {"1 BAR", 4}, {"4 BARS", 16}};
+        n.get = [this, i, slot] { return static_cast<double>(cues_[static_cast<std::size_t>(i)].geometryLfo[static_cast<std::size_t>(slot)].beats); };
+        n.set = [this, i, slot](double v) { cues_[static_cast<std::size_t>(i)].geometryLfo[static_cast<std::size_t>(slot)].beats = static_cast<float>(v); };
+      } else {
+        n.label = "RATE";
+        n.unit = "Hz";
+        n.decimals = 2;
+        n.min = 0.01;
+        n.max = 8;
+        n.step = 0.01;
+        n.reset = 0.25;
+        n.presets = {{"SLOW", 0.1}, {"BREATH", 0.25}, {"FAST", 2}};
+        n.get = [this, i, slot] { return static_cast<double>(cues_[static_cast<std::size_t>(i)].geometryLfo[static_cast<std::size_t>(slot)].rateHz); };
+        n.set = [this, i, slot](double v) { cues_[static_cast<std::size_t>(i)].geometryLfo[static_cast<std::size_t>(slot)].rateHz = static_cast<float>(v); };
+      }
+      numberRow(row(1.3f), n);
+    }
+    {
+      NumSpec n;
+      n.label = "HOW FAR";
+      n.unit = "%";
+      n.min = 0;
+      n.max = 100;
+      n.step = 1;
+      n.reset = 50;
+      n.presets = {{"A LITTLE", 10}, {"HALF", 50}, {"ALL", 100}};
+      n.get = [this, i, slot] { return cues_[static_cast<std::size_t>(i)].geometryLfo[static_cast<std::size_t>(slot)].depth * 100.0; };
+      n.set = [this, i, slot](double v) { cues_[static_cast<std::size_t>(i)].geometryLfo[static_cast<std::size_t>(slot)].depth = static_cast<float>(v / 100.0); };
+      numberRow(row(1.3f), n);
+    }
+    // back to the page
+    const float bw = lw / 2 - u / 2;
+    button({lx, bottom - 6 * u, bw, 6 * u}, "STOP IT", [this, i, slot] {
+      cues_[static_cast<std::size_t>(i)].geometryLfo[static_cast<std::size_t>(slot)].on = false;
+      lfoSlot_ = -1;
+    }, true, false, true);
+    button({lx + bw + u, bottom - 6 * u, bw, 6 * u}, "DONE", [this] { lfoSlot_ = -1; }, true, true);
+    (void)c;
   }
 
   // ── The filmstrip: the clip's own frames along the trim (Final Cut style) ──
@@ -4386,6 +4567,7 @@ class Pocket {
   TTF_Font* pixelSmall_ = nullptr;
   TTF_Font* sans_ = nullptr;
   TTF_Font* mono_ = nullptr;
+  TTF_Font* printFont_ = nullptr;
 
   std::vector<Cue> cues_;
   std::string mediaDir_;
@@ -4448,6 +4630,7 @@ class Pocket {
   double sliderStartValue_ = 0;
   bool linkScale_ = true;
   bool calcOpen_ = false;
+  int lfoSlot_ = -1;   // the cue sheet's LFO page, for this Cue::geometryLfo slot
   NumSpec calcSpec_;
   std::string calcExpr_;
   double calcBefore_ = 0;
