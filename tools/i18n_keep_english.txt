@@ -528,6 +528,7 @@ zu	src=... | cmd=... | ...
 *	DRAW OPACITY: 1-100 (%)
 *	SLICE OPACITY: 0-100
 *	SLICE SOURCE: PROGRAMME, or DECK 1-
+*	TOKE
 *	WEBMONITOR CLIENTS: 1-64
 *	WEBMONITOR PORT: 1-65535
 *	marker: add | next | prev | clear

@@ -3014,6 +3014,13 @@
     };
 
     for (const auto& button : buttons_) {
+      // Only the word drawn can differ; to everything that acts on the
+      // button it is still TAKE.
+      std::string shownLabel = button.label;
+      if (button.label == "TAKE") {
+        const Deck& focused = focusedDeck();
+        if (cueNumberLabelForStatus(focused, focused.selectedIndex) == "420") shownLabel = "TOKE";
+      }
       bool emphasized = button.label == "TAKE";
       UiImageAsset* icon = buttonIconForLabel(button.label);
       // Pulsing red border while rolling — the same language blackout uses,
@@ -3067,7 +3074,7 @@
       TTF_Font* btnFont = fontPixelSmall_ ? fontPixelSmall_ : fontSmall_;
       int labelW = 0;
       if (btnFont) {
-        textSizeShown(btnFont, button.label.c_str(), button.label.size(),
+        textSizeShown(btnFont, shownLabel.c_str(), shownLabel.size(),
                           &labelW, nullptr);
       }
       int iconSize = std::min(uiScaled(24), button.rect.h - uiScaled(16));
@@ -3124,7 +3131,7 @@
         // -- it is kept as the backstop for a face whose measurement and
         // rendering disagree.
         std::string clipped =
-          ellipsizeToPixelWidth(btnFont, button.label, std::max(0, labelRect.w));
+          ellipsizeToPixelWidth(btnFont, shownLabel, std::max(0, labelRect.w));
         drawCenteredTextSafe(controlRenderer_, btnFont,
                              labelRawFor(iconSize, padLeft, iconGap, padRight),
                              clipped, button.text);
@@ -3150,13 +3157,13 @@
         {
           int titleW = 0;
           if (titleFont && fontSmall_ && titleFont != fontSmall_ &&
-              textSizeShown(titleFont, button.label.c_str(), button.label.size(),
+              textSizeShown(titleFont, shownLabel.c_str(), shownLabel.size(),
                                 &titleW, nullptr) &&
               titleW > titleRoom) {
             titleFont = fontSmall_;
           }
         }
-        std::string clipped = ellipsizeToPixelWidth(titleFont, button.label, titleRoom);
+        std::string clipped = ellipsizeToPixelWidth(titleFont, shownLabel, titleRoom);
         drawCenteredTextSafe(controlRenderer_, titleFont, titleRect, clipped, button.text);
       }
     }
