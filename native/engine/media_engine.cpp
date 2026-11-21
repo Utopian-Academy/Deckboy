@@ -6129,6 +6129,8 @@ void MediaEngine::beginTransition(double seconds, TransitionStyle style, float s
   transitionRotationDegrees_ = outputRotationDegrees_;
   transitionFlipHorizontal_ = flipHorizontal_;
   transitionFlipVertical_ = flipVertical_;
+  transitionHasGeoLfo_ = activeCue_ != nullptr;
+  if (activeCue_) transitionGeoLfo_ = activeCue_->geometryLfo;
   transitionCropLeft_ = cropLeft_;
   transitionCropRight_ = cropRight_;
   transitionCropTop_ = cropTop_;
@@ -6312,8 +6314,14 @@ bool MediaEngine::drawTextureFitted(SDL_Texture* texture, int width, int height,
   // position depth 1 is half the frame either way, size in octaves (depth 1
   // is half to double), rotation half a turn either way.
   float lfoOffX = 0.0f, lfoOffY = 0.0f, lfoScaleX = 1.0f, lfoScaleY = 1.0f, lfoTurn = 0.0f;
-  if (!useOutgoingGeometry && activeCue_) {
-    const auto& L = activeCue_->geometryLfo;
+  // The outgoing picture keeps ITS OWN oscillators running through the
+  // transition (captured at beginTransition): drawn without them, a
+  // rotating or scaling picture snapped back the moment a take began
+  // (James, 11-20: "the moment a transition starts the image jumps").
+  const decltype(Cue::geometryLfo)* lfos = useOutgoingGeometry ? (transitionHasGeoLfo_ ? &transitionGeoLfo_ : nullptr)
+                                                               : (activeCue_ ? &activeCue_->geometryLfo : nullptr);
+  if (lfos) {
+    const auto& L = *lfos;
     lfoOffX = static_cast<float>(geometryLfoSwing(L[kGeoLfoOffsetX]) * target.w);
     lfoOffY = static_cast<float>(geometryLfoSwing(L[kGeoLfoOffsetY]) * target.h);
     const auto& sx = L[kGeoLfoScaleX];

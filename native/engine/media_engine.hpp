@@ -1633,6 +1633,8 @@ class MediaEngine {
   float outputRotationDegrees_ = 0.0f;
   bool flipHorizontal_ = false, flipVertical_ = false;              // the live cue's flip
   bool transitionFlipHorizontal_ = false, transitionFlipVertical_ = false;   // the outgoing cue's
+  decltype(Cue::geometryLfo) transitionGeoLfo_ {};   // the outgoing cue's geometry LFOs, kept running
+  bool transitionHasGeoLfo_ = false;
   float cropLeft_ = 0.0f;
   float cropRight_ = 0.0f;
   float cropTop_ = 0.0f;

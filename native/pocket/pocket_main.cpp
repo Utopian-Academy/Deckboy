@@ -918,6 +918,7 @@ class Pocket {
     if (active_ >= 0 && !black_) return false;
     if (now - lastInputMs_ < 3000) return false;
     if (splashing()) return false;
+    if (now < addedFlashUntil_) return false;
     if (follow_ != Follow::Off || hostEditing_ || renameIndex_ != -1 || calcOpen_ || pickerOpen_) return false;
     if (now < noticeUntil_ || now < ghostUntil_ || (undoCue_ && now < undoUntil_)) return false;
     if (!fingers_.empty() || drag_ != Drag::None) return false;
@@ -1883,11 +1884,15 @@ class Pocket {
       const float bw = (lw - u) / 2;
       for (int i = 0; i < static_cast<int>(made.size()); ++i) {
         const char* type = made[static_cast<std::size_t>(i)].first;
-        button({lx + static_cast<float>(i % 2) * (bw + u), y, bw, 4.5f * u}, made[static_cast<std::size_t>(i)].second,
-               [this, type] { if (std::string(type) == "video-synth") addVideoSynth(); else addGenerator(type); });
+        sourceButton({lx + static_cast<float>(i % 2) * (bw + u), y, bw, 4.5f * u}, type, made[static_cast<std::size_t>(i)].second,
+                     [this, type] { if (std::string(type) == "video-synth") addVideoSynth(); else addGenerator(type); });
         if (i % 2 == 1) y += 5.5f * u;
       }
       y += made.size() % 2 == 1 ? 7 * u : 1.5f * u;
+      if (SDL_GetTicks() < addedLineUntil_) {
+        text_.draw(mono_, "Added: " + addedLine_, kDeep, {lx, y, lw, 4.5f * u});
+        y += 5 * u;
+      }
     }
 
     }
@@ -2482,6 +2487,40 @@ class Pocket {
     }
   }
 
+  // After adding a source: the menu STAYS (several can be added in a row,
+  // James 11-20), and the tapped button answers -- it lights and reads ADDED
+  // (ADDED x2 on the next), the page says which cue it became, a tap is felt,
+  // and the new row flashes in the list behind. A tap gave no sign at all
+  // before, so sources were added twice by accident.
+  void landOnAdded(const std::string& id) {
+    addedFlashId_ = id;
+    addedFlashUntil_ = SDL_GetTicks() + 1200;
+    for (std::size_t k = 0; k < cues_.size(); ++k) {
+      if (cues_[k].id == id) {
+        addedLine_ = cues_[k].name + " is cue " + std::to_string(k + 1);
+        break;
+      }
+    }
+    addedLineUntil_ = SDL_GetTicks() + 3000;
+    buzz("go");
+  }
+
+  // A source button that answers: ADDED (and a count) after its tap, and a
+  // second tap within half a second is taken as a slip, not a second add.
+  void sourceButton(const SDL_FRect& b, const std::string& key, const std::string& label, std::function<void()> add) {
+    const Uint64 now = SDL_GetTicks();
+    const bool fresh = key == addedKey_ && now - addedKeyAt_ < 1500;
+    const std::string shown = fresh ? (addedKeyCount_ > 1 ? "ADDED x" + std::to_string(addedKeyCount_) : std::string("ADDED")) : label;
+    button(b, shown, [this, key, add] {
+      const Uint64 t = SDL_GetTicks();
+      if (key == addedKey_ && t - addedKeyAt_ < 500) return;   // a slip of the finger
+      addedKeyCount_ = (key == addedKey_ && t - addedKeyAt_ < 1500) ? addedKeyCount_ + 1 : 1;
+      addedKey_ = key;
+      addedKeyAt_ = t;
+      add();
+    }, true, fresh);
+  }
+
   // The desk's Video Synth (oscillators, feedback, mirroring), as the desk
   // makes it: its own cue kind, not a pattern; the engine draws it.
   void addVideoSynth() {
@@ -2502,6 +2541,7 @@ class Pocket {
     if (active_ >= at) ++active_;
     select(at);
     notice_ = "Added Video Synth";
+    landOnAdded(cue.id);
     noticeUntil_ = SDL_GetTicks() + 2500;
   }
 
@@ -2542,6 +2582,7 @@ class Pocket {
     if (active_ >= at) ++active_;
     select(at);
     notice_ = "Added " + cue.name;
+    landOnAdded(cue.id);
     noticeUntil_ = SDL_GetTicks() + 2500;
   }
 
@@ -2671,8 +2712,14 @@ class Pocket {
         fillRect(r, frame, {row.x + row.w - t, row.y, t, row.h});
         fillRect(r, frame, {row.x, row.y, 1.3f * u, row.h});
       }
-      const Ink ink = isLive ? kLight : kDeep;
       const Cue& c = cues_[static_cast<std::size_t>(i)];
+      if (!addedFlashId_.empty() && c.id == addedFlashId_ && SDL_GetTicks() < addedFlashUntil_) {
+        // just added: the row pulses bright three times, then settles
+        const float left = static_cast<float>(addedFlashUntil_ - SDL_GetTicks()) / 1200.0f;
+        const float pulse = 0.5f + 0.5f * std::cos((1.0f - left) * 3.0f * 6.2831853f);
+        fillRoundAlpha(r, Ink {255, 245, 170}, 0.75f * pulse * left, row, 0);
+      }
+      const Ink ink = isLive ? kLight : kDeep;
       // Secondary ink: soft on the plain rows, full strength on the mid-green
       // selected row, where the soft ink would sink into the fill.
       const Ink soft = isLive ? kMid : isSel ? kDeep : kDark;
@@ -4558,7 +4605,7 @@ class Pocket {
       while (!line.empty() && (line.back() == '\r' || line.back() == ' ')) line.pop_back();
       if (line.rfind("splash_", 0) == 0) names.push_back(line);
     }
-    splashTex_ = loadAssetJpeg("data/pocket-splash/logo.jpg");   // where the dial settles
+    splashTex_ = loadSplashLogo();   // where the dial settles
     if (!splashTex_) return;
     // three or four channels the dial passes on the way, different every launch
     std::uint64_t seed = SDL_GetPerformanceCounter() ^ (SDL_GetTicksNS() << 7);
@@ -4570,11 +4617,61 @@ class Pocket {
       names.erase(names.begin() + static_cast<std::ptrdiff_t>(pick));
     }
     splashSeed_ = static_cast<std::uint32_t>(next());
+    // and its own kind of interference each launch (James: "different each time")
+    auto unit = [&] { return static_cast<float>(next() % 10000) / 10000.0f; };
+    splashStyle_.tear = 0.025f + 0.07f * unit();
+    splashStyle_.tearWaves = 4.0f + 14.0f * unit();
+    splashStyle_.tearSpeed = (unit() < 0.5f ? -1.0f : 1.0f) * (15.0f + 35.0f * unit());
+    splashStyle_.twitch = 0.3f + 1.2f * unit();
+    splashStyle_.rollSpeed = (unit() < 0.7f ? 1.0f : -1.0f) * (0.3f + 1.4f * unit());
+    splashStyle_.fringe = 0.004f + 0.02f * unit();
+    splashStyle_.strips = 20 + static_cast<int>(next() % 36);
+    splashStyle_.humSpeed = 0.5f + 1.2f * unit();
     splashQuip_ = static_cast<int>(next() % 997) * 2;   // starts on one of Pocket's own lines
     // The clock starts at the first frame drawn, not here: on a phone,
     // starting up takes most of a second, and a clock started now had all
     // but run out by then (James saw only "a bad dip to and from black").
     splashPending_ = true;
+  }
+
+  // The logo the dial settles on: the logo art when the build carries it
+  // (data/pocket-splash/logo.png, with alpha), else DECKBOY / POCKET in the
+  // app's own pixel font on a clear 16:9 canvas.
+  SDL_Texture* loadSplashLogo() {
+    const char* root = SDL_getenv("DECKBOY_ROOT");
+    const std::string font = std::string(root ? root : ".") + "/data/PressStart2P.ttf";
+    TTF_Font* big = TTF_OpenFont(font.c_str(), 64.0f);
+    TTF_Font* small = TTF_OpenFont(font.c_str(), 22.0f);
+    if (!big || !small) {
+      if (big) TTF_CloseFont(big);
+      if (small) TTF_CloseFont(small);
+      return nullptr;
+    }
+    const SDL_Color ink {214, 226, 170, 255};
+    SDL_Surface* word = TTF_RenderText_Blended(big, "DECKBOY", 0, ink);
+    SDL_Surface* sub = TTF_RenderText_Blended(small, "POCKET", 0, ink);
+    TTF_CloseFont(big);
+    TTF_CloseFont(small);
+    SDL_Texture* out = nullptr;
+    if (word && sub) {
+      if (SDL_Surface* canvas = SDL_CreateSurface(768, 432, SDL_PIXELFORMAT_RGBA32)) {
+        SDL_FillSurfaceRect(canvas, nullptr, 0);
+        const int gap = 22;
+        const int top = (432 - word->h - gap - sub->h) / 2;
+        SDL_SetSurfaceBlendMode(word, SDL_BLENDMODE_NONE);
+        SDL_SetSurfaceBlendMode(sub, SDL_BLENDMODE_NONE);
+        SDL_Rect a {(768 - word->w) / 2, top, word->w, word->h};
+        SDL_Rect b {(768 - sub->w) / 2, top + word->h + gap, sub->w, sub->h};
+        SDL_BlitSurface(word, nullptr, canvas, &a);
+        SDL_BlitSurface(sub, nullptr, canvas, &b);
+        out = SDL_CreateTextureFromSurface(renderer_, canvas);
+        if (out) SDL_SetTextureScaleMode(out, SDL_SCALEMODE_NEAREST);   // crisp pixels
+        SDL_DestroySurface(canvas);
+      }
+    }
+    if (word) SDL_DestroySurface(word);
+    if (sub) SDL_DestroySurface(sub);
+    return out;
   }
 
   // ── Tuning in ──
@@ -4598,8 +4695,8 @@ class Pocket {
     const float k = std::max(pic.w / tw, pic.h / th);
     const float sw = pic.w / k, sh = pic.h / k;
     const float sx0 = (tw - sw) / 2, sy0 = (th - sh) / 2;
-    constexpr int kStrips = 36;
-    const float stripH = pic.h / kStrips;
+    const int kStrips = std::max(8, splashStyle_.strips);
+    const float stripH = pic.h / static_cast<float>(kStrips);
     SDL_SetTextureBlendMode(tex, SDL_BLENDMODE_ADD);
     // red, green and blue drawn apart and added back together: the fringes
     const float chans[3][3] = {{1, 0, 0}, {0, 1, 0}, {0, 0, 1}};
@@ -4608,14 +4705,15 @@ class Pocket {
       SDL_SetTextureAlphaModFloat(tex, strength);
       const float shift = (static_cast<float>(c) - 1.0f) * fringe;
       for (int i = 0; i < kStrips; ++i) {
-        const float fy = static_cast<float>(i) / kStrips;
+        const float fy = static_cast<float>(i) / static_cast<float>(kStrips);
         // the sync tears each line sideways: a slow wave plus a twitch
         const float h = static_cast<float>(((salt + static_cast<std::uint32_t>(i) * 2654435761u) >> 9) % 1000) / 1000.0f;
-        const float off = tear * (std::sin(fy * 9.0f + t * 31.0f) * 0.6f + (h - 0.5f) * 0.8f) * pic.w;
+        const float off = tear * (std::sin(fy * splashStyle_.tearWaves + t * splashStyle_.tearSpeed) * 0.6f +
+                                  (h - 0.5f) * splashStyle_.twitch) * pic.w;
         // the picture rolls: each strip shows a lower part of the frame, wrapping
         float srcY = std::fmod(fy + roll, 1.0f);
         if (srcY < 0) srcY += 1.0f;
-        const SDL_FRect src {sx0, sy0 + srcY * sh, sw, sh / kStrips};
+        const SDL_FRect src {sx0, sy0 + srcY * sh, sw, sh / static_cast<float>(kStrips)};
         const SDL_FRect dst {pic.x + off + shift, pic.y + static_cast<float>(i) * stripH, pic.w, stripH + 0.5f};
         SDL_RenderTexture(renderer_, tex, &src, &dst);
       }
@@ -4639,7 +4737,7 @@ class Pocket {
     const float t = p * static_cast<float>(kSplashMs) / 1000.0f;
     const SDL_Rect clip {static_cast<int>(pic.x), static_cast<int>(pic.y), static_cast<int>(pic.w), static_cast<int>(pic.h)};
     SDL_SetRenderClipRect(renderer_, &clip);
-    fillRect(renderer_, kBlack, pic);
+    fillRect(renderer_, Ink {34, 34, 40}, pic);   // a dim ground, not black
     // the logo comes in from 55%, the interference gone by 85%
     const float lock = std::clamp((p - 0.55f) / 0.30f, 0.0f, 1.0f);
     const float calm = 1.0f - lock;
@@ -4649,20 +4747,24 @@ class Pocket {
     for (int c = 0; c < n; ++c) {
       const std::uint32_t salt = splashSeed_ * (c + 1) + 977u * static_cast<std::uint32_t>(c);
       const float centre = 0.10f + 0.44f * (static_cast<float>(c) + 0.5f) / static_cast<float>(n) + (static_cast<float>(salt % 100) / 100.0f - 0.5f) * 0.06f;
-      const float width = 0.10f + static_cast<float>((salt >> 8) % 100) / 100.0f * 0.06f;
+      const float width = 0.14f + static_cast<float>((salt >> 8) % 100) / 100.0f * 0.08f;
       const float d = (p - centre) / width;
-      float strength = std::exp(-d * d) * 0.9f;
+      float strength = std::exp(-d * d);
       // a weak signal flickers
       strength *= 0.75f + 0.25f * std::sin(t * 70.0f + static_cast<float>(c) * 2.0f);
-      const float roll = t * (0.6f + static_cast<float>(salt % 7) * 0.25f) + static_cast<float>(salt % 13) / 13.0f;
-      drawSignal(splashChannels_[static_cast<std::size_t>(c)], pic, strength * calm, 0.05f * calm, roll, 0.012f * pic.w, t, salt);
+      const float roll = t * splashStyle_.rollSpeed * (0.7f + static_cast<float>(salt % 7) * 0.1f) + static_cast<float>(salt % 13) / 13.0f;
+      // the last channel stays, dimly, behind the logo: no empty black at the end
+      const float stay = c == n - 1 ? 0.35f * lock : 0.0f;
+      const float shown = std::max(strength * calm, stay);
+      drawSignal(splashChannels_[static_cast<std::size_t>(c)], pic, shown, splashStyle_.tear * calm, roll * calm,
+                 splashStyle_.fringe * pic.w * (0.4f + calm), t, salt);
       strongest = std::max(strongest, strength * calm);
     }
     // the logo: the roll and the tearing ease off as the signal locks
     if (lock > 0) {
       const float settle = lock * lock * (3 - 2 * lock);
-      drawSignal(splashTex_, pic, std::min(1.0f, 0.25f + settle), 0.04f * (1 - settle), (1 - settle) * 0.35f,
-                 0.01f * pic.w * (1 - settle), t, splashSeed_ ^ 0x5bd1e995u);
+      drawSignal(splashTex_, pic, std::min(1.0f, 0.25f + settle), splashStyle_.tear * (1 - settle), (1 - settle) * 0.35f,
+                 splashStyle_.fringe * pic.w * (1 - settle), t, splashSeed_ ^ 0x5bd1e995u);
     }
     // the snow: loud at first, fading as the logo locks
     const float snow = std::clamp(0.85f - 0.08f * std::sin(t * 23.0f) - 0.72f * strongest, 0.0f, 1.0f) * (1.0f - 0.95f * lock);
@@ -4692,10 +4794,10 @@ class Pocket {
     }
     // the hum bar crawling up, and fine scanlines
     if (calm > 0.02f) {
-      const float bar = std::fmod(1.0f - t * 0.9f, 1.0f);
-      fillRoundAlpha(renderer_, kBlack, 0.35f * calm, {pic.x, pic.y + bar * pic.h - pic.h * 0.08f, pic.w, pic.h * 0.16f}, 0);
+      const float bar = std::fmod(1.0f - t * splashStyle_.humSpeed + 2.0f, 1.0f);
+      fillRoundAlpha(renderer_, kBlack, 0.18f * calm, {pic.x, pic.y + bar * pic.h - pic.h * 0.08f, pic.w, pic.h * 0.16f}, 0);
     }
-    for (float y = pic.y; y < pic.y + pic.h; y += 3.0f) fillRoundAlpha(renderer_, kBlack, 0.18f, {pic.x, y, pic.w, 1.0f}, 0);
+    for (float y = pic.y; y < pic.y + pic.h; y += 3.0f) fillRoundAlpha(renderer_, kBlack, 0.10f, {pic.x, y, pic.w, 1.0f}, 0);
     // no dip at the end: the logo holds until the menu takes over
     SDL_SetRenderClipRect(renderer_, nullptr);
   }
@@ -7130,6 +7232,11 @@ class Pocket {
   int fxShown_ = 0, fxPickPage_ = 0;
   bool fxPicking_ = false;
   Uint64 lastInputMs_ = 0;
+  std::string addedFlashId_;   // the cue just added, flashing in the list
+  std::string addedKey_, addedLine_;   // the source button just tapped, and what it made
+  Uint64 addedKeyAt_ = 0, addedLineUntil_ = 0;
+  int addedKeyCount_ = 0;
+  Uint64 addedFlashUntil_ = 0;
   bool powerSave_ = false;
   ClockMode clock_ = ClockMode::Off;
   bool showRemaining_ = false, showFps_ = false;
@@ -7146,6 +7253,11 @@ class Pocket {
   SDL_Texture* splashNoise_ = nullptr;         // the snow
   std::uint32_t splashSeed_ = 1;
   bool splashPending_ = false;
+  // each launch's own interference (loadSplash)
+  struct SplashStyle {
+    float tear = 0.05f, tearWaves = 9, tearSpeed = 31, twitch = 0.8f, rollSpeed = 0.8f, fringe = 0.012f, humSpeed = 0.9f;
+    int strips = 36;
+  } splashStyle_;
   int splashFrames_ = 0;   // loaded; its second starts with the first frame
   Uint64 splashUntil_ = 0;
   int splashQuip_ = 0;
