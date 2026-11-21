@@ -4504,7 +4504,7 @@ class Pocket {
   // in the list (core/loading_quips.hpp), for a couple of seconds or until a
   // tap. Off with SPLASH on MENU > PHONE, as on the desk.
 
-  static constexpr Uint64 kSplashMs = 2200;
+  static constexpr Uint64 kSplashMs = 750;   // James 11-20: an app should be ready at once; "maybe 3/4 a second"
 
   bool splashing() const { return splashTex_ && SDL_GetTicks() < splashUntil_; }
 
@@ -4560,14 +4560,49 @@ class Pocket {
   void drawSplashArt(const SDL_FRect& pic) {
     if (!splashing()) return;
     const float left = static_cast<float>(splashUntil_ - SDL_GetTicks());
-    SDL_SetTextureAlphaModFloat(splashTex_, std::clamp(left / 350.0f, 0.0f, 1.0f));   // fades out at the end
+    SDL_SetTextureAlphaModFloat(splashTex_, std::clamp(left / 250.0f, 0.0f, 1.0f));   // fades out at the end
     float tw = 0, th = 0;
     SDL_GetTextureSize(splashTex_, &tw, &th);
-    // Cover the picture window, cropped to its shape.
-    const float k = std::max(pic.w / tw, pic.h / th);
+    // "Fresh and new, getting ready for you" (James, 11-20), in 750 ms: the
+    // art settles in from a little larger and brightens as it lands, then a
+    // band of light sweeps across it, the way light catches new glass.
+    const Uint64 now = SDL_GetTicks();
+    const float p = std::clamp(static_cast<float>(now - (splashUntil_ - kSplashMs)) / static_cast<float>(kSplashMs), 0.0f, 1.0f);
+    const float settle = 1.0f - (1.0f - p) * (1.0f - p);   // eases out
+    const float grow = 1.0f + 0.05f * (1.0f - settle);
+    const float k = std::max(pic.w / tw, pic.h / th) * grow;
     const float sw = pic.w / k, sh = pic.h / k;
     const SDL_FRect src {(tw - sw) / 2, (th - sh) / 2, sw, sh};
+    const float lift = 0.75f + 0.25f * settle;
+    SDL_SetTextureColorModFloat(splashTex_, lift, lift, lift);
     SDL_RenderTexture(renderer_, splashTex_, &src, &pic);
+    SDL_SetTextureColorModFloat(splashTex_, 1, 1, 1);
+    // the glint: a soft diagonal band, added light, crossing in the middle half of the time
+    const float g = std::clamp((p - 0.15f) / 0.55f, 0.0f, 1.0f);
+    if (g > 0.0f && g < 1.0f) {
+      const float band = pic.w * 0.16f, slant = pic.h * 0.45f;
+      const float cx = pic.x - band - slant + (pic.w + 2 * band + 2 * slant) * g;
+      const float fade = std::sin(3.14159f * g) * 0.55f * std::clamp(left / 250.0f, 0.0f, 1.0f);
+      const SDL_FColor clear {1, 1, 1, 0}, bright {1, 1, 1, fade};
+      // three columns of vertices: clear, bright, clear, leaning right
+      const SDL_FPoint top[3] = {{cx - band + slant, pic.y}, {cx + slant, pic.y}, {cx + band + slant, pic.y}};
+      const SDL_FPoint bot[3] = {{cx - band, pic.y + pic.h}, {cx, pic.y + pic.h}, {cx + band, pic.y + pic.h}};
+      const SDL_FColor col[3] = {clear, bright, clear};
+      SDL_Vertex v[12];
+      int n = 0;
+      for (int i = 0; i < 2; ++i) {
+        const SDL_Vertex a {top[i], col[i], {0, 0}}, b {top[i + 1], col[i + 1], {0, 0}}, c {bot[i], col[i], {0, 0}}, d {bot[i + 1], col[i + 1], {0, 0}};
+        v[n++] = a; v[n++] = b; v[n++] = c; v[n++] = b; v[n++] = d; v[n++] = c;
+      }
+      SDL_SetRenderClipRect(renderer_, nullptr);
+      const SDL_Rect clip {static_cast<int>(pic.x), static_cast<int>(pic.y), static_cast<int>(pic.w), static_cast<int>(pic.h)};
+      SDL_SetRenderClipRect(renderer_, &clip);
+      SDL_BlendMode was;
+      SDL_GetRenderDrawBlendMode(renderer_, &was);
+      SDL_RenderGeometry(renderer_, nullptr, v, n, nullptr, 0);
+      SDL_SetRenderClipRect(renderer_, nullptr);
+      SDL_SetRenderDrawBlendMode(renderer_, was);
+    }
   }
 
   void drawSplashList(const SDL_FRect& lcd) {
