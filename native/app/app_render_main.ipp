@@ -5783,31 +5783,20 @@
           QuickAction::CueSectionSwirlToggle, "Collapse/expand the swirl's controls");
         int swY = swSection.bodyStartY;
         if (cueSectionSwirlOpen_) {
-          const SwirlSettings& s = selectedCue->swirl;
-          struct SwirlRow { const char* label; NumericParam id; double value; const char* tip; };
-          const SwirlRow rows[] = {
-            {"palette", NumericParam::SwirlPalette, static_cast<double>(s.palette), "Classic green, fire, ice, neon or mono"},
-            {"colour", NumericParam::SwirlHue, s.hue, "Turn the palette through all colours; 0 restores it"},
-            {"bands", NumericParam::SwirlBands, static_cast<double>(s.bands), "Colour steps: 2 is stark, 8 is smooth"},
-            {"speed", NumericParam::SwirlSpeed, s.speed, "0 holds the field; negative runs it backwards"},
-            {"twist", NumericParam::SwirlTwist, s.twist, "Spiral strength, from a flowing field to tight turns"},
-            {"flow", NumericParam::SwirlFlow, s.flow, "Turbulence: 0 is still ripples, 3 boils"},
-            {"zoom", NumericParam::SwirlZoom, s.zoom, "Spiral size: above 1 is bigger"},
-            {"centre x", NumericParam::SwirlCentreX, s.centreX, "Where the eye of the swirl sits, left to right"},
-            {"centre y", NumericParam::SwirlCentreY, s.centreY, "Where the eye of the swirl sits, top to bottom"},
-            {"pixels", NumericParam::SwirlCells, static_cast<double>(s.cells), "Horizontal cells. More detail uses more CPU"}
-          };
+          const auto rows = deckboy::params::paramRowsForCue(*selectedCue);
           for (const auto& row : rows) {
+            double value = 0.0;
+            readNumericParam(*selectedCue, row.id, value);
             char text[24];
             if (row.id == NumericParam::SwirlPalette)
-              std::snprintf(text, sizeof(text), "%s", swirlPaletteName(static_cast<int>(row.value)));
+              std::snprintf(text, sizeof(text), "%s", swirlPaletteName(static_cast<int>(value)));
             else if (row.id == NumericParam::SwirlCells || row.id == NumericParam::SwirlBands)
-              std::snprintf(text, sizeof(text), "%.0f", row.value);
+              std::snprintf(text, sizeof(text), "%.0f", value);
             else if (row.id == NumericParam::SwirlHue || row.id == NumericParam::SwirlCentreX ||
                      row.id == NumericParam::SwirlCentreY)
-              std::snprintf(text, sizeof(text), "%.0f%%", row.value * 100);
-            else std::snprintf(text, sizeof(text), "%.2f", row.value);
-            inspDrawQuickRow(ix, swY, row.label, QuickAction::NumericParamDec, text,
+              std::snprintf(text, sizeof(text), "%.0f%%", value * 100);
+            else std::snprintf(text, sizeof(text), "%.2f", value);
+            inspDrawQuickRow(ix, swY, row.key, QuickAction::NumericParamDec, text,
               QuickAction::NumericParamInc, QuickAction::ToggleLoop, false, false,
               row.tip, true, QuickAction::EditNumericParam, static_cast<int>(row.id));
             swY += kInspectorRowStep;
@@ -5823,28 +5812,8 @@
         int moY = moSection.bodyStartY;
         if (cueSectionMoireOpen_) {
           const MoireSettings& m = selectedCue->moire;
-          struct MoireRow { const char* label; NumericParam id; const char* tip; };
-          // Grey only where a palette draws grey stripes, hue only where there
-          // is a colour to turn: a row that moves nothing reads as broken.
-          const bool greyShown = m.palette != 1;
-          const bool hueShown = m.palette != 3;
-          const MoireRow rows[] = {
-            {"shape", NumericParam::MoireShape, "Zone, twin, flow, saddle, ripple or shear"},
-            {"density", NumericParam::MoireDensity, "How many bands: 50% is the design, higher beats harder against the pixels"},
-            {"speed", NumericParam::MoireSpeed, "How fast the bands move; 0 holds the field still"},
-            {"warp", NumericParam::MoireWarp, "How far the field bends"},
-            {"turn", NumericParam::MoireTurn, "Rotate the field round its centre"},
-            {"centre x", NumericParam::MoireCentreX, "Where the field's centre sits, left to right"},
-            {"centre y", NumericParam::MoireCentreY, "Where the field's centre sits, top to bottom"},
-            {"grey", NumericParam::MoireGrey, "The share of each band drawn as grey stripes"},
-            {"hue", NumericParam::MoireHue, "Turn the colours round the wheel"},
-            {"palette", NumericParam::MoirePalette, "Rainbow + grey, rainbow, the theme's colours (taken when picked) or mono"},
-          };
+          const auto rows = deckboy::params::paramRowsForCue(*selectedCue);
           for (const auto& row : rows) {
-            if ((row.id == NumericParam::MoireGrey && !greyShown) ||
-                (row.id == NumericParam::MoireHue && !hueShown)) {
-              continue;
-            }
             double value = 0.0;
             readNumericParam(*selectedCue, row.id, value);
             char text[24];
@@ -5857,14 +5826,14 @@
             else std::snprintf(text, sizeof(text), "%.0f%%", value);
             const int slot = moireLfoSlotFor(row.id);
             if (slot < 0) {
-              inspDrawQuickRow(ix, moY, row.label, QuickAction::NumericParamDec, text,
+              inspDrawQuickRow(ix, moY, row.key, QuickAction::NumericParamDec, text,
                 QuickAction::NumericParamInc, QuickAction::ToggleLoop, false, false,
                 row.tip, true, QuickAction::EditNumericParam, static_cast<int>(row.id));
               moY += kInspectorRowStep;
               continue;
             }
             const auto& lfo = m.lfo[static_cast<std::size_t>(slot)];
-            inspDrawQuickRow(ix, moY, row.label, QuickAction::NumericParamDec, text,
+            inspDrawQuickRow(ix, moY, row.key, QuickAction::NumericParamDec, text,
               QuickAction::NumericParamInc, QuickAction::ToggleLoop, false, false,
               row.tip, true, QuickAction::EditNumericParam, static_cast<int>(row.id),
               QuickAction::EffectLfoToggle, lfo.on, kMoireLfoPackBase + slot, "~",
@@ -5888,65 +5857,7 @@
         int ilY = ilSection.bodyStartY;
         if (cueSectionMoireOpen_) {
           const IllusionSettings& il = selectedCue->illusion;
-          struct IllusionRow { const char* label; NumericParam id; const char* tip; };
-          std::vector<IllusionRow> rows;
-          rows.push_back({"shape", NumericParam::IllusionShape,
-                          "Drift (still shapes that seem to turn), ouchi (a disc that floats), cafe (straight rows that look tilted), "
-                          "vanish (dots that disappear while you stare), grid (dots that flicker and are not there) or "
-                          "dancer (it spins whichever way you see it)"});
-          if (il.shape == 0) {
-            rows.push_back({"form", NumericParam::IllusionForm, "Leaf, petal, scale or ring"});
-            rows.push_back({"flow", NumericParam::IllusionFlow, "Which way the field seems to go: turn round the centre, out, in, or in waves"});
-            rows.push_back({"count", NumericParam::IllusionCount, "How many shapes across the screen"});
-            rows.push_back({"size", NumericParam::IllusionSize, "How much of its place each shape fills"});
-            rows.push_back({"edge width", NumericParam::IllusionEdge, "How much of the black and white edges shows. They make the drift"});
-            rows.push_back({"turn", NumericParam::IllusionSpeed, "Turn the shapes slowly, so the drift changes direction. 0 holds them still"});
-            rows.push_back({"centre x", NumericParam::IllusionCentreX, "Where the field's centre sits, left to right"});
-            rows.push_back({"centre y", NumericParam::IllusionCentreY, "Where the field's centre sits, top to bottom"});
-            rows.push_back({"flip", NumericParam::IllusionFlip, "Swap the black and white edges: the field drifts the other way"});
-          } else if (il.shape == 1) {
-            rows.push_back({"tile length", NumericParam::IllusionSize, "How long each tile is"});
-            rows.push_back({"tile thickness", NumericParam::IllusionCount, "How thick each tile is, against its length"});
-            rows.push_back({"disc size", NumericParam::IllusionEdge, "How big the floating disc is"});
-            rows.push_back({"wander", NumericParam::IllusionSpeed, "Move the disc in a small loop. 0 holds it still: the eye moves it anyway"});
-            rows.push_back({"disc x", NumericParam::IllusionCentreX, "Where the disc sits, left to right"});
-            rows.push_back({"disc y", NumericParam::IllusionCentreY, "Where the disc sits, top to bottom"});
-          } else if (il.shape == 3) {
-            rows.push_back({"crosses", NumericParam::IllusionCount, "How many crosses across the screen"});
-            rows.push_back({"cross size", NumericParam::IllusionEdge, "How big each cross is"});
-            rows.push_back({"dot size", NumericParam::IllusionSize, "How big the three dots are. Small dots vanish more easily"});
-            rows.push_back({"turn", NumericParam::IllusionSpeed, "How fast the crosses turn. They always turn a little: the dots vanish only while they move"});
-            rows.push_back({"centre x", NumericParam::IllusionCentreX, "Where the centre point sits, left to right"});
-            rows.push_back({"centre y", NumericParam::IllusionCentreY, "Where the centre point sits, top to bottom"});
-            rows.push_back({"flip", NumericParam::IllusionFlip, "Turn the crosses the other way"});
-          } else if (il.shape == 4) {
-            rows.push_back({"squares", NumericParam::IllusionCount, "How many squares across the screen"});
-            rows.push_back({"street width", NumericParam::IllusionEdge, "How wide the grey lines between the squares are"});
-            rows.push_back({"disc size", NumericParam::IllusionSize, "How big the light discs at the crossings are"});
-            rows.push_back({"street grey", NumericParam::IllusionTone, "How light the grey lines are"});
-            rows.push_back({"drift", NumericParam::IllusionSpeed, "Slide the grid slowly. 0 holds it still"});
-          } else if (il.shape == 5) {
-            rows.push_back({"size", NumericParam::IllusionSize, "How tall the dancer is"});
-            rows.push_back({"pose", NumericParam::IllusionEdge, "How far the free leg and the arms reach"});
-            rows.push_back({"spin", NumericParam::IllusionSpeed, "How fast the dancer turns. It always turns a little"});
-            rows.push_back({"centre x", NumericParam::IllusionCentreX, "Where the dancer stands, left to right"});
-            rows.push_back({"centre y", NumericParam::IllusionCentreY, "Where the dancer stands, top to bottom"});
-            rows.push_back({"flip", NumericParam::IllusionFlip, "Spin the other way. Most people cannot tell which way it turns anyway"});
-          } else {
-            rows.push_back({"tile size", NumericParam::IllusionSize, "How big each tile is"});
-            rows.push_back({"offset", NumericParam::IllusionCount, "How far each row is shifted. This makes the straight rows look tilted"});
-            rows.push_back({"mortar", NumericParam::IllusionEdge, "How thick the grey line between the rows is"});
-            rows.push_back({"mortar grey", NumericParam::IllusionTone, "How light the grey line is. Mid grey tilts the rows most"});
-            rows.push_back({"slide", NumericParam::IllusionSpeed, "Slide the rows back and forth, so the wall bends and straightens. 0 holds it still"});
-          }
-          rows.push_back({"palette", NumericParam::IllusionPalette,
-                          "Classic, the theme's colours (taken when picked) or two colours of your own"});
-          if (il.palette == 2) {
-            rows.push_back({il.shape == 0 ? "shape colour" : il.shape == 3 ? "dot colour" : "colour 1",
-                            NumericParam::IllusionHue1, "The first colour, round the colour wheel"});
-            rows.push_back({il.shape == 0 ? "ground colour" : il.shape == 3 ? "cross colour" : "colour 2",
-                            NumericParam::IllusionHue2, "The second colour, round the colour wheel"});
-          }
+          const auto rows = deckboy::params::paramRowsForCue(*selectedCue);
           for (const auto& row : rows) {
             double value = 0.0;
             readNumericParam(*selectedCue, row.id, value);
@@ -5966,14 +5877,14 @@
             else std::snprintf(text, sizeof(text), "%.0f%%", value);
             const int slot = illusionLfoSlotFor(row.id);
             if (slot < 0) {
-              inspDrawQuickRow(ix, ilY, row.label, QuickAction::NumericParamDec, text,
+              inspDrawQuickRow(ix, ilY, row.key, QuickAction::NumericParamDec, text,
                 QuickAction::NumericParamInc, QuickAction::ToggleLoop, false, false,
                 row.tip, true, QuickAction::EditNumericParam, static_cast<int>(row.id));
               ilY += kInspectorRowStep;
               continue;
             }
             const auto& lfo = il.lfo[static_cast<std::size_t>(slot)];
-            inspDrawQuickRow(ix, ilY, row.label, QuickAction::NumericParamDec, text,
+            inspDrawQuickRow(ix, ilY, row.key, QuickAction::NumericParamDec, text,
               QuickAction::NumericParamInc, QuickAction::ToggleLoop, false, false,
               row.tip, true, QuickAction::EditNumericParam, static_cast<int>(row.id),
               QuickAction::EffectLfoToggle, lfo.on, kIllusionLfoPackBase + slot, "~",
@@ -5996,46 +5907,12 @@
         if (cueSectionMoireOpen_) {
           const LumiaSettings& l = selectedCue->lumia;
           // A group header has no control (id None): a small label over its rows.
-          struct LumiaRow { const char* label; NumericParam id; const char* tip; };
-          const LumiaRow rows[] = {
-            {"WATER", NumericParam::None, ""},
-            {"flow", NumericParam::LumiaFlow, "How fast the water moves"},
-            {"water", NumericParam::LumiaWater, "How bright the water's pale light is"},
-            {"ripple size", NumericParam::LumiaRipple, "Broad ripples at 0, fine and busy at 100"},
-            {"second jet", NumericParam::LumiaJet, "A second jet of water crossing the first"},
-            {"PRISM", NumericParam::None, ""},
-            {"lasers", NumericParam::LumiaPalette, "The laser colours: rgb, rainbow, floyd, warm, cool or green"},
-            {"prism", NumericParam::LumiaPrism, "How bright the laser lines are"},
-            {"split", NumericParam::LumiaSplit, "How far the colours fan apart"},
-            {"focus", NumericParam::LumiaFocus, "How hard the lines are bent"},
-            {"shimmer", NumericParam::LumiaShimmer, "Laser speckle: the focus trembles"},
-            {"MIRRORS", NumericParam::None, ""},
-            {"mode", NumericParam::LumiaMode, "Tube, mandala or none"},
-            {"mirrors", NumericParam::LumiaMirrors, "How many mirror panels, 0 to 12"},
-            {"panel angle", NumericParam::LumiaAngle, "How far each panel tilts from the one before"},
-            {"top / bottom", NumericParam::LumiaTopBottom, "The top mirrors the bottom round a dark seam"},
-            {"spin", NumericParam::LumiaSpin, "Turn the whole picture"},
-            {"LIGHT", NumericParam::None, ""},
-            {"lens", NumericParam::LumiaLens, "The round lens: a curved picture and a dark rim"},
-            {"glow", NumericParam::LumiaGlow, "The halo round the lines"},
-            {"brightness", NumericParam::LumiaBright, "How bright the picture is"},
-            {"trail", NumericParam::LumiaTrail, "How long light lingers on the screen"},
-            {"listens", NumericParam::LumiaListens, "The flow surges with the programme sound"},
-          };
+          const auto rows = deckboy::params::paramRowsForCue(*selectedCue, true);
           for (const auto& row : rows) {
             if (row.id == NumericParam::None) {
               const SDL_Rect head {ix.ctrl.x + ix.inset, luY, ix.ctrlW - ix.inset * 2, ix.rowH};
-              drawTextSafe(controlRenderer_, fontSmall_, head, row.label, pal.fgSoft);
+              drawTextSafe(controlRenderer_, fontSmall_, head, row.key, pal.fgSoft);
               luY += kInspectorRowStep;
-              continue;
-            }
-            // Hide only what the picture ignores (buildLumia): none has no
-            // panels to count or tilt; the mandala's wedges neither tilt nor
-            // fold top to bottom. Top / bottom still acts with mode none.
-            const bool unused =
-              (l.mode == 2 && (row.id == NumericParam::LumiaMirrors || row.id == NumericParam::LumiaAngle)) ||
-              (l.mode == 1 && (row.id == NumericParam::LumiaAngle || row.id == NumericParam::LumiaTopBottom));
-            if (unused) {
               continue;
             }
             double value = 0.0;
@@ -6052,14 +5929,14 @@
             else std::snprintf(text, sizeof(text), "%.0f%%", value);
             const int slot = lumiaLfoSlotFor(row.id);
             if (slot < 0) {
-              inspDrawQuickRow(ix, luY, row.label, QuickAction::NumericParamDec, text,
+              inspDrawQuickRow(ix, luY, row.key, QuickAction::NumericParamDec, text,
                 QuickAction::NumericParamInc, QuickAction::ToggleLoop, false, false,
                 row.tip, true, QuickAction::EditNumericParam, static_cast<int>(row.id));
               luY += kInspectorRowStep;
               continue;
             }
             const auto& lfo = l.lfo[static_cast<std::size_t>(slot)];
-            inspDrawQuickRow(ix, luY, row.label, QuickAction::NumericParamDec, text,
+            inspDrawQuickRow(ix, luY, row.key, QuickAction::NumericParamDec, text,
               QuickAction::NumericParamInc, QuickAction::ToggleLoop, false, false,
               row.tip, true, QuickAction::EditNumericParam, static_cast<int>(row.id),
               QuickAction::EffectLfoToggle, lfo.on, kLumiaLfoPackBase + slot, "~",
@@ -6130,8 +6007,8 @@
                 case deckboy::isf::InputType::Float: {
                   const deckboy::effects::ParamLfo none;
                   const deckboy::effects::ParamLfo& lfo = set ? set->lfo : none;
-                  inspDrawQuickRow(ix, shY, in.label, QuickAction::NumericParamDec, text, QuickAction::NumericParamInc,
-                    QuickAction::ToggleLoop, false, false, "Drag, click to type, or put it on an oscillator", true,
+                  inspDrawQuickRow(ix, shY, deckboy::params::paramRowForCue(*selectedCue, static_cast<NumericParam>(isfParamId(idx, 0))).key, QuickAction::NumericParamDec, text, QuickAction::NumericParamInc,
+                    QuickAction::ToggleLoop, false, false, deckboy::params::paramRowForCue(*selectedCue, static_cast<NumericParam>(isfParamId(idx, 0))).tip, true,
                     QuickAction::EditNumericParam, isfParamId(idx, 0), QuickAction::EffectLfoToggle, lfo.on,
                     kIsfLfoPackBase + idx, "~", "Put this control on an oscillator");
                   shY += kInspectorRowStep;
@@ -6142,8 +6019,8 @@
                   for (int c = 0; c < 2; ++c) {
                     char one[32];
                     std::snprintf(one, sizeof(one), "%.3g", static_cast<double>(set ? set->v[c] : in.def[c]));
-                    inspDrawQuickRow(ix, shY, in.label + (c == 0 ? " x" : " y"), QuickAction::NumericParamDec, one,
-                      QuickAction::NumericParamInc, QuickAction::ToggleLoop, false, false, "Drag or click to type",
+                    inspDrawQuickRow(ix, shY, deckboy::params::paramRowForCue(*selectedCue, static_cast<NumericParam>(isfParamId(idx, c))).key, QuickAction::NumericParamDec, one,
+                      QuickAction::NumericParamInc, QuickAction::ToggleLoop, false, false, deckboy::params::paramRowForCue(*selectedCue, static_cast<NumericParam>(isfParamId(idx, c))).tip,
                       true, QuickAction::EditNumericParam, isfParamId(idx, c));
                     shY += kInspectorRowStep;
                   }
@@ -6203,16 +6080,9 @@
         if (cueSectionFiresideOpen_) {
           char amt[16];
           std::snprintf(amt, sizeof(amt), "%.1fx", selectedCue->firesideIntensity);
-          drawQuickRow(fiY, "burns", QuickAction::FireIntensityDec, std::string(amt),
-                       QuickAction::FireIntensityInc, QuickAction::ToggleLoop,
-                       false, false,
-                       "Embers to roaring. It still surges and settles at any "
-                       "setting -- a fire that does not move reads as a photo");
+          drawQuickRow(fiY, deckboy::params::paramRowForCue(*selectedCue, NumericParam::FireIntensity).key, QuickAction::FireIntensityDec, std::string(amt), QuickAction::FireIntensityInc, QuickAction::ToggleLoop, false, false, deckboy::params::paramRowForCue(*selectedCue, NumericParam::FireIntensity).tip);
           fiY += kInspectorRowStep;
-          drawQuickRow(fiY, "sparks", QuickAction::FireSparksDec,
-                       std::to_string(selectedCue->firesideSparks),
-                       QuickAction::FireSparksInc, QuickAction::ToggleLoop,
-                       false, false, "How much it throws off; 0 is a clean burn");
+          drawQuickRow(fiY, deckboy::params::paramRowForCue(*selectedCue, NumericParam::FireSparks).key, QuickAction::FireSparksDec, std::to_string(selectedCue->firesideSparks), QuickAction::FireSparksInc, QuickAction::ToggleLoop, false, false, deckboy::params::paramRowForCue(*selectedCue, NumericParam::FireSparks).tip);
           fiY += kInspectorRowStep;
           fiY = drawChoiceRow(fiY, "window",
                               firesideViewLabel(selectedCue->firesideView),
@@ -6235,34 +6105,18 @@
                                                "Collapse/expand the portal's controls");
         poY = poSection.bodyStartY;
         if (cueSectionPortalOpen_) {
-          const PortalSettings& p = selectedCue->portal;
-          struct PortalRow {
-            const char* label;
-            NumericParam id;
-            std::string value;
-            const char* tip;
-          };
           auto pct = [](double v) {
             return std::to_string(static_cast<int>(std::lround(v * 100.0))) + "%";
           };
-          char speedText[16];
-          std::snprintf(speedText, sizeof(speedText), "%.1fx", p.speed);
-          const PortalRow rows[] = {
-            {"blobs", NumericParam::PortalBlobs, std::to_string(p.blobs),
-             "How many are alive at once. Each is born, drifts out, grows and fades"},
-            {"size", NumericParam::PortalSize, pct(p.size), "How big a blob grows"},
-            {"melt", NumericParam::PortalBlend, pct(p.blend),
-             "How readily neighbours merge into one shape. 0 keeps every blob round"},
-            {"rim", NumericParam::PortalOutline, pct(p.outline),
-             "Thickness of the glowing edge"},
-            {"speed", NumericParam::PortalSpeed, std::string(speedText),
-             "How fast they are born, drift and fade"},
-            {"colour", NumericParam::PortalHue, pct(p.hue),
-             "Turns the rim's colours round the wheel -- green, yellow, pink, "
-             "violet, blue"},
-          };
-          for (const PortalRow& row : rows) {
-            inspDrawQuickRow(ix, poY, row.label, QuickAction::NumericParamDec, row.value,
+          const auto rows = deckboy::params::paramRowsForCue(*selectedCue);
+          for (const auto& row : rows) {
+            double value = 0.0;
+            readNumericParam(*selectedCue, row.id, value);
+            char speedText[16];
+            std::snprintf(speedText, sizeof(speedText), "%.1fx", value);
+            const auto text = row.id == NumericParam::PortalBlobs ? std::to_string(selectedCue->portal.blobs)
+                            : row.id == NumericParam::PortalSpeed ? std::string(speedText) : pct(value);
+            inspDrawQuickRow(ix, poY, row.key, QuickAction::NumericParamDec, text,
                              QuickAction::NumericParamInc, QuickAction::ToggleLoop,
                              false, false, row.tip, true, QuickAction::EditNumericParam,
                              static_cast<int>(row.id));
@@ -6407,22 +6261,9 @@
           // 168px panels mapped as 128 puts every label in the wrong place,
           // so this is not a preference -- it is the pattern's subject.
           if (stripPatternMotionSuffix(typeId) == "panel-map") {
-            inspDrawQuickRow(ix, playbackY, "tile w", QuickAction::NumericParamDec,
-                             std::to_string(selectedCue->ledPanelWidth),
-                             QuickAction::NumericParamInc, QuickAction::ToggleLoop,
-                             false, false,
-                             "LED panel width in pixels - what one tile really is. "
-                             "Click to type it",
-                             true, QuickAction::EditNumericParam,
-                             static_cast<int>(NumericParam::LedPanelWidth));
+            inspDrawQuickRow(ix, playbackY, deckboy::params::paramRowForCue(*selectedCue, NumericParam::LedPanelWidth).key, QuickAction::NumericParamDec, std::to_string(selectedCue->ledPanelWidth), QuickAction::NumericParamInc, QuickAction::ToggleLoop, false, false, deckboy::params::paramRowForCue(*selectedCue, NumericParam::LedPanelWidth).tip, true, QuickAction::EditNumericParam, static_cast<int>(NumericParam::LedPanelWidth));
             playbackY += kRowStep;
-            inspDrawQuickRow(ix, playbackY, "tile h", QuickAction::NumericParamDec,
-                             std::to_string(selectedCue->ledPanelHeight),
-                             QuickAction::NumericParamInc, QuickAction::ToggleLoop,
-                             false, false,
-                             "LED panel height in pixels. Click to type it",
-                             true, QuickAction::EditNumericParam,
-                             static_cast<int>(NumericParam::LedPanelHeight));
+            inspDrawQuickRow(ix, playbackY, deckboy::params::paramRowForCue(*selectedCue, NumericParam::LedPanelHeight).key, QuickAction::NumericParamDec, std::to_string(selectedCue->ledPanelHeight), QuickAction::NumericParamInc, QuickAction::ToggleLoop, false, false, deckboy::params::paramRowForCue(*selectedCue, NumericParam::LedPanelHeight).tip, true, QuickAction::EditNumericParam, static_cast<int>(NumericParam::LedPanelHeight));
             playbackY += kRowStep;
           }
         }
@@ -7591,12 +7432,6 @@
           txY = inspDrawChoiceRow(ix, txY, c.label, c.value, QuickAction::LowerThirdCycle,
                                   c.tip, c.which);
         }
-        struct L3Number {
-          const char* label;
-          NumericParam id;
-          std::string value;
-          const char* tip;
-        };
         char hBuf[16], sBuf[16], inBuf[16], outBuf[16], holdBuf[24];
         std::snprintf(hBuf, sizeof(hBuf), "%d%%", static_cast<int>(std::lround(l.height * 100.0)));
         std::snprintf(sBuf, sizeof(sBuf), "%.2fx", l.size);
@@ -7607,16 +7442,18 @@
         } else {
           std::snprintf(holdBuf, sizeof(holdBuf), "until OUT");
         }
-        const L3Number numbers[] = {
-          {"height", NumericParam::L3Height, hBuf, "Space under it, as a share of the frame"},
-          {"size", NumericParam::L3Size, sBuf, "Scale of the whole graphic"},
-          {"in time", NumericParam::L3InSeconds, inBuf, "How long the in move takes"},
-          {"out time", NumericParam::L3OutSeconds, outBuf, "How long the out move takes"},
-          {"on screen", NumericParam::L3HoldSeconds, holdBuf,
-           "How long it stays before leaving by itself. 0 waits for OUT"},
-        };
-        for (const L3Number& n : numbers) {
-          inspDrawQuickRow(ix, txY, n.label, QuickAction::NumericParamDec, n.value,
+        const auto numbers = deckboy::params::paramRowsForCue(*selectedCue);
+        for (const auto& n : numbers) {
+          const char* text = "";
+          switch (n.id) {
+              case NumericParam::L3Height: text = hBuf; break;
+              case NumericParam::L3Size: text = sBuf; break;
+              case NumericParam::L3InSeconds: text = inBuf; break;
+              case NumericParam::L3OutSeconds: text = outBuf; break;
+              case NumericParam::L3HoldSeconds: text = holdBuf; break;
+              default: break;
+          }
+          inspDrawQuickRow(ix, txY, n.key, QuickAction::NumericParamDec, text,
                            QuickAction::NumericParamInc, QuickAction::ToggleLoop,
                            false, false, n.tip, true, QuickAction::EditNumericParam,
                            static_cast<int>(n.id));

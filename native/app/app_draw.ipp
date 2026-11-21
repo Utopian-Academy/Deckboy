@@ -363,15 +363,11 @@
                           "first frame stroke by stroke, the way it was drawn, then holds and starts again");
     if (d.playback == deckboy::draw::Playback::Flipbook) {
       std::snprintf(text, sizeof text, "%.0f fps", d.fps);
-      inspDrawQuickRow(ix, y, "fps", QuickAction::NumericParamDec, text, QuickAction::NumericParamInc,
-                       QuickAction::ToggleLoop, false, false, "Frames a second", true, QuickAction::EditNumericParam,
-                       static_cast<int>(NumericParam::DrawFps));
+      inspDrawQuickRow(ix, y, deckboy::params::paramRowForCue(*cue, NumericParam::DrawFps).key, QuickAction::NumericParamDec, text, QuickAction::NumericParamInc, QuickAction::ToggleLoop, false, false, deckboy::params::paramRowForCue(*cue, NumericParam::DrawFps).tip, true, QuickAction::EditNumericParam, static_cast<int>(NumericParam::DrawFps));
       y += ix.rowStep;
     } else if (d.playback == deckboy::draw::Playback::Replay) {
       std::snprintf(text, sizeof text, "%.1f s", d.holdSeconds);
-      inspDrawQuickRow(ix, y, "hold", QuickAction::NumericParamDec, text, QuickAction::NumericParamInc,
-                       QuickAction::ToggleLoop, false, false, "How long the finished drawing stays before it is drawn "
-                       "again", true, QuickAction::EditNumericParam, static_cast<int>(NumericParam::DrawHold));
+      inspDrawQuickRow(ix, y, deckboy::params::paramRowForCue(*cue, NumericParam::DrawHold).key, QuickAction::NumericParamDec, text, QuickAction::NumericParamInc, QuickAction::ToggleLoop, false, false, deckboy::params::paramRowForCue(*cue, NumericParam::DrawHold).tip, true, QuickAction::EditNumericParam, static_cast<int>(NumericParam::DrawHold));
       y += ix.rowStep;
     }
     chipRow(2, [&](int i, const SDL_Rect& r) {

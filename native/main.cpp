@@ -65,6 +65,15 @@
 #include "core/midi_map.hpp"
 #include "core/bugswat.hpp"
 #include "core/types.hpp"
+#include "core/numeric_params.hpp"
+
+namespace {
+const bool paramsShaderLookupInstalled = [] {
+  deckboy::params::setShaderLookup(deckboy::isf::loadShader);
+  return true;
+}();
+}
+
 #include "core/output_runtime.hpp"
 #include "core/scopes.hpp"
 #include "platform/mac_audio_default.hpp"
@@ -6902,10 +6911,10 @@ class App {
     rowY = inspDrawBackdropRow(ix, rowY, cue.timer.colorBackground);
     rowY = inspDrawTimerLogoRow(ix, rowY, cue);
     if (!cue.timer.logoPath.empty()) {
-      inspDrawQuickRow(ix, rowY, "logo size", QuickAction::TimerLogoSizeDec,
+      inspDrawQuickRow(ix, rowY, deckboy::params::paramRowForCue(cue, NumericParam::TimerLogoSize).key, QuickAction::TimerLogoSizeDec,
                        std::to_string(cue.timer.logoHeightPercent) + "% of the height",
                        QuickAction::TimerLogoSizeInc, QuickAction::ToggleLoop, false, false,
-                       "How tall the logo is above the clock");
+                       deckboy::params::paramRowForCue(cue, NumericParam::TimerLogoSize).tip);
       rowY += ix.rowStep;
     }
 
@@ -6934,21 +6943,21 @@ class App {
       rowY += ix.rowStep;
     }
 
-    inspDrawQuickRow(ix, rowY, "duration", QuickAction::TimerDurDec,
+    inspDrawQuickRow(ix, rowY, deckboy::params::paramRowForCue(cue, NumericParam::TimerDuration).key, QuickAction::TimerDurDec,
                      mmss(cue.timer.durationSeconds), QuickAction::TimerDurInc,
-                     QuickAction::ToggleLoop, false, false, "Total time");
+                     QuickAction::ToggleLoop, false, false, deckboy::params::paramRowForCue(cue, NumericParam::TimerDuration).tip);
     rowY += ix.rowStep;
 
-    inspDrawQuickRow(ix, rowY, "amber at", QuickAction::TimerAmberDec,
+    inspDrawQuickRow(ix, rowY, deckboy::params::paramRowForCue(cue, NumericParam::TimerAmber).key, QuickAction::TimerAmberDec,
                      mmss(cue.timer.amberSeconds), QuickAction::TimerAmberInc,
                      QuickAction::ToggleLoop, false, false,
-                     "Seconds REMAINING when the clock turns amber");
+                     deckboy::params::paramRowForCue(cue, NumericParam::TimerAmber).tip);
     rowY += ix.rowStep;
 
-    inspDrawQuickRow(ix, rowY, "red at", QuickAction::TimerRedDec,
+    inspDrawQuickRow(ix, rowY, deckboy::params::paramRowForCue(cue, NumericParam::TimerRed).key, QuickAction::TimerRedDec,
                      mmss(cue.timer.redSeconds), QuickAction::TimerRedInc,
                      QuickAction::ToggleLoop, false, false,
-                     "Seconds REMAINING when the clock turns red");
+                     deckboy::params::paramRowForCue(cue, NumericParam::TimerRed).tip);
     rowY += ix.rowStep;
 
     inspDrawQuickRow(ix, rowY, "overtime", QuickAction::TimerCountUpToggle,
@@ -7151,12 +7160,11 @@ class App {
                      "walk the outputs one at a time.");
     rowY += ix.rowStep;
 
-    inspDrawQuickRow(ix, rowY, "level", QuickAction::ToneLevelDec,
+    inspDrawQuickRow(ix, rowY, deckboy::params::paramRowForCue(cue, NumericParam::ToneLevel).key, QuickAction::ToneLevelDec,
                      fmtFloat(cue.tone.levelDbfs, 1) + " dBFS",
                      QuickAction::ToneLevelInc, QuickAction::ToggleLoop,
                      false, false,
-                     "-18 dBFS is EBU alignment, -20 is SMPTE. Capped below 0: "
-                     "this feeds a live PA.",
+                     deckboy::params::paramRowForCue(cue, NumericParam::ToneLevel).tip,
                      false, QuickAction::ToggleLoop,
                      static_cast<int>(NumericParam::ToneLevel),
                      QuickAction::EffectLfoToggle, cue.toneLfo[kToneLfoLevel].on,
@@ -7198,62 +7206,56 @@ class App {
                        "noises instead, one per word, keeping the punctuation.");
       rowY += ix.rowStep;
       if (cue.tone.voiceCharacter == "CUSTOM") {
-        inspDrawQuickRow(ix, rowY, "pitch", QuickAction::VoicePitchDec,
+        inspDrawQuickRow(ix, rowY, deckboy::params::paramRowForCue(cue, NumericParam::VoicePitch).key, QuickAction::VoicePitchDec,
                          std::to_string(static_cast<int>(std::lround(cue.tone.voicePitchHz))) + " Hz",
                          QuickAction::VoicePitchInc, QuickAction::ToggleLoop,
                          false, false,
-                         "The speaking pitch. Steps in semitones: about 100 Hz is a deep "
-                         "voice, 220 Hz a high one.");
+                         deckboy::params::paramRowForCue(cue, NumericParam::VoicePitch).tip);
         rowY += ix.rowStep;
-        inspDrawQuickRow(ix, rowY, "size", QuickAction::VoiceSizeDec,
+        inspDrawQuickRow(ix, rowY, deckboy::params::paramRowForCue(cue, NumericParam::VoiceSize).key, QuickAction::VoiceSizeDec,
                          fmtFloat(cue.tone.voiceSize, 2) + "x",
                          QuickAction::VoiceSizeInc, QuickAction::ToggleLoop,
                          false, false,
-                         "The length of the throat. 0.8 is a child, 1.25 a giant.");
+                         deckboy::params::paramRowForCue(cue, NumericParam::VoiceSize).tip);
         rowY += ix.rowStep;
-        inspDrawQuickRow(ix, rowY, "breath", QuickAction::VoiceBreathDec,
+        inspDrawQuickRow(ix, rowY, deckboy::params::paramRowForCue(cue, NumericParam::VoiceBreath).key, QuickAction::VoiceBreathDec,
                          std::to_string(static_cast<int>(std::lround(cue.tone.voiceBreath * 100.0))) + "%",
                          QuickAction::VoiceBreathInc, QuickAction::ToggleLoop,
                          false, false,
-                         "Airiness of the voice: 0 is pressed and hard, 100 a whisper.");
+                         deckboy::params::paramRowForCue(cue, NumericParam::VoiceBreath).tip);
         rowY += ix.rowStep;
       }
     } else if (cue.tone.waveform == ToneWaveform::Sting) {
-      inspDrawQuickRow(ix, rowY, "pitch", QuickAction::StingPitchDec,
+      inspDrawQuickRow(ix, rowY, deckboy::params::paramRowForCue(cue, NumericParam::StingPitch).key, QuickAction::StingPitchDec,
                        std::to_string(static_cast<int>(cue.tone.stingPitchHz)) + " Hz",
                        QuickAction::StingPitchInc, QuickAction::ToggleLoop,
                        false, false,
-                       "Where the sting starts. Under a voice it wants to stay "
-                       "out of the way; over a room it wants to cut through.");
+                       deckboy::params::paramRowForCue(cue, NumericParam::StingPitch).tip);
       rowY += ix.rowStep;
-      inspDrawQuickRow(ix, rowY, "length", QuickAction::StingLenDec,
+      inspDrawQuickRow(ix, rowY, deckboy::params::paramRowForCue(cue, NumericParam::StingLen).key, QuickAction::StingLenDec,
                        fmtFloat(cue.tone.stingSeconds, 2) + " s",
                        QuickAction::StingLenInc, QuickAction::ToggleLoop,
                        false, false,
-                       "The whole gesture. This IS the cue's duration -- a "
-                       "sting is the one generated signal here that ends.");
+                       deckboy::params::paramRowForCue(cue, NumericParam::StingLen).tip);
       rowY += ix.rowStep;
-      inspDrawQuickRow(ix, rowY, "sweep", QuickAction::StingSweepDec,
+      inspDrawQuickRow(ix, rowY, deckboy::params::paramRowForCue(cue, NumericParam::StingSweep).key, QuickAction::StingSweepDec,
                        fmtFloat(cue.tone.stingSweepSemitones, 1) + " st",
                        QuickAction::StingSweepInc, QuickAction::ToggleLoop,
                        false, false,
-                       "How far it travels, in semitones. Up reads as arrival, "
-                       "down as departure, zero is a struck note.");
+                       deckboy::params::paramRowForCue(cue, NumericParam::StingSweep).tip);
       rowY += ix.rowStep;
-      inspDrawQuickRow(ix, rowY, "body", QuickAction::StingBodyDec,
+      inspDrawQuickRow(ix, rowY, deckboy::params::paramRowForCue(cue, NumericParam::StingBody).key, QuickAction::StingBodyDec,
                        std::to_string(static_cast<int>(cue.tone.stingBody * 100.0)) + "%",
                        QuickAction::StingBodyInc, QuickAction::ToggleLoop,
                        false, false,
-                       "Harmonic weight: a pure chime at zero, brass at full. "
-                       "This is the difference between a ping and a fanfare.");
+                       deckboy::params::paramRowForCue(cue, NumericParam::StingBody).tip);
       rowY += ix.rowStep;
     } else if (cue.tone.waveform == ToneWaveform::Sine) {
-      inspDrawQuickRow(ix, rowY, "freq", QuickAction::ToneFreqDec,
+      inspDrawQuickRow(ix, rowY, deckboy::params::paramRowForCue(cue, NumericParam::ToneFreq).key, QuickAction::ToneFreqDec,
                        std::to_string(static_cast<int>(cue.tone.frequencyHz)) + " Hz",
                        QuickAction::ToneFreqInc, QuickAction::ToggleLoop,
                        false, false,
-                       "Steps in third-octaves, because the ear works in "
-                       "ratios. 1kHz is the convention.",
+                       deckboy::params::paramRowForCue(cue, NumericParam::ToneFreq).tip,
                      false, QuickAction::ToggleLoop,
                      static_cast<int>(NumericParam::ToneFreq),
                      QuickAction::EffectLfoToggle, cue.toneLfo[kToneLfoFreq].on,
@@ -7274,14 +7276,13 @@ class App {
       rowY = inspDrawMessageRow(ix, rowY, "walks every output in turn",
                                 pal.mid, pal.deep);
     } else {
-      inspDrawQuickRow(ix, rowY, "output", QuickAction::ToneChannelDec,
+      inspDrawQuickRow(ix, rowY, deckboy::params::paramRowForCue(cue, NumericParam::ToneChannel).key, QuickAction::ToneChannelDec,
                        cue.tone.channel < 0
                          ? std::string("all")
                          : ("ch " + std::to_string(cue.tone.channel + 1)),
                        QuickAction::ToneChannelInc, QuickAction::ToggleLoop,
                        false, false,
-                       "Which output channel carries the signal. 'all' feeds "
-                       "every one.");
+                       deckboy::params::paramRowForCue(cue, NumericParam::ToneChannel).tip);
       rowY += ix.rowStep;
     }
     inspDrawQuickRow(ix, rowY, "visuals", QuickAction::ToneVisualToggle,
@@ -7320,10 +7321,10 @@ class App {
                      "pulse/triangle/noise set most chiptune is made of.");
     rowY += ix.rowStep;
 
-    inspDrawQuickRow(ix, rowY, "note", QuickAction::FdsNoteDec,
+    inspDrawQuickRow(ix, rowY, deckboy::params::paramRowForCue(cue, NumericParam::SynthNote).key, QuickAction::FdsNoteDec,
                      fdsNoteName(s.noteHz),
                      QuickAction::FdsNoteInc, QuickAction::ToggleLoop,
-                     false, false, "Pitch, in semitones.",
+                     false, false, deckboy::params::paramRowForCue(cue, NumericParam::SynthNote).tip,
                      false, QuickAction::ToggleLoop,
                      static_cast<int>(NumericParam::SynthNote));
     rowY += ix.rowStep;
@@ -7376,19 +7377,17 @@ class App {
                        false, false, "Bends the carrier's PITCH rather than "
                        "mixing with it. This is what makes FDS growl.");
       rowY += ix.rowStep;
-      inspDrawQuickRow(ix, rowY, "depth", QuickAction::FdsDepthDec,
+      inspDrawQuickRow(ix, rowY, deckboy::params::paramRowForCue(cue, NumericParam::FdsDepth).key, QuickAction::FdsDepthDec,
                        std::to_string(s.modDepth),
                        QuickAction::FdsDepthInc, QuickAction::ToggleLoop,
-                       false, false, "How far the modulator bends the pitch. "
-                       "0-63, the hardware's own gain range.",
+                       false, false, deckboy::params::paramRowForCue(cue, NumericParam::FdsDepth).tip,
                      false, QuickAction::ToggleLoop,
                      static_cast<int>(NumericParam::FdsDepth));
       rowY += ix.rowStep;
-      inspDrawQuickRow(ix, rowY, "ratio", QuickAction::FdsRatioDec,
+      inspDrawQuickRow(ix, rowY, deckboy::params::paramRowForCue(cue, NumericParam::FdsRatio).key, QuickAction::FdsRatioDec,
                        fmtFloat(s.modRatio, 3),
                        QuickAction::FdsRatioInc, QuickAction::ToggleLoop,
-                       false, false, "Modulator speed as a ratio of the note, "
-                       "so the bend tracks pitch.",
+                       false, false, deckboy::params::paramRowForCue(cue, NumericParam::FdsRatio).tip,
                      false, QuickAction::ToggleLoop,
                      static_cast<int>(NumericParam::FdsRatio));
       rowY += ix.rowStep;
@@ -7403,12 +7402,11 @@ class App {
                      "pythagorean are exactly in tune in one key. "
                      "Bohlen-Pierce divides a twelfth, so it has no octaves.");
     rowY += ix.rowStep;
-    inspDrawQuickRow(ix, rowY, "A =", QuickAction::SynthRefDec,
+    inspDrawQuickRow(ix, rowY, deckboy::params::paramRowForCue(cue, NumericParam::SynthReference).key, QuickAction::SynthRefDec,
                      fmtFloat(s.referenceHz, 0) + " Hz",
                      QuickAction::SynthRefInc, QuickAction::ToggleLoop,
                      false, false,
-                     "Reference pitch. 440 is modern standard, 432 the common "
-                     "alternative, and older instruments sat lower still.");
+                     deckboy::params::paramRowForCue(cue, NumericParam::SynthReference).tip);
     rowY += ix.rowStep;
     inspDrawQuickRow(ix, rowY, "keyboard", QuickAction::SynthKeyboardToggle,
                      project_.synthKeyboardEnabled ? "PLAYING" : "off",
@@ -7427,28 +7425,26 @@ class App {
                      "cues as they always have.");
     rowY += ix.rowStep;
 
-    inspDrawQuickRow(ix, rowY, "attack", QuickAction::SynthAttackDec,
+    inspDrawQuickRow(ix, rowY, deckboy::params::paramRowForCue(cue, NumericParam::SynthAttack).key, QuickAction::SynthAttackDec,
                      fmtFloat(s.attackSeconds, 2) + "s",
                      QuickAction::SynthAttackInc, QuickAction::ToggleLoop,
-                     false, false, "How long the note takes to reach full level.",
+                     false, false, deckboy::params::paramRowForCue(cue, NumericParam::SynthAttack).tip,
                      false, QuickAction::ToggleLoop,
                      static_cast<int>(NumericParam::SynthAttack));
     rowY += ix.rowStep;
-    inspDrawQuickRow(ix, rowY, "release", QuickAction::SynthReleaseDec,
+    inspDrawQuickRow(ix, rowY, deckboy::params::paramRowForCue(cue, NumericParam::SynthRelease).key, QuickAction::SynthReleaseDec,
                      fmtFloat(s.releaseSeconds, 2) + "s",
                      QuickAction::SynthReleaseInc, QuickAction::ToggleLoop,
-                     false, false, "How long it takes to fall away after the "
-                     "attack. Only audible when retrigger is set.",
+                     false, false, deckboy::params::paramRowForCue(cue, NumericParam::SynthRelease).tip,
                      false, QuickAction::ToggleLoop,
                      static_cast<int>(NumericParam::SynthRelease));
     rowY += ix.rowStep;
-    inspDrawQuickRow(ix, rowY, "retrigger", QuickAction::FdsRetrigDec,
+    inspDrawQuickRow(ix, rowY, deckboy::params::paramRowForCue(cue, NumericParam::FdsRetrig).key, QuickAction::FdsRetrigDec,
                      s.retriggerSeconds <= 0.0
                        ? std::string("hold")
                        : fmtFloat(s.retriggerSeconds, 2) + "s",
                      QuickAction::FdsRetrigInc, QuickAction::ToggleLoop,
-                     false, false, "Re-strike the envelope this often. Hold "
-                     "sustains one note, which is what a drone wants.",
+                     false, false, deckboy::params::paramRowForCue(cue, NumericParam::FdsRetrig).tip,
                      false, QuickAction::ToggleLoop,
                      static_cast<int>(NumericParam::FdsRetrig));
     rowY += ix.rowStep;
@@ -7795,11 +7791,10 @@ class App {
         // transport of its own. These are it.
         std::ostringstream speed;
         speed << std::fixed << std::setprecision(2) << cue.motionDriverSpeed;
-        inspDrawQuickRow(ix, rowY, "driver speed", QuickAction::MotionDriverSpeedDec,
+        inspDrawQuickRow(ix, rowY, deckboy::params::paramRowForCue(cue, NumericParam::MotionDriverSpeed).key, QuickAction::MotionDriverSpeedDec,
                          speed.str(), QuickAction::MotionDriverSpeedInc,
                          QuickAction::ToggleLoop, false, false,
-                         "Fields per rendered frame. 1 is one for one, 0.5 holds "
-                         "each field for two frames, 0 freezes it.",
+                         deckboy::params::paramRowForCue(cue, NumericParam::MotionDriverSpeed).tip,
                          false, QuickAction::ToggleLoop,
                          static_cast<int>(NumericParam::MotionDriverSpeed));
         rowY += ix.rowStep;
@@ -8221,77 +8216,67 @@ class App {
                      QuickAction::ToggleLoop, false, false,
                      "Amber is closest to the 1976 single-phosphor look.");
     rowY += ix.rowStep;
-    inspDrawQuickRow(ix, rowY, "speed", QuickAction::VsSpeedDec,
+    inspDrawQuickRow(ix, rowY, deckboy::params::paramRowForCue(cue, NumericParam::VsSpeed).key, QuickAction::VsSpeedDec,
                      fmtFloat(v.speed, 2), QuickAction::VsSpeedInc,
-                     QuickAction::ToggleLoop, false, false, "Master oscillator rate.",
+                     QuickAction::ToggleLoop, false, false, deckboy::params::paramRowForCue(cue, NumericParam::VsSpeed).tip,
                      false, QuickAction::ToggleLoop,
                      static_cast<int>(NumericParam::VsSpeed));
     rowY += ix.rowStep;
-    inspDrawQuickRow(ix, rowY, "scale", QuickAction::VsScaleDec,
+    inspDrawQuickRow(ix, rowY, deckboy::params::paramRowForCue(cue, NumericParam::VsScale).key, QuickAction::VsScaleDec,
                      fmtFloat(v.scale, 2), QuickAction::VsScaleInc,
                      QuickAction::ToggleLoop, false, false,
-                     "How many features fit on screen.",
+                     deckboy::params::paramRowForCue(cue, NumericParam::VsScale).tip,
                      false, QuickAction::ToggleLoop,
                      static_cast<int>(NumericParam::VsScale));
     rowY += ix.rowStep;
-    inspDrawQuickRow(ix, rowY, "feedback", QuickAction::VsFeedbackDec,
+    inspDrawQuickRow(ix, rowY, deckboy::params::paramRowForCue(cue, NumericParam::VsFeedback).key, QuickAction::VsFeedbackDec,
                      fmtFloat(v.feedbackAmount, 2), QuickAction::VsFeedbackInc,
                      QuickAction::ToggleLoop, false, false,
-                     "Each frame blended into the next. This is the Hypno "
-                     "signature -- at 0 it is a pattern generator, above it "
-                     "the picture starts feeding on itself.",
+                     deckboy::params::paramRowForCue(cue, NumericParam::VsFeedback).tip,
                      false, QuickAction::ToggleLoop,
                      static_cast<int>(NumericParam::VsFeedback));
     rowY += ix.rowStep;
-    inspDrawQuickRow(ix, rowY, "zoom", QuickAction::VsZoomDec,
+    inspDrawQuickRow(ix, rowY, deckboy::params::paramRowForCue(cue, NumericParam::VsZoom).key, QuickAction::VsZoomDec,
                      fmtFloat(v.feedbackZoom, 3), QuickAction::VsZoomInc,
                      QuickAction::ToggleLoop, false, false,
-                     "Above 1 tunnels inward, below 1 blooms outward.",
+                     deckboy::params::paramRowForCue(cue, NumericParam::VsZoom).tip,
                      false, QuickAction::ToggleLoop,
                      static_cast<int>(NumericParam::VsZoom));
     rowY += ix.rowStep;
-    inspDrawQuickRow(ix, rowY, "audio", QuickAction::VsReactDec,
+    inspDrawQuickRow(ix, rowY, deckboy::params::paramRowForCue(cue, NumericParam::VsReact).key, QuickAction::VsReactDec,
                      fmtFloat(v.audioReactivity, 2), QuickAction::VsReactInc,
                      QuickAction::ToggleLoop, false, false,
-                     "How much playing audio widens and brightens the "
-                     "pattern. 0 free-runs.",
+                     deckboy::params::paramRowForCue(cue, NumericParam::VsReact).tip,
                      false, QuickAction::ToggleLoop,
                      static_cast<int>(NumericParam::VsReact));
     rowY += ix.rowStep;
-    inspDrawQuickRow(ix, rowY, "detail", QuickAction::VsResDec,
+    inspDrawQuickRow(ix, rowY, deckboy::params::paramRowForCue(cue, NumericParam::VsResolution).key, QuickAction::VsResDec,
                      std::to_string(v.resolution), QuickAction::VsResInc,
                      QuickAction::ToggleLoop, false, false,
-                     "Internal resolution, 1 chunkiest to 5 finest. This is an "
-                     "aesthetic control as much as a speed one -- the 8-bit "
-                     "look comes from big pixels.",
+                     deckboy::params::paramRowForCue(cue, NumericParam::VsResolution).tip,
                      false, QuickAction::ToggleLoop,
                      static_cast<int>(NumericParam::VsResolution));
     rowY += ix.rowStep;
 
-    inspDrawQuickRow(ix, rowY, "smear", QuickAction::VsSortDec,
+    inspDrawQuickRow(ix, rowY, deckboy::params::paramRowForCue(cue, NumericParam::VsPixelSort).key, QuickAction::VsSortDec,
                      fmtFloat(v.pixelSort, 2), QuickAction::VsSortInc,
                      QuickAction::ToggleLoop, false, false,
-                     "Pixel sort: runs of pixels sorted by brightness within a "
-                     "row, which is what makes datamosh look melted.",
+                     deckboy::params::paramRowForCue(cue, NumericParam::VsPixelSort).tip,
                      false, QuickAction::ToggleLoop,
                      static_cast<int>(NumericParam::VsPixelSort));
     rowY += ix.rowStep;
-    inspDrawQuickRow(ix, rowY, "glitch", QuickAction::VsGlitchDec,
+    inspDrawQuickRow(ix, rowY, deckboy::params::paramRowForCue(cue, NumericParam::VsGlitch).key, QuickAction::VsGlitchDec,
                      fmtFloat(v.glitch, 2), QuickAction::VsGlitchInc,
                      QuickAction::ToggleLoop, false, false,
-                     "Torn scanline bands and RGB separation. In text mode it "
-                     "also corrupts CELLS -- whole rows lock to one repeating "
-                     "character, the way a real text screen loses sync.",
+                     deckboy::params::paramRowForCue(cue, NumericParam::VsGlitch).tip,
                      false, QuickAction::ToggleLoop,
                      static_cast<int>(NumericParam::VsGlitch));
     rowY += ix.rowStep;
 
-    inspDrawQuickRow(ix, rowY, "crt", QuickAction::VsCrtDec,
+    inspDrawQuickRow(ix, rowY, deckboy::params::paramRowForCue(cue, NumericParam::VsCrt).key, QuickAction::VsCrtDec,
                      fmtFloat(v.crt, 2), QuickAction::VsCrtInc,
                      QuickAction::ToggleLoop, false, false,
-                     "Scanlines, phosphor bloom and RGB fringing. The bloom is "
-                     "the part that matters -- a phosphor spills sideways, "
-                     "which is why a CRT looks like it is emitting light.",
+                     deckboy::params::paramRowForCue(cue, NumericParam::VsCrt).tip,
                      false, QuickAction::ToggleLoop,
                      static_cast<int>(NumericParam::VsCrt));
     rowY += ix.rowStep;
@@ -8344,17 +8329,16 @@ class App {
                              "way glyphs are.",
                              pal.dark, pal.light);
     if (!v.spriteSheetPath.empty()) {
-      inspDrawQuickRow(ix, rowY, "tile w", QuickAction::VsTileWDec,
+      inspDrawQuickRow(ix, rowY, deckboy::params::paramRowForCue(cue, NumericParam::VsTileW).key, QuickAction::VsTileWDec,
                        std::to_string(v.spriteTileW),
                        QuickAction::VsTileWInc, QuickAction::ToggleLoop,
                        false, false,
-                       "Tile width in pixels. Must match the sheet's grid or "
-                       "the slices land across neighbouring sprites.");
+                       deckboy::params::paramRowForCue(cue, NumericParam::VsTileW).tip);
       rowY += ix.rowStep;
-      inspDrawQuickRow(ix, rowY, "tile h", QuickAction::VsTileHDec,
+      inspDrawQuickRow(ix, rowY, deckboy::params::paramRowForCue(cue, NumericParam::VsTileH).key, QuickAction::VsTileHDec,
                        std::to_string(v.spriteTileH),
                        QuickAction::VsTileHInc, QuickAction::ToggleLoop,
-                       false, false, "Tile height in pixels.");
+                       false, false, deckboy::params::paramRowForCue(cue, NumericParam::VsTileH).tip);
       rowY += ix.rowStep;
       inspDrawQuickRow(ix, rowY, "rotate", QuickAction::VsRotateCycle,
                        vsRotateLabel(v.spriteRotate),
@@ -8365,10 +8349,10 @@ class App {
                        "sometimes that is what you want.");
       rowY += ix.rowStep;
       if (v.spriteRotate == 5) {
-        inspDrawQuickRow(ix, rowY, "spin", QuickAction::VsFreeAngleDec,
+        inspDrawQuickRow(ix, rowY, deckboy::params::paramRowForCue(cue, NumericParam::VsFreeAngle).key, QuickAction::VsFreeAngleDec,
                          fmtFloat(v.spriteFreeAngle, 0) + " deg/s",
                          QuickAction::VsFreeAngleInc, QuickAction::ToggleLoop,
-                         false, false, "Rotation speed, degrees per second.",
+                         false, false, deckboy::params::paramRowForCue(cue, NumericParam::VsFreeAngle).tip,
                          false, QuickAction::ToggleLoop,
                          static_cast<int>(NumericParam::VsFreeAngle));
         rowY += ix.rowStep;
@@ -8380,19 +8364,17 @@ class App {
                        "Alternating mirrors by cell position, which reads as "
                        "pattern where random flipping reads as noise.");
       rowY += ix.rowStep;
-      inspDrawQuickRow(ix, rowY, "jitter", QuickAction::VsJitterDec,
+      inspDrawQuickRow(ix, rowY, deckboy::params::paramRowForCue(cue, NumericParam::VsJitter).key, QuickAction::VsJitterDec,
                        fmtFloat(v.spriteJitter, 2),
                        QuickAction::VsJitterInc, QuickAction::ToggleLoop,
                        false, false,
-                       "Vary tile size per cell, so the grid stops looking "
-                       "like a grid.");
+                       deckboy::params::paramRowForCue(cue, NumericParam::VsJitter).tip);
       rowY += ix.rowStep;
-      inspDrawQuickRow(ix, rowY, "chaos", QuickAction::VsChaosDec,
+      inspDrawQuickRow(ix, rowY, deckboy::params::paramRowForCue(cue, NumericParam::VsChaos).key, QuickAction::VsChaosDec,
                        fmtFloat(v.spriteChaos, 2),
                        QuickAction::VsChaosInc, QuickAction::ToggleLoop,
                        false, false,
-                       "0 picks tiles by brightness so the picture reads. 1 "
-                       "picks at random so the grid becomes texture.");
+                       deckboy::params::paramRowForCue(cue, NumericParam::VsChaos).tip);
       rowY += ix.rowStep;
     }
     return rowY;
@@ -8408,14 +8390,14 @@ class App {
 
   int inspDrawCodeRows(const InspectorCtx& ix, int startY, const Cue& cue) {
     int rowY = startY;
-    inspDrawQuickRow(ix, rowY, "render width", QuickAction::NumericParamDec,
+    inspDrawQuickRow(ix, rowY, deckboy::params::paramRowForCue(cue, NumericParam::CodeWidth).key, QuickAction::NumericParamDec,
       std::to_string(cue.width), QuickAction::NumericParamInc, QuickAction::ToggleLoop, false, false,
-      "Source pixels, independent of output placement", true, QuickAction::EditNumericParam,
+      deckboy::params::paramRowForCue(cue, NumericParam::CodeWidth).tip, true, QuickAction::EditNumericParam,
       static_cast<int>(NumericParam::CodeWidth));
     rowY += ix.rowStep;
-    inspDrawQuickRow(ix, rowY, "render height", QuickAction::NumericParamDec,
+    inspDrawQuickRow(ix, rowY, deckboy::params::paramRowForCue(cue, NumericParam::CodeHeight).key, QuickAction::NumericParamDec,
       std::to_string(cue.height), QuickAction::NumericParamInc, QuickAction::ToggleLoop, false, false,
-      "Source pixels, independent of output placement", true, QuickAction::EditNumericParam,
+      deckboy::params::paramRowForCue(cue, NumericParam::CodeHeight).tip, true, QuickAction::EditNumericParam,
       static_cast<int>(NumericParam::CodeHeight));
     rowY += ix.rowStep;
     // The expression, on its own row and wide, because it is the cue.
