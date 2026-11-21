@@ -62,6 +62,8 @@ int main(int argc, char** argv) {
         cue.geometryLfo[0].on = true;
         cue.geometryLfo[0].rateHz = 0.75f;
         cue.geometryLfo[0].depth = 0.25f;
+        cue.geometryLfo[0].lo = 0.25f;   // limits (tagged field)
+        cue.geometryLfo[0].hi = 0.75f;
         deckboy::effects::CueEffect fx;
         fx.kind = deckboy::effects::CueEffectKind::Blur;
         fx.amount = 0.375f;
@@ -84,7 +86,8 @@ int main(int argc, char** argv) {
                 cue.outputScaleX == 1.25f && cue.outputRotationDegrees == 27.0f &&
                 cue.cropLeft == 0.125f && cue.flipHorizontal && cue.flipVertical &&
                 cue.geometryLfo[0].on && cue.geometryLfo[0].rateHz == 0.75f &&
-                cue.geometryLfo[0].depth == 0.25f && cue.effects.size() == 1 &&
+                cue.geometryLfo[0].depth == 0.25f && cue.geometryLfo[0].lo == 0.25f && cue.geometryLfo[0].hi == 0.75f &&
+                cue.effects.size() == 1 &&
                 cue.effects[0].kind == deckboy::effects::CueEffectKind::Blur &&
                 cue.effects[0].amount == 0.375f && cue.textBody == project.decks[d].cues[c].textBody,
                 "non-default fields preserved");

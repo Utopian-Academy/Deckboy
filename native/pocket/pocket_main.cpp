@@ -1048,6 +1048,10 @@ class Pocket {
 
   void frame() {
     const Uint64 t0 = SDL_GetPerformanceCounter();
+    if (splashPending_) {
+      splashPending_ = false;
+      splashUntil_ = SDL_GetTicks() + kSplashMs;
+    }
     takePicks();
     {   // frames per second, for STATUS
       ++fpsFrames_;
@@ -3101,6 +3105,8 @@ class Pocket {
       splashOn_ = true;
       loadSplash();
       splashOn_ = was;
+      splashPending_ = false;
+      splashUntil_ = SDL_GetTicks() + kSplashMs;
       return splashTex_ ? ok() : err("no splash art in this build");
     }
     if (verb == "HELPERS") {   // HELPERS CLOCK OFF|24|12|ANALOG | HELPERS REMAINING ON|OFF | HELPERS FPS ON|OFF
@@ -4565,7 +4571,10 @@ class Pocket {
     }
     splashSeed_ = static_cast<std::uint32_t>(next());
     splashQuip_ = static_cast<int>(next() % 997) * 2;   // starts on one of Pocket's own lines
-    splashUntil_ = SDL_GetTicks() + kSplashMs;
+    // The clock starts at the first frame drawn, not here: on a phone,
+    // starting up takes most of a second, and a clock started now had all
+    // but run out by then (James saw only "a bad dip to and from black").
+    splashPending_ = true;
   }
 
   // ── Tuning in ──
@@ -4617,7 +4626,14 @@ class Pocket {
   }
 
   void drawSplashArt(const SDL_FRect& pic) {
-    if (!splashing()) return;
+    if (!splashing()) {
+      if (splashFrames_ > 0) {
+        SDL_Log("pocket: the splash drew %d frames in its second", splashFrames_);
+        splashFrames_ = 0;
+      }
+      return;
+    }
+    ++splashFrames_;
     const Uint64 now = SDL_GetTicks();
     const float p = std::clamp(static_cast<float>(now - (splashUntil_ - kSplashMs)) / static_cast<float>(kSplashMs), 0.0f, 1.0f);
     const float t = p * static_cast<float>(kSplashMs) / 1000.0f;
@@ -4680,9 +4696,7 @@ class Pocket {
       fillRoundAlpha(renderer_, kBlack, 0.35f * calm, {pic.x, pic.y + bar * pic.h - pic.h * 0.08f, pic.w, pic.h * 0.16f}, 0);
     }
     for (float y = pic.y; y < pic.y + pic.h; y += 3.0f) fillRoundAlpha(renderer_, kBlack, 0.18f, {pic.x, y, pic.w, 1.0f}, 0);
-    // and away: the last quarter-second fades to the menu
-    const float left = static_cast<float>(splashUntil_ - now);
-    if (left < 150.0f) fillRoundAlpha(renderer_, kBlack, 1.0f - left / 150.0f, pic, 0);
+    // no dip at the end: the logo holds until the menu takes over
     SDL_SetRenderClipRect(renderer_, nullptr);
   }
 
@@ -6413,7 +6427,7 @@ class Pocket {
       y += 9 * u;
     }
     const float bottom = lcd.y + lcd.h - u;
-    const float rowH = std::min(9.0f * u, (bottom - y) / (slot == kGeoLfoRotation ? 8.0f : 7.0f));
+    const float rowH = std::min(9.0f * u, (bottom - y) / (slot == kGeoLfoRotation ? 9.4f : 8.4f));
     auto row = [&](float weight) { const SDL_FRect rr {lx, y, lw, rowH * weight}; y += rowH * weight; return rr; };
     chipRow(row(1), {{L.on ? "MOVING" : "STILL", [this, i, slot] {
                         auto& l = cues_[static_cast<std::size_t>(i)].geometryLfo[static_cast<std::size_t>(slot)];
@@ -6497,6 +6511,35 @@ class Pocket {
       n.get = [this, i, slot] { return cues_[static_cast<std::size_t>(i)].geometryLfo[static_cast<std::size_t>(slot)].depth * 100.0; };
       n.set = [this, i, slot](double v) { cues_[static_cast<std::size_t>(i)].geometryLfo[static_cast<std::size_t>(slot)].depth = static_cast<float>(v / 100.0); };
       numberRow(row(1.3f), n);
+    }
+    {
+      // The limits (James, 11-20): the wave travels only between LOWEST and
+      // HIGHEST, as a share of its swing; squeezed, so it stays smooth.
+      const SDL_FRect both = row(1.3f);
+      auto limit = [this, i, slot](bool high) {
+        NumSpec n;
+        n.label = high ? "HIGHEST" : "LOWEST";
+        n.unit = "%";
+        n.min = 0;
+        n.max = 100;
+        n.step = 1;
+        n.reset = high ? 100 : 0;
+        n.presets = high ? std::vector<std::pair<std::string, double>> {{"HALF", 50}, {"3/4", 75}, {"TOP", 100}}
+                         : std::vector<std::pair<std::string, double>> {{"BOTTOM", 0}, {"1/4", 25}, {"HALF", 50}};
+        n.get = [this, i, slot, high] {
+          const auto& l = cues_[static_cast<std::size_t>(i)].geometryLfo[static_cast<std::size_t>(slot)];
+          return (high ? l.hi : l.lo) * 100.0;
+        };
+        n.set = [this, i, slot, high](double v) {
+          auto& l = cues_[static_cast<std::size_t>(i)].geometryLfo[static_cast<std::size_t>(slot)];
+          const float f = static_cast<float>(v / 100.0);
+          if (high) { l.hi = f; if (l.lo > f) l.lo = f; }
+          else { l.lo = f; if (l.hi < f) l.hi = f; }
+        };
+        return n;
+      };
+      numberRow({both.x, both.y, both.w / 2 - unit_ / 2, both.h}, limit(false));
+      numberRow({both.x + both.w / 2 + unit_ / 2, both.y, both.w / 2 - unit_ / 2, both.h}, limit(true));
     }
     // back to the page
     const float bw = lw / 2 - u / 2;
@@ -7102,6 +7145,8 @@ class Pocket {
   std::vector<SDL_Texture*> splashChannels_;   // the scenes passed on the way
   SDL_Texture* splashNoise_ = nullptr;         // the snow
   std::uint32_t splashSeed_ = 1;
+  bool splashPending_ = false;
+  int splashFrames_ = 0;   // loaded; its second starts with the first frame
   Uint64 splashUntil_ = 0;
   int splashQuip_ = 0;
   Uint64 fpsSince_ = 0;

@@ -405,6 +405,12 @@ void writeParamLfo(std::ostream& one, const deckboy::effects::ParamLfo& lfo) {
   if (deckboy::effects::lfoShapeIsAudio(lfo.shape) && lfo.listen != 0) {
     one << ',' << lfo.listen;
   }
+  // The limits, last and TAGGED ("L<lo>:<hi>"), only when set: the fields
+  // before them vary with the shape, so a position could not say what they
+  // are. An older build reads the fields it knows and skips this one.
+  if (lfo.lo > 0.0005f || lfo.hi < 0.9995f) {
+    one << ",L" << lfo.lo << ':' << lfo.hi;
+  }
 }
 
 void readParamLfo(const std::string& one, deckboy::effects::ParamLfo& lfo) {
@@ -416,6 +422,17 @@ void readParamLfo(const std::string& one, deckboy::effects::ParamLfo& lfo) {
                                  ? std::string::npos : comma - c0));
     if (comma == std::string::npos) break;
     c0 = comma + 1;
+  }
+  // the limits, tagged, taken out before the positional fields are read
+  for (std::size_t i = 1; i < f.size(); ++i) {
+    if (f[i].empty() || f[i][0] != 'L') continue;
+    const std::size_t colon = f[i].find(':');
+    if (colon != std::string::npos) {
+      lfo.lo = std::clamp(static_cast<float>(std::atof(f[i].substr(1, colon - 1).c_str())), 0.0f, 1.0f);
+      lfo.hi = std::clamp(static_cast<float>(std::atof(f[i].substr(colon + 1).c_str())), 0.0f, 1.0f);
+    }
+    f.erase(f.begin() + static_cast<std::ptrdiff_t>(i));
+    break;
   }
   if (f.size() > 0) lfo.on = std::atoi(f[0].c_str()) != 0;
   if (f.size() > 1) {
