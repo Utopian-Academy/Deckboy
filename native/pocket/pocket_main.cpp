@@ -5079,17 +5079,16 @@ class Pocket {
         SDL_RenderTexture(renderer_, splashNoise_, nullptr, &pic);
       }
     }
-    for (float y = pic.y; y < pic.y + pic.h; y += 3.0f) fillRoundAlpha(renderer_, kBlack, 0.10f * vis, {pic.x, y, pic.w, 1.0f}, 0);
     // a glint of light sweeps across while it holds (James 11-20)
     // quick: a third of a second, a beat into the hold (James: "much faster glint")
     const float g = (into - 180.0f) / 340.0f * 1.2f - 0.1f;
-    if (g > -0.1f && g < 1.1f) drawGlint(pic, g, 0.55f * vis);
+    if (g > -0.1f && g < 1.1f) drawGlint(pic, g, 0.22f * vis);   // James: "too much"
     SDL_SetRenderClipRect(renderer_, nullptr);
   }
 
   // A soft slanted band of light at `g` (0 = left edge, 1 = right), added on.
   void drawGlint(const SDL_FRect& pic, float g, float strength) {
-    const float slant = pic.h * 0.45f, half = pic.w * 0.07f;
+    const float slant = pic.h * 0.45f, half = pic.w * 0.045f;
     const float cx = pic.x - slant + g * (pic.w + 2 * slant);
     auto vtx = [&](float x, float y, float a) {
       return SDL_Vertex {{x, y}, {1.0f, 0.97f, 0.88f, a}, {0, 0}};
@@ -5245,11 +5244,10 @@ class Pocket {
     SDL_RenderTexture(renderer_, faceBack_, nullptr, &pic);
   }
 
-  // Over the face: scanlines, a hum bar rolling up, a faint flicker and dark
-  // corners.
+  // Over the face: a hum bar rolling up, a faint flicker and dark corners.
+  // (Drawn scanlines were tried and looked fake on a phone's fine pixels.)
   void drawCrtOver(const SDL_FRect& pic, Uint64 now) {
     const float t = static_cast<float>(now) / 1000.0f;
-    for (float y = pic.y; y < pic.y + pic.h; y += 3.0f) fillRoundAlpha(renderer_, kBlack, 0.22f, {pic.x, y + 1.0f, pic.w, 1.2f}, 0);
     const float bar = std::fmod(1.0f - t * 0.12f + 2.0f, 1.0f);
     fillRoundAlpha(renderer_, Ink {214, 226, 170}, 0.035f, {pic.x, pic.y + bar * pic.h - pic.h * 0.1f, pic.w, pic.h * 0.2f}, 0);
     fillRoundAlpha(renderer_, kBlack, 0.03f + 0.03f * std::sin(t * 37.0f), pic, 0);
@@ -5304,8 +5302,11 @@ class Pocket {
       // small logo sits on it
       const float stay = c == n - 1 ? lock : 0.0f;
       const float shown = std::max(strength * calm, stay);
+      // the one it lands on ends clean: no colour split left on it, which
+      // read as two pictures (James 11-20: "only 1 image")
+      const float fringe = c == n - 1 ? calm : 0.4f + calm;
       drawSignal(splashChannels_[static_cast<std::size_t>(c)], pic, shown, splashStyle_.tear * calm, roll * calm,
-                 splashStyle_.fringe * pic.w * (0.4f + calm), t, salt);
+                 splashStyle_.fringe * pic.w * fringe, t, salt);
       strongest = std::max(strongest, strength * calm);
     }
     // the small logo: the roll and the tearing ease off as the signal locks
@@ -5345,7 +5346,6 @@ class Pocket {
       const float bar = std::fmod(1.0f - t * splashStyle_.humSpeed + 2.0f, 1.0f);
       fillRoundAlpha(renderer_, kBlack, 0.18f * calm, {pic.x, pic.y + bar * pic.h - pic.h * 0.08f, pic.w, pic.h * 0.16f}, 0);
     }
-    for (float y = pic.y; y < pic.y + pic.h; y += 3.0f) fillRoundAlpha(renderer_, kBlack, 0.10f, {pic.x, y, pic.w, 1.0f}, 0);
     // no dip at the end: the logo holds until the menu takes over
     SDL_SetRenderClipRect(renderer_, nullptr);
   }
