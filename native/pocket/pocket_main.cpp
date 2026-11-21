@@ -4858,7 +4858,7 @@ class Pocket {
   bool splashing() const { return splashTex_ && SDL_GetTicks() < splashUntil_; }
   // After the tuning: the picture holds a beat, then fades out fuzzily onto
   // the face (James 11-20). Pocket is usable all the while.
-  static constexpr Uint64 kSplashHoldMs = 500, kSplashFadeMs = 650;
+  static constexpr Uint64 kSplashHoldMs = 1100, kSplashFadeMs = 650;   // James 11-20: "hold the splash a tad longer"
   bool splashEnding() const {
     const Uint64 now = SDL_GetTicks();
     return splashTex_ && splashUntil_ != 0 && now >= splashUntil_ && now < splashUntil_ + kSplashHoldMs + kSplashFadeMs &&
@@ -5080,7 +5080,33 @@ class Pocket {
       }
     }
     for (float y = pic.y; y < pic.y + pic.h; y += 3.0f) fillRoundAlpha(renderer_, kBlack, 0.10f * vis, {pic.x, y, pic.w, 1.0f}, 0);
+    // a glint of light sweeps across while it holds (James 11-20)
+    // quick: a third of a second, a beat into the hold (James: "much faster glint")
+    const float g = (into - 180.0f) / 340.0f * 1.2f - 0.1f;
+    if (g > -0.1f && g < 1.1f) drawGlint(pic, g, 0.55f * vis);
     SDL_SetRenderClipRect(renderer_, nullptr);
+  }
+
+  // A soft slanted band of light at `g` (0 = left edge, 1 = right), added on.
+  void drawGlint(const SDL_FRect& pic, float g, float strength) {
+    const float slant = pic.h * 0.45f, half = pic.w * 0.07f;
+    const float cx = pic.x - slant + g * (pic.w + 2 * slant);
+    auto vtx = [&](float x, float y, float a) {
+      return SDL_Vertex {{x, y}, {1.0f, 0.97f, 0.88f, a}, {0, 0}};
+    };
+    const float top = pic.y, bot = pic.y + pic.h;
+    // left edge, the bright middle, right edge; the top leans right
+    const SDL_Vertex v[6] = {vtx(cx - half + slant, top, 0), vtx(cx + slant, top, strength), vtx(cx + half + slant, top, 0),
+                             vtx(cx - half - slant, bot, 0), vtx(cx - slant, bot, strength), vtx(cx + half - slant, bot, 0)};
+    const int idx[12] = {0, 1, 4, 0, 4, 3, 1, 2, 5, 1, 5, 4};
+    SDL_SetRenderDrawBlendMode(renderer_, SDL_BLENDMODE_ADD);
+    SDL_RenderGeometry(renderer_, nullptr, v, 6, idx, 12);
+    // a thin hot core
+    const float core = half * 0.18f;
+    const SDL_Vertex c[6] = {vtx(cx - core + slant, top, 0), vtx(cx + slant, top, strength * 0.8f), vtx(cx + core + slant, top, 0),
+                             vtx(cx - core - slant, bot, 0), vtx(cx - slant, bot, strength * 0.8f), vtx(cx + core - slant, bot, 0)};
+    SDL_RenderGeometry(renderer_, nullptr, c, 6, idx, 12);
+    SDL_SetRenderDrawBlendMode(renderer_, SDL_BLENDMODE_BLEND);
   }
 
   // ── The face: the desk's (core/face.hpp), in the empty picture ──
@@ -5136,15 +5162,28 @@ class Pocket {
     deckboy::face::Mood mood = deckboy::face::moodFor(static_cast<double>(now) / 3600000.0, false);
     mood.asleep = faceAsleep();
     const deckboy::face::Box area {static_cast<int>(pic.x), static_cast<int>(pic.y), static_cast<int>(pic.w), static_cast<int>(pic.h)};
-    const deckboy::face::Frame f = deckboy::face::layout(area, now, mood, facePokes_, 18, 140);
-    if (f.gone) {
-      faceR_ = 0;
-      return;
-    }
+    // a little smaller than the desk's share of the box (James 11-20)
+    const int unitMax = std::max(18, std::min(area.w, area.h) / 8);
+    const deckboy::face::Frame f = deckboy::face::layout(area, now, mood, facePokes_, 12, unitMax);
     const Ink glow {214, 226, 170};
     const SDL_Rect clip {area.x, area.y, area.w, area.h};
     SDL_SetRenderClipRect(renderer_, &clip);
+    drawFaceBackdrop(pic, now, mood.asleep);
+    if (f.gone) {
+      faceR_ = 0;
+      drawCrtOver(pic, now);
+      SDL_SetRenderClipRect(renderer_, nullptr);
+      return;
+    }
+    // CRT bloom: a soft halo under every lit block, then the block
+    const float bloom = std::max(2.0f, static_cast<float>(f.thick) * 0.9f);
     for (const deckboy::face::Box& b : f.solid) {
+      fillRoundAlpha(renderer_, glow, 0.16f, {b.x - bloom, b.y - bloom, b.w + 2 * bloom, b.h + 2 * bloom}, bloom);
+    }
+    for (const deckboy::face::Box& b : f.solid) {
+      // a touch of colour fringe either side, as a tube does
+      fillRoundAlpha(renderer_, Ink {255, 90, 90}, 0.22f, {b.x - 1.5f, static_cast<float>(b.y), static_cast<float>(b.w), static_cast<float>(b.h)}, 0);
+      fillRoundAlpha(renderer_, Ink {90, 160, 255}, 0.22f, {b.x + 1.5f, static_cast<float>(b.y), static_cast<float>(b.w), static_cast<float>(b.h)}, 0);
       fillRect(renderer_, glow, {static_cast<float>(b.x), static_cast<float>(b.y), static_cast<float>(b.w), static_cast<float>(b.h)});
     }
     // the stars, in blocks the size of the face's own pixels (a phone's are small)
@@ -5168,7 +5207,63 @@ class Pocket {
     const float u = unit_, lineH = 4.5f * u;
     const float ty = std::min(pic.y + pic.h - lineH - 0.5f * u, static_cast<float>(f.cy + f.unit * 3));
     text_.draw(mono_, faceLine(now, mood), glow, {pic.x + u, ty, pic.w - 2 * u, lineH}, true);
+    drawCrtOver(pic, now);
     SDL_SetRenderClipRect(renderer_, nullptr);
+  }
+
+  // Behind the face: not black but a tube left on -- a slow, dim plasma in
+  // the face's own green, drawn tiny and stretched soft. 96 x 54 pixels a
+  // frame, so it costs next to nothing; slower still while she dozes.
+  void drawFaceBackdrop(const SDL_FRect& pic, Uint64 now, bool asleep) {
+    constexpr int kW = 96, kH = 54;
+    if (!faceBack_) {
+      faceBack_ = SDL_CreateTexture(renderer_, SDL_PIXELFORMAT_RGBA32, SDL_TEXTUREACCESS_STREAMING, kW, kH);
+      if (faceBack_) SDL_SetTextureScaleMode(faceBack_, SDL_SCALEMODE_LINEAR);
+    }
+    fillRect(renderer_, Ink {8, 14, 10}, pic);
+    if (!faceBack_) return;
+    const float t = static_cast<float>(now) / 1000.0f * (asleep ? 0.15f : 0.35f);
+    void* px = nullptr;
+    int pitch = 0;
+    if (!SDL_LockTexture(faceBack_, nullptr, &px, &pitch)) return;
+    for (int y = 0; y < kH; ++y) {
+      auto* row = static_cast<std::uint8_t*>(px) + y * pitch;
+      const float fy = static_cast<float>(y) / kH;
+      for (int x = 0; x < kW; ++x) {
+        const float fx = static_cast<float>(x) / kW;
+        float v = std::sin(fx * 6.0f + t) + std::sin(fy * 5.0f - t * 1.3f) +
+                  std::sin((fx + fy) * 4.0f + t * 0.7f) + std::sin(std::sqrt((fx - 0.5f) * (fx - 0.5f) * 4 + (fy - 0.5f) * (fy - 0.5f)) * 9.0f - t * 1.6f);
+        v = 0.5f + 0.125f * v;   // 0-1
+        const float k = 0.10f + 0.22f * v * v;
+        row[x * 4 + 0] = static_cast<std::uint8_t>(40 * k + 6);
+        row[x * 4 + 1] = static_cast<std::uint8_t>(170 * k + 10);
+        row[x * 4 + 2] = static_cast<std::uint8_t>(110 * k + 8);
+        row[x * 4 + 3] = 255;
+      }
+    }
+    SDL_UnlockTexture(faceBack_);
+    SDL_RenderTexture(renderer_, faceBack_, nullptr, &pic);
+  }
+
+  // Over the face: scanlines, a hum bar rolling up, a faint flicker and dark
+  // corners.
+  void drawCrtOver(const SDL_FRect& pic, Uint64 now) {
+    const float t = static_cast<float>(now) / 1000.0f;
+    for (float y = pic.y; y < pic.y + pic.h; y += 3.0f) fillRoundAlpha(renderer_, kBlack, 0.22f, {pic.x, y + 1.0f, pic.w, 1.2f}, 0);
+    const float bar = std::fmod(1.0f - t * 0.12f + 2.0f, 1.0f);
+    fillRoundAlpha(renderer_, Ink {214, 226, 170}, 0.035f, {pic.x, pic.y + bar * pic.h - pic.h * 0.1f, pic.w, pic.h * 0.2f}, 0);
+    fillRoundAlpha(renderer_, kBlack, 0.03f + 0.03f * std::sin(t * 37.0f), pic, 0);
+    // the corners: rings darkening outward
+    for (int i = 0; i < 6; ++i) {
+      const float in = static_cast<float>(i) * std::min(pic.w, pic.h) * 0.012f;
+      const float th = std::min(pic.w, pic.h) * 0.012f;
+      const SDL_FRect ring {pic.x + in, pic.y + in, pic.w - 2 * in, pic.h - 2 * in};
+      const float a = 0.16f * (1.0f - static_cast<float>(i) / 6.0f);
+      fillRoundAlpha(renderer_, kBlack, a, {ring.x, ring.y, ring.w, th}, 0);
+      fillRoundAlpha(renderer_, kBlack, a, {ring.x, ring.y + ring.h - th, ring.w, th}, 0);
+      fillRoundAlpha(renderer_, kBlack, a, {ring.x, ring.y + th, th, ring.h - 2 * th}, 0);
+      fillRoundAlpha(renderer_, kBlack, a, {ring.x + ring.w - th, ring.y + th, th, ring.h - 2 * th}, 0);
+    }
   }
 
   void drawSplashArt(const SDL_FRect& pic) {
@@ -7733,6 +7828,7 @@ class Pocket {
   float faceCx_ = 0, faceCy_ = 0, faceR_ = 0;
   Uint64 faceLastPokeMs_ = 0, faceSince_ = 0;
   bool faceWasShown_ = false;
+  SDL_Texture* faceBack_ = nullptr;   // the tube behind her
   int splashQuip_ = 0;
   Uint64 fpsSince_ = 0;
   int fpsFrames_ = 0;
