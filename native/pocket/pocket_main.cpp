@@ -2713,12 +2713,16 @@ class Pocket {
       }});
     }
     // its settings: the desk's choices first, then its numbers, a page at a time
-    struct Row { int choice = -1; deckboy::params::ParamRow num {"", NumericParam::None, ""}; };
+    struct Row { int choice = -1; deckboy::params::ParamRow num {"", deckboy::params::NumericParam::None, ""}; };
     const auto choices = deckboy::params::choiceRowsForCue(c);
     std::vector<Row> rows;
-    for (int k = 0; k < static_cast<int>(choices.size()); ++k) rows.push_back({k, {"", NumericParam::None, ""}});
+    for (int k = 0; k < static_cast<int>(choices.size()); ++k) rows.push_back({k, {"", deckboy::params::NumericParam::None, ""}});
     for (const auto& pr : deckboy::params::paramRowsForCue(c)) {
-      if (pr.id == NumericParam::None || !deckboy::params::numericParamSpec(pr.id, &c)) continue;
+      if (pr.id == deckboy::params::NumericParam::None || !deckboy::params::numericParamSpec(pr.id, &c)) continue;
+      // a setting already offered as a choice (by name) is not repeated as a number
+      bool chosen = false;
+      for (const auto& ch : choices) if (upper(ch.label) == upper(pr.key)) chosen = true;
+      if (chosen) continue;
       rows.push_back({-1, pr});
     }
     if (rows.empty()) {
@@ -2778,7 +2782,7 @@ class Pocket {
         deckboy::params::readNumericParam(cc, pr.id, now);
         n.zero = std::clamp(0.0, n.min, n.max);
         n.reset = now;
-        const NumericParam id = pr.id;
+        const deckboy::params::NumericParam id = pr.id;
         n.get = [this, i, id] {
           double v = 0;
           deckboy::params::readNumericParam(cues_[static_cast<std::size_t>(i)], id, v);
@@ -3422,6 +3426,46 @@ class Pocket {
         return out + "\n";
       }
       return err("FX <cue> ADD <effect>|CLEAR|LIST");
+    }
+    // SET <cue> TYPE <type> | SET <cue> <setting> <value> | SET <cue> LIST:
+    // what the SET page does (a setting's name with _ for its spaces).
+    if (verb == "SET") {
+      std::istringstream a(rest);
+      int n = 0;
+      std::string key, value;
+      a >> n >> key >> value;
+      if (n < 1 || n > static_cast<int>(cues_.size()) || key.empty()) return err("SET <cue> TYPE <type>|LIST|<setting> <value>");
+      const int i = n - 1;
+      Cue& c = cues_[static_cast<std::size_t>(i)];
+      key = upper(key);
+      if (key == "TYPE") {
+        setSourceType(i, value);
+        return ok();
+      }
+      std::string out = "OK SET";
+      for (const auto& ch : deckboy::params::choiceRowsForCue(c)) {
+        std::string k = upper(ch.label);
+        for (char& q : k) if (q == ' ') q = '_';
+        if (key == "LIST") { out += " | " + k + "=" + ch.options[static_cast<std::size_t>(std::clamp(ch.get(c), 0, static_cast<int>(ch.options.size()) - 1))]; continue; }
+        if (k != key) continue;
+        for (std::size_t o = 0; o < ch.options.size(); ++o) {
+          if (upper(ch.options[o]) == upper(value) || std::to_string(o) == value) { ch.set(c, static_cast<int>(o)); settingChanged(i); return ok(); }
+        }
+        return err("no " + value + " for " + k);
+      }
+      for (const auto& pr : deckboy::params::paramRowsForCue(c)) {
+        std::string k = upper(pr.key);
+        for (char& q : k) if (q == ' ') q = '_';
+        double v = 0;
+        if (!deckboy::params::readNumericParam(c, pr.id, v)) continue;
+        if (key == "LIST") { out += " | " + k + "=" + std::to_string(v); continue; }
+        if (k != key) continue;
+        deckboy::params::writeNumericParam(c, pr.id, std::atof(value.c_str()));
+        settingChanged(i);
+        return ok();
+      }
+      if (key == "LIST") return out + "\n";
+      return err("no setting " + key);
     }
     if (verb == "DELETE") {   // DELETE <cue>: as a swipe does (the cue on air is refused)
       const int n = std::atoi(rest.c_str());
@@ -5781,11 +5825,18 @@ class Pocket {
     {
       const std::vector<std::pair<const char*, Page>> tabs = {
           {"SET", Page::Source}, {"PLAY", Page::Play}, {"PLACE", Page::Place}, {"LOOK", Page::Look}, {"FX", Page::Fx}, {"SOUND", Page::Sound}};
-      const float dw = 12 * u, gap = 0.8f * u;
-      const float tw = (lw - dw - gap * static_cast<float>(tabs.size())) / static_cast<float>(tabs.size());
+      // widths by the words, so PLACE and SOUND fit beside FX and SET
+      const float dw = 10 * u, gap = 0.6f * u;
+      float letters = 0;
+      for (const auto& t : tabs) letters += static_cast<float>(std::strlen(t.first)) + 1.5f;
+      const float per = (lw - dw - gap * static_cast<float>(tabs.size())) / letters;
+      float tx = lx;
       for (std::size_t k = 0; k < tabs.size(); ++k) {
         const Page pg = tabs[k].second;
-        button({lx + static_cast<float>(k) * (tw + gap), barY, tw, barH}, tabs[k].first,
+        const float tw = per * (static_cast<float>(std::strlen(tabs[k].first)) + 1.5f);
+        const float at = tx;
+        tx += tw + gap;
+        button({at, barY, tw, barH}, tabs[k].first,
                [this, pg] { page_ = pg; fxPicking_ = false; typePicking_ = false; }, true, page_ == pg);
       }
       button({lx + lw - dw, barY, dw, barH}, "DONE", [this] { sheet_ = -1; });
