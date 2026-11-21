@@ -30,6 +30,7 @@
 #include "core/lava_lamp.hpp"
 #include "core/loading_quips.hpp"
 #include "core/face.hpp"
+#include "core/pocket_face_lines.hpp"
 #include "engine/gpu_effects.hpp"
 #include "deckboy_version.hpp"
 #include "core/types.hpp"
@@ -65,6 +66,7 @@ using namespace deckboy::platform;   // the remote port (sockets)
 #include <condition_variable>
 #include <sstream>
 #include <iomanip>
+#include <random>
 #ifndef _WIN32
 #include <fcntl.h>
 #endif
@@ -1392,17 +1394,26 @@ class Pocket {
   // With a screen connected the pin is drawn there and the phone shows
   // the flat picture, as the desk's program monitor does.
   void drawProgramIn(const SDL_FRect& fitted, bool turn = false) {
-    if (!warpOn() || !outputLabel_.empty()) {
+    if (!warpOn() || !outputLabel_.empty() || !mapConvex()) {   // folded: the flat picture
       if (turn) SDL_RenderTextureRotated(renderer_, programTex_, nullptr, &fitted, 90.0, nullptr, SDL_FLIP_NONE);
       else SDL_RenderTexture(renderer_, programTex_, nullptr, &fitted);
       return;
     }
     auto q = pinnedCorners(fitted, fitted.w / static_cast<float>(std::max(1, programW_)));
+    SDL_FRect box = fitted;
     if (turn) {
       const float cx = fitted.x + fitted.w / 2, cy = fitted.y + fitted.h / 2;
       for (SDL_FPoint& p : q) p = SDL_FPoint {cx - (p.y - cy), cy + (p.x - cx)};
+      box = {cx - fitted.h / 2, cy - fitted.w / 2, fitted.h, fitted.w};
     }
-    drawPinned(programTex_, q);
+    // never outside its own picture, whatever the corners say
+    SDL_Rect had {};
+    const bool clipped = SDL_RenderClipEnabled(renderer_);
+    if (clipped) SDL_GetRenderClipRect(renderer_, &had);
+    const SDL_Rect clip {static_cast<int>(box.x), static_cast<int>(box.y), static_cast<int>(box.w), static_cast<int>(box.h)};
+    SDL_SetRenderClipRect(renderer_, &clip);
+    if (mapConvex()) drawPinned(programTex_, q);
+    SDL_SetRenderClipRect(renderer_, clipped ? &had : nullptr);
   }
 
   void drawProgramAlone(bool turned) {
@@ -3172,7 +3183,8 @@ class Pocket {
       SDL_SetRenderTarget(renderer_, outputTex_);
       SDL_SetRenderDrawColor(renderer_, 0, 0, 0, 255);
       SDL_RenderClear(renderer_);
-      drawPinned(flatTex_, pinnedCorners({0, 0, static_cast<float>(bw), static_cast<float>(bh)}, static_cast<float>(bw) / static_cast<float>(ow)));
+      if (mapConvex()) drawPinned(flatTex_, pinnedCorners({0, 0, static_cast<float>(bw), static_cast<float>(bh)}, static_cast<float>(bw) / static_cast<float>(ow)));
+      else SDL_RenderTexture(renderer_, flatTex_, nullptr, nullptr);   // folded: flat
     }
     SDL_Surface* shot = SDL_RenderReadPixels(renderer_, nullptr);
     SDL_SetRenderTarget(renderer_, nullptr);
@@ -3373,8 +3385,7 @@ class Pocket {
         if (what != kC[k]) continue;
         float dx = 0, dy = 0;
         a >> dx >> dy;
-        *mapCorner(k, false) += dx;
-        *mapCorner(k, true) += dy;
+        if (!moveMapCorner(k, dx, dy)) return err("that would fold the picture over itself");
         mapOutput().warpEnabled = true;
         mapOutput().warpMode = "perspective";
         return ok();
@@ -5080,15 +5091,16 @@ class Pocket {
       }
     }
     // a glint of light sweeps across while it holds (James 11-20)
-    // quick: a third of a second, a beat into the hold (James: "much faster glint")
-    const float g = (into - 180.0f) / 340.0f * 1.2f - 0.1f;
-    if (g > -0.1f && g < 1.1f) drawGlint(pic, g, 0.22f * vis);   // James: "too much"
+    // James 11-20: faster than the whole hold, then "too fast" -- a soft,
+    // wide sheen over three quarters of a second, a beat into the hold
+    const float g = (into - 120.0f) / 760.0f * 1.2f - 0.1f;
+    if (g > -0.1f && g < 1.1f) drawGlint(pic, g, 0.16f * vis);   // James: "too much"
     SDL_SetRenderClipRect(renderer_, nullptr);
   }
 
   // A soft slanted band of light at `g` (0 = left edge, 1 = right), added on.
   void drawGlint(const SDL_FRect& pic, float g, float strength) {
-    const float slant = pic.h * 0.45f, half = pic.w * 0.045f;
+    const float slant = pic.h * 0.35f, half = pic.w * 0.14f;
     const float cx = pic.x - slant + g * (pic.w + 2 * slant);
     auto vtx = [&](float x, float y, float a) {
       return SDL_Vertex {{x, y}, {1.0f, 0.97f, 0.88f, a}, {0, 0}};
@@ -5100,11 +5112,6 @@ class Pocket {
     const int idx[12] = {0, 1, 4, 0, 4, 3, 1, 2, 5, 1, 5, 4};
     SDL_SetRenderDrawBlendMode(renderer_, SDL_BLENDMODE_ADD);
     SDL_RenderGeometry(renderer_, nullptr, v, 6, idx, 12);
-    // a thin hot core
-    const float core = half * 0.18f;
-    const SDL_Vertex c[6] = {vtx(cx - core + slant, top, 0), vtx(cx + slant, top, strength * 0.8f), vtx(cx + core + slant, top, 0),
-                             vtx(cx - core - slant, bot, 0), vtx(cx - slant, bot, strength * 0.8f), vtx(cx + core - slant, bot, 0)};
-    SDL_RenderGeometry(renderer_, nullptr, c, 6, idx, 12);
     SDL_SetRenderDrawBlendMode(renderer_, SDL_BLENDMODE_BLEND);
   }
 
@@ -5139,19 +5146,28 @@ class Pocket {
     if (facePokes_.fleeStartedMs != 0) return deckboy::face::kFleeLine;
     if (facePokes_.count > 0 && facePokes_.atMs != 0 && now - facePokes_.atMs < 1800) return deckboy::face::pokeLine(facePokes_.count);
     if (mood.asleep) return deckboy::face::typed("Zzz...", (now / 1000) % 4 * 1000, 600, now);
-    constexpr Uint64 kLineMs = 5600, kMsPerChar = 38;
+    constexpr Uint64 kLineMs = 6200, kMsPerChar = 38;
     const Uint64 since = now - faceSince_;
     const int turn = static_cast<int>(since / kLineMs);
-    std::string full = "Hi! I am Deckboy.";
+    // hello first; then Pocket's lines, dealt from a deck shuffled once a
+    // session, so none repeats until every one has been said
+    static const std::vector<int> kOrder = [] {
+      std::vector<int> order;
+      for (int i = 0; i < deckboy::core::kPocketFaceLineCount; ++i) order.push_back(i);
+      std::shuffle(order.begin(), order.end(), std::mt19937(std::random_device {}()));
+      return order;
+    }();
+    std::string full = turn == 0 ? std::string("Hi! I am Deckboy.")
+                                 : deckboy::core::kPocketFaceLines[kOrder[static_cast<std::size_t>(faceDealt_ + turn - 1) % kOrder.size()]];
     if (turn > 0 && mood.level > 0.0 && (turn % 10) < static_cast<int>(2 + 6 * mood.level)) full = deckboy::face::moodLine(mood, turn / 10);
-    if (turn > 0 && full == "Hi! I am Deckboy.") return full;   // said; it stays
     return deckboy::face::typed(full, since % kLineMs, kMsPerChar, now);
   }
 
   void drawFace(const SDL_FRect& pic) {
     const Uint64 now = SDL_GetTicks();
-    if (!faceWasShown_) {   // she starts each appearance with hello
+    if (!faceWasShown_) {   // each appearance starts with hello, then carries on through the deck
       faceWasShown_ = true;
+      if (faceSince_ != 0) faceDealt_ += static_cast<int>((now - faceSince_) / 6200);
       faceSince_ = now;
     }
     if (facePokes_.fleeStartedMs != 0 && now - facePokes_.fleeStartedMs > 60000) {   // back again
@@ -5409,6 +5425,42 @@ class Pocket {
     }
   }
 
+  // Move one corner by (dx, dy) output pixels -- unless that would fold the
+  // picture over itself. A corner pulled past its neighbours (James's phone,
+  // 11-20: TR at -1101, +678) makes the four corners cross; the perspective
+  // then has no answer and the picture was drawn across the whole phone.
+  // The corners must keep a convex shape, at least a little wide.
+  bool moveMapCorner(int k, float dx, float dy) {
+    float* cx = mapCorner(k, false);
+    float* cy = mapCorner(k, true);
+    const float ox = *cx, oy = *cy;
+    const bool was = mapConvex();   // a show saved folded may still be dragged back
+    *cx += dx;
+    *cy += dy;
+    if (was && !mapConvex()) {
+      *cx = ox;
+      *cy = oy;
+      return false;
+    }
+    return true;
+  }
+
+  bool mapConvex() {
+    const auto [ow, oh] = mapOutputSize();
+    const auto q = pinnedCorners({0, 0, ow, oh}, 1.0f);
+    float sign = 0;
+    for (int i = 0; i < 4; ++i) {
+      const SDL_FPoint a = q[static_cast<std::size_t>(i)], b = q[static_cast<std::size_t>((i + 1) % 4)], c = q[static_cast<std::size_t>((i + 2) % 4)];
+      const float cross = (b.x - a.x) * (c.y - b.y) - (b.y - a.y) * (c.x - b.x);
+      // each turn the same way, and not nearly straight (a sliver is unusable)
+      const float len = std::hypot(b.x - a.x, b.y - a.y) * std::hypot(c.x - b.x, c.y - b.y);
+      if (len <= 0 || std::fabs(cross) / len < 0.05f) return false;
+      if (sign == 0) sign = cross;
+      else if ((cross > 0) != (sign > 0)) return false;
+    }
+    return true;
+  }
+
   // The four corners of `r` with the pin applied, `k` output pixels to one of r's.
   std::array<SDL_FPoint, 4> pinnedCorners(const SDL_FRect& r, float k) {
     std::array<SDL_FPoint, 4> c {SDL_FPoint {r.x, r.y}, SDL_FPoint {r.x + r.w, r.y}, SDL_FPoint {r.x + r.w, r.y + r.h}, SDL_FPoint {r.x, r.y + r.h}};
@@ -5483,7 +5535,13 @@ class Pocket {
     fillRect(renderer_, kBlack, {mapBox_.x - 2 * u, mapBox_.y - 2 * u, mapBox_.w + 4 * u, mapBox_.h + 4 * u});
     mapScale_ = boxW / std::max(1.0f, ow);   // box pixels per output pixel
     const auto q = pinnedCorners(mapBox_, mapScale_);
-    if (programTex_) drawPinned(programTex_, q);
+    if (programTex_ && !mapConvex()) SDL_RenderTexture(renderer_, programTex_, nullptr, &mapBox_);   // folded: flat, drag a corner back
+    if (programTex_ && mapConvex()) {
+      const SDL_Rect clip {static_cast<int>(mapBox_.x - 2 * u), static_cast<int>(mapBox_.y - 2 * u), static_cast<int>(mapBox_.w + 4 * u), static_cast<int>(mapBox_.h + 4 * u)};
+      SDL_SetRenderClipRect(renderer_, &clip);
+      drawPinned(programTex_, q);
+      SDL_SetRenderClipRect(renderer_, nullptr);
+    }
     static const char* kNames[4] = {"TL", "TR", "BR", "BL"};
     for (int k = 0; k < 4; ++k) {
       const SDL_FPoint p = q[static_cast<std::size_t>(k)];
@@ -5507,8 +5565,7 @@ class Pocket {
       auto nudge = [this](float dx, float dy) {
         return [this, dx, dy] {
           const float k = mapFine_ ? 1.0f : 10.0f;
-          *mapCorner(mapCorner_, false) += dx * k;
-          *mapCorner(mapCorner_, true) += dy * k;
+          moveMapCorner(mapCorner_, dx * k, dy * k);
           mapOutput().warpEnabled = true;
           mapOutput().warpMode = "perspective";
         };
@@ -5866,8 +5923,7 @@ class Pocket {
     if (picHoldSince_ && (std::fabs(x - downX_) > 2 * unit_ || std::fabs(y - downY_) > 2 * unit_)) picHoldSince_ = 0;
     if (drag_ == Drag::MapCorner) {   // the corner moves with the finger, in output pixels
       const float k = 1.0f / std::max(0.0001f, mapScale_);
-      *mapCorner(mapCorner_, false) += (x - mapLastX_) * k;
-      *mapCorner(mapCorner_, true) += (y - mapLastY_) * k;
+      moveMapCorner(mapCorner_, (x - mapLastX_) * k, (y - mapLastY_) * k);
       mapLastX_ = x;
       mapLastY_ = y;
       return;
@@ -7827,6 +7883,7 @@ class Pocket {
   deckboy::face::Pokes facePokes_;
   float faceCx_ = 0, faceCy_ = 0, faceR_ = 0;
   Uint64 faceLastPokeMs_ = 0, faceSince_ = 0;
+  int faceDealt_ = 0;   // lines already said in earlier appearances
   bool faceWasShown_ = false;
   SDL_Texture* faceBack_ = nullptr;   // the tube behind her
   int splashQuip_ = 0;
