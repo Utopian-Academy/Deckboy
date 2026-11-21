@@ -5142,10 +5142,15 @@ class Pocket {
     buzz("tap");
   }
 
-  std::string faceLine(Uint64 now, const deckboy::face::Mood& mood) const {
-    if (facePokes_.fleeStartedMs != 0) return deckboy::face::kFleeLine;
-    if (facePokes_.count > 0 && facePokes_.atMs != 0 && now - facePokes_.atMs < 1800) return deckboy::face::pokeLine(facePokes_.count);
-    if (mood.asleep) return deckboy::face::typed("Zzz...", (now / 1000) % 4 * 1000, 600, now);
+  // What she says now (typed so far), and the whole line in `full`, so the
+  // wrap is worked out once and a line does not jump as it is typed.
+  std::string faceLine(Uint64 now, const deckboy::face::Mood& mood, std::string& full) const {
+    if (facePokes_.fleeStartedMs != 0) return full = deckboy::face::kFleeLine;
+    if (facePokes_.count > 0 && facePokes_.atMs != 0 && now - facePokes_.atMs < 1800) return full = deckboy::face::pokeLine(facePokes_.count);
+    if (mood.asleep) {
+      full = "Zzz...";
+      return deckboy::face::typed(full, (now / 1000) % 4 * 1000, 600, now);
+    }
     constexpr Uint64 kLineMs = 6200, kMsPerChar = 38;
     const Uint64 since = now - faceSince_;
     const int turn = static_cast<int>(since / kLineMs);
@@ -5157,10 +5162,42 @@ class Pocket {
       std::shuffle(order.begin(), order.end(), std::mt19937(std::random_device {}()));
       return order;
     }();
-    std::string full = turn == 0 ? std::string("Hi! I am Deckboy.")
+    full = turn == 0 ? std::string("Hi! I am Deckboy.")
                                  : deckboy::core::kPocketFaceLines[kOrder[static_cast<std::size_t>(faceDealt_ + turn - 1) % kOrder.size()]];
     if (turn > 0 && mood.level > 0.0 && (turn % 10) < static_cast<int>(2 + 6 * mood.level)) full = deckboy::face::moodLine(mood, turn / 10);
     return deckboy::face::typed(full, since % kLineMs, kMsPerChar, now);
+  }
+
+  // Words onto rows no wider than `maxW` (at most three; the third is cut
+  // with dots if even three will not hold it).
+  static std::vector<std::string> wrapText(TTF_Font* font, const std::string& s, float maxW) {
+    std::vector<std::string> rows;
+    std::string row;
+    auto fits = [&](const std::string& t) {
+      int w = 0;
+      if (!font || !TTF_GetStringSize(font, t.c_str(), 0, &w, nullptr)) return t.size() < 40;
+      return static_cast<float>(w) <= maxW;
+    };
+    std::size_t i = 0;
+    while (i < s.size()) {
+      const std::size_t sp = s.find(' ', i);
+      const std::string word = s.substr(i, sp == std::string::npos ? std::string::npos : sp - i);
+      const std::string tryRow = row.empty() ? word : row + " " + word;
+      if (row.empty() || fits(tryRow)) {
+        row = tryRow;
+      } else {
+        rows.push_back(row);
+        row = word;
+      }
+      if (sp == std::string::npos) break;
+      i = sp + 1;
+    }
+    if (!row.empty() || rows.empty()) rows.push_back(row);
+    if (rows.size() > 3) {
+      rows.resize(3);
+      rows[2] += "...";
+    }
+    return rows;
   }
 
   void drawFace(const SDL_FRect& pic) {
@@ -5223,9 +5260,29 @@ class Pocket {
     faceCx_ = static_cast<float>(f.cx);
     faceCy_ = static_cast<float>(f.cy);
     faceR_ = static_cast<float>(f.radius);
-    const float u = unit_, lineH = 4.5f * u;
-    const float ty = std::min(pic.y + pic.h - lineH - 0.5f * u, static_cast<float>(f.cy + f.unit * 3));
-    text_.draw(mono_, faceLine(now, mood), glow, {pic.x + u, ty, pic.w - 2 * u, lineH}, true);
+    // the line, wrapped to the picture's width (James: "getting cut off")
+    const float u = unit_, lineH = 4.2f * u;
+    std::string full;
+    const std::string shown = faceLine(now, mood, full);
+    const std::vector<std::string> rows = wrapText(mono_, full, pic.w - 4 * u);
+    const bool typing = !shown.empty() && shown != full && shown.size() <= full.size() + 1 &&
+                        (shown.back() == '_' || shown.back() == ' ') && full.compare(0, shown.size() - 1, shown, 0, shown.size() - 1) == 0;
+    const std::size_t typedLen = typing ? shown.size() - 1 : std::min(shown.size(), full.size());
+    const float blockH = lineH * static_cast<float>(rows.size());
+    float ty = std::min(pic.y + pic.h - blockH - 0.5f * u, static_cast<float>(f.cy + f.unit * 3));
+    std::size_t at = 0;
+    for (std::size_t i = 0; i < rows.size(); ++i) {
+      const std::size_t start = full.find(rows[i], at);
+      const std::size_t from = start == std::string::npos ? at : start;
+      at = from + rows[i].size();
+      std::string part;
+      if (typedLen > from) part = full.substr(from, std::min(rows[i].size(), typedLen - from));
+      if (typing && typedLen >= from && typedLen <= at) part += shown.back();
+      // padded to the row's own length, so a centred row does not slide as it types
+      if (part.size() < rows[i].size()) part += std::string(rows[i].size() - part.size(), ' ');
+      text_.draw(mono_, part, glow, {pic.x + u, ty, pic.w - 2 * u, lineH}, true);
+      ty += lineH;
+    }
     drawCrtOver(pic, now);
     SDL_SetRenderClipRect(renderer_, nullptr);
   }
