@@ -25,6 +25,7 @@
 #include "core/fs.hpp"
 #include "core/media_probe.hpp"
 #include "core/pattern_helpers.hpp"
+#include "core/numeric_params.hpp"
 #include "core/show_file.hpp"
 #include "core/lava_lamp.hpp"
 #include "core/loading_quips.hpp"
@@ -1329,10 +1330,7 @@ class Pocket {
     fillRect(r, kLight, lcd);
     const SDL_FRect pic = picRect_;
     fillRect(r, kBlack, pic);
-    if (programTex_) {
-      const SDL_FRect fitted = fitProgram(pic);
-      SDL_RenderTexture(r, programTex_, nullptr, &fitted);
-    }
+    if (programTex_) drawProgramIn(fitProgram(pic));
     drawSplashArt(pic);
     drawHelpers(pic);
     if (editing_) return;   // editing: the picture alone
@@ -1383,6 +1381,26 @@ class Pocket {
 
   // The program alone, filling the screen: picture-in-picture, or full screen
   // on the phone (turned on its side, so a 16:9 picture fills a portrait phone).
+  // The program picture into `fitted` (turned 90 degrees clockwise about its
+  // centre when `turn`). With no TV or projector connected the phone's own
+  // screen IS the output, so the MAP corner pin shows here too -- on the
+  // picture window and in full screen -- not only on a connected screen.
+  // With a screen connected the pin is drawn there and the phone shows
+  // the flat picture, as the desk's program monitor does.
+  void drawProgramIn(const SDL_FRect& fitted, bool turn = false) {
+    if (!warpOn() || !outputLabel_.empty()) {
+      if (turn) SDL_RenderTextureRotated(renderer_, programTex_, nullptr, &fitted, 90.0, nullptr, SDL_FLIP_NONE);
+      else SDL_RenderTexture(renderer_, programTex_, nullptr, &fitted);
+      return;
+    }
+    auto q = pinnedCorners(fitted, fitted.w / static_cast<float>(std::max(1, programW_)));
+    if (turn) {
+      const float cx = fitted.x + fitted.w / 2, cy = fitted.y + fitted.h / 2;
+      for (SDL_FPoint& p : q) p = SDL_FPoint {cx - (p.y - cy), cy + (p.x - cx)};
+    }
+    drawPinned(programTex_, q);
+  }
+
   void drawProgramAlone(bool turned) {
     SDL_Renderer* r = renderer_;
     int w = 0, h = 0;
@@ -1396,10 +1414,9 @@ class Pocket {
       // in the turned box (H x W), then rotated about its centre.
       const SDL_FRect turnedBox {(W - H) / 2, (H - W) / 2, H, W};
       const SDL_FRect dst = fitProgram(turnedBox);
-      SDL_RenderTextureRotated(r, programTex_, nullptr, &dst, 90.0, nullptr, SDL_FLIP_NONE);
+      drawProgramIn(dst, true);
     } else {
-      const SDL_FRect dst = fitProgram({0, 0, W, H});
-      SDL_RenderTexture(r, programTex_, nullptr, &dst);
+      drawProgramIn(fitProgram({0, 0, W, H}));
     }
     if (turned) drawGhost(W, H, turn);
   }
@@ -1873,10 +1890,10 @@ class Pocket {
     item("CLIPS, PICTURES, SOUND, PDF", [this] { menuOpen_ = false; openPicker(); });
     {
       // Made by Deckboy: one button per generator, two to a row.
-      static const std::pair<const char*, const char*> kMade[] = {
-          {"smpte-bars", "BARS"}, {"pocket-test", "POCKET TEST"}, {"illusion", "ILLUSION"},
-          {"swirl", "SWIRL"}, {"lumia", "LUMIA"}, {"fireside", "FIRESIDE"}, {"crosshatch", "CROSSHATCH"},
-          {"video-synth", "VIDEO SYNTH"}};
+      // One PATTERN and one SYNTH (James 11-20): the type is the cue's own
+      // setting (its SET page), not a button each. A secret, once found, also
+      // gets a button of its own here -- the reward for finding it.
+      static const std::pair<const char*, const char*> kMade[] = {{"smpte-bars", "PATTERN"}, {"swirl", "SYNTH"}};
       std::vector<std::pair<const char*, const char*>> made(std::begin(kMade), std::end(kMade));
       if (terrariumUnlocked_) made.push_back({"terrarium", "TERRARIUM"});
       if (tabletopUnlocked_) made.push_back({"tabletop", "TABLETOP"});
@@ -1891,6 +1908,8 @@ class Pocket {
       y += made.size() % 2 == 1 ? 7 * u : 1.5f * u;
       if (SDL_GetTicks() < addedLineUntil_) {
         text_.draw(mono_, "Added: " + addedLine_, kDeep, {lx, y, lw, 4.5f * u});
+        y += 4.5f * u;
+        text_.draw(mono_, "Hold the cue, then SET: its type", kDark, {lx, y, lw, 4.5f * u});
         y += 5 * u;
       }
     }
@@ -2060,8 +2079,7 @@ class Pocket {
           const float ph = std::min(b.h - (y - b.y), b.w * 9.0f / 16.0f);
           const SDL_FRect pic {b.x, y, ph * 16.0f / 9.0f, ph};
           fillRect(r, kBlack, pic);
-          const SDL_FRect fitted = fitProgram(pic);
-          SDL_RenderTexture(r, programTex_, nullptr, &fitted);
+          drawProgramIn(fitProgram(pic));
         }
         break;
       }
@@ -2561,14 +2579,225 @@ class Pocket {
     y += 7 * u;
   }
 
+  // ── SET: what a source is, and its own settings ──
+  //
+  // James 11-20: "why isnt pattern a single source with all the types of
+  // patterns as settings" -- and every source's settings live. A PATTERN is
+  // one source whose TYPE is a setting (the desk's test signals); a SYNTH
+  // likewise (the generators, the Video Synth, and any secret found). Below
+  // the type, the cue's own settings: the SAME rows the desk's inspector
+  // shows (core/numeric_params.hpp, paramRowsForCue / choiceRowsForCue), so
+  // a setting added on the desk appears here with nothing more to do.
+
+  // The test signals, by their short names (the desk's list, shared).
+  static std::vector<std::pair<std::string, std::string>> patternChoices() {
+    std::vector<std::pair<std::string, std::string>> out;
+    for (const auto& [id, label] : patternTestSignalTypes()) {
+      const std::size_t cut = label.find(" (");
+      out.emplace_back(id, cut == std::string::npos ? label : label.substr(0, cut));
+    }
+    return out;
+  }
+
+  std::vector<std::pair<std::string, std::string>> synthChoices() const {
+    std::vector<std::pair<std::string, std::string>> out = {
+        {"swirl", "Swirl"}, {"lumia", "Lumia"}, {"illusion", "Illusion"}, {"fireside", "Fireside"},
+        {"portal", "Portal"}, {"moire-field", "Moire"}, {"video-synth", "Video Synth"}};
+    if (terrariumUnlocked_) out.emplace_back("terrarium", "Terrarium");
+    for (const auto& g : deckboy::extras::generators()) {
+      if (g.id == "lava-lamp" && !lavaFound_) continue;
+      if (g.id == "tabletop" && !tabletopUnlocked_) continue;
+      const std::size_t cut = g.name.find(" (");
+      out.emplace_back(g.id, cut == std::string::npos ? g.name : g.name.substr(0, cut));
+    }
+    return out;
+  }
+
+  static bool isSynthCue(const Cue& c) { return std::string(kindTag(c)) == "SYNTH"; }
+
+  static std::string sourceTypeOf(const Cue& c) {
+    if (c.kind == CueKind::VideoSynth) return "video-synth";
+    return normalizePatternTypeId(c.path.rfind("pattern://", 0) == 0 ? c.path.substr(10) : c.path);
+  }
+
+  // A new source's name: the generator's own, else the test signal's.
+  static std::string sourceName(const std::string& type) {
+    if (type == "video-synth") return "Video Synth";
+    const std::string generated = generatorPatternName(type);
+    if (!generated.empty()) return generated;
+    if (type == "smpte-bars") return "SMPTE colour bars";
+    for (const auto& [id, label] : patternChoices()) if (id == type) return label;
+    return type;
+  }
+
+  // Turn cue i into another type. Its name follows unless it was renamed;
+  // everything else (trim, fades, place, look, effects) stays.
+  void setSourceType(int i, const std::string& type) {
+    if (i < 0 || i >= static_cast<int>(cues_.size())) return;
+    Cue& c = cues_[static_cast<std::size_t>(i)];
+    if (type == sourceTypeOf(c)) return;
+    const bool named = c.name != sourceName(sourceTypeOf(c));
+    if (type == "video-synth") {
+      c.kind = CueKind::VideoSynth;
+      c.path = "vsynth://";
+      c.color = {90, 50, 120, 255};
+    } else {
+      c.kind = CueKind::Pattern;
+      c.path = "pattern://" + type;
+    }
+    c.hasAudio = c.audioEnabled = type == "pocket-test";
+    if (!named) c.name = sourceName(type);
+    buzz("tap");
+    if (i == active_) take(i);
+  }
+
+  // A setting changed: the cue on air shows it at once.
+  void settingChanged(int i) {
+    if (i != active_ || i < 0) return;
+    const Cue& c = cues_[static_cast<std::size_t>(i)];
+    engine_->syncActiveCueSnapshot(c);
+    if (c.kind == CueKind::Pattern && !patternTypeIsAnimated(c.path)) {
+      engine_->rebuildPatternFrame(c, static_cast<double>(SDL_GetTicks()) / 1000.0);
+    }
+  }
+
+  template <class Items>
+  void sourceItems(Cue& c, Items& items) {
+    const int i = sheet_;
+    const bool typed = c.kind == CueKind::Pattern || c.kind == CueKind::VideoSynth;
+    const bool synth = isSynthCue(c);
+    if (typed && typePicking_) {   // the types: two to a row, a page at a time
+      const auto all = synth ? synthChoices() : patternChoices();
+      constexpr int kPerPage = 16;
+      const int pages = (static_cast<int>(all.size()) + kPerPage - 1) / kPerPage;
+      typePickPage_ = std::clamp(typePickPage_, 0, std::max(0, pages - 1));
+      items.push_back({1.0f, [this, pages, synth](const SDL_FRect& row) {
+        const float u = unit_, bw = 9 * u;
+        button({row.x, row.y + 0.4f * u, bw, row.h - 0.8f * u}, "<", [this] { --typePickPage_; }, typePickPage_ > 0);
+        text_.draw(pixelSmall_, std::string(synth ? "SYNTH" : "PATTERN") + "  " + std::to_string(typePickPage_ + 1) + "/" + std::to_string(pages),
+                   kDeep, {row.x + bw + u, row.y, row.w - 2 * bw - 2 * u, row.h}, true);
+        button({row.x + row.w - bw, row.y + 0.4f * u, bw, row.h - 0.8f * u}, ">", [this] { ++typePickPage_; }, typePickPage_ < pages - 1);
+      }});
+      const std::string now = sourceTypeOf(c);
+      for (int k = 0; k < kPerPage; k += 2) {
+        const int a = typePickPage_ * kPerPage + k;
+        if (a >= static_cast<int>(all.size())) break;
+        items.push_back({1.0f, [this, i, a, all, now](const SDL_FRect& row) {
+          const float u = unit_, bw = (row.w - u) / 2;
+          for (int q = 0; q < 2 && a + q < static_cast<int>(all.size()); ++q) {
+            const auto& choice = all[static_cast<std::size_t>(a + q)];
+            const std::string id = choice.first;
+            button({row.x + static_cast<float>(q) * (bw + u), row.y + 0.3f * u, bw, row.h - 0.6f * u}, upper(choice.second),
+                   [this, i, id] { setSourceType(i, id); typePicking_ = false; setPage_ = 0; }, true, id == now);
+          }
+        }});
+      }
+      items.push_back({1.0f, [this](const SDL_FRect& row) {
+        button({row.x, row.y + 0.3f * unit_, row.w, row.h - 0.6f * unit_}, "CANCEL", [this] { typePicking_ = false; });
+      }});
+      return;
+    }
+    if (typed) {   // TYPE: what it is; a tap lists the others
+      items.push_back({1.0f, [this, i, synth](const SDL_FRect& row) {
+        const float u = unit_;
+        const Cue& cc = cues_[static_cast<std::size_t>(i)];
+        text_.draw(pixelSmall_, synth ? "SYNTH" : "PATTERN", kDark, {row.x, row.y, row.w * 0.30f, row.h});
+        const std::string now = sourceTypeOf(cc);
+        std::string label = now;
+        for (const auto& [id, name] : synth ? synthChoices() : patternChoices()) if (id == now) label = name;
+        button({row.x + row.w * 0.32f, row.y + 0.4f * u, row.w * 0.68f, row.h - 0.8f * u}, upper(label) + "  >", [this, synth, now] {
+          typePicking_ = true;
+          const auto all = synth ? synthChoices() : patternChoices();
+          for (std::size_t k = 0; k < all.size(); ++k) if (all[k].first == now) typePickPage_ = static_cast<int>(k) / 16;
+        });
+      }});
+    }
+    // its settings: the desk's choices first, then its numbers, a page at a time
+    struct Row { int choice = -1; deckboy::params::ParamRow num {"", NumericParam::None, ""}; };
+    const auto choices = deckboy::params::choiceRowsForCue(c);
+    std::vector<Row> rows;
+    for (int k = 0; k < static_cast<int>(choices.size()); ++k) rows.push_back({k, {"", NumericParam::None, ""}});
+    for (const auto& pr : deckboy::params::paramRowsForCue(c)) {
+      if (pr.id == NumericParam::None || !deckboy::params::numericParamSpec(pr.id, &c)) continue;
+      rows.push_back({-1, pr});
+    }
+    if (rows.empty()) {
+      items.push_back({1.0f, [this](const SDL_FRect& row) {
+        text_.draw(mono_, "Nothing more to set on this one.", kDark, row);
+      }});
+      return;
+    }
+    const int perPage = typed ? 6 : 7;
+    const int pages = (static_cast<int>(rows.size()) + perPage - 1) / perPage;
+    setPage_ = std::clamp(setPage_, 0, pages - 1);
+    if (pages > 1) {
+      items.push_back({0.8f, [this, pages](const SDL_FRect& row) {
+        const float u = unit_, bw = 9 * u;
+        button({row.x, row.y + 0.3f * u, bw, row.h - 0.6f * u}, "<", [this] { --setPage_; }, setPage_ > 0);
+        text_.draw(pixelSmall_, "SETTINGS  " + std::to_string(setPage_ + 1) + "/" + std::to_string(pages), kDeep,
+                   {row.x + bw + u, row.y, row.w - 2 * bw - 2 * u, row.h}, true);
+        button({row.x + row.w - bw, row.y + 0.3f * u, bw, row.h - 0.6f * u}, ">", [this] { ++setPage_; }, setPage_ < pages - 1);
+      }});
+    }
+    for (int k = setPage_ * perPage; k < std::min(static_cast<int>(rows.size()), (setPage_ + 1) * perPage); ++k) {
+      const Row rw = rows[static_cast<std::size_t>(k)];
+      if (rw.choice >= 0) {
+        const deckboy::params::ChoiceRow ch = choices[static_cast<std::size_t>(rw.choice)];
+        items.push_back({0.8f, [this, i, ch](const SDL_FRect& row) {
+          const float u = unit_;
+          Cue& cc = cues_[static_cast<std::size_t>(i)];
+          const int n = static_cast<int>(ch.options.size());
+          if (n == 0) return;
+          const int v = std::clamp(ch.get(cc), 0, n - 1);
+          text_.draw(pixelSmall_, upper(ch.label), kDark, {row.x, row.y, row.w * 0.30f, row.h});
+          const float bw = 7 * u;
+          button({row.x + row.w * 0.32f, row.y + 0.4f * u, bw, row.h - 0.8f * u}, "<", [this, i, ch, v, n] {
+            ch.set(cues_[static_cast<std::size_t>(i)], (v + n - 1) % n);
+            settingChanged(i);
+          });
+          button({row.x + row.w * 0.32f + bw + u, row.y + 0.4f * u, row.w * 0.68f - bw - u, row.h - 0.8f * u},
+                 upper(ch.options[static_cast<std::size_t>(v)]), [this, i, ch, v, n] {
+                   ch.set(cues_[static_cast<std::size_t>(i)], (v + 1) % n);
+                   settingChanged(i);
+                 });
+        }});
+        continue;
+      }
+      const deckboy::params::ParamRow pr = rw.num;
+      items.push_back({1.0f, [this, i, pr](const SDL_FRect& row) {
+        Cue& cc = cues_[static_cast<std::size_t>(i)];
+        const deckboy::params::NumericParamSpec* spec = deckboy::params::numericParamSpec(pr.id, &cc);
+        if (!spec) return;
+        NumSpec n;
+        n.label = upper(spec->label && *spec->label ? spec->label : pr.key);
+        n.min = spec->lo;
+        n.max = spec->hi;
+        n.decimals = spec->integral ? 0 : spec->precision;
+        n.step = spec->step > 0 ? spec->step : (spec->integral ? 1.0 : 0.0);
+        double now = 0;
+        deckboy::params::readNumericParam(cc, pr.id, now);
+        n.zero = std::clamp(0.0, n.min, n.max);
+        n.reset = now;
+        const NumericParam id = pr.id;
+        n.get = [this, i, id] {
+          double v = 0;
+          deckboy::params::readNumericParam(cues_[static_cast<std::size_t>(i)], id, v);
+          return v;
+        };
+        n.set = [this, i, id](double v) {
+          deckboy::params::writeNumericParam(cues_[static_cast<std::size_t>(i)], id, v);
+          settingChanged(i);
+        };
+        numberRow(row, std::move(n));
+      }});
+    }
+  }
+
   void addGenerator(const char* type) {
     Cue cue;
     cue.kind = CueKind::Pattern;
     cue.path = std::string("pattern://") + type;
-    const std::string generated = generatorPatternName(type);
-    const std::string t = type;
-    cue.name = !generated.empty() ? generated : t == "smpte-bars" ? "SMPTE colour bars" : t == "pocket-test" ? "Pocket Test"
-             : t == "terrarium" ? "Terrarium" : t == "tabletop" ? "Tabletop" : t;
+    cue.name = sourceName(type);
     cue.width = programW_;
     cue.height = programH_;
     cue.formatName = "generated";
@@ -3083,7 +3312,8 @@ class Pocket {
         std::string pg;
         args >> pg;
         for (char& ch : pg) ch = static_cast<char>(std::toupper(static_cast<unsigned char>(ch)));
-        if (pg == "PLACE") page_ = Page::Place;
+        if (pg == "SET") page_ = Page::Source;
+        else if (pg == "PLACE") page_ = Page::Place;
         else if (pg == "LOOK") page_ = Page::Look;
         else if (pg == "SOUND") page_ = Page::Sound;
         else if (pg == "FX") page_ = Page::Fx;
@@ -5423,7 +5653,11 @@ class Pocket {
   // ── The cue sheet: hold a cue ──
   void openSheet(int i) {
     if (i < 0 || i >= static_cast<int>(cues_.size())) return;
-    if (sheet_ != i) page_ = Page::Play;
+    if (sheet_ != i) {
+      page_ = Page::Play;
+      setPage_ = 0;
+    }
+    typePicking_ = false;
     calcOpen_ = false;
     lfoSlot_ = -1;
     sheet_ = i;
@@ -5443,7 +5677,7 @@ class Pocket {
   // moves, and a finger dragged further from the row moves the value more
   // finely. Tap the value to type it on a calculator (the desk's own sums).
 
-  enum class Page { Play, Place, Look, Fx, Sound };
+  enum class Page { Source, Play, Place, Look, Fx, Sound };
 
   struct NumSpec {
     std::string label, unit;
@@ -5546,12 +5780,13 @@ class Pocket {
     const float barY = lcd.y + lcd.h - barH - 0.5f * u;
     {
       const std::vector<std::pair<const char*, Page>> tabs = {
-          {"PLAY", Page::Play}, {"PLACE", Page::Place}, {"LOOK", Page::Look}, {"FX", Page::Fx}, {"SOUND", Page::Sound}};
+          {"SET", Page::Source}, {"PLAY", Page::Play}, {"PLACE", Page::Place}, {"LOOK", Page::Look}, {"FX", Page::Fx}, {"SOUND", Page::Sound}};
       const float dw = 12 * u, gap = 0.8f * u;
       const float tw = (lw - dw - gap * static_cast<float>(tabs.size())) / static_cast<float>(tabs.size());
       for (std::size_t k = 0; k < tabs.size(); ++k) {
         const Page pg = tabs[k].second;
-        button({lx + static_cast<float>(k) * (tw + gap), barY, tw, barH}, tabs[k].first, [this, pg] { page_ = pg; fxPicking_ = false; }, true, page_ == pg);
+        button({lx + static_cast<float>(k) * (tw + gap), barY, tw, barH}, tabs[k].first,
+               [this, pg] { page_ = pg; fxPicking_ = false; typePicking_ = false; }, true, page_ == pg);
       }
       button({lx + lw - dw, barY, dw, barH}, "DONE", [this] { sheet_ = -1; });
     }
@@ -5559,6 +5794,7 @@ class Pocket {
     struct Item { float weight; std::function<void(const SDL_FRect&)> draw; };
     std::vector<Item> items;
     switch (page_) {
+      case Page::Source: sourceItems(c, items); break;
       case Page::Play: playItems(c, items); break;
       case Page::Place: placeItems(c, items); break;
       case Page::Look: lookItems(c, items); break;
@@ -7230,6 +7466,8 @@ class Pocket {
   double stageMs_[4] = {0, 0, 0, 0};   // update, program, output, phone UI + present
   bool fxShrinkOn_ = true;
   int fxShown_ = 0, fxPickPage_ = 0;
+  bool typePicking_ = false;    // SET: the list of types is open
+  int typePickPage_ = 0, setPage_ = 0;
   bool fxPicking_ = false;
   Uint64 lastInputMs_ = 0;
   std::string addedFlashId_;   // the cue just added, flashing in the list

@@ -31,6 +31,8 @@
 
 #include <algorithm>
 #include <string>
+#include <utility>
+#include <vector>
 #include "utils.hpp"
 #include "private_extras.hpp"
 
@@ -139,6 +141,46 @@ inline bool patternTypeIsGenerator(const std::string& typeId) {
   const std::string t = normalizePatternTypeId(typeId);
   return t == "fireside" || t == "portal" || t == "swirl" || t == "code" || t == "moire-field" || t == "illusion" || t == "lumia" || t == "isf" || t == "draw" ||
          t == "terrarium" || t == "terrarium-pico" || deckboy::extras::findGenerator(t) != nullptr;
+}
+
+// THE TEST SIGNALS, as a picker offers them: the cards and charts a rig is
+// lined up with (id, label). The desk's inspector and Pocket's PATTERN both
+// list exactly these. What Deckboy makes for the show (Fireside, Portal,
+// Swirl...) is never here; motion is a toggle, not an entry.
+inline const std::vector<std::pair<std::string, std::string>>& patternTestSignalTypes() {
+  static const std::vector<std::pair<std::string, std::string>> types {
+    {"pocket-test",   "Pocket Test (test card + scene cycle)"},
+    {"test-bars",    "Test Bars (motion diagnostics)"},
+    {"test-clock",   "Test Clock (sync + latency)"},
+    {"frame-count",  "Frame Count (drops + latency)"},
+    {"frame-count-emoji", "Frame Count (emoji)"},
+    {"smpte-bars",   "SMPTE 75% Colour Bars"},
+    {"crosshatch",   "Crosshatch"},
+    {"checkerboard", "Checkerboard"},
+    {"full-white",   "Full White"},
+    {"full-black",   "Full Black"},
+    {"full-red",     "Full Red"},
+    {"full-green",   "Full Green"},
+    {"full-blue",    "Full Blue"},
+    // The engineering set, the same charts Deckboy's own LED page generates.
+    // Grouped after the broadcast basics because an operator reaching for
+    // bars is not reaching for a multiburst.
+    {"panel-map",    "Panel Map (LED tile numbers)"},
+    {"moire",      "Moire 1:1 (is anything scaling?)"},
+    {"critters",     "Critters (pixel-exact scaling, animated)"},
+    {"dark-detail",  "Dark Detail (0-12%)"},
+    {"uniformity",   "Uniformity (flat fields)"},
+    {"ramps",      "Banding Ramps (real bit depth)"},
+    {"safe-areas",   "Safe Areas (90% / 80% / thirds)"},
+    {"boresight",    "Boresight (alignment)"},
+    {"pluge",      "PLUGE (black level)"},
+    {"greyscale",    "Greyscale Steps (gamma)"},
+    {"convergence",  "Convergence (fine grid)"},
+    {"multiburst",   "Multiburst (bandwidth)"},
+    {"window-10",    "Window 10% (peak brightness)"},
+    {"window-50",    "Window 50% (peak at mid APL)"},
+  };
+  return types;
 }
 
 // A generator's own name, for its cue and wherever the desk says what kind of

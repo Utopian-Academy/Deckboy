@@ -3454,39 +3454,9 @@
     // colour bars from its own inspector. One pocket entry only -- it cycles
     // day/sunset/night/storm itself; the forced-scene ids stay loadable as
     // legacy (see patternTypes). Motion belongs to the toggle, not the list.
-    static const std::vector<std::pair<std::string, std::string>> types {
-      {"pocket-test",   "Pocket Test (test card + scene cycle)"},
-      {"test-bars",    "Test Bars (motion diagnostics)"},
-      {"test-clock",   "Test Clock (sync + latency)"},
-      {"frame-count",  "Frame Count (drops + latency)"},
-      {"frame-count-emoji", "Frame Count (emoji)"},
-      {"smpte-bars",   "SMPTE 75% Colour Bars"},
-      {"crosshatch",   "Crosshatch"},
-      {"checkerboard", "Checkerboard"},
-      {"full-white",   "Full White"},
-      {"full-black",   "Full Black"},
-      {"full-red",     "Full Red"},
-      {"full-green",   "Full Green"},
-      {"full-blue",    "Full Blue"},
-      // The engineering set, the same charts Deckboy's own LED page generates.
-      // Grouped after the broadcast basics because an operator reaching for
-      // bars is not reaching for a multiburst.
-      {"panel-map",    "Panel Map (LED tile numbers)"},
-      {"moire",        "Moire 1:1 (is anything scaling?)"},
-      {"critters",     "Critters (pixel-exact scaling, animated)"},
-      {"dark-detail",  "Dark Detail (0-12%)"},
-      {"uniformity",   "Uniformity (flat fields)"},
-      {"ramps",        "Banding Ramps (real bit depth)"},
-      {"safe-areas",   "Safe Areas (90% / 80% / thirds)"},
-      {"boresight",    "Boresight (alignment)"},
-      {"pluge",        "PLUGE (black level)"},
-      {"greyscale",    "Greyscale Steps (gamma)"},
-      {"convergence",  "Convergence (fine grid)"},
-      {"multiburst",   "Multiburst (bandwidth)"},
-      {"window-10",    "Window 10% (peak brightness)"},
-      {"window-50",    "Window 50% (peak at mid APL)"},
-    };
-    return types;
+    // The list itself lives in core (patternTestSignalTypes), so Pocket's
+    // PATTERN offers exactly the desk's test signals.
+    return patternTestSignalTypes();
   }
 
   // What the operator actually sees in the inspector's pattern list: the test
