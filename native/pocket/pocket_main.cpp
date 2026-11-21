@@ -3184,7 +3184,7 @@ class Pocket {
       SDL_SetRenderDrawColor(renderer_, 0, 0, 0, 255);
       SDL_RenderClear(renderer_);
       if (mapConvex()) drawPinned(flatTex_, pinnedCorners({0, 0, static_cast<float>(bw), static_cast<float>(bh)}, static_cast<float>(bw) / static_cast<float>(ow)));
-      else SDL_RenderTexture(renderer_, flatTex_, nullptr, nullptr);   // folded: flat
+      else SDL_RenderTexture(renderer_, flatTex_, static_cast<const SDL_FRect*>(nullptr), static_cast<const SDL_FRect*>(nullptr));   // folded: flat
     }
     SDL_Surface* shot = SDL_RenderReadPixels(renderer_, nullptr);
     SDL_SetRenderTarget(renderer_, nullptr);
