@@ -3095,6 +3095,8 @@ class Pocket {
     if (verb == "SPLASH") {   // SPLASH: show it again (for checking)
       if (splashTex_) SDL_DestroyTexture(splashTex_);
       splashTex_ = nullptr;
+      for (SDL_Texture* t : splashChannels_) SDL_DestroyTexture(t);
+      splashChannels_.clear();
       const bool was = splashOn_;
       splashOn_ = true;
       loadSplash();
@@ -4504,7 +4506,7 @@ class Pocket {
   // in the list (core/loading_quips.hpp), for a couple of seconds or until a
   // tap. Off with SPLASH on MENU > PHONE, as on the desk.
 
-  static constexpr Uint64 kSplashMs = 750;   // James 11-20: an app should be ready at once; "maybe 3/4 a second"
+  static constexpr Uint64 kSplashMs = 1000;   // James 11-20: "all in a second" (the tuning in)
 
   bool splashing() const { return splashTex_ && SDL_GetTicks() < splashUntil_; }
 
@@ -4548,61 +4550,140 @@ class Pocket {
     SDL_free(index);
     for (std::string line; std::getline(in, line);) {
       while (!line.empty() && (line.back() == '\r' || line.back() == ' ')) line.pop_back();
-      if (!line.empty()) names.push_back(line);
+      if (line.rfind("splash_", 0) == 0) names.push_back(line);
     }
-    if (names.empty()) return;
-    const Uint64 seed = SDL_GetPerformanceCounter();
-    splashTex_ = loadAssetJpeg("data/pocket-splash/" + names[static_cast<std::size_t>(seed % names.size())]);
-    splashQuip_ = static_cast<int>((seed / 7) % 997) * 2;   // starts on one of Pocket's own lines
+    splashTex_ = loadAssetJpeg("data/pocket-splash/logo.jpg");   // where the dial settles
+    if (!splashTex_) return;
+    // three or four channels the dial passes on the way, different every launch
+    std::uint64_t seed = SDL_GetPerformanceCounter() ^ (SDL_GetTicksNS() << 7);
+    auto next = [&seed] { seed = seed * 6364136223846793005ull + 1442695040888963407ull; return seed >> 33; };
+    const int want = 3 + static_cast<int>(next() % 2);
+    for (int k = 0; k < want && !names.empty(); ++k) {
+      const std::size_t pick = next() % names.size();
+      if (SDL_Texture* t = loadAssetJpeg("data/pocket-splash/" + names[pick])) splashChannels_.push_back(t);
+      names.erase(names.begin() + static_cast<std::ptrdiff_t>(pick));
+    }
+    splashSeed_ = static_cast<std::uint32_t>(next());
+    splashQuip_ = static_cast<int>(next() % 997) * 2;   // starts on one of Pocket's own lines
     splashUntil_ = SDL_GetTicks() + kSplashMs;
+  }
+
+  // ── Tuning in ──
+  //
+  // James, 11-20: "surfing the dial through static and crazy sci-fi scenes
+  // ... settles on the deckboy logo, then menu", "all in a second", "like
+  // it's tuning in", "different scenes interspersed each time, blended in
+  // the static, like real interference". One second in the picture window:
+  // snow, and under it three or four of the desk's scenes fading in and out
+  // at their own strengths (torn sync, a rolling picture, colour fringes, a
+  // hum bar crawling up), then the logo's signal strengthens and the
+  // interference calms onto it.
+
+  // One picture as a weak, damaged signal: drawn in strips, each torn
+  // sideways by the sync, rolled vertically, with its colour channels drifted
+  // apart. `strength` is how much of it comes through.
+  void drawSignal(SDL_Texture* tex, const SDL_FRect& pic, float strength, float tear, float roll, float fringe, float t, std::uint32_t salt) {
+    if (!tex || strength <= 0.01f) return;
+    float tw = 0, th = 0;
+    SDL_GetTextureSize(tex, &tw, &th);
+    const float k = std::max(pic.w / tw, pic.h / th);
+    const float sw = pic.w / k, sh = pic.h / k;
+    const float sx0 = (tw - sw) / 2, sy0 = (th - sh) / 2;
+    constexpr int kStrips = 36;
+    const float stripH = pic.h / kStrips;
+    SDL_SetTextureBlendMode(tex, SDL_BLENDMODE_ADD);
+    // red, green and blue drawn apart and added back together: the fringes
+    const float chans[3][3] = {{1, 0, 0}, {0, 1, 0}, {0, 0, 1}};
+    for (int c = 0; c < 3; ++c) {
+      SDL_SetTextureColorModFloat(tex, chans[c][0], chans[c][1], chans[c][2]);
+      SDL_SetTextureAlphaModFloat(tex, strength);
+      const float shift = (static_cast<float>(c) - 1.0f) * fringe;
+      for (int i = 0; i < kStrips; ++i) {
+        const float fy = static_cast<float>(i) / kStrips;
+        // the sync tears each line sideways: a slow wave plus a twitch
+        const float h = static_cast<float>(((salt + static_cast<std::uint32_t>(i) * 2654435761u) >> 9) % 1000) / 1000.0f;
+        const float off = tear * (std::sin(fy * 9.0f + t * 31.0f) * 0.6f + (h - 0.5f) * 0.8f) * pic.w;
+        // the picture rolls: each strip shows a lower part of the frame, wrapping
+        float srcY = std::fmod(fy + roll, 1.0f);
+        if (srcY < 0) srcY += 1.0f;
+        const SDL_FRect src {sx0, sy0 + srcY * sh, sw, sh / kStrips};
+        const SDL_FRect dst {pic.x + off + shift, pic.y + static_cast<float>(i) * stripH, pic.w, stripH + 0.5f};
+        SDL_RenderTexture(renderer_, tex, &src, &dst);
+      }
+    }
+    SDL_SetTextureColorModFloat(tex, 1, 1, 1);
+    SDL_SetTextureAlphaModFloat(tex, 1);
+    SDL_SetTextureBlendMode(tex, SDL_BLENDMODE_BLEND);
   }
 
   void drawSplashArt(const SDL_FRect& pic) {
     if (!splashing()) return;
-    const float left = static_cast<float>(splashUntil_ - SDL_GetTicks());
-    SDL_SetTextureAlphaModFloat(splashTex_, std::clamp(left / 250.0f, 0.0f, 1.0f));   // fades out at the end
-    float tw = 0, th = 0;
-    SDL_GetTextureSize(splashTex_, &tw, &th);
-    // "Fresh and new, getting ready for you" (James, 11-20), in 750 ms: the
-    // art settles in from a little larger and brightens as it lands, then a
-    // band of light sweeps across it, the way light catches new glass.
     const Uint64 now = SDL_GetTicks();
     const float p = std::clamp(static_cast<float>(now - (splashUntil_ - kSplashMs)) / static_cast<float>(kSplashMs), 0.0f, 1.0f);
-    const float settle = 1.0f - (1.0f - p) * (1.0f - p);   // eases out
-    const float grow = 1.0f + 0.05f * (1.0f - settle);
-    const float k = std::max(pic.w / tw, pic.h / th) * grow;
-    const float sw = pic.w / k, sh = pic.h / k;
-    const SDL_FRect src {(tw - sw) / 2, (th - sh) / 2, sw, sh};
-    const float lift = 0.75f + 0.25f * settle;
-    SDL_SetTextureColorModFloat(splashTex_, lift, lift, lift);
-    SDL_RenderTexture(renderer_, splashTex_, &src, &pic);
-    SDL_SetTextureColorModFloat(splashTex_, 1, 1, 1);
-    // the glint: a soft diagonal band, added light, crossing in the middle half of the time
-    const float g = std::clamp((p - 0.15f) / 0.55f, 0.0f, 1.0f);
-    if (g > 0.0f && g < 1.0f) {
-      const float band = pic.w * 0.16f, slant = pic.h * 0.45f;
-      const float cx = pic.x - band - slant + (pic.w + 2 * band + 2 * slant) * g;
-      const float fade = std::sin(3.14159f * g) * 0.55f * std::clamp(left / 250.0f, 0.0f, 1.0f);
-      const SDL_FColor clear {1, 1, 1, 0}, bright {1, 1, 1, fade};
-      // three columns of vertices: clear, bright, clear, leaning right
-      const SDL_FPoint top[3] = {{cx - band + slant, pic.y}, {cx + slant, pic.y}, {cx + band + slant, pic.y}};
-      const SDL_FPoint bot[3] = {{cx - band, pic.y + pic.h}, {cx, pic.y + pic.h}, {cx + band, pic.y + pic.h}};
-      const SDL_FColor col[3] = {clear, bright, clear};
-      SDL_Vertex v[12];
-      int n = 0;
-      for (int i = 0; i < 2; ++i) {
-        const SDL_Vertex a {top[i], col[i], {0, 0}}, b {top[i + 1], col[i + 1], {0, 0}}, c {bot[i], col[i], {0, 0}}, d {bot[i + 1], col[i + 1], {0, 0}};
-        v[n++] = a; v[n++] = b; v[n++] = c; v[n++] = b; v[n++] = d; v[n++] = c;
-      }
-      SDL_SetRenderClipRect(renderer_, nullptr);
-      const SDL_Rect clip {static_cast<int>(pic.x), static_cast<int>(pic.y), static_cast<int>(pic.w), static_cast<int>(pic.h)};
-      SDL_SetRenderClipRect(renderer_, &clip);
-      SDL_BlendMode was;
-      SDL_GetRenderDrawBlendMode(renderer_, &was);
-      SDL_RenderGeometry(renderer_, nullptr, v, n, nullptr, 0);
-      SDL_SetRenderClipRect(renderer_, nullptr);
-      SDL_SetRenderDrawBlendMode(renderer_, was);
+    const float t = p * static_cast<float>(kSplashMs) / 1000.0f;
+    const SDL_Rect clip {static_cast<int>(pic.x), static_cast<int>(pic.y), static_cast<int>(pic.w), static_cast<int>(pic.h)};
+    SDL_SetRenderClipRect(renderer_, &clip);
+    fillRect(renderer_, kBlack, pic);
+    // the logo comes in from 55%, the interference gone by 85%
+    const float lock = std::clamp((p - 0.55f) / 0.30f, 0.0f, 1.0f);
+    const float calm = 1.0f - lock;
+    // the channels: each has its own moment, overlapping, fading in and out
+    const int n = static_cast<int>(splashChannels_.size());
+    float strongest = 0;   // the snow thins while a channel comes through
+    for (int c = 0; c < n; ++c) {
+      const std::uint32_t salt = splashSeed_ * (c + 1) + 977u * static_cast<std::uint32_t>(c);
+      const float centre = 0.10f + 0.44f * (static_cast<float>(c) + 0.5f) / static_cast<float>(n) + (static_cast<float>(salt % 100) / 100.0f - 0.5f) * 0.06f;
+      const float width = 0.10f + static_cast<float>((salt >> 8) % 100) / 100.0f * 0.06f;
+      const float d = (p - centre) / width;
+      float strength = std::exp(-d * d) * 0.9f;
+      // a weak signal flickers
+      strength *= 0.75f + 0.25f * std::sin(t * 70.0f + static_cast<float>(c) * 2.0f);
+      const float roll = t * (0.6f + static_cast<float>(salt % 7) * 0.25f) + static_cast<float>(salt % 13) / 13.0f;
+      drawSignal(splashChannels_[static_cast<std::size_t>(c)], pic, strength * calm, 0.05f * calm, roll, 0.012f * pic.w, t, salt);
+      strongest = std::max(strongest, strength * calm);
     }
+    // the logo: the roll and the tearing ease off as the signal locks
+    if (lock > 0) {
+      const float settle = lock * lock * (3 - 2 * lock);
+      drawSignal(splashTex_, pic, std::min(1.0f, 0.25f + settle), 0.04f * (1 - settle), (1 - settle) * 0.35f,
+                 0.01f * pic.w * (1 - settle), t, splashSeed_ ^ 0x5bd1e995u);
+    }
+    // the snow: loud at first, fading as the logo locks
+    const float snow = std::clamp(0.85f - 0.08f * std::sin(t * 23.0f) - 0.72f * strongest, 0.0f, 1.0f) * (1.0f - 0.95f * lock);
+    if (snow > 0.02f) {
+      constexpr int kNW = 160, kNH = 90;
+      if (!splashNoise_) {
+        splashNoise_ = SDL_CreateTexture(renderer_, SDL_PIXELFORMAT_RGBA32, SDL_TEXTUREACCESS_STREAMING, kNW, kNH);
+        if (splashNoise_) SDL_SetTextureScaleMode(splashNoise_, SDL_SCALEMODE_NEAREST);
+      }
+      void* px = nullptr;
+      int pitch = 0;
+      if (splashNoise_ && SDL_LockTexture(splashNoise_, nullptr, &px, &pitch)) {
+        std::uint32_t r = splashSeed_ ^ static_cast<std::uint32_t>(now * 2654435761u);
+        for (int y = 0; y < kNH; ++y) {
+          auto* row = static_cast<std::uint8_t*>(px) + y * pitch;
+          for (int x = 0; x < kNW; ++x) {
+            r ^= r << 13; r ^= r >> 17; r ^= r << 5;
+            const std::uint8_t v = static_cast<std::uint8_t>(r & 0xff);
+            row[x * 4 + 0] = v; row[x * 4 + 1] = v; row[x * 4 + 2] = v; row[x * 4 + 3] = 255;
+          }
+        }
+        SDL_UnlockTexture(splashNoise_);
+        SDL_SetTextureBlendMode(splashNoise_, SDL_BLENDMODE_BLEND);
+        SDL_SetTextureAlphaModFloat(splashNoise_, snow);
+        SDL_RenderTexture(renderer_, splashNoise_, nullptr, &pic);
+      }
+    }
+    // the hum bar crawling up, and fine scanlines
+    if (calm > 0.02f) {
+      const float bar = std::fmod(1.0f - t * 0.9f, 1.0f);
+      fillRoundAlpha(renderer_, kBlack, 0.35f * calm, {pic.x, pic.y + bar * pic.h - pic.h * 0.08f, pic.w, pic.h * 0.16f}, 0);
+    }
+    for (float y = pic.y; y < pic.y + pic.h; y += 3.0f) fillRoundAlpha(renderer_, kBlack, 0.18f, {pic.x, y, pic.w, 1.0f}, 0);
+    // and away: the last quarter-second fades to the menu
+    const float left = static_cast<float>(splashUntil_ - now);
+    if (left < 150.0f) fillRoundAlpha(renderer_, kBlack, 1.0f - left / 150.0f, pic, 0);
+    SDL_SetRenderClipRect(renderer_, nullptr);
   }
 
   void drawSplashList(const SDL_FRect& lcd) {
@@ -7017,7 +7098,10 @@ class Pocket {
   int mapCorner_ = 0;
   bool mapFine_ = false;
   bool splashOn_ = true;
-  SDL_Texture* splashTex_ = nullptr;
+  SDL_Texture* splashTex_ = nullptr;          // the logo the dial settles on
+  std::vector<SDL_Texture*> splashChannels_;   // the scenes passed on the way
+  SDL_Texture* splashNoise_ = nullptr;         // the snow
+  std::uint32_t splashSeed_ = 1;
   Uint64 splashUntil_ = 0;
   int splashQuip_ = 0;
   Uint64 fpsSince_ = 0;
