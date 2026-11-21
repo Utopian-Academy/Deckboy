@@ -1325,7 +1325,7 @@ inline std::vector<ParamRow> paramRowsForCue(const Cue& cue, bool includeHeading
   }
   if (cue.kind == CueKind::Text && cue.lowerThird.on) {
     return {
-      {"height", NumericParam::L3Height, "Space under it, as a share of the frame"},
+      {"height", NumericParam::L3Height, "The gap under it, as a share of the frame"},
       {"size", NumericParam::L3Size, "Scale of the whole graphic"},
       {"in time", NumericParam::L3InSeconds, "How long the in move takes"},
       {"out time", NumericParam::L3OutSeconds, "How long the out move takes"},

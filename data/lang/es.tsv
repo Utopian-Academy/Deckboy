@@ -4767,3 +4767,57 @@ Following this desk: {1}	Siguiendo esta mesa: {1}
 Leading. Nobody is following yet.	Liderando. Aún no sigue nadie.
 Leading: other machines may follow this desk	Liderando: otras máquinas pueden seguir esta mesa
 Not leading: no other machine can follow this desk.	Sin liderar: ninguna otra máquina puede seguir esta mesa.
+body	cuerpo
+burns	quemaduras
+chaos	caos
+breath	aliento
+jitter	temblor
+sparks	chispas
+How big a blob grows	Cuánto crece una mancha
+Tube, mandala or none	Tubo, mandala o ninguno
+Turn the whole picture	Giro de toda la imagen
+How far the field bends	Cuánto se curva el campo
+How fast the water moves	Velocidad del agua
+The halo round the lines	El halo alrededor de las líneas
+How bright the picture is	Brillo de la imagen
+How long the in move takes	Duración del movimiento de entrada
+Scale of the whole graphic	Escala de todo el gráfico
+How hard the lines are bent	Cuánto se curvan las líneas
+How long the out move takes	Duración del movimiento de salida
+How far the colours fan apart	Cuánto se separan los colores
+Thickness of the glowing edge	Grosor del borde luminoso
+How bright the laser lines are	Brillo de las líneas láser
+Spiral size: above 1 is bigger	Tamaño de la espiral: más de 1 es mayor
+How many mirror panels, 0 to 12	Cuántas secciones de espejo, de 0 a 12
+Turn the colours round the wheel	Giro de los colores en el círculo cromático
+Laser speckle: the focus trembles	Moteado láser: el enfoque tiembla
+Rotate the field round its centre	Girar el campo sobre su centro
+How bright the water's pale light is	Brillo de la luz pálida del agua
+How long light lingers on the screen	Cuánto perdura la luz en la pantalla
+Colour steps: 2 is stark, 8 is smooth	Pasos de color: 2 es duro, 8 es suave
+Classic green, fire, ice, neon or mono	Verde clásico, fuego, hielo, neón o mono
+How fast they are born, drift and fade	Rapidez con que nacen, derivan y se desvanecen
+Turbulence: 0 is still ripples, 3 boils	Turbulencia: 0 ondulaciones en calma, 3 hierve
+A second jet of water crossing the first	Un segundo chorro de agua cruza el primero
+Broad ripples at 0, fine and busy at 100	Ondulaciones amplias en 0, finas y densas en 100
+The flow surges with the programme sound	El flujo pulsa con el audio del programa
+Zone, twin, flow, saddle, ripple or shear	Zona, doble, flujo, silla, ondas o cizalla
+Horizontal cells. More detail uses more CPU	Celdas horizontales. Más detalle usa más CPU
+How far each panel tilts from the one before	Inclinación de cada panel respecto al anterior
+The share of each band drawn as grey stripes	Proporción de cada banda dibujada como franjas grises
+The top mirrors the bottom round a dark seam	La mitad superior refleja la inferior en torno a una unión oscura
+0 holds the field; negative runs it backwards	0 detiene el campo; negativo lo hace ir hacia atrás
+Where the eye of the swirl sits, left to right	Posición del ojo del remolino, de izquierda a derecha
+Where the eye of the swirl sits, top to bottom	Posición del ojo del remolino, de arriba abajo
+The round lens: a curved picture and a dark rim	La lente redonda: imagen curvada y borde oscuro
+How fast the bands move; 0 holds the field still	Velocidad de las bandas; 0 deja el campo quieto
+Turn the palette through all colours; 0 restores it	Gira la paleta por todos los colores; 0 la restaura
+Spiral strength, from a flowing field to tight turns	Intensidad de la espiral, desde un campo fluido hasta giros cerrados
+How long it stays before leaving by itself. 0 waits for OUT	Cuánto tiempo permanece antes de salir solo. 0 espera a SALIDA
+The laser colours: rgb, rainbow, floyd, warm, cool or green	Colores del láser: rgb, arcoíris, floyd, cálido, frío o verde
+How many are alive at once. Each is born, drifts out, grows and fades	Cuántas hay vivas a la vez. Cada una nace, se aleja, crece y se desvanece
+How readily neighbours merge into one shape. 0 keeps every blob round	Facilidad con que las vecinas se funden en una sola forma. 0 mantiene redonda cada mancha
+Rainbow + grey, rainbow, the theme's colours (taken when picked) or mono	Arcoíris + gris, arcoíris, los colores del tema (tomados al elegirlo) o monocromo
+How many bands: 50% is the design, higher beats harder against the pixels	Cuántas bandas: 50% es el diseño; más alto bate más fuerte contra los píxeles
+Turns the rim's colours round the wheel -- green, yellow, pink, violet, blue	Gira los colores del borde por la rueda -- verde, amarillo, rosa, violeta, azul
+The gap under it, as a share of the frame	La separación debajo, como proporción del fotograma

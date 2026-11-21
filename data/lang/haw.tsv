@@ -4763,3 +4763,57 @@ Following this desk: {1}	Ke hahai nei i kēia papa: {1}
 Leading. Nobody is following yet.	Ke alakaʻi nei. ʻAʻohe kanaka e hahai nei i kēia manawa.
 Leading: other machines may follow this desk	Ke alakaʻi nei: hiki i nā mīkini ʻē ke hahai i kēia papa
 Not leading: no other machine can follow this desk.	ʻAʻole e alakaʻi ana: ʻaʻole hiki i kekahi mīkini ʻē ke hahai i kēia papa.
+body	kino
+burns	e ʻā ana
+chaos	haunaele
+breath	hanu
+jitter	haʻalulu
+sparks	nā huna ahi
+How big a blob grows	Ka nui e ulu ai ka pōpō
+Tube, mandala or none	ʻOhe, mandala a i ʻole ʻaʻohe
+Turn the whole picture	Huli i ke kiʻi holoʻokoʻa
+How far the field bends	Ka nui o ka pelu kahua
+How fast the water moves	Ka māmā o ka holo wai
+The halo round the lines	Ka pōʻai mālamalama a puni nā laina
+How bright the picture is	Ka mālamalama o ke kiʻi
+How long the in move takes	Ka lōʻihi o ka hoʻoneʻe komo
+Scale of the whole graphic	Ka nui o ke kiʻi kaha holoʻokoʻa
+How hard the lines are bent	Ka ikaika o ka pelu laina
+How long the out move takes	Ka lōʻihi o ka hoʻoneʻe puka
+How far the colours fan apart	Ka mamao o ka hohola waihoʻoluʻu
+Thickness of the glowing edge	Ka mānoanoa o ka lihi ʻālohilohi
+How bright the laser lines are	Ka mālamalama o nā laina kukuna
+Spiral size: above 1 is bigger	Nui o ka wili: ma luna o 1, nui aʻe
+How many mirror panels, 0 to 12	ʻEhia papa aniani, 0 i 12
+Turn the colours round the wheel	Huli i nā waihoʻoluʻu a puni ka huila
+Laser speckle: the focus trembles	Kikokiko kukuna: haʻalulu ke kālele
+Rotate the field round its centre	Huli i ke kahua a puni kona waena
+How bright the water's pale light is	Ka mālamalama o ke kukui haikea o ka wai
+How long light lingers on the screen	Ka lōʻihi o ke kukui ma ka papakaumaka
+Colour steps: 2 is stark, 8 is smooth	Nā ʻanuʻu waihoʻoluʻu: 2 ʻoʻoleʻa, 8 mālie
+Classic green, fire, ice, neon or mono	ʻŌmaʻomaʻo kahiko, ahi, hau, nīona a i ʻole kala hoʻokahi
+How fast they are born, drift and fade	Ka māmā o ko lākou hānau ʻana, ʻeʻe a hala
+Turbulence: 0 is still ripples, 3 boils	Haunaele: 0 nalu liʻiliʻi mālie, 3 lapalapa
+A second jet of water crossing the first	Kahawai lua o ka wai e keʻa i ka mua
+Broad ripples at 0, fine and busy at 100	Nalu liʻiliʻi ākea ma 0, ʻuʻuku a paʻapū ma 100
+The flow surges with the programme sound	Piʻi ke kahe me ke kani papahana
+Zone, twin, flow, saddle, ripple or shear	ʻĀpana, māhoe, kahe, noho lio, ʻale a i ʻole ʻālapa
+Horizontal cells. More detail uses more CPU	Nā pahu papamoe. ʻOi aku ke kikoʻī, ʻoi aku ka hoʻohana CPU
+How far each panel tilts from the one before	Kihi o kēlā papa mai ka mua
+The share of each band drawn as grey stripes	Ka mahele o kēlā me kēia kaha i kahakiʻi ʻia me nā kaha ʻāhinahina
+The top mirrors the bottom round a dark seam	Hōʻaniani ka luna i ka lalo a puni ka humuhumu pouli
+0 holds the field; negative runs it backwards	Hoʻopaʻa ka 0 i ke kahua; holo hope ka helu ma lalo o 0
+Where the eye of the swirl sits, left to right	Kahi o ka maka o ka wili, hema a ʻākau
+Where the eye of the swirl sits, top to bottom	Kahi o ka maka o ka wili, luna a lalo
+The round lens: a curved picture and a dark rim	Ke aniani pōʻai: he kiʻi pīʻo a me ka lihi pouli
+How fast the bands move; 0 holds the field still	Ka māmā o ka neʻe ʻana o nā kaha; hoʻopaʻa ka 0 i ke kahua
+Turn the palette through all colours; 0 restores it	Huli i ka papa waihoʻoluʻu ma nā waihoʻoluʻu a pau; hoʻihoʻi ka 0 iā ia
+Spiral strength, from a flowing field to tight turns	Ka ikaika o ka ʻōwili, mai ke kahua kahe a i nā huli pili
+How long it stays before leaving by itself. 0 waits for OUT	Ka lōʻihi o kona noho ʻana ma mua o kona haʻalele ʻana iho. Kali ka 0 i ka PUKA
+The laser colours: rgb, rainbow, floyd, warm, cool or green	Nā waihoʻoluʻu laser: rgb, ānuenue, floyd, mehana, huihui a i ʻole ʻōmaʻomaʻo
+How many are alive at once. Each is born, drifts out, grows and fades	ʻEhia e ola like ana. Hānau kēlā me kēia, ʻeʻe i waho, ulu a mae
+How readily neighbours merge into one shape. 0 keeps every blob round	Ka māmā o ka hui ʻana o nā hoa pili i kinona hoʻokahi. Mālama ka 0 i nā kulu a pau he pōʻai
+Rainbow + grey, rainbow, the theme's colours (taken when picked) or mono	ʻĀnuenue + ʻāhinahina, ānuenue, nā waihoʻoluʻu o ke kumuhana (lawe ʻia i ke koho ʻana) a i ʻole waihoʻoluʻu hoʻokahi
+How many bands: 50% is the design, higher beats harder against the pixels	ʻEhia kaha: ʻo 50% ka hoʻolālā, ʻoi aku ke kiʻekiʻe, ʻoi aku ke kuʻi ʻana i nā kiko kiʻi
+Turns the rim's colours round the wheel -- green, yellow, pink, violet, blue	Huli i nā waihoʻoluʻu o ka lihi a puni ka huila -- ʻōmaʻomaʻo, melemele, ʻākala, poni, polū
+The gap under it, as a share of the frame	Ka wāwae ma lalo, he māhele o ke kiʻi

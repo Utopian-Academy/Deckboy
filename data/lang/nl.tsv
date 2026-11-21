@@ -4740,3 +4740,55 @@ Following this desk: {1}	Volgen deze regietafel: {1}
 Leading. Nobody is following yet.	Leidend. Nog niemand volgt.
 Leading: other machines may follow this desk	Leidend: andere machines mogen deze regietafel volgen
 Not leading: no other machine can follow this desk.	Niet leidend: geen andere machine kan deze regietafel volgen.
+burns	brandplekken
+breath	adem
+jitter	trilling
+sparks	vonken
+How big a blob grows	Hoe groot een klodder wordt
+Tube, mandala or none	Buis, mandala of geen
+Turn the whole picture	Draai het hele beeld
+How far the field bends	Hoe ver het veld buigt
+How fast the water moves	Snelheid van het water
+The halo round the lines	De halo rond de lijnen
+How bright the picture is	Hoe helder het beeld is
+How long the in move takes	Hoe lang de in-beweging duurt
+Scale of the whole graphic	Schaal van de hele graphic
+How hard the lines are bent	Hoe sterk de lijnen buigen
+How long the out move takes	Hoe lang de uit-beweging duurt
+How far the colours fan apart	Hoe ver de kleuren uitwaaieren
+Thickness of the glowing edge	Dikte van de gloeiende rand
+How bright the laser lines are	Helderheid van de laserlijnen
+Spiral size: above 1 is bigger	Spiraalgrootte: boven 1 is groter
+How many mirror panels, 0 to 12	Hoeveel spiegelpanelen, 0 tot 12
+Turn the colours round the wheel	Draai de kleuren over de kleurencirkel
+Laser speckle: the focus trembles	Laserspikkel: de scherpstelling trilt
+Rotate the field round its centre	Draai het veld rond zijn midden
+How bright the water's pale light is	Hoe helder het bleke licht van het water is
+How long light lingers on the screen	Hoe lang licht op het scherm blijft hangen
+Colour steps: 2 is stark, 8 is smooth	Kleurstappen: 2 is hard, 8 is zacht
+Classic green, fire, ice, neon or mono	Klassiek groen, vuur, ijs, neon of mono
+How fast they are born, drift and fade	Hoe snel ze ontstaan, drijven en vervagen
+Turbulence: 0 is still ripples, 3 boils	Turbulentie: 0 is stille rimpelingen, 3 kookt
+A second jet of water crossing the first	Een tweede waterstraal die de eerste kruist
+Broad ripples at 0, fine and busy at 100	Brede rimpelingen bij 0, fijn en druk bij 100
+The flow surges with the programme sound	De stroming golft mee met het programmageluid
+Zone, twin, flow, saddle, ripple or shear	Zone, tweeling, stroming, zadel, rimpeling of afschuiving
+Horizontal cells. More detail uses more CPU	Horizontale cellen. Meer detail kost meer CPU
+How far each panel tilts from the one before	Hoe ver elk paneel kantelt ten opzichte van het vorige
+The share of each band drawn as grey stripes	Het deel van elke band dat als grijze strepen wordt getekend
+The top mirrors the bottom round a dark seam	Boven spiegelt onder langs een donkere naad
+0 holds the field; negative runs it backwards	0 houdt het veld stil; negatief laat het achteruit lopen
+Where the eye of the swirl sits, left to right	Plaats van het oog van de draaikolk, van links naar rechts
+Where the eye of the swirl sits, top to bottom	Plaats van het oog van de draaikolk, van boven naar beneden
+The round lens: a curved picture and a dark rim	De ronde lens: een gebogen beeld en een donkere rand
+How fast the bands move; 0 holds the field still	Hoe snel de banden bewegen; 0 houdt het veld stil
+Turn the palette through all colours; 0 restores it	Draai het palet door alle kleuren; 0 herstelt het
+Spiral strength, from a flowing field to tight turns	Sterkte van de spiraal, van een vloeiend veld tot strakke windingen
+How long it stays before leaving by itself. 0 waits for OUT	Hoe lang het blijft voor het vanzelf vertrekt. 0 wacht op UIT
+The laser colours: rgb, rainbow, floyd, warm, cool or green	De laserkleuren: rgb, regenboog, floyd, warm, koel of groen
+How many are alive at once. Each is born, drifts out, grows and fades	Hoeveel er tegelijk leven. Elk ontstaat, drijft weg, groeit en vervaagt
+How readily neighbours merge into one shape. 0 keeps every blob round	Hoe makkelijk buren samensmelten tot één vorm. 0 houdt elke klodder rond
+Rainbow + grey, rainbow, the theme's colours (taken when picked) or mono	Regenboog + grijs, regenboog, de kleuren van het thema (bij het kiezen overgenomen) of mono
+How many bands: 50% is the design, higher beats harder against the pixels	Hoeveel banden: 50% is het ontwerp, hoger interfereert sterker met de pixels
+Turns the rim's colours round the wheel -- green, yellow, pink, violet, blue	Draait de kleuren van de rand rond het kleurenwiel -- groen, geel, roze, violet, blauw
+The gap under it, as a share of the frame	De tussenruimte eronder, als deel van het beeld

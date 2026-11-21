@@ -4798,3 +4798,57 @@ Following this desk: {1}	Следват този пулт: {1}
 Leading. Nobody is following yet.	Водещ. Още никой не следва.
 Leading: other machines may follow this desk	Водещ: други машини могат да следват този пулт
 Not leading: no other machine can follow this desk.	Не е водещ: никоя друга машина не може да следва този пулт.
+body	тяло
+burns	изгаряния
+chaos	хаос
+breath	дъх
+jitter	трептене
+sparks	искри
+How big a blob grows	Колко нараства петното
+Tube, mandala or none	Тръба, мандала или няма
+Turn the whole picture	Завъртане на цялата картина
+How far the field bends	Огъване на полето
+How fast the water moves	Скорост на водата
+The halo round the lines	Ореолът около линиите
+How bright the picture is	Яркост на картината
+How long the in move takes	Колко трае вх. движение
+Scale of the whole graphic	Мащаб на цялата графика
+How hard the lines are bent	Сила на огъване на линиите
+How long the out move takes	Колко трае изх. движение
+How far the colours fan apart	Разперване на цветовете
+Thickness of the glowing edge	Дебелина на светещия ръб
+How bright the laser lines are	Яркост на лазерните линии
+Spiral size: above 1 is bigger	Размер на спиралата: над 1 е по-голяма
+How many mirror panels, 0 to 12	Колко огледални панела, от 0 до 12
+Turn the colours round the wheel	Завъртане на цветовете по кръга
+Laser speckle: the focus trembles	Лазерни петна: фокусът трепти
+Rotate the field round its centre	Завъртане на полето около центъра му
+How bright the water's pale light is	Яркост на бледата светлина на водата
+How long light lingers on the screen	Колко дълго светлината остава на екрана
+Colour steps: 2 is stark, 8 is smooth	Цветови стъпки: 2 е рязко, 8 е меко
+Classic green, fire, ice, neon or mono	Класическо зелено, огън, лед, неон или моно
+How fast they are born, drift and fade	Колко бързо се раждат, дрейфуват и избледняват
+Turbulence: 0 is still ripples, 3 boils	Турбулентност: 0 е спокойни вълнички, 3 кипи
+A second jet of water crossing the first	Втора водна струя, пресичаща първата
+Broad ripples at 0, fine and busy at 100	Широки вълнички при 0, фини и гъсти при 100
+The flow surges with the programme sound	Потокът пулсира със звука на PROGRAM
+Zone, twin, flow, saddle, ripple or shear	Зони, двоен, поток, седло, вълни или срязване
+Horizontal cells. More detail uses more CPU	Хоризонтални клетки. Повече детайл натоварва повече CPU
+How far each panel tilts from the one before	Наклон на всеки панел спрямо предишния
+The share of each band drawn as grey stripes	Каква част от всяка лента се рисува като сиви ивици
+The top mirrors the bottom round a dark seam	Горната част отразява долната около тъмен шев
+0 holds the field; negative runs it backwards	0 задържа полето; отрицателно го пуска наобратно
+Where the eye of the swirl sits, left to right	Къде е окото на вихъра, отляво надясно
+Where the eye of the swirl sits, top to bottom	Къде е окото на вихъра, отгоре надолу
+The round lens: a curved picture and a dark rim	Кръглата леща: извита картина и тъмен ръб
+How fast the bands move; 0 holds the field still	Колко бързо се движат лентите; 0 спира полето
+Turn the palette through all colours; 0 restores it	Завъртане на палитрата през всички цветове; 0 я възстановява
+Spiral strength, from a flowing field to tight turns	Сила на спиралата, от плавно поле до стегнати завъртания
+How long it stays before leaving by itself. 0 waits for OUT	Колко дълго стои, преди да излезе само. 0 чака ИЗХ.
+The laser colours: rgb, rainbow, floyd, warm, cool or green	Цветовете на лазера: rgb, дъга, floyd, топли, студени или зелено
+How many are alive at once. Each is born, drifts out, grows and fades	Колко са живи едновременно. Всяко се ражда, отплава навън, расте и избледнява
+How readily neighbours merge into one shape. 0 keeps every blob round	Колко лесно съседните се сливат в една форма. 0 оставя всяко петно кръгло
+Rainbow + grey, rainbow, the theme's colours (taken when picked) or mono	Дъга + сиво, дъга, цветовете на темата (взети при избора) или моно
+How many bands: 50% is the design, higher beats harder against the pixels	Колко ленти: 50% е по замисъл, повече бие по-силно с пикселите
+Turns the rim's colours round the wheel -- green, yellow, pink, violet, blue	Завърта цветовете на ръба по кръга -- зелено, жълто, розово, виолетово, синьо
+The gap under it, as a share of the frame	Пролуката отдолу като дял от кадъра

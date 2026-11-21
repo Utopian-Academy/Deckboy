@@ -4795,3 +4795,57 @@ Following this desk: {1}	이 콘솔을 따르는 중: {1}
 Leading. Nobody is following yet.	리드 중. 아직 아무도 따르지 않음.
 Leading: other machines may follow this desk	리드 중: 다른 기계가 이 콘솔을 따를 수 있음
 Not leading: no other machine can follow this desk.	리드 안 함: 다른 기계가 이 콘솔을 따를 수 없음.
+body	몸체
+burns	그을림
+chaos	혼돈
+breath	숨소리
+jitter	지터
+sparks	불꽃
+How big a blob grows	덩어리가 커지는 정도
+Tube, mandala or none	튜브, 만다라 또는 없음
+Turn the whole picture	화면 전체 돌리기
+How far the field bends	필드 휘어짐 정도
+How fast the water moves	물 이동 속도
+The halo round the lines	선 주위의 후광
+How bright the picture is	영상 밝기
+How long the in move takes	인 이동에 걸리는 시간
+Scale of the whole graphic	그래픽 전체 배율
+How hard the lines are bent	선 휘어짐 강도
+How long the out move takes	아웃 이동에 걸리는 시간
+How far the colours fan apart	색 퍼짐 정도
+Thickness of the glowing edge	빛나는 가장자리 두께
+How bright the laser lines are	레이저 선 밝기
+Spiral size: above 1 is bigger	나선 크기: 1보다 크면 커짐
+How many mirror panels, 0 to 12	미러 패널 개수, 0부터 12까지
+Turn the colours round the wheel	색상환 따라 색 돌리기
+Laser speckle: the focus trembles	레이저 스페클: 초점이 떨림
+Rotate the field round its centre	필드를 중앙 기준으로 돌리기
+How bright the water's pale light is	물의 옅은 빛 밝기
+How long light lingers on the screen	빛이 화면에 남는 시간
+Colour steps: 2 is stark, 8 is smooth	색 단계: 2는 거칠게, 8은 부드럽게
+Classic green, fire, ice, neon or mono	클래식 초록, 불, 얼음, 네온 또는 모노
+How fast they are born, drift and fade	생성, 드리프트, 페이드 속도
+Turbulence: 0 is still ripples, 3 boils	난류: 0은 잔잔한 잔물결, 3은 끓어오름
+A second jet of water crossing the first	첫 번째를 가로지르는 두 번째 물 분사
+Broad ripples at 0, fine and busy at 100	0은 넓은 잔물결, 100은 잘고 촘촘함
+The flow surges with the programme sound	프로그램 소리에 따라 흐름이 강해짐
+Zone, twin, flow, saddle, ripple or shear	영역, 쌍, 흐름, 안장, 잔물결 또는 전단
+Horizontal cells. More detail uses more CPU	가로 셀 수. 세부가 많을수록 CPU를 더 씁니다
+How far each panel tilts from the one before	이전 패널에 대한 각 패널 기울기
+The share of each band drawn as grey stripes	각 대역 중 회색 줄무늬로 그리는 비율
+The top mirrors the bottom round a dark seam	위가 어두운 이음새를 축으로 아래를 비춥니다
+0 holds the field; negative runs it backwards	0은 필드 정지; 음수는 거꾸로 재생
+Where the eye of the swirl sits, left to right	소용돌이 중심 위치, 왼쪽에서 오른쪽
+Where the eye of the swirl sits, top to bottom	소용돌이 중심 위치, 위에서 아래로
+The round lens: a curved picture and a dark rim	둥근 렌즈: 휘어진 영상과 어두운 테두리
+How fast the bands move; 0 holds the field still	대역 이동 속도; 0이면 필드 정지
+Turn the palette through all colours; 0 restores it	팔레트를 모든 색에 걸쳐 돌립니다; 0은 원래대로
+Spiral strength, from a flowing field to tight turns	나선 강도: 흐르는 필드에서 촘촘한 회전까지
+How long it stays before leaving by itself. 0 waits for OUT	스스로 사라지기 전까지 머무는 시간. 0이면 아웃을 기다림
+The laser colours: rgb, rainbow, floyd, warm, cool or green	레이저 색: rgb, 무지개, floyd, 따뜻함, 차가움, 초록
+How many are alive at once. Each is born, drifts out, grows and fades	동시에 살아 있는 개수. 각각 생겨나 흘러가며 커지다 사라집니다
+How readily neighbours merge into one shape. 0 keeps every blob round	이웃끼리 한 모양으로 합쳐지는 정도. 0이면 모든 방울이 둥글게 유지
+Rainbow + grey, rainbow, the theme's colours (taken when picked) or mono	무지개 + 회색, 무지개, 테마 색(선택 시 가져옴) 또는 모노
+How many bands: 50% is the design, higher beats harder against the pixels	대역 개수: 50%가 설계값, 높을수록 픽셀과 더 강하게 간섭
+Turns the rim's colours round the wheel -- green, yellow, pink, violet, blue	테두리 색을 색상환을 따라 돌림 -- 초록, 노랑, 분홍, 보라, 파랑
+The gap under it, as a share of the frame	아래 간격의 프레임 대비 비율

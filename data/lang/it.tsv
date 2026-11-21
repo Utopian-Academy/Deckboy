@@ -4766,3 +4766,57 @@ Following this desk: {1}	Seguono questa console: {1}
 Leading. Nobody is following yet.	Guida. Nessuno la segue ancora.
 Leading: other machines may follow this desk	Guida: altre macchine possono seguire questa console
 Not leading: no other machine can follow this desk.	Non guida: nessun'altra macchina può seguire questa console.
+body	corpo
+burns	arde
+chaos	caos
+breath	respiro
+jitter	tremolio
+sparks	scintille
+How big a blob grows	Quanto si ingrandisce una chiazza
+Tube, mandala or none	Tubo, mandala o nessuno
+Turn the whole picture	Rotazione di tutta l'immagine
+How far the field bends	Quanto si piega il campo
+How fast the water moves	Quanto veloce si muove l'acqua
+The halo round the lines	L'alone attorno alle righe
+How bright the picture is	Quanto è luminosa l'immagine
+How long the in move takes	Durata del movimento di ingresso
+Scale of the whole graphic	Scala dell'intera grafica
+How hard the lines are bent	Curvatura delle linee
+How long the out move takes	Durata del movimento di uscita
+How far the colours fan apart	Separazione dei colori a ventaglio
+Thickness of the glowing edge	Spessore del bordo luminoso
+How bright the laser lines are	Luminosità delle linee laser
+Spiral size: above 1 is bigger	Dimensione della spirale: sopra 1 è più grande
+How many mirror panels, 0 to 12	Quante facce a specchio, da 0 a 12
+Turn the colours round the wheel	Rotazione dei colori sulla ruota cromatica
+Laser speckle: the focus trembles	Speckle laser: il fuoco trema
+Rotate the field round its centre	Ruota il campo attorno al centro
+How bright the water's pale light is	Quanto è luminosa la luce pallida dell'acqua
+How long light lingers on the screen	Quanto a lungo la luce resta sullo schermo
+Colour steps: 2 is stark, 8 is smooth	Passi di colore: 2 è netto, 8 è morbido
+Classic green, fire, ice, neon or mono	Verde classico, fuoco, ghiaccio, neon o mono
+How fast they are born, drift and fade	Velocità di nascita, deriva e dissolvenza
+Turbulence: 0 is still ripples, 3 boils	Turbolenza: 0 è increspatura calma, 3 ribolle
+A second jet of water crossing the first	Un secondo getto d'acqua che incrocia il primo
+Broad ripples at 0, fine and busy at 100	Increspature ampie a 0, fini e fitte a 100
+The flow surges with the programme sound	Il flusso pulsa con l'audio del programma
+Zone, twin, flow, saddle, ripple or shear	Zona, doppio, flusso, sella, onde o taglio
+Horizontal cells. More detail uses more CPU	Celle orizzontali. Più dettaglio usa più CPU
+How far each panel tilts from the one before	Inclinazione di ogni pannello rispetto al precedente
+The share of each band drawn as grey stripes	Quota di ogni banda disegnata a strisce grigie
+The top mirrors the bottom round a dark seam	La parte alta riflette quella bassa attorno a una giunzione scura
+0 holds the field; negative runs it backwards	0 tiene fermo il campo; i valori negativi lo fanno scorrere all'indietro
+Where the eye of the swirl sits, left to right	Posizione dell'occhio del vortice, da sinistra a destra
+Where the eye of the swirl sits, top to bottom	Posizione dell'occhio del vortice, dall'alto in basso
+The round lens: a curved picture and a dark rim	La lente rotonda: un'immagine curva e un bordo scuro
+How fast the bands move; 0 holds the field still	Velocità delle bande; 0 tiene fermo il campo
+Turn the palette through all colours; 0 restores it	Fa ruotare la tavolozza per tutti i colori; 0 la ripristina
+Spiral strength, from a flowing field to tight turns	Intensità della spirale, da un campo fluido a giri stretti
+How long it stays before leaving by itself. 0 waits for OUT	Quanto resta prima di uscire da sé. 0 attende USC.
+The laser colours: rgb, rainbow, floyd, warm, cool or green	I colori del laser: rgb, arcobaleno, floyd, caldi, freddi o verde
+How many are alive at once. Each is born, drifts out, grows and fades	Quante sono vive insieme. Ognuna nasce, si allontana, cresce e svanisce
+How readily neighbours merge into one shape. 0 keeps every blob round	Facilità con cui le vicine si fondono in una forma. 0 lascia rotonda ogni macchia
+Rainbow + grey, rainbow, the theme's colours (taken when picked) or mono	Arcobaleno + grigio, arcobaleno, i colori del tema (presi alla scelta) o mono
+How many bands: 50% is the design, higher beats harder against the pixels	Quante bande: 50% è il disegno, di più batte più forte contro i pixel
+Turns the rim's colours round the wheel -- green, yellow, pink, violet, blue	Ruota i colori del bordo lungo la ruota -- verde, giallo, rosa, viola, blu
+The gap under it, as a share of the frame	Lo spazio sotto, come quota del fotogramma

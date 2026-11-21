@@ -4761,3 +4761,65 @@ Following this desk: {1}	Śledzi ten pulpit: {1}
 Leading. Nobody is following yet.	Prowadzi. Jeszcze brak śledzących.
 Leading: other machines may follow this desk	Prowadzi: inne maszyny mogą śledzić ten pulpit
 Not leading: no other machine can follow this desk.	Nie prowadzi: żadna inna maszyna nie może śledzić tego pulpitu.
+body	korpus
+burns	przepalenia
+breath	oddech
+jitter	drgania
+sparks	iskry
+How big a blob grows	Jak bardzo rośnie plama
+Tube, mandala or none	Rura, mandala lub brak
+Turn the whole picture	Obróć cały obraz
+How far the field bends	Stopień wygięcia pola
+How fast the water moves	Prędkość ruchu wody
+The halo round the lines	Poświata wokół linii
+How bright the picture is	Jasność obrazu
+How long the in move takes	Czas ruchu wej.
+Scale of the whole graphic	Skala całej grafiki
+How hard the lines are bent	Siła wygięcia linii
+How long the out move takes	Czas ruchu wyj.
+How far the colours fan apart	Rozchylenie wachlarza kolorów
+Thickness of the glowing edge	Grubość świecącej krawędzi
+How bright the laser lines are	Jasność linii lasera
+Spiral size: above 1 is bigger	Rozmiar spirali: powyżej 1 jest większa
+How many mirror panels, 0 to 12	Ile paneli lustra, od 0 do 12
+Turn the colours round the wheel	Obróć kolory na kole barw
+Laser speckle: the focus trembles	Plamkowanie lasera: ostrość drży
+Rotate the field round its centre	Obróć pole wokół jego środka
+How bright the water's pale light is	Jasność bladego światła wody
+How long light lingers on the screen	Jak długo światło zostaje na ekranie
+Colour steps: 2 is stark, 8 is smooth	Kroki koloru: 2 to ostre, 8 to miękkie
+Classic green, fire, ice, neon or mono	Klasyczny zielony, ogień, lód, neon lub mono
+How fast they are born, drift and fade	Jak szybko powstają, dryfują i gasną
+Turbulence: 0 is still ripples, 3 boils	Turbulencja: 0 to spokojne fale, 3 wrze
+A second jet of water crossing the first	Drugi strumień wody przecina pierwszy
+Broad ripples at 0, fine and busy at 100	Szerokie fale przy 0, drobne i gęste przy 100
+The flow surges with the programme sound	Przepływ pulsuje z dźwiękiem programu
+Zone, twin, flow, saddle, ripple or shear	Strefa, bliźniak, przepływ, siodło, fale lub ścinanie
+Horizontal cells. More detail uses more CPU	Komórki w poziomie. Więcej szczegółów zużywa więcej CPU
+How far each panel tilts from the one before	Nachylenie każdego panelu względem poprzedniego
+The share of each band drawn as grey stripes	Część każdego pasma rysowana jako szare paski
+The top mirrors the bottom round a dark seam	Góra odbija dół wokół ciemnego szwu
+0 holds the field; negative runs it backwards	0 zatrzymuje pole; wartość ujemna puszcza je wstecz
+Where the eye of the swirl sits, left to right	Położenie oka wiru, od lewej do prawej
+Where the eye of the swirl sits, top to bottom	Położenie oka wiru, z góry na dół
+The round lens: a curved picture and a dark rim	Okrągła soczewka: zakrzywiony obraz i ciemne obrzeże
+How fast the bands move; 0 holds the field still	Szybkość ruchu pasm; 0 zatrzymuje pole
+Turn the palette through all colours; 0 restores it	Przesuwa paletę przez wszystkie kolory; 0 ją przywraca
+Spiral strength, from a flowing field to tight turns	Siła spirali, od płynnego pola do ciasnych zwojów
+How long it stays before leaving by itself. 0 waits for OUT	Jak długo zostaje, zanim sam zniknie. 0 czeka na OUT
+The laser colours: rgb, rainbow, floyd, warm, cool or green	Kolory lasera: rgb, tęcza, floyd, ciepłe, zimne lub zielony
+How far each row is shifted. This makes the straight rows look tilted	Przesunięcie każdego wiersza. Przez to proste wiersze wyglądają na pochylone
+How many are alive at once. Each is born, drifts out, grows and fades	Ile istnieje naraz. Każdy się rodzi, odpływa, rośnie i znika
+How readily neighbours merge into one shape. 0 keeps every blob round	Jak łatwo sąsiedzi łączą się w jeden kształt. 0 zostawia każdą plamę okrągłą
+Spin the other way. Most people cannot tell which way it turns anyway	Obrót w drugą stronę. Większość ludzi i tak nie rozpozna kierunku
+Move the disc in a small loop. 0 holds it still: the eye moves it anyway	Przesuwa dysk po małej pętli. 0 trzyma go w miejscu: oko i tak go porusza
+Rainbow + grey, rainbow, the theme's colours (taken when picked) or mono	Tęcza + szary, tęcza, kolory motywu (pobrane przy wyborze) lub mono
+How many bands: 50% is the design, higher beats harder against the pixels	Ile pasm: 50% to projekt, więcej daje silniejszą interferencję z pikselami
+Turn the shapes slowly, so the drift changes direction. 0 holds them still	Powoli obraca kształty, by dryf zmieniał kierunek. 0 trzyma je w miejscu
+Classic, the theme's colours (taken when picked) or two colours of your own	Klasyczny, kolory motywu (pobrane przy wyborze) lub dwa własne kolory
+Turns the rim's colours round the wheel -- green, yellow, pink, violet, blue	Obraca kolory obrzeża po kole -- zielony, żółty, różowy, fioletowy, niebieski
+Which way the field seems to go: turn round the centre, out, in, or in waves	Dokąd zdaje się płynąć pole: obrót wokół środka, na zewnątrz, do środka lub falami
+Slide the rows back and forth, so the wall bends and straightens. 0 holds it still	Przesuwa wiersze tam i z powrotem, więc ściana się wygina i prostuje. 0 trzyma ją w miejscu
+How fast the crosses turn. They always turn a little: the dots vanish only while they move	Szybkość obrotu krzyżyków. Zawsze obracają się trochę: kropki znikają tylko w ruchu
+Drift (still shapes that seem to turn), ouchi (a disc that floats), cafe (straight rows that look tilted), vanish (dots that disappear while you stare), grid (dots that flicker and are not there) or dancer (it spins whichever way you see it)	Dryf (nieruchome kształty, które zdają się obracać), ouchi (pływający dysk), kawiarnia (proste wiersze, które wyglądają na pochylone), znikanie (kropki znikające, gdy się w nie wpatrujesz), siatka (migoczące kropki, których nie ma) lub tancerz (obraca się w stronę, w którą go widzisz)
+The gap under it, as a share of the frame	Odstęp pod spodem jako część klatki

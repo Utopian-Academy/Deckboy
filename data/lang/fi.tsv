@@ -4796,3 +4796,57 @@ Following this desk: {1}	Tätä pöytää seuraa: {1}
 Leading. Nobody is following yet.	Johtaa. Kukaan ei seuraa vielä.
 Leading: other machines may follow this desk	Johtaa: muut koneet voivat seurata tätä pöytää
 Not leading: no other machine can follow this desk.	Ei johda: mikään muu kone ei voi seurata tätä pöytää.
+body	runko
+burns	palojäljet
+chaos	kaaos
+breath	hengitys
+jitter	värinä
+sparks	kipinät
+How big a blob grows	Kuinka suureksi läikkä kasvaa
+Tube, mandala or none	Putki, mandala tai ei mitään
+Turn the whole picture	Käännä koko kuva
+How far the field bends	Kentän taipuma
+How fast the water moves	Veden liikenopeus
+The halo round the lines	Halo viivojen ympärillä
+How bright the picture is	Kuvan kirkkaus
+How long the in move takes	Sisään-liikkeen kesto
+Scale of the whole graphic	Koko grafiikan skaala
+How hard the lines are bent	Viivojen taivutusvoima
+How long the out move takes	Ulos-liikkeen kesto
+How far the colours fan apart	Värien levitys viuhkaksi
+Thickness of the glowing edge	Hehkuvan reunan paksuus
+How bright the laser lines are	Laserviivojen kirkkaus
+Spiral size: above 1 is bigger	Spiraalin koko: yli 1 on suurempi
+How many mirror panels, 0 to 12	Montako peilipaneelia, 0–12
+Turn the colours round the wheel	Käännä värejä väriympyrällä
+Laser speckle: the focus trembles	Laserpilkutus: tarkennus värisee
+Rotate the field round its centre	Käännä kenttää keskikohtansa ympäri
+How bright the water's pale light is	Veden kalpean valon kirkkaus
+How long light lingers on the screen	Kauanko valo viipyy näytöllä
+Colour steps: 2 is stark, 8 is smooth	Väriaskeleet: 2 on jyrkkä, 8 pehmeä
+Classic green, fire, ice, neon or mono	Klassinen vihreä, tuli, jää, neon tai yksivärinen
+How fast they are born, drift and fade	Kuinka nopeasti ne syntyvät, ajautuvat ja häipyvät
+Turbulence: 0 is still ripples, 3 boils	Turbulenssi: 0 on tyyni väreily, 3 kuohuu
+A second jet of water crossing the first	Toinen vesisuihku, joka risteää ensimmäisen
+Broad ripples at 0, fine and busy at 100	Leveä väreily 0:ssa, hieno ja vilkas 100:ssa
+The flow surges with the programme sound	Virtaus sykkii PROGRAM-äänen mukana
+Zone, twin, flow, saddle, ripple or shear	Vyöhyke, kaksoinen, virtaus, satula, väreily tai leikkaus
+Horizontal cells. More detail uses more CPU	Vaakasuorat solut. Enemmän yksityiskohtia käyttää enemmän CPU:ta
+How far each panel tilts from the one before	Paneelin kallistus edelliseen nähden
+The share of each band drawn as grey stripes	Kunkin kaistan harmaina raitoina piirretty osuus
+The top mirrors the bottom round a dark seam	Yläosa peilaa alaosan tumman sauman ympäri
+0 holds the field; negative runs it backwards	0 pysäyttää kentän; negatiivinen ajaa sitä taaksepäin
+Where the eye of the swirl sits, left to right	Pyörteen silmän sijainti vasemmalta oikealle
+Where the eye of the swirl sits, top to bottom	Pyörteen silmän sijainti ylhäältä alas
+The round lens: a curved picture and a dark rim	Pyöreä linssi: kaareva kuva ja tumma reunus
+How fast the bands move; 0 holds the field still	Kaistojen nopeus; 0 pitää kentän paikallaan
+Turn the palette through all colours; 0 restores it	Käännä palettia kaikkien värien läpi; 0 palauttaa sen
+Spiral strength, from a flowing field to tight turns	Spiraalin voimakkuus, virtaavasta kentästä tiukkoihin kierteisiin
+How long it stays before leaving by itself. 0 waits for OUT	Kauanko se pysyy ennen kuin poistuu itsestään. 0 odottaa ULOS-painiketta
+The laser colours: rgb, rainbow, floyd, warm, cool or green	Laserin värit: rgb, sateenkaari, floyd, lämmin, viileä tai vihreä
+How many are alive at once. Each is born, drifts out, grows and fades	Montako on elossa kerralla. Jokainen syntyy, ajautuu ulos, kasvaa ja häipyy
+How readily neighbours merge into one shape. 0 keeps every blob round	Kuinka helposti naapurit sulautuvat yhdeksi muodoksi. 0 pitää jokaisen möykyn pyöreänä
+Rainbow + grey, rainbow, the theme's colours (taken when picked) or mono	Sateenkaari + harmaa, sateenkaari, teeman värit (otetaan valittaessa) tai yksivärinen
+How many bands: 50% is the design, higher beats harder against the pixels	Montako kaistaa: 50% on suunniteltu arvo, suurempi huojuu voimakkaammin pikseleitä vasten
+Turns the rim's colours round the wheel -- green, yellow, pink, violet, blue	Kääntää reunuksen värejä väriympyrän ympäri -- vihreä, keltainen, pinkki, violetti, sininen
+The gap under it, as a share of the frame	Alapuolinen väli osuutena ruudusta

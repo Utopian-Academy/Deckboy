@@ -4750,3 +4750,66 @@ Following this desk: {1}	Seguindo esta mesa: {1}
 Leading. Nobody is following yet.	Liderando. Ninguém está seguindo ainda.
 Leading: other machines may follow this desk	Liderando: outras máquinas podem seguir esta mesa
 Not leading: no other machine can follow this desk.	Sem liderar: nenhuma outra máquina pode seguir esta mesa.
+body	corpo
+burns	queimaduras
+chaos	caos
+breath	respiração
+jitter	tremulação
+sparks	faíscas
+How big a blob grows	Quanto uma mancha cresce
+Tube, mandala or none	Tubo, mandala ou nenhum
+Turn the whole picture	Girar a imagem toda
+How far the field bends	Quanto o campo se curva
+How fast the water moves	Velocidade da água
+The halo round the lines	O halo em volta das linhas
+How bright the picture is	Brilho da imagem
+How long the in move takes	Duração do movimento de entrada
+Scale of the whole graphic	Escala do gráfico todo
+How hard the lines are bent	Quanto as linhas se curvam
+How long the out move takes	Duração do movimento de saída
+How far the colours fan apart	Quanto as cores se separam
+Thickness of the glowing edge	Espessura da borda brilhante
+How bright the laser lines are	Brilho das linhas laser
+Spiral size: above 1 is bigger	Tamanho da espiral: acima de 1 é maior
+How many mirror panels, 0 to 12	Quantos painéis de espelho, de 0 a 12
+Turn the colours round the wheel	Girar as cores no círculo de cores
+Laser speckle: the focus trembles	Granulado do laser: o foco treme
+Rotate the field round its centre	Girar o campo em torno do centro
+How bright the water's pale light is	Brilho da luz pálida da água
+How long light lingers on the screen	Quanto tempo a luz fica na tela
+Colour steps: 2 is stark, 8 is smooth	Passos de cor: 2 é duro, 8 é suave
+Classic green, fire, ice, neon or mono	Verde clássico, fogo, gelo, neon ou mono
+How fast they are born, drift and fade	Quão rápido nascem, derivam e somem
+Turbulence: 0 is still ripples, 3 boils	Turbulência: 0 é ondulação calma, 3 ferve
+A second jet of water crossing the first	Um segundo jato de água cruza o primeiro
+Broad ripples at 0, fine and busy at 100	Ondulação larga em 0, fina e agitada em 100
+The flow surges with the programme sound	O fluxo pulsa com o áudio do programa
+Zone, twin, flow, saddle, ripple or shear	Zona, duplo, fluxo, sela, ondulação ou cisalhamento
+Horizontal cells. More detail uses more CPU	Células horizontais. Mais detalhe usa mais CPU
+How far each panel tilts from the one before	Inclinação de cada painel em relação ao anterior
+The share of each band drawn as grey stripes	Parte de cada faixa desenhada como listras cinzas
+The top mirrors the bottom round a dark seam	O topo espelha a base numa emenda escura
+0 holds the field; negative runs it backwards	0 congela o campo; negativo o faz andar para trás
+Where the eye of the swirl sits, left to right	Posição do olho do redemoinho, da esquerda para a direita
+Where the eye of the swirl sits, top to bottom	Posição do olho do redemoinho, de cima para baixo
+The round lens: a curved picture and a dark rim	A lente redonda: imagem curva e borda escura
+How fast the bands move; 0 holds the field still	Velocidade das bandas; 0 deixa o campo parado
+Turn the palette through all colours; 0 restores it	Gira a paleta por todas as cores; 0 a restaura
+Spiral strength, from a flowing field to tight turns	Intensidade da espiral, de um campo fluido a voltas fechadas
+How long it stays before leaving by itself. 0 waits for OUT	Quanto tempo fica antes de sair sozinho. 0 espera o OUT
+The laser colours: rgb, rainbow, floyd, warm, cool or green	As cores do laser: rgb, arco-íris, floyd, quente, frio ou verde
+How far each row is shifted. This makes the straight rows look tilted	Deslocamento de cada linha. Isso faz as linhas retas parecerem inclinadas
+How many are alive at once. Each is born, drifts out, grows and fades	Quantos existem ao mesmo tempo. Cada um nasce, se afasta, cresce e some
+How readily neighbours merge into one shape. 0 keeps every blob round	Facilidade com que vizinhos se fundem numa só forma. 0 mantém cada bolha redonda
+Spin the other way. Most people cannot tell which way it turns anyway	Gira no outro sentido. A maioria nem percebe para que lado gira
+Move the disc in a small loop. 0 holds it still: the eye moves it anyway	Move o disco num pequeno loop. 0 o deixa parado: o olho o move mesmo assim
+Rainbow + grey, rainbow, the theme's colours (taken when picked) or mono	Arco-íris + cinza, arco-íris, as cores do tema (tiradas ao escolher) ou mono
+How many bands: 50% is the design, higher beats harder against the pixels	Quantas bandas: 50% é o projeto; acima disso interfere mais com os pixels
+Turn the shapes slowly, so the drift changes direction. 0 holds them still	Gira as formas devagar, para a deriva mudar de direção. 0 as deixa paradas
+Classic, the theme's colours (taken when picked) or two colours of your own	Clássico, as cores do tema (tiradas ao escolher) ou duas cores suas
+Turns the rim's colours round the wheel -- green, yellow, pink, violet, blue	Gira as cores da borda pela roda -- verde, amarelo, rosa, violeta, azul
+Which way the field seems to go: turn round the centre, out, in, or in waves	Para onde o campo parece ir: girar ao redor do centro, para fora, para dentro ou em ondas
+Slide the rows back and forth, so the wall bends and straightens. 0 holds it still	Desliza as linhas para lá e para cá, e a parede se curva e endireita. 0 a deixa parada
+How fast the crosses turn. They always turn a little: the dots vanish only while they move	Velocidade de giro das cruzes. Elas sempre giram um pouco: os pontos só somem enquanto se movem
+Drift (still shapes that seem to turn), ouchi (a disc that floats), cafe (straight rows that look tilted), vanish (dots that disappear while you stare), grid (dots that flicker and are not there) or dancer (it spins whichever way you see it)	Deriva (formas paradas que parecem girar), ouchi (um disco que flutua), café (linhas retas que parecem inclinadas), sumiço (pontos que somem enquanto você olha fixo), grade (pontos que cintilam e não estão lá) ou dançarino (gira para o lado que você vê)
+The gap under it, as a share of the frame	O espaço abaixo como parte do quadro

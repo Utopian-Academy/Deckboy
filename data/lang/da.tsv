@@ -4749,3 +4749,57 @@ Following this desk: {1}	Følger denne pult: {1}
 Leading. Nobody is following yet.	Fører. Ingen følger endnu.
 Leading: other machines may follow this desk	Fører: andre maskiner kan følge denne pult
 Not leading: no other machine can follow this desk.	Fører ikke: ingen anden maskine kan følge denne pult.
+body	krop
+burns	brændmærker
+chaos	kaos
+breath	ånde
+jitter	rysten
+sparks	gnister
+How big a blob grows	Hvor stor en klat bliver
+Tube, mandala or none	Rør, mandala eller ingen
+Turn the whole picture	Drejning af hele billedet
+How far the field bends	Hvor meget feltet bøjer
+How fast the water moves	Vandets hastighed
+The halo round the lines	Skæret omkring linjerne
+How bright the picture is	Billedets lysstyrke
+How long the in move takes	Hvor længe ind-bevægelsen varer
+Scale of the whole graphic	Skala for hele grafikken
+How hard the lines are bent	Hvor meget linjerne bøjes
+How long the out move takes	Hvor længe ud-bevægelsen varer
+How far the colours fan apart	Hvor meget farverne spredes
+Thickness of the glowing edge	Tykkelse af den glødende kant
+How bright the laser lines are	Laserlinjernes lysstyrke
+Spiral size: above 1 is bigger	Spiralstørrelse: over 1 er større
+How many mirror panels, 0 to 12	Hvor mange spejlpaneler, 0 til 12
+Turn the colours round the wheel	Drejning af farverne på farvehjulet
+Laser speckle: the focus trembles	Laserprikker: fokus dirrer
+Rotate the field round its centre	Drej feltet om dets midte
+How bright the water's pale light is	Styrken af vandets blege lys
+How long light lingers on the screen	Hvor længe lyset bliver på skærmen
+Colour steps: 2 is stark, 8 is smooth	Farvetrin: 2 er hårdt, 8 er blødt
+Classic green, fire, ice, neon or mono	Klassisk grøn, ild, is, neon eller mono
+How fast they are born, drift and fade	Hvor hurtigt de opstår, driver og falmer
+Turbulence: 0 is still ripples, 3 boils	Turbulens: 0 er rolige krusninger, 3 koger
+A second jet of water crossing the first	En anden vandstråle krydser den første
+Broad ripples at 0, fine and busy at 100	Brede krusninger ved 0, fine og tætte ved 100
+The flow surges with the programme sound	Strømmen pulserer med programmets lyd
+Zone, twin, flow, saddle, ripple or shear	Zone, tvilling, strøm, saddel, bølge eller forskydning
+Horizontal cells. More detail uses more CPU	Vandrette celler. Flere detaljer bruger mere CPU
+How far each panel tilts from the one before	Hvert panels hældning i forhold til det forrige
+The share of each band drawn as grey stripes	Andelen af hvert bånd, der tegnes som grå striber
+The top mirrors the bottom round a dark seam	Toppen spejler bunden om en mørk søm
+0 holds the field; negative runs it backwards	0 holder feltet; negativ kører det baglæns
+Where the eye of the swirl sits, left to right	Hvor hvirvlens øje sidder, venstre mod højre
+Where the eye of the swirl sits, top to bottom	Hvor hvirvlens øje sidder, top mod bund
+The round lens: a curved picture and a dark rim	Den runde linse: et krumt billede og en mørk kant
+How fast the bands move; 0 holds the field still	Hvor hurtigt båndene bevæger sig; 0 holder feltet stille
+Turn the palette through all colours; 0 restores it	Drej paletten gennem alle farver; 0 gendanner den
+Spiral strength, from a flowing field to tight turns	Spiralstyrke, fra et flydende felt til stramme drejninger
+How long it stays before leaving by itself. 0 waits for OUT	Hvor længe den bliver, før den går af sig selv. 0 venter på UD
+The laser colours: rgb, rainbow, floyd, warm, cool or green	Laserfarverne: rgb, regnbue, floyd, varm, kølig eller grøn
+How many are alive at once. Each is born, drifts out, grows and fades	Hvor mange der lever på én gang. Hver bliver født, driver ud, vokser og falmer
+How readily neighbours merge into one shape. 0 keeps every blob round	Hvor let naboer smelter sammen til én form. 0 holder hver klat rund
+Rainbow + grey, rainbow, the theme's colours (taken when picked) or mono	Regnbue + grå, regnbue, temaets farver (taget ved valg) eller mono
+How many bands: 50% is the design, higher beats harder against the pixels	Hvor mange bånd: 50% er designet, højere interfererer hårdere med pixelene
+Turns the rim's colours round the wheel -- green, yellow, pink, violet, blue	Drejer kantens farver rundt i farvehjulet -- grøn, gul, pink, violet, blå
+The gap under it, as a share of the frame	Mellemrummet nedenunder som andel af billedet

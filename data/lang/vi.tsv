@@ -4774,3 +4774,66 @@ Following this desk: {1}	Đang theo bàn này: {1}
 Leading. Nobody is following yet.	Đang dẫn. Chưa có ai theo.
 Leading: other machines may follow this desk	Đang dẫn: các máy khác có thể theo bàn này
 Not leading: no other machine can follow this desk.	Không dẫn: không máy nào khác có thể theo bàn này.
+body	thân
+burns	vết cháy
+chaos	hỗn loạn
+breath	hơi thở
+jitter	rung
+sparks	tia lửa
+How big a blob grows	Đốm lớn lên đến mức nào
+Tube, mandala or none	Ống, mandala hoặc không có
+Turn the whole picture	Xoay toàn ảnh
+How far the field bends	Độ uốn của trường
+How fast the water moves	Tốc độ chuyển động của nước
+The halo round the lines	Quầng sáng quanh các đường
+How bright the picture is	Độ sáng của hình ảnh
+How long the in move takes	Thời lượng chuyển động vào
+Scale of the whole graphic	Tỷ lệ của toàn bộ đồ họa
+How hard the lines are bent	Độ uốn của nét
+How long the out move takes	Thời lượng chuyển động ra
+How far the colours fan apart	Độ tách xòe của màu
+Thickness of the glowing edge	Độ dày của cạnh phát sáng
+How bright the laser lines are	Độ sáng của nét laser
+Spiral size: above 1 is bigger	Cỡ xoắn ốc: trên 1 là lớn hơn
+How many mirror panels, 0 to 12	Bao nhiêu tấm gương, từ 0 đến 12
+Turn the colours round the wheel	Xoay màu quanh bánh xe màu
+Laser speckle: the focus trembles	Đốm laser: tiêu điểm rung
+Rotate the field round its centre	Xoay trường quanh điểm giữa
+How bright the water's pale light is	Độ sáng của ánh sáng nhạt trên nước
+How long light lingers on the screen	Ánh sáng lưu lại trên màn hình bao lâu
+Colour steps: 2 is stark, 8 is smooth	Bước màu: 2 là gắt, 8 là mềm
+Classic green, fire, ice, neon or mono	Xanh lá cổ điển, lửa, băng, neon hoặc đơn sắc
+How fast they are born, drift and fade	Tốc độ sinh ra, trôi và mờ dần
+Turbulence: 0 is still ripples, 3 boils	Nhiễu loạn: 0 là gợn lặng, 3 là sôi
+A second jet of water crossing the first	Tia nước thứ hai cắt ngang tia thứ nhất
+Broad ripples at 0, fine and busy at 100	Gợn rộng ở 0, mịn và dày ở 100
+The flow surges with the programme sound	Dòng chảy dâng theo tiếng chương trình
+Zone, twin, flow, saddle, ripple or shear	Vùng, đôi, dòng chảy, yên ngựa, gợn hoặc trượt
+Horizontal cells. More detail uses more CPU	Số ô ngang. Càng chi tiết càng tốn CPU
+How far each panel tilts from the one before	Độ nghiêng mỗi tấm so với tấm trước
+The share of each band drawn as grey stripes	Tỷ lệ mỗi dải được vẽ thành sọc xám
+The top mirrors the bottom round a dark seam	Phần trên phản chiếu phần dưới qua một đường nối tối
+0 holds the field; negative runs it backwards	0 giữ yên trường; giá trị âm chạy ngược
+Where the eye of the swirl sits, left to right	Vị trí tâm xoáy, trái sang phải
+Where the eye of the swirl sits, top to bottom	Vị trí tâm xoáy, trên xuống dưới
+The round lens: a curved picture and a dark rim	Thấu kính tròn: hình ảnh cong và viền tối
+How fast the bands move; 0 holds the field still	Tốc độ chuyển động của dải; 0 giữ yên trường
+Turn the palette through all colours; 0 restores it	Xoay bảng màu qua mọi màu; 0 khôi phục lại
+Spiral strength, from a flowing field to tight turns	Cường độ xoắn ốc, từ trường uốn lượn đến vòng xoắn chặt
+How long it stays before leaving by itself. 0 waits for OUT	Thời gian lưu lại trước khi tự rời đi. 0 chờ OUT
+The laser colours: rgb, rainbow, floyd, warm, cool or green	Màu laser: rgb, cầu vồng, floyd, ấm, lạnh hoặc xanh lá
+How far each row is shifted. This makes the straight rows look tilted	Độ lệch mỗi hàng. Điều này làm các hàng thẳng trông như nghiêng
+How many are alive at once. Each is born, drifts out, grows and fades	Số lượng tồn tại cùng lúc. Mỗi cái sinh ra, trôi ra, lớn dần rồi mờ đi
+How readily neighbours merge into one shape. 0 keeps every blob round	Mức dễ hợp nhất của các khối lân cận thành một hình dạng. 0 giữ mọi khối tròn
+Spin the other way. Most people cannot tell which way it turns anyway	Quay chiều ngược lại. Đằng nào hầu hết mọi người cũng không biết nó quay chiều nào
+Move the disc in a small loop. 0 holds it still: the eye moves it anyway	Di chuyển đĩa theo vòng lặp nhỏ. 0 giữ yên: mắt vẫn tự thấy nó chuyển động
+Rainbow + grey, rainbow, the theme's colours (taken when picked) or mono	Cầu vồng + xám, cầu vồng, màu theo giao diện màu (lấy lúc chọn) hoặc đơn sắc
+How many bands: 50% is the design, higher beats harder against the pixels	Số dải: 50% là thiết kế gốc, cao hơn gây giao thoa mạnh hơn với điểm ảnh
+Turn the shapes slowly, so the drift changes direction. 0 holds them still	Xoay chậm các hình để hướng trôi đổi chiều. 0 giữ yên
+Classic, the theme's colours (taken when picked) or two colours of your own	Cổ điển, màu theo giao diện màu (lấy lúc chọn) hoặc hai màu tự chọn
+Turns the rim's colours round the wheel -- green, yellow, pink, violet, blue	Xoay màu viền quanh vòng màu -- xanh lá, vàng, hồng, tím, xanh lam
+Which way the field seems to go: turn round the centre, out, in, or in waves	Hướng trường có vẻ chuyển động: xoay quanh tâm, ra ngoài, vào trong hoặc theo sóng
+Slide the rows back and forth, so the wall bends and straightens. 0 holds it still	Trượt các hàng qua lại để bức tường uốn cong rồi thẳng lại. 0 giữ yên
+How fast the crosses turn. They always turn a little: the dots vanish only while they move	Tốc độ xoay của chữ thập. Chúng luôn xoay một chút: các chấm chỉ biến mất khi chúng chuyển động
+Drift (still shapes that seem to turn), ouchi (a disc that floats), cafe (straight rows that look tilted), vanish (dots that disappear while you stare), grid (dots that flicker and are not there) or dancer (it spins whichever way you see it)	Trôi (hình tĩnh trông như đang xoay), ouchi (đĩa trôi nổi), quán cà phê (hàng thẳng trông như nghiêng), biến mất (chấm biến mất khi bạn nhìn chằm chằm), lưới (chấm nhấp nháy mà thật ra không có) hoặc vũ công (quay theo chiều bạn thấy)
+The gap under it, as a share of the frame	Khe hở bên dưới, theo phần khung hình

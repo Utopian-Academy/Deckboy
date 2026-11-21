@@ -4812,3 +4812,57 @@ Following this desk: {1}	يتبع طاولة التحكم هذه: {1}
 Leading. Nobody is following yet.	يقود. لا أحد يتبع بعد.
 Leading: other machines may follow this desk	يقود: يمكن للأجهزة الأخرى أن تتبع طاولة التحكم هذه
 Not leading: no other machine can follow this desk.	لا يقود: لا يمكن لأي جهاز آخر أن يتبع طاولة التحكم هذه.
+body	جسم
+burns	حروق
+chaos	فوضى
+breath	نَفَس
+jitter	ارتعاش
+sparks	شرارات
+How big a blob grows	مدى نمو الكتلة
+Tube, mandala or none	أنبوب أو ماندالا أو لا شيء
+Turn the whole picture	دوران الصورة كاملة
+How far the field bends	مقدار انحناء الحقل
+How fast the water moves	سرعة حركة الماء
+The halo round the lines	الهالة حول الخطوط
+How bright the picture is	سطوع الصورة
+How long the in move takes	مدة حركة الدخول
+Scale of the whole graphic	مقياس الرسم بالكامل
+How hard the lines are bent	شدة انحناء الخطوط
+How long the out move takes	مدة حركة الخروج
+How far the colours fan apart	مقدار تباعد الألوان
+Thickness of the glowing edge	سماكة الحافة المتوهجة
+How bright the laser lines are	سطوع خطوط الليزر
+Spiral size: above 1 is bigger	حجم الدوامة: فوق 1 أكبر
+How many mirror panels, 0 to 12	عدد ألواح المرآة، من 0 إلى 12
+Turn the colours round the wheel	دوران الألوان حول عجلة الألوان
+Laser speckle: the focus trembles	بقع الليزر: التركيز يرتجف
+Rotate the field round its centre	تدوير الحقل حول وسطه
+How bright the water's pale light is	سطوع الضوء الباهت للماء
+How long light lingers on the screen	مدة بقاء الضوء على الشاشة
+Colour steps: 2 is stark, 8 is smooth	خطوات اللون: 2 حاد، 8 ناعم
+Classic green, fire, ice, neon or mono	أخضر كلاسيكي، نار، جليد، نيون أو أحادي
+How fast they are born, drift and fade	سرعة ظهورها وانجرافها وتلاشيها
+Turbulence: 0 is still ripples, 3 boils	الاضطراب: 0 تموجات هادئة، 3 غليان
+A second jet of water crossing the first	نفاثة ماء ثانية تعبر الأولى
+Broad ripples at 0, fine and busy at 100	تموجات عريضة عند 0، دقيقة وكثيفة عند 100
+The flow surges with the programme sound	يندفع التدفق مع صوت البرنامج
+Zone, twin, flow, saddle, ripple or shear	منطقة، توأم، تدفق، سرج، تموج أو قص
+Horizontal cells. More detail uses more CPU	خلايا أفقية. المزيد من التفاصيل يستهلك المزيد من CPU
+How far each panel tilts from the one before	مقدار ميل كل لوح عن سابقه
+The share of each band drawn as grey stripes	حصة كل نطاق تُرسم خطوطاً رمادية
+The top mirrors the bottom round a dark seam	الأعلى يعكس الأسفل حول وصلة داكنة
+0 holds the field; negative runs it backwards	0 يثبّت الحقل؛ القيمة السالبة تشغّله بالعكس
+Where the eye of the swirl sits, left to right	موضع عين الدوامة، من اليسار إلى اليمين
+Where the eye of the swirl sits, top to bottom	موضع عين الدوامة، من الأعلى إلى الأسفل
+The round lens: a curved picture and a dark rim	العدسة المستديرة: صورة منحنية وحافة داكنة
+How fast the bands move; 0 holds the field still	سرعة حركة النطاقات؛ 0 يثبّت الحقل
+Turn the palette through all colours; 0 restores it	أدِر لوحة الألوان عبر كل الألوان؛ 0 يعيدها
+Spiral strength, from a flowing field to tight turns	قوة اللولب، من حقل منساب إلى التفافات ضيقة
+How long it stays before leaving by itself. 0 waits for OUT	مدة بقائه قبل أن يخرج تلقائياً. 0 ينتظر خروج
+The laser colours: rgb, rainbow, floyd, warm, cool or green	ألوان الليزر: rgb، قوس قزح، floyd، دافئ، بارد أو أخضر
+How many are alive at once. Each is born, drifts out, grows and fades	عدد الأشكال الحية في آن واحد. كل منها يولد، وينجرف للخارج، ويكبر ثم يتلاشى
+How readily neighbours merge into one shape. 0 keeps every blob round	مدى سهولة اندماج المتجاورات في شكل واحد. 0 يُبقي كل فقاعة مستديرة
+Rainbow + grey, rainbow, the theme's colours (taken when picked) or mono	قوس قزح + رمادي، قوس قزح، ألوان السمة (تؤخذ عند الاختيار) أو أحادي
+How many bands: 50% is the design, higher beats harder against the pixels	عدد النطاقات: 50% هو التصميم، والقيم الأعلى تتداخل أشد مع البكسلات
+Turns the rim's colours round the wheel -- green, yellow, pink, violet, blue	يدير ألوان الحافة حول العجلة -- أخضر، أصفر، وردي، بنفسجي، أزرق
+The gap under it, as a share of the frame	الفجوة تحته كنسبة من الإطار

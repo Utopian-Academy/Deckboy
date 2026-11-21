@@ -4781,3 +4781,66 @@ Following this desk: {1}	Bu operatörü izleyen: {1}
 Leading. Nobody is following yet.	Lider. Henüz izleyen yok.
 Leading: other machines may follow this desk	Lider: diğer makineler bu operatörü izleyebilir
 Not leading: no other machine can follow this desk.	Lider değil: başka hiçbir makine bu operatörü izleyemez.
+body	gövde
+burns	yanıklar
+chaos	kaos
+breath	nefes
+jitter	titreme
+sparks	kıvılcımlar
+How big a blob grows	Bir lekenin ne kadar büyüdüğü
+Tube, mandala or none	Tüp, mandala ya da yok
+Turn the whole picture	Tüm görüntüyü döndür
+How far the field bends	Alanın bükülme miktarı
+How fast the water moves	Suyun hareket hızı
+The halo round the lines	Çizgilerin etrafındaki hale
+How bright the picture is	Görüntünün parlaklığı
+How long the in move takes	Giriş hareketinin süresi
+Scale of the whole graphic	Tüm grafiğin ölçeği
+How hard the lines are bent	Çizgilerin bükülme gücü
+How long the out move takes	Çıkış hareketinin süresi
+How far the colours fan apart	Renklerin yelpaze gibi açılması
+Thickness of the glowing edge	Parlayan kenarın kalınlığı
+How bright the laser lines are	Lazer çizgilerinin parlaklığı
+Spiral size: above 1 is bigger	Spiral boyutu: 1'in üstü daha büyük
+How many mirror panels, 0 to 12	Kaç tane ayna paneli, 0 ile 12 arası
+Turn the colours round the wheel	Renkleri renk çemberinde döndür
+Laser speckle: the focus trembles	Lazer beneklenmesi: odak titrer
+Rotate the field round its centre	Alanı ortası etrafında döndür
+How bright the water's pale light is	Suyun soluk ışığının parlaklığı
+How long light lingers on the screen	Işığın ekranda ne kadar kaldığı
+Colour steps: 2 is stark, 8 is smooth	Renk adımları: 2 sert, 8 yumuşak
+Classic green, fire, ice, neon or mono	Klasik yeşil, ateş, buz, neon ya da tek renk
+How fast they are born, drift and fade	Ne kadar hızlı doğup sürüklenip soldukları
+Turbulence: 0 is still ripples, 3 boils	Türbülans: 0 durgun dalgalanma, 3 kaynar
+A second jet of water crossing the first	Birinciyi kesen ikinci bir su jeti
+Broad ripples at 0, fine and busy at 100	0'da geniş dalgalanma, 100'de ince ve yoğun
+The flow surges with the programme sound	Akış PROGRAM sesiyle kabarır
+Zone, twin, flow, saddle, ripple or shear	Bölge, ikiz, akış, eyer, dalga ya da kayma
+Horizontal cells. More detail uses more CPU	Yatay hücreler. Daha fazla ayrıntı daha çok CPU kullanır
+How far each panel tilts from the one before	Her panelin öncekine göre eğimi
+The share of each band drawn as grey stripes	Her bandın gri çizgi olarak çizilen payı
+The top mirrors the bottom round a dark seam	Üst, koyu bir birleşim etrafında altı yansıtır
+0 holds the field; negative runs it backwards	0 alanı durdurur; negatif değer onu geriye oynatır
+Where the eye of the swirl sits, left to right	Girdap gözünün konumu, soldan sağa
+Where the eye of the swirl sits, top to bottom	Girdap gözünün konumu, yukarıdan aşağıya
+The round lens: a curved picture and a dark rim	Yuvarlak mercek: kavisli bir resim ve koyu bir kenar
+How fast the bands move; 0 holds the field still	Bantların hareket hızı; 0 alanı durdurur
+Turn the palette through all colours; 0 restores it	Paleti tüm renklerde döndürür; 0 geri yükler
+Spiral strength, from a flowing field to tight turns	Sarmal gücü, akan bir alandan sıkı dönüşlere
+How long it stays before leaving by itself. 0 waits for OUT	Kendiliğinden çıkmadan önce ne kadar kalacağı. 0, OUT'u bekler
+The laser colours: rgb, rainbow, floyd, warm, cool or green	Lazer renkleri: rgb, gökkuşağı, floyd, sıcak, soğuk veya yeşil
+How far each row is shifted. This makes the straight rows look tilted	Her satırın kayma miktarı. Bu, düz satırları eğik gösterir
+How many are alive at once. Each is born, drifts out, grows and fades	Aynı anda kaç tane var. Her biri doğar, uzaklaşır, büyür ve söner
+How readily neighbours merge into one shape. 0 keeps every blob round	Komşuların tek bir şekilde ne kadar kolay birleştiği. 0 her lekeyi yuvarlak tutar
+Spin the other way. Most people cannot tell which way it turns anyway	Ters yöne döner. Çoğu kişi zaten hangi yöne döndüğünü anlayamaz
+Move the disc in a small loop. 0 holds it still: the eye moves it anyway	Diski küçük bir döngüde taşır. 0 sabit tutar: göz onu yine de hareket ettirir
+Rainbow + grey, rainbow, the theme's colours (taken when picked) or mono	Gökkuşağı + gri, gökkuşağı, temanın renkleri (seçilince alınır) veya tek renk
+How many bands: 50% is the design, higher beats harder against the pixels	Kaç bant: 50% tasarımdır, fazlası piksellerle daha güçlü girişim yapar
+Turn the shapes slowly, so the drift changes direction. 0 holds them still	Şekilleri yavaşça döndürür, böylece sürüklenme yön değiştirir. 0 onları sabit tutar
+Classic, the theme's colours (taken when picked) or two colours of your own	Klasik, temanın renkleri (seçilince alınır) veya kendi iki renginiz
+Turns the rim's colours round the wheel -- green, yellow, pink, violet, blue	Kenarın renklerini çark boyunca döndürür -- yeşil, sarı, pembe, mor, mavi
+Which way the field seems to go: turn round the centre, out, in, or in waves	Alanın gidiyor gibi göründüğü yön: merkez etrafında dönüş, dışa, içe veya dalgalar halinde
+Slide the rows back and forth, so the wall bends and straightens. 0 holds it still	Satırları ileri geri kaydırır, duvar bükülür ve düzelir. 0 sabit tutar
+How fast the crosses turn. They always turn a little: the dots vanish only while they move	Haçların dönüş hızı. Her zaman biraz dönerler: noktalar yalnızca hareket ederken kaybolur
+Drift (still shapes that seem to turn), ouchi (a disc that floats), cafe (straight rows that look tilted), vanish (dots that disappear while you stare), grid (dots that flicker and are not there) or dancer (it spins whichever way you see it)	Sürüklenme (dönüyor gibi görünen durağan şekiller), ouchi (süzülen bir disk), kafe (eğik görünen düz satırlar), kaybolma (bakarken kaybolan noktalar), ızgara (titreyen ve aslında olmayan noktalar) veya dansçı (onu hangi yöne görürseniz o yöne döner)
+The gap under it, as a share of the frame	Altındaki boşluk, karenin payı olarak
