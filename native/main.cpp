@@ -62,6 +62,7 @@
 
 #include "core/constants.hpp"
 #include "core/loading_quips.hpp"
+#include "core/face.hpp"
 #include "core/show_control.hpp"
 #include "core/midi_map.hpp"
 #include "core/bugswat.hpp"
@@ -10317,9 +10318,9 @@ class App {
   int sequenceOwnerHint_ = -1;   // set while a DASH tile hands its command over
   // Slow to start, quick to finish: the first step is the discovery, and by
   // the time somebody has noticed the eyes move they are already committed.
-  static constexpr int kMascotWatchAfterPokes = 3;
-  static constexpr int kMascotShyAfterPokes = 6;
-  static constexpr int kMascotFleeAfterPokes = 10;
+  static constexpr int kMascotWatchAfterPokes = deckboy::face::kWatchAfterPokes;
+  static constexpr int kMascotShyAfterPokes = deckboy::face::kShyAfterPokes;
+  static constexpr int kMascotFleeAfterPokes = deckboy::face::kFleeAfterPokes;
   int mascotPointerX_ = 0;
   int mascotPointerY_ = 0;
   // WHERE THE FACE ACTUALLY IS, written by the renderer each frame.

@@ -29,6 +29,7 @@
 #include "core/show_file.hpp"
 #include "core/lava_lamp.hpp"
 #include "core/loading_quips.hpp"
+#include "core/face.hpp"
 #include "engine/gpu_effects.hpp"
 #include "deckboy_version.hpp"
 #include "core/types.hpp"
@@ -918,7 +919,8 @@ class Pocket {
     const Uint64 now = SDL_GetTicks();
     if (active_ >= 0 && !black_) return false;
     if (now - lastInputMs_ < 3000) return false;
-    if (splashing()) return false;
+    if (splashing() || splashEnding()) return false;
+    if (faceShown() && !faceAsleep()) return false;   // she moves; asleep she barely does
     if (now < addedFlashUntil_) return false;
     if (follow_ != Follow::Off || hostEditing_ || renameIndex_ != -1 || calcOpen_ || pickerOpen_) return false;
     if (now < noticeUntil_ || now < ghostUntil_ || (undoCue_ && now < undoUntil_)) return false;
@@ -1331,6 +1333,8 @@ class Pocket {
     const SDL_FRect pic = picRect_;
     fillRect(r, kBlack, pic);
     if (programTex_) drawProgramIn(fitProgram(pic));
+    if (faceShown()) drawFace(pic);
+    else faceWasShown_ = false;
     drawSplashArt(pic);
     drawHelpers(pic);
     if (editing_) return;   // editing: the picture alone
@@ -3467,6 +3471,22 @@ class Pocket {
       if (key == "LIST") return out + "\n";
       return err("no setting " + key);
     }
+    if (verb == "FACE") {   // FACE POKE [dx dy]: a finger on her, dx dy in face radii from her centre
+      std::istringstream a(rest);
+      std::string what;
+      float dx = 0, dy = 0;
+      a >> what >> dx >> dy;
+      if (upper(what) != "POKE") return err("FACE POKE [dx dy]");
+      if (!faceShown() || faceR_ <= 0) return err("no face to poke");
+      const bool was = menuOpen_;
+      const int sheet = sheet_;
+      menuOpen_ = false;
+      sheet_ = -1;
+      facePoke(faceCx_ + dx * faceR_, faceCy_ + dy * faceR_);
+      menuOpen_ = was;
+      sheet_ = sheet;
+      return ok();
+    }
     if (verb == "DELETE") {   // DELETE <cue>: as a swipe does (the cue on air is refused)
       const int n = std::atoi(rest.c_str());
       if (n < 1 || n > static_cast<int>(cues_.size())) return err("DELETE <cue number>");
@@ -4836,6 +4856,14 @@ class Pocket {
   static constexpr Uint64 kSplashMs = 1000;   // James 11-20: "all in a second" (the tuning in)
 
   bool splashing() const { return splashTex_ && SDL_GetTicks() < splashUntil_; }
+  // After the tuning: the picture holds a beat, then fades out fuzzily onto
+  // the face (James 11-20). Pocket is usable all the while.
+  static constexpr Uint64 kSplashHoldMs = 500, kSplashFadeMs = 650;
+  bool splashEnding() const {
+    const Uint64 now = SDL_GetTicks();
+    return splashTex_ && splashUntil_ != 0 && now >= splashUntil_ && now < splashUntil_ + kSplashHoldMs + kSplashFadeMs &&
+           !splashChannels_.empty();
+  }
 
   // A JPEG from the app's assets as a texture (assets are not files on
   // Android, and libav reads files: copied out first, as the shells are).
@@ -4997,7 +5025,157 @@ class Pocket {
     SDL_SetTextureBlendMode(tex, SDL_BLENDMODE_BLEND);
   }
 
+  // The logo, small, low on the picture, on a soft dark band so it reads on
+  // any picture.
+  void drawSplashLogo(const SDL_FRect& pic, float strength, float tear, float roll, float fringe, float t) {
+    const float w = pic.w * 0.5f, h = w * 432.0f / 768.0f;
+    const SDL_FRect at {pic.x + (pic.w - w) / 2, pic.y + pic.h - h * 0.86f, w, h};
+    fillRoundAlpha(renderer_, kBlack, 0.5f * strength, {at.x + w * 0.1f, at.y + h * 0.27f, w * 0.8f, h * 0.46f}, h * 0.08f);
+    drawSignal(splashTex_, at, strength, tear, roll, fringe, t, splashSeed_ ^ 0x5bd1e995u);
+  }
+
+  // The ending: the picture and its logo hold, then go to snow and away,
+  // and the face (drawn beneath) is what is left.
+  void drawSplashEnding(const SDL_FRect& pic) {
+    const Uint64 now = SDL_GetTicks();
+    const float into = static_cast<float>(now - splashUntil_);
+    const float q = std::clamp((into - static_cast<float>(kSplashHoldMs)) / static_cast<float>(kSplashFadeMs), 0.0f, 1.0f);
+    const float gone = q * q * (3 - 2 * q);
+    const float vis = 1.0f - gone;
+    const float t = (static_cast<float>(kSplashMs) + into) / 1000.0f;
+    const SDL_Rect clip {static_cast<int>(pic.x), static_cast<int>(pic.y), static_cast<int>(pic.w), static_cast<int>(pic.h)};
+    SDL_SetRenderClipRect(renderer_, &clip);
+    fillRoundAlpha(renderer_, Ink {34, 34, 40}, vis, pic, 0);
+    // fuzzy: it tears and fringes more as it goes
+    const float tear = splashStyle_.tear * 2.5f * std::sin(q * 3.14159f);
+    const std::uint32_t salt = splashSeed_ * static_cast<std::uint32_t>(splashChannels_.size()) + 977u * static_cast<std::uint32_t>(splashChannels_.size() - 1);
+    drawSignal(splashChannels_.back(), pic, vis, tear, 0.25f * q, splashStyle_.fringe * pic.w * 2.0f * q, t, salt);
+    drawSplashLogo(pic, vis, tear, 0.25f * q, splashStyle_.fringe * pic.w * 2.0f * q, t);
+    // snow swells in the middle of it and is gone by the end
+    const float snow = 0.55f * std::sin(q * 3.14159f);
+    if (snow > 0.02f && splashNoise_) {
+      void* px = nullptr;
+      int pitch = 0;
+      if (SDL_LockTexture(splashNoise_, nullptr, &px, &pitch)) {
+        std::uint32_t rnd = splashSeed_ ^ static_cast<std::uint32_t>(now * 2654435761u);
+        int nw = 0, nh = 0;
+        {
+          float fw = 0, fh = 0;
+          SDL_GetTextureSize(splashNoise_, &fw, &fh);
+          nw = static_cast<int>(fw);
+          nh = static_cast<int>(fh);
+        }
+        for (int y = 0; y < nh; ++y) {
+          auto* row = static_cast<std::uint8_t*>(px) + y * pitch;
+          for (int x = 0; x < nw; ++x) {
+            rnd ^= rnd << 13; rnd ^= rnd >> 17; rnd ^= rnd << 5;
+            const std::uint8_t v = static_cast<std::uint8_t>(rnd & 0xff);
+            row[x * 4 + 0] = v; row[x * 4 + 1] = v; row[x * 4 + 2] = v; row[x * 4 + 3] = 255;
+          }
+        }
+        SDL_UnlockTexture(splashNoise_);
+        SDL_SetTextureBlendMode(splashNoise_, SDL_BLENDMODE_BLEND);
+        SDL_SetTextureAlphaModFloat(splashNoise_, snow);
+        SDL_RenderTexture(renderer_, splashNoise_, nullptr, &pic);
+      }
+    }
+    for (float y = pic.y; y < pic.y + pic.h; y += 3.0f) fillRoundAlpha(renderer_, kBlack, 0.10f * vis, {pic.x, y, pic.w, 1.0f}, 0);
+    SDL_SetRenderClipRect(renderer_, nullptr);
+  }
+
+  // ── The face: the desk's (core/face.hpp), in the empty picture ──
+  //
+  // Whenever nothing is on air, as on the desk. Poke her and she answers;
+  // keep at it and she watches your finger, then edges away, then leaves
+  // (and comes back a minute later). Left alone for 45 s she dozes, which
+  // lets the phone draw ten times a second instead of sixty.
+
+  bool faceShown() const { return active_ < 0 && !splashing(); }
+  bool faceAsleep() const { return SDL_GetTicks() - lastInputMs_ > 45000 && facePokes_.fleeStartedMs == 0; }
+
+  void facePoke(float x, float y) {
+    if (sheet_ >= 0 || menuOpen_ || !faceShown() || faceR_ <= 0 || facePokes_.fleeStartedMs != 0) return;
+    facePokes_.pointerX = static_cast<int>(x);
+    facePokes_.pointerY = static_cast<int>(y);
+    const double dx = x - faceCx_, dy = y - faceCy_, r = faceR_;
+    if (dx * dx + dy * dy > r * r) return;
+    const Uint64 now = SDL_GetTicks();
+    if (faceLastPokeMs_ != 0 && now - faceLastPokeMs_ > 4000) facePokes_.count = 0;   // in a row means in a row
+    faceLastPokeMs_ = now;
+    facePokes_.dx = dx / r;
+    facePokes_.dy = dy / r;
+    facePokes_.atMs = now;
+    ++facePokes_.count;
+    if (facePokes_.count >= deckboy::face::kFleeAfterPokes) facePokes_.fleeStartedMs = now;
+    buzz("tap");
+  }
+
+  std::string faceLine(Uint64 now, const deckboy::face::Mood& mood) const {
+    if (facePokes_.fleeStartedMs != 0) return deckboy::face::kFleeLine;
+    if (facePokes_.count > 0 && facePokes_.atMs != 0 && now - facePokes_.atMs < 1800) return deckboy::face::pokeLine(facePokes_.count);
+    if (mood.asleep) return deckboy::face::typed("Zzz...", (now / 1000) % 4 * 1000, 600, now);
+    constexpr Uint64 kLineMs = 5600, kMsPerChar = 38;
+    const Uint64 since = now - faceSince_;
+    const int turn = static_cast<int>(since / kLineMs);
+    std::string full = "Hi! I am Deckboy.";
+    if (turn > 0 && mood.level > 0.0 && (turn % 10) < static_cast<int>(2 + 6 * mood.level)) full = deckboy::face::moodLine(mood, turn / 10);
+    if (turn > 0 && full == "Hi! I am Deckboy.") return full;   // said; it stays
+    return deckboy::face::typed(full, since % kLineMs, kMsPerChar, now);
+  }
+
+  void drawFace(const SDL_FRect& pic) {
+    const Uint64 now = SDL_GetTicks();
+    if (!faceWasShown_) {   // she starts each appearance with hello
+      faceWasShown_ = true;
+      faceSince_ = now;
+    }
+    if (facePokes_.fleeStartedMs != 0 && now - facePokes_.fleeStartedMs > 60000) {   // back again
+      facePokes_ = {};
+      faceSince_ = now;
+    }
+    deckboy::face::Mood mood = deckboy::face::moodFor(static_cast<double>(now) / 3600000.0, false);
+    mood.asleep = faceAsleep();
+    const deckboy::face::Box area {static_cast<int>(pic.x), static_cast<int>(pic.y), static_cast<int>(pic.w), static_cast<int>(pic.h)};
+    const deckboy::face::Frame f = deckboy::face::layout(area, now, mood, facePokes_, 18, 140);
+    if (f.gone) {
+      faceR_ = 0;
+      return;
+    }
+    const Ink glow {214, 226, 170};
+    const SDL_Rect clip {area.x, area.y, area.w, area.h};
+    SDL_SetRenderClipRect(renderer_, &clip);
+    for (const deckboy::face::Box& b : f.solid) {
+      fillRect(renderer_, glow, {static_cast<float>(b.x), static_cast<float>(b.y), static_cast<float>(b.w), static_cast<float>(b.h)});
+    }
+    // the stars, in blocks the size of the face's own pixels (a phone's are small)
+    const float k = std::max(2.0f, static_cast<float>(f.unit) / 14.0f);
+    for (const deckboy::face::Star& st : f.stars) {
+      const float a = static_cast<float>(st.alpha) / 255.0f;
+      const float x = static_cast<float>(st.x), y = static_cast<float>(st.y);
+      fillRoundAlpha(renderer_, glow, a, {x - k, y - k, 2 * k, 2 * k}, 0);
+      for (int i = 1; i <= st.size; ++i) {
+        const float arm = a * static_cast<float>(st.size - i + 1) / static_cast<float>(st.size + 1);
+        const float o = static_cast<float>(i) * k;
+        fillRoundAlpha(renderer_, glow, arm, {x + o, y - k, k, 2 * k}, 0);
+        fillRoundAlpha(renderer_, glow, arm, {x - o - k, y - k, k, 2 * k}, 0);
+        fillRoundAlpha(renderer_, glow, arm, {x - k, y + o, 2 * k, k}, 0);
+        fillRoundAlpha(renderer_, glow, arm, {x - k, y - o - k, 2 * k, k}, 0);
+      }
+    }
+    faceCx_ = static_cast<float>(f.cx);
+    faceCy_ = static_cast<float>(f.cy);
+    faceR_ = static_cast<float>(f.radius);
+    const float u = unit_, lineH = 4.5f * u;
+    const float ty = std::min(pic.y + pic.h - lineH - 0.5f * u, static_cast<float>(f.cy + f.unit * 3));
+    text_.draw(mono_, faceLine(now, mood), glow, {pic.x + u, ty, pic.w - 2 * u, lineH}, true);
+    SDL_SetRenderClipRect(renderer_, nullptr);
+  }
+
   void drawSplashArt(const SDL_FRect& pic) {
+    if (splashEnding()) {
+      drawSplashEnding(pic);
+      return;
+    }
     if (!splashing()) {
       if (splashFrames_ > 0) {
         SDL_Log("pocket: the splash drew %d frames in its second", splashFrames_);
@@ -5027,18 +5205,19 @@ class Pocket {
       // a weak signal flickers
       strength *= 0.75f + 0.25f * std::sin(t * 70.0f + static_cast<float>(c) * 2.0f);
       const float roll = t * splashStyle_.rollSpeed * (0.7f + static_cast<float>(salt % 7) * 0.1f) + static_cast<float>(salt % 13) / 13.0f;
-      // the last channel stays, dimly, behind the logo: no empty black at the end
-      const float stay = c == n - 1 ? 0.35f * lock : 0.0f;
+      // the last channel is where the dial lands: it comes in whole, and the
+      // small logo sits on it
+      const float stay = c == n - 1 ? lock : 0.0f;
       const float shown = std::max(strength * calm, stay);
       drawSignal(splashChannels_[static_cast<std::size_t>(c)], pic, shown, splashStyle_.tear * calm, roll * calm,
                  splashStyle_.fringe * pic.w * (0.4f + calm), t, salt);
       strongest = std::max(strongest, strength * calm);
     }
-    // the logo: the roll and the tearing ease off as the signal locks
+    // the small logo: the roll and the tearing ease off as the signal locks
     if (lock > 0) {
       const float settle = lock * lock * (3 - 2 * lock);
-      drawSignal(splashTex_, pic, std::min(1.0f, 0.25f + settle), splashStyle_.tear * (1 - settle), (1 - settle) * 0.35f,
-                 splashStyle_.fringe * pic.w * (1 - settle), t, splashSeed_ ^ 0x5bd1e995u);
+      drawSplashLogo(pic, std::min(1.0f, 0.25f + settle), splashStyle_.tear * (1 - settle), (1 - settle) * 0.35f,
+                     splashStyle_.fringe * pic.w * (1 - settle), t);
     }
     // the snow: loud at first, fading as the logo locks
     const float snow = std::clamp(0.85f - 0.08f * std::sin(t * 23.0f) - 0.72f * strongest, 0.0f, 1.0f) * (1.0f - 0.95f * lock);
@@ -5489,10 +5668,11 @@ class Pocket {
   void onDown(float x, float y) {
     downX_ = x;
     downY_ = y;
-    if (splashing()) {
+    if (splashing() || splashEnding()) {
       splashUntil_ = 0;
       return;
     }
+    facePoke(x, y);   // never takes the tap: the picture does nothing else when empty
     if (phoneFull_) {   // full screen: a tap shows the ghost controls (EXIT leaves)
       ghostTap(x, y);
       return;
@@ -7549,6 +7729,10 @@ class Pocket {
   } splashStyle_;
   int splashFrames_ = 0;   // loaded; its second starts with the first frame
   Uint64 splashUntil_ = 0;
+  deckboy::face::Pokes facePokes_;
+  float faceCx_ = 0, faceCy_ = 0, faceR_ = 0;
+  Uint64 faceLastPokeMs_ = 0, faceSince_ = 0;
+  bool faceWasShown_ = false;
   int splashQuip_ = 0;
   Uint64 fpsSince_ = 0;
   int fpsFrames_ = 0;
