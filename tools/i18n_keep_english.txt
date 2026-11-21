@@ -528,6 +528,7 @@ zu	src=... | cmd=... | ...
 *	DRAW OPACITY: 1-100 (%)
 *	SLICE OPACITY: 0-100
 *	SLICE SOURCE: PROGRAMME, or DECK 1-
+*	TOKE
 *	WEBMONITOR CLIENTS: 1-64
 *	WEBMONITOR PORT: 1-65535
 *	marker: add | next | prev | clear
@@ -1212,3 +1213,57 @@ zgh	STATUS | SHAPE drift|ouchi|cafe|vanish|grid|dancer | FORM leaf|petal|scale|r
 zh-Hans	STATUS | SHAPE drift|ouchi|cafe|vanish|grid|dancer | FORM leaf|petal|scale|ring | FLOW turn|out|in|wave | FLIP ON|OFF | PALETTE classic|theme|hues | SIZE|COUNT|EDGE|SPEED|CENTREX|CENTREY|GREY <0-100> | HUE1|HUE2 <0-360> | LFO <control> <setting>
 zh-Hant	STATUS | SHAPE drift|ouchi|cafe|vanish|grid|dancer | FORM leaf|petal|scale|ring | FLOW turn|out|in|wave | FLIP ON|OFF | PALETTE classic|theme|hues | SIZE|COUNT|EDGE|SPEED|CENTREX|CENTREY|GREY <0-100> | HUE1|HUE2 <0-360> | LFO <control> <setting>
 zu	STATUS | SHAPE drift|ouchi|cafe|vanish|grid|dancer | FORM leaf|petal|scale|ring | FLOW turn|out|in|wave | FLIP ON|OFF | PALETTE classic|theme|hues | SIZE|COUNT|EDGE|SPEED|CENTREX|CENTREY|GREY <0-100> | HUE1|HUE2 <0-360> | LFO <control> <setting>
+de	chaos
+fr	chaos
+nl	body
+nl	chaos
+pl	chaos
+ar	crt
+bg	crt
+ckb	crt
+da	crt
+da	glitch
+de	crt
+el	crt
+es-CU	crt
+es	crt
+fa	crt
+fi	crt
+fr	crt
+fr	note
+fr	glitch
+fr	lasers
+fr	pixels
+fr	second jet
+gd	crt
+haw	crt
+hi	crt
+is	crt
+it	crt
+ja	crt
+kab	crt
+kmr	crt
+ko	crt
+lo	crt
+lum	crt
+nl	crt
+nl	lens
+nl	WATER
+nl	water
+nl	detail
+nl	glitch
+nl	lasers
+nl	pixels
+pap-AW	crt
+pl	crt
+pt-BR	crt
+pt-BR	lasers
+pt-BR	pixels
+ru	crt
+tr	crt
+uk	crt
+vi	crt
+zgh	crt
+zh-Hans	crt
+zh-Hant	crt
+zu	crt
