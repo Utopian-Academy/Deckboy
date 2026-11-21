@@ -5180,7 +5180,9 @@ class Pocket {
     // a little smaller than the desk's share of the box (James 11-20)
     const int unitMax = std::max(18, std::min(area.w, area.h) / 8);
     const deckboy::face::Frame f = deckboy::face::layout(area, now, mood, facePokes_, 12, unitMax);
-    const Ink glow {214, 226, 170};
+    // warm amber phosphor, glowing against the green tube (James 11-20:
+    // "a complementary glowing colour", not white)
+    const Ink glow {255, 186, 96};
     const SDL_Rect clip {area.x, area.y, area.w, area.h};
     SDL_SetRenderClipRect(renderer_, &clip);
     drawFaceBackdrop(pic, now, mood.asleep);
@@ -5193,6 +5195,8 @@ class Pocket {
     // CRT bloom: a soft halo under every lit block, then the block
     const float bloom = std::max(2.0f, static_cast<float>(f.thick) * 0.9f);
     for (const deckboy::face::Box& b : f.solid) {
+      const float wide = bloom * 2.2f;
+      fillRoundAlpha(renderer_, Ink {255, 140, 60}, 0.07f, {b.x - wide, b.y - wide, b.w + 2 * wide, b.h + 2 * wide}, wide);
       fillRoundAlpha(renderer_, glow, 0.16f, {b.x - bloom, b.y - bloom, b.w + 2 * bloom, b.h + 2 * bloom}, bloom);
     }
     for (const deckboy::face::Box& b : f.solid) {
@@ -5265,7 +5269,7 @@ class Pocket {
   void drawCrtOver(const SDL_FRect& pic, Uint64 now) {
     const float t = static_cast<float>(now) / 1000.0f;
     const float bar = std::fmod(1.0f - t * 0.12f + 2.0f, 1.0f);
-    fillRoundAlpha(renderer_, Ink {214, 226, 170}, 0.035f, {pic.x, pic.y + bar * pic.h - pic.h * 0.1f, pic.w, pic.h * 0.2f}, 0);
+    fillRoundAlpha(renderer_, Ink {255, 186, 96}, 0.03f, {pic.x, pic.y + bar * pic.h - pic.h * 0.1f, pic.w, pic.h * 0.2f}, 0);
     fillRoundAlpha(renderer_, kBlack, 0.03f + 0.03f * std::sin(t * 37.0f), pic, 0);
     // the corners: rings darkening outward
     for (int i = 0; i < 6; ++i) {
