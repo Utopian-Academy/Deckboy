@@ -4810,3 +4810,57 @@ Following this desk: {1}	Novtoki so dekadora nakae: {1}
 Leading. Nobody is following yet.	Muni. Va wia novtoki so.
 Leading: other machines may follow this desk	Muni: seto janaku pel novtoki so dekadora nakae
 Not leading: no other machine can follow this desk.	Vamuni: seto jana vapel novtoki so dekadora nakae.
+body	pata
+burns	tamlumaku
+chaos	alaseta
+breath	kissona
+jitter	kistiriseta
+sparks	kislumaku
+How big a blob grows	Tal kispata tamseti
+Tube, mandala or none	Dorkara, mandala, vaala
+Turn the whole picture	Korotiri tam veka
+How far the field bends	Vekakae rantiri
+How fast the water moves	Wattiri zara
+The halo round the lines	Kororano luma sov ranaku
+How bright the picture is	Tal lumo veka
+How long the in move takes	Tal toka doratiriseta
+Scale of the whole graphic	Tamaseta tam graveka
+How hard the lines are bent	Ranaku rantiri tama
+How long the out move takes	Tal toka bratiriseta
+How far the colours fan apart	Lumaku fesrana
+Thickness of the glowing edge	Lumo rana tama
+How bright the laser lines are	Zarlumranaku luma
+Spiral size: above 1 is bigger	Korotira tama: 1+ tamo
+How many mirror panels, 0 to 12	Tala mirapataku, 0 go 12
+Turn the colours round the wheel	Korotiri lumaku sov korokara
+Laser speckle: the focus trembles	Zarluma kislumaku: kormira kistiri
+Rotate the field round its centre	Korotiri vekakae sov korakae
+How bright the water's pale light is	Tal lumo watkisluma
+How long light lingers on the screen	Tal toka luma hali lan vekadeka
+Colour steps: 2 is stark, 8 is smooth	Luma patakaku: 2 valumiso, 8 lumiso
+Classic green, fire, ice, neon or mono	Muno verda, fira, iso, neon, unalumo
+How fast they are born, drift and fade	Zara sov munseti, tiritoka o lum
+Turbulence: 0 is still ripples, 3 boils	Zarseta: 0 halo kisvelaraku, 3 zarseti
+A second jet of water crossing the first	Duatira dopi unatira
+Broad ripples at 0, fine and busy at 100	Tamo kisvelaraku sov 0, kiso o zaro sov 100
+The flow surges with the programme sound	Wattira novi koravekasona
+Zone, twin, flow, saddle, ripple or shear	Kaea, duaveka, wattira, dunupkara, watrana, rantira
+Horizontal cells. More detail uses more CPU	Rano karaku. Kismira tala tiri CPU tala
+How far each panel tilts from the one before	Una kara ranakora munakara
+The share of each band drawn as grey stripes	Tala una rana grai nirlumo kisranaku
+The top mirrors the bottom round a dark seam	Ala vekveli nira dop niro ranka
+0 holds the field; negative runs it backwards	0 hali tamkaea; vanumo tiri dopa
+Where the eye of the swirl sits, left to right	Kaepata korimira, posa go nira
+Where the eye of the swirl sits, top to bottom	Kaepata korimira, kora go rana
+The round lens: a curved picture and a dark rim	Kororano mirluma: korano veka, niro rana
+How fast the bands move; 0 holds the field still	Tal zaro ranaku tiriseti; 0 hali tamkaea
+Turn the palette through all colours; 0 restores it	Korotiri lumkar ala lumaku; 0 muni
+Spiral strength, from a flowing field to tight turns	Korizarsa, mun tiro tamkaea go kiso korotiraku
+How long it stays before leaving by itself. 0 waits for OUT	Tala toka guri muna unapata bri. 0 peni BRA
+The laser colours: rgb, rainbow, floyd, warm, cool or green	Lasalumaku: rgb, alaluma, floyd, kalo, freso, verda
+How many are alive at once. Each is born, drifts out, grows and fades	Tala lumo una toka. Una muni, tiritoki bra, tami, niri
+How readily neighbours merge into one shape. 0 keeps every blob round	Zarsa dopkaewiaku tami una pata. 0 guri ala pataku kororano
+Rainbow + grey, rainbow, the theme's colours (taken when picked) or mono	Alaluma + nirlumo, alaluma, nirolumo lumaku (bufi piktoka), unalumo
+How many bands: 50% is the design, higher beats harder against the pixels	Tala ranaku: 50% munpata, novo zarso dop kisvekaku
+Turns the rim's colours round the wheel -- green, yellow, pink, violet, blue	Korotiri ranalumaku go lumkora -- verda, jela, rosa, viola, blua
+The gap under it, as a share of the frame	Vanarana dunkaea, tala sov veka

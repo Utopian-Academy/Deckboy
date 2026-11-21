@@ -4734,3 +4734,56 @@ Following this desk: {1}	Suivent ce pupitre : {1}
 Leading. Nobody is following yet.	Meneur. Personne ne suit encore.
 Leading: other machines may follow this desk	Meneur : d'autres machines peuvent suivre ce pupitre
 Not leading: no other machine can follow this desk.	Pas meneur : aucune autre machine ne peut suivre ce pupitre.
+body	corps
+burns	brûlures
+breath	souffle
+jitter	gigue
+sparks	étincelles
+How big a blob grows	Taille que prend une tache
+Tube, mandala or none	Tube, mandala ou aucun
+Turn the whole picture	Rotation de toute l'image
+How far the field bends	Courbure du champ
+How fast the water moves	Vitesse de l'eau
+The halo round the lines	Le halo autour des lignes
+How bright the picture is	Luminosité de l'image
+How long the in move takes	Durée du mouvement d'entrée
+Scale of the whole graphic	Échelle de tout le graphisme
+How hard the lines are bent	Courbure des lignes
+How long the out move takes	Durée du mouvement de sortie
+How far the colours fan apart	Écartement des couleurs en éventail
+Thickness of the glowing edge	Épaisseur du bord lumineux
+How bright the laser lines are	Luminosité des lignes laser
+Spiral size: above 1 is bigger	Taille de la spirale : au-dessus de 1, plus grande
+How many mirror panels, 0 to 12	Combien de panneaux miroir, de 0 à 12
+Turn the colours round the wheel	Rotation des couleurs sur le cercle chromatique
+Laser speckle: the focus trembles	Granularité laser : la mise au point tremble
+Rotate the field round its centre	Rotation du champ autour de son centre
+How bright the water's pale light is	Luminosité de la lumière pâle de l'eau
+How long light lingers on the screen	Persistance de la lumière à l'écran
+Colour steps: 2 is stark, 8 is smooth	Pas de couleur : 2 est brut, 8 est doux
+Classic green, fire, ice, neon or mono	Vert classique, feu, glace, néon ou mono
+How fast they are born, drift and fade	Vitesse de naissance, de dérive et de disparition
+Turbulence: 0 is still ripples, 3 boils	Turbulence : 0 ondulations calmes, 3 bouillonne
+A second jet of water crossing the first	Un second jet d'eau croise le premier
+Broad ripples at 0, fine and busy at 100	Ondulations larges à 0, fines et denses à 100
+The flow surges with the programme sound	Le flux pulse avec le son du programme
+Zone, twin, flow, saddle, ripple or shear	Zone, double, flux, selle, ondes ou cisaillement
+Horizontal cells. More detail uses more CPU	Cellules horizontales. Plus de détail sollicite davantage le CPU
+How far each panel tilts from the one before	Inclinaison de chaque panneau par rapport au précédent
+The share of each band drawn as grey stripes	Part de chaque bande dessinée en rayures grises
+The top mirrors the bottom round a dark seam	Le haut reflète le bas autour d'une jonction sombre
+0 holds the field; negative runs it backwards	0 fige le champ ; négatif le fait défiler à l'envers
+Where the eye of the swirl sits, left to right	Position de l'œil du tourbillon, de gauche à droite
+Where the eye of the swirl sits, top to bottom	Position de l'œil du tourbillon, de haut en bas
+The round lens: a curved picture and a dark rim	La lentille ronde : une image courbée et un bord sombre
+How fast the bands move; 0 holds the field still	Vitesse des bandes ; 0 fige le champ
+Turn the palette through all colours; 0 restores it	Fait tourner la palette sur toutes les couleurs ; 0 la rétablit
+Spiral strength, from a flowing field to tight turns	Intensité de la spirale, d'un champ fluide à des tours serrés
+How long it stays before leaving by itself. 0 waits for OUT	Durée de présence avant de partir automatiquement. 0 attend SORTIE
+The laser colours: rgb, rainbow, floyd, warm, cool or green	Couleurs du laser : rgb, arc-en-ciel, floyd, chaud, froid ou vert
+How many are alive at once. Each is born, drifts out, grows and fades	Nombre de formes vivantes à la fois. Chacune naît, dérive, grandit et s'estompe
+How readily neighbours merge into one shape. 0 keeps every blob round	Facilité avec laquelle les voisines fusionnent en une seule forme. 0 garde chaque tache ronde
+Rainbow + grey, rainbow, the theme's colours (taken when picked) or mono	Arc-en-ciel + gris, arc-en-ciel, les couleurs du thème (prises lors du choix) ou mono
+How many bands: 50% is the design, higher beats harder against the pixels	Nombre de bandes : 50% est la valeur prévue, plus haut bat plus fort contre les pixels
+Turns the rim's colours round the wheel -- green, yellow, pink, violet, blue	Fait tourner les couleurs du bord sur la roue -- vert, jaune, rose, violet, bleu
+The gap under it, as a share of the frame	L'espacement en dessous, en part de l'image

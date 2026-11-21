@@ -4787,3 +4787,66 @@ Following this desk: {1}	正在跟随此控制台：{1}
 Leading. Nobody is following yet.	主导中。尚无人跟随。
 Leading: other machines may follow this desk	主导中：其他机器可跟随此控制台
 Not leading: no other machine can follow this desk.	未主导：其他机器无法跟随此控制台。
+body	主体
+burns	燃烧
+chaos	混沌
+breath	气息
+jitter	抖动
+sparks	火花
+How big a blob grows	斑块生长大小
+Tube, mandala or none	管道、曼陀罗或无
+Turn the whole picture	转动整幅画面
+How far the field bends	场弯曲程度
+How fast the water moves	水流速度
+The halo round the lines	线条周围的光晕
+How bright the picture is	画面亮度
+How long the in move takes	入动作时长
+Scale of the whole graphic	整个图形的缩放
+How hard the lines are bent	线条弯曲强度
+How long the out move takes	出动作时长
+How far the colours fan apart	色彩散开程度
+Thickness of the glowing edge	发光边缘厚度
+How bright the laser lines are	激光线条亮度
+Spiral size: above 1 is bigger	螺旋尺寸：大于 1 更大
+How many mirror panels, 0 to 12	镜像面板数量，0 到 12
+Turn the colours round the wheel	沿色轮转动颜色
+Laser speckle: the focus trembles	激光散斑：聚焦抖动
+Rotate the field round its centre	绕中心旋转场
+How bright the water's pale light is	水面淡光亮度
+How long light lingers on the screen	光在屏幕上的停留时长
+Colour steps: 2 is stark, 8 is smooth	颜色步数：2 生硬，8 平滑
+Classic green, fire, ice, neon or mono	经典绿、火焰、冰、霓虹或单色
+How fast they are born, drift and fade	诞生、漂移与淡出的速度
+Turbulence: 0 is still ripples, 3 boils	湍流：0 为平静涟漪，3 为沸腾
+A second jet of water crossing the first	第二道喷流与第一道交叉
+Broad ripples at 0, fine and busy at 100	0 为宽阔涟漪，100 为细密繁复
+The flow surges with the programme sound	流动随节目声音增强
+Zone, twin, flow, saddle, ripple or shear	区域、双重、流动、鞍形、涟漪或剪切
+Horizontal cells. More detail uses more CPU	水平格数。细节越多，CPU 占用越高
+How far each panel tilts from the one before	每块面板相对前一块的倾斜程度
+The share of each band drawn as grey stripes	每条频带中绘成灰色条纹的比例
+The top mirrors the bottom round a dark seam	上半部以暗色接缝为轴镜像下半部
+0 holds the field; negative runs it backwards	0 使场静止；负值使其倒转
+Where the eye of the swirl sits, left to right	漩涡中心的位置，从左到右
+Where the eye of the swirl sits, top to bottom	漩涡中心的位置，从上到下
+The round lens: a curved picture and a dark rim	圆形镜头：弯曲的画面和暗色边缘
+How fast the bands move; 0 holds the field still	频带移动的速度；0 使场保持静止
+Turn the palette through all colours; 0 restores it	让调色板转遍所有颜色；0 恢复原样
+Spiral strength, from a flowing field to tight turns	螺旋强度，从流动的场到紧密的旋转
+How long it stays before leaving by itself. 0 waits for OUT	自动离开前停留的时长。0 表示等待 OUT
+The laser colours: rgb, rainbow, floyd, warm, cool or green	激光颜色：rgb、彩虹、floyd、暖色、冷色或绿
+How far each row is shifted. This makes the straight rows look tilted	每行的偏移量。这会让笔直的行看起来是倾斜的
+How many are alive at once. Each is born, drifts out, grows and fades	同时存在的数量。每个都会诞生、向外漂移、变大并淡出
+How readily neighbours merge into one shape. 0 keeps every blob round	相邻团块合并为一个形状的倾向。0 让每个团块保持圆形
+Spin the other way. Most people cannot tell which way it turns anyway	反向自转。反正大多数人也分不清它朝哪个方向转
+Move the disc in a small loop. 0 holds it still: the eye moves it anyway	让圆盘做小幅循环运动。0 使其静止：眼睛仍会让它动起来
+Rainbow + grey, rainbow, the theme's colours (taken when picked) or mono	彩虹 + 灰色、彩虹、主题颜色（选择时获取）或单色
+How many bands: 50% is the design, higher beats harder against the pixels	频带数量：50% 为设计值，越高与像素的干涉越明显
+Turn the shapes slowly, so the drift changes direction. 0 holds them still	缓慢转动形状，使漂移改变方向。0 使其静止
+Classic, the theme's colours (taken when picked) or two colours of your own	经典、主题颜色（选择时获取）或自选的两种颜色
+Turns the rim's colours round the wheel -- green, yellow, pink, violet, blue	让边缘的颜色沿色轮转动——绿、黄、粉、紫、蓝
+Which way the field seems to go: turn round the centre, out, in, or in waves	场看似运动的方向：绕中心转动、出、入或呈波浪状
+Slide the rows back and forth, so the wall bends and straightens. 0 holds it still	让各行来回滑动，使墙面弯曲又伸直。0 使其静止
+How fast the crosses turn. They always turn a little: the dots vanish only while they move	十字转动的速度。它们始终会稍微转动：圆点只在运动时消失
+Drift (still shapes that seem to turn), ouchi (a disc that floats), cafe (straight rows that look tilted), vanish (dots that disappear while you stare), grid (dots that flicker and are not there) or dancer (it spins whichever way you see it)	漂移（看似在转动的静止形状）、ouchi（漂浮的圆盘）、cafe（看似倾斜的笔直行）、消失（盯着看时消失的圆点）、网格（闪烁且并不存在的圆点）或舞者（无论你看到它朝哪个方向转，它就朝那个方向转）
+The gap under it, as a share of the frame	下方间隙占画面的比例

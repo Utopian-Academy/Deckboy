@@ -4790,3 +4790,57 @@ Following this desk: {1}	Vê maseya kontrolê dişopînin: {1}
 Leading. Nobody is following yet.	Pêşeng e. Hêj tu kes naşopîne.
 Leading: other machines may follow this desk	Pêşeng: makîneyên din dikarin vê maseya kontrolê bişopînin
 Not leading: no other machine can follow this desk.	Ne pêşeng: tu makîneya din nikare vê maseya kontrolê bişopîne.
+body	gewde
+burns	şewat
+chaos	kaos
+breath	bêhn
+jitter	lerz
+sparks	çirûsk
+How big a blob grows	Gilok çiqas mezin dibe
+Tube, mandala or none	Lûle, mandala an tu yek
+Turn the whole picture	Wêneya tevahî bizivirîne
+How far the field bends	Qasê xwarbûna qadê
+How fast the water moves	Leza livîna avê
+The halo round the lines	Haleya li dora xêzan
+How bright the picture is	Wêne çiqas geş e
+How long the in move takes	Tevgera ketinê çiqas dem dikişîne
+Scale of the whole graphic	Pîvana grafîka tevahî
+How hard the lines are bent	Hêza xwarbûna xetan
+How long the out move takes	Tevgera derketinê çiqas dem dikişîne
+How far the colours fan apart	Qasê jihevvebûna rengan
+Thickness of the glowing edge	Stûrahiya qeraxa biriqok
+How bright the laser lines are	Ronahiya xetên lazerê
+Spiral size: above 1 is bigger	Mezinahiya spîralê: ji 1 zêdetir mezintir e
+How many mirror panels, 0 to 12	Çend panelên neynikê, 0 heta 12
+Turn the colours round the wheel	Rengan li ser çerxê bizivirîne
+Laser speckle: the focus trembles	Xalên lazerê: fokus dilerize
+Rotate the field round its centre	Qadê li dora navenda wê bizivirîne
+How bright the water's pale light is	Ronahiya kal a avê çiqas geş e
+How long light lingers on the screen	Ronahî çiqas li ser ekranê dimîne
+Colour steps: 2 is stark, 8 is smooth	Gavên rengan: 2 hişk e, 8 nerm e
+Classic green, fire, ice, neon or mono	Keska klasîk, agir, cemed, neon an yekreng
+How fast they are born, drift and fade	Leza çêbûn, şemitîn û hêdîbûna wan
+Turbulence: 0 is still ripples, 3 boils	Turbulans: 0 pêlokên bêliv e, 3 dikele
+A second jet of water crossing the first	Avreşa duyem ya yekem dibire
+Broad ripples at 0, fine and busy at 100	Pêlokên fireh li 0, hûr û qelebalix li 100
+The flow surges with the programme sound	Herikîn bi dengê bernameyê xurt dibe
+Zone, twin, flow, saddle, ripple or shear	Herêm, cot, herikîn, kurtan, pêloke an birîn
+Horizontal cells. More detail uses more CPU	Şaneyên berwarî. Hûrgiliya zêdetir bêtir CPU bikar tîne
+How far each panel tilts from the one before	Qasê xwarbûna her panelê li gor ya berî wê
+The share of each band drawn as grey stripes	Para her bandê ku wek xetên gewr tê xêzkirin
+The top mirrors the bottom round a dark seam	Jor, li ser dirûtineke tarî, jêr wek neynikê nîşan dide
+0 holds the field; negative runs it backwards	0 qadê radiwestîne; nirxa neyînî wê paşve dimeşîne
+Where the eye of the swirl sits, left to right	Cihê çavê gerdêlokê, ji çepê ber bi rastê
+Where the eye of the swirl sits, top to bottom	Cihê çavê gerdêlokê, ji jor ber bi jêr
+The round lens: a curved picture and a dark rim	Mercekê girover: wêneyekî xwar û kevîyeke tarî
+How fast the bands move; 0 holds the field still	Leza tevgera bandan; 0 qadê radiwestîne
+Turn the palette through all colours; 0 restores it	Paletê di nav hemû rengan re bizivirîne; 0 wê vedigerîne
+Spiral strength, from a flowing field to tight turns	Hêza spîralê, ji qadeke herikbar heta zivirînên teng
+How long it stays before leaving by itself. 0 waits for OUT	Berî ku bi serê xwe biçe çiqas dimîne. 0 li benda DERKETIN dimîne
+The laser colours: rgb, rainbow, floyd, warm, cool or green	Rengên lazerê: rgb, keskesor, floyd, germ, sar an kesk
+How many are alive at once. Each is born, drifts out, grows and fades	Çend bi hev re zindî ne. Her yek çêdibe, dişemite, mezin dibe û winda dibe
+How readily neighbours merge into one shape. 0 keeps every blob round	Cîran çiqas bi hêsanî dibin yek şikl. 0 her lekeyê girover dihêle
+Rainbow + grey, rainbow, the theme's colours (taken when picked) or mono	Keskesor + gewr, keskesor, rengên rûkarê (dema hilbijartinê tên girtin) an yekreng
+How many bands: 50% is the design, higher beats harder against the pixels	Çend band: 50% sêwiran e, bilindtir bi pîkselan re bihêztir li hev dikeve
+Turns the rim's colours round the wheel -- green, yellow, pink, violet, blue	Rengên kevîyê li dora çerxa rengan dizivirîne -- kesk, zer, pembe, binefşî, şîn
+The gap under it, as a share of the frame	Valahiya binê wê, wek para çarçoveyê

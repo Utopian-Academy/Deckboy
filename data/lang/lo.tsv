@@ -4782,3 +4782,57 @@ Following this desk: {1}	ກຳລັງຕາມໂຕະນີ້: {1}
 Leading. Nobody is following yet.	ກຳລັງນຳ. ຍັງບໍ່ມີໃຜຕາມ.
 Leading: other machines may follow this desk	ກຳລັງນຳ: ເຄື່ອງອື່ນຕາມໂຕະນີ້ໄດ້
 Not leading: no other machine can follow this desk.	ບໍ່ໄດ້ນຳ: ບໍ່ມີເຄື່ອງອື່ນຕາມໂຕະນີ້ໄດ້.
+body	ລຳຕົວ
+burns	ຮອຍໄໝ້
+chaos	ຄວາມວຸ່ນວາຍ
+breath	ລົມຫາຍໃຈ
+jitter	ການສັ່ນ
+sparks	ປະກາຍໄຟ
+How big a blob grows	ກ້ອນຂະຫຍາຍໃຫຍ່ເທົ່າໃດ
+Tube, mandala or none	ທໍ່, ມັນດາລາ ຫຼື ບໍ່ມີ
+Turn the whole picture	ໝຸນຮູບທັງໝົດ
+How far the field bends	ລະດັບບິດສະໜາມ
+How fast the water moves	ຄວາມໄວເຄື່ອນຂອງນ້ຳ
+The halo round the lines	ຮັດສະໝີອ້ອມເສັ້ນ
+How bright the picture is	ຄວາມສະຫວ່າງຂອງຮູບ
+How long the in move takes	ໄລຍະເວລາເຄື່ອນເຂົ້າ
+Scale of the whole graphic	ຂະໜາດຂອງກຣາຟິກທັງໝົດ
+How hard the lines are bent	ຄວາມແຮງບິດເສັ້ນ
+How long the out move takes	ໄລຍະເວລາເຄື່ອນອອກ
+How far the colours fan apart	ລະດັບແຍກສີອອກ
+Thickness of the glowing edge	ຄວາມໜາຂອງຂອບເຮືອງແສງ
+How bright the laser lines are	ຄວາມສະຫວ່າງເສັ້ນເລເຊີ
+Spiral size: above 1 is bigger	ຂະໜາດກ້ຽວ: ເກີນ 1 ແມ່ນໃຫຍ່ຂຶ້ນ
+How many mirror panels, 0 to 12	ຈຳນວນແຜ່ນກະຈົກ, 0 ຫາ 12
+Turn the colours round the wheel	ໝຸນສີອ້ອມວົງລໍ້
+Laser speckle: the focus trembles	ຈຸດລະອອງເລເຊີ: ຈຸດສຸມສັ່ນ
+Rotate the field round its centre	ໝຸນສະໜາມອ້ອມຈຸດກາງ
+How bright the water's pale light is	ຄວາມສະຫວ່າງຂອງແສງຈາງຂອງນ້ຳ
+How long light lingers on the screen	ແສງຄ້າງຢູ່ໜ້າຈໍດົນປານໃດ
+Colour steps: 2 is stark, 8 is smooth	ຂັ້ນສີ: 2 ແມ່ນແຂງ, 8 ແມ່ນລຽບ
+Classic green, fire, ice, neon or mono	ຂຽວຄລາສສິກ, ໄຟ, ນ້ຳກ້ອນ, ນີອອນ ຫຼື ສີດຽວ
+How fast they are born, drift and fade	ຄວາມໄວທີ່ເກີດ, ລອຍ ແລະ ຄ່ອຍໆຫາຍ
+Turbulence: 0 is still ripples, 3 boils	ຄວາມປັ່ນປ່ວນ: 0 ແມ່ນລະລອກນິ່ງ, 3 ແມ່ນເດືອດ
+A second jet of water crossing the first	ສາຍນ້ຳທີສອງຕັດສາຍທຳອິດ
+Broad ripples at 0, fine and busy at 100	ລະລອກກວ້າງທີ່ 0, ລະອຽດ ແລະ ຖີ່ທີ່ 100
+The flow surges with the programme sound	ການໄຫຼພຸ່ງຕາມສຽງໂປຣແກຣມ
+Zone, twin, flow, saddle, ripple or shear	ເຂດ, ຄູ່, ການໄຫຼ, ອານ, ລະລອກ ຫຼື ບິດສະຫຼຽງ
+Horizontal cells. More detail uses more CPU	ຕາລາງແນວນອນ. ລາຍລະອຽດຫຼາຍໃຊ້ CPU ຫຼາຍ
+How far each panel tilts from the one before	ມຸມອຽງແຕ່ລະແຜ່ນຈາກແຜ່ນກ່ອນ
+The share of each band drawn as grey stripes	ສັດສ່ວນຂອງແຕ່ລະແຖບທີ່ແຕ້ມເປັນລາຍສີເທົາ
+The top mirrors the bottom round a dark seam	ດ້ານເທິງສະທ້ອນດ້ານລຸ່ມ ຂ້າມຮອຍຕໍ່ມືດ
+0 holds the field; negative runs it backwards	0 ຢຸດສະໜາມ; ຄ່າລົບແລ່ນມັນຖອຍຫຼັງ
+Where the eye of the swirl sits, left to right	ຕຳແໜ່ງໃຈກາງໝຸນວົນ, ຊ້າຍຫາຂວາ
+Where the eye of the swirl sits, top to bottom	ຕຳແໜ່ງໃຈກາງໝຸນວົນ, ເທິງລົງລຸ່ມ
+The round lens: a curved picture and a dark rim	ເລນມົນ: ຮູບໂຄ້ງ ແລະ ຂອບມືດ
+How fast the bands move; 0 holds the field still	ຄວາມໄວການເຄື່ອນຂອງແຖບ; 0 ຢຸດສະໜາມໄວ້
+Turn the palette through all colours; 0 restores it	ໝຸນຈານສີຜ່ານທຸກສີ; 0 ຄືນຄ່າເດີມ
+Spiral strength, from a flowing field to tight turns	ຄວາມແຮງກຽວ, ຈາກສະໜາມທີ່ໄຫຼ ຫາການໝຸນແໜ້ນ
+How long it stays before leaving by itself. 0 waits for OUT	ຢູ່ດົນປານໃດກ່ອນອອກເອງ. 0 ລໍຖ້າ ອອກ
+The laser colours: rgb, rainbow, floyd, warm, cool or green	ສີເລເຊີ: rgb, ຮຸ້ງ, floyd, ອຸ່ນ, ເຢັນ ຫຼື ຂຽວ
+How many are alive at once. Each is born, drifts out, grows and fades	ຈຳນວນທີ່ມີຊີວິດພ້ອມກັນ. ແຕ່ລະອັນເກີດ, ລອຍອອກ, ໃຫຍ່ຂຶ້ນ ແລະ ຈາງໄປ
+How readily neighbours merge into one shape. 0 keeps every blob round	ເພື່ອນບ້ານລວມເປັນຮູບຊົງດຽວງ່າຍປານໃດ. 0 ຮັກສາທຸກກ້ອນໃຫ້ມົນ
+Rainbow + grey, rainbow, the theme's colours (taken when picked) or mono	ຮຸ້ງ + ສີເທົາ, ຮຸ້ງ, ສີຂອງຊຸດສີ (ເອົາມາຕອນເລືອກ) ຫຼື ສີດຽວ
+How many bands: 50% is the design, higher beats harder against the pixels	ຈຳນວນແຖບ: 50% ຄືແບບທີ່ອອກແບບ, ສູງກວ່າຈະຕີກັບພິກເຊວແຮງຂຶ້ນ
+Turns the rim's colours round the wheel -- green, yellow, pink, violet, blue	ໝຸນສີຂອງຂອບອ້ອມວົງລໍ້ສີ -- ຂຽວ, ເຫຼືອງ, ບົວ, ມ່ວງ, ຟ້າ
+The gap under it, as a share of the frame	ຊ່ອງຫວ່າງລຸ່ມ, ເປັນສັດສ່ວນຂອງພາບ

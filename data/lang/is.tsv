@@ -4790,3 +4790,57 @@ Following this desk: {1}	Fylgja þessu stjórnborði: {1}
 Leading. Nobody is following yet.	Í forystu. Ekkert fylgir enn.
 Leading: other machines may follow this desk	Í forystu: aðrar vélar mega fylgja þessu stjórnborði
 Not leading: no other machine can follow this desk.	Ekki í forystu: engin önnur vél getur fylgt þessu stjórnborði.
+body	bolur
+burns	logar
+chaos	óreiða
+breath	andi
+jitter	titringur
+sparks	neistar
+How big a blob grows	Hve stór klessan verður
+Tube, mandala or none	Rör, mandala eða ekkert
+Turn the whole picture	Snúa allri myndinni
+How far the field bends	Hve mikið sviðið bognar
+How fast the water moves	Hve hratt vatnið hreyfist
+The halo round the lines	Bjarminn kringum línurnar
+How bright the picture is	Hve björt myndin er
+How long the in move takes	Hve lengi innhreyfingin varir
+Scale of the whole graphic	Kvarði allrar grafíkurinnar
+How hard the lines are bent	Hversu mikið línurnar sveigjast
+How long the out move takes	Hve lengi úthreyfingin varir
+How far the colours fan apart	Hversu langt litirnir dreifast
+Thickness of the glowing edge	Þykkt glóandi jaðarsins
+How bright the laser lines are	Birtustig leysilínanna
+Spiral size: above 1 is bigger	Stærð spírals: yfir 1 er stærra
+How many mirror panels, 0 to 12	Hve margir spegilfletir, 0 til 12
+Turn the colours round the wheel	Snúa litunum um litahjólið
+Laser speckle: the focus trembles	Leysiflekkir: fókusinn titrar
+Rotate the field round its centre	Snúa sviðinu um miðju þess
+How bright the water's pale light is	Hve bjart föla ljós vatnsins er
+How long light lingers on the screen	Hve lengi ljósið situr eftir á skjánum
+Colour steps: 2 is stark, 8 is smooth	Litaskref: 2 er hrjúft, 8 er mjúkt
+Classic green, fire, ice, neon or mono	Sígilt grænt, eldur, ís, neon eða einlitt
+How fast they are born, drift and fade	Hve hratt þau kvikna, reka og dofna
+Turbulence: 0 is still ripples, 3 boils	Ókyrrð: 0 er kyrrar gárur, 3 sýður
+A second jet of water crossing the first	Annar vatnsstrókur sem sker þann fyrsta
+Broad ripples at 0, fine and busy at 100	Breiðar gárur við 0, fínar og þéttar við 100
+The flow surges with the programme sound	Flæðið bylgjast með PROGRAM-hljóðinu
+Zone, twin, flow, saddle, ripple or shear	Svæði, tvöfalt, flæði, söðull, gárur eða skekking
+Horizontal cells. More detail uses more CPU	Láréttir reitir. Fleiri smáatriði nota meira af CPU
+How far each panel tilts from the one before	Halli hvers spjalds frá því fyrra
+The share of each band drawn as grey stripes	Hlutfall hvers bands sem teiknað er með gráum rákum
+The top mirrors the bottom round a dark seam	Efri hlutinn speglar þann neðri um dökk samskeyti
+0 holds the field; negative runs it backwards	0 heldur sviðinu kyrru; neikvætt gildi keyrir það afturábak
+Where the eye of the swirl sits, left to right	Staða auga hvirfilsins, frá vinstri til hægri
+Where the eye of the swirl sits, top to bottom	Staða auga hvirfilsins, frá toppi til botns
+The round lens: a curved picture and a dark rim	Kringlótta linsan: bogin mynd og dökk rönd
+How fast the bands move; 0 holds the field still	Hraði bandanna; 0 heldur sviðinu kyrru
+Turn the palette through all colours; 0 restores it	Snúa litaspjaldinu gegnum alla liti; 0 endurheimtir það
+Spiral strength, from a flowing field to tight turns	Styrkur spíralsins, frá flæðandi sviði að þéttum snúningum
+How long it stays before leaving by itself. 0 waits for OUT	Hve lengi það stendur áður en það fer sjálft. 0 bíður eftir ÚT
+The laser colours: rgb, rainbow, floyd, warm, cool or green	Litir leysisins: rgb, regnbogi, floyd, hlýtt, kalt eða grænt
+How many are alive at once. Each is born, drifts out, grows and fades	Hve margir eru lifandi í einu. Hver fæðist, rekur út, stækkar og dofnar
+How readily neighbours merge into one shape. 0 keeps every blob round	Hve auðveldlega nágrannar renna saman í eina lögun. 0 heldur hverri klessu kringlóttri
+Rainbow + grey, rainbow, the theme's colours (taken when picked) or mono	Regnbogi + grátt, regnbogi, litir þemans (teknir við val) eða einlitt
+How many bands: 50% is the design, higher beats harder against the pixels	Hve mörg bönd: 50% er hönnunin, hærra slær harðar á mynddílana
+Turns the rim's colours round the wheel -- green, yellow, pink, violet, blue	Snýr litum randarinnar um hjólið -- grænt, gult, bleikt, fjólublátt, blátt
+The gap under it, as a share of the frame	Bilið undir því sem hlutfall rammans

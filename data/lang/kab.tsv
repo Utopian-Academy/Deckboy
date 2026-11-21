@@ -4784,3 +4784,57 @@ Following this desk: {1}	Ṭṭafaren ṭṭabla-agi: {1}
 Leading. Nobody is following yet.	Yettwellih. Ula yiwen ur yeṭṭafar ara yakan.
 Leading: other machines may follow this desk	Yettwellih: iselkimen nniḍen zemren ad ḍfren ṭṭabla-agi
 Not leading: no other machine can follow this desk.	Ur yettwellih ara: ula yiwen n uselkim nniḍen ur yezmir ara ad yeḍfer ṭṭabla-agi.
+body	tafekka
+burns	yettreɣ
+chaos	lfuḍa
+breath	nnefs
+jitter	argagi
+sparks	tiṛgin
+How big a blob grows	Acḥal ara d-timɣur tkurt
+Tube, mandala or none	Tajeɛbubt, mandala neɣ ulac
+Turn the whole picture	Zzi tugna meṛṛa
+How far the field bends	Acḥal yettwennay wurti
+How fast the water moves	Arured n waman
+The halo round the lines	Tafat i d-yezzin i yizirigen
+How bright the picture is	Acḥal tceɛlel tugna
+How long the in move takes	Acḥal i yettawi umussu n unekcum
+Scale of the whole graphic	Taskala n ugrafik meṛṛa
+How hard the lines are bent	Tazmert n uwennay n yizirigen
+How long the out move takes	Acḥal i yettawi umussu n tuffɣa
+How far the colours fan apart	Acḥal i mfarrazen yiniten
+Thickness of the glowing edge	Tuzert n yiri iceɛlen
+How bright the laser lines are	Tafat n yizirigen n lazur
+Spiral size: above 1 is bigger	Tiddi n tneḍḍit: sennig 1 d ameqqran ugar
+How many mirror panels, 0 to 12	Acḥal n tfelwin n lemri, 0 ɣer 12
+Turn the colours round the wheel	Zzi initen deg ṛṛwida n yiniten
+Laser speckle: the focus trembles	Tibbucin n lazur: asaḍas yettergigi
+Rotate the field round its centre	Zzi urti ɣef ulemmas-is
+How bright the water's pale light is	Acḥal tceɛlel tafat tarqaqt n waman
+How long light lingers on the screen	Acḥal i tettqima tafat deg ugdil
+Colour steps: 2 is stark, 8 is smooth	Isurifen n yini: 2 d aqeṣṣaḥ, 8 d leqqaq
+Classic green, fire, ice, neon or mono	Azegzaw amensay, times, agris, nnun neɣ yiwen yini
+How fast they are born, drift and fade	Arured n tlalit, amuti d usader
+Turbulence: 0 is still ripples, 3 boils	Ahewwel: 0 d tamḍelt tusmint, 3 yettfuru
+A second jet of water crossing the first	Asuffeɣ wis sin n waman yezger amezwaru
+Broad ripples at 0, fine and busy at 100	Tamḍelt tahrawant ɣer 0, tamecṭuḥt yerna teččur ɣer 100
+The flow surges with the programme sound	Azḍam yettali s yimesli n wahil
+Zone, twin, flow, saddle, ripple or shear	Tamnaḍt, akniw, azzel, tabarda, tamwajt neɣ azlag
+Horizontal cells. More detail uses more CPU	Tixxamin tiglawanin. Ugar n telqayt yesseqdac ugar n CPU
+How far each panel tilts from the one before	Acḥal teẓẓel yal tafelwit ɣef tin yezrin
+The share of each band drawn as grey stripes	Amur n yal tasfift yettwasunagen s yijerriḍen iɣiɣdanen
+The top mirrors the bottom round a dark seam	Afella d tisitit n wakessar ɣef tmlilt tabrukt
+0 holds the field; negative runs it backwards	0 yesbedd urti; azal i ddaw n 0 yesnekkar-it ɣer deffir
+Where the eye of the swirl sits, left to right	Anida tella tiṭ n tuzzya, seg zelmaḍ ɣer yeffus
+Where the eye of the swirl sits, top to bottom	Anida tella tiṭ n tuzzya, seg ufella ɣer wadda
+The round lens: a curved picture and a dark rim	Tamlalt timdewwṛet: tugna yeknan d yiri abruk
+How fast the bands move; 0 holds the field still	Arured n tsfifin; 0 yesbedd urti
+Turn the palette through all colours; 0 restores it	Zzi tanayt deg yiniten akk; 0 yerra-tt-id
+Spiral strength, from a flowing field to tight turns	Tazmert n tuzzya, seg wurti yettazzalen ɣer tuzzyiwin iqeṛṛben
+How long it stays before leaving by itself. 0 waits for OUT	Acḥal ad yeqqim uqbel ad iffeɣ s yiman-is. 0 ad yerǧu TUFFƔA
+The laser colours: rgb, rainbow, floyd, warm, cool or green	Initen n laser: rgb, tislit n wenẓar, floyd, iḥman, ismaḍen neɣ azegzaw
+How many are alive at once. Each is born, drifts out, grows and fades	Acḥal i yeddren ɣef tikkelt. Yal yiwen ad d-ilal, ad yemmuti ɣer beṛṛa, ad yimɣur, ad yensu
+How readily neighbours merge into one shape. 0 keeps every blob round	Acḥal ishel i yijiran ad mlalin ɣer yiwet n talɣa. 0 yeǧǧa yal takurt d timdewwṛet
+Rainbow + grey, rainbow, the theme's colours (taken when picked) or mono	Tislit n wenẓar + aɣiɣdan, tislit n wenẓar, initen n usentel (ttwaṭṭfen mi ara yettwafren) neɣ yiwen n yini
+How many bands: 50% is the design, higher beats harder against the pixels	Acḥal n tsfifin: 50% d tamudemt, ma yugar, yettnaɣ ugar d yipiksilen
+Turns the rim's colours round the wheel -- green, yellow, pink, violet, blue	Yezzi initen n yiri ɣef yiwet n tneḍt -- azegzaw, awraɣ, awerdi, abenfsaji, amidadi
+The gap under it, as a share of the frame	Tallunt ddaw-as, d amur n tugna

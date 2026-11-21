@@ -4765,3 +4765,58 @@ Following this desk: {1}	Folgen diesem Pult: {1}
 Leading. Nobody is following yet.	Führend. Noch folgt niemand.
 Leading: other machines may follow this desk	Führend: andere Rechner können diesem Pult folgen
 Not leading: no other machine can follow this desk.	Nicht führend: kein anderer Rechner kann diesem Pult folgen.
+body	Körper
+burns	Brandspuren
+breath	Atem
+jitter	Zittern
+sparks	Funken
+note	Note
+glitch	Glitch
+How big a blob grows	Wie groß ein Klecks wird
+Tube, mandala or none	Röhre, Mandala oder keine
+Turn the whole picture	Dreht das ganze Bild
+How far the field bends	Stärke der Feldkrümmung
+How fast the water moves	Bewegungstempo des Wassers
+The halo round the lines	Der Lichthof um die Linien
+How bright the picture is	Helligkeit des Bildes
+How long the in move takes	Dauer der Ein-Bewegung
+Scale of the whole graphic	Skalierung der gesamten Grafik
+How hard the lines are bent	Stärke der Linienkrümmung
+How long the out move takes	Dauer der Aus-Bewegung
+How far the colours fan apart	Wie weit die Farben auffächern
+Thickness of the glowing edge	Dicke der leuchtenden Kante
+How bright the laser lines are	Helligkeit der Laserlinien
+Spiral size: above 1 is bigger	Spiralgröße: über 1 ist größer
+How many mirror panels, 0 to 12	Anzahl der Spiegelflächen, 0 bis 12
+Turn the colours round the wheel	Drehung der Farben im Farbkreis
+Laser speckle: the focus trembles	Laser-Speckle: der Fokus zittert
+Rotate the field round its centre	Dreht das Feld um seine Mitte
+How bright the water's pale light is	Helligkeit des fahlen Wasserlichts
+How long light lingers on the screen	Wie lange Licht auf dem Bildschirm nachleuchtet
+Colour steps: 2 is stark, 8 is smooth	Farbschritte: 2 ist hart, 8 ist weich
+Classic green, fire, ice, neon or mono	Klassisches Grün, Feuer, Eis, Neon oder Mono
+How fast they are born, drift and fade	Wie schnell sie entstehen, driften und verblassen
+Turbulence: 0 is still ripples, 3 boils	Turbulenz: 0 ruhige Wellen, 3 brodelt
+A second jet of water crossing the first	Ein zweiter Wasserstrahl kreuzt den ersten
+Broad ripples at 0, fine and busy at 100	Breite Wellen bei 0, fein und unruhig bei 100
+The flow surges with the programme sound	Der Fluss pulsiert mit dem Programmton
+Zone, twin, flow, saddle, ripple or shear	Zone, Zwilling, Fluss, Sattel, Wellen oder Scherung
+Horizontal cells. More detail uses more CPU	Waagerechte Zellen. Mehr Details brauchen mehr CPU
+How far each panel tilts from the one before	Neigung jedes Paneels gegenüber dem vorigen
+The share of each band drawn as grey stripes	Anteil jedes Bandes, der als graue Streifen gezeichnet wird
+The top mirrors the bottom round a dark seam	Oben spiegelt unten an einer dunklen Naht
+0 holds the field; negative runs it backwards	0 hält das Feld an; negativ lässt es rückwärts laufen
+Where the eye of the swirl sits, left to right	Wo das Auge des Wirbels sitzt, links nach rechts
+Where the eye of the swirl sits, top to bottom	Wo das Auge des Wirbels sitzt, oben nach unten
+The round lens: a curved picture and a dark rim	Die runde Linse: ein gewölbtes Bild und ein dunkler Rand
+How fast the bands move; 0 holds the field still	Wie schnell sich die Bänder bewegen; 0 hält das Feld still
+Turn the palette through all colours; 0 restores it	Dreht die Palette durch alle Farben; 0 stellt sie wieder her
+Spiral strength, from a flowing field to tight turns	Spiralstärke, von einem fließenden Feld bis zu engen Drehungen
+How long it stays before leaving by itself. 0 waits for OUT	Wie lange es bleibt, bevor es von selbst geht. 0 wartet auf AUS
+The laser colours: rgb, rainbow, floyd, warm, cool or green	Die Laserfarben: rgb, Regenbogen, floyd, warm, kühl oder grün
+How many are alive at once. Each is born, drifts out, grows and fades	Wie viele gleichzeitig leben. Jede entsteht, treibt nach außen, wächst und verblasst
+How readily neighbours merge into one shape. 0 keeps every blob round	Wie leicht Nachbarn zu einer Form verschmelzen. 0 hält jeden Blob rund
+Rainbow + grey, rainbow, the theme's colours (taken when picked) or mono	Regenbogen + Grau, Regenbogen, die Farben des Themas (beim Auswählen übernommen) oder Mono
+How many bands: 50% is the design, higher beats harder against the pixels	Wie viele Bänder: 50% ist der Entwurf, höher schwebt stärker gegen die Pixel
+Turns the rim's colours round the wheel -- green, yellow, pink, violet, blue	Dreht die Farben des Randes durch den Farbkreis -- grün, gelb, pink, violett, blau
+The gap under it, as a share of the frame	Die Lücke darunter als Anteil des Bildes
