@@ -20,6 +20,11 @@
 
 ## Video playback and show control.
 
+<picture>
+  <source media="(prefers-reduced-motion: reduce)" srcset="art/readme/deckbot-still.svg">
+  <img src="art/readme/deckbot.svg" width="88" height="88" align="right" alt="Deckbot, a green handheld cue deck, waving hello">
+</picture>
+
 Deckboy puts videos, slides and live sources in a running order. Choose the next
 cue on your desk and take it to the audience when you're ready. Send the programme
 to screens, broadcast outputs or streams, and record it while it plays.
@@ -27,6 +32,8 @@ to screens, broadcast outputs or streams, and record it while it plays.
 Free and open source, for Windows, macOS and Linux.
 
 **[⬇ Download](https://github.com/Utopian-Academy/Deckboy/releases/latest)** &nbsp;·&nbsp; **[▶ See Deckboy in action](https://utopian-academy.github.io/Deckboy/trailer.html)** &nbsp;·&nbsp; **[♡ Community & help](https://utopian-academy.github.io/Deckboy/community.html)**
+
+<sub>Deckbot animation made with [Pizza Cat](https://github.com/suchipizza/pizza-cat) by Noémie Rakotomalala.</sub>
 
 ![What you press and what the audience sees: with both playlists on the Deckboy desk, TAKE a clip, TAKE a Lower Third from the second playlist, TAKE the next clip crossfading in with a four-way mirror while the Lower Third stays up, TAKE the first clip again shattering in, then the Lower Third slides off and it loops; beside it, the clean output doing exactly that](docs/images/readme/light/press-and-see-v3.gif)
 
