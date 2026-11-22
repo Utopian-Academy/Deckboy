@@ -151,8 +151,8 @@ which is not true of most of what it gets compared to.
 ## Community & help
 
 <picture>
-  <source media="(prefers-reduced-motion: reduce)" srcset="art/readme/deckbot-booth-floss-still.svg">
-  <img src="art/readme/deckbot-booth-floss.svg" width="196" height="102" align="right" alt="Deckbot does the floss with a glowing terminal smile. Her speech bubble says things like You got this, video human!">
+  <source media="(prefers-reduced-motion: reduce)" srcset="art/readme/deckbot-sissy-take-still.svg">
+  <img src="art/readme/deckbot-sissy-take.svg" width="196" height="102" align="right" alt="Deckbot does the floss with a glowing terminal smile. Her speech bubble says Sissy that take!">
 </picture>
 
 Questions, bugs, production stories, or ideas? [Visit the community page](https://utopian-academy.github.io/Deckboy/community.html) or [read the support guide](SUPPORT.md), join [GitHub Discussions](https://github.com/Utopian-Academy/Deckboy/discussions), or [contribute](CONTRIBUTING.md). For security issues, please use [private reporting](SECURITY.md), not public issues.
