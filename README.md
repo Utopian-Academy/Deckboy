@@ -21,8 +21,8 @@
 ## Video playback and show control.
 
 <picture>
-  <source media="(prefers-reduced-motion: reduce)" srcset="art/readme/deckbot-floss-still.svg">
-  <img src="art/readme/deckbot-floss.svg" width="196" height="102" align="right" alt="A smiling, rosy-cheeked Deckbot does the floss. Her speech bubble says things like You got this, video human!">
+  <source media="(prefers-reduced-motion: reduce)" srcset="art/readme/deckbot-terminal-floss-still.svg">
+  <img src="art/readme/deckbot-terminal-floss.svg" width="196" height="102" align="right" alt="Deckbot does the floss with a glowing terminal smile. Her speech bubble says things like You got this, video human!">
 </picture>
 
 Deckboy puts videos, slides and live sources in a running order. Choose the next
