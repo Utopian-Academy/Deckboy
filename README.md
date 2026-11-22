@@ -20,11 +20,6 @@
 
 ## Video playback and show control.
 
-<picture>
-  <source media="(prefers-reduced-motion: reduce)" srcset="art/readme/deckbot-terminal-floss-still.svg">
-  <img src="art/readme/deckbot-terminal-floss.svg" width="196" height="102" align="right" alt="Deckbot does the floss with a glowing terminal smile. Her speech bubble says things like You got this, video human!">
-</picture>
-
 Deckboy puts videos, slides and live sources in a running order. Choose the next
 cue on your desk and take it to the audience when you're ready. Send the programme
 to screens, broadcast outputs or streams, and record it while it plays.
@@ -32,8 +27,6 @@ to screens, broadcast outputs or streams, and record it while it plays.
 Free and open source, for Windows, macOS and Linux.
 
 **[⬇ Download](https://github.com/Utopian-Academy/Deckboy/releases/latest)** &nbsp;·&nbsp; **[▶ See Deckboy in action](https://utopian-academy.github.io/Deckboy/trailer.html)** &nbsp;·&nbsp; **[♡ Community & help](https://utopian-academy.github.io/Deckboy/community.html)**
-
-<sub>Deckbot animation made with [Pizza Cat](https://github.com/suchipizza/pizza-cat) by Noémie Rakotomalala.</sub>
 
 ![What you press and what the audience sees: with both playlists on the Deckboy desk, TAKE a clip, TAKE a Lower Third from the second playlist, TAKE the next clip crossfading in with a four-way mirror while the Lower Third stays up, TAKE the first clip again shattering in, then the Lower Third slides off and it loops; beside it, the clean output doing exactly that](docs/images/readme/light/press-and-see-v3.gif)
 
@@ -157,9 +150,16 @@ which is not true of most of what it gets compared to.
 
 ## Community & help
 
+<picture>
+  <source media="(prefers-reduced-motion: reduce)" srcset="art/readme/deckbot-booth-floss-still.svg">
+  <img src="art/readme/deckbot-booth-floss.svg" width="196" height="102" align="right" alt="Deckbot does the floss with a glowing terminal smile. Her speech bubble says things like You got this, video human!">
+</picture>
+
 Questions, bugs, production stories, or ideas? [Visit the community page](https://utopian-academy.github.io/Deckboy/community.html) or [read the support guide](SUPPORT.md), join [GitHub Discussions](https://github.com/Utopian-Academy/Deckboy/discussions), or [contribute](CONTRIBUTING.md). For security issues, please use [private reporting](SECURITY.md), not public issues.
 
 Deckboy is free software. If it helps you run a show, share your experience, report a bug, improve the docs, or tell another operator about it. That's how the project grows.
+
+<sub>Deckbot animation made with [Pizza Cat](https://github.com/suchipizza/pizza-cat) by Noémie Rakotomalala.</sub>
 
 ---
 
