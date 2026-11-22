@@ -21,8 +21,8 @@
 ## Video playback and show control.
 
 <picture>
-  <source media="(prefers-reduced-motion: reduce)" srcset="art/readme/deckbot-still.svg">
-  <img src="art/readme/deckbot.svg" width="88" height="88" align="right" alt="Deckbot, a green handheld cue deck with a red mushroom on its head, smiling and waving hello">
+  <source media="(prefers-reduced-motion: reduce)" srcset="art/readme/deckbot-mushroom-still.svg">
+  <img src="art/readme/deckbot-mushroom.svg" width="88" height="88" align="right" alt="Deckbot, a green handheld cue deck with a red mushroom on its head, smiling and waving hello">
 </picture>
 
 Deckboy puts videos, slides and live sources in a running order. Choose the next
