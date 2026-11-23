@@ -30,6 +30,7 @@
 #include "core/lava_lamp.hpp"
 #include "core/loading_quips.hpp"
 #include "core/face.hpp"
+#include "pocket/android_camera.hpp"
 #include "core/pocket_face_lines.hpp"
 #include "engine/gpu_effects.hpp"
 #include "deckboy_version.hpp"
@@ -1344,6 +1345,14 @@ class Pocket {
     const SDL_FRect pic = picRect_;
     fillRect(r, kBlack, pic);
     if (programTex_) drawProgramIn(fitProgram(pic));
+    if (SDL_GetTicks() < focusMarkUntil_) {   // where a tap focused the camera
+      const float m = 3.5f * unit_, t = std::max(2.0f, 0.3f * unit_);
+      const Ink y {255, 210, 60};
+      fillRect(renderer_, y, {focusMarkX_ - m, focusMarkY_ - m, 2 * m, t});
+      fillRect(renderer_, y, {focusMarkX_ - m, focusMarkY_ + m - t, 2 * m, t});
+      fillRect(renderer_, y, {focusMarkX_ - m, focusMarkY_ - m, t, 2 * m});
+      fillRect(renderer_, y, {focusMarkX_ + m - t, focusMarkY_ - m, t, 2 * m});
+    }
     if (faceShown()) drawFace(pic);
     else faceWasShown_ = false;
     drawSplashArt(pic);
@@ -2698,6 +2707,84 @@ class Pocket {
     }
   }
 
+  // ZOOM, FOCUS (and its distance), EXPOSURE, LOCK, FLASHLIGHT: the phone
+  // camera's controls, each saved in the cue (CamSettings).
+  template <class Items>
+  void cameraControlItems(int i, Items& items) {
+    const pocketcam::Caps caps = pocketcam::isOpen() ? pocketcam::caps() : pocketcam::Caps {};
+    auto edit = [this, i](auto change) {
+      Cue& m = cues_[static_cast<std::size_t>(i)];
+      CamSettings k = camSettings(m);
+      change(k);
+      setCamSettings(m, k);
+    };
+    items.push_back({1.0f, [this, i, caps, edit](const SDL_FRect& row) {
+      NumSpec n;
+      n.label = "ZOOM";
+      n.unit = "x";
+      n.min = caps.zoomMax > caps.zoomMin ? caps.zoomMin : 0.5;
+      n.max = caps.zoomMax > caps.zoomMin ? caps.zoomMax : 10.0;
+      n.decimals = 1;
+      n.step = 0.1;
+      n.zero = 1.0;
+      n.reset = 1.0;
+      n.get = [this, i] { return static_cast<double>(camSettings(cues_[static_cast<std::size_t>(i)]).zoom); };
+      n.set = [edit](double v) { edit([v](CamSettings& k) { k.zoom = static_cast<float>(v); }); };
+      numberRow(row, std::move(n));
+    }});
+    items.push_back({0.8f, [this, i, edit](const SDL_FRect& row) {
+      const float u = unit_;
+      const CamSettings k = camSettings(cues_[static_cast<std::size_t>(i)]);
+      text_.draw(pixelSmall_, "FOCUS", kDark, {row.x, row.y, row.w * 0.30f, row.h});
+      const float bw = (row.w * 0.68f - u) / 2;
+      button({row.x + row.w * 0.32f, row.y + 0.4f * u, bw, row.h - 0.8f * u}, "AUTO",
+             [edit] { edit([](CamSettings& m) { m.manualFocus = false; }); }, true, !k.manualFocus);
+      button({row.x + row.w * 0.32f + bw + u, row.y + 0.4f * u, bw, row.h - 0.8f * u}, "BY HAND",
+             [edit] { edit([](CamSettings& m) { m.manualFocus = true; }); }, true, k.manualFocus);
+    }});
+    if (camSettings(cues_[static_cast<std::size_t>(i)]).manualFocus) {
+      items.push_back({1.0f, [this, i, edit](const SDL_FRect& row) {
+        NumSpec n;
+        n.label = "NEAR";
+        n.unit = "%";
+        n.min = 0;
+        n.max = 100;
+        n.step = 1;
+        n.reset = 0;
+        n.zeroText = "FAR";
+        n.get = [this, i] { return static_cast<double>(camSettings(cues_[static_cast<std::size_t>(i)]).focus) * 100.0; };
+        n.set = [edit](double v) { edit([v](CamSettings& k) { k.focus = static_cast<float>(v / 100.0); }); };
+        numberRow(row, std::move(n));
+      }});
+    } else {
+      items.push_back({0.7f, [this](const SDL_FRect& row) { text_.draw(mono_, "Tap the picture to focus there.", kDark, row); }});
+    }
+    items.push_back({1.0f, [this, i, caps, edit](const SDL_FRect& row) {
+      NumSpec n;
+      n.label = "EXPOSURE";
+      n.unit = "EV";
+      const bool known = caps.exposureStep > 0 && caps.exposureMax > caps.exposureMin;
+      n.min = known ? caps.exposureMin * caps.exposureStep : -3.0;
+      n.max = known ? caps.exposureMax * caps.exposureStep : 3.0;
+      n.decimals = 1;
+      n.step = known ? caps.exposureStep : 0.1;
+      n.reset = 0;
+      n.get = [this, i] { return static_cast<double>(camSettings(cues_[static_cast<std::size_t>(i)]).ev); };
+      n.set = [edit](double v) { edit([v](CamSettings& k) { k.ev = static_cast<float>(v); }); };
+      numberRow(row, std::move(n));
+    }});
+    items.push_back({0.8f, [this, i, caps, edit](const SDL_FRect& row) {
+      const float u = unit_;
+      const CamSettings k = camSettings(cues_[static_cast<std::size_t>(i)]);
+      const float bw = (row.w - u) / 2;
+      button({row.x, row.y + 0.4f * u, bw, row.h - 0.8f * u}, k.lock ? "LOCK: ON" : "LOCK: OFF",
+             [edit] { edit([](CamSettings& m) { m.lock = !m.lock; }); }, true, k.lock);
+      const bool lightHere = !pocketcam::isOpen() || caps.flash;
+      button({row.x + bw + u, row.y + 0.4f * u, bw, row.h - 0.8f * u}, k.flashlight ? "FLASHLIGHT: ON" : "FLASHLIGHT: OFF",
+             [edit] { edit([](CamSettings& m) { m.flashlight = !m.flashlight; }); }, lightHere, k.flashlight);
+    }});
+  }
+
   template <class Items>
   void sourceItems(Cue& c, Items& items) {
     const int i = sheet_;
@@ -2764,7 +2851,9 @@ class Pocket {
                  for (std::size_t k = 0; k < list.size(); ++k) if (list[k].key == now) at = k;
                  Cue& m = cues_[static_cast<std::size_t>(i)];
                  const CamInfo& next = list[(at + 1) % list.size()];
-                 m.path = "camera://" + next.key;
+                 CamSettings k = camSettings(m);
+                 k.key = next.key;
+                 setCamSettings(m, k);
                  m.name = "Camera (" + next.key + ")";
                  settingChanged(i);
                }, !list.empty());
@@ -2777,6 +2866,13 @@ class Pocket {
                [this, i] { Cue& m = cues_[static_cast<std::size_t>(i)]; m.flipHorizontal = !m.flipHorizontal; settingChanged(i); }, true,
                cc.flipHorizontal);
       }});
+      if (pocketcam::available()) {
+        cameraControlItems(i, items);
+      } else {
+        items.push_back({0.8f, [this](const SDL_FRect& row) {
+          text_.draw(mono_, "Zoom, focus and the rest are on a phone.", kDark, row);
+        }});
+      }
       if (!camNotice_.empty()) {
         items.push_back({0.8f, [this](const SDL_FRect& row) { text_.draw(mono_, camNotice_, kDeep, row); }});
       }
@@ -2876,7 +2972,55 @@ class Pocket {
   // camera cue is on air, so the phone's camera light means it is in use.
   // path: camera://back, camera://front, or camera://<the camera's name>.
 
-  struct CamInfo { SDL_CameraID id; std::string key; };
+  struct CamInfo { SDL_CameraID id; std::string key; std::string ndkId; };
+
+  // A camera cue's settings, kept in its path so they are saved with the
+  // show: camera://back?zoom=1.5&mf=1&focus=0.3&ev=-1&lock=1&light=0
+  struct CamSettings {
+    std::string key = "back";
+    float zoom = 1.0f;
+    bool manualFocus = false;
+    float focus = 0.0f;   // 0 far .. 1 near
+    float ev = 0.0f;      // exposure, in stops
+    bool lock = false;
+    bool flashlight = false;
+  };
+
+  static CamSettings camSettings(const Cue& c) {
+    CamSettings k;
+    std::string rest = c.path.rfind("camera://", 0) == 0 ? c.path.substr(9) : std::string();
+    const std::size_t q = rest.find('?');
+    k.key = rest.substr(0, q);
+    if (k.key.empty()) k.key = "back";
+    if (q == std::string::npos) return k;
+    std::string args = rest.substr(q + 1);
+    std::size_t at = 0;
+    while (at <= args.size()) {
+      const std::size_t amp = args.find('&', at);
+      const std::string pair = args.substr(at, amp == std::string::npos ? std::string::npos : amp - at);
+      const std::size_t eq = pair.find('=');
+      if (eq != std::string::npos) {
+        const std::string name = pair.substr(0, eq);
+        const float v = static_cast<float>(std::atof(pair.c_str() + eq + 1));
+        if (name == "zoom") k.zoom = v;
+        else if (name == "mf") k.manualFocus = v != 0;
+        else if (name == "focus") k.focus = v;
+        else if (name == "ev") k.ev = v;
+        else if (name == "lock") k.lock = v != 0;
+        else if (name == "light") k.flashlight = v != 0;
+      }
+      if (amp == std::string::npos) break;
+      at = amp + 1;
+    }
+    return k;
+  }
+
+  static void setCamSettings(Cue& c, const CamSettings& k) {
+    char q[160];
+    std::snprintf(q, sizeof q, "?zoom=%.2f&mf=%d&focus=%.2f&ev=%.2f&lock=%d&light=%d", static_cast<double>(k.zoom), k.manualFocus ? 1 : 0,
+                  static_cast<double>(k.focus), static_cast<double>(k.ev), k.lock ? 1 : 0, k.flashlight ? 1 : 0);
+    c.path = "camera://" + k.key + q;
+  }
 
   static bool isCameraCue(const Cue& c) { return c.kind == CueKind::Camera; }
 
@@ -2890,6 +3034,10 @@ class Pocket {
 
   std::vector<CamInfo> cameras() {
     std::vector<CamInfo> out;
+    if (pocketcam::available()) {
+      for (const auto& k : pocketcam::cameras()) out.push_back({0, k.key, k.id});
+      return out;
+    }
     if (!camInit_) {
       camInit_ = true;
       if (!SDL_InitSubSystem(SDL_INIT_CAMERA)) SDL_Log("pocket: no camera subsystem: %s", SDL_GetError());
@@ -2910,15 +3058,13 @@ class Pocket {
       int same = 1;   // a second back camera is "back 2", and so on
       for (const CamInfo& seen : out) if (seen.key == key || seen.key.rfind(key + " ", 0) == 0) ++same;
       if (same > 1) key += " " + std::to_string(same);
-      out.push_back({ids[k], key});
+      out.push_back({ids[k], key, std::string()});
     }
     SDL_free(ids);
     return out;
   }
 
-  static std::string cameraWanted(const Cue& c) {
-    return c.path.rfind("camera://", 0) == 0 ? c.path.substr(9) : std::string("back");
-  }
+  static std::string cameraWanted(const Cue& c) { return camSettings(c).key; }
 
   SDL_CameraID cameraFor(const Cue& c) {
     const auto list = cameras();
@@ -2929,6 +3075,7 @@ class Pocket {
   }
 
   void closeCamera() {
+    if (pocketcam::isOpen()) pocketcam::close();
     if (cam_) SDL_CloseCamera(cam_);
     cam_ = nullptr;
     camId_ = 0;
@@ -2961,6 +3108,10 @@ class Pocket {
     const Cue* c = active_ >= 0 && active_ < static_cast<int>(cues_.size()) ? &cues_[static_cast<std::size_t>(active_)] : nullptr;
     if (!c || !isCameraCue(*c) || black_) {
       closeCamera();
+      return;
+    }
+    if (pocketcam::available()) {
+      serviceNdkCamera(*c);
       return;
     }
     const SDL_CameraID id = cameraFor(*c);
@@ -3012,30 +3163,117 @@ class Pocket {
       SDL_ReleaseCameraFrame(cam_, got);
       got = nullptr;
       rotateRgba(f.pixels, f.width, f.height, static_cast<int>(std::lround(turn / 90.0f)) * 90);
-      // its look: on the GPU where every effect has a GPU version, else here
-      const double scale = static_cast<double>(f.width) / std::max(1, programW_);
-      if (deckboy::effects::cueEffectStackActive(c->effects)) {
-        if (!gpuLook(f.pixels.data(), f.width, f.height, *c, ++camFrames_, scale)) {
-          if (fxState_.size() < c->effects.size()) fxState_.resize(c->effects.size());
-          deckboy::effects::CueEffectContext ctx;
-          ctx.width = f.width;
-          ctx.height = f.height;
-          ctx.frameIndex = camFrames_;
-          ctx.seconds = static_cast<double>(SDL_GetTicksNS()) / 1e9;
-          ctx.pixelScale = scale;
-          ctx.effectState = &fxState_;
-          std::vector<deckboy::effects::CueEffect> modulated;
-          const bool moving = deckboy::effects::modulateCueEffectStack(c->effects, ctx.seconds, ctx.seconds * 2.0, modulated,
-                                                                       engine_->programAudioLevel01());
-          deckboy::effects::applyCueEffectStack(f.pixels, moving ? modulated : c->effects, ctx);
-        }
-      } else {
-        engine_->setLookTexture(nullptr, 0, 0);
-      }
-      if (!deckboy::effects::cueEffectStackActive(c->effects)) ++camFrames_;
-      engine_->showBuiltFrame(f);
+      cameraLookAndShow(f, *c);
     }
     if (got) SDL_ReleaseCameraFrame(cam_, got);
+  }
+
+  // A camera frame with its cue's look, on the GPU where every effect has a
+  // GPU version, else here; then on air.
+  void cameraLookAndShow(DecodedFrame& f, const Cue& c) {
+    camFrameW_ = f.width;
+    camFrameH_ = f.height;
+    const double scale = static_cast<double>(f.width) / std::max(1, programW_);
+    ++camFrames_;
+    if (deckboy::effects::cueEffectStackActive(c.effects)) {
+      if (!gpuLook(f.pixels.data(), f.width, f.height, c, camFrames_, scale)) {
+        if (fxState_.size() < c.effects.size()) fxState_.resize(c.effects.size());
+        deckboy::effects::CueEffectContext ctx;
+        ctx.width = f.width;
+        ctx.height = f.height;
+        ctx.frameIndex = camFrames_;
+        ctx.seconds = static_cast<double>(SDL_GetTicksNS()) / 1e9;
+        ctx.pixelScale = scale;
+        ctx.effectState = &fxState_;
+        std::vector<deckboy::effects::CueEffect> modulated;
+        const bool moving = deckboy::effects::modulateCueEffectStack(c.effects, ctx.seconds, ctx.seconds * 2.0, modulated,
+                                                                     engine_->programAudioLevel01());
+        deckboy::effects::applyCueEffectStack(f.pixels, moving ? modulated : c.effects, ctx);
+      }
+    } else {
+      engine_->setLookTexture(nullptr, 0, 0);
+    }
+    engine_->showBuiltFrame(f);
+  }
+
+  // The phone's camera through Camera2, with the cue's controls.
+  void serviceNdkCamera(const Cue& c) {
+    const int allowed = pocketcam::permission();
+    if (allowed < 0) {
+      camNotice_ = "Pocket may not use the camera. Allow it in the phone's settings.";
+      return;
+    }
+    if (allowed == 0) {
+      camNotice_ = "Waiting for you to allow the camera...";
+      return;
+    }
+    const CamSettings k = camSettings(c);
+    std::string id;
+    for (const CamInfo& cam : cameras()) {
+      if (id.empty()) id = cam.ndkId;   // not on this phone: the first there is
+      if (cam.key == k.key) {
+        id = cam.ndkId;
+        break;
+      }
+    }
+    if (id.empty()) {
+      camNotice_ = "No camera found.";
+      return;
+    }
+    int deg = 0;
+    switch (SDL_GetCurrentDisplayOrientation(SDL_GetDisplayForWindow(window_))) {
+      case SDL_ORIENTATION_LANDSCAPE: deg = 90; break;
+      case SDL_ORIENTATION_PORTRAIT_FLIPPED: deg = 180; break;
+      case SDL_ORIENTATION_LANDSCAPE_FLIPPED: deg = 270; break;
+      default: deg = 0;
+    }
+    pocketcam::setDisplayRotation(deg);
+    if (!pocketcam::isOpen() || pocketcam::openId() != id) {
+      if (!pocketcam::open(id, 1280, 720)) {
+        camNotice_ = pocketcam::lastError();
+        return;
+      }
+    }
+    const pocketcam::Caps caps = pocketcam::caps();
+    pocketcam::Controls ctl;
+    ctl.zoom = k.zoom;
+    ctl.manualFocus = k.manualFocus;
+    ctl.focus = k.focus;
+    ctl.exposure = caps.exposureStep > 0 ? static_cast<int>(std::lround(k.ev / caps.exposureStep)) : 0;
+    ctl.lock = k.lock;
+    ctl.flashlight = k.flashlight;
+    pocketcam::setControls(ctl);
+    DecodedFrame f;
+    if (!pocketcam::takeFrame(f.pixels, f.width, f.height)) {
+      const std::string e = pocketcam::lastError();
+      if (!e.empty()) camNotice_ = e;
+      return;
+    }
+    camNotice_.clear();
+    f.format = FramePixelFormat::RGBA32;
+    cameraLookAndShow(f, c);
+  }
+
+  // A tap on the picture while a phone camera is on air: focus there.
+  bool cameraTap(float x, float y) {
+    if (!pocketcam::isOpen() || active_ < 0 || !isCameraCue(cues_[static_cast<std::size_t>(active_)])) return false;
+    if (!inside(picRect_, x, y) || camFrameW_ <= 0 || camFrameH_ <= 0) return false;
+    if (sheet_ >= 0 && page_ == Page::Place) return false;   // PLACE uses the picture for gestures
+    // where the camera's picture sits in the program, fitted
+    const SDL_FRect pr = fitProgram(picRect_);
+    const float fa = static_cast<float>(camFrameW_) / static_cast<float>(camFrameH_);
+    float iw = pr.w, ih = pr.w / fa;
+    if (ih > pr.h) { ih = pr.h; iw = pr.h * fa; }
+    const float ix = pr.x + (pr.w - iw) / 2, iy = pr.y + (pr.h - ih) / 2;
+    float nx = (x - ix) / iw, ny = (y - iy) / ih;
+    if (nx < 0 || nx > 1 || ny < 0 || ny > 1) return false;
+    if (cues_[static_cast<std::size_t>(active_)].flipHorizontal) nx = 1 - nx;   // mirrored on screen
+    pocketcam::tapFocus(nx, ny);
+    focusMarkX_ = x;
+    focusMarkY_ = y;
+    focusMarkUntil_ = SDL_GetTicks() + 1200;
+    buzz("tap");
+    return true;
   }
 
   // Turn an RGBA picture clockwise by 0, 90, 180 or 270 degrees.
@@ -6300,6 +6538,7 @@ class Pocket {
       return;
     }
     facePoke(x, y);   // never takes the tap: the picture does nothing else when empty
+    cameraTap(x, y);  // nor does focusing
     if (phoneFull_) {   // full screen: a tap shows the ghost controls (EXIT leaves)
       ghostTap(x, y);
       return;
@@ -8369,6 +8608,9 @@ class Pocket {
   bool camInit_ = false;
   std::string camNotice_;
   std::uint64_t camFrames_ = 0;
+  int camFrameW_ = 0, camFrameH_ = 0;   // the last camera frame, upright
+  float focusMarkX_ = 0, focusMarkY_ = 0;
+  Uint64 focusMarkUntil_ = 0;
   Cue engineCamCue_;              // what the engine holds for a camera cue (forEngine)
   std::uint32_t faceShakeSeed_ = 1;
   bool faceWasShown_ = false;
