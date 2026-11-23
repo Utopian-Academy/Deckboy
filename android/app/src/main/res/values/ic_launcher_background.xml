@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Deckboy's deepest LCD ink: the cartridge sits on the screen's own dark -->
+    <color name="ic_launcher_background">#1A1E14</color>
+</resources>

@@ -4683,3 +4683,157 @@ listens to the live input while one is open, else the playlist	nghe đầu vào 
 TUTORIAL: no lesson running	TUTORIAL: không có bài học nào đang chạy
 TUTORIAL: expected START, SHOWME, SKIP, STEP <n>, RESTART, EXIT, STATUS or SCREENS	TUTORIAL: cần START, SHOWME, SKIP, STEP <n>, RESTART, EXIT, STATUS hoặc SCREENS
 cursor across	con trỏ ngang
+Edge	Cạnh
+Flip	Lật
+Form	Dạng
+flip	lật
+form	dạng
+pose	tư thế
+Count	Số lượng
+count	số lượng
+disc x	đĩa x
+disc y	đĩa y
+mortar	mạch vữa
+offset	độ lệch
+wander	trôi
+RESTART	CHẠY LẠI
+crosses	chữ thập
+squares	ô vuông
+Colour 1	Màu 1
+Colour 2	Màu 2
+ILLUSION	ẢO GIÁC
+Illusion	Ảo giác
+colour 1	màu 1
+colour 2	màu 2
+dot size	cỡ chấm
+disc size	cỡ đĩa
+cross size	cỡ chữ thập
+dot colour	màu chấm
+edge width	rộng cạnh
+mortar grey	xám mạch vữa
+street grey	xám đường
+tile length	độ dài ô
+cross colour	màu chữ thập
+shape colour	màu hình
+street width	rộng đường
+ground colour	màu nền
+tile thickness	độ dày ô
+How big each tile is	Kích thước mỗi ô
+How big each cross is	Kích thước mỗi chữ thập
+How long each tile is	Độ dài mỗi ô
+How tall the dancer is	Chiều cao của vũ công
+0-100%: 0 holds it still	0-100%: 0 giữ đứng yên
+0 classic, 1 theme, 2 hues	0 cổ điển, 1 giao diện màu, 2 sắc độ
+Leaf, petal, scale or ring	Lá, cánh hoa, vảy hoặc vòng
+0 or 1: the other way round	0 hoặc 1: theo chiều ngược lại
+0 turn, 1 out, 2 in, 3 wave	0 xoay, 1 ra ngoài, 2 vào trong, 3 sóng
+How big the floating disc is	Kích thước đĩa trôi nổi
+How light the grey lines are	Độ sáng của các đường xám
+select an illusion cue first	hãy chọn một cue ảo ảnh trước
+Turn the crosses the other way	Xoay các dấu thập theo chiều ngược lại
+Illusion (Pictures that move!?)	Ảo ảnh (Hình ảnh chuyển động!?)
+0 leaf, 1 petal, 2 scale, 3 ring	0 lá, 1 cánh hoa, 2 vảy, 3 vòng
+How many shapes across the screen	Số hình theo chiều ngang màn hình
+How many crosses across the screen	Số dấu thập theo chiều ngang màn hình
+How many squares across the screen	Số ô vuông theo chiều ngang màn hình
+Where the disc sits, left to right	Vị trí đĩa, trái sang phải
+Where the disc sits, top to bottom	Vị trí đĩa, trên xuống dưới
+0-100%: 0 black, 100 the light tile	0-100%: 0 đen, 100 ô sáng
+How much of its place each shape fills	Mức mỗi hình lấp đầy chỗ của nó
+Where the dancer stands, left to right	Vị trí vũ công, trái sang phải
+Where the dancer stands, top to bottom	Vị trí vũ công, trên xuống dưới
+Collapse/expand the illusion's controls	Thu gọn/mở rộng điều khiển ảo ảnh
+How far the free leg and the arms reach	Tầm với của chân tự do và tay
+Slide the grid slowly. 0 holds it still	Trượt lưới từ từ. 0 giữ đứng yên
+The first colour, round the colour wheel	Màu thứ nhất trên vòng màu
+The second colour, round the colour wheel	Màu thứ hai trên vòng màu
+How thick each tile is, against its length	Độ dày mỗi ô so với chiều dài
+Where the centre point sits, left to right	Vị trí điểm giữa, trái sang phải
+Where the centre point sits, top to bottom	Vị trí điểm giữa, trên xuống dưới
+How thick the grey line between the rows is	Độ dày đường xám giữa các hàng
+How big the light discs at the crossings are	Kích thước đĩa sáng ở các giao điểm
+Where the field's centre sits, left to right	Vị trí tâm trường, trái sang phải
+Where the field's centre sits, top to bottom	Vị trí tâm trường, trên xuống dưới
+How wide the grey lines between the squares are	Độ rộng đường xám giữa các ô vuông
+How fast the dancer turns. It always turns a little	Tốc độ xoay của vũ công. Luôn xoay một chút
+0 drift, 1 ouchi, 2 cafe, 3 vanish, 4 grid, 5 dancer	0 trôi, 1 ouchi, 2 quán cà phê, 3 biến mất, 4 lưới, 5 vũ công
+How light the grey line is. Mid grey tilts the rows most	Độ sáng đường xám. Xám trung bình làm hàng nghiêng nhiều nhất
+How big the three dots are. Small dots vanish more easily	Kích thước ba chấm. Chấm nhỏ dễ biến mất hơn
+Swap the black and white edges: the field drifts the other way	Đổi cạnh đen và trắng: trường trôi theo hướng ngược lại
+How much of the black and white edges shows. They make the drift	Mức hiện của cạnh đen và trắng. Chúng tạo ra sự trôi
+LFO: size, count, edge, speed, centrex, centrey, grey, hue1 or hue2	LFO: size, count, edge, speed, centrex, centrey, grey, hue1 hoặc hue2
+SYNC LEAD ON or OFF	SYNC LEAD ON hoặc OFF
+{1} is following this desk	{1} đang theo bàn này
+SYNC LEAD ON|OFF or SYNC STATUS	SYNC LEAD ON|OFF hoặc SYNC STATUS
+FOLLOW needs a network connection that stays open	FOLLOW cần kết nối mạng luôn mở
+this desk is not leading (SYNC LEAD ON, or Settings > Network > SYNC)	bàn này không dẫn (SYNC LEAD ON, hoặc Cài đặt > Mạng > SYNC)
+LEADING	ĐANG DẪN
+No longer leading	Không còn dẫn
+Lead other machines	Dẫn các máy khác
+Following this desk: {1}	Đang theo bàn này: {1}
+Leading. Nobody is following yet.	Đang dẫn. Chưa có ai theo.
+Leading: other machines may follow this desk	Đang dẫn: các máy khác có thể theo bàn này
+Not leading: no other machine can follow this desk.	Không dẫn: không máy nào khác có thể theo bàn này.
+body	thân
+burns	vết cháy
+chaos	hỗn loạn
+breath	hơi thở
+jitter	rung
+sparks	tia lửa
+How big a blob grows	Đốm lớn lên đến mức nào
+Tube, mandala or none	Ống, mandala hoặc không có
+Turn the whole picture	Xoay toàn ảnh
+How far the field bends	Độ uốn của trường
+How fast the water moves	Tốc độ chuyển động của nước
+The halo round the lines	Quầng sáng quanh các đường
+How bright the picture is	Độ sáng của hình ảnh
+How long the in move takes	Thời lượng chuyển động vào
+Scale of the whole graphic	Tỷ lệ của toàn bộ đồ họa
+How hard the lines are bent	Độ uốn của nét
+How long the out move takes	Thời lượng chuyển động ra
+How far the colours fan apart	Độ tách xòe của màu
+Thickness of the glowing edge	Độ dày của cạnh phát sáng
+How bright the laser lines are	Độ sáng của nét laser
+Spiral size: above 1 is bigger	Cỡ xoắn ốc: trên 1 là lớn hơn
+How many mirror panels, 0 to 12	Bao nhiêu tấm gương, từ 0 đến 12
+Turn the colours round the wheel	Xoay màu quanh bánh xe màu
+Laser speckle: the focus trembles	Đốm laser: tiêu điểm rung
+Rotate the field round its centre	Xoay trường quanh điểm giữa
+How bright the water's pale light is	Độ sáng của ánh sáng nhạt trên nước
+How long light lingers on the screen	Ánh sáng lưu lại trên màn hình bao lâu
+Colour steps: 2 is stark, 8 is smooth	Bước màu: 2 là gắt, 8 là mềm
+Classic green, fire, ice, neon or mono	Xanh lá cổ điển, lửa, băng, neon hoặc đơn sắc
+How fast they are born, drift and fade	Tốc độ sinh ra, trôi và mờ dần
+Turbulence: 0 is still ripples, 3 boils	Nhiễu loạn: 0 là gợn lặng, 3 là sôi
+A second jet of water crossing the first	Tia nước thứ hai cắt ngang tia thứ nhất
+Broad ripples at 0, fine and busy at 100	Gợn rộng ở 0, mịn và dày ở 100
+The flow surges with the programme sound	Dòng chảy dâng theo tiếng chương trình
+Zone, twin, flow, saddle, ripple or shear	Vùng, đôi, dòng chảy, yên ngựa, gợn hoặc trượt
+Horizontal cells. More detail uses more CPU	Số ô ngang. Càng chi tiết càng tốn CPU
+How far each panel tilts from the one before	Độ nghiêng mỗi tấm so với tấm trước
+The share of each band drawn as grey stripes	Tỷ lệ mỗi dải được vẽ thành sọc xám
+The top mirrors the bottom round a dark seam	Phần trên phản chiếu phần dưới qua một đường nối tối
+0 holds the field; negative runs it backwards	0 giữ yên trường; giá trị âm chạy ngược
+Where the eye of the swirl sits, left to right	Vị trí tâm xoáy, trái sang phải
+Where the eye of the swirl sits, top to bottom	Vị trí tâm xoáy, trên xuống dưới
+The round lens: a curved picture and a dark rim	Thấu kính tròn: hình ảnh cong và viền tối
+How fast the bands move; 0 holds the field still	Tốc độ chuyển động của dải; 0 giữ yên trường
+Turn the palette through all colours; 0 restores it	Xoay bảng màu qua mọi màu; 0 khôi phục lại
+Spiral strength, from a flowing field to tight turns	Cường độ xoắn ốc, từ trường uốn lượn đến vòng xoắn chặt
+How long it stays before leaving by itself. 0 waits for OUT	Thời gian lưu lại trước khi tự rời đi. 0 chờ OUT
+The laser colours: rgb, rainbow, floyd, warm, cool or green	Màu laser: rgb, cầu vồng, floyd, ấm, lạnh hoặc xanh lá
+How far each row is shifted. This makes the straight rows look tilted	Độ lệch mỗi hàng. Điều này làm các hàng thẳng trông như nghiêng
+How many are alive at once. Each is born, drifts out, grows and fades	Số lượng tồn tại cùng lúc. Mỗi cái sinh ra, trôi ra, lớn dần rồi mờ đi
+How readily neighbours merge into one shape. 0 keeps every blob round	Mức dễ hợp nhất của các khối lân cận thành một hình dạng. 0 giữ mọi khối tròn
+Spin the other way. Most people cannot tell which way it turns anyway	Quay chiều ngược lại. Đằng nào hầu hết mọi người cũng không biết nó quay chiều nào
+Move the disc in a small loop. 0 holds it still: the eye moves it anyway	Di chuyển đĩa theo vòng lặp nhỏ. 0 giữ yên: mắt vẫn tự thấy nó chuyển động
+Rainbow + grey, rainbow, the theme's colours (taken when picked) or mono	Cầu vồng + xám, cầu vồng, màu theo giao diện màu (lấy lúc chọn) hoặc đơn sắc
+How many bands: 50% is the design, higher beats harder against the pixels	Số dải: 50% là thiết kế gốc, cao hơn gây giao thoa mạnh hơn với điểm ảnh
+Turn the shapes slowly, so the drift changes direction. 0 holds them still	Xoay chậm các hình để hướng trôi đổi chiều. 0 giữ yên
+Classic, the theme's colours (taken when picked) or two colours of your own	Cổ điển, màu theo giao diện màu (lấy lúc chọn) hoặc hai màu tự chọn
+Turns the rim's colours round the wheel -- green, yellow, pink, violet, blue	Xoay màu viền quanh vòng màu -- xanh lá, vàng, hồng, tím, xanh lam
+Which way the field seems to go: turn round the centre, out, in, or in waves	Hướng trường có vẻ chuyển động: xoay quanh tâm, ra ngoài, vào trong hoặc theo sóng
+Slide the rows back and forth, so the wall bends and straightens. 0 holds it still	Trượt các hàng qua lại để bức tường uốn cong rồi thẳng lại. 0 giữ yên
+How fast the crosses turn. They always turn a little: the dots vanish only while they move	Tốc độ xoay của chữ thập. Chúng luôn xoay một chút: các chấm chỉ biến mất khi chúng chuyển động
+Drift (still shapes that seem to turn), ouchi (a disc that floats), cafe (straight rows that look tilted), vanish (dots that disappear while you stare), grid (dots that flicker and are not there) or dancer (it spins whichever way you see it)	Trôi (hình tĩnh trông như đang xoay), ouchi (đĩa trôi nổi), quán cà phê (hàng thẳng trông như nghiêng), biến mất (chấm biến mất khi bạn nhìn chằm chằm), lưới (chấm nhấp nháy mà thật ra không có) hoặc vũ công (quay theo chiều bạn thấy)
+The gap under it, as a share of the frame	Khe hở bên dưới, theo phần khung hình

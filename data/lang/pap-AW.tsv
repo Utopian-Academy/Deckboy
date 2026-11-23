@@ -4675,3 +4675,159 @@ listens to the live input while one is open, else the playlist	ta scucha e entra
 TUTORIAL: no lesson running	TUTORIAL: ningun les ta core
 TUTORIAL: expected START, SHOWME, SKIP, STEP <n>, RESTART, EXIT, STATUS or SCREENS	TUTORIAL: ta spera START, SHOWME, SKIP, STEP <n>, RESTART, EXIT, STATUS of SCREENS
 cursor across	cursor transversal
+Edge	Rand
+Flip	Bira
+Form	Forma
+flip	bira
+form	forma
+pose	posicion
+Count	Cantidad
+count	cantidad
+disc x	disco x
+disc y	disco y
+mortar	mezcla
+offset	desplasa
+wander	pasea
+RESTART	CUMINSA DI NOBO
+crosses	cruznan
+squares	cuadronan
+Colour 1	Color 1
+Colour 2	Color 2
+ILLUSION	ILUSION
+Illusion	Ilusion
+colour 1	color 1
+colour 2	color 2
+dot size	tamaño di punto
+disc size	tamaño di disco
+cross size	tamaño di cruz
+dot colour	color di punto
+edge width	hanchura di rand
+mortar grey	gris di mezcla
+street grey	gris di caya
+tile length	largura di tegel
+cross colour	color di cruz
+shape colour	color di forma
+street width	hanchura di caya
+ground colour	color di fondo
+tile thickness	dikura di tegel
+How big each tile is	Con grandi cada mosaico ta
+How big each cross is	Con grandi cada cruz ta
+How long each tile is	Con largo cada mosaico ta
+How tall the dancer is	Con haltu e bailado ta
+0-100%: 0 holds it still	0-100%: 0 ta tene esaki keto
+0 classic, 1 theme, 2 hues	0 clasico, 1 tema, 2 tono
+Leaf, petal, scale or ring	Blachi, petalo, scama of aro
+0 or 1: the other way round	0 of 1: na otro direccion
+0 turn, 1 out, 2 in, 3 wave	0 gira, 1 pafo, 2 paden, 3 ola
+How big the floating disc is	Con grandi e disco cu ta flota ta
+How light the grey lines are	Con cla e liñanan grijs ta
+select an illusion cue first	scoge un cue di ilusion promé
+Turn the crosses the other way	Gira e cruznan na otro direccion
+Illusion (Pictures that move!?)	Ilusion (Portretnan cu ta muebe!?)
+0 leaf, 1 petal, 2 scale, 3 ring	0 blachi, 1 petalo, 2 scama, 3 aro
+How many shapes across the screen	Cuanto forma atrabes di pantaya
+How many crosses across the screen	Cuanto cruz atrabes di pantaya
+How many squares across the screen	Cuanto cuadro atrabes di pantaya
+Where the disc sits, left to right	Posicion di e disco, di robes pa drechi
+Where the disc sits, top to bottom	Posicion di e disco, di riba pa abou
+0-100%: 0 black, 100 the light tile	0-100%: 0 preto, 100 e mosaico cla
+How much of its place each shape fills	Con tanto di su lugá cada forma ta yena
+Where the dancer stands, left to right	Posicion di e bailado, di robes pa drechi
+Where the dancer stands, top to bottom	Posicion di e bailado, di riba pa abou
+Collapse/expand the illusion's controls	Cera/habri e controlnan di ilusion
+How far the free leg and the arms reach	Con leu e pia liber y e brasanan ta alcansa
+Slide the grid slowly. 0 holds it still	Desliza e reda poco poco. 0 ta tene esaki keto
+The first colour, round the colour wheel	E prome color, rond di e wiel di color
+The second colour, round the colour wheel	E di dos color, rond di e wiel di color
+How thick each tile is, against its length	Con diki cada mosaico ta, compará cu su largura
+Where the centre point sits, left to right	Posicion di e punto sentral, di robes pa drechi
+Where the centre point sits, top to bottom	Posicion di e punto sentral, di riba pa abou
+How thick the grey line between the rows is	Con diki e liña grijs entre e filanan ta
+How big the light discs at the crossings are	Con grandi e disconan cla na e crusamentonan ta
+Where the field's centre sits, left to right	Posicion di sentro di e campo, di robes pa drechi
+Where the field's centre sits, top to bottom	Posicion di sentro di e campo, di riba pa abou
+How wide the grey lines between the squares are	Con hanchu e liñanan grijs entre e cuadronan ta
+How fast the dancer turns. It always turns a little	Con lihe e bailado ta gira. E ta gira semper un tiki
+0 drift, 1 ouchi, 2 cafe, 3 vanish, 4 grid, 5 dancer	0 flota, 1 ouchi, 2 café, 3 disparse, 4 reda, 5 bailado
+How light the grey line is. Mid grey tilts the rows most	Con cla e liña grijs ta. Grijs medio ta inclina e filanan mas tanto
+How big the three dots are. Small dots vanish more easily	Con grandi e tres puntonan ta. Puntonan chikito ta disparse mas facil
+Swap the black and white edges: the field drifts the other way	Cambia e randnan preto y blanco: e campo ta flota na otro direccion
+How much of the black and white edges shows. They make the drift	Con tanto di e randnan preto y blanco ta mustra. Nan ta haci e flota
+LFO: size, count, edge, speed, centrex, centrey, grey, hue1 or hue2	LFO: size, count, edge, speed, centrex, centrey, grey, hue1 of hue2
+How far each row is shifted. This makes the straight rows look tilted	Con leu cada rij ta wordo move. Esaki ta haci cu e rijnan recht ta parce inclina
+Spin the other way. Most people cannot tell which way it turns anyway	Gira pa e otro direccion. Mayoria hende no por mira pa cua direccion e ta gira tog
+Move the disc in a small loop. 0 holds it still: the eye moves it anyway	Muebe e disco den un ripiti chikito. 0 ta tene e keto: e wowo ta mov'e tog
+Turn the shapes slowly, so the drift changes direction. 0 holds them still	Gira e formanan poco poco, pa e flota cambia direccion. 0 ta tene nan keto
+Classic, the theme's colours (taken when picked) or two colours of your own	Clasico, e colornan di e tema (tuma ora bo scoge) of dos color di bo mes
+Which way the field seems to go: turn round the centre, out, in, or in waves	Pa cua direccion e campo ta parce di bai: gira rond di e sentro, pafo, paden, of den ola
+Slide the rows back and forth, so the wall bends and straightens. 0 holds it still	Desliza e rijnan p'adilanti y p'atras, pa e muraya dobla y bira recht. 0 ta tene e keto
+How fast the crosses turn. They always turn a little: the dots vanish only while they move	Con lihe e crusnan ta gira. Nan ta gira semper un tiki: e puntonan ta disparce solamente ora nan ta move
+Drift (still shapes that seem to turn), ouchi (a disc that floats), cafe (straight rows that look tilted), vanish (dots that disappear while you stare), grid (dots that flicker and are not there) or dancer (it spins whichever way you see it)	drift (formanan keto cu ta parce di gira), ouchi (un disco cu ta flota), cafe (rijnan recht cu ta parce inclina), vanish (puntonan cu ta disparce mientras bo ta wak), grid (puntonan cu ta titila y no ta einan) of dancer (e ta gira pa cua direccion cu bo mir'e)
+STATUS | SHAPE drift|ouchi|cafe|vanish|grid|dancer | FORM leaf|petal|scale|ring | FLOW turn|out|in|wave | FLIP ON|OFF | PALETTE classic|theme|hues | SIZE|COUNT|EDGE|SPEED|CENTREX|CENTREY|GREY <0-100> | HUE1|HUE2 <0-360> | LFO <control> <setting>	STATUS | SHAPE drift|ouchi|cafe|vanish|grid|dancer | FORM leaf|petal|scale|ring | FLOW turn|out|in|wave | FLIP ON|OFF | PALETTE classic|theme|hues | SIZE|COUNT|EDGE|SPEED|CENTREX|CENTREY|GREY <0-100> | HUE1|HUE2 <0-360> | LFO <control> <ajuste>
+SYNC LEAD ON or OFF	SYNC LEAD ON of OFF
+{1} is following this desk	{1} ta sigui e mesa aki
+SYNC LEAD ON|OFF or SYNC STATUS	SYNC LEAD ON|OFF of SYNC STATUS
+FOLLOW needs a network connection that stays open	FOLLOW mester un conexion di red cu ta keda habri
+this desk is not leading (SYNC LEAD ON, or Settings > Network > SYNC)	e mesa aki no ta guia (SYNC LEAD ON, of Settings > Network > SYNC)
+LEADING	TA GUIA
+No longer leading	No ta guia mas
+Lead other machines	Guia otro maquina
+Following this desk: {1}	Ta sigui e mesa aki: {1}
+Leading. Nobody is following yet.	Ta guia. Ningun hende no ta sigui ainda.
+Leading: other machines may follow this desk	Ta guia: otro maquina por sigui e mesa aki
+Not leading: no other machine can follow this desk.	No ta guia: ningun otro maquina no por sigui e mesa aki.
+body	curpa
+burns	kimaduranan
+chaos	caos
+breath	rosea
+jitter	tembla
+sparks	chispanan
+lens	lente
+How big a blob grows	Con grandi un mancha ta crece
+Tube, mandala or none	Tubo, mandala of ningun
+Turn the whole picture	Gira henter e portret
+How far the field bends	Con leu e campo ta dobla
+How fast the water moves	Velocidad di e awa
+The halo round the lines	E halo rond di e liñanan
+How bright the picture is	Con cla e portret ta
+How long the in move takes	Cuanto tempo e movimento paden ta tuma
+Scale of the whole graphic	Scala di henter e grafico
+How hard the lines are bent	Con duro e liñanan ta dobla
+How long the out move takes	Cuanto tempo e movimento pafo ta tuma
+How far the colours fan apart	Con leu e colornan ta separa
+Thickness of the glowing edge	Diki di e rand brillante
+How bright the laser lines are	Claridad di e liñanan di laser
+Spiral size: above 1 is bigger	Tamaño di spiral: riba 1 ta mas grandi
+How many mirror panels, 0 to 12	Cuanto panel di spiegel, di 0 te 12
+Turn the colours round the wheel	Gira e colornan rond di e wiel
+Laser speckle: the focus trembles	Puntonan di laser: e enfoke ta tembla
+Rotate the field round its centre	Gira e campo rond di su sentro
+How bright the water's pale light is	Con cla e luz pálido di e awa ta
+How long light lingers on the screen	Cuanto tempo luz ta keda riba pantaya
+Colour steps: 2 is stark, 8 is smooth	Paso di color: 2 ta duro, 8 ta suave
+Classic green, fire, ice, neon or mono	Berde clasico, candela, ijs, neon of un color
+How fast they are born, drift and fade	Con lihe nan ta nace, flota y disparce
+Turbulence: 0 is still ripples, 3 boils	Turbulencia: 0 ta ondulacion trankil, 3 ta hirbi
+A second jet of water crossing the first	Un segundo chorro di awa ta cruza e prome
+Broad ripples at 0, fine and busy at 100	Ondulacion hancho na 0, fini y druk na 100
+The flow surges with the programme sound	E fluho ta subi cu e zonido di programa
+Zone, twin, flow, saddle, ripple or shear	Zona, dobel, fluho, siya, ondulacion of sesga
+Horizontal cells. More detail uses more CPU	Celdanan horizontal. Mas detaye ta usa mas CPU
+How far each panel tilts from the one before	Con leu cada panel ta inclina di esun anterior
+The share of each band drawn as grey stripes	Parti di cada banda dibuha como strepi gris
+The top mirrors the bottom round a dark seam	E parti ariba ta refleha e parti abou rond di un costura scuro
+0 holds the field; negative runs it backwards	0 ta tene e campo para; negativo ta hacie bay patras
+Where the eye of the swirl sits, left to right	Posicion di e wowo di e remolino, di robes pa drechi
+Where the eye of the swirl sits, top to bottom	Posicion di e wowo di e remolino, di riba pa abou
+The round lens: a curved picture and a dark rim	E lente rondo: un portret curva i un rand scuro
+How fast the bands move; 0 holds the field still	Con lihe e bandanan ta muebe; 0 ta tene e campo para
+Turn the palette through all colours; 0 restores it	Gira e paleta door di tur color; 0 ta pon'e bek
+Spiral strength, from a flowing field to tight turns	Fuerza di e spiral, di un campo cu ta core te bueltanan stret
+How long it stays before leaving by itself. 0 waits for OUT	Cuanto tempo e ta keda promer cu e bay su so. 0 ta warda pa PAFO
+The laser colours: rgb, rainbow, floyd, warm, cool or green	E colornan di laser: rgb, arco iris, floyd, cayente, fresco of berde
+How many are alive at once. Each is born, drifts out, grows and fades	Cuanto ta bibo na mes momento. Cada un ta nace, ta flota bay, ta crece i ta disparce
+How readily neighbours merge into one shape. 0 keeps every blob round	Con facil bisiñanan ta uni den un forma. 0 ta tene cada mancha rondo
+Rainbow + grey, rainbow, the theme's colours (taken when picked) or mono	Arco iris + gris, arco iris, e colornan di e tema (tuma ora bo scoge) of monocromo
+How many bands: 50% is the design, higher beats harder against the pixels	Cuanto banda: 50% ta e diseño, mas halto ta bati mas duro contra e pixelnan
+Turns the rim's colours round the wheel -- green, yellow, pink, violet, blue	Ta gira e colornan di e rand rond di e rueda -- berde, geel, rosa, violeta, blauw
+The gap under it, as a share of the frame	E espacio bou di dje, como parti di e imagen

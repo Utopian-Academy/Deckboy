@@ -4660,3 +4660,156 @@ listens to the live input while one is open, else the playlist	escuta a entrada 
 TUTORIAL: no lesson running	TUTORIAL: nenhuma lição em execução
 TUTORIAL: expected START, SHOWME, SKIP, STEP <n>, RESTART, EXIT, STATUS or SCREENS	TUTORIAL: esperado START, SHOWME, SKIP, STEP <n>, RESTART, EXIT, STATUS ou SCREENS
 cursor across	cursor horizontal
+Edge	Borda
+Flip	Inverter
+Form	Forma
+flip	inverter
+form	forma
+Count	Quantidade
+count	quantidade
+disc x	disco x
+disc y	disco y
+mortar	rejunte
+offset	deslocamento
+wander	deriva
+RESTART	REINICIAR
+crosses	cruzes
+squares	quadrados
+Colour 1	Cor 1
+Colour 2	Cor 2
+ILLUSION	ILUSÃO
+Illusion	Ilusão
+colour 1	cor 1
+colour 2	cor 2
+dot size	tamanho do ponto
+disc size	tamanho do disco
+cross size	tamanho da cruz
+dot colour	cor do ponto
+edge width	largura da borda
+mortar grey	cinza do rejunte
+street grey	cinza das ruas
+tile length	comprimento do ladrilho
+cross colour	cor da cruz
+shape colour	cor da forma
+street width	largura das ruas
+ground colour	cor do fundo
+tile thickness	espessura do ladrilho
+How big each tile is	O tamanho de cada ladrilho
+How big each cross is	O tamanho de cada cruz
+How long each tile is	O comprimento de cada ladrilho
+How tall the dancer is	Altura do dançarino
+0-100%: 0 holds it still	0-100%: 0 mantém parado
+0 classic, 1 theme, 2 hues	0 clássico, 1 tema, 2 matizes
+Leaf, petal, scale or ring	Folha, pétala, escama ou anel
+0 or 1: the other way round	0 ou 1: no sentido inverso
+0 turn, 1 out, 2 in, 3 wave	0 giro, 1 para fora, 2 para dentro, 3 onda
+How big the floating disc is	Tamanho do disco flutuante
+How light the grey lines are	Quão claras são as linhas cinza
+select an illusion cue first	selecione primeiro um cue de ilusão
+Turn the crosses the other way	Girar as cruzes no sentido oposto
+Illusion (Pictures that move!?)	Ilusão (Imagens que se mexem!?)
+0 leaf, 1 petal, 2 scale, 3 ring	0 folha, 1 pétala, 2 escama, 3 anel
+How many shapes across the screen	Quantas formas na largura da tela
+How many crosses across the screen	Quantas cruzes na largura da tela
+How many squares across the screen	Quantos quadrados na largura da tela
+Where the disc sits, left to right	Posição do disco, da esquerda para a direita
+Where the disc sits, top to bottom	Posição do disco, de cima para baixo
+0-100%: 0 black, 100 the light tile	0-100%: 0 preto, 100 o ladrilho claro
+How much of its place each shape fills	Quanto do seu espaço cada forma preenche
+Where the dancer stands, left to right	Posição do dançarino, da esquerda para a direita
+Where the dancer stands, top to bottom	Posição do dançarino, de cima para baixo
+Collapse/expand the illusion's controls	Recolher/expandir os controles da ilusão
+How far the free leg and the arms reach	Alcance da perna livre e dos braços
+Slide the grid slowly. 0 holds it still	Desliza a grade devagar. 0 a mantém parada
+The first colour, round the colour wheel	A primeira cor, no círculo de cores
+The second colour, round the colour wheel	A segunda cor, no círculo de cores
+How thick each tile is, against its length	Espessura de cada ladrilho em relação ao comprimento
+Where the centre point sits, left to right	Posição do ponto central, da esquerda para a direita
+Where the centre point sits, top to bottom	Posição do ponto central, de cima para baixo
+How thick the grey line between the rows is	Espessura da linha cinza entre as fileiras
+How big the light discs at the crossings are	Tamanho dos discos claros nos cruzamentos
+Where the field's centre sits, left to right	Posição do centro do campo, da esquerda para a direita
+Where the field's centre sits, top to bottom	Posição do centro do campo, de cima para baixo
+How wide the grey lines between the squares are	Largura das linhas cinza entre os quadrados
+How fast the dancer turns. It always turns a little	Velocidade de giro do dançarino. Ele sempre gira um pouco
+0 drift, 1 ouchi, 2 cafe, 3 vanish, 4 grid, 5 dancer	0 deriva, 1 ouchi, 2 café, 3 sumir, 4 grade, 5 dançarino
+How light the grey line is. Mid grey tilts the rows most	Quão clara é a linha cinza. Cinza médio inclina mais as fileiras
+How big the three dots are. Small dots vanish more easily	Tamanho dos três pontos. Pontos pequenos somem com mais facilidade
+Swap the black and white edges: the field drifts the other way	Inverte as bordas pretas e brancas: o campo deriva no sentido oposto
+How much of the black and white edges shows. They make the drift	Quanto aparece das bordas pretas e brancas. Elas criam a deriva
+LFO: size, count, edge, speed, centrex, centrey, grey, hue1 or hue2	LFO: size, count, edge, speed, centrex, centrey, grey, hue1 ou hue2
+SYNC LEAD ON or OFF	SYNC LEAD ON ou OFF
+{1} is following this desk	{1} está seguindo esta mesa
+SYNC LEAD ON|OFF or SYNC STATUS	SYNC LEAD ON|OFF ou SYNC STATUS
+FOLLOW needs a network connection that stays open	FOLLOW exige uma conexão de rede persistente
+this desk is not leading (SYNC LEAD ON, or Settings > Network > SYNC)	esta mesa não está liderando (SYNC LEAD ON, ou Ajustes > Rede > SYNC)
+LEADING	LIDERANDO
+No longer leading	Não está mais liderando
+Lead other machines	Liderar outras máquinas
+Following this desk: {1}	Seguindo esta mesa: {1}
+Leading. Nobody is following yet.	Liderando. Ninguém está seguindo ainda.
+Leading: other machines may follow this desk	Liderando: outras máquinas podem seguir esta mesa
+Not leading: no other machine can follow this desk.	Sem liderar: nenhuma outra máquina pode seguir esta mesa.
+body	corpo
+burns	queimaduras
+chaos	caos
+breath	respiração
+jitter	tremulação
+sparks	faíscas
+How big a blob grows	Quanto uma mancha cresce
+Tube, mandala or none	Tubo, mandala ou nenhum
+Turn the whole picture	Girar a imagem toda
+How far the field bends	Quanto o campo se curva
+How fast the water moves	Velocidade da água
+The halo round the lines	O halo em volta das linhas
+How bright the picture is	Brilho da imagem
+How long the in move takes	Duração do movimento de entrada
+Scale of the whole graphic	Escala do gráfico todo
+How hard the lines are bent	Quanto as linhas se curvam
+How long the out move takes	Duração do movimento de saída
+How far the colours fan apart	Quanto as cores se separam
+Thickness of the glowing edge	Espessura da borda brilhante
+How bright the laser lines are	Brilho das linhas laser
+Spiral size: above 1 is bigger	Tamanho da espiral: acima de 1 é maior
+How many mirror panels, 0 to 12	Quantos painéis de espelho, de 0 a 12
+Turn the colours round the wheel	Girar as cores no círculo de cores
+Laser speckle: the focus trembles	Granulado do laser: o foco treme
+Rotate the field round its centre	Girar o campo em torno do centro
+How bright the water's pale light is	Brilho da luz pálida da água
+How long light lingers on the screen	Quanto tempo a luz fica na tela
+Colour steps: 2 is stark, 8 is smooth	Passos de cor: 2 é duro, 8 é suave
+Classic green, fire, ice, neon or mono	Verde clássico, fogo, gelo, neon ou mono
+How fast they are born, drift and fade	Quão rápido nascem, derivam e somem
+Turbulence: 0 is still ripples, 3 boils	Turbulência: 0 é ondulação calma, 3 ferve
+A second jet of water crossing the first	Um segundo jato de água cruza o primeiro
+Broad ripples at 0, fine and busy at 100	Ondulação larga em 0, fina e agitada em 100
+The flow surges with the programme sound	O fluxo pulsa com o áudio do programa
+Zone, twin, flow, saddle, ripple or shear	Zona, duplo, fluxo, sela, ondulação ou cisalhamento
+Horizontal cells. More detail uses more CPU	Células horizontais. Mais detalhe usa mais CPU
+How far each panel tilts from the one before	Inclinação de cada painel em relação ao anterior
+The share of each band drawn as grey stripes	Parte de cada faixa desenhada como listras cinzas
+The top mirrors the bottom round a dark seam	O topo espelha a base numa emenda escura
+0 holds the field; negative runs it backwards	0 congela o campo; negativo o faz andar para trás
+Where the eye of the swirl sits, left to right	Posição do olho do redemoinho, da esquerda para a direita
+Where the eye of the swirl sits, top to bottom	Posição do olho do redemoinho, de cima para baixo
+The round lens: a curved picture and a dark rim	A lente redonda: imagem curva e borda escura
+How fast the bands move; 0 holds the field still	Velocidade das bandas; 0 deixa o campo parado
+Turn the palette through all colours; 0 restores it	Gira a paleta por todas as cores; 0 a restaura
+Spiral strength, from a flowing field to tight turns	Intensidade da espiral, de um campo fluido a voltas fechadas
+How long it stays before leaving by itself. 0 waits for OUT	Quanto tempo fica antes de sair sozinho. 0 espera o OUT
+The laser colours: rgb, rainbow, floyd, warm, cool or green	As cores do laser: rgb, arco-íris, floyd, quente, frio ou verde
+How far each row is shifted. This makes the straight rows look tilted	Deslocamento de cada linha. Isso faz as linhas retas parecerem inclinadas
+How many are alive at once. Each is born, drifts out, grows and fades	Quantos existem ao mesmo tempo. Cada um nasce, se afasta, cresce e some
+How readily neighbours merge into one shape. 0 keeps every blob round	Facilidade com que vizinhos se fundem numa só forma. 0 mantém cada bolha redonda
+Spin the other way. Most people cannot tell which way it turns anyway	Gira no outro sentido. A maioria nem percebe para que lado gira
+Move the disc in a small loop. 0 holds it still: the eye moves it anyway	Move o disco num pequeno loop. 0 o deixa parado: o olho o move mesmo assim
+Rainbow + grey, rainbow, the theme's colours (taken when picked) or mono	Arco-íris + cinza, arco-íris, as cores do tema (tiradas ao escolher) ou mono
+How many bands: 50% is the design, higher beats harder against the pixels	Quantas bandas: 50% é o projeto; acima disso interfere mais com os pixels
+Turn the shapes slowly, so the drift changes direction. 0 holds them still	Gira as formas devagar, para a deriva mudar de direção. 0 as deixa paradas
+Classic, the theme's colours (taken when picked) or two colours of your own	Clássico, as cores do tema (tiradas ao escolher) ou duas cores suas
+Turns the rim's colours round the wheel -- green, yellow, pink, violet, blue	Gira as cores da borda pela roda -- verde, amarelo, rosa, violeta, azul
+Which way the field seems to go: turn round the centre, out, in, or in waves	Para onde o campo parece ir: girar ao redor do centro, para fora, para dentro ou em ondas
+Slide the rows back and forth, so the wall bends and straightens. 0 holds it still	Desliza as linhas para lá e para cá, e a parede se curva e endireita. 0 a deixa parada
+How fast the crosses turn. They always turn a little: the dots vanish only while they move	Velocidade de giro das cruzes. Elas sempre giram um pouco: os pontos só somem enquanto se movem
+Drift (still shapes that seem to turn), ouchi (a disc that floats), cafe (straight rows that look tilted), vanish (dots that disappear while you stare), grid (dots that flicker and are not there) or dancer (it spins whichever way you see it)	Deriva (formas paradas que parecem girar), ouchi (um disco que flutua), café (linhas retas que parecem inclinadas), sumiço (pontos que somem enquanto você olha fixo), grade (pontos que cintilam e não estão lá) ou dançarino (gira para o lado que você vê)
+The gap under it, as a share of the frame	O espaço abaixo como parte do quadro

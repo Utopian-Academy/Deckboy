@@ -4690,3 +4690,157 @@ listens to the live input while one is open, else the playlist	açık bir canlı
 TUTORIAL: no lesson running	TUTORIAL: çalışan ders yok
 TUTORIAL: expected START, SHOWME, SKIP, STEP <n>, RESTART, EXIT, STATUS or SCREENS	TUTORIAL: beklenen: START, SHOWME, SKIP, STEP <n>, RESTART, EXIT, STATUS veya SCREENS
 cursor across	yatay imleç
+Edge	Kenar
+Flip	Çevir
+Form	Biçim
+flip	çevir
+form	biçim
+pose	poz
+Count	Sayı
+count	sayı
+disc x	disk x
+disc y	disk y
+mortar	harç
+offset	kayma
+wander	gezinme
+RESTART	YENİDEN BAŞLAT
+crosses	haçlar
+squares	kareler
+Colour 1	Renk 1
+Colour 2	Renk 2
+ILLUSION	İLLÜZYON
+Illusion	İllüzyon
+colour 1	renk 1
+colour 2	renk 2
+dot size	nokta boyutu
+disc size	disk boyutu
+cross size	haç boyutu
+dot colour	nokta rengi
+edge width	kenar genişliği
+mortar grey	harç grisi
+street grey	sokak grisi
+tile length	karo uzunluğu
+cross colour	haç rengi
+shape colour	şekil rengi
+street width	sokak genişliği
+ground colour	zemin rengi
+tile thickness	karo kalınlığı
+How big each tile is	Her karonun boyutu
+How big each cross is	Her haçın boyutu
+How long each tile is	Her karonun uzunluğu
+How tall the dancer is	Dansçının boyu
+0-100%: 0 holds it still	0-100%: 0 sabit tutar
+0 classic, 1 theme, 2 hues	0 klasik, 1 tema, 2 renk tonları
+Leaf, petal, scale or ring	Yaprak, taç yaprağı, pul veya halka
+0 or 1: the other way round	0 veya 1: ters yönde
+0 turn, 1 out, 2 in, 3 wave	0 döndür, 1 dışa, 2 içe, 3 dalga
+How big the floating disc is	Yüzen diskin boyutu
+How light the grey lines are	Gri çizgilerin açıklığı
+select an illusion cue first	önce bir illüzyon cue'su seç
+Turn the crosses the other way	Çarpıları ters yöne döndür
+Illusion (Pictures that move!?)	İllüzyon (Hareket eden resimler!?)
+0 leaf, 1 petal, 2 scale, 3 ring	0 yaprak, 1 taç yaprağı, 2 pul, 3 halka
+How many shapes across the screen	Ekran genişliğindeki şekil sayısı
+How many crosses across the screen	Ekran genişliğindeki çarpı sayısı
+How many squares across the screen	Ekran genişliğindeki kare sayısı
+Where the disc sits, left to right	Diskin konumu, soldan sağa
+Where the disc sits, top to bottom	Diskin konumu, yukarıdan aşağıya
+0-100%: 0 black, 100 the light tile	0-100%: 0 siyah, 100 açık karo
+How much of its place each shape fills	Her şeklin kendi yerini ne kadar doldurduğu
+Where the dancer stands, left to right	Dansçının konumu, soldan sağa
+Where the dancer stands, top to bottom	Dansçının konumu, yukarıdan aşağıya
+Collapse/expand the illusion's controls	İllüzyon ayarlarını daralt/genişlet
+How far the free leg and the arms reach	Serbest bacak ve kolların erişimi
+Slide the grid slowly. 0 holds it still	Izgarayı yavaşça kaydırır. 0 sabit tutar
+The first colour, round the colour wheel	Renk çarkında ilk renk
+The second colour, round the colour wheel	Renk çarkında ikinci renk
+How thick each tile is, against its length	Her karonun uzunluğuna göre kalınlığı
+Where the centre point sits, left to right	Merkez noktanın konumu, soldan sağa
+Where the centre point sits, top to bottom	Merkez noktanın konumu, yukarıdan aşağıya
+How thick the grey line between the rows is	Sıralar arasındaki gri çizginin kalınlığı
+How big the light discs at the crossings are	Kesişimlerdeki açık disklerin boyutu
+Where the field's centre sits, left to right	Alan merkezinin konumu, soldan sağa
+Where the field's centre sits, top to bottom	Alan merkezinin konumu, yukarıdan aşağıya
+How wide the grey lines between the squares are	Kareler arasındaki gri çizgilerin genişliği
+How fast the dancer turns. It always turns a little	Dansçının dönüş hızı. Her zaman biraz döner
+0 drift, 1 ouchi, 2 cafe, 3 vanish, 4 grid, 5 dancer	0 sürüklenme, 1 ouchi, 2 kafe, 3 kaybolma, 4 ızgara, 5 dansçı
+How light the grey line is. Mid grey tilts the rows most	Gri çizginin açıklığı. Orta gri sıraları en çok eğer
+How big the three dots are. Small dots vanish more easily	Üç noktanın boyutu. Küçük noktalar daha kolay kaybolur
+Swap the black and white edges: the field drifts the other way	Siyah ve beyaz kenarları değiştir: alan ters yöne sürüklenir
+How much of the black and white edges shows. They make the drift	Siyah ve beyaz kenarların ne kadar göründüğü. Sürüklenmeyi onlar yaratır
+LFO: size, count, edge, speed, centrex, centrey, grey, hue1 or hue2	LFO: size, count, edge, speed, centrex, centrey, grey, hue1 veya hue2
+SYNC LEAD ON or OFF	SYNC LEAD ON veya OFF
+{1} is following this desk	{1} bu operatörü izliyor
+SYNC LEAD ON|OFF or SYNC STATUS	SYNC LEAD ON|OFF veya SYNC STATUS
+FOLLOW needs a network connection that stays open	FOLLOW sürekli açık kalan bir ağ bağlantısı gerektirir
+this desk is not leading (SYNC LEAD ON, or Settings > Network > SYNC)	bu operatör lider değil (SYNC LEAD ON veya Ayarlar > Ağ > SYNC)
+LEADING	LİDER
+No longer leading	Artık lider değil
+Lead other machines	Diğer makinelere liderlik et
+Following this desk: {1}	Bu operatörü izleyen: {1}
+Leading. Nobody is following yet.	Lider. Henüz izleyen yok.
+Leading: other machines may follow this desk	Lider: diğer makineler bu operatörü izleyebilir
+Not leading: no other machine can follow this desk.	Lider değil: başka hiçbir makine bu operatörü izleyemez.
+body	gövde
+burns	yanıklar
+chaos	kaos
+breath	nefes
+jitter	titreme
+sparks	kıvılcımlar
+How big a blob grows	Bir lekenin ne kadar büyüdüğü
+Tube, mandala or none	Tüp, mandala ya da yok
+Turn the whole picture	Tüm görüntüyü döndür
+How far the field bends	Alanın bükülme miktarı
+How fast the water moves	Suyun hareket hızı
+The halo round the lines	Çizgilerin etrafındaki hale
+How bright the picture is	Görüntünün parlaklığı
+How long the in move takes	Giriş hareketinin süresi
+Scale of the whole graphic	Tüm grafiğin ölçeği
+How hard the lines are bent	Çizgilerin bükülme gücü
+How long the out move takes	Çıkış hareketinin süresi
+How far the colours fan apart	Renklerin yelpaze gibi açılması
+Thickness of the glowing edge	Parlayan kenarın kalınlığı
+How bright the laser lines are	Lazer çizgilerinin parlaklığı
+Spiral size: above 1 is bigger	Spiral boyutu: 1'in üstü daha büyük
+How many mirror panels, 0 to 12	Kaç tane ayna paneli, 0 ile 12 arası
+Turn the colours round the wheel	Renkleri renk çemberinde döndür
+Laser speckle: the focus trembles	Lazer beneklenmesi: odak titrer
+Rotate the field round its centre	Alanı ortası etrafında döndür
+How bright the water's pale light is	Suyun soluk ışığının parlaklığı
+How long light lingers on the screen	Işığın ekranda ne kadar kaldığı
+Colour steps: 2 is stark, 8 is smooth	Renk adımları: 2 sert, 8 yumuşak
+Classic green, fire, ice, neon or mono	Klasik yeşil, ateş, buz, neon ya da tek renk
+How fast they are born, drift and fade	Ne kadar hızlı doğup sürüklenip soldukları
+Turbulence: 0 is still ripples, 3 boils	Türbülans: 0 durgun dalgalanma, 3 kaynar
+A second jet of water crossing the first	Birinciyi kesen ikinci bir su jeti
+Broad ripples at 0, fine and busy at 100	0'da geniş dalgalanma, 100'de ince ve yoğun
+The flow surges with the programme sound	Akış PROGRAM sesiyle kabarır
+Zone, twin, flow, saddle, ripple or shear	Bölge, ikiz, akış, eyer, dalga ya da kayma
+Horizontal cells. More detail uses more CPU	Yatay hücreler. Daha fazla ayrıntı daha çok CPU kullanır
+How far each panel tilts from the one before	Her panelin öncekine göre eğimi
+The share of each band drawn as grey stripes	Her bandın gri çizgi olarak çizilen payı
+The top mirrors the bottom round a dark seam	Üst, koyu bir birleşim etrafında altı yansıtır
+0 holds the field; negative runs it backwards	0 alanı durdurur; negatif değer onu geriye oynatır
+Where the eye of the swirl sits, left to right	Girdap gözünün konumu, soldan sağa
+Where the eye of the swirl sits, top to bottom	Girdap gözünün konumu, yukarıdan aşağıya
+The round lens: a curved picture and a dark rim	Yuvarlak mercek: kavisli bir resim ve koyu bir kenar
+How fast the bands move; 0 holds the field still	Bantların hareket hızı; 0 alanı durdurur
+Turn the palette through all colours; 0 restores it	Paleti tüm renklerde döndürür; 0 geri yükler
+Spiral strength, from a flowing field to tight turns	Sarmal gücü, akan bir alandan sıkı dönüşlere
+How long it stays before leaving by itself. 0 waits for OUT	Kendiliğinden çıkmadan önce ne kadar kalacağı. 0, OUT'u bekler
+The laser colours: rgb, rainbow, floyd, warm, cool or green	Lazer renkleri: rgb, gökkuşağı, floyd, sıcak, soğuk veya yeşil
+How far each row is shifted. This makes the straight rows look tilted	Her satırın kayma miktarı. Bu, düz satırları eğik gösterir
+How many are alive at once. Each is born, drifts out, grows and fades	Aynı anda kaç tane var. Her biri doğar, uzaklaşır, büyür ve söner
+How readily neighbours merge into one shape. 0 keeps every blob round	Komşuların tek bir şekilde ne kadar kolay birleştiği. 0 her lekeyi yuvarlak tutar
+Spin the other way. Most people cannot tell which way it turns anyway	Ters yöne döner. Çoğu kişi zaten hangi yöne döndüğünü anlayamaz
+Move the disc in a small loop. 0 holds it still: the eye moves it anyway	Diski küçük bir döngüde taşır. 0 sabit tutar: göz onu yine de hareket ettirir
+Rainbow + grey, rainbow, the theme's colours (taken when picked) or mono	Gökkuşağı + gri, gökkuşağı, temanın renkleri (seçilince alınır) veya tek renk
+How many bands: 50% is the design, higher beats harder against the pixels	Kaç bant: 50% tasarımdır, fazlası piksellerle daha güçlü girişim yapar
+Turn the shapes slowly, so the drift changes direction. 0 holds them still	Şekilleri yavaşça döndürür, böylece sürüklenme yön değiştirir. 0 onları sabit tutar
+Classic, the theme's colours (taken when picked) or two colours of your own	Klasik, temanın renkleri (seçilince alınır) veya kendi iki renginiz
+Turns the rim's colours round the wheel -- green, yellow, pink, violet, blue	Kenarın renklerini çark boyunca döndürür -- yeşil, sarı, pembe, mor, mavi
+Which way the field seems to go: turn round the centre, out, in, or in waves	Alanın gidiyor gibi göründüğü yön: merkez etrafında dönüş, dışa, içe veya dalgalar halinde
+Slide the rows back and forth, so the wall bends and straightens. 0 holds it still	Satırları ileri geri kaydırır, duvar bükülür ve düzelir. 0 sabit tutar
+How fast the crosses turn. They always turn a little: the dots vanish only while they move	Haçların dönüş hızı. Her zaman biraz dönerler: noktalar yalnızca hareket ederken kaybolur
+Drift (still shapes that seem to turn), ouchi (a disc that floats), cafe (straight rows that look tilted), vanish (dots that disappear while you stare), grid (dots that flicker and are not there) or dancer (it spins whichever way you see it)	Sürüklenme (dönüyor gibi görünen durağan şekiller), ouchi (süzülen bir disk), kafe (eğik görünen düz satırlar), kaybolma (bakarken kaybolan noktalar), ızgara (titreyen ve aslında olmayan noktalar) veya dansçı (onu hangi yöne görürseniz o yöne döner)
+The gap under it, as a share of the frame	Altındaki boşluk, karenin payı olarak

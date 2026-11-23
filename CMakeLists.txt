@@ -45,7 +45,7 @@ endif()
 
 project(deckboy_native VERSION
   ${DECKBOY_VERSION_MAJOR}.${DECKBOY_VERSION_MINOR}.${DECKBOY_VERSION_PATCH}
-  LANGUAGES CXX
+  LANGUAGES C CXX
 )
 
 set(CMAKE_CXX_STANDARD 20)
@@ -593,6 +593,7 @@ endif()
 
 add_executable(deckboy-native
   native/main.cpp
+  native/core/show_file.cpp
   native/core/paths.cpp
   native/core/i18n.cpp
   native/core/utils.cpp
@@ -955,7 +956,8 @@ if(ENABLE_SIPHON OR ENABLE_SPOUT)
 endif()
 
 if(DECKBOY_INPROC_DECODE_ACTIVE)
-  target_sources(deckboy-native PRIVATE native/engine/libav_decoder.cpp native/engine/direction_remux.cpp)
+  target_sources(deckboy-native PRIVATE native/engine/libav_decoder.cpp native/engine/direction_remux.cpp
+                 native/engine/direction_inproc.cpp)
   target_include_directories(deckboy-native PRIVATE ${DECKBOY_AVCODEC_INCLUDE_DIR})
   target_link_libraries(deckboy-native PRIVATE
     ${DECKBOY_AVCODEC_LIBRARY}
@@ -1362,10 +1364,71 @@ if(DECKBOY_BUILD_MINI)
   endif()
 endif()
 
+# ── Deckboy Pocket (Android) ──────────────────────────────────────────────────
+# The phone app: native/pocket/pocket_main.cpp around the same engine, built as
+# the shared library SDL's Android activity loads (libmain.so). Like Mini it
+# takes the desk target's finished configuration -- every source except the
+# desk's own main.cpp, every define, include path and library -- so a feature
+# switched off for the phone is switched off the same way. Built by Gradle from
+# android/ (see android/README.md), which asks for this target only.
+option(DECKBOY_BUILD_POCKET "Build Deckboy Pocket's native library (Android)" OFF)
+if(DECKBOY_BUILD_POCKET)
+  get_target_property(_desk_sources deckboy-native SOURCES)
+  set(_pocket_sources native/pocket/pocket_main.cpp native/pocket/android_camera.cpp)
+  foreach(_src IN LISTS _desk_sources)
+    if(NOT _src MATCHES "native/main\.cpp$" AND NOT _src MATCHES "\.(rc|plist|icns|manifest|mm)$")
+      list(APPEND _pocket_sources "${_src}")
+    endif()
+  endforeach()
+  # On Android Pocket is the shared library SDL's activity loads ("main"). On a
+  # desktop it is a phone-shaped window, for working on Pocket (and testing it
+  # against a desk) without a phone.
+  if(ANDROID)
+    add_library(main SHARED ${_pocket_sources})
+  else()
+    add_executable(main ${_pocket_sources})
+    set_target_properties(main PROPERTIES OUTPUT_NAME deckboy-pocket)
+  endif()
+  foreach(_prop COMPILE_DEFINITIONS COMPILE_OPTIONS COMPILE_FEATURES INCLUDE_DIRECTORIES
+                LINK_LIBRARIES LINK_OPTIONS LINK_DIRECTORIES CXX_STANDARD CXX_STANDARD_REQUIRED)
+    get_target_property(_value deckboy-native ${_prop})
+    if(_value)
+      set_property(TARGET main PROPERTY ${_prop} "${_value}")
+    endif()
+  endforeach()
+  if(ANDROID)
+    target_link_options(main PRIVATE "-Wl,-z,max-page-size=16384")
+    target_link_libraries(main PRIVATE android log camera2ndk mediandk)   # the output screen's ANativeWindow; the camera
+  endif()
+  add_dependencies(main deckboy_generate_version)
+endif()
+
 include(CTest)
 option(DECKBOY_SANITIZE_BROADCAST_CHECK "Instrument the transport regression target with ASan and UBSan" OFF)
 if(BUILD_TESTING)
   find_package(Threads REQUIRED)
+  # Standalone show codec: deliberately no main.cpp or engine sources.
+  add_executable(deckboy-show-file-check tools/show_file_check.cpp
+    native/core/show_file.cpp native/core/utils.cpp native/core/paths.cpp)
+  target_include_directories(deckboy-show-file-check PRIVATE native "${CMAKE_CURRENT_BINARY_DIR}/generated")
+  add_dependencies(deckboy-show-file-check deckboy_generate_version)
+  target_link_libraries(deckboy-show-file-check PRIVATE Threads::Threads)
+  if(DECKBOY_SDL_TARGET)
+    target_link_libraries(deckboy-show-file-check PRIVATE ${DECKBOY_SDL_TARGET})
+  else()
+    target_include_directories(deckboy-show-file-check PRIVATE ${DECKBOY_SDL_INCLUDE_DIRS})
+    target_link_libraries(deckboy-show-file-check PRIVATE ${DECKBOY_SDL_LINK_LIBS})
+  endif()
+  if(WIN32)
+    target_compile_definitions(deckboy-show-file-check PRIVATE NOMINMAX WIN32_LEAN_AND_MEAN _CRT_SECURE_NO_WARNINGS)
+    target_link_libraries(deckboy-show-file-check PRIVATE advapi32)
+  endif()
+  if(MSVC)
+    target_compile_options(deckboy-show-file-check PRIVATE /W3 /w14456 /w14457 /w14458 /w14189 /EHsc /utf-8)
+  else()
+    target_compile_options(deckboy-show-file-check PRIVATE -Wall -Wextra -Wshadow)
+  endif()
+  add_test(NAME show-file COMMAND deckboy-show-file-check "${CMAKE_CURRENT_BINARY_DIR}/show-file-check")
   foreach(board_check IN ITEMS 40k spearhead edges)
     add_executable(deckboy-tabletop-${board_check}-check tools/tabletop_${board_check}_check.cpp)
     target_include_directories(deckboy-tabletop-${board_check}-check PRIVATE native)
@@ -1565,4 +1628,20 @@ if(BUILD_TESTING)
   set_tests_properties(nmos-mdns-packets nmos-mdns-loopback PROPERTIES TIMEOUT 15)
   add_test(NAME nmos-registration-loopback COMMAND deckboy-nmos-mdns-check --registration)
   set_tests_properties(nmos-registration-loopback PROPERTIES TIMEOUT 30)
+endif()
+
+if(BUILD_TESTING)
+  # Domain-only parameter contract: no main.cpp, media engine or shader compiler.
+  add_executable(deckboy-numeric-params-check tools/numeric_params_check.cpp native/core/utils.cpp)
+  add_dependencies(deckboy-numeric-params-check deckboy_generate_version)
+  target_include_directories(deckboy-numeric-params-check PRIVATE native "${CMAKE_CURRENT_BINARY_DIR}/generated" ${DECKBOY_SDL_INCLUDE_DIRS})
+  target_link_libraries(deckboy-numeric-params-check PRIVATE Threads::Threads ${DECKBOY_SDL_TARGET} ${DECKBOY_SDL_LINK_LIBS})
+  target_link_directories(deckboy-numeric-params-check PRIVATE ${DECKBOY_SDL_LINK_DIRS})
+  if(MSVC)
+    target_compile_definitions(deckboy-numeric-params-check PRIVATE NOMINMAX WIN32_LEAN_AND_MEAN _CRT_SECURE_NO_WARNINGS)
+    target_compile_options(deckboy-numeric-params-check PRIVATE /W3 /we4456 /we4457 /we4458 /we4189)
+  else()
+    target_compile_options(deckboy-numeric-params-check PRIVATE -Wall -Wextra -Wshadow)
+  endif()
+  add_test(NAME numeric_params COMMAND deckboy-numeric-params-check)
 endif()

@@ -1,7 +1,8 @@
 # Posts each published release to the Deckboy Discord (James, 2026-11-16).
 # The webhook URL is the repo secret DISCORD_WEBHOOK, added by James; without
 # it the job says so and does nothing. Run it by hand to post one release
-# again: Actions > Discord > Run workflow, with the tag.
+# again: Actions > Discord > Run workflow, with the tag. build.yml starts it
+# after publishing (a release made with GITHUB_TOKEN starts no workflow itself).
 name: Discord
 on:
   release:

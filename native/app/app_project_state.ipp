@@ -798,6 +798,11 @@
            << "\"settingsOpen\":" << (settingsOpen_ ? "true" : "false") << ","
            << "\"outputChipRect\":[" << outputBadgeRect_.x << "," << outputBadgeRect_.y << ","
            << outputBadgeRect_.w << "," << outputBadgeRect_.h << "],"
+           // The lesson card's quiet links, for the check that they are drawn.
+           << "\"lessonVoiceRect\":[" << tutorial_.voiceRect.x << "," << tutorial_.voiceRect.y << ","
+           << tutorial_.voiceRect.w << "," << tutorial_.voiceRect.h << "],"
+           << "\"lessonRestartRect\":[" << tutorial_.restartRect.x << "," << tutorial_.restartRect.y << ","
+           << tutorial_.restartRect.w << "," << tutorial_.restartRect.h << "],"
            << colourPickerStatusJson()
            << const_cast<App*>(this)->maskEditorStatusJson()   // reads only; its helpers are not const
            << dropdownStatusJson()
@@ -3794,6 +3799,12 @@
         key << '|' << m.shape << '|' << m.palette << '|' << m.density << '|' << m.speed << '|'
             << m.warp << '|' << m.turn << '|' << m.centreX << '|' << m.centreY << '|' << m.grey
             << '|' << m.hue << '|' << serializeGeometryLfos(m.lfo);
+      } else if (type == "illusion") {
+        const IllusionSettings& il = cue.illusion;
+        key << '|' << il.shape << '|' << il.form << '|' << il.flow << '|' << il.flip << '|' << il.palette
+            << '|' << il.size << '|' << il.count << '|' << il.edge << '|' << il.speed << '|' << il.centreX
+            << '|' << il.centreY << '|' << il.tone << '|' << il.hue1 << '|' << il.hue2 << '|'
+            << serializeMoireInks(il.themeInks) << '|' << serializeGeometryLfos(il.lfo);
       } else if (type == "lumia") {
         const LumiaSettings& l = cue.lumia;
         key << '|' << l.palette << '|' << l.mode << '|' << l.topBottom << '|' << l.listens << '|'

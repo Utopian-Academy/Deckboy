@@ -4681,3 +4681,158 @@ listens to the live input while one is open, else the playlist	ຟັງສຽ�
 TUTORIAL: no lesson running	TUTORIAL: ບໍ່ມີບົດຮຽນກຳລັງແລ່ນ
 TUTORIAL: expected START, SHOWME, SKIP, STEP <n>, RESTART, EXIT, STATUS or SCREENS	TUTORIAL: ຕ້ອງການ START, SHOWME, SKIP, STEP <n>, RESTART, EXIT, STATUS ຫຼື SCREENS
 cursor across	ເຄີເຊີຕາມຂວາງ
+Edge	ຂອບ
+Flip	ປີ້ນ
+Form	ຮູບແບບ
+flip	ປີ້ນ
+form	ຮູບແບບ
+pose	ທ່າ
+Count	ຈຳນວນ
+count	ຈຳນວນ
+disc x	ແຜ່ນກົມ x
+disc y	ແຜ່ນກົມ y
+mortar	ປູນ
+offset	ເລື່ອນ
+wander	ລ່ອງລອຍ
+RESTART	ເລີ່ມໃໝ່
+crosses	ກາກບາດ
+squares	ສີ່ຫຼ່ຽມ
+Colour 1	ສີ 1
+Colour 2	ສີ 2
+ILLUSION	ພາບລວງຕາ
+Illusion	ພາບລວງຕາ
+colour 1	ສີ 1
+colour 2	ສີ 2
+dot size	ຂະໜາດຈຸດ
+disc size	ຂະໜາດແຜ່ນກົມ
+cross size	ຂະໜາດກາກບາດ
+dot colour	ສີຈຸດ
+edge width	ຄວາມກວ້າງຂອບ
+mortar grey	ສີເທົາປູນ
+street grey	ສີເທົາຖະໜົນ
+tile length	ຄວາມຍາວແຜ່ນ
+cross colour	ສີກາກບາດ
+shape colour	ສີຮູບຊົງ
+street width	ຄວາມກວ້າງຖະໜົນ
+ground colour	ສີພື້ນ
+tile thickness	ຄວາມໜາແຜ່ນ
+How big each tile is	ແຕ່ລະແຜ່ນໃຫຍ່ປານໃດ
+How big each cross is	ແຕ່ລະກາກບາດໃຫຍ່ປານໃດ
+How long each tile is	ແຕ່ລະແຜ່ນຍາວປານໃດ
+How tall the dancer is	ຄວາມສູງຂອງນັກເຕັ້ນ
+0-100%: 0 holds it still	0-100%: 0 ໃຫ້ຢຸດນິ້ງ
+0 classic, 1 theme, 2 hues	0 ແບບເດີມ, 1 ຊຸດສີ, 2 ໂທນສີ
+Leaf, petal, scale or ring	ໃບໄມ້, ກີບດອກ, ເກັດ ຫຼື ວົງແຫວນ
+0 or 1: the other way round	0 ຫຼື 1: ທິດທາງກົງກັນຂ້າມ
+0 turn, 1 out, 2 in, 3 wave	0 ໝຸນ, 1 ອອກ, 2 ເຂົ້າ, 3 ຄື້ນ
+How big the floating disc is	ຂະໜາດຂອງແຜ່ນມົນທີ່ລອຍ
+How light the grey lines are	ຄວາມແຈ້ງຂອງເສັ້ນສີເທົາ
+select an illusion cue first	ເລືອກ cue ພາບລວງຕາກ່ອນ
+Turn the crosses the other way	ໝຸນກາກະບາດທິດທາງກົງກັນຂ້າມ
+Illusion (Pictures that move!?)	ພາບລວງຕາ (ຮູບທີ່ເຄື່ອນ!?)
+0 leaf, 1 petal, 2 scale, 3 ring	0 ໃບໄມ້, 1 ກີບດອກ, 2 ເກັດ, 3 ວົງແຫວນ
+How many shapes across the screen	ຈຳນວນຮູບຊົງທາງຂວາງໜ້າຈໍ
+How many crosses across the screen	ຈຳນວນກາກະບາດທາງຂວາງໜ້າຈໍ
+How many squares across the screen	ຈຳນວນສີ່ຫຼ່ຽມທາງຂວາງໜ້າຈໍ
+Where the disc sits, left to right	ຕຳແໜ່ງແຜ່ນມົນ, ຊ້າຍຫາຂວາ
+Where the disc sits, top to bottom	ຕຳແໜ່ງແຜ່ນມົນ, ເທິງລົງລຸ່ມ
+0-100%: 0 black, 100 the light tile	0-100%: 0 ດຳ, 100 ແຜ່ນສີອ່ອນ
+How much of its place each shape fills	ແຕ່ລະຮູບຊົງເຕັມບ່ອນຂອງມັນເທົ່າໃດ
+Where the dancer stands, left to right	ຕຳແໜ່ງນັກເຕັ້ນ, ຊ້າຍຫາຂວາ
+Where the dancer stands, top to bottom	ຕຳແໜ່ງນັກເຕັ້ນ, ເທິງລົງລຸ່ມ
+Collapse/expand the illusion's controls	ຫຍໍ້/ຂະຫຍາຍການຄວບຄຸມພາບລວງຕາ
+How far the free leg and the arms reach	ໄລຍະຂອງຂາທີ່ຍົກ ແລະ ແຂນ
+Slide the grid slowly. 0 holds it still	ເລື່ອນຕາຂ່າຍຊ້າໆ. 0 ໃຫ້ຢຸດນິ້ງ
+The first colour, round the colour wheel	ສີທີໜຶ່ງ, ອ້ອມວົງສີ
+The second colour, round the colour wheel	ສີທີສອງ, ອ້ອມວົງສີ
+How thick each tile is, against its length	ຄວາມໜາແຕ່ລະແຜ່ນ ທຽບກັບຄວາມຍາວ
+Where the centre point sits, left to right	ຕຳແໜ່ງຈຸດກາງ, ຊ້າຍຫາຂວາ
+Where the centre point sits, top to bottom	ຕຳແໜ່ງຈຸດກາງ, ເທິງລົງລຸ່ມ
+How thick the grey line between the rows is	ຄວາມໜາຂອງເສັ້ນສີເທົາລະຫວ່າງແຖວ
+How big the light discs at the crossings are	ຂະໜາດຂອງແຜ່ນມົນສີອ່ອນຢູ່ຈຸດຕັດ
+Where the field's centre sits, left to right	ຕຳແໜ່ງກາງສະໜາມ, ຊ້າຍຫາຂວາ
+Where the field's centre sits, top to bottom	ຕຳແໜ່ງກາງສະໜາມ, ເທິງລົງລຸ່ມ
+How wide the grey lines between the squares are	ຄວາມກວ້າງຂອງເສັ້ນສີເທົາລະຫວ່າງສີ່ຫຼ່ຽມ
+How fast the dancer turns. It always turns a little	ຄວາມໄວໝຸນຂອງນັກເຕັ້ນ. ມັນໝຸນເລັກນ້ອຍຕະຫຼອດ
+0 drift, 1 ouchi, 2 cafe, 3 vanish, 4 grid, 5 dancer	0 ລອຍ, 1 ouchi, 2 ກາເຟ, 3 ຫາຍໄປ, 4 ຕາຂ່າຍ, 5 ນັກເຕັ້ນ
+How light the grey line is. Mid grey tilts the rows most	ຄວາມແຈ້ງຂອງເສັ້ນສີເທົາ. ສີເທົາກາງເຮັດໃຫ້ແຖວອຽງຫຼາຍທີ່ສຸດ
+How big the three dots are. Small dots vanish more easily	ຂະໜາດຂອງສາມຈຸດ. ຈຸດນ້ອຍຫາຍໄປງ່າຍກວ່າ
+Swap the black and white edges: the field drifts the other way	ສະຫຼັບຂອບດຳ ແລະ ຂາວ: ສະໜາມລອຍໄປທິດທາງກົງກັນຂ້າມ
+How much of the black and white edges shows. They make the drift	ຂອບດຳ ແລະ ຂາວສະແດງເທົ່າໃດ. ມັນສ້າງການລອຍ
+LFO: size, count, edge, speed, centrex, centrey, grey, hue1 or hue2	LFO: size, count, edge, speed, centrex, centrey, grey, hue1 ຫຼື hue2
+How far each row is shifted. This makes the straight rows look tilted	ແຕ່ລະແຖວເລື່ອນໄປໄກປານໃດ. ເຮັດໃຫ້ແຖວຊື່ເບິ່ງຄືວ່າອຽງ
+Spin the other way. Most people cannot tell which way it turns anyway	ໝຸນອີກທິດທາງ. ຄົນສ່ວນຫຼາຍບອກບໍ່ໄດ້ຢູ່ແລ້ວວ່າມັນໝຸນທິດທາງໃດ
+Move the disc in a small loop. 0 holds it still: the eye moves it anyway	ເຄື່ອນແຜ່ນມົນເປັນວົງນ້ອຍ. 0 ໃຫ້ມັນຢຸດນິ່ງ: ຕາກໍ່ເຫັນມັນເຄື່ອນຢູ່ດີ
+Turn the shapes slowly, so the drift changes direction. 0 holds them still	ໝຸນຮູບຊົງຊ້າໆ ເພື່ອໃຫ້ການລອຍປ່ຽນທິດທາງ. 0 ໃຫ້ພວກມັນຢຸດນິ່ງ
+Classic, the theme's colours (taken when picked) or two colours of your own	ແບບເດີມ, ສີຂອງຊຸດສີ (ເອົາຕອນເລືອກ) ຫຼື ສອງສີຂອງທ່ານເອງ
+Which way the field seems to go: turn round the centre, out, in, or in waves	ສະໜາມເບິ່ງຄືໄປທິດທາງໃດ: ໝຸນອ້ອມກາງ, ອອກ, ເຂົ້າ, ຫຼື ເປັນຄື້ນ
+Slide the rows back and forth, so the wall bends and straightens. 0 holds it still	ເລື່ອນແຖວໄປມາ ເພື່ອໃຫ້ກຳແພງໂຄ້ງ ແລະ ກັບມາຊື່. 0 ໃຫ້ມັນຢຸດນິ່ງ
+How fast the crosses turn. They always turn a little: the dots vanish only while they move	ກາກະບາດໝຸນໄວປານໃດ. ພວກມັນໝຸນໜ້ອຍໜຶ່ງຕະຫຼອດ: ຈຸດຈະຫາຍໄປສະເພາະຕອນທີ່ມັນເຄື່ອນ
+Drift (still shapes that seem to turn), ouchi (a disc that floats), cafe (straight rows that look tilted), vanish (dots that disappear while you stare), grid (dots that flicker and are not there) or dancer (it spins whichever way you see it)	drift (ຮູບຊົງນິ່ງທີ່ເບິ່ງຄືໝຸນ), ouchi (ແຜ່ນມົນທີ່ລອຍ), cafe (ແຖວຊື່ທີ່ເບິ່ງຄືອຽງ), vanish (ຈຸດທີ່ຫາຍໄປຕອນທ່ານຈ້ອງເບິ່ງ), grid (ຈຸດທີ່ກະພິບ ແຕ່ບໍ່ມີຢູ່ແທ້) ຫຼື dancer (ມັນໝຸນຕາມທິດທາງທີ່ທ່ານເຫັນ)
+STATUS | SHAPE drift|ouchi|cafe|vanish|grid|dancer | FORM leaf|petal|scale|ring | FLOW turn|out|in|wave | FLIP ON|OFF | PALETTE classic|theme|hues | SIZE|COUNT|EDGE|SPEED|CENTREX|CENTREY|GREY <0-100> | HUE1|HUE2 <0-360> | LFO <control> <setting>	STATUS | SHAPE drift|ouchi|cafe|vanish|grid|dancer | FORM leaf|petal|scale|ring | FLOW turn|out|in|wave | FLIP ON|OFF | PALETTE classic|theme|hues | SIZE|COUNT|EDGE|SPEED|CENTREX|CENTREY|GREY <0-100> | HUE1|HUE2 <0-360> | LFO <ຕົວຄວບຄຸມ> <ການຕັ້ງຄ່າ>
+SYNC LEAD ON or OFF	SYNC LEAD ON ຫຼື OFF
+{1} is following this desk	{1} ກຳລັງຕາມໂຕະນີ້
+SYNC LEAD ON|OFF or SYNC STATUS	SYNC LEAD ON|OFF ຫຼື SYNC STATUS
+FOLLOW needs a network connection that stays open	FOLLOW ຕ້ອງການການເຊື່ອມຕໍ່ເຄືອຂ່າຍທີ່ເປີດຄ້າງໄວ້
+this desk is not leading (SYNC LEAD ON, or Settings > Network > SYNC)	ໂຕະນີ້ບໍ່ໄດ້ນຳ (SYNC LEAD ON ຫຼື Settings > Network > SYNC)
+LEADING	ກຳລັງນຳ
+No longer leading	ບໍ່ໄດ້ນຳອີກແລ້ວ
+Lead other machines	ນຳເຄື່ອງອື່ນ
+Following this desk: {1}	ກຳລັງຕາມໂຕະນີ້: {1}
+Leading. Nobody is following yet.	ກຳລັງນຳ. ຍັງບໍ່ມີໃຜຕາມ.
+Leading: other machines may follow this desk	ກຳລັງນຳ: ເຄື່ອງອື່ນຕາມໂຕະນີ້ໄດ້
+Not leading: no other machine can follow this desk.	ບໍ່ໄດ້ນຳ: ບໍ່ມີເຄື່ອງອື່ນຕາມໂຕະນີ້ໄດ້.
+body	ລຳຕົວ
+burns	ຮອຍໄໝ້
+chaos	ຄວາມວຸ່ນວາຍ
+breath	ລົມຫາຍໃຈ
+jitter	ການສັ່ນ
+sparks	ປະກາຍໄຟ
+How big a blob grows	ກ້ອນຂະຫຍາຍໃຫຍ່ເທົ່າໃດ
+Tube, mandala or none	ທໍ່, ມັນດາລາ ຫຼື ບໍ່ມີ
+Turn the whole picture	ໝຸນຮູບທັງໝົດ
+How far the field bends	ລະດັບບິດສະໜາມ
+How fast the water moves	ຄວາມໄວເຄື່ອນຂອງນ້ຳ
+The halo round the lines	ຮັດສະໝີອ້ອມເສັ້ນ
+How bright the picture is	ຄວາມສະຫວ່າງຂອງຮູບ
+How long the in move takes	ໄລຍະເວລາເຄື່ອນເຂົ້າ
+Scale of the whole graphic	ຂະໜາດຂອງກຣາຟິກທັງໝົດ
+How hard the lines are bent	ຄວາມແຮງບິດເສັ້ນ
+How long the out move takes	ໄລຍະເວລາເຄື່ອນອອກ
+How far the colours fan apart	ລະດັບແຍກສີອອກ
+Thickness of the glowing edge	ຄວາມໜາຂອງຂອບເຮືອງແສງ
+How bright the laser lines are	ຄວາມສະຫວ່າງເສັ້ນເລເຊີ
+Spiral size: above 1 is bigger	ຂະໜາດກ້ຽວ: ເກີນ 1 ແມ່ນໃຫຍ່ຂຶ້ນ
+How many mirror panels, 0 to 12	ຈຳນວນແຜ່ນກະຈົກ, 0 ຫາ 12
+Turn the colours round the wheel	ໝຸນສີອ້ອມວົງລໍ້
+Laser speckle: the focus trembles	ຈຸດລະອອງເລເຊີ: ຈຸດສຸມສັ່ນ
+Rotate the field round its centre	ໝຸນສະໜາມອ້ອມຈຸດກາງ
+How bright the water's pale light is	ຄວາມສະຫວ່າງຂອງແສງຈາງຂອງນ້ຳ
+How long light lingers on the screen	ແສງຄ້າງຢູ່ໜ້າຈໍດົນປານໃດ
+Colour steps: 2 is stark, 8 is smooth	ຂັ້ນສີ: 2 ແມ່ນແຂງ, 8 ແມ່ນລຽບ
+Classic green, fire, ice, neon or mono	ຂຽວຄລາສສິກ, ໄຟ, ນ້ຳກ້ອນ, ນີອອນ ຫຼື ສີດຽວ
+How fast they are born, drift and fade	ຄວາມໄວທີ່ເກີດ, ລອຍ ແລະ ຄ່ອຍໆຫາຍ
+Turbulence: 0 is still ripples, 3 boils	ຄວາມປັ່ນປ່ວນ: 0 ແມ່ນລະລອກນິ່ງ, 3 ແມ່ນເດືອດ
+A second jet of water crossing the first	ສາຍນ້ຳທີສອງຕັດສາຍທຳອິດ
+Broad ripples at 0, fine and busy at 100	ລະລອກກວ້າງທີ່ 0, ລະອຽດ ແລະ ຖີ່ທີ່ 100
+The flow surges with the programme sound	ການໄຫຼພຸ່ງຕາມສຽງໂປຣແກຣມ
+Zone, twin, flow, saddle, ripple or shear	ເຂດ, ຄູ່, ການໄຫຼ, ອານ, ລະລອກ ຫຼື ບິດສະຫຼຽງ
+Horizontal cells. More detail uses more CPU	ຕາລາງແນວນອນ. ລາຍລະອຽດຫຼາຍໃຊ້ CPU ຫຼາຍ
+How far each panel tilts from the one before	ມຸມອຽງແຕ່ລະແຜ່ນຈາກແຜ່ນກ່ອນ
+The share of each band drawn as grey stripes	ສັດສ່ວນຂອງແຕ່ລະແຖບທີ່ແຕ້ມເປັນລາຍສີເທົາ
+The top mirrors the bottom round a dark seam	ດ້ານເທິງສະທ້ອນດ້ານລຸ່ມ ຂ້າມຮອຍຕໍ່ມືດ
+0 holds the field; negative runs it backwards	0 ຢຸດສະໜາມ; ຄ່າລົບແລ່ນມັນຖອຍຫຼັງ
+Where the eye of the swirl sits, left to right	ຕຳແໜ່ງໃຈກາງໝຸນວົນ, ຊ້າຍຫາຂວາ
+Where the eye of the swirl sits, top to bottom	ຕຳແໜ່ງໃຈກາງໝຸນວົນ, ເທິງລົງລຸ່ມ
+The round lens: a curved picture and a dark rim	ເລນມົນ: ຮູບໂຄ້ງ ແລະ ຂອບມືດ
+How fast the bands move; 0 holds the field still	ຄວາມໄວການເຄື່ອນຂອງແຖບ; 0 ຢຸດສະໜາມໄວ້
+Turn the palette through all colours; 0 restores it	ໝຸນຈານສີຜ່ານທຸກສີ; 0 ຄືນຄ່າເດີມ
+Spiral strength, from a flowing field to tight turns	ຄວາມແຮງກຽວ, ຈາກສະໜາມທີ່ໄຫຼ ຫາການໝຸນແໜ້ນ
+How long it stays before leaving by itself. 0 waits for OUT	ຢູ່ດົນປານໃດກ່ອນອອກເອງ. 0 ລໍຖ້າ ອອກ
+The laser colours: rgb, rainbow, floyd, warm, cool or green	ສີເລເຊີ: rgb, ຮຸ້ງ, floyd, ອຸ່ນ, ເຢັນ ຫຼື ຂຽວ
+How many are alive at once. Each is born, drifts out, grows and fades	ຈຳນວນທີ່ມີຊີວິດພ້ອມກັນ. ແຕ່ລະອັນເກີດ, ລອຍອອກ, ໃຫຍ່ຂຶ້ນ ແລະ ຈາງໄປ
+How readily neighbours merge into one shape. 0 keeps every blob round	ເພື່ອນບ້ານລວມເປັນຮູບຊົງດຽວງ່າຍປານໃດ. 0 ຮັກສາທຸກກ້ອນໃຫ້ມົນ
+Rainbow + grey, rainbow, the theme's colours (taken when picked) or mono	ຮຸ້ງ + ສີເທົາ, ຮຸ້ງ, ສີຂອງຊຸດສີ (ເອົາມາຕອນເລືອກ) ຫຼື ສີດຽວ
+How many bands: 50% is the design, higher beats harder against the pixels	ຈຳນວນແຖບ: 50% ຄືແບບທີ່ອອກແບບ, ສູງກວ່າຈະຕີກັບພິກເຊວແຮງຂຶ້ນ
+Turns the rim's colours round the wheel -- green, yellow, pink, violet, blue	ໝຸນສີຂອງຂອບອ້ອມວົງລໍ້ສີ -- ຂຽວ, ເຫຼືອງ, ບົວ, ມ່ວງ, ຟ້າ
+The gap under it, as a share of the frame	ຊ່ອງຫວ່າງລຸ່ມ, ເປັນສັດສ່ວນຂອງພາບ

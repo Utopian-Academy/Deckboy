@@ -14,112 +14,7 @@
 // apply. Where they disagree the operator can type a value the buttons cannot
 // reach, which reads as the field being broken.
 
-enum class NumericParam : int {
-  None = -1,
-
-  // Video synth
-  VsSpeed = 0,
-  VsScale,
-  VsFeedback,
-  VsZoom,
-  VsReact,
-  VsResolution,
-  VsPixelSort,
-  VsGlitch,
-  VsCrt,
-  VsFreeAngle,
-
-  // Tone generator
-  ToneLevel,
-  ToneFreq,
-
-  // Motion driver
-  MotionDriverSpeed,
-
-  // Chip synth
-  SynthNote,
-  SynthAttack,
-  SynthRelease,
-  FdsDepth,
-  FdsRatio,
-  FdsRetrig,
-
-  // Portal source
-  PortalBlobs,
-  PortalSize,
-  PortalBlend,
-  PortalOutline,
-  PortalSpeed,
-  PortalHue,
-
-  // Lower third (a text cue's layout)
-  L3Height,
-  L3Size,
-  L3InSeconds,
-  L3OutSeconds,
-  L3HoldSeconds,
-  CodeWidth,
-  CodeHeight,
-  SwirlSpeed,
-  SwirlTwist,
-  SwirlCells,
-  SwirlHue,
-  SwirlZoom,
-  SwirlFlow,
-  SwirlCentreX,
-  SwirlCentreY,
-  SwirlBands,
-  SwirlPalette,
-  // Moire source. Stored 0-1 (an oscillator swings 0-1); typed and shown in
-  // the operator's units -- percent, degrees -- mapped in read/write below.
-  MoireShape,
-  MoirePalette,
-  MoireDensity,
-  MoireSpeed,
-  MoireWarp,
-  MoireTurn,
-  MoireCentreX,
-  MoireCentreY,
-  MoireGrey,
-  MoireHue,
-  // Lumia source, mapped like Moire.
-  LumiaPalette,
-  LumiaMode,
-  LumiaTopBottom,
-  LumiaListens,
-  LumiaFlow,
-  LumiaWater,
-  LumiaRipple,
-  LumiaJet,
-  LumiaPrism,
-  LumiaSplit,
-  LumiaFocus,
-  LumiaShimmer,
-  LumiaMirrors,
-  LumiaAngle,
-  LumiaSpin,
-  LumiaLens,
-  LumiaGlow,
-  LumiaBright,
-  LumiaTrail,
-  // Panel Map: one LED tile, in pixels.
-  LedPanelWidth,
-  LedPanelHeight,
-  // The mask in hand (app_mask_editor.ipp, maskFocus), in operator units:
-  // percent of the frame, percent, degrees.
-  MaskX,
-  MaskY,
-  MaskScale,
-  MaskRotation,
-  MaskFeather,
-  MaskGrow,
-  MaskOpacity,
-  // The draw brush (the show's) and a Draw cue's playback.
-  DrawSize,
-  DrawOpacity,
-  DrawFps,
-  DrawHold,
-};
+using NumericParam = deckboy::params::NumericParam;
 
 // Which oscillator slot a Moire row's ~ drives, or -1 for the two pickers.
 inline int moireLfoSlotFor(NumericParam id) {
@@ -132,6 +27,22 @@ inline int moireLfoSlotFor(NumericParam id) {
     case NumericParam::MoireCentreY: return kMoireLfoCentreY;
     case NumericParam::MoireGrey: return kMoireLfoGrey;
     case NumericParam::MoireHue: return kMoireLfoHue;
+    default: return -1;
+  }
+}
+
+// Which oscillator slot an Illusion row's ~ drives, or -1 for a picker or a toggle.
+inline int illusionLfoSlotFor(NumericParam id) {
+  switch (id) {
+    case NumericParam::IllusionSize: return kIllusionLfoSize;
+    case NumericParam::IllusionCount: return kIllusionLfoCount;
+    case NumericParam::IllusionEdge: return kIllusionLfoEdge;
+    case NumericParam::IllusionSpeed: return kIllusionLfoSpeed;
+    case NumericParam::IllusionCentreX: return kIllusionLfoCentreX;
+    case NumericParam::IllusionCentreY: return kIllusionLfoCentreY;
+    case NumericParam::IllusionTone: return kIllusionLfoTone;
+    case NumericParam::IllusionHue1: return kIllusionLfoHue1;
+    case NumericParam::IllusionHue2: return kIllusionLfoHue2;
     default: return -1;
   }
 }
@@ -158,606 +69,22 @@ inline int lumiaLfoSlotFor(NumericParam id) {
   }
 }
 
-struct NumericParamSpec {
-  const char* token;      // inline editor identity, so it can restore position
-  const char* label;      // shown in the editor
-  const char* hint;       // range, in the operator's words
-  double lo = 0.0;
-  double hi = 1.0;
-  int precision = 2;
-  bool integral = false;
-  // One press of - or +. Zero means a fiftieth of the range, which suits a
-  // row that only ever had typed entry; a count wants 1.
-  double step = 0.0;
-};
+using NumericParamSpec = deckboy::params::NumericParamSpec;
 
 const NumericParamSpec* numericParamSpec(NumericParam id) const {
-  switch (id) {
-    case NumericParam::SwirlSpeed: {
-      static const NumericParamSpec s {"swirl.speed", "Speed", "-3 to 3: 0 holds, negative runs backwards", -3, 3, 2, false, 0.1};
-      return &s;
-    }
-    case NumericParam::SwirlTwist: {
-      static const NumericParamSpec s {"swirl.twist", "Twist", "Spiral strength, 0-4", 0, 4, 2, false, 0.1};
-      return &s;
-    }
-    case NumericParam::SwirlCells: {
-      static const NumericParamSpec s {"swirl.cells", "Pixel density", "Horizontal cells, 64-960", 64, 960, 0, true, 16};
-      return &s;
-    }
-    case NumericParam::SwirlHue: {
-      static const NumericParamSpec s {"swirl.hue", "Colour", "Palette turn, 0-1", 0, 1, 2, false, 0.02};
-      return &s;
-    }
-    case NumericParam::SwirlZoom: {
-      static const NumericParamSpec s {"swirl.zoom", "Zoom", "Spiral size, 0.25-4", 0.25, 4, 2, false, 0.05};
-      return &s;
-    }
-    case NumericParam::SwirlFlow: {
-      static const NumericParamSpec s {"swirl.flow", "Flow", "Turbulence, 0 still to 3 boiling", 0, 3, 2, false, 0.1};
-      return &s;
-    }
-    case NumericParam::SwirlCentreX: {
-      static const NumericParamSpec s {"swirl.cx", "Centre X", "Where the eye sits, 0 left to 1 right", 0, 1, 2, false, 0.02};
-      return &s;
-    }
-    case NumericParam::SwirlCentreY: {
-      static const NumericParamSpec s {"swirl.cy", "Centre Y", "Where the eye sits, 0 top to 1 bottom", 0, 1, 2, false, 0.02};
-      return &s;
-    }
-    case NumericParam::SwirlBands: {
-      static const NumericParamSpec s {"swirl.bands", "Bands", "Colour steps, 2-8", 2, 8, 0, true, 1};
-      return &s;
-    }
-    case NumericParam::SwirlPalette: {
-      static const NumericParamSpec s {"swirl.palette", "Palette", "0 classic, 1 fire, 2 ice, 3 neon, 4 mono", 0, 4, 0, true, 1};
-      return &s;
-    }
-    case NumericParam::MoireShape: {
-      static const NumericParamSpec s {"moire.shape", "Shape", "0 zone, 1 twin, 2 flow, 3 saddle, 4 ripple, 5 shear", 0, 5, 0, true, 1};
-      return &s;
-    }
-    case NumericParam::MoirePalette: {
-      static const NumericParamSpec s {"moire.palette", "Palette", "0 rainbow + grey, 1 rainbow, 2 theme, 3 mono", 0, 3, 0, true, 1};
-      return &s;
-    }
-    case NumericParam::MoireDensity: {
-      static const NumericParamSpec s {"moire.density", "Density", "0-100%: 50 is 1x, 0 a quarter, 100 four times", 0, 100, 0, false, 2};
-      return &s;
-    }
-    case NumericParam::MoireSpeed: {
-      static const NumericParamSpec s {"moire.speed", "Speed", "0-100%: 0 holds the field still", 0, 100, 0, false, 2};
-      return &s;
-    }
-    case NumericParam::MoireWarp: {
-      static const NumericParamSpec s {"moire.warp", "Warp", "0-100%: how far the field bends", 0, 100, 0, false, 2};
-      return &s;
-    }
-    case NumericParam::MoireTurn: {
-      static const NumericParamSpec s {"moire.turn", "Turn", "Degrees, 0-360", 0, 360, 0, false, 5};
-      return &s;
-    }
-    case NumericParam::MoireCentreX: {
-      static const NumericParamSpec s {"moire.cx", "Centre X", "0-100%, left to right", 0, 100, 0, false, 2};
-      return &s;
-    }
-    case NumericParam::MoireCentreY: {
-      static const NumericParamSpec s {"moire.cy", "Centre Y", "0-100%, top to bottom", 0, 100, 0, false, 2};
-      return &s;
-    }
-    case NumericParam::MoireGrey: {
-      static const NumericParamSpec s {"moire.grey", "Grey", "0-100%: the share of each band drawn as grey stripes", 0, 100, 0, false, 2};
-      return &s;
-    }
-    case NumericParam::MoireHue: {
-      static const NumericParamSpec s {"moire.hue", "Hue", "Degrees round the colour wheel, 0-360", 0, 360, 0, false, 5};
-      return &s;
-    }
-    case NumericParam::LumiaPalette: {
-      static const NumericParamSpec s {"lumia.palette", "Lasers", "0 rgb, 1 rainbow, 2 floyd, 3 warm, 4 cool, 5 green", 0, 5, 0, true, 1};
-      return &s;
-    }
-    case NumericParam::LumiaMode: {
-      static const NumericParamSpec s {"lumia.mode", "Mirrors", "0 tube, 1 mandala, 2 none", 0, 2, 0, true, 1};
-      return &s;
-    }
-    case NumericParam::LumiaTopBottom: {
-      static const NumericParamSpec s {"lumia.topbottom", "Top / bottom", "0 off, 1 on: the top mirrors the bottom round a dark seam", 0, 1, 0, true, 1};
-      return &s;
-    }
-    case NumericParam::LumiaListens: {
-      static const NumericParamSpec s {"lumia.listens", "Listens", "0 off, 1 on: the flow surges with the programme sound", 0, 1, 0, true, 1};
-      return &s;
-    }
-    case NumericParam::LumiaFlow: {
-      static const NumericParamSpec s {"lumia.flow", "Flow", "0-100%: how fast the water moves", 0, 100, 0, false, 2};
-      return &s;
-    }
-    case NumericParam::LumiaWater: {
-      static const NumericParamSpec s {"lumia.water", "Water", "0-100%: how bright the water is", 0, 100, 0, false, 2};
-      return &s;
-    }
-    case NumericParam::LumiaRipple: {
-      static const NumericParamSpec s {"lumia.ripple", "Ripple size", "0-100%: 0 broad, 100 fine and busy", 0, 100, 0, false, 2};
-      return &s;
-    }
-    case NumericParam::LumiaJet: {
-      static const NumericParamSpec s {"lumia.jet", "Second jet", "0-100%: a second jet crossing the first", 0, 100, 0, false, 2};
-      return &s;
-    }
-    case NumericParam::LumiaPrism: {
-      static const NumericParamSpec s {"lumia.prism", "Prism", "0-100%: how bright the laser lines are", 0, 100, 0, false, 2};
-      return &s;
-    }
-    case NumericParam::LumiaSplit: {
-      static const NumericParamSpec s {"lumia.split", "Split", "0-100%: how far the colours fan apart", 0, 100, 0, false, 2};
-      return &s;
-    }
-    case NumericParam::LumiaFocus: {
-      static const NumericParamSpec s {"lumia.focus", "Focus", "0-100%: how hard the lines are bent", 0, 100, 0, false, 2};
-      return &s;
-    }
-    case NumericParam::LumiaShimmer: {
-      static const NumericParamSpec s {"lumia.shimmer", "Shimmer", "0-100%: laser speckle", 0, 100, 0, false, 2};
-      return &s;
-    }
-    case NumericParam::LumiaMirrors: {
-      static const NumericParamSpec s {"lumia.mirrors", "Mirrors", "Panels, 0-12", 0, 12, 0, true, 1};
-      return &s;
-    }
-    case NumericParam::LumiaAngle: {
-      static const NumericParamSpec s {"lumia.angle", "Panel angle", "0-100%: how far each panel tilts from the one before", 0, 100, 0, false, 2};
-      return &s;
-    }
-    case NumericParam::LumiaSpin: {
-      static const NumericParamSpec s {"lumia.spin", "Spin", "0-100%: the whole picture turns", 0, 100, 0, false, 2};
-      return &s;
-    }
-    case NumericParam::LumiaLens: {
-      static const NumericParamSpec s {"lumia.lens", "Lens", "0-100%: the round lens, barrel and dark rim", 0, 100, 0, false, 2};
-      return &s;
-    }
-    case NumericParam::LumiaGlow: {
-      static const NumericParamSpec s {"lumia.glow", "Glow", "0-100%: the halo round the lines", 0, 100, 0, false, 2};
-      return &s;
-    }
-    case NumericParam::LumiaBright: {
-      static const NumericParamSpec s {"lumia.bright", "Brightness", "0-100%: overall brightness", 0, 100, 0, false, 2};
-      return &s;
-    }
-    case NumericParam::LumiaTrail: {
-      static const NumericParamSpec s {"lumia.trail", "Trail", "0-100%: light lingers on the screen", 0, 100, 0, false, 2};
-      return &s;
-    }
-    case NumericParam::CodeWidth:
-    case NumericParam::CodeHeight: {
-      static const NumericParamSpec w {"code.width", "Render width", "Pixels, 64-3840", 64, 3840, 0, true, 64};
-      static const NumericParamSpec h {"code.height", "Render height", "Pixels, 64-2160", 64, 2160, 0, true, 36};
-      return id == NumericParam::CodeWidth ? &w : &h;
-    }
-    case NumericParam::VsSpeed: {
-      static const NumericParamSpec s {"vs.speed", "Speed",
-                                       "Master oscillator rate, 0.01-8", 0.01, 8.0, 2, false};
-      return &s;
-    }
-    case NumericParam::VsScale: {
-      static const NumericParamSpec s {"vs.scale", "Scale",
-                                       "Feature size, 0.1-8", 0.1, 8.0, 2, false};
-      return &s;
-    }
-    case NumericParam::VsFeedback: {
-      static const NumericParamSpec s {"vs.feedback", "Feedback",
-                                       "How much of each frame feeds the next, 0-0.95",
-                                       0.0, 0.95, 2, false};
-      return &s;
-    }
-    case NumericParam::VsZoom: {
-      static const NumericParamSpec s {"vs.zoom", "Feedback zoom",
-                                       "Per-frame zoom of the feedback path, 0.90-1.15",
-                                       0.90, 1.15, 3, false};
-      return &s;
-    }
-    case NumericParam::VsReact: {
-      static const NumericParamSpec s {"vs.react", "Audio reactivity",
-                                       "How hard the audio drives it, 0-1", 0.0, 1.0, 2, false};
-      return &s;
-    }
-    case NumericParam::VsResolution: {
-      static const NumericParamSpec s {"vs.resolution", "Detail",
-                                       "Internal resolution, 1 (chunky) to 5 (fine)",
-                                       1.0, 5.0, 0, true};
-      return &s;
-    }
-    case NumericParam::VsPixelSort: {
-      static const NumericParamSpec s {"vs.smear", "Smear",
-                                       "Pixel sort amount, 0-1", 0.0, 1.0, 2, false};
-      return &s;
-    }
-    case NumericParam::VsGlitch: {
-      static const NumericParamSpec s {"vs.glitch", "Glitch",
-                                       "Block displacement and channel tearing, 0-1",
-                                       0.0, 1.0, 2, false};
-      return &s;
-    }
-    case NumericParam::VsCrt: {
-      static const NumericParamSpec s {"vs.crt", "CRT",
-                                       "Scanlines, bloom and gun misalignment, 0-1",
-                                       0.0, 1.0, 2, false};
-      return &s;
-    }
-    case NumericParam::VsFreeAngle: {
-      static const NumericParamSpec s {"vs.spin", "Sprite spin",
-                                       "Degrees per second, -720 to 720",
-                                       -720.0, 720.0, 0, false};
-      return &s;
-    }
-    case NumericParam::ToneLevel: {
-      static const NumericParamSpec s {"tone.level", "Level",
-                                       "dBFS, -60 to 0 (-18 is EBU alignment)",
-                                       -60.0, 0.0, 1, false};
-      return &s;
-    }
-    case NumericParam::ToneFreq: {
-      static const NumericParamSpec s {"tone.freq", "Frequency",
-                                       "Hertz, 20-20000", 20.0, 20000.0, 1, false};
-      return &s;
-    }
-    case NumericParam::MotionDriverSpeed: {
-      static const NumericParamSpec s {"motion.speed", "Driver speed",
-                                       "Fields per frame, 0-4 (1 = one field "
-                                       "per rendered frame)", 0.0, 4.0, 2, false};
-      return &s;
-    }
-    case NumericParam::SynthNote: {
-      static const NumericParamSpec s {"synth.note", "Note",
-                                       "Pitch in hertz, 20-8000", 20.0, 8000.0, 2, false};
-      return &s;
-    }
-    case NumericParam::SynthAttack: {
-      static const NumericParamSpec s {"synth.attack", "Attack",
-                                       "Seconds, 0-4", 0.0, 4.0, 3, false};
-      return &s;
-    }
-    case NumericParam::SynthRelease: {
-      static const NumericParamSpec s {"synth.release", "Release",
-                                       "Seconds, 0-8", 0.0, 8.0, 3, false};
-      return &s;
-    }
-    case NumericParam::FdsDepth: {
-      static const NumericParamSpec s {"fds.depth", "Mod depth",
-                                       "FDS hardware gain range, 0-63", 0.0, 63.0, 0, true};
-      return &s;
-    }
-    case NumericParam::FdsRatio: {
-      static const NumericParamSpec s {"fds.ratio", "Mod ratio",
-                                       "Modulator as a ratio of the note, 0.05-16",
-                                       0.05, 16.0, 2, false};
-      return &s;
-    }
-    case NumericParam::FdsRetrig: {
-      static const NumericParamSpec s {"fds.retrig", "Retrigger",
-                                       "Seconds between retriggers, 0-8", 0.0, 8.0, 2, false};
-      return &s;
-    }
-    case NumericParam::PortalBlobs: {
-      static const NumericParamSpec s {"portal.blobs", "Blobs",
-                                       "How many are alive at once, 3-48", 3.0, 48.0, 0, true, 1.0};
-      return &s;
-    }
-    case NumericParam::PortalSize: {
-      static const NumericParamSpec s {"portal.size", "Size",
-                                       "How big a blob grows, 0-1", 0.0, 1.0, 2, false, 0.05};
-      return &s;
-    }
-    case NumericParam::PortalBlend: {
-      static const NumericParamSpec s {"portal.melt", "Melt",
-                                       "How readily neighbours merge, 0 (never) to 1",
-                                       0.0, 1.0, 2, false, 0.05};
-      return &s;
-    }
-    case NumericParam::PortalOutline: {
-      static const NumericParamSpec s {"portal.rim", "Rim",
-                                       "Thickness of the glowing edge, 0-1", 0.0, 1.0, 2, false, 0.05};
-      return &s;
-    }
-    case NumericParam::PortalSpeed: {
-      static const NumericParamSpec s {"portal.speed", "Speed",
-                                       "Birth, drift and fade rate, 0.1-3", 0.1, 3.0, 2, false, 0.1};
-      return &s;
-    }
-    case NumericParam::PortalHue: {
-      static const NumericParamSpec s {"portal.hue", "Colour",
-                                       "Turns the rim's colours round the wheel, 0-1",
-                                       0.0, 1.0, 2, false, 0.05};
-      return &s;
-    }
-    case NumericParam::MaskX: {
-      static const NumericParamSpec s {"mask.x", "Mask X", "Across, % of the width, -100 to 100", -100, 100, 0, false, 1};
-      return &s;
-    }
-    case NumericParam::MaskY: {
-      static const NumericParamSpec s {"mask.y", "Mask Y", "Down, % of the height, -100 to 100", -100, 100, 0, false, 1};
-      return &s;
-    }
-    case NumericParam::MaskScale: {
-      static const NumericParamSpec s {"mask.scale", "Mask scale", "Size, %, 5 to 400", 5, 400, 0, false, 5};
-      return &s;
-    }
-    case NumericParam::MaskRotation: {
-      static const NumericParamSpec s {"mask.rotation", "Mask rotation", "Degrees, -360 to 360", -360, 360, 0, false,
-                                       5};
-      return &s;
-    }
-    case NumericParam::MaskFeather: {
-      static const NumericParamSpec s {"mask.feather", "Feather", "Edge softness, % of the height, 0 to 25", 0, 25, 1,
-                                       false, 0.5};
-      return &s;
-    }
-    case NumericParam::MaskGrow: {
-      static const NumericParamSpec s {"mask.grow", "Grow", "Edge out (+) or in (-), % of the height, -25 to 25", -25,
-                                       25, 1, false, 0.5};
-      return &s;
-    }
-    case NumericParam::DrawSize: {
-      static const NumericParamSpec s {"draw.size", "Brush size", "% of the picture's height, 0.1 to 20", 0.1, 20, 1,
-                                       false, 0.2};
-      return &s;
-    }
-    case NumericParam::DrawOpacity: {
-      static const NumericParamSpec s {"draw.opacity", "Brush opacity", "%, 1 to 100", 1, 100, 0, false, 5};
-      return &s;
-    }
-    case NumericParam::DrawFps: {
-      static const NumericParamSpec s {"draw.fps", "Flipbook rate", "Frames a second, 1 to 60", 1, 60, 0, true, 1};
-      return &s;
-    }
-    case NumericParam::DrawHold: {
-      static const NumericParamSpec s {"draw.hold", "Replay hold", "Seconds the finished drawing stays, 0 to 60", 0,
-                                       60, 1, false, 0.5};
-      return &s;
-    }
-    case NumericParam::MaskOpacity: {
-      static const NumericParamSpec s {"mask.opacity", "Mask opacity", "How hard it cuts, %, 0 to 100", 0, 100, 0,
-                                       false, 5};
-      return &s;
-    }
-    case NumericParam::LedPanelWidth: {
-      static const NumericParamSpec s {"panel.w", "Tile width",
-                                       "One LED tile's width in pixels, 8-8192",
-                                       8.0, 8192.0, 0, true, 1.0};
-      return &s;
-    }
-    case NumericParam::LedPanelHeight: {
-      static const NumericParamSpec s {"panel.h", "Tile height",
-                                       "One LED tile's height in pixels, 8-8192",
-                                       8.0, 8192.0, 0, true, 1.0};
-      return &s;
-    }
-    case NumericParam::L3Height: {
-      static const NumericParamSpec s {"l3.height", "Height",
-                                       "Space under it, as a fraction of the frame, 0-0.8",
-                                       0.0, 0.8, 2, false, 0.01};
-      return &s;
-    }
-    case NumericParam::L3Size: {
-      static const NumericParamSpec s {"l3.size", "Size",
-                                       "Scale of the whole graphic, 0.5-2", 0.5, 2.0, 2, false, 0.05};
-      return &s;
-    }
-    case NumericParam::L3InSeconds: {
-      static const NumericParamSpec s {"l3.in", "In time",
-                                       "Seconds the in move takes, 0-5", 0.0, 5.0, 1, false, 0.1};
-      return &s;
-    }
-    case NumericParam::L3OutSeconds: {
-      static const NumericParamSpec s {"l3.out", "Out time",
-                                       "Seconds the out move takes, 0-5", 0.0, 5.0, 1, false, 0.1};
-      return &s;
-    }
-    case NumericParam::L3HoldSeconds: {
-      static const NumericParamSpec s {"l3.hold", "On screen",
-                                       "Seconds before it leaves by itself; 0 waits for OUT",
-                                       0.0, 600.0, 0, false, 1.0};
-      return &s;
-    }
-    default:
-      return isfParamSpec(id);
-  }
+  return deckboy::params::numericParamSpec(id, selectedCuePtr());
 }
 
 // Read the live value. Returns false when the selected cue does not carry it,
 // which is how a stale row (the selection changed mid-click) is refused rather
 // than writing into the wrong cue.
 bool readNumericParam(const Cue& cue, NumericParam id, double& out) const {
-  const VideoSynthSettings& v = cue.videoSynth;
-  switch (id) {
-    case NumericParam::SwirlSpeed:
-    case NumericParam::SwirlTwist:
-    case NumericParam::SwirlCells:
-    case NumericParam::SwirlHue:
-    case NumericParam::SwirlZoom:
-    case NumericParam::SwirlFlow:
-    case NumericParam::SwirlCentreX:
-    case NumericParam::SwirlCentreY:
-    case NumericParam::SwirlBands:
-    case NumericParam::SwirlPalette:
-      if (cue.kind != CueKind::Pattern || normalizePatternTypeId(cue.path) != "swirl") return false;
-      out = id == NumericParam::SwirlSpeed ? cue.swirl.speed
-          : id == NumericParam::SwirlTwist ? cue.swirl.twist
-          : id == NumericParam::SwirlCells ? cue.swirl.cells
-          : id == NumericParam::SwirlHue ? cue.swirl.hue
-          : id == NumericParam::SwirlZoom ? cue.swirl.zoom
-          : id == NumericParam::SwirlFlow ? cue.swirl.flow
-          : id == NumericParam::SwirlCentreX ? cue.swirl.centreX
-          : id == NumericParam::SwirlCentreY ? cue.swirl.centreY
-          : id == NumericParam::SwirlBands ? cue.swirl.bands : cue.swirl.palette;
-      return true;
-    case NumericParam::MoireShape:
-    case NumericParam::MoirePalette:
-    case NumericParam::MoireDensity:
-    case NumericParam::MoireSpeed:
-    case NumericParam::MoireWarp:
-    case NumericParam::MoireTurn:
-    case NumericParam::MoireCentreX:
-    case NumericParam::MoireCentreY:
-    case NumericParam::MoireGrey:
-    case NumericParam::MoireHue: {
-      if (cue.kind != CueKind::Pattern || normalizePatternTypeId(cue.path) != "moire-field") return false;
-      const MoireSettings& m = cue.moire;
-      out = id == NumericParam::MoireShape ? m.shape
-          : id == NumericParam::MoirePalette ? m.palette
-          : id == NumericParam::MoireDensity ? m.density * 100.0
-          : id == NumericParam::MoireSpeed ? m.speed * 100.0
-          : id == NumericParam::MoireWarp ? m.warp * 100.0
-          : id == NumericParam::MoireTurn ? m.turn * 360.0
-          : id == NumericParam::MoireCentreX ? m.centreX * 100.0
-          : id == NumericParam::MoireCentreY ? m.centreY * 100.0
-          : id == NumericParam::MoireGrey ? m.grey * 100.0
-          : m.hue * 360.0;
-      return true;
-    }
-    case NumericParam::LumiaPalette:
-    case NumericParam::LumiaMode:
-    case NumericParam::LumiaTopBottom:
-    case NumericParam::LumiaListens:
-    case NumericParam::LumiaFlow:
-    case NumericParam::LumiaWater:
-    case NumericParam::LumiaRipple:
-    case NumericParam::LumiaJet:
-    case NumericParam::LumiaPrism:
-    case NumericParam::LumiaSplit:
-    case NumericParam::LumiaFocus:
-    case NumericParam::LumiaShimmer:
-    case NumericParam::LumiaMirrors:
-    case NumericParam::LumiaAngle:
-    case NumericParam::LumiaSpin:
-    case NumericParam::LumiaLens:
-    case NumericParam::LumiaGlow:
-    case NumericParam::LumiaBright:
-    case NumericParam::LumiaTrail: {
-      if (cue.kind != CueKind::Pattern || normalizePatternTypeId(cue.path) != "lumia") return false;
-      const LumiaSettings& l = cue.lumia;
-      switch (id) {
-        case NumericParam::LumiaPalette: out = l.palette; break;
-        case NumericParam::LumiaMode: out = l.mode; break;
-        case NumericParam::LumiaTopBottom: out = l.topBottom ? 1.0 : 0.0; break;
-        case NumericParam::LumiaListens: out = l.listens ? 1.0 : 0.0; break;
-        case NumericParam::LumiaFlow: out = l.flow * 100.0; break;
-        case NumericParam::LumiaWater: out = l.water * 100.0; break;
-        case NumericParam::LumiaRipple: out = l.ripple * 100.0; break;
-        case NumericParam::LumiaJet: out = l.jet * 100.0; break;
-        case NumericParam::LumiaPrism: out = l.prism * 100.0; break;
-        case NumericParam::LumiaSplit: out = l.split * 100.0; break;
-        case NumericParam::LumiaFocus: out = l.focus * 100.0; break;
-        case NumericParam::LumiaShimmer: out = l.shimmer * 100.0; break;
-        case NumericParam::LumiaMirrors: out = std::round(l.mirrors * 12.0); break;
-        case NumericParam::LumiaAngle: out = l.angle * 100.0; break;
-        case NumericParam::LumiaSpin: out = l.spin * 100.0; break;
-        case NumericParam::LumiaLens: out = l.lens * 100.0; break;
-        case NumericParam::LumiaGlow: out = l.glow * 100.0; break;
-        case NumericParam::LumiaBright: out = l.bright * 100.0; break;
-        case NumericParam::LumiaTrail: out = l.trail * 100.0; break;
-        default: break;
-      }
-      return true;
-    }
-    case NumericParam::CodeWidth:
-    case NumericParam::CodeHeight:
-      if (!cueIsCodeSource(cue)) return false;
-      out = id == NumericParam::CodeWidth ? cue.width : cue.height;
-      return true;
-    case NumericParam::VsSpeed:      out = v.speed; return true;
-    case NumericParam::VsScale:      out = v.scale; return true;
-    case NumericParam::VsFeedback:   out = v.feedbackAmount; return true;
-    case NumericParam::VsZoom:       out = v.feedbackZoom; return true;
-    case NumericParam::VsReact:      out = v.audioReactivity; return true;
-    case NumericParam::VsResolution: out = v.resolution; return true;
-    case NumericParam::VsPixelSort:  out = v.pixelSort; return true;
-    case NumericParam::VsGlitch:     out = v.glitch; return true;
-    case NumericParam::VsCrt:        out = v.crt; return true;
-    case NumericParam::VsFreeAngle:  out = v.spriteFreeAngle; return true;
-    case NumericParam::ToneLevel:    out = cue.tone.levelDbfs; return true;
-    case NumericParam::ToneFreq:     out = cue.tone.frequencyHz; return true;
-    case NumericParam::DrawFps:      out = cue.drawing.fps; return true;
-    case NumericParam::DrawHold:     out = cue.drawing.holdSeconds; return true;
-    case NumericParam::MotionDriverSpeed: out = cue.motionDriverSpeed; return true;
-    case NumericParam::SynthNote:    out = cue.tone.synth.noteHz; return true;
-    case NumericParam::SynthAttack:  out = cue.tone.synth.attackSeconds; return true;
-    case NumericParam::SynthRelease: out = cue.tone.synth.releaseSeconds; return true;
-    case NumericParam::FdsDepth:     out = cue.tone.synth.modDepth; return true;
-    case NumericParam::FdsRatio:     out = cue.tone.synth.modRatio; return true;
-    case NumericParam::FdsRetrig:    out = cue.tone.synth.retriggerSeconds; return true;
-    // Only on a portal: the other pattern cues carry these fields too (every
-    // Cue does), and a stale row must not write into a colour-bars cue.
-    case NumericParam::PortalBlobs:
-    case NumericParam::PortalSize:
-    case NumericParam::PortalBlend:
-    case NumericParam::PortalOutline:
-    case NumericParam::PortalSpeed:
-    case NumericParam::PortalHue: {
-      if (cue.kind != CueKind::Pattern || normalizePatternTypeId(cue.path) != "portal") {
-        return false;
-      }
-      const PortalSettings& p = cue.portal;
-      out = id == NumericParam::PortalBlobs ? p.blobs
-          : id == NumericParam::PortalSize ? p.size
-          : id == NumericParam::PortalBlend ? p.blend
-          : id == NumericParam::PortalOutline ? p.outline
-          : id == NumericParam::PortalSpeed ? p.speed
-          : p.hue;
-      return true;
-    }
-    // Only on a panel map, for the same reason as the portal's rows above.
-    case NumericParam::LedPanelWidth:
-    case NumericParam::LedPanelHeight: {
-      if (cue.kind != CueKind::Pattern || stripPatternMotionSuffix(normalizePatternTypeId(cue.path)) != "panel-map") {
-        return false;
-      }
-      out = id == NumericParam::LedPanelWidth ? cue.ledPanelWidth : cue.ledPanelHeight;
-      return true;
-    }
-    case NumericParam::L3Height:
-    case NumericParam::L3Size:
-    case NumericParam::L3InSeconds:
-    case NumericParam::L3OutSeconds:
-    case NumericParam::L3HoldSeconds: {
-      if (cue.kind != CueKind::Text || !cue.lowerThird.on) {
-        return false;
-      }
-      const LowerThirdDesign& l = cue.lowerThird;
-      out = id == NumericParam::L3Height ? l.height
-          : id == NumericParam::L3Size ? l.size
-          : id == NumericParam::L3InSeconds ? l.inSeconds
-          : id == NumericParam::L3OutSeconds ? l.outSeconds
-          : l.holdSeconds;
-      return true;
-    }
-    default: return readIsfParam(cue, id, out);
-  }
+  return deckboy::params::readNumericParam(cue, id, out);
 }
 
 void writeNumericParam(Cue& cue, NumericParam id, double value) {
-  VideoSynthSettings& v = cue.videoSynth;
-  switch (id) {
-    case NumericParam::DrawFps: cue.drawing.fps = static_cast<float>(value); ++cue.drawing.revision; break;
-    case NumericParam::DrawHold: cue.drawing.holdSeconds = static_cast<float>(value); ++cue.drawing.revision; break;
-    case NumericParam::SwirlSpeed: cue.swirl.speed = value; break;
-    case NumericParam::SwirlTwist: cue.swirl.twist = value; break;
-    case NumericParam::SwirlCells: cue.swirl.cells = static_cast<int>(std::lround(value)); break;
-    case NumericParam::SwirlHue: cue.swirl.hue = value; break;
-    case NumericParam::SwirlZoom: cue.swirl.zoom = value; break;
-    case NumericParam::SwirlFlow: cue.swirl.flow = value; break;
-    case NumericParam::SwirlCentreX: cue.swirl.centreX = value; break;
-    case NumericParam::SwirlCentreY: cue.swirl.centreY = value; break;
-    case NumericParam::SwirlBands: cue.swirl.bands = static_cast<int>(std::lround(value)); break;
-    case NumericParam::SwirlPalette: cue.swirl.palette = static_cast<int>(std::lround(value)); break;
-    case NumericParam::MoireShape:
-      cue.moire.shape = std::clamp(static_cast<int>(std::lround(value)), 0, kMoireShapeCount - 1);
-      break;
-    case NumericParam::MoirePalette:
-      cue.moire.palette = std::clamp(static_cast<int>(std::lround(value)), 0, kMoirePaletteCount - 1);
-      // THE THEME PALETTE IS CAPTURED WHEN IT IS PICKED, so the cue keeps the
-      // colours it was made with on a desk wearing another theme.
+  deckboy::params::writeNumericParam(cue, id, value);
+  if (id == NumericParam::MoirePalette) {
       if (cue.moire.palette == 2) {
         const SDL_Color inks[4] = {pal.deep, pal.mid, pal.tile, pal.light};
         for (std::size_t i = 0; i < 4; ++i) {
@@ -765,70 +92,15 @@ void writeNumericParam(Cue& cue, NumericParam id, double value) {
                                    (static_cast<std::uint32_t>(inks[i].g) << 8) | inks[i].b;
         }
       }
-      break;
-    case NumericParam::MoireDensity: cue.moire.density = std::clamp(value / 100.0, 0.0, 1.0); break;
-    case NumericParam::MoireSpeed: cue.moire.speed = std::clamp(value / 100.0, 0.0, 1.0); break;
-    case NumericParam::MoireWarp: cue.moire.warp = std::clamp(value / 100.0, 0.0, 1.0); break;
-    case NumericParam::MoireTurn: cue.moire.turn = std::clamp(value / 360.0, 0.0, 1.0); break;
-    case NumericParam::MoireCentreX: cue.moire.centreX = std::clamp(value / 100.0, 0.0, 1.0); break;
-    case NumericParam::MoireCentreY: cue.moire.centreY = std::clamp(value / 100.0, 0.0, 1.0); break;
-    case NumericParam::MoireGrey: cue.moire.grey = std::clamp(value / 100.0, 0.0, 1.0); break;
-    case NumericParam::MoireHue: cue.moire.hue = std::clamp(value / 360.0, 0.0, 1.0); break;
-    case NumericParam::LumiaPalette: cue.lumia.palette = std::clamp(static_cast<int>(std::lround(value)), 0, kLumiaPaletteCount - 1); break;
-    case NumericParam::LumiaMode: cue.lumia.mode = std::clamp(static_cast<int>(std::lround(value)), 0, kLumiaModeCount - 1); break;
-    case NumericParam::LumiaTopBottom: cue.lumia.topBottom = value >= 0.5; break;
-    case NumericParam::LumiaListens: cue.lumia.listens = value >= 0.5; break;
-    case NumericParam::LumiaFlow: cue.lumia.flow = std::clamp(value / 100.0, 0.0, 1.0); break;
-    case NumericParam::LumiaWater: cue.lumia.water = std::clamp(value / 100.0, 0.0, 1.0); break;
-    case NumericParam::LumiaRipple: cue.lumia.ripple = std::clamp(value / 100.0, 0.0, 1.0); break;
-    case NumericParam::LumiaJet: cue.lumia.jet = std::clamp(value / 100.0, 0.0, 1.0); break;
-    case NumericParam::LumiaPrism: cue.lumia.prism = std::clamp(value / 100.0, 0.0, 1.0); break;
-    case NumericParam::LumiaSplit: cue.lumia.split = std::clamp(value / 100.0, 0.0, 1.0); break;
-    case NumericParam::LumiaFocus: cue.lumia.focus = std::clamp(value / 100.0, 0.0, 1.0); break;
-    case NumericParam::LumiaShimmer: cue.lumia.shimmer = std::clamp(value / 100.0, 0.0, 1.0); break;
-    case NumericParam::LumiaMirrors: cue.lumia.mirrors = std::clamp(value / 12.0, 0.0, 1.0); break;
-    case NumericParam::LumiaAngle: cue.lumia.angle = std::clamp(value / 100.0, 0.0, 1.0); break;
-    case NumericParam::LumiaSpin: cue.lumia.spin = std::clamp(value / 100.0, 0.0, 1.0); break;
-    case NumericParam::LumiaLens: cue.lumia.lens = std::clamp(value / 100.0, 0.0, 1.0); break;
-    case NumericParam::LumiaGlow: cue.lumia.glow = std::clamp(value / 100.0, 0.0, 1.0); break;
-    case NumericParam::LumiaBright: cue.lumia.bright = std::clamp(value / 100.0, 0.0, 1.0); break;
-    case NumericParam::LumiaTrail: cue.lumia.trail = std::clamp(value / 100.0, 0.0, 1.0); break;
-    case NumericParam::CodeWidth: cue.width = static_cast<int>(std::lround(value)); break;
-    case NumericParam::CodeHeight: cue.height = static_cast<int>(std::lround(value)); break;
-    case NumericParam::VsSpeed:      v.speed = value; break;
-    case NumericParam::VsScale:      v.scale = value; break;
-    case NumericParam::VsFeedback:   v.feedbackAmount = value; break;
-    case NumericParam::VsZoom:       v.feedbackZoom = value; break;
-    case NumericParam::VsReact:      v.audioReactivity = value; break;
-    case NumericParam::VsResolution: v.resolution = static_cast<int>(std::lround(value)); break;
-    case NumericParam::VsPixelSort:  v.pixelSort = value; break;
-    case NumericParam::VsGlitch:     v.glitch = value; break;
-    case NumericParam::VsCrt:        v.crt = value; break;
-    case NumericParam::VsFreeAngle:  v.spriteFreeAngle = value; break;
-    case NumericParam::ToneLevel:    cue.tone.levelDbfs = value; break;
-    case NumericParam::ToneFreq:     cue.tone.frequencyHz = value; break;
-    case NumericParam::MotionDriverSpeed:
-      cue.motionDriverSpeed = static_cast<float>(value); break;
-    case NumericParam::SynthNote:    cue.tone.synth.noteHz = value; break;
-    case NumericParam::SynthAttack:  cue.tone.synth.attackSeconds = value; break;
-    case NumericParam::SynthRelease: cue.tone.synth.releaseSeconds = value; break;
-    case NumericParam::FdsDepth:     cue.tone.synth.modDepth = static_cast<int>(std::lround(value)); break;
-    case NumericParam::FdsRatio:     cue.tone.synth.modRatio = value; break;
-    case NumericParam::FdsRetrig:    cue.tone.synth.retriggerSeconds = value; break;
-    case NumericParam::PortalBlobs:  cue.portal.blobs = static_cast<int>(std::lround(value)); break;
-    case NumericParam::PortalSize:   cue.portal.size = value; break;
-    case NumericParam::PortalBlend:  cue.portal.blend = value; break;
-    case NumericParam::PortalOutline: cue.portal.outline = value; break;
-    case NumericParam::PortalSpeed:  cue.portal.speed = value; break;
-    case NumericParam::PortalHue:    cue.portal.hue = value; break;
-    case NumericParam::L3Height:      cue.lowerThird.height = value; break;
-    case NumericParam::L3Size:        cue.lowerThird.size = value; break;
-    case NumericParam::L3InSeconds:   cue.lowerThird.inSeconds = value; break;
-    case NumericParam::L3OutSeconds:  cue.lowerThird.outSeconds = value; break;
-    case NumericParam::L3HoldSeconds: cue.lowerThird.holdSeconds = value; break;
-    case NumericParam::LedPanelWidth:  cue.ledPanelWidth = static_cast<int>(std::lround(value)); break;
-    case NumericParam::LedPanelHeight: cue.ledPanelHeight = static_cast<int>(std::lround(value)); break;
-    default: writeIsfParam(cue, id, value); break;
+  }
+  if (id == NumericParam::IllusionPalette) {
+      if (cue.illusion.palette == 1) {
+        const SDL_Color inks[4] = {pal.deep, pal.mid, pal.tile, pal.light};
+        for (std::size_t i = 0; i < 4; ++i) {
+          cue.illusion.themeInks[i] = (static_cast<std::uint32_t>(inks[i].r) << 16) |
+                                      (static_cast<std::uint32_t>(inks[i].g) << 8) | inks[i].b;
+        }
+      }
   }
 }
 
@@ -1215,7 +487,14 @@ void effectStackNudge(int index, float delta) {
 // Every one of these takes the PACKED id described on the QuickAction enum:
 // effectIndex * 8 + slot, slot 0-3 for paramA-D and 4 for the amount.
 deckboy::effects::ParamLfo* effectLfoAt(int packed) {
-  // A shader cue's float inputs: the highest range of all.
+  // An Illusion cue's oscillators: the highest range of all.
+  if (packed >= kIllusionLfoPackBase) {
+    const int slot = packed - kIllusionLfoPackBase;
+    Cue* cue = selectedCueMutable();
+    if (!cue || slot < 0 || slot >= kIllusionLfoSlots) return nullptr;
+    return &cue->illusion.lfo[static_cast<std::size_t>(slot)];
+  }
+  // A shader cue's float inputs: the next range down.
   if (packed >= kIsfLfoPackBase) return isfLfoAt(packed - kIsfLfoPackBase);
   // A Lumia cue's oscillators: the highest range, so it is tested first.
   if (packed >= kLumiaLfoPackBase) {

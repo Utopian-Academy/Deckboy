@@ -1,0 +1,100 @@
+plugins {
+     id 'com.android.application'
+}
+
+def buildWithCMake = true
+
+android {
+    namespace = "io.github.utopian_academy.deckboy.pocket"
+    compileSdkVersion 35
+    ndkVersion = "27.3.13750724"
+    defaultConfig {
+        applicationId "io.github.utopian_academy.deckboy.pocket"
+        minSdkVersion 29
+        targetSdkVersion 35
+        versionCode 1
+        versionName "0.1"
+        externalNativeBuild {
+            ndkBuild {
+                arguments "APP_PLATFORM=android-29"
+                // abiFilters 'armeabi-v7a', 'arm64-v8a', 'x86', 'x86_64'
+                abiFilters 'arm64-v8a'
+            }
+            cmake {
+                arguments "-DANDROID_PLATFORM=android-29", "-DANDROID_STL=c++_shared",
+                          "-DANDROID_SUPPORT_FLEXIBLE_PAGE_SIZES=ON",
+                          "-DPOCKET_DEPS=" + (System.getenv("POCKET_DEPS") ?: "X:/android")
+                targets "main"
+                // abiFilters 'armeabi-v7a', 'arm64-v8a', 'x86', 'x86_64'
+                abiFilters 'arm64-v8a'
+            }
+        }
+    }
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+    applicationVariants.all { variant ->
+        tasks["merge${variant.name.capitalize()}Assets"]
+            .dependsOn("externalNativeBuild${variant.name.capitalize()}")
+    }
+    if (!project.hasProperty('EXCLUDE_NATIVE_LIBS')) {
+        sourceSets.main {
+            jniLibs.srcDir 'libs'
+        }
+        externalNativeBuild {
+            if (buildWithCMake) {
+                cmake {
+                    path 'jni/CMakeLists.txt'
+                }
+            } else {
+                ndkBuild {
+                    path 'jni/Android.mk'
+                }
+            }
+        }
+
+    }
+    lint {
+        abortOnError = false
+    }
+}
+
+// Deckboy's data that Pocket ships (fonts, the Pocket theme), copied into the
+// APK's assets; the app copies them out to its own storage on first launch.
+def pocketAssets = layout.buildDirectory.dir("pocket-assets")
+tasks.register("copyPocketAssets", Copy) {
+    from("${rootDir}/../data") {
+        include "PressStart2P.ttf", "fonts/LiberationSans-Regular.ttf", "fonts/LiberationMono-Regular.ttf",
+                "fonts/LICENSE-Liberation.txt", "themes/*/theme.txt",
+                "pocket-shells/*.jpg", "pocket-shells/index.txt",   // the rendered shells (pocket-skins)
+                "pocket-splash/splash_*.jpg", "pocket-splash/logo.jpg", "pocket-splash/index.txt"   // the splash art (not the candidates beside it)
+    }
+    into pocketAssets.map { it.dir("data") }
+    // The theme list the app reads (assets cannot be listed from native code).
+    doLast {
+        def themes = new File("${rootDir}/../data/themes").listFiles()
+                .findAll { it.isDirectory() && new File(it, "theme.txt").exists() }
+                .collect { it.name }.sort()
+        pocketAssets.get().file("data/themes/index.txt").asFile.text = themes.join("\n") + "\n"
+    }
+}
+android.sourceSets.main.assets.srcDirs += pocketAssets
+preBuild.dependsOn("copyPocketAssets")
+
+// The Android FFmpeg build's shared libraries (build_ffmpeg_android.sh), packed
+// beside libmain.so. Absent until that build has run; Pocket then has no video.
+def pocketDeps = System.getenv("POCKET_DEPS") ?: "X:/android"
+def pocketJni = layout.buildDirectory.dir("pocket-jni")
+tasks.register("copyFfmpegLibs", Copy) {
+    from("${pocketDeps}/prefix/arm64-v8a/lib") { include "*.so" }
+    into pocketJni.map { it.dir("arm64-v8a") }
+}
+android.sourceSets.main.jniLibs.srcDirs += pocketJni
+preBuild.dependsOn("copyFfmpegLibs")
+
+dependencies {
+    implementation fileTree(include: ['*.jar'], dir: 'libs')
+}

@@ -39,6 +39,22 @@ CASES = [
     ("lumia:none,spin=0.7", 7),
     ("lumia:palette=2,mirrors=0.9,angle=0.9,lens=1", 7),
     ("lumia:topbottom=0,jet=1,water=1", 3),
+    # The Illusion: each shape, the drift field's forms and flows, big shapes
+    # that meet at their cells' edges, the hues palette, and a moving clock.
+    ("illusion", 1),
+    ("illusion:drift,ring,size=1,edge=1,count=0.1", 1),
+    ("illusion:drift,wave,flip,palette=2,hue1=0.6", 2),
+    ("illusion:drift,petal,out,speed=0.5", 3),
+    ("illusion:ouchi,speed=0.5,cx=0.3", 2),
+    ("illusion:ouchi,scale,count=0.9,edge=0.9", 1),
+    ("illusion:cafe,count=1,grey=0.3", 1),
+    ("illusion:cafe,speed=0.7,palette=2,hue2=0.8", 2),
+    ("illusion:vanish", 2),
+    ("illusion:vanish,count=0.9,edge=0.9,size=0.8,palette=2", 3),
+    ("illusion:grid", 1),
+    ("illusion:grid,speed=0.5,count=0.2,edge=0.8", 2),
+    ("illusion:dancer", 1),
+    ("illusion:dancer,edge=1,size=1,flip,speed=0.6", 2.2),
 ]
 MEAN_MAX = 1.0      # the CPU reads its rim and glow from tables
 FAR_MAX = 0.01      # % of pixels more than 8 levels apart (panel edges)

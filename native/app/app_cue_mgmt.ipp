@@ -3120,6 +3120,11 @@
       [this]() { addMoireCue(); }
     });
     contextItems_.push_back({
+      "  Illusion (Pictures that move!?)",
+      {0, 0, 0, 0},
+      [this]() { addIllusionCue(); }
+    });
+    contextItems_.push_back({
       "  Lumia (laser light and mirrors)",
       {0, 0, 0, 0},
       [this]() { addLumiaCue(); }
@@ -3449,39 +3454,9 @@
     // colour bars from its own inspector. One pocket entry only -- it cycles
     // day/sunset/night/storm itself; the forced-scene ids stay loadable as
     // legacy (see patternTypes). Motion belongs to the toggle, not the list.
-    static const std::vector<std::pair<std::string, std::string>> types {
-      {"pocket-test",   "Pocket Test (test card + scene cycle)"},
-      {"test-bars",    "Test Bars (motion diagnostics)"},
-      {"test-clock",   "Test Clock (sync + latency)"},
-      {"frame-count",  "Frame Count (drops + latency)"},
-      {"frame-count-emoji", "Frame Count (emoji)"},
-      {"smpte-bars",   "SMPTE 75% Colour Bars"},
-      {"crosshatch",   "Crosshatch"},
-      {"checkerboard", "Checkerboard"},
-      {"full-white",   "Full White"},
-      {"full-black",   "Full Black"},
-      {"full-red",     "Full Red"},
-      {"full-green",   "Full Green"},
-      {"full-blue",    "Full Blue"},
-      // The engineering set, the same charts Deckboy's own LED page generates.
-      // Grouped after the broadcast basics because an operator reaching for
-      // bars is not reaching for a multiburst.
-      {"panel-map",    "Panel Map (LED tile numbers)"},
-      {"moire",        "Moire 1:1 (is anything scaling?)"},
-      {"critters",     "Critters (pixel-exact scaling, animated)"},
-      {"dark-detail",  "Dark Detail (0-12%)"},
-      {"uniformity",   "Uniformity (flat fields)"},
-      {"ramps",        "Banding Ramps (real bit depth)"},
-      {"safe-areas",   "Safe Areas (90% / 80% / thirds)"},
-      {"boresight",    "Boresight (alignment)"},
-      {"pluge",        "PLUGE (black level)"},
-      {"greyscale",    "Greyscale Steps (gamma)"},
-      {"convergence",  "Convergence (fine grid)"},
-      {"multiburst",   "Multiburst (bandwidth)"},
-      {"window-10",    "Window 10% (peak brightness)"},
-      {"window-50",    "Window 50% (peak at mid APL)"},
-    };
-    return types;
+    // The list itself lives in core (patternTestSignalTypes), so Pocket's
+    // PATTERN offers exactly the desk's test signals.
+    return patternTestSignalTypes();
   }
 
   // What the operator actually sees in the inspector's pattern list: the test
@@ -3510,6 +3485,7 @@
       list.emplace_back("draw",           "Draw (what you draw on the monitor)");
       list.emplace_back("swirl",          "Swirl (melting pixel greens)");
       list.emplace_back("moire-field",    "Moire (interference bands)");
+      list.emplace_back("illusion",       "Illusion (Pictures that move!?)");
       list.emplace_back("lumia",          "Lumia (laser light and mirrors)");
       list.emplace_back("isf",            "Shader (an ISF .fs file)");
       list.emplace_back("code",           "Code (live expression)");
@@ -3627,53 +3603,18 @@
 
   // Stage/speaker timer. Held by default: a countdown that auto-advanced to the
   // next cue the moment it hit zero would be actively dangerous on a show.
-  static const char* toneWaveformLabel(ToneWaveform w) {
-    switch (w) {
-      case ToneWaveform::Pink:     return "pink noise";
-      case ToneWaveform::White:    return "white noise";
-      case ToneWaveform::Sweep:    return "sweep";
-      case ToneWaveform::Identify: return "identify";
-      case ToneWaveform::Fds:      return "FDS synth";
-      case ToneWaveform::Sting:    return "sting";
-      case ToneWaveform::Voice:    return "voice";
-      default:                     return "sine";
-    }
-  }
+  static const char* toneWaveformLabel(ToneWaveform w) { return deckboy::params::toneWaveformLabel(w); }
 
   Cue* selectedToneCueMutable() {
     Cue* cue = selectedCueMutable();
     return (cue && cue->kind == CueKind::Tone) ? cue : nullptr;
   }
 
-  static const char* toneVisualLabel(ToneVisual v) {
-    switch (v) {
-      case ToneVisual::Scope:     return "scope";
-      case ToneVisual::Lissajous: return "lissajous";
-      case ToneVisual::Spectrum:  return "spectrum";
-      case ToneVisual::Tract:     return "tract";
-      default:                    return "off";
-    }
-  }
+  static const char* toneVisualLabel(ToneVisual v) { return deckboy::params::toneVisualLabel(v); }
 
-  static const char* fdsCarrierLabel(FdsCarrier c) {
-    switch (c) {
-      case FdsCarrier::Triangle: return "triangle";
-      case FdsCarrier::Pulse25:  return "pulse 25%";
-      case FdsCarrier::Saw:      return "saw";
-      case FdsCarrier::Additive: return "additive";
-      default:                   return "sine";
-    }
-  }
+  static const char* fdsCarrierLabel(FdsCarrier c) { return deckboy::params::fdsCarrierLabel(c); }
 
-  static const char* fdsModulatorLabel(FdsModulator m) {
-    switch (m) {
-      case FdsModulator::Ramp:    return "ramp";
-      case FdsModulator::Square:  return "square";
-      case FdsModulator::Vibrato: return "vibrato";
-      case FdsModulator::Growl:   return "growl";
-      default:                    return "off";
-    }
-  }
+  static const char* fdsModulatorLabel(FdsModulator m) { return deckboy::params::fdsModulatorLabel(m); }
 
   // Note names rather than raw Hz. A musician thinks in notes, and a synth
   // whose pitch control reads "233 Hz" is a test generator wearing a hat.
@@ -3688,36 +3629,11 @@
     return std::string(kNames[step]) + std::to_string(octave);
   }
 
-  static const char* synthTuningLabel(SynthTuning t) {
-    switch (t) {
-      case SynthTuning::Just:         return "just";
-      case SynthTuning::Pythagorean:  return "pythagorean";
-      case SynthTuning::Meantone:     return "meantone";
-      case SynthTuning::Equal19:      return "19-TET";
-      case SynthTuning::Equal24:      return "24-TET";
-      case SynthTuning::BohlenPierce: return "bohlen-pierce";
-      default:                        return "12-TET";
-    }
-  }
+  static const char* synthTuningLabel(SynthTuning t) { return deckboy::params::synthTuningLabel(t); }
 
-  static const char* synthChipLabel(SynthChip c) {
-    return c == SynthChip::Nes ? "2A03 (NES)" : "FDS";
-  }
-  static const char* nesVoiceLabel(NesVoice v) {
-    switch (v) {
-      case NesVoice::Triangle: return "triangle";
-      case NesVoice::Noise:    return "noise";
-      default:                 return "pulse";
-    }
-  }
-  static const char* nesDutyLabel(NesDuty d) {
-    switch (d) {
-      case NesDuty::Eighth:       return "12.5%";
-      case NesDuty::Quarter:      return "25%";
-      case NesDuty::ThreeQuarter: return "75%";
-      default:                    return "50%";
-    }
-  }
+  static const char* synthChipLabel(SynthChip c) { return deckboy::params::synthChipLabel(c); }
+  static const char* nesVoiceLabel(NesVoice v) { return deckboy::params::nesVoiceLabel(v); }
+  static const char* nesDutyLabel(NesDuty d) { return deckboy::params::nesDutyLabel(d); }
 
   void cycleSynthChip() {
     Cue* cue = selectedToneCueMutable();
@@ -3993,57 +3909,12 @@
       : "tone: channel " + std::to_string(cue->tone.channel + 1));
   }
 
-  static const char* vsRotateLabel(int r) {
-    switch (r) {
-      case 1:  return "90";
-      case 2:  return "180";
-      case 3:  return "270";
-      case 4:  return "by brightness";
-      case 5:  return "spinning";
-      default: return "none";
-    }
-  }
-  static const char* vsFlipLabel(int f) {
-    switch (f) {
-      case 1:  return "horizontal";
-      case 2:  return "vertical";
-      case 3:  return "alternating";
-      default: return "none";
-    }
-  }
+  static const char* vsRotateLabel(int r) { return deckboy::params::vsRotateLabel(r); }
+  static const char* vsFlipLabel(int f) { return deckboy::params::vsFlipLabel(f); }
 
-  static const char* vsShapeLabel(VideoSynthShape s) {
-    switch (s) {
-      case VideoSynthShape::Diamond: return "diamond";
-      case VideoSynthShape::Rings:   return "rings";
-      case VideoSynthShape::Grid:    return "grid";
-      case VideoSynthShape::Moire:   return "moire";
-      default:                       return "plasma";
-    }
-  }
-  static const char* vsMirrorLabel(VideoSynthMirror m) {
-    switch (m) {
-      case VideoSynthMirror::Horizontal: return "horizontal";
-      case VideoSynthMirror::Quad:       return "quad";
-      case VideoSynthMirror::Kaleido:    return "kaleido";
-      default:                           return "none";
-    }
-  }
-  static const char* vsPaletteLabel(VideoSynthPalette p) {
-    switch (p) {
-      case VideoSynthPalette::Amber: return "amber";
-      case VideoSynthPalette::Ice:   return "ice";
-      case VideoSynthPalette::Fire:  return "fire";
-      case VideoSynthPalette::Mono:    return "mono";
-      case VideoSynthPalette::Ega:     return "EGA 16";
-      case VideoSynthPalette::C64:     return "C64";
-      case VideoSynthPalette::Gameboy: return "Game Boy";
-      case VideoSynthPalette::Cga:     return "CGA";
-      case VideoSynthPalette::Nes:     return "NES";
-      case VideoSynthPalette::Vapor:   return "vapor";
-      default:                       return "spectrum";
-    }
-  }
+  static const char* vsShapeLabel(VideoSynthShape s) { return deckboy::params::vsShapeLabel(s); }
+  static const char* vsMirrorLabel(VideoSynthMirror m) { return deckboy::params::vsMirrorLabel(m); }
+  static const char* vsPaletteLabel(VideoSynthPalette p) { return deckboy::params::vsPaletteLabel(p); }
 
   static const char* vsCharSetLabel(int s) {
     switch (s) {
@@ -4469,6 +4340,17 @@
       Cue& cue = deck.cues.back();
       cue.name = "Moire";
       cue.color = {150, 60, 170, 255};
+      markProjectDirty();
+    }
+  }
+
+  void addIllusionCue() {
+    addPatternCue("illusion");
+    Deck& deck = focusedDeckMutable();
+    if (!deck.cues.empty()) {
+      Cue& cue = deck.cues.back();
+      cue.name = "Illusion";
+      cue.color = {232, 98, 44, 255};
       markProjectDirty();
     }
   }

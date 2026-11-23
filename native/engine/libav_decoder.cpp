@@ -172,6 +172,23 @@ AVBufferRef* adoptD3D11Device(void* devicePtr) {
 
 // Rotation side data means the CLI (which autorotates) and libav (which does
 // not) would show different pictures. Those files stay on the CLI path.
+// Clockwise quarter turns that make a file upright (0-3), or -1 for a turn
+// that is not a whole quarter. ffmpeg's display matrix angle is anticlockwise.
+int streamQuarterTurns(const AVStream* stream) {
+  const AVPacketSideData* sd = av_packet_side_data_get(
+    stream->codecpar->coded_side_data, stream->codecpar->nb_coded_side_data,
+    AV_PKT_DATA_DISPLAYMATRIX);
+  if (!sd || sd->size < 9 * sizeof(int32_t)) {
+    return 0;
+  }
+  const double rotation = av_display_rotation_get(reinterpret_cast<const int32_t*>(sd->data));
+  if (!std::isfinite(rotation)) return 0;
+  double cw = std::fmod(-rotation, 360.0);
+  if (cw < 0) cw += 360.0;
+  const int q = static_cast<int>(std::lround(cw / 90.0)) % 4;
+  return std::abs(cw - q * 90.0) < 1.0 || std::abs(cw - 360.0) < 1.0 ? q : -1;
+}
+
 bool streamHasRotation(const AVStream* stream) {
   const AVPacketSideData* sd = av_packet_side_data_get(
     stream->codecpar->coded_side_data, stream->codecpar->nb_coded_side_data,
@@ -211,6 +228,10 @@ AVHWDeviceType preferredHwDeviceType() {
   return AV_HWDEVICE_TYPE_D3D11VA;
 #elif defined(__APPLE__)
   return AV_HWDEVICE_TYPE_VIDEOTOOLBOX;
+#elif defined(__ANDROID__)
+  // The phone's decoders are MediaCodec, which ffmpeg exposes as separate
+  // decoders (mediacodecDecoderFor), not as a device to attach.
+  return AV_HWDEVICE_TYPE_NONE;
 #elif defined(__linux__)
   return AV_HWDEVICE_TYPE_VAAPI;
 #else
@@ -257,6 +278,8 @@ AVPixelFormat hwPixelFormat() {
   return AV_PIX_FMT_D3D11;
 #elif defined(__APPLE__)
   return AV_PIX_FMT_VIDEOTOOLBOX;
+#elif defined(__ANDROID__)
+  return AV_PIX_FMT_NONE;
 #elif defined(__linux__)
   return AV_PIX_FMT_VAAPI;
 #else
@@ -266,7 +289,14 @@ AVPixelFormat hwPixelFormat() {
 
 // The name to say out loud, for --decode-bench and the logs. "hardware" on its
 // own is not a useful answer when the question is why a machine is slow.
+#if defined(__ANDROID__)
+bool androidHwDecodeDisabled();
+#endif
+
 const char* hwDeviceName() {
+#if defined(__ANDROID__)
+  if (!androidHwDecodeDisabled()) return "mediacodec";
+#endif
   const AVHWDeviceType type = preferredHwDeviceType();
   if (type == AV_HWDEVICE_TYPE_NONE) {
     return "software";
@@ -275,7 +305,39 @@ const char* hwDeviceName() {
   return name ? name : "hardware";
 }
 
-#if defined(__linux__)
+#if defined(__ANDROID__)
+// ── ANDROID: THE PHONE'S OWN DECODERS ────────────────────────────────────────
+//
+// MediaCodec, as ffmpeg's separate "*_mediacodec" decoders -- the same shape
+// as a Pi's V4L2 decoders below. With no output surface they hand frames over
+// in ordinary memory (NV12 on most phones), so everything after the decoder is
+// the software path unchanged. Needs the Java VM (av_jni_set_java_vm), which
+// Pocket sets at start. DECKBOY_NO_HW_DECODE=1 turns it off, as everywhere.
+bool androidHwDecodeDisabled() {
+  static const bool disabled = [] {
+    const char* env = std::getenv("DECKBOY_NO_HW_DECODE");
+    return env && env[0] && env[0] != '0';
+  }();
+  return disabled;
+}
+
+const AVCodec* mediacodecDecoderFor(AVCodecID id) {
+  const char* name = nullptr;
+  switch (id) {
+    case AV_CODEC_ID_H264:       name = "h264_mediacodec"; break;
+    case AV_CODEC_ID_HEVC:       name = "hevc_mediacodec"; break;
+    case AV_CODEC_ID_AV1:        name = "av1_mediacodec"; break;
+    case AV_CODEC_ID_VP8:        name = "vp8_mediacodec"; break;
+    case AV_CODEC_ID_VP9:        name = "vp9_mediacodec"; break;
+    case AV_CODEC_ID_MPEG2VIDEO: name = "mpeg2_mediacodec"; break;
+    case AV_CODEC_ID_MPEG4:      name = "mpeg4_mediacodec"; break;
+    default: return nullptr;
+  }
+  return avcodec_find_decoder_by_name(name);
+}
+#endif
+
+#if defined(__linux__) && !defined(__ANDROID__)
 // ── THE OTHER KIND OF LINUX HARDWARE DECODER ─────────────────────────────────
 //
 // VAAPI is a hwaccel: the ordinary decoder with the heavy lifting handed to a
@@ -388,6 +450,8 @@ struct VideoPipeline::Impl {
   AVCodecContext* codecCtx = nullptr;
   AVBufferRef* hwDevice = nullptr;
   SwsContext* swsCtx = nullptr;
+  int quarterTurns = 0;                  // a rotated file (Android): clockwise quarter turns
+  std::vector<std::uint8_t> turnScratch;
   // HDR (PQ/HLG) sources: reshaped to 16-bit 4:4:4 and converted by Deckboy's
   // own HDR->SDR (core/hdr_to_sdr.hpp), rebuilt when the source's tags change.
   SwsContext* hdrSwsCtx = nullptr;
@@ -535,7 +599,16 @@ struct VideoPipeline::Impl {
     }
     AVStream* stream = fmtCtx->streams[streamIndex];
     if (streamHasRotation(stream)) {
+#if defined(__ANDROID__)
+      // A phone's own portrait clips are stored sideways with a rotation
+      // note, and Android has no ffmpeg program to fall back to: turn the
+      // picture here instead (CPU frames, RGBA). The desk keeps the
+      // program, which has always autorotated.
+      quarterTurns = streamQuarterTurns(stream);
+      if (quarterTurns < 0) return false;
+#else
       return false;  // CLI autorotates; we don't — fall back
+#endif
     }
     timeBase = stream->time_base;
 
@@ -563,7 +636,28 @@ struct VideoPipeline::Impl {
       return true;
     }
 
-#if defined(__linux__)
+#if defined(__ANDROID__)
+    // The phone's hardware decoder. One that will not take this stream fails
+    // at avcodec_open2, and the ordinary software decoder below runs instead.
+    // Never for datamosh: it needs the decoder to see broken references.
+    if (tryHw && !datamosh.load() && !androidHwDecodeDisabled()) {
+      if (const AVCodec* mc = mediacodecDecoderFor(stream->codecpar->codec_id)) {
+        codecCtx = avcodec_alloc_context3(mc);
+        if (codecCtx && avcodec_parameters_to_context(codecCtx, stream->codecpar) >= 0) {
+          codecCtx->opaque = nullptr;
+          codecCtx->get_format = &pickDecodeFormat;
+          if (avcodec_open2(codecCtx, mc, nullptr) >= 0) {
+            hwDecode = true;
+            zeroCopy = false;
+            return finishOpen();
+          }
+        }
+        avcodec_free_context(&codecCtx);
+      }
+    }
+#endif
+
+#if defined(__linux__) && !defined(__ANDROID__)
     // A V4L2 decoder (the Pi's) when there is no VAAPI. A device that will
     // not take this stream fails at avcodec_open2, and the ordinary decoder
     // below runs as before. Never for datamosh, for the reason given there.
@@ -823,6 +917,42 @@ struct VideoPipeline::Impl {
 
   // Fill `out` from the decoded `frame`. Returns false when the frame is
   // dropped (pre-seek-target) — the caller keeps pumping.
+  // A rotated file: scale to the size it has before turning, in RGBA, then
+  // turn it into the frame upright (quarterTurns clockwise).
+  bool convertTurned(AVFrame* src, AVPixelFormat srcFormat, DecodedFrame& out, int dstW, int dstH) {
+    const bool sideways = (quarterTurns % 2) == 1;
+    const int sw = sideways ? dstH : dstW;
+    const int sh = sideways ? dstW : dstH;
+    out.format = FramePixelFormat::RGBA32;
+    out.colorspace = SDL_COLORSPACE_SRGB;
+    out.pixels.resize(static_cast<std::size_t>(dstW) * dstH * 4);
+    turnScratch.resize(static_cast<std::size_t>(sw) * sh * 4);
+    swsCtx = sws_getCachedContext(swsCtx, src->width, src->height, srcFormat, sw, sh, AV_PIX_FMT_RGBA,
+                                  SWS_FAST_BILINEAR, nullptr, nullptr, nullptr);
+    if (!swsCtx) return false;
+    const int matrix = frame->colorspace == AVCOL_SPC_UNSPECIFIED
+      ? (frame->height <= 576 ? SWS_CS_ITU601 : SWS_CS_ITU709) : frame->colorspace;
+    const int* coefficients = sws_getCoefficients(matrix);
+    const int fullRange = frame->color_range == AVCOL_RANGE_JPEG ? 1 : 0;
+    sws_setColorspaceDetails(swsCtx, coefficients, fullRange, coefficients, 1, 0, 1 << 16, 1 << 16);
+    std::uint8_t* dstData[4] = {turnScratch.data(), nullptr, nullptr, nullptr};
+    int dstLinesize[4] = {sw * 4, 0, 0, 0};
+    if (sws_scale(swsCtx, src->data, src->linesize, 0, src->height, dstData, dstLinesize) != sh) return false;
+    const auto* in = reinterpret_cast<const std::uint32_t*>(turnScratch.data());
+    auto* o = reinterpret_cast<std::uint32_t*>(out.pixels.data());
+    for (int y = 0; y < sh; ++y) {
+      const std::uint32_t* row = in + static_cast<std::size_t>(y) * sw;
+      for (int x = 0; x < sw; ++x) {
+        int ox = x, oy = y;
+        if (quarterTurns == 1) { ox = sh - 1 - y; oy = x; }
+        else if (quarterTurns == 2) { ox = sw - 1 - x; oy = sh - 1 - y; }
+        else if (quarterTurns == 3) { ox = y; oy = sw - 1 - x; }
+        o[static_cast<std::size_t>(oy) * dstW + ox] = row[x];
+      }
+    }
+    return true;
+  }
+
   bool convertFrame(DecodedFrame& out) {
     if (dropBeforeSeconds >= 0.0) {
       double pts = streamTimeSeconds(frame->best_effort_timestamp, timeBase);
@@ -1002,6 +1132,9 @@ struct VideoPipeline::Impl {
     }
 
     const auto srcFormat = static_cast<AVPixelFormat>(src->format);
+    if (quarterTurns > 0) {
+      return convertTurned(src, srcFormat, out, dstW, dstH);
+    }
     if (params.format == FramePixelFormat::NV12 && srcFormat == AV_PIX_FMT_NV12 &&
         src->width == dstW && src->height == dstH) {
       // Fast path: same-size NV12 — the skip-the-no-op-scale win.
@@ -1827,6 +1960,46 @@ bool decodeImageRgba(const std::string& path, int& width, int& height,
     if (sws_scale(sws, frame->data, frame->linesize, 0, frame->height, dst, dstStride) != frame->height) break;
     width = frame->width;
     height = frame->height;
+#if defined(__ANDROID__)
+    // A phone's portrait photo is stored sideways with an orientation note
+    // (EXIF, which the decoder hands over as a display matrix): turn it
+    // upright, as every gallery does. The desk's stills go through the
+    // ffmpeg program, which does the same.
+    {
+      const AVFrameSideData* sd = av_frame_get_side_data(frame, AV_FRAME_DATA_DISPLAYMATRIX);
+      const AVPacketSideData* psd = sd ? nullptr : av_packet_side_data_get(
+        fmt->streams[stream]->codecpar->coded_side_data, fmt->streams[stream]->codecpar->nb_coded_side_data,
+        AV_PKT_DATA_DISPLAYMATRIX);
+      const int32_t* matrix = sd && sd->size >= 9 * sizeof(int32_t) ? reinterpret_cast<const int32_t*>(sd->data)
+                            : psd && psd->size >= 9 * sizeof(int32_t) ? reinterpret_cast<const int32_t*>(psd->data) : nullptr;
+      if (matrix) {
+        const double rot = av_display_rotation_get(matrix);
+        if (std::isfinite(rot)) {
+          double cw = std::fmod(-rot, 360.0);
+          if (cw < 0) cw += 360.0;
+          const int q = static_cast<int>(std::lround(cw / 90.0)) % 4;
+          if (q != 0) {
+            std::vector<std::uint8_t> turned(rgba.size());
+            const int w = width, h = height;
+            const auto* in = reinterpret_cast<const std::uint32_t*>(rgba.data());
+            auto* out = reinterpret_cast<std::uint32_t*>(turned.data());
+            const int ow = (q % 2) ? h : w;
+            for (int y = 0; y < h; ++y) {
+              for (int x = 0; x < w; ++x) {
+                int ox = x, oy = y;
+                if (q == 1) { ox = h - 1 - y; oy = x; }
+                else if (q == 2) { ox = w - 1 - x; oy = h - 1 - y; }
+                else { ox = y; oy = w - 1 - x; }
+                out[static_cast<std::size_t>(oy) * ow + ox] = in[static_cast<std::size_t>(y) * w + x];
+              }
+            }
+            rgba.swap(turned);
+            if (q % 2) std::swap(width, height);
+          }
+        }
+      }
+    }
+#endif
     ok = true;
   } while (false);
   if (sws) sws_freeContext(sws);

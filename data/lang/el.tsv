@@ -4692,3 +4692,157 @@ listens to the live input while one is open, else the playlist	ακούει τη
 TUTORIAL: no lesson running	TUTORIAL: κανένα μάθημα δεν τρέχει
 TUTORIAL: expected START, SHOWME, SKIP, STEP <n>, RESTART, EXIT, STATUS or SCREENS	TUTORIAL: αναμένεται START, SHOWME, SKIP, STEP <n>, RESTART, EXIT, STATUS ή SCREENS
 cursor across	δείκτης οριζόντια
+Edge	Ακμή
+Flip	Αναστροφή
+Form	Μορφή
+flip	αναστροφή
+form	μορφή
+pose	στάση
+Count	Πλήθος
+count	πλήθος
+disc x	δίσκος x
+disc y	δίσκος y
+mortar	κονίαμα
+offset	μετατόπιση
+wander	περιπλάνηση
+RESTART	ΕΠΑΝΕΚΚΙΝΗΣΗ
+crosses	σταυροί
+squares	τετράγωνα
+Colour 1	Χρώμα 1
+Colour 2	Χρώμα 2
+ILLUSION	ΟΦΘΑΛΜΑΠΑΤΗ
+Illusion	Οφθαλμαπάτη
+colour 1	χρώμα 1
+colour 2	χρώμα 2
+dot size	μέγεθος κουκκίδας
+disc size	μέγεθος δίσκου
+cross size	μέγεθος σταυρού
+dot colour	χρώμα κουκκίδας
+edge width	πλάτος ακμής
+mortar grey	γκρι κονιάματος
+street grey	γκρι δρόμων
+tile length	μήκος πλακιδίου
+cross colour	χρώμα σταυρού
+shape colour	χρώμα σχήματος
+street width	πλάτος δρόμων
+ground colour	χρώμα φόντου
+tile thickness	πάχος πλακιδίου
+How big each tile is	Το μέγεθος κάθε πλακιδίου
+How big each cross is	Το μέγεθος κάθε σταυρού
+How long each tile is	Το μήκος κάθε πλακιδίου
+How tall the dancer is	Πόσο ψηλή είναι η χορεύτρια
+0-100%: 0 holds it still	0-100%: το 0 το κρατά ακίνητο
+0 classic, 1 theme, 2 hues	0 κλασικό, 1 θέμα, 2 αποχρώσεις
+Leaf, petal, scale or ring	Φύλλο, πέταλο, λέπι ή δαχτυλίδι
+0 or 1: the other way round	0 ή 1: ανάποδα
+0 turn, 1 out, 2 in, 3 wave	0 στροφή, 1 έξ., 2 είσ., 3 κύμα
+How big the floating disc is	Πόσο μεγάλος είναι ο αιωρούμενος δίσκος
+How light the grey lines are	Πόσο ανοιχτές είναι οι γκρι γραμμές
+select an illusion cue first	επιλέξτε πρώτα ένα cue ψευδαίσθησης
+Turn the crosses the other way	Γυρίστε τους σταυρούς ανάποδα
+Illusion (Pictures that move!?)	Ψευδαίσθηση (Εικόνες που κινούνται!?)
+0 leaf, 1 petal, 2 scale, 3 ring	0 φύλλο, 1 πέταλο, 2 λέπι, 3 δαχτυλίδι
+How many shapes across the screen	Πόσα σχήματα κατά πλάτος της οθόνης
+How many crosses across the screen	Πόσοι σταυροί κατά πλάτος της οθόνης
+How many squares across the screen	Πόσα τετράγωνα κατά πλάτος της οθόνης
+Where the disc sits, left to right	Θέση δίσκου, από αριστερά προς δεξιά
+Where the disc sits, top to bottom	Θέση δίσκου, από πάνω προς κάτω
+0-100%: 0 black, 100 the light tile	0-100%: 0 μαύρο, 100 το ανοιχτό πλακίδιο
+How much of its place each shape fills	Πόσο από τη θέση του γεμίζει κάθε σχήμα
+Where the dancer stands, left to right	Θέση χορεύτριας, από αριστερά προς δεξιά
+Where the dancer stands, top to bottom	Θέση χορεύτριας, από πάνω προς κάτω
+Collapse/expand the illusion's controls	Σύμπτυξη/ανάπτυξη χειριστηρίων ψευδαίσθησης
+How far the free leg and the arms reach	Πόσο απλώνουν το ελεύθερο πόδι και τα χέρια
+Slide the grid slowly. 0 holds it still	Σύρετε αργά το πλέγμα. Το 0 το κρατά ακίνητο
+The first colour, round the colour wheel	Το πρώτο χρώμα, στον χρωματικό κύκλο
+The second colour, round the colour wheel	Το δεύτερο χρώμα, στον χρωματικό κύκλο
+How thick each tile is, against its length	Πάχος κάθε πλακιδίου ως προς το μήκος του
+Where the centre point sits, left to right	Θέση κέντρου, από αριστερά προς δεξιά
+Where the centre point sits, top to bottom	Θέση κέντρου, από πάνω προς κάτω
+How thick the grey line between the rows is	Πάχος της γκρι γραμμής ανάμεσα στις σειρές
+How big the light discs at the crossings are	Μέγεθος των ανοιχτών δίσκων στις διασταυρώσεις
+Where the field's centre sits, left to right	Κέντρο πεδίου, από αριστερά προς δεξιά
+Where the field's centre sits, top to bottom	Κέντρο πεδίου, από πάνω προς κάτω
+How wide the grey lines between the squares are	Πλάτος των γκρι γραμμών ανάμεσα στα τετράγωνα
+How fast the dancer turns. It always turns a little	Πόσο γρήγορα γυρίζει η χορεύτρια. Πάντα γυρίζει λίγο
+0 drift, 1 ouchi, 2 cafe, 3 vanish, 4 grid, 5 dancer	0 ολίσθηση, 1 ouchi, 2 καφέ, 3 εξαφάνιση, 4 πλέγμα, 5 χορεύτρια
+How light the grey line is. Mid grey tilts the rows most	Πόσο ανοιχτή είναι η γκρι γραμμή. Το μεσαίο γκρι γέρνει περισσότερο τις σειρές
+How big the three dots are. Small dots vanish more easily	Μέγεθος των τριών κουκκίδων. Οι μικρές εξαφανίζονται ευκολότερα
+Swap the black and white edges: the field drifts the other way	Εναλλαγή μαύρων και λευκών ακμών: το πεδίο ολισθαίνει ανάποδα
+How much of the black and white edges shows. They make the drift	Πόσο φαίνονται οι μαύρες και λευκές ακμές. Αυτές δημιουργούν την ολίσθηση
+LFO: size, count, edge, speed, centrex, centrey, grey, hue1 or hue2	LFO: size, count, edge, speed, centrex, centrey, grey, hue1 ή hue2
+How far each row is shifted. This makes the straight rows look tilted	Πόσο μετατοπίζεται κάθε γραμμή. Έτσι οι ίσιες γραμμές φαίνονται γερμένες
+Spin the other way. Most people cannot tell which way it turns anyway	Στροφή προς την άλλη κατεύθυνση. Οι περισσότεροι ούτως ή άλλως δεν ξεχωρίζουν προς τα πού γυρίζει
+Move the disc in a small loop. 0 holds it still: the eye moves it anyway	Μετακίνηση του δίσκου σε μικρό βρόχο. Το 0 τον κρατά ακίνητο: το μάτι τον κινεί ούτως ή άλλως
+Turn the shapes slowly, so the drift changes direction. 0 holds them still	Αργή στροφή των σχημάτων, ώστε η ολίσθηση να αλλάζει κατεύθυνση. Το 0 τα κρατά ακίνητα
+Classic, the theme's colours (taken when picked) or two colours of your own	Κλασικό, τα χρώματα του θέματος (κατά την επιλογή) ή δύο δικά σας χρώματα
+Which way the field seems to go: turn round the centre, out, in, or in waves	Προς τα πού φαίνεται να πηγαίνει το πεδίο: στροφή γύρω από το κέντρο, προς τα έξω, προς τα μέσα ή σε κύματα
+Slide the rows back and forth, so the wall bends and straightens. 0 holds it still	Ολίσθηση των γραμμών μπρος-πίσω, ώστε ο τοίχος να λυγίζει και να ισιώνει. Το 0 τον κρατά ακίνητο
+How fast the crosses turn. They always turn a little: the dots vanish only while they move	Πόσο γρήγορα γυρίζουν οι σταυροί. Πάντα γυρίζουν λίγο: οι κουκκίδες χάνονται μόνο όσο κινούνται
+Drift (still shapes that seem to turn), ouchi (a disc that floats), cafe (straight rows that look tilted), vanish (dots that disappear while you stare), grid (dots that flicker and are not there) or dancer (it spins whichever way you see it)	Ολίσθηση (ακίνητα σχήματα που μοιάζουν να γυρίζουν), ouchi (δίσκος που αιωρείται), καφενείο (ίσιες γραμμές που φαίνονται γερμένες), εξαφάνιση (κουκκίδες που χάνονται όσο τις κοιτάς), πλέγμα (κουκκίδες που τρεμοπαίζουν και δεν υπάρχουν) ή χορεύτρια (γυρίζει όπως τη βλέπεις)
+SYNC LEAD ON or OFF	SYNC LEAD ON ή OFF
+{1} is following this desk	{1} ακολουθεί αυτή την κονσόλα
+SYNC LEAD ON|OFF or SYNC STATUS	SYNC LEAD ON|OFF ή SYNC STATUS
+FOLLOW needs a network connection that stays open	Το FOLLOW απαιτεί σύνδεση δικτύου που μένει ανοιχτή
+this desk is not leading (SYNC LEAD ON, or Settings > Network > SYNC)	αυτή η κονσόλα δεν ηγείται (SYNC LEAD ON ή Ρυθμίσεις > Δίκτυο > SYNC)
+LEADING	ΟΔΗΓΕΙ
+No longer leading	Δεν οδηγεί πλέον
+Lead other machines	Οδήγηση άλλων συσκευών
+Following this desk: {1}	Ακολουθούν αυτή την κονσόλα: {1}
+Leading. Nobody is following yet.	Οδηγεί. Κανείς δεν ακολουθεί ακόμη.
+Leading: other machines may follow this desk	Οδηγεί: άλλες συσκευές μπορούν να ακολουθούν αυτή την κονσόλα
+Not leading: no other machine can follow this desk.	Δεν οδηγεί: καμία άλλη συσκευή δεν μπορεί να ακολουθήσει αυτή την κονσόλα.
+body	σώμα
+burns	καψίματα
+chaos	χάος
+breath	ανάσα
+jitter	τρεμόπαιγμα
+sparks	σπίθες
+How big a blob grows	Πόσο μεγαλώνει μια κηλίδα
+Tube, mandala or none	Σωλήνας, μάνταλα ή κανένα
+Turn the whole picture	Στροφή όλης της εικόνας
+How far the field bends	Κάμψη του πεδίου
+How fast the water moves	Ταχύτητα κίνησης νερού
+The halo round the lines	Το φωτοστέφανο γύρω από τις γραμμές
+How bright the picture is	Φωτεινότητα της εικόνας
+How long the in move takes	Διάρκεια της κίνησης είσ.
+Scale of the whole graphic	Κλίμακα όλου του γραφικού
+How hard the lines are bent	Ένταση κάμψης των γραμμών
+How long the out move takes	Διάρκεια της κίνησης έξ.
+How far the colours fan apart	Άνοιγμα των χρωμάτων σε βεντάλια
+Thickness of the glowing edge	Πάχος της λαμπερής ακμής
+How bright the laser lines are	Φωτεινότητα γραμμών λέιζερ
+Spiral size: above 1 is bigger	Μέγεθος σπείρας: πάνω από 1 είναι μεγαλύτερη
+How many mirror panels, 0 to 12	Πόσα πάνελ καθρέφτη, 0 έως 12
+Turn the colours round the wheel	Στροφή των χρωμάτων στον τροχό
+Laser speckle: the focus trembles	Κόκκωση λέιζερ: η εστίαση τρέμει
+Rotate the field round its centre	Περιστροφή του πεδίου γύρω από το κέντρο του
+How bright the water's pale light is	Φωτεινότητα του χλωμού φωτός του νερού
+How long light lingers on the screen	Πόσο παραμένει το φως στην οθόνη
+Colour steps: 2 is stark, 8 is smooth	Βήματα χρώματος: 2 απότομο, 8 απαλό
+Classic green, fire, ice, neon or mono	Κλασικό πράσινο, φωτιά, πάγος, νέον ή μονόχρωμο
+How fast they are born, drift and fade	Πόσο γρήγορα γεννιούνται, ολισθαίνουν και σβήνουν
+Turbulence: 0 is still ripples, 3 boils	Αναταραχή: 0 ήρεμος κυματισμός, 3 βράζει
+A second jet of water crossing the first	Μια δεύτερη δέσμη νερού διασχίζει την πρώτη
+Broad ripples at 0, fine and busy at 100	Πλατύς κυματισμός στο 0, λεπτός και πυκνός στο 100
+The flow surges with the programme sound	Η ροή πάλλεται με τον ήχο του PROGRAM
+Zone, twin, flow, saddle, ripple or shear	Ζώνη, διπλό, ροή, σέλα, κυματισμός ή διάτμηση
+Horizontal cells. More detail uses more CPU	Οριζόντια κελιά. Περισσότερη λεπτομέρεια χρησιμοποιεί περισσότερη CPU
+How far each panel tilts from the one before	Κλίση κάθε πάνελ ως προς το προηγούμενο
+The share of each band drawn as grey stripes	Το ποσοστό κάθε ζώνης που σχεδιάζεται ως γκρι λωρίδες
+The top mirrors the bottom round a dark seam	Το πάνω καθρεφτίζει το κάτω γύρω από μια σκοτεινή ραφή
+0 holds the field; negative runs it backwards	0 κρατά το πεδίο ακίνητο· αρνητικό το τρέχει ανάποδα
+Where the eye of the swirl sits, left to right	Πού βρίσκεται το μάτι της δίνης, από αριστερά προς δεξιά
+Where the eye of the swirl sits, top to bottom	Πού βρίσκεται το μάτι της δίνης, από πάνω προς κάτω
+The round lens: a curved picture and a dark rim	Ο στρογγυλός φακός: μια κυρτή εικόνα και ένα σκοτεινό χείλος
+How fast the bands move; 0 holds the field still	Πόσο γρήγορα κινούνται οι ζώνες· 0 κρατά το πεδίο ακίνητο
+Turn the palette through all colours; 0 restores it	Περιστρέφει την παλέτα σε όλα τα χρώματα· 0 την επαναφέρει
+Spiral strength, from a flowing field to tight turns	Ένταση σπείρας, από ρέον πεδίο έως σφιχτές στροφές
+How long it stays before leaving by itself. 0 waits for OUT	Πόσο μένει πριν φύγει μόνο του. 0 περιμένει το ΕΞ.
+The laser colours: rgb, rainbow, floyd, warm, cool or green	Τα χρώματα του λέιζερ: rgb, ουράνιο τόξο, floyd, θερμά, ψυχρά ή πράσινο
+How many are alive at once. Each is born, drifts out, grows and fades	Πόσα ζουν ταυτόχρονα. Το καθένα γεννιέται, παρασύρεται προς τα έξω, μεγαλώνει και σβήνει
+How readily neighbours merge into one shape. 0 keeps every blob round	Πόσο εύκολα τα γειτονικά συγχωνεύονται σε ένα σχήμα. 0 κρατά κάθε σταγόνα στρογγυλή
+Rainbow + grey, rainbow, the theme's colours (taken when picked) or mono	Ουράνιο τόξο + γκρι, ουράνιο τόξο, τα χρώματα του θέματος (κατά την επιλογή) ή μονόχρωμο
+How many bands: 50% is the design, higher beats harder against the pixels	Πόσες ζώνες: 50% είναι ο σχεδιασμός, περισσότερες συγκρούονται πιο έντονα με τα πίξελ
+Turns the rim's colours round the wheel -- green, yellow, pink, violet, blue	Περιστρέφει τα χρώματα του χείλους γύρω από τον τροχό -- πράσινο, κίτρινο, ροζ, βιολετί, μπλε
+The gap under it, as a share of the frame	Το διάκενο από κάτω ως ποσοστό του καρέ

@@ -2295,7 +2295,7 @@
       // Heights, computed before any rect so the scroll range below can see
       // all of them. Same shape and same comments as they had inline.
       // Three rows and two status lines, in the order they are drawn.
-      int remoteH = stackH({sRowH, sRowH, sRowH, sRowH, sRowH, sRowH, sRowH, sLineH, sLineH});
+      int remoteH = stackH({sRowH, sRowH, sRowH, sRowH, sRowH, sRowH, sRowH, sRowH, sLineH, sLineH, sLineH});
       int oscH = stackH({sLineH, sRowH, sRowH, sRowH, sRowH});
       // NMC IN & OUT. Four rows and one line saying what the chosen
       // direction actually does.
@@ -2425,6 +2425,11 @@
         drawPill(refusedBtn, false, "", "ALLOW " + controlLastRefused_, kSettingsActionTrustLastRefused);
       }
 
+      // SYNC: Pockets, Minis and a backup desk FOLLOW this one (SYNC_DESIGN).
+      SDL_Rect leadToggle =
+        settingsRow(remoteX, remoteW, remoteY, sRowH, "Lead other machines", sGap);
+      drawPill(leadToggle, project_.syncLead, "LEADING", "OFF", kSettingsActionSyncLeadToggle);
+
       // Every message from a controller, and what Deckboy did with it.
       SDL_Rect monitorBtn =
         settingsRow(remoteX, remoteW, remoteY, sRowH, "MIDI and OSC monitor", sGap);
@@ -2446,6 +2451,15 @@
                           ? "All interfaces, but only this computer is trusted yet."
                           : "All interfaces; trusted machines only.")
                      : "Listening on localhost (127.0.0.1).", soft);
+      remoteY += sLineH;
+      {
+        std::string followers;
+        for (const auto& f : syncFollowers_) followers += (followers.empty() ? "" : ", ") + f.name;
+        drawTextSafe(controlRenderer_, fontSmall_, SDL_Rect{remoteX, remoteY, remoteW, sLineH},
+                     !project_.syncLead ? std::string("Not leading: no other machine can follow this desk.")
+                     : syncFollowers_.empty() ? std::string("Leading. Nobody is following yet.")
+                     : deckboy::core::i18n::format("Following this desk: {1}", {followers}), soft);
+      }
 
       drawCard(oscRect, "OSC QUERY / FEEDBACK", "Discovery and mirrored state");
       std::string queryStatus = project_.oscQueryEnabled ? (oscQueryReady_ ? "running" : "error") : "off";
@@ -5464,6 +5478,11 @@
                                triggerToast(cleaned.empty() ? "companion passphrase: off"
                                                             : "companion passphrase: set");
                              });
+      } else if (sb.action == kSettingsActionSyncLeadToggle) {
+        project_.syncLead = !project_.syncLead;
+        if (!project_.syncLead) syncFollowers_.clear();
+        triggerToast(project_.syncLead ? "Leading: other machines may follow this desk" : "No longer leading");
+        markProjectDirty();
       } else if (sb.action == kSettingsActionTrustLastRefused) {
         if (!controlLastRefused_.empty()) trustController(controlLastRefused_);
       } else if (sb.action == kSettingsActionOutputHdrToggle) {

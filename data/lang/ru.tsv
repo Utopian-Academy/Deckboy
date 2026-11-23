@@ -4699,3 +4699,157 @@ listens to the live input while one is open, else the playlist	слушает ж
 TUTORIAL: no lesson running	TUTORIAL: ни один урок не работает
 TUTORIAL: expected START, SHOWME, SKIP, STEP <n>, RESTART, EXIT, STATUS or SCREENS	TUTORIAL: ожидается START, SHOWME, SKIP, STEP <n>, RESTART, EXIT, STATUS или SCREENS
 cursor across	курсор по горизонтали
+Edge	Край
+Flip	Переворот
+Form	Форма
+flip	переворот
+form	форма
+pose	поза
+Count	Количество
+count	количество
+disc x	диск x
+disc y	диск y
+mortar	шов
+offset	сдвиг
+wander	блуждание
+RESTART	ПЕРЕЗАПУСК
+crosses	кресты
+squares	квадраты
+Colour 1	Цвет 1
+Colour 2	Цвет 2
+ILLUSION	ИЛЛЮЗИЯ
+Illusion	Иллюзия
+colour 1	цвет 1
+colour 2	цвет 2
+dot size	размер точки
+disc size	размер диска
+cross size	размер креста
+dot colour	цвет точки
+edge width	ширина края
+mortar grey	серый тон шва
+street grey	серый тон улиц
+tile length	длина плитки
+cross colour	цвет креста
+shape colour	цвет формы
+street width	ширина улиц
+ground colour	цвет фона
+tile thickness	толщина плитки
+How big each tile is	Размер каждой плитки
+How big each cross is	Размер каждого креста
+How long each tile is	Длина каждой плитки
+How tall the dancer is	Рост танцора
+0-100%: 0 holds it still	0-100%: 0 останавливает движение
+0 classic, 1 theme, 2 hues	0 классика, 1 тема, 2 оттенки
+Leaf, petal, scale or ring	Лист, лепесток, чешуя или кольцо
+0 or 1: the other way round	0 или 1: в обратную сторону
+0 turn, 1 out, 2 in, 3 wave	0 поворот, 1 наружу, 2 внутрь, 3 волна
+How big the floating disc is	Размер парящего диска
+How light the grey lines are	Яркость серых линий
+select an illusion cue first	сначала выберите cue иллюзии
+Turn the crosses the other way	Повернуть кресты в другую сторону
+Illusion (Pictures that move!?)	Иллюзия (Картинки, которые движутся!?)
+0 leaf, 1 petal, 2 scale, 3 ring	0 лист, 1 лепесток, 2 чешуя, 3 кольцо
+How many shapes across the screen	Сколько фигур по ширине экрана
+How many crosses across the screen	Сколько крестов по ширине экрана
+How many squares across the screen	Сколько квадратов по ширине экрана
+Where the disc sits, left to right	Положение диска, слева направо
+Where the disc sits, top to bottom	Положение диска, сверху вниз
+0-100%: 0 black, 100 the light tile	0-100%: 0 чёрный, 100 светлая плитка
+How much of its place each shape fills	Какую часть своего места заполняет каждая фигура
+Where the dancer stands, left to right	Положение танцора, слева направо
+Where the dancer stands, top to bottom	Положение танцора, сверху вниз
+Collapse/expand the illusion's controls	Свернуть/развернуть настройки иллюзии
+How far the free leg and the arms reach	Размах свободной ноги и рук
+Slide the grid slowly. 0 holds it still	Медленно сдвигает сетку. 0 останавливает её
+The first colour, round the colour wheel	Первый цвет на цветовом круге
+The second colour, round the colour wheel	Второй цвет на цветовом круге
+How thick each tile is, against its length	Толщина каждой плитки относительно её длины
+Where the centre point sits, left to right	Положение центральной точки, слева направо
+Where the centre point sits, top to bottom	Положение центральной точки, сверху вниз
+How thick the grey line between the rows is	Толщина серой линии между рядами
+How big the light discs at the crossings are	Размер светлых дисков на пересечениях
+Where the field's centre sits, left to right	Положение центра поля, слева направо
+Where the field's centre sits, top to bottom	Положение центра поля, сверху вниз
+How wide the grey lines between the squares are	Ширина серых линий между квадратами
+How fast the dancer turns. It always turns a little	Скорость вращения танцора. Он всегда немного вращается
+0 drift, 1 ouchi, 2 cafe, 3 vanish, 4 grid, 5 dancer	0 дрейф, 1 ouchi, 2 кафе, 3 исчезание, 4 сетка, 5 танцор
+How light the grey line is. Mid grey tilts the rows most	Яркость серой линии. Средний серый сильнее всего наклоняет ряды
+How big the three dots are. Small dots vanish more easily	Размер трёх точек. Маленькие точки исчезают легче
+Swap the black and white edges: the field drifts the other way	Поменять местами чёрные и белые края: поле дрейфует в другую сторону
+How much of the black and white edges shows. They make the drift	Насколько видны чёрные и белые края. Они создают дрейф
+LFO: size, count, edge, speed, centrex, centrey, grey, hue1 or hue2	LFO: size, count, edge, speed, centrex, centrey, grey, hue1 или hue2
+SYNC LEAD ON or OFF	SYNC LEAD ON или OFF
+{1} is following this desk	{1} следует за этим оператором
+SYNC LEAD ON|OFF or SYNC STATUS	SYNC LEAD ON|OFF или SYNC STATUS
+FOLLOW needs a network connection that stays open	FOLLOW требует постоянного сетевого подключения
+this desk is not leading (SYNC LEAD ON, or Settings > Network > SYNC)	этот оператор не ведущий (SYNC LEAD ON или Настройки > Сеть > SYNC)
+LEADING	ВЕДУЩИЙ
+No longer leading	Больше не ведущий
+Lead other machines	Вести другие устройства
+Following this desk: {1}	За этим оператором следуют: {1}
+Leading. Nobody is following yet.	Ведущий. Пока никто не следует.
+Leading: other machines may follow this desk	Ведущий: другие устройства могут следовать за этим оператором
+Not leading: no other machine can follow this desk.	Не ведущий: никакое другое устройство не может следовать за этим оператором.
+body	тело
+burns	прожоги
+chaos	хаос
+breath	дыхание
+jitter	дрожание
+sparks	искры
+How big a blob grows	Насколько разрастается пятно
+Tube, mandala or none	Труба, мандала или нет
+Turn the whole picture	Повернуть всю картинку
+How far the field bends	Степень изгиба поля
+How fast the water moves	Скорость движения воды
+The halo round the lines	Ореол вокруг линий
+How bright the picture is	Яркость изображения
+How long the in move takes	Длительность движения вх.
+Scale of the whole graphic	Масштаб всей графики
+How hard the lines are bent	Сила изгиба линий
+How long the out move takes	Длительность движения вых.
+How far the colours fan apart	Расхождение цветов веером
+Thickness of the glowing edge	Толщина светящегося края
+How bright the laser lines are	Яркость лазерных линий
+Spiral size: above 1 is bigger	Размер спирали: больше 1 — крупнее
+How many mirror panels, 0 to 12	Сколько зеркальных панелей, от 0 до 12
+Turn the colours round the wheel	Повернуть цвета по цветовому кругу
+Laser speckle: the focus trembles	Лазерный спекл: фокус дрожит
+Rotate the field round its centre	Повернуть поле вокруг центра
+How bright the water's pale light is	Яркость бледного света воды
+How long light lingers on the screen	Как долго свет держится на экране
+Colour steps: 2 is stark, 8 is smooth	Шаги цвета: 2 — резко, 8 — плавно
+Classic green, fire, ice, neon or mono	Классический зелёный, огонь, лёд, неон или моно
+How fast they are born, drift and fade	Как быстро они рождаются, дрейфуют и гаснут
+Turbulence: 0 is still ripples, 3 boils	Турбулентность: 0 — спокойная рябь, 3 — кипение
+A second jet of water crossing the first	Вторая струя воды пересекает первую
+Broad ripples at 0, fine and busy at 100	Широкая рябь при 0, мелкая и частая при 100
+The flow surges with the programme sound	Поток пульсирует в такт звуку PROGRAM
+Zone, twin, flow, saddle, ripple or shear	Зоны, двойной, поток, седло, рябь или сдвиг
+Horizontal cells. More detail uses more CPU	Ячейки по горизонтали. Больше деталей — выше нагрузка на CPU
+How far each panel tilts from the one before	Наклон каждой панели относительно предыдущей
+The share of each band drawn as grey stripes	Доля каждой полосы, рисуемая серыми штрихами
+The top mirrors the bottom round a dark seam	Верх зеркалит низ вокруг тёмного стыка
+0 holds the field; negative runs it backwards	0 останавливает поле; отрицательное значение пускает его назад
+Where the eye of the swirl sits, left to right	Положение глаза вихря, слева направо
+Where the eye of the swirl sits, top to bottom	Положение глаза вихря, сверху вниз
+The round lens: a curved picture and a dark rim	Круглая линза: изогнутое изображение и тёмный край
+How fast the bands move; 0 holds the field still	Скорость движения полос; 0 останавливает поле
+Turn the palette through all colours; 0 restores it	Прокручивает палитру через все цвета; 0 возвращает её
+Spiral strength, from a flowing field to tight turns	Сила спирали: от плавного поля до тугих витков
+How long it stays before leaving by itself. 0 waits for OUT	Сколько держится, прежде чем уйти само. 0 ждёт OUT
+The laser colours: rgb, rainbow, floyd, warm, cool or green	Цвета лазера: rgb, радуга, floyd, тёплые, холодные или зелёный
+How far each row is shifted. This makes the straight rows look tilted	Сдвиг каждой строки. Из-за него прямые строки кажутся наклонными
+How many are alive at once. Each is born, drifts out, grows and fades	Сколько живут одновременно. Каждый рождается, уплывает, растёт и гаснет
+How readily neighbours merge into one shape. 0 keeps every blob round	Насколько легко соседи сливаются в одну форму. При 0 каждая капля остаётся круглой
+Spin the other way. Most people cannot tell which way it turns anyway	Вращение в обратную сторону. Большинство всё равно не различит направление
+Move the disc in a small loop. 0 holds it still: the eye moves it anyway	Двигает диск по малому циклу. 0 держит его на месте: глаз всё равно его двигает
+Rainbow + grey, rainbow, the theme's colours (taken when picked) or mono	Радуга + серый, радуга, цвета темы (берутся при выборе) или моно
+How many bands: 50% is the design, higher beats harder against the pixels	Сколько полос: 50% — по замыслу, больше — сильнее биения с пикселями
+Turn the shapes slowly, so the drift changes direction. 0 holds them still	Медленно поворачивает формы, чтобы дрейф менял направление. 0 держит их на месте
+Classic, the theme's colours (taken when picked) or two colours of your own	Классика, цвета темы (берутся при выборе) или два своих цвета
+Turns the rim's colours round the wheel -- green, yellow, pink, violet, blue	Поворачивает цвета края по кругу -- зелёный, жёлтый, розовый, фиолетовый, синий
+Which way the field seems to go: turn round the centre, out, in, or in waves	Куда будто движется поле: вращение вокруг центра, наружу, внутрь или волнами
+Slide the rows back and forth, so the wall bends and straightens. 0 holds it still	Двигает строки туда-сюда, и стена изгибается и выпрямляется. 0 держит её на месте
+How fast the crosses turn. They always turn a little: the dots vanish only while they move	Скорость вращения крестов. Они всегда немного вращаются: точки исчезают, только пока они движутся
+Drift (still shapes that seem to turn), ouchi (a disc that floats), cafe (straight rows that look tilted), vanish (dots that disappear while you stare), grid (dots that flicker and are not there) or dancer (it spins whichever way you see it)	Дрейф (неподвижные формы, которые будто вращаются), ouchi (плавающий диск), кафе (прямые строки, которые кажутся наклонными), исчезание (точки, которые пропадают, пока вы смотрите), сетка (мерцающие точки, которых нет) или танцор (вращается в ту сторону, в которую вы его видите)
+The gap under it, as a share of the frame	Зазор снизу как доля кадра

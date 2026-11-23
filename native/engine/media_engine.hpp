@@ -227,6 +227,44 @@ class MediaEngine {
   // Returns false when only a restart will do (datamosh, a non-file cue);
   // the caller then falls back to refreshActiveCueRuntime.
   bool adoptLookWithoutRestart(const Cue& cue);
+  // A last step on a CPU frame's pixels before they are uploaded. Mini and
+  // Pocket run the cue's effect stack here (the desk runs it in its output
+  // compositor instead). The pixels are a copy; the frame stays as decoded.
+  // The hook may make the picture smaller (width and height are in/out): the
+  // smaller picture is what is uploaded, and draws in the same place, so
+  // effects can run at the size the picture is drawn (as the desk's
+  // layerFxShrinkFor does).
+  using PixelHook = std::function<void(std::vector<std::uint8_t>& rgba, int& width, int& height, std::uint64_t frameIndex)>;
+  void setPixelHook(PixelHook hook) { pixelHook_ = std::move(hook); }
+  // Runs the hook again on the frame on screen: an effect that moves on a
+  // still, or a frame between a video's frames. Skipped when a frame was
+  // uploaded within the last few milliseconds.
+  void refreshPixelHook();
+  // A frame made elsewhere, look and all (Pocket builds animated generators
+  // on a worker thread): shown as it is, without the pixel hook. Swaps
+  // buffers, so `frame` comes back holding the previous one for reuse.
+  void showBuiltFrame(DecodedFrame& frame);
+  // Sound from outside the engine for the cue on air (Pocket: the phone's
+  // microphone under a camera cue): interleaved stereo 16-bit at
+  // audioRate(), through the same level, fades, effects, limiter, meters and
+  // devices as decoded sound. One caller thread; never while the cue's own
+  // decode is running (the desk does not call it).
+  void queueExternalAudio(std::vector<std::int16_t>& stereo);
+  // A texture to draw in place of the uploaded frame: the frame with its
+  // look already applied on the GPU (Pocket: runGpuEffects). Owned by the
+  // caller and kept valid until replaced; null draws the frame as uploaded.
+  // Portal, Shatter, Clouds and Ghastly, made by whoever can (Pocket: the
+  // desk's GPU kernel, runGpuTransition): given the outgoing picture as a
+  // texture, returns the outgoing LAYER (its alpha open where the incoming
+  // shows), drawn with the outgoing cue's geometry. Null: a crossfade.
+  using TransitionLayerHook = std::function<SDL_Texture*(SDL_Texture* outgoing, int width, int height, TransitionStyle style,
+                                                         double progress, double elapsedSeconds, std::uint64_t seed)>;
+  void setTransitionLayerHook(TransitionLayerHook hook) { transitionLayerHook_ = std::move(hook); }
+  void setLookTexture(SDL_Texture* texture, int width, int height) {
+    lookTexture_ = texture;
+    lookWidth_ = width;
+    lookHeight_ = height;
+  }
   // Whether a cue's look needs RGBA frames rather than the NV12 fast path.
   bool cueDecodesAsRgba(const Cue& cue) const;
 
@@ -931,6 +969,8 @@ class MediaEngine {
     c.outputOffsetX = transitionOffsetX_;
     c.outputOffsetY = transitionOffsetY_;
     c.outputRotationDegrees = transitionRotationDegrees_;
+    c.flipHorizontal = transitionFlipHorizontal_;
+    c.flipVertical = transitionFlipVertical_;
     c.cropLeft = transitionCropLeft_;
     c.cropRight = transitionCropRight_;
     c.cropTop = transitionCropTop_;
@@ -1120,6 +1160,8 @@ class MediaEngine {
   void initStillTimer(const Cue& cue, bool autoplay);     // set up duration timer for still/pattern/browser cues
   void beginTransition(double seconds, TransitionStyle style, float sourceGain = 1.0f); // start a visual transition
   void clearTransitionTexture();                           // release the outgoing-cue snapshot texture
+  bool drawGeometricTransition(const SDL_Rect& target);     // push / wipe / iris, drawing the incoming picture itself
+  double geometryLfoSwing(const deckboy::effects::ParamLfo& lfo) const;   // the live cue's position/size/turn LFOs (own drawing)
   bool drawTextureFitted(SDL_Texture* texture, int width, int height, const SDL_Rect& target, Uint8 alphaValue, bool useOutgoingGeometry = false); // draw texture with scale mode; outgoing=true reads the transition* snapshot instead of the live cue's
   void drawTransitionOverlay(const SDL_Rect& target, bool drewCurrent); // render the transition blend
   void handlePlaybackEnd();                                // called when playback naturally reaches the end
@@ -1128,6 +1170,16 @@ class MediaEngine {
   void showImportedFrame(const DecodedFrame& frame);
   void countUpload(std::chrono::steady_clock::time_point started);
   void uploadFrame(const DecodedFrame& frame);             // push decoded frame pixels to GPU texture
+  PixelHook pixelHook_;
+  Uint64 pixelHookRanAt_ = 0;
+  bool skipPixelHook_ = false;   // showBuiltFrame: the look is already on it
+  SDL_Texture* lookTexture_ = nullptr;
+  TransitionLayerHook transitionLayerHook_;
+  std::uint64_t transitionSeed_ = 0;
+  int lookWidth_ = 0, lookHeight_ = 0;
+  SDL_Texture* shownTexture() const { return lookTexture_ ? lookTexture_ : texture_; }
+  int shownWidth() const { return lookTexture_ ? lookWidth_ : textureWidth_; }
+  int shownHeight() const { return lookTexture_ ? lookHeight_ : textureHeight_; }
   void stopImageThread();                                  // join and clean up the still-image decode thread
   std::pair<int, int> currentOutputSizeHint() const;       // get output dimensions for ffmpeg -s flag
   std::string mediaPathForCue(const Cue& cue) const;       // resolve cue path (may use CuePathResolver callback)
@@ -1248,6 +1300,7 @@ class MediaEngine {
   // sum below that turns frames into seconds reads it, so a stale value here
   // is not a glitch -- it is the video clock running at the wrong speed.
   int audioRate_ = 48000;
+  double externalAudioTime_ = 0.0;   // queueExternalAudio's clock, from the take
 
   // Twenty milliseconds of audio before the device is released, at whatever
   // rate is running. It was 960 frames, which is 20ms only at 48k -- at 96k
@@ -1255,6 +1308,9 @@ class MediaEngine {
   int audioPrimeFrames() const { return audioRate_ / 50; }
   static constexpr int kAudioPrimeFrames = 960;
 
+  // Where the Pocket Test sync pop's next chunk starts (wall seconds), so the
+  // chunks join up; -1 until the first, and after the audio is cleared.
+  double syncPopNextSeconds_ = -1.0;
   bool audioPrimePending_ = false;
   std::chrono::steady_clock::time_point audioPrimeStartedAt_ {};
 
@@ -1544,6 +1600,10 @@ class MediaEngine {
 
   // -- State: transition (crossfade / dip-to-black) ----------------------------
   SDL_Texture* transitionTexture_ = nullptr; // snapshot of the outgoing cue's last frame
+  // The incoming picture drawn once into a layer the size of the target, for
+  // a transition that reveals it through a shape (Iris). Own-texture path only.
+  SDL_Texture* transitionLayer_ = nullptr;
+  int transitionLayerW_ = 0, transitionLayerH_ = 0;
   int transitionTextureWidth_ = 0;
   int transitionTextureHeight_ = 0;
   bool transitionActive_ = false;            // true while a transition is in progress
@@ -1578,6 +1638,10 @@ class MediaEngine {
   float outputOffsetX_ = 0.0f;
   float outputOffsetY_ = 0.0f;
   float outputRotationDegrees_ = 0.0f;
+  bool flipHorizontal_ = false, flipVertical_ = false;              // the live cue's flip
+  bool transitionFlipHorizontal_ = false, transitionFlipVertical_ = false;   // the outgoing cue's
+  decltype(Cue::geometryLfo) transitionGeoLfo_ {};   // the outgoing cue's geometry LFOs, kept running
+  bool transitionHasGeoLfo_ = false;
   float cropLeft_ = 0.0f;
   float cropRight_ = 0.0f;
   float cropTop_ = 0.0f;

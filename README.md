@@ -453,6 +453,11 @@ importantly, what each feature deliberately does not do.
 
 **Show control:**
 
+- Main and backup: two machines run one show in lockstep. The backup copies the
+  show and its media from the main and checks every file before doors, follows
+  every GO, BACK and seek to the frame, and takes over at the same frame if the
+  main stops, cutting the ATEM input itself when there is one. A drill button
+  pulls the main in rehearsal so the crew sees the takeover work
 - Cue carts, and templates for new shows
 - A routing map: tap a deck's "to Out 1" tag to see where every deck, layer
   and output goes

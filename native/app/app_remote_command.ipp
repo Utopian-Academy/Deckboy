@@ -223,6 +223,11 @@
     }
 
     std::string command = toUpper(parts[0]);
+    // The sync conductor's verbs (app_network.ipp, SYNC_DESIGN.md).
+    if (command == "FOLLOW" || command == "UNFOLLOW" || command == "TIME" || command == "SYNC") {
+      handleSyncCommand(parts);
+      return;
+    }
     // A verb a private extra brought (see core/private_extras.hpp).
     if (const auto* extra = deckboy::extras::findCommand(command)) {
       if (command == "TABLE" && !project_.tabletopUnlocked) {
@@ -7721,6 +7726,92 @@
           (spec->integral && std::floor(*value) != *value)) {
         failRemoteCommand("STATUS | SHAPE <0-5> | PALETTE <0-3> | DENSITY|SPEED|WARP|CENTREX|"
                           "CENTREY|GREY <0-100> | TURN|HUE <0-360> | LFO <control> <setting>");
+        return;
+      }
+      forEachFocusedSelectedCueMutable([&](Cue& each, int) {
+        double ignored = 0.0;
+        if (readNumericParam(each, id, ignored)) writeNumericParam(each, id, *value);
+      });
+      markProjectDirty();
+      return;
+    }
+    // ILLUSION: the selected Illusion cue. STATUS; a control and a value in the
+    // units the inspector shows (percent, degrees, a shape, form, flow or
+    // palette by number or name, ON or OFF for FLIP); or LFO <control> ... as
+    // MOIRE does.
+    if (command == "ILLUSION") {
+      Cue* cue = selectedCueMutable();
+      if (!cue || cue->kind != CueKind::Pattern || normalizePatternTypeId(cue->path) != "illusion") {
+        failRemoteCommand("select an illusion cue first");
+        return;
+      }
+      static const std::pair<const char*, NumericParam> kControls[] = {
+        {"SHAPE", NumericParam::IllusionShape}, {"FORM", NumericParam::IllusionForm},
+        {"FLOW", NumericParam::IllusionFlow}, {"FLIP", NumericParam::IllusionFlip},
+        {"PALETTE", NumericParam::IllusionPalette}, {"SIZE", NumericParam::IllusionSize},
+        {"COUNT", NumericParam::IllusionCount}, {"EDGE", NumericParam::IllusionEdge},
+        {"SPEED", NumericParam::IllusionSpeed}, {"CENTREX", NumericParam::IllusionCentreX},
+        {"CENTERX", NumericParam::IllusionCentreX}, {"CENTREY", NumericParam::IllusionCentreY},
+        {"CENTERY", NumericParam::IllusionCentreY}, {"GREY", NumericParam::IllusionTone},
+        {"GRAY", NumericParam::IllusionTone}, {"HUE1", NumericParam::IllusionHue1},
+        {"HUE2", NumericParam::IllusionHue2},
+      };
+      auto controlFor = [&](const std::string& word) {
+        for (const auto& c : kControls) if (word == c.first) return c.second;
+        return NumericParam::None;
+      };
+      const std::string sub = parts.size() > 1 ? toUpper(parts[1]) : "STATUS";
+      const IllusionSettings& il = cue->illusion;
+      if (sub == "STATUS" && parts.size() <= 2) {
+        std::ostringstream status;
+        status << "illusion shape=" << illusionShapeName(il.shape) << " form=" << illusionFormName(il.form)
+               << " flow=" << illusionFlowName(il.flow) << " flip=" << (il.flip ? "on" : "off")
+               << " palette=" << illusionPaletteName(il.palette) << " size=" << il.size << " count=" << il.count
+               << " edge=" << il.edge << " speed=" << il.speed << " centre=" << il.centreX << "," << il.centreY
+               << " grey=" << il.tone << " hue1=" << il.hue1 << " hue2=" << il.hue2 << " moving=";
+        int moving = 0;
+        for (int slot = 0; slot < kIllusionLfoSlots; ++slot) moving += il.lfo[static_cast<std::size_t>(slot)].on ? 1 : 0;
+        status << moving;
+        remoteCommandDetail_ = status.str();
+        return;
+      }
+      if (sub == "LFO") {
+        const NumericParam id = parts.size() > 2 ? controlFor(toUpper(parts[2])) : NumericParam::None;
+        const int slot = illusionLfoSlotFor(id);
+        if (slot < 0) {
+          failRemoteCommand("LFO: size, count, edge, speed, centrex, centrey, grey, hue1 or hue2");
+          return;
+        }
+        if (setLfoFromRemote(cue->illusion.lfo[static_cast<std::size_t>(slot)], parts, 3, "LFO")) {
+          markProjectDirty();
+          remoteCommandDetail_ = toLower(parts[2]) +
+            (cue->illusion.lfo[static_cast<std::size_t>(slot)].on ? " moving" : " still");
+        }
+        return;
+      }
+      const NumericParam id = controlFor(sub);
+      const NumericParamSpec* spec = numericParamSpec(id);
+      // A picker by its name too: SHAPE cafe, FORM ring, FLOW wave, PALETTE hues.
+      std::optional<double> value;
+      if (parts.size() == 3) {
+        const std::string word = toLower(parts[2]);
+        auto byName = [&](int n, const char* (*name)(int)) -> std::optional<double> {
+          for (int i = 0; i < n; ++i) if (word == name(i)) return static_cast<double>(i);
+          return std::nullopt;
+        };
+        if (id == NumericParam::IllusionShape) value = byName(kIllusionShapeCount, illusionShapeName);
+        else if (id == NumericParam::IllusionForm) value = byName(kIllusionFormCount, illusionFormName);
+        else if (id == NumericParam::IllusionFlow) value = byName(kIllusionFlowCount, illusionFlowName);
+        else if (id == NumericParam::IllusionPalette) value = byName(kIllusionPaletteCount, illusionPaletteName);
+        else if (id == NumericParam::IllusionFlip && (word == "on" || word == "off")) value = word == "on" ? 1.0 : 0.0;
+        if (!value) value = parseNumber(2);
+      }
+      if (parts.size() != 3 || !spec || !value || !std::isfinite(*value) ||
+          *value < spec->lo || *value > spec->hi ||
+          (spec->integral && std::floor(*value) != *value)) {
+        failRemoteCommand("STATUS | SHAPE drift|ouchi|cafe|vanish|grid|dancer | FORM leaf|petal|scale|ring | FLOW turn|out|in|wave | "
+                          "FLIP ON|OFF | PALETTE classic|theme|hues | SIZE|COUNT|EDGE|SPEED|CENTREX|CENTREY|GREY "
+                          "<0-100> | HUE1|HUE2 <0-360> | LFO <control> <setting>");
         return;
       }
       forEachFocusedSelectedCueMutable([&](Cue& each, int) {

@@ -432,6 +432,7 @@
     SDL_Rect source {};
     SDL_Rect destination {};
     float rotationDegrees = 0.0f;
+    SDL_FlipMode flip = SDL_FLIP_NONE;   // Cue::flipHorizontal / flipVertical
   };
   // `raster` is the output the target stands for, when the target is a
   // PREVIEW of it (the desk's monitors): the cue's offsets are output pixels
@@ -526,7 +527,9 @@
       drawW,
       drawH
     };
-    return CuePlacement {source, destination, rotationDegrees};
+    const SDL_FlipMode flip = static_cast<SDL_FlipMode>((cue && cue->flipHorizontal ? SDL_FLIP_HORIZONTAL : 0) |
+                                                        (cue && cue->flipVertical ? SDL_FLIP_VERTICAL : 0));
+    return CuePlacement {source, destination, rotationDegrees, flip};
   }
 
   void renderTextureWithCueGeometry(SDL_Renderer* renderer,
@@ -568,6 +571,7 @@
     const SDL_Rect& source = placed.source;   // in PLACED pixels
     const SDL_Rect& destination = placed.destination;
     const float rotationDegrees = placed.rotationDegrees;
+    const SDL_FlipMode flip = placed.flip;
     SDL_SetTextureBlendMode(texture, blendMode);
     // Clip to target so Fill/Unscaled modes don't overflow into other UI elements
     SDL_Rect prevClip;
@@ -627,12 +631,14 @@
                      dy + dh + layerWarp->warpBottomRightY * dh};
       SDL_FPoint p3 {dx + layerWarp->warpBottomLeftX * dw,
                      dy + dh + layerWarp->warpBottomLeftY * dh};
-      const float u0 = static_cast<float>(source.x) / static_cast<float>(placedWidth);
-      const float v0 = static_cast<float>(source.y) / static_cast<float>(placedHeight);
-      const float u1 = static_cast<float>(source.x + source.w) /
-                       static_cast<float>(placedWidth);
-      const float v1 = static_cast<float>(source.y + source.h) /
-                       static_cast<float>(placedHeight);
+      float u0 = static_cast<float>(source.x) / static_cast<float>(placedWidth);
+      float v0 = static_cast<float>(source.y) / static_cast<float>(placedHeight);
+      float u1 = static_cast<float>(source.x + source.w) /
+                 static_cast<float>(placedWidth);
+      float v1 = static_cast<float>(source.y + source.h) /
+                 static_cast<float>(placedHeight);
+      if (flip & SDL_FLIP_HORIZONTAL) std::swap(u0, u1);   // a flipped cue, pinned
+      if (flip & SDL_FLIP_VERTICAL) std::swap(v0, v1);
       const SDL_FColor kOpaque {1.0f, 1.0f, 1.0f, 1.0f};
       SDL_Vertex verts[4] {
         {p0, kOpaque, SDL_FPoint {u0, v0}},
@@ -671,9 +677,9 @@
       const SDL_FRect dstF {static_cast<float>(destination.x), static_cast<float>(destination.y),
                             static_cast<float>(destination.w), static_cast<float>(destination.h)};
       const SDL_FPoint centerF {destination.w / 2.0f, destination.h / 2.0f};
-      ::SDL_RenderTextureRotated(renderer, texture, &srcF, &dstF, rotationDegrees, &centerF, SDL_FLIP_NONE);
+      ::SDL_RenderTextureRotated(renderer, texture, &srcF, &dstF, rotationDegrees, &centerF, flip);
     } else {
-      SDL_RenderTextureRotated(renderer, texture, &source, &destination, rotationDegrees, &center, SDL_FLIP_NONE);
+      SDL_RenderTextureRotated(renderer, texture, &source, &destination, rotationDegrees, &center, flip);
     }
     SDL_SetRenderClipRect(renderer, hadClip ? &prevClip : nullptr);
   }

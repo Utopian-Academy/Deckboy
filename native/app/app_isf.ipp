@@ -139,53 +139,11 @@
   }
 
   // ---- numeric rows: a float input's value, a point's two ----------------------
-  const NumericParamSpec* isfParamSpec(NumericParam id) const {
-    static NumericParamSpec specs[kIsfMaxInputs * 4];
-    static std::string texts[kIsfMaxInputs * 4][3];
-    if (!isfParamIs(id)) return nullptr;
-    const int n = static_cast<int>(id) - kIsfParamBase;
-    const int input = n / 4, comp = n % 4;
-    const Cue* cue = selectedCuePtr();
-    if (!cue || !isShaderCue(*cue)) return nullptr;
-    const auto shader = shaderOfCue(*cue);
-    if (!shader || input >= static_cast<int>(shader->inputs.size())) return nullptr;
-    const auto& in = shader->inputs[static_cast<std::size_t>(input)];
-    if (in.type != deckboy::isf::InputType::Float && in.type != deckboy::isf::InputType::Point2D) return nullptr;
-    if (comp >= in.comps) return nullptr;
-    auto& t = texts[n];
-    t[0] = "isf." + in.name + "." + std::to_string(comp);
-    t[1] = in.label + (in.type == deckboy::isf::InputType::Point2D ? (comp == 0 ? " x" : " y") : "");
-    char range[64];
-    std::snprintf(range, sizeof(range), "%g to %g", static_cast<double>(in.mn[comp]), static_cast<double>(in.mx[comp]));
-    t[2] = range;
-    const double lo = in.mn[comp], hi = in.mx[comp];
-    specs[n] = NumericParamSpec {t[0].c_str(), t[1].c_str(), t[2].c_str(), lo, hi > lo ? hi : lo + 1.0, 3, false,
-                                 (hi - lo) / 50.0};
-    return &specs[n];
-  }
+  const NumericParamSpec* isfParamSpec(NumericParam id) const { return deckboy::params::isfParamSpec(selectedCuePtr(), id); }
 
-  bool readIsfParam(const Cue& cue, NumericParam id, double& out) const {
-    if (!isfParamIs(id) || !isShaderCue(cue)) return false;
-    const int n = static_cast<int>(id) - kIsfParamBase;
-    const auto shader = shaderOfCue(cue);
-    if (!shader || n / 4 >= static_cast<int>(shader->inputs.size())) return false;
-    const auto& in = shader->inputs[static_cast<std::size_t>(n / 4)];
-    if (n % 4 >= in.comps) return false;
-    const IsfSetting* set = deckboy::isf::findSetting(cue, in.name);
-    out = set ? set->v[n % 4] : in.def[n % 4];
-    return true;
-  }
+  bool readIsfParam(const Cue& cue, NumericParam id, double& out) const { return deckboy::params::readIsfParam(cue, id, out); }
 
-  void writeIsfParam(Cue& cue, NumericParam id, double value) {
-    if (!isfParamIs(id) || !isShaderCue(cue)) return;
-    const int n = static_cast<int>(id) - kIsfParamBase;
-    const auto shader = shaderOfCue(cue);
-    if (!shader || n / 4 >= static_cast<int>(shader->inputs.size())) return;
-    const auto& in = shader->inputs[static_cast<std::size_t>(n / 4)];
-    if (n % 4 >= in.comps) return;
-    deckboy::isf::ensureSetting(cue, in).v[n % 4] =
-      static_cast<float>(std::clamp<double>(value, in.mn[n % 4], std::max(in.mx[n % 4], in.mn[n % 4])));
-  }
+  void writeIsfParam(Cue& cue, NumericParam id, double value) { deckboy::params::writeIsfParam(cue, id, value); }
 
   // The oscillator behind a float row's ~ chip (the packed id is the input's index).
   deckboy::effects::ParamLfo* isfLfoAt(int input) {

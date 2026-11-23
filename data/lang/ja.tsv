@@ -4696,3 +4696,158 @@ listens to the live input while one is open, else the playlist	ライブ入力�
 TUTORIAL: no lesson running	TUTORIAL：実行中のレッスンはありません
 TUTORIAL: expected START, SHOWME, SKIP, STEP <n>, RESTART, EXIT, STATUS or SCREENS	TUTORIAL: 必要な形式: START, SHOWME, SKIP, STEP <n>, RESTART, EXIT, STATUS または SCREENS
 cursor across	カーソル横方向
+Edge	エッジ
+Flip	反転
+Form	形
+flip	反転
+form	形
+pose	ポーズ
+Count	数
+count	数
+disc x	円盤 x
+disc y	円盤 y
+mortar	目地
+offset	オフセット
+wander	さまよい
+RESTART	再スタート
+crosses	十字
+squares	正方形
+Colour 1	色1
+Colour 2	色2
+ILLUSION	錯視
+Illusion	錯視
+colour 1	色1
+colour 2	色2
+dot size	点のサイズ
+disc size	円盤のサイズ
+cross size	十字のサイズ
+dot colour	点の色
+edge width	エッジ幅
+mortar grey	目地のグレー
+street grey	通りのグレー
+tile length	タイルの長さ
+cross colour	十字の色
+shape colour	形状の色
+street width	通りの幅
+ground colour	地の色
+tile thickness	タイルの厚さ
+How big each tile is	各タイルの大きさ
+How big each cross is	各十字の大きさ
+How long each tile is	各タイルの長さ
+How tall the dancer is	ダンサーの身長
+0-100%: 0 holds it still	0-100%: 0で静止
+0 classic, 1 theme, 2 hues	0 クラシック、1 テーマ、2 色相
+Leaf, petal, scale or ring	葉、花びら、うろこ、リング
+0 or 1: the other way round	0 または 1: 逆方向
+0 turn, 1 out, 2 in, 3 wave	0 回す、1 アウト、2 イン、3 波
+How big the floating disc is	浮かぶ円盤の大きさ
+How light the grey lines are	グレーの線の明るさ
+select an illusion cue first	先に錯視キューを選択
+Turn the crosses the other way	十字を逆方向に回す
+Illusion (Pictures that move!?)	錯視 (動く絵!?)
+0 leaf, 1 petal, 2 scale, 3 ring	0 葉、1 花びら、2 うろこ、3 リング
+How many shapes across the screen	画面横方向の形状の数
+How many crosses across the screen	画面横方向の十字の数
+How many squares across the screen	画面横方向の正方形の数
+Where the disc sits, left to right	円盤の位置、左から右へ
+Where the disc sits, top to bottom	円盤の位置、上から下へ
+0-100%: 0 black, 100 the light tile	0-100%: 0 黒、100 明るいタイル
+How much of its place each shape fills	各形状が配置枠を埋める割合
+Where the dancer stands, left to right	ダンサーの位置、左から右へ
+Where the dancer stands, top to bottom	ダンサーの位置、上から下へ
+Collapse/expand the illusion's controls	錯視のコントロールを折りたたむ/展開
+How far the free leg and the arms reach	浮いた脚と腕の到達範囲
+Slide the grid slowly. 0 holds it still	グリッドをゆっくりスライド。0で静止
+The first colour, round the colour wheel	1色目 (色相環上)
+The second colour, round the colour wheel	2色目 (色相環上)
+How thick each tile is, against its length	長さに対する各タイルの太さ
+Where the centre point sits, left to right	中心点の位置、左から右へ
+Where the centre point sits, top to bottom	中心点の位置、上から下へ
+How thick the grey line between the rows is	行間のグレーの線の太さ
+How big the light discs at the crossings are	交点の明るい円の大きさ
+Where the field's centre sits, left to right	フィールド中央の位置、左から右へ
+Where the field's centre sits, top to bottom	フィールド中央の位置、上から下へ
+How wide the grey lines between the squares are	正方形間のグレーの線の幅
+How fast the dancer turns. It always turns a little	ダンサーの回転速度。常に少しは回ります
+0 drift, 1 ouchi, 2 cafe, 3 vanish, 4 grid, 5 dancer	0 ドリフト、1 大内、2 カフェ、3 消失、4 グリッド、5 ダンサー
+How light the grey line is. Mid grey tilts the rows most	グレーの線の明るさ。中間のグレーで行が最も傾きます
+How big the three dots are. Small dots vanish more easily	3つの点の大きさ。小さい点ほど消えやすくなります
+Swap the black and white edges: the field drifts the other way	黒と白のエッジを入れ替え: フィールドが逆方向にドリフト
+How much of the black and white edges shows. They make the drift	黒と白のエッジの表示量。これがドリフトを生みます
+LFO: size, count, edge, speed, centrex, centrey, grey, hue1 or hue2	LFO: size、count、edge、speed、centrex、centrey、grey、hue1 または hue2
+How far each row is shifted. This makes the straight rows look tilted	各行のずらし量。まっすぐな行が傾いて見えます
+Spin the other way. Most people cannot tell which way it turns anyway	逆方向にスピン。どちらに回っているか、ほとんどの人は見分けられません
+Move the disc in a small loop. 0 holds it still: the eye moves it anyway	円盤を小さなループで移動。0で静止: それでも目が動かします
+Turn the shapes slowly, so the drift changes direction. 0 holds them still	形状をゆっくり回し、ドリフトの方向を変えます。0で静止
+Classic, the theme's colours (taken when picked) or two colours of your own	クラシック、テーマの色 (選択時に取得)、または好きな2色
+Which way the field seems to go: turn round the centre, out, in, or in waves	場が進んで見える方向: 中央を回る、アウト、イン、または波状
+Slide the rows back and forth, so the wall bends and straightens. 0 holds it still	行を左右にスライドし、壁を曲げたり戻したりします。0で静止
+How fast the crosses turn. They always turn a little: the dots vanish only while they move	十字の回る速度。常に少し回ります: 点は動いている間だけ消えます
+Drift (still shapes that seem to turn), ouchi (a disc that floats), cafe (straight rows that look tilted), vanish (dots that disappear while you stare), grid (dots that flicker and are not there) or dancer (it spins whichever way you see it)	drift (回って見える静止した形状)、ouchi (浮いて見える円盤)、cafe (傾いて見えるまっすぐな行)、vanish (見つめると消える点)、grid (フリッカーするが実在しない点)、dancer (見え方次第でどちら向きにも回る)
+STATUS | SHAPE drift|ouchi|cafe|vanish|grid|dancer | FORM leaf|petal|scale|ring | FLOW turn|out|in|wave | FLIP ON|OFF | PALETTE classic|theme|hues | SIZE|COUNT|EDGE|SPEED|CENTREX|CENTREY|GREY <0-100> | HUE1|HUE2 <0-360> | LFO <control> <setting>	STATUS | SHAPE drift|ouchi|cafe|vanish|grid|dancer | FORM leaf|petal|scale|ring | FLOW turn|out|in|wave | FLIP ON|OFF | PALETTE classic|theme|hues | SIZE|COUNT|EDGE|SPEED|CENTREX|CENTREY|GREY <0-100> | HUE1|HUE2 <0-360> | LFO <コントロール> <設定>
+SYNC LEAD ON or OFF	SYNC LEAD ON または OFF
+{1} is following this desk	{1} がこの操作卓に連動しています
+SYNC LEAD ON|OFF or SYNC STATUS	SYNC LEAD ON|OFF または SYNC STATUS
+FOLLOW needs a network connection that stays open	FOLLOWには開いたままのネットワーク接続が必要です
+this desk is not leading (SYNC LEAD ON, or Settings > Network > SYNC)	この操作卓はリードしていません（SYNC LEAD ON、または 設定 > ネットワーク > SYNC）
+LEADING	主導中
+No longer leading	主導を解除しました
+Lead other machines	他のマシンを主導する
+Following this desk: {1}	この操作卓に連動中: {1}
+Leading. Nobody is following yet.	主導中。連動しているマシンはまだなし。
+Leading: other machines may follow this desk	主導中: 他のマシンがこの操作卓に連動できます
+Not leading: no other machine can follow this desk.	主導していません: 他のマシンはこの操作卓に連動できません。
+body	ボディ
+burns	燃える
+chaos	カオス
+breath	ブレス
+jitter	ジッター
+sparks	火花
+How big a blob grows	ブロブの大きさ
+Tube, mandala or none	チューブ、マンダラまたはなし
+Turn the whole picture	映像全体を回す
+How far the field bends	フィールドの曲がり量
+How fast the water moves	水の動く速さ
+The halo round the lines	線の周りのハロー
+How bright the picture is	映像の明るさ
+How long the in move takes	インの動きにかかる時間
+Scale of the whole graphic	グラフィック全体の拡大率
+How hard the lines are bent	線の曲がりの強さ
+How long the out move takes	アウトの動きにかかる時間
+How far the colours fan apart	色の広がり量
+Thickness of the glowing edge	光るエッジの太さ
+How bright the laser lines are	レーザー線の明るさ
+Spiral size: above 1 is bigger	渦巻きのサイズ: 1より大きいと拡大
+How many mirror panels, 0 to 12	ミラー面の数、0〜12
+Turn the colours round the wheel	色相環で色を回す
+Laser speckle: the focus trembles	レーザースペックル: フォーカスが揺らぐ
+Rotate the field round its centre	フィールドを中央を軸に回す
+How bright the water's pale light is	水の淡い光の明るさ
+How long light lingers on the screen	画面に光が残る時間
+Colour steps: 2 is stark, 8 is smooth	カラーステップ数: 2で硬く、8でなめらか
+Classic green, fire, ice, neon or mono	クラシックな緑、炎、氷、ネオン、モノクロ
+How fast they are born, drift and fade	生成・ドリフト・フェードの速さ
+Turbulence: 0 is still ripples, 3 boils	乱流: 0で穏やかな波紋、3で沸騰
+A second jet of water crossing the first	最初の噴流と交差する水の第2噴流
+Broad ripples at 0, fine and busy at 100	0で大きな波紋、100で細かく密に
+The flow surges with the programme sound	プログラム音声に合わせて流れが高まる
+Zone, twin, flow, saddle, ripple or shear	ゾーン、ツイン、フロー、サドル、波紋またはせん断
+Horizontal cells. More detail uses more CPU	水平方向のセル数。細部を増やすとCPU負荷が増えます
+How far each panel tilts from the one before	前のパネルに対する各パネルの傾き
+The share of each band drawn as grey stripes	各バンドのうちグレーの縞で描く割合
+The top mirrors the bottom round a dark seam	上半分が暗い継ぎ目を境に下半分を映します
+0 holds the field; negative runs it backwards	0でフィールドを止め、負の値で逆方向に動かします
+Where the eye of the swirl sits, left to right	渦の目の位置、左から右へ
+Where the eye of the swirl sits, top to bottom	渦の目の位置、上から下へ
+The round lens: a curved picture and a dark rim	丸形レンズ: 湾曲した映像と暗い縁
+How fast the bands move; 0 holds the field still	バンドの動く速さ。0でフィールドを静止
+Turn the palette through all colours; 0 restores it	パレットを全色にわたって回します。0で元に戻します
+Spiral strength, from a flowing field to tight turns	螺旋の強度。流れるフィールドからきつい回転まで
+How long it stays before leaving by itself. 0 waits for OUT	自動で退出するまでの時間。0でアウトを待ちます
+The laser colours: rgb, rainbow, floyd, warm, cool or green	レーザーの色: rgb、レインボー、floyd、ウォーム、クール、緑
+How many are alive at once. Each is born, drifts out, grows and fades	同時に存在する数。それぞれ生まれ、漂い出て、大きくなり、消えます
+How readily neighbours merge into one shape. 0 keeps every blob round	隣同士が1つの形状に融合する度合い。0ですべてのブロブが丸形のまま
+Rainbow + grey, rainbow, the theme's colours (taken when picked) or mono	レインボー+グレー、レインボー、テーマの色(選択時に取得)、モノクロ
+How many bands: 50% is the design, higher beats harder against the pixels	バンド数: 50%が設計値。高いほどピクセルとの干渉が強まります
+Turns the rim's colours round the wheel -- green, yellow, pink, violet, blue	縁の色を色相環に沿って回します -- 緑、黄、ピンク、紫、青
+The gap under it, as a share of the frame	下の間隔（フレームに対する割合）

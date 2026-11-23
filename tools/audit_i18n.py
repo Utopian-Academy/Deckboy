@@ -383,6 +383,19 @@ def spec_strings():
                 found.setdefault(label, rel + ":NumericParamSpec")
             if hint and label_ok(bare_hint(hint)):
                 found.setdefault(bare_hint(hint), rel + ":NumericParamSpec")
+    # The desk now reads source row text from the shared parameter catalogue.
+    # Keys can be conditional expressions (Illusion); every literal is drawn.
+    row_pattern = re.compile(r'\{([^{};]*?),\s*NumericParam::\w+\s*,\s*((?:"(?:[^"\\]|\\.)*"\s*)+)\}', re.S)
+    for name, rel, text in source_files():
+        if name != "numeric_params.hpp":
+            continue
+        for row in row_pattern.finditer(strip_comments(text)):
+            for key in LITERAL.findall(row.group(1)):
+                if label_ok(key):
+                    found.setdefault(key, rel + ":ParamRow")
+            tip = "".join(LITERAL.findall(row.group(2)))
+            if tip and label_ok(tip):
+                found.setdefault(tip, rel + ":ParamRow")
     for t in TEMPLATES:
         found.setdefault(t, "i18n::format template")
     return found

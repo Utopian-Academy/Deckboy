@@ -4709,3 +4709,158 @@ listens to the live input while one is open, else the playlist	lisi tira lumo ka
 TUTORIAL: no lesson running	TUTORIAL: holakora vazaro
 TUTORIAL: expected START, SHOWME, SKIP, STEP <n>, RESTART, EXIT, STATUS or SCREENS	TUTORIAL: peni START, SHOWME, SKIP, STEP <n>, RESTART, EXIT, STATUS o SCREENS
 cursor across	tirwia levre
+Edge	Rana
+Flip	Dopseti
+Form	Pata
+flip	dopseti
+form	pata
+pose	patkaea
+Count	Tala
+count	tala
+disc x	diska x
+disc y	diska y
+mortar	karrana
+offset	kaeseta
+wander	alatiriseti
+RESTART	NOVFESI
+crosses	krusaku
+squares	karaku
+Colour 1	Luma 1
+Colour 2	Luma 2
+ILLUSION	VAMIRA
+Illusion	Vamira
+colour 1	luma 1
+colour 2	luma 2
+dot size	kisatama
+disc size	diskatama
+cross size	krusatama
+dot colour	kisaluma
+edge width	ran rana
+mortar grey	karrana nirlumo
+street grey	dora nirlumo
+tile length	toka kara
+cross colour	krusaluma
+shape colour	pataluma
+street width	ran dora
+ground colour	kaealuma
+tile thickness	dopran kara
+How big each tile is	Tal taro vekakisa
+How big each cross is	Tal taro krusa
+How long each tile is	Tal toko vekakisa
+How tall the dancer is	Tal alataro patatiriwia
+0-100%: 0 holds it still	0-100%: 0 hali
+0 classic, 1 theme, 2 hues	0 muno, 1 nirolumo, 2 lumaku
+Leaf, petal, scale or ring	Fespata, lumkisa, ranakisa o kororana
+0 or 1: the other way round	0, 1: setdora
+0 turn, 1 out, 2 in, 3 wave	0 korotiri, 1 bra, 2 dora, 3 ranatiri
+How big the floating disc is	Tal taro tiritoko korokara
+How light the grey lines are	Tal lumo nirlumo ranaku
+select an illusion cue first	Piki mirsetaveka muna
+Turn the crosses the other way	Korotiri duaranaku setdora
+Illusion (Pictures that move!?)	Mirseta (Vekaku tiriseti!?)
+0 leaf, 1 petal, 2 scale, 3 ring	0 fespata, 1 lumkisa, 2 ranakisa, 3 kororana
+How many shapes across the screen	Tala pataku dop vekadeka
+How many crosses across the screen	Tala duaranaku dop vekadeka
+How many squares across the screen	Tala kwarakaraku dop vekadeka
+Where the disc sits, left to right	Korokara kaea, posa go nira
+Where the disc sits, top to bottom	Korokara kaea, kora go rana
+0-100%: 0 black, 100 the light tile	0-100%: 0 nira, 100 lumo vekakisa
+How much of its place each shape fills	Tal pata tami kaea
+Where the dancer stands, left to right	Patatiriwia kaea, posa go nira
+Where the dancer stands, top to bottom	Patatiriwia kaea, kora go rana
+Collapse/expand the illusion's controls	Klui/fesi mirseta bataku
+How far the free leg and the arms reach	Tal dorsa feso tirpata o patatiraku
+Slide the grid slowly. 0 holds it still	Tiri reta vazaro. 0 hali
+The first colour, round the colour wheel	Una luma, kor lumareta
+The second colour, round the colour wheel	Dua luma, kor lumareta
+How thick each tile is, against its length	Tal taro vekakisa, dop toka
+Where the centre point sits, left to right	Korakae kaea, posa go nira
+Where the centre point sits, top to bottom	Korakae kaea, kora go rana
+How thick the grey line between the rows is	Tal taro nirlumo rana kor retaku
+How big the light discs at the crossings are	Tal taro lumo korokaraku sov duaranaku
+Where the field's centre sits, left to right	Kaepata korakae, posa go nira
+Where the field's centre sits, top to bottom	Kaepata korakae, kora go rana
+How wide the grey lines between the squares are	Tal taro nirlumo ranaku kor kwarakaraku
+How fast the dancer turns. It always turns a little	Tal zaro patatiriwia korotiri. Alatoka korotiri kiso
+0 drift, 1 ouchi, 2 cafe, 3 vanish, 4 grid, 5 dancer	0 tiritoka, 1 ouchi, 2 kafe, 3 vamira, 4 reta, 5 patatiriwia
+How light the grey line is. Mid grey tilts the rows most	Tal lumo nirlumo rana. Kora nirlumo rantiri retaku tamo
+How big the three dots are. Small dots vanish more easily	Tal taro tria kislumaku. Kiso kislumaku vamiri zaro
+Swap the black and white edges: the field drifts the other way	Seti nira o tamlumo ranaku: kaepata tiri setdora
+How much of the black and white edges shows. They make the drift	Tal nira o tamlumo ranaku veki. Tiritoka sov ranaku
+LFO: size, count, edge, speed, centrex, centrey, grey, hue1 or hue2	LFO: size, count, edge, speed, centrex, centrey, grey, hue1 o hue2
+How far each row is shifted. This makes the straight rows look tilted	Tal tiri sov rana. Tamrano ranaku miri dopseto
+Spin the other way. Most people cannot tell which way it turns anyway	Korotiri setdora. Alaku va pel miri dora sov korotira
+Move the disc in a small loop. 0 holds it still: the eye moves it anyway	Tiriseti korpata a kiso novtoka. 0 hali: mira tiriseti novtok
+Turn the shapes slowly, so the drift changes direction. 0 holds them still	Korotiri pataku vazaro, a tiritoka seti dopa. 0 hali pataku
+Classic, the theme's colours (taken when picked) or two colours of your own	Muno, nirolumo lumaku (tiri pikitoka) o dua lumaku sov tu
+Which way the field seems to go: turn round the centre, out, in, or in waves	Dora vekakae miro tiri: korotiri sov korakae, bra, dora o wattiraku
+Slide the rows back and forth, so the wall bends and straightens. 0 holds it still	Tiri ranaku dopa o muna, a klupata rantiri o tamrani. 0 hali
+How fast the crosses turn. They always turn a little: the dots vanish only while they move	Tal zaro retapataku korotiri. Alatoka korotiri kiso: kaekisaku vaveki tirisetoka
+Drift (still shapes that seem to turn), ouchi (a disc that floats), cafe (straight rows that look tilted), vanish (dots that disappear while you stare), grid (dots that flicker and are not there) or dancer (it spins whichever way you see it)	drift (halo pataku miro korotiri), ouchi (korpata tiritoka), cafe (tamrano ranaku miro dopseto), vanish (kaekisaku vaveki tu mirtoka), grid (kaekisaku zarlumi o vana kae) o dancer (korotiri dora tu miri)
+STATUS | SHAPE drift|ouchi|cafe|vanish|grid|dancer | FORM leaf|petal|scale|ring | FLOW turn|out|in|wave | FLIP ON|OFF | PALETTE classic|theme|hues | SIZE|COUNT|EDGE|SPEED|CENTREX|CENTREY|GREY <0-100> | HUE1|HUE2 <0-360> | LFO <control> <setting>	STATUS | SHAPE drift|ouchi|cafe|vanish|grid|dancer | FORM leaf|petal|scale|ring | FLOW turn|out|in|wave | FLIP ON|OFF | PALETTE classic|theme|hues | SIZE|COUNT|EDGE|SPEED|CENTREX|CENTREY|GREY <0-100> | HUE1|HUE2 <0-360> | LFO <setjana> <seta>
+SYNC LEAD ON or OFF	SYNC LEAD ON o OFF
+{1} is following this desk	{1} novtoki so dekadora nakae
+SYNC LEAD ON|OFF or SYNC STATUS	SYNC LEAD ON|OFF o SYNC STATUS
+FOLLOW needs a network connection that stays open	FOLLOW peni retadora gurfeso
+this desk is not leading (SYNC LEAD ON, or Settings > Network > SYNC)	dekadora nakae va muni (SYNC LEAD ON, o Settings > Network > SYNC)
+LEADING	MUNI
+No longer leading	Vamuni novtok
+Lead other machines	Muni seto janaku
+Following this desk: {1}	Novtoki so dekadora nakae: {1}
+Leading. Nobody is following yet.	Muni. Va wia novtoki so.
+Leading: other machines may follow this desk	Muni: seto janaku pel novtoki so dekadora nakae
+Not leading: no other machine can follow this desk.	Vamuni: seto jana vapel novtoki so dekadora nakae.
+body	pata
+burns	tamlumaku
+chaos	alaseta
+breath	kissona
+jitter	kistiriseta
+sparks	kislumaku
+How big a blob grows	Tal kispata tamseti
+Tube, mandala or none	Dorkara, mandala, vaala
+Turn the whole picture	Korotiri tam veka
+How far the field bends	Vekakae rantiri
+How fast the water moves	Wattiri zara
+The halo round the lines	Kororano luma sov ranaku
+How bright the picture is	Tal lumo veka
+How long the in move takes	Tal toka doratiriseta
+Scale of the whole graphic	Tamaseta tam graveka
+How hard the lines are bent	Ranaku rantiri tama
+How long the out move takes	Tal toka bratiriseta
+How far the colours fan apart	Lumaku fesrana
+Thickness of the glowing edge	Lumo rana tama
+How bright the laser lines are	Zarlumranaku luma
+Spiral size: above 1 is bigger	Korotira tama: 1+ tamo
+How many mirror panels, 0 to 12	Tala mirapataku, 0 go 12
+Turn the colours round the wheel	Korotiri lumaku sov korokara
+Laser speckle: the focus trembles	Zarluma kislumaku: kormira kistiri
+Rotate the field round its centre	Korotiri vekakae sov korakae
+How bright the water's pale light is	Tal lumo watkisluma
+How long light lingers on the screen	Tal toka luma hali lan vekadeka
+Colour steps: 2 is stark, 8 is smooth	Luma patakaku: 2 valumiso, 8 lumiso
+Classic green, fire, ice, neon or mono	Muno verda, fira, iso, neon, unalumo
+How fast they are born, drift and fade	Zara sov munseti, tiritoka o lum
+Turbulence: 0 is still ripples, 3 boils	Zarseta: 0 halo kisvelaraku, 3 zarseti
+A second jet of water crossing the first	Duatira dopi unatira
+Broad ripples at 0, fine and busy at 100	Tamo kisvelaraku sov 0, kiso o zaro sov 100
+The flow surges with the programme sound	Wattira novi koravekasona
+Zone, twin, flow, saddle, ripple or shear	Kaea, duaveka, wattira, dunupkara, watrana, rantira
+Horizontal cells. More detail uses more CPU	Rano karaku. Kismira tala tiri CPU tala
+How far each panel tilts from the one before	Una kara ranakora munakara
+The share of each band drawn as grey stripes	Tala una rana grai nirlumo kisranaku
+The top mirrors the bottom round a dark seam	Ala vekveli nira dop niro ranka
+0 holds the field; negative runs it backwards	0 hali tamkaea; vanumo tiri dopa
+Where the eye of the swirl sits, left to right	Kaepata korimira, posa go nira
+Where the eye of the swirl sits, top to bottom	Kaepata korimira, kora go rana
+The round lens: a curved picture and a dark rim	Kororano mirluma: korano veka, niro rana
+How fast the bands move; 0 holds the field still	Tal zaro ranaku tiriseti; 0 hali tamkaea
+Turn the palette through all colours; 0 restores it	Korotiri lumkar ala lumaku; 0 muni
+Spiral strength, from a flowing field to tight turns	Korizarsa, mun tiro tamkaea go kiso korotiraku
+How long it stays before leaving by itself. 0 waits for OUT	Tala toka guri muna unapata bri. 0 peni BRA
+The laser colours: rgb, rainbow, floyd, warm, cool or green	Lasalumaku: rgb, alaluma, floyd, kalo, freso, verda
+How many are alive at once. Each is born, drifts out, grows and fades	Tala lumo una toka. Una muni, tiritoki bra, tami, niri
+How readily neighbours merge into one shape. 0 keeps every blob round	Zarsa dopkaewiaku tami una pata. 0 guri ala pataku kororano
+Rainbow + grey, rainbow, the theme's colours (taken when picked) or mono	Alaluma + nirlumo, alaluma, nirolumo lumaku (bufi piktoka), unalumo
+How many bands: 50% is the design, higher beats harder against the pixels	Tala ranaku: 50% munpata, novo zarso dop kisvekaku
+Turns the rim's colours round the wheel -- green, yellow, pink, violet, blue	Korotiri ranalumaku go lumkora -- verda, jela, rosa, viola, blua
+The gap under it, as a share of the frame	Vanarana dunkaea, tala sov veka

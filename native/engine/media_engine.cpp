@@ -284,6 +284,7 @@ void MediaEngine::stopAll() {
 void MediaEngine::loadCue(const Cue* cue, bool autoplay, double transitionSeconds,
                            TransitionStyle transitionStyle, bool suppressFadeIn) {
   devampRequested_ = false;   // a devamp belonged to the cue it was aimed at
+  externalAudioTime_ = 0.0;   // outside sound's fades count from this take
   drawClock_ = 0.0;           // a drawing replays from its start at every TAKE
   drawClockWall_ = -1.0;
   loopPassesPlayed_ = 0;      // and so do the repeats it has played
@@ -325,6 +326,8 @@ void MediaEngine::loadCue(const Cue* cue, bool autoplay, double transitionSecond
   outputOffsetX_ = cue ? cue->outputOffsetX : 0.0f;
   outputOffsetY_ = cue ? cue->outputOffsetY : 0.0f;
   outputRotationDegrees_ = cue ? cue->outputRotationDegrees : 0.0f;
+  flipHorizontal_ = cue && cue->flipHorizontal;
+  flipVertical_ = cue && cue->flipVertical;
   cropLeft_ = cue ? cue->cropLeft : 0.0f;
   cropRight_ = cue ? cue->cropRight : 0.0f;
   cropTop_ = cue ? cue->cropTop : 0.0f;
@@ -2134,6 +2137,8 @@ void MediaEngine::syncPixelEffectsFromCue() {
     outputOffsetX_ = activeCue_->outputOffsetX;
     outputOffsetY_ = activeCue_->outputOffsetY;
     outputRotationDegrees_ = activeCue_->outputRotationDegrees;
+    flipHorizontal_ = activeCue_->flipHorizontal;
+    flipVertical_ = activeCue_->flipVertical;
     cropLeft_ = activeCue_->cropLeft;
     cropRight_ = activeCue_->cropRight;
     cropTop_ = activeCue_->cropTop;
@@ -2171,8 +2176,19 @@ void MediaEngine::render(SDL_Rect target) {
   SDL_SetRenderDrawColor(outputRenderer_, 0, 0, 0, 255);
   SDL_RenderFillRect(outputRenderer_, nullptr);
 
-  bool drewCurrent = drawTextureFitted(texture_, textureWidth_, textureHeight_, target, 255);
-  drawTransitionOverlay(target, drewCurrent);
+  // Push, wipe and iris place the incoming picture themselves (it slides in,
+  // or shows through only part of the frame); every other style draws it
+  // whole and lays the outgoing one over it.
+  const bool geometric = transitionActive_ && !transitionWaitingForFirstFrame_ && transitionTexture_ &&
+                         ((transitionStyle_ >= TransitionStyle::PushLeft && transitionStyle_ <= TransitionStyle::WipeDown) ||
+                          transitionStyle_ == TransitionStyle::Iris);
+  bool drewCurrent = false;
+  if (geometric) {
+    drewCurrent = drawGeometricTransition(target);
+  } else {
+    drewCurrent = drawTextureFitted(shownTexture(), shownWidth(), shownHeight(), target, 255);
+    drawTransitionOverlay(target, drewCurrent);
+  }
 
 
 
@@ -6059,8 +6075,27 @@ void MediaEngine::initStillTimer(const Cue& cue, bool autoplay) {
 // ---------------------------------------------------------------------------
 void MediaEngine::beginTransition(double seconds, TransitionStyle style, float sourceGain) {
   clearTransitionTexture();
+  // A look drawn in place of the frame (setLookTexture) belongs to whoever
+  // made it, and describes the OUTGOING cue: the transition keeps a copy of
+  // its own, and the incoming cue starts without one.
+  SDL_Texture* look = lookTexture_;
+  const int lookW = lookWidth_, lookH = lookHeight_;
+  lookTexture_ = nullptr;
   if (!texture_) {
     return;
+  }
+  if (look && seconds > 0.001 && lookW > 0 && lookH > 0) {
+    if (SDL_Texture* copy = SDL_CreateTexture(outputRenderer_, SDL_PIXELFORMAT_RGBA32, SDL_TEXTUREACCESS_TARGET, lookW, lookH)) {
+      SDL_Texture* previous = SDL_GetRenderTarget(outputRenderer_);
+      SDL_SetRenderTarget(outputRenderer_, copy);
+      SDL_SetTextureBlendMode(look, SDL_BLENDMODE_NONE);
+      SDL_RenderTexture(outputRenderer_, look, static_cast<const SDL_FRect*>(nullptr), static_cast<const SDL_FRect*>(nullptr));
+      SDL_SetRenderTarget(outputRenderer_, previous);
+      clearTexture();
+      texture_ = copy;   // moved into the transition below, as the frame would be
+      textureWidth_ = lookW;
+      textureHeight_ = lookH;
+    }
   }
   if (seconds <= 0.001) {
     // For cuts: discard the old frame immediately.  Entering the
@@ -6093,6 +6128,10 @@ void MediaEngine::beginTransition(double seconds, TransitionStyle style, float s
   transitionOffsetX_ = outputOffsetX_;
   transitionOffsetY_ = outputOffsetY_;
   transitionRotationDegrees_ = outputRotationDegrees_;
+  transitionFlipHorizontal_ = flipHorizontal_;
+  transitionFlipVertical_ = flipVertical_;
+  transitionHasGeoLfo_ = activeCue_ != nullptr;
+  if (activeCue_) transitionGeoLfo_ = activeCue_->geometryLfo;
   transitionCropLeft_ = cropLeft_;
   transitionCropRight_ = cropRight_;
   transitionCropTop_ = cropTop_;
@@ -6102,6 +6141,7 @@ void MediaEngine::beginTransition(double seconds, TransitionStyle style, float s
   transitionSourceGain_ = std::clamp(sourceGain, 0.0f, 1.0f);
   transitionActive_ = true;
   transitionWaitingForFirstFrame_ = true;  // timer starts when incoming cue provides first frame
+  ++transitionSeed_;
 }
 
 // Release the transition snapshot texture and reset all transition state.
@@ -6112,6 +6152,9 @@ void MediaEngine::clearTransitionTexture() {
     SDL_DestroyTexture(transitionTexture_);
   }
   transitionTexture_ = nullptr;
+  if (transitionLayer_ && !sdlTornDown()) SDL_DestroyTexture(transitionLayer_);
+  transitionLayer_ = nullptr;
+  transitionLayerW_ = transitionLayerH_ = 0;
   transitionTextureWidth_ = 0;
   transitionTextureHeight_ = 0;
   transitionActive_ = false;
@@ -6125,6 +6168,7 @@ void MediaEngine::clearTransitionTexture() {
   transitionOffsetX_ = 0.0f;
   transitionOffsetY_ = 0.0f;
   transitionRotationDegrees_ = 0.0f;
+  transitionFlipHorizontal_ = transitionFlipVertical_ = false;
   transitionCropLeft_ = 0.0f;
   transitionCropRight_ = 0.0f;
   transitionCropTop_ = 0.0f;
@@ -6263,6 +6307,30 @@ bool MediaEngine::drawTextureFitted(SDL_Texture* texture, int width, int height,
   const float outputOffsetX = useOutgoingGeometry ? transitionOffsetX_ : outputOffsetX_;
   const float outputOffsetY = useOutgoingGeometry ? transitionOffsetY_ : outputOffsetY_;
   const float outputRotationDegrees = useOutgoingGeometry ? transitionRotationDegrees_ : outputRotationDegrees_;
+  const bool flipH = useOutgoingGeometry ? transitionFlipHorizontal_ : flipHorizontal_;
+  const bool flipV = useOutgoingGeometry ? transitionFlipVertical_ : flipVertical_;
+  const SDL_FlipMode flip = static_cast<SDL_FlipMode>((flipH ? SDL_FLIP_HORIZONTAL : 0) | (flipV ? SDL_FLIP_VERTICAL : 0));
+  // The live cue's geometry oscillators (Cue::geometryLfo), with the desk
+  // compositor's own arithmetic (app_render_output.ipp cuePlacementFor):
+  // position depth 1 is half the frame either way, size in octaves (depth 1
+  // is half to double), rotation half a turn either way.
+  float lfoOffX = 0.0f, lfoOffY = 0.0f, lfoScaleX = 1.0f, lfoScaleY = 1.0f, lfoTurn = 0.0f;
+  // The outgoing picture keeps ITS OWN oscillators running through the
+  // transition (captured at beginTransition): drawn without them, a
+  // rotating or scaling picture snapped back the moment a take began
+  // (James, 11-20: "the moment a transition starts the image jumps").
+  const decltype(Cue::geometryLfo)* lfos = useOutgoingGeometry ? (transitionHasGeoLfo_ ? &transitionGeoLfo_ : nullptr)
+                                                               : (activeCue_ ? &activeCue_->geometryLfo : nullptr);
+  if (lfos) {
+    const auto& L = *lfos;
+    lfoOffX = static_cast<float>(geometryLfoSwing(L[kGeoLfoOffsetX]) * target.w);
+    lfoOffY = static_cast<float>(geometryLfoSwing(L[kGeoLfoOffsetY]) * target.h);
+    const auto& sx = L[kGeoLfoScaleX];
+    const auto& sy = L[kGeoLfoScaleY];
+    lfoScaleX = sx.on ? static_cast<float>(std::pow(2.0, geometryLfoSwing(sx) * 2.0)) : 1.0f;
+    lfoScaleY = sy.on ? static_cast<float>(std::pow(2.0, geometryLfoSwing(sy) * 2.0)) : lfoScaleX;
+    lfoTurn = static_cast<float>(geometryLfoSwing(L[kGeoLfoRotation]) * 360.0);
+  }
 
   // Step 1: Compute the source rect after cropping (fractions → pixel offsets)
   int cropL = std::clamp(static_cast<int>(std::lround(static_cast<double>(width) * cropLeft)), 0, width - 1);
@@ -6307,11 +6375,11 @@ bool MediaEngine::drawTextureFitted(SDL_Texture* texture, int width, int height,
   }
 
   // Step 4: Apply per-cue output scale (additional zoom) and center with offset
-  int scaledW = std::max(1, static_cast<int>(drawW * outputScaleX));
-  int scaledH = std::max(1, static_cast<int>(drawH * outputScaleY));
+  int scaledW = std::max(1, static_cast<int>(drawW * outputScaleX * lfoScaleX));
+  int scaledH = std::max(1, static_cast<int>(drawH * outputScaleY * lfoScaleY));
   SDL_Rect destination {
-    target.x + (target.w - scaledW) / 2 + static_cast<int>(outputOffsetX),
-    target.y + (target.h - scaledH) / 2 + static_cast<int>(outputOffsetY),
+    target.x + (target.w - scaledW) / 2 + static_cast<int>(outputOffsetX + lfoOffX),
+    target.y + (target.h - scaledH) / 2 + static_cast<int>(outputOffsetY + lfoOffY),
     scaledW,
     scaledH
   };
@@ -6320,7 +6388,7 @@ bool MediaEngine::drawTextureFitted(SDL_Texture* texture, int width, int height,
   SDL_SetTextureBlendMode(texture, SDL_BLENDMODE_BLEND);
   SDL_SetTextureAlphaMod(texture, alphaValue);
   SDL_Point center {destination.w / 2, destination.h / 2};
-  SDL_RenderTextureRotated(outputRenderer_, texture, &source, &destination, outputRotationDegrees, &center, SDL_FLIP_NONE);
+  SDL_RenderTextureRotated(outputRenderer_, texture, &source, &destination, outputRotationDegrees + lfoTurn, &center, flip);
   SDL_SetTextureAlphaMod(texture, 255);  // reset alpha mod to avoid leaking to other draws
   return true;
 }
@@ -6379,8 +6447,9 @@ void MediaEngine::drawTransitionOverlay(const SDL_Rect& target, bool drewCurrent
     return;
   }
 
-  if (transitionStyle_ == TransitionStyle::DipBlack) {
-    // Dip-to-black: two halves
+  if (transitionStyle_ == TransitionStyle::DipBlack || transitionStyle_ == TransitionStyle::DipWhite) {
+    // Dip to black (or white, a flash rather than a blink): two halves
+    const Uint8 dip = transitionStyle_ == TransitionStyle::DipWhite ? 255 : 0;
     if (progress < 0.5) {
       // First half: outgoing fades to black (0→100% black overlay)
       Uint8 srcA = static_cast<Uint8>(transitionSourceGain_ * 255.0f);
@@ -6388,25 +6457,141 @@ void MediaEngine::drawTransitionOverlay(const SDL_Rect& target, bool drewCurrent
       SDL_SetRenderDrawBlendMode(outputRenderer_, SDL_BLENDMODE_BLEND);
       double blackAlpha = std::clamp(progress * 2.0, 0.0, 1.0);
       if (transitionSourceGain_ < 1.0f) blackAlpha = std::max(blackAlpha, 1.0 - transitionSourceGain_);
-      SDL_SetRenderDrawColor(outputRenderer_, 0, 0, 0, static_cast<Uint8>(blackAlpha * 255.0));
+      SDL_SetRenderDrawColor(outputRenderer_, dip, dip, dip, static_cast<Uint8>(blackAlpha * 255.0));
       SDL_RenderFillRect(outputRenderer_, nullptr);
     } else {
       // Second half: incoming emerges from black (100%→0% black overlay)
       if (!drewCurrent) {
-        SDL_SetRenderDrawColor(outputRenderer_, 0, 0, 0, 255);
+        SDL_SetRenderDrawColor(outputRenderer_, dip, dip, dip, 255);
         SDL_RenderFillRect(outputRenderer_, nullptr);
       }
       double fadeOutBlack = std::clamp(1.0 - (progress - 0.5) * 2.0, 0.0, 1.0);
       SDL_SetRenderDrawBlendMode(outputRenderer_, SDL_BLENDMODE_BLEND);
-      SDL_SetRenderDrawColor(outputRenderer_, 0, 0, 0, static_cast<Uint8>(fadeOutBlack * 255.0));
+      SDL_SetRenderDrawColor(outputRenderer_, dip, dip, dip, static_cast<Uint8>(fadeOutBlack * 255.0));
       SDL_RenderFillRect(outputRenderer_, nullptr);
     }
     return;
   }
 
   // Crossfade: outgoing fades out linearly over the transition duration
+  if (transitionLayerHook_ && (transitionStyle_ == TransitionStyle::Portal || transitionStyle_ == TransitionStyle::Shatter ||
+                               transitionStyle_ == TransitionStyle::Clouds || transitionStyle_ == TransitionStyle::Ghastly)) {
+    if (SDL_Texture* layer = transitionLayerHook_(transitionTexture_, transitionTextureWidth_, transitionTextureHeight_, transitionStyle_,
+                                                  progress, elapsed, transitionSeed_)) {
+      SDL_SetTextureBlendMode(layer, SDL_BLENDMODE_BLEND);
+      drawTextureFitted(layer, transitionTextureWidth_, transitionTextureHeight_, target,
+                        static_cast<Uint8>(std::lround(transitionSourceGain_ * 255.0f)), true);
+      return;
+    }
+  }
   Uint8 alphaValue = static_cast<Uint8>(transitionSourceGain_ * std::clamp(1.0 - progress, 0.0, 1.0) * 255.0);
   drawTextureFitted(transitionTexture_, transitionTextureWidth_, transitionTextureHeight_, target, alphaValue, true);
+}
+
+// A geometry oscillator's swing now, as a share of its range: -depth/2 to
+// +depth/2, or 0 to depth for a one-sided shape (the sound). The clock is the
+// app's; the beat a steady 120 until the engine is told a tempo.
+double MediaEngine::geometryLfoSwing(const deckboy::effects::ParamLfo& lfo) const {
+  if (!lfo.on) return 0.0;
+  const double seconds = static_cast<double>(SDL_GetTicksNS()) / 1e9;
+  const double unit = deckboy::effects::lfoUnitValue(lfo, seconds, seconds * 2.0, programAudioLevel01());
+  return deckboy::effects::lfoShapeIsOneSided(lfo.shape) ? unit * static_cast<double>(lfo.depth)
+                                                         : (unit - 0.5) * static_cast<double>(lfo.depth);
+}
+
+// Push, wipe and iris for an engine that draws its own picture (Mini, Pocket;
+// the desk's output compositor has its own). The outgoing snapshot and the
+// incoming frame are each drawn with their own cue's geometry; a push slides
+// both, a wipe shows each through its side of a travelling edge, an iris
+// shows the incoming picture through an opening circle.
+bool MediaEngine::drawGeometricTransition(const SDL_Rect& target) {
+  const double elapsed = std::chrono::duration<double>(std::chrono::steady_clock::now() - transitionStartedAt_).count();
+  const double linear = transitionDurationSeconds_ <= 0.0001 ? 1.0 : std::clamp(elapsed / transitionDurationSeconds_, 0.0, 1.0);
+  if (linear >= 1.0) {
+    clearTransitionTexture();
+    return drawTextureFitted(shownTexture(), shownWidth(), shownHeight(), target, 255);
+  }
+  const double p = linear * linear * (3.0 - 2.0 * linear);   // eased: a move starts and lands gently
+  const Uint8 outAlpha = static_cast<Uint8>(transitionSourceGain_ * 255.0f);
+  const int W = target.w, H = target.h;
+  SDL_Rect savedClip {};
+  const bool hadClip = SDL_RenderClipEnabled(outputRenderer_);
+  if (hadClip) SDL_GetRenderClipRect(outputRenderer_, &savedClip);
+  auto clip = [&](const SDL_Rect& r) { SDL_SetRenderClipRect(outputRenderer_, &r); };
+  auto restore = [&] { SDL_SetRenderClipRect(outputRenderer_, hadClip ? &savedClip : nullptr); };
+  auto outAt = [&](int dx, int dy) {
+    drawTextureFitted(transitionTexture_, transitionTextureWidth_, transitionTextureHeight_,
+                      SDL_Rect {target.x + dx, target.y + dy, W, H}, outAlpha, true);
+  };
+  auto inAt = [&](int dx, int dy) {
+    return drawTextureFitted(shownTexture(), shownWidth(), shownHeight(), SDL_Rect {target.x + dx, target.y + dy, W, H}, 255);
+  };
+  const int px = static_cast<int>(std::lround(p * W)), py = static_cast<int>(std::lround(p * H));
+  bool drew = false;
+  switch (transitionStyle_) {
+    case TransitionStyle::PushLeft:  clip(target); outAt(-px, 0); drew = inAt(W - px, 0); restore(); break;
+    case TransitionStyle::PushRight: clip(target); outAt(px, 0); drew = inAt(px - W, 0); restore(); break;
+    case TransitionStyle::PushUp:    clip(target); outAt(0, -py); drew = inAt(0, H - py); restore(); break;
+    case TransitionStyle::PushDown:  clip(target); outAt(0, py); drew = inAt(0, py - H); restore(); break;
+    case TransitionStyle::WipeLeft:     // the edge travels leftwards: the new picture comes in from the right
+      clip({target.x, target.y, W - px, H}); outAt(0, 0);
+      clip({target.x + W - px, target.y, px, H}); drew = inAt(0, 0); restore(); break;
+    case TransitionStyle::WipeRight:
+      clip({target.x + px, target.y, W - px, H}); outAt(0, 0);
+      clip({target.x, target.y, px, H}); drew = inAt(0, 0); restore(); break;
+    case TransitionStyle::WipeUp:
+      clip({target.x, target.y, W, H - py}); outAt(0, 0);
+      clip({target.x, target.y + H - py, W, py}); drew = inAt(0, 0); restore(); break;
+    case TransitionStyle::WipeDown:
+      clip({target.x, target.y + py, W, H - py}); outAt(0, 0);
+      clip({target.x, target.y, W, py}); drew = inAt(0, 0); restore(); break;
+    case TransitionStyle::Iris: {
+      outAt(0, 0);
+      // the incoming picture into a layer the size of the target, on black
+      if (!transitionLayer_ || transitionLayerW_ != W || transitionLayerH_ != H) {
+        if (transitionLayer_) SDL_DestroyTexture(transitionLayer_);
+        transitionLayer_ = SDL_CreateTexture(outputRenderer_, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, W, H);
+        transitionLayerW_ = W;
+        transitionLayerH_ = H;
+      }
+      if (!transitionLayer_) { drew = inAt(0, 0); break; }
+      SDL_Texture* previous = SDL_GetRenderTarget(outputRenderer_);
+      SDL_SetRenderTarget(outputRenderer_, transitionLayer_);
+      SDL_SetRenderClipRect(outputRenderer_, nullptr);
+      SDL_SetRenderDrawColor(outputRenderer_, 0, 0, 0, 255);
+      SDL_RenderClear(outputRenderer_);
+      drew = drawTextureFitted(shownTexture(), shownWidth(), shownHeight(), SDL_Rect {0, 0, W, H}, 255);
+      SDL_SetRenderTarget(outputRenderer_, previous);
+      restore();
+      // ...shown through a circle opening from the centre
+      const float cx = target.x + W * 0.5f, cy = target.y + H * 0.5f;
+      const float radius = static_cast<float>(p) * std::sqrt(W * W * 0.25f + H * H * 0.25f) * 1.02f;
+      constexpr int kSides = 96;
+      std::vector<SDL_Vertex> v;
+      std::vector<int> idx;
+      v.reserve(kSides + 1);
+      const SDL_FColor white {1, 1, 1, 1};
+      v.push_back({{cx, cy}, white, {0.5f, 0.5f}});
+      for (int i = 0; i < kSides; ++i) {
+        const float a = static_cast<float>(i) * 6.2831853f / kSides;
+        const float x = cx + radius * std::cos(a), y = cy + radius * std::sin(a);
+        v.push_back({{x, y}, white, {(x - target.x) / W, (y - target.y) / H}});
+        idx.push_back(0);
+        idx.push_back(1 + i);
+        idx.push_back(1 + (i + 1) % kSides);
+      }
+      SDL_SetTextureBlendMode(transitionLayer_, SDL_BLENDMODE_NONE);
+      clip(target);   // the circle grows past the frame's corners; keep it inside the target
+      SDL_RenderGeometry(outputRenderer_, transitionLayer_, v.data(), static_cast<int>(v.size()), idx.data(),
+                         static_cast<int>(idx.size()));
+      restore();
+      break;
+    }
+    default:
+      drew = inAt(0, 0);
+      break;
+  }
+  return drew;
 }
 
 // ---------------------------------------------------------------------------
@@ -6680,6 +6865,30 @@ void MediaEngine::showImportedFrame(const DecodedFrame& frame) {
 // active, pixels are copied into keyedPixelsScratch_ and mutated there so
 // the source frame stays intact for re-processing on parameter changes.
 // ---------------------------------------------------------------------------
+void MediaEngine::showBuiltFrame(DecodedFrame& frame) {
+  if (frame.pixels.empty() || frame.width <= 0 || frame.height <= 0) return;
+  if (!displayFrame_) displayFrame_.emplace();
+  std::swap(*displayFrame_, frame);
+  displayFrame_->index = ++displayFrameSerial_;
+  skipPixelHook_ = true;
+  uploadFrame(*displayFrame_);
+  skipPixelHook_ = false;
+}
+
+void MediaEngine::queueExternalAudio(std::vector<std::int16_t>& stereo) {
+  if (stereo.size() < 2 || !audioStream_) return;
+  applyGainAndQueueAudio(stereo, externalAudioTime_);
+}
+
+void MediaEngine::refreshPixelHook() {
+  if (!pixelHook_ || !displayFrame_ || displayFrame_->pixels.empty() || displayFrame_->isGpu() ||
+      displayFrame_->format != FramePixelFormat::RGBA32) {
+    return;
+  }
+  if (SDL_GetTicks() - pixelHookRanAt_ < 12) return;   // a fresh frame went up this tick
+  uploadFrame(*displayFrame_);
+}
+
 void MediaEngine::uploadFrame(const DecodedFrame& frame) {
   if (!drawsOwnTexture_) {
     return;   // nothing will draw it (setDrawsOwnTexture)
@@ -6698,8 +6907,27 @@ void MediaEngine::uploadFrame(const DecodedFrame& frame) {
   if (frame.width <= 0 || frame.height <= 0 || frame.pixels.empty()) {
     return;
   }
+  // The pixel hook (Mini, Pocket): the grade, then the hook, on a copy; it
+  // may hand back a smaller picture, which is the size uploaded.
+  int upW = frame.width, upH = frame.height;
+  bool hooked = false;
+  if (pixelHook_ && !skipPixelHook_ && frame.format == FramePixelFormat::RGBA32) {
+    keyedPixelsScratch_.assign(frame.pixels.begin(), frame.pixels.end());
+    if (chromaKeyEnabled_ || colorControlsActive(brightness_, contrast_, saturation_, hueShift_)) {
+      applyCueVisualEffectsToPixels(keyedPixelsScratch_, chromaKeyEnabled_, chromaKeyColor_, chromaKeyTolerance_,
+                                    chromaKeySoftness_, brightness_, contrast_, saturation_, hueShift_);
+    }
+    pixelHook_(keyedPixelsScratch_, upW, upH, frame.index);
+    if (upW <= 0 || upH <= 0 || keyedPixelsScratch_.size() < static_cast<std::size_t>(upW) * static_cast<std::size_t>(upH) * 4) {
+      upW = frame.width;   // a hook that broke its promise: show the frame as decoded
+      upH = frame.height;
+      keyedPixelsScratch_.assign(frame.pixels.begin(), frame.pixels.end());
+    }
+    hooked = true;
+    pixelHookRanAt_ = SDL_GetTicks();
+  }
   const Uint32 wantFormat = sdlPixelFormat(frame.format);
-  const bool sizeChanged = textureWidth_ != frame.width || textureHeight_ != frame.height;
+  const bool sizeChanged = textureWidth_ != upW || textureHeight_ != upH;
   const bool formatChanged = textureFormat_ != wantFormat ||
                             deckboyTextureColorspace(texture_) != frameColorspace(frame);
   if (!texture_ || sizeChanged || formatChanged) {
@@ -6708,14 +6936,14 @@ void MediaEngine::uploadFrame(const DecodedFrame& frame) {
       outputRenderer_,
       wantFormat,
       SDL_TEXTUREACCESS_STREAMING,
-      frame.width,
-      frame.height, frameColorspace(frame)
+      upW,
+      upH, frameColorspace(frame)
     );
     if (!texture_) {
       return;
     }
-    textureWidth_ = frame.width;
-    textureHeight_ = frame.height;
+    textureWidth_ = upW;
+    textureHeight_ = upH;
     textureFormat_ = wantFormat;
   }
   if (frame.format == FramePixelFormat::NV12 || frame.format == FramePixelFormat::P010) {
@@ -6735,7 +6963,9 @@ void MediaEngine::uploadFrame(const DecodedFrame& frame) {
   // upload — needed because render() may call uploadFrame again when effect
   // parameters change without a new frame arriving.
   const std::uint8_t* uploadPixels = frame.pixels.data();
-  if (chromaKeyEnabled_ || colorControlsActive(brightness_, contrast_, saturation_, hueShift_)) {
+  if (hooked) {
+    uploadPixels = keyedPixelsScratch_.data();
+  } else if (chromaKeyEnabled_ || colorControlsActive(brightness_, contrast_, saturation_, hueShift_)) {
     keyedPixelsScratch_.assign(frame.pixels.begin(), frame.pixels.end());
     applyCueVisualEffectsToPixels(
       keyedPixelsScratch_,
@@ -6761,7 +6991,7 @@ void MediaEngine::uploadFrame(const DecodedFrame& frame) {
   // accumulate. SDL_UpdateTexture stays as the fallback for the case where a
   // lock is refused, which is rare but must not black the picture out.
   const auto uploadStarted = std::chrono::steady_clock::now();
-  writeStreamingTexture(texture_, uploadPixels, frame.width, frame.height);
+  writeStreamingTexture(texture_, uploadPixels, upW, upH);
   countUpload(uploadStarted);
 
   // RETIRE THE UPLOAD.
@@ -7137,6 +7367,7 @@ void MediaEngine::clearAudio() {
   // Safe here: callers only clear audio after decode threads are stopped,
   // and the sync pop runs on this (main) thread.
   audioDelayFifo_.clear();
+  syncPopNextSeconds_ = -1.0;   // the sync pop starts again from the clock
   audioDelayHeldFrames_.store(0, std::memory_order_relaxed);
   // Open the limiter back up: a new cue must not start ducked by whatever
   // transient the previous one ended on.
@@ -7172,8 +7403,20 @@ void MediaEngine::queuePocketSyncAudio() {
     return;
   }
   setOutputPaused(false);
-  const double startSeconds =
-    static_cast<double>(SDL_GetTicks()) / 1000.0 + queuedSeconds;
+  // FILL TO DEPTH, NEVER STEP BACK. This used to add one 21 ms chunk per call,
+  // which keeps up only while the main loop runs at 60 fps: at the 19 fps a
+  // phone managed with the card on its CPU, the queue ran dry every frame and
+  // each chunk was stamped "now" -- so the pop's timeline slid and jumped, and
+  // came out two or three times over, drifting in and out of phase. Now each
+  // call tops the queue up to its 120 ms, every chunk follows on from the last,
+  // and the timeline only ever moves FORWARD to the clock after a gap (what was
+  // missed was never played; going back is what repeats a pop).
+  for (int chunk = 0; chunk < 8 && queuedSeconds <= 0.12; ++chunk) {
+  const double wantedSeconds = static_cast<double>(SDL_GetTicks()) / 1000.0 + queuedSeconds;
+  double startSeconds = syncPopNextSeconds_;
+  if (startSeconds < wantedSeconds - 0.002 || startSeconds > wantedSeconds + 0.25) startSeconds = wantedSeconds;
+  syncPopNextSeconds_ = startSeconds + static_cast<double>(kChunkFrames) / kRate;
+  queuedSeconds += static_cast<double>(kChunkFrames) / kRate;
   const double gain = static_cast<double>(volume_.load())
                     * static_cast<double>(masterGain_.load())
                     * audioCueGain_.load(std::memory_order_relaxed)
@@ -7205,6 +7448,7 @@ void MediaEngine::queuePocketSyncAudio() {
   // the wall clock, so adjusting the audio delay visibly/audibly shifts the
   // pop against the flash — that's the dial-in workflow.
   queueDelayedAudio(samples);
+  }
 }
 
 // Thread-safe query of the current frame queue depth. Used by update() to
@@ -14184,6 +14428,582 @@ void buildLumiaAt(DecodedFrame& frame, double animTime, const LumiaSettings& bas
   lumiaWithFrame(animTime, base, cueId, q, [&](const LumiaView& v) { lumiaDraw(frame, v); });
 }
 
+// ---------------------------------------------------------------------------
+// buildIllusion - pictures that trick the eye (IllusionSettings, batch 1 of
+// the 2026-11-13 board). Each is drawn per output pixel at the output's
+// raster: the effect lives in edges a pixel or two wide, and scaling a smaller
+// picture up would blur exactly those.
+//
+// ONE MOMENT, TWO DRAWERS. illusionStep works out the moment's numbers -- the
+// controls after their oscillators, the integrated clock, the inks -- and both
+// this builder and the card's illusionMain (gpu_effects.hlsl) draw from them.
+// Every size is a share of the picture's short side, so the same numbers draw
+// the same picture at any raster: the desk's small copy included.
+//
+// The drift field: each shape is a body with a black crescent on one side and
+// a white one on the other; the eye reads the order black -> white as motion,
+// so the crescents' direction turns the field. The shapes sit on a honeycomb
+// and each owns the pixels nearer its centre than any other's (the card finds
+// the nearest centre per pixel; here each shape is drawn in its own box and
+// gives up the pixels a neighbour is nearer to), so big shapes meet at a seam
+// instead of piling on each other in drawing order.
+// ---------------------------------------------------------------------------
+namespace {
+struct IllusionInks {
+  std::array<std::uint8_t, 3> dark, light, body, ground;
+  std::array<std::uint8_t, 3> dots, grid;   // vanish: the dots that go, the crosses that turn
+};
+
+IllusionInks illusionInks(const IllusionSettings& s, double hue1, double hue2) {
+  auto rgb = [](std::uint32_t c) {
+    return std::array<std::uint8_t, 3> {static_cast<std::uint8_t>((c >> 16) & 255),
+                                        static_cast<std::uint8_t>((c >> 8) & 255),
+                                        static_cast<std::uint8_t>(c & 255)};
+  };
+  auto mix = [](std::array<std::uint8_t, 3> a, std::array<std::uint8_t, 3> b, double t) {
+    std::array<std::uint8_t, 3> o {};
+    for (std::size_t i = 0; i < 3; ++i) o[i] = static_cast<std::uint8_t>(std::lround(a[i] + (b[i] - a[i]) * t));
+    return o;
+  };
+  const std::array<std::uint8_t, 3> black {0, 0, 0}, white {255, 255, 255};
+  switch (std::clamp(s.palette, 0, kIllusionPaletteCount - 1)) {
+    case 1:  // theme: the inks it captured, dark to light
+      return {rgb(s.themeInks[0]), rgb(s.themeInks[3]), rgb(s.themeInks[2]), rgb(s.themeInks[1]),
+              rgb(s.themeInks[3]), rgb(s.themeInks[2])};
+    case 2: {  // hues: the two colours, and a dark and a light of them for the tiles
+      const auto a = moireHueRgb(hue1 * 6.0), b = moireHueRgb(hue2 * 6.0);
+      return {mix(a, black, 0.75), mix(b, white, 0.6), a, mix(b, black, 0.35), a, b};
+    }
+    default:  // classic: black and white, the drift field's orange on green, yellow dots on blue
+      return {black, white, {232, 98, 44}, {127, 174, 60}, {255, 226, 0}, {30, 90, 255}};
+  }
+}
+
+// The dancer's limbs, each a capsule in its own 3D space (y up, feet at 0,
+// head at about 1): a robot on one leg, the other leg reaching back, one arm
+// up and one out. Turned about the vertical axis and drawn flat -- no shading,
+// no depth -- so nothing says which way it turns (illusionStep).
+struct IllusionLimb {
+  float a[3], b[3], r;
+  bool reaches;   // follows the pose control
+};
+constexpr IllusionLimb kIllusionDancer[] = {
+  {{0.00f, 0.44f, 0.00f}, {0.00f, 0.74f, 0.00f}, 0.075f, false},    // body
+  {{0.00f, 0.86f, 0.00f}, {0.00f, 0.86f, 0.00f}, 0.085f, false},    // head
+  {{0.00f, 0.93f, 0.00f}, {0.04f, 1.04f, 0.02f}, 0.013f, false},    // antenna
+  {{0.03f, 0.44f, 0.00f}, {0.02f, 0.03f, 0.02f}, 0.045f, false},    // standing leg
+  {{0.02f, 0.03f, 0.02f}, {0.10f, 0.00f, 0.06f}, 0.030f, false},    // its foot
+  {{-0.03f, 0.44f, 0.00f}, {-0.17f, 0.30f, -0.12f}, 0.042f, true},  // the other thigh
+  {{-0.17f, 0.30f, -0.12f}, {-0.35f, 0.36f, -0.24f}, 0.036f, true}, // and shin, reaching back
+  {{0.07f, 0.71f, 0.00f}, {0.17f, 0.85f, 0.07f}, 0.032f, true},     // the raised arm
+  {{0.17f, 0.85f, 0.07f}, {0.12f, 1.00f, 0.12f}, 0.028f, true},
+  {{-0.07f, 0.71f, 0.00f}, {-0.21f, 0.69f, 0.09f}, 0.030f, true},   // the arm held out
+  {{-0.21f, 0.69f, 0.09f}, {-0.33f, 0.76f, 0.15f}, 0.026f, true},
+};
+constexpr int kIllusionLimbs = static_cast<int>(sizeof(kIllusionDancer) / sizeof(kIllusionDancer[0]));
+
+struct IllusionStep {
+  int shape = 0, form = 0, flow = 0;
+  bool flip = false;
+  double size = 0, count = 0, edge = 0, centreX = 0.5, centreY = 0.5, tone = 0.5;
+  double t = 0;   // the integrated clock: turn, wander, slide, spin
+  IllusionInks ink {};
+  // The dancer, turned and flattened: each limb's two ends and radius, as
+  // shares of the short side from the centre (x right, y down).
+  float limb[kIllusionLimbs][5] = {};
+};
+
+IllusionStep illusionStep(const IllusionSettings& base, double animTime, const std::string& cueId) {
+  const auto clock = deckboy::effects::readLfoClock();
+  auto mod = [&](int slot, double value) {
+    const auto& lfo = base.lfo[static_cast<std::size_t>(slot)];
+    return static_cast<double>(deckboy::effects::lfoApply(lfo, static_cast<float>(std::clamp(value, 0.0, 1.0)),
+                                                          clock.seconds, clock.beats, clock.audio01));
+  };
+  IllusionStep s;
+  s.shape = std::clamp(base.shape, 0, kIllusionShapeCount - 1);
+  s.form = std::clamp(base.form, 0, kIllusionFormCount - 1);
+  s.flow = std::clamp(base.flow, 0, kIllusionFlowCount - 1);
+  s.flip = base.flip;
+  s.size = mod(kIllusionLfoSize, base.size);
+  s.count = mod(kIllusionLfoCount, base.count);
+  s.edge = mod(kIllusionLfoEdge, base.edge);
+  s.centreX = mod(kIllusionLfoCentreX, base.centreX);
+  s.centreY = mod(kIllusionLfoCentreY, base.centreY);
+  s.tone = mod(kIllusionLfoTone, base.tone);
+  s.ink = illusionInks(base, mod(kIllusionLfoHue1, base.hue1), mod(kIllusionLfoHue2, base.hue2));
+  // Integrated, as Moire's: an oscillating speed never jumps the picture.
+  // The card's plan and the desk's copy ask for the same moment; a second
+  // call at the same time adds nothing. The vanishing dots and the dancer
+  // only work while something moves, so they move at speed 0 too.
+  const double speed = mod(kIllusionLfoSpeed, base.speed);
+  const double rate = s.shape == 3 ? 0.3 + speed * 1.5                        // radians a second
+                    : s.shape == 5 ? 6.2831853 * (0.45 + speed * 1.2)         // turns a second
+                    : speed * 1.5;
+  s.t = moireFieldTime(cueId + "#illusion", animTime, rate);
+  if (s.flip && (s.shape == 3 || s.shape == 5)) s.t = -s.t;
+  if (s.shape == 5) {
+    const double height = 0.5 + 0.45 * s.size;     // the figure, as a share of the short side
+    const double reach = 0.6 + 0.8 * s.edge;       // the pose: how far the free limbs reach
+    const float c = static_cast<float>(std::cos(s.t)), sn = static_cast<float>(std::sin(s.t));
+    for (int k = 0; k < kIllusionLimbs; ++k) {
+      const IllusionLimb& L = kIllusionDancer[k];
+      float a[3] = {L.a[0], L.a[1], L.a[2]}, b[3] = {L.b[0], L.b[1], L.b[2]};
+      if (L.reaches) {
+        // Out from the hip or the shoulder, in proportion.
+        const float anchorY = L.a[1] > 0.6f ? 0.71f : 0.44f;
+        for (float* q : {a, b}) {
+          q[0] *= static_cast<float>(reach);
+          q[2] *= static_cast<float>(reach);
+          q[1] = anchorY + (q[1] - anchorY) * static_cast<float>(reach);
+        }
+      }
+      auto flat = [&](const float* q, float* out2) {
+        out2[0] = static_cast<float>((q[0] * c + q[2] * sn) * height);
+        out2[1] = static_cast<float>((0.52 - q[1]) * height);   // feet low, centred on the middle
+      };
+      flat(a, &s.limb[k][0]);
+      flat(b, &s.limb[k][2]);
+      s.limb[k][4] = static_cast<float>(L.r * height);
+    }
+  }
+  return s;
+}
+
+// How much of a pixel an ellipse covers: 1 inside, 0 outside, a pixel's
+// worth of ramp across the edge. (u, v) are pixels from its centre on its
+// own axes; a and b its radii in pixels. (illusionCover in the shaders.)
+inline float illusionEllipse(float u, float v, float a, float b) {
+  const float f = (u * u) / (a * a) + (v * v) / (b * b);
+  const float m = std::min(a, b);
+  // Well inside or well outside: no square root. Only the one-pixel band at
+  // the edge needs it, and that is a small share of the pixels.
+  const float inner = std::max(0.0f, 1.0f - 0.5f / m), outer = 1.0f + 0.5f / m;
+  if (f <= inner * inner) return 1.0f;
+  if (f >= outer * outer) return 0.0f;
+  return std::clamp((1.0f - std::sqrt(f)) * m + 0.5f, 0.0f, 1.0f);
+}
+
+// lround and floor are calls under MSVC; at 4K they were most of the frame.
+inline std::uint8_t illusionByte(float c) {
+  return static_cast<std::uint8_t>((c < 0.0f ? 0.0f : c > 255.0f ? 255.0f : c) + 0.5f);
+}
+inline long long illusionFloor(double v) {
+  const long long i = static_cast<long long>(v);
+  return i - (v < static_cast<double>(i) ? 1 : 0);
+}
+
+inline void illusionBlend(float* c, const std::array<std::uint8_t, 3>& ink, float cover) {
+  for (std::size_t i = 0; i < 3; ++i) c[i] += (ink[i] - c[i]) * cover;
+}
+}  // namespace
+
+void buildIllusion(DecodedFrame& frame, double animTime, const IllusionSettings& base,
+                   const std::string& cueId) {
+  const int W = frame.width, H = frame.height;
+  if (W <= 0 || H <= 0) return;
+  frame.format = FramePixelFormat::RGBA32;
+  frame.pixels.resize(static_cast<std::size_t>(W) * static_cast<std::size_t>(H) * 4u);
+  const IllusionStep st = illusionStep(base, animTime, cueId);
+  const IllusionInks& ink = st.ink;
+  const double S = static_cast<double>(std::min(W, H));
+  const double cx = st.centreX * W, cy = st.centreY * H;
+  const double t = st.t;
+  std::uint8_t* out = frame.pixels.data();
+  auto put = [out](std::size_t at, const float* c) {
+    out[at] = illusionByte(c[0]);
+    out[at + 1] = illusionByte(c[1]);
+    out[at + 2] = illusionByte(c[2]);
+    out[at + 3] = 255;
+  };
+  auto fill = [](float* c, const std::array<std::uint8_t, 3>& ink3) {
+    for (std::size_t i = 0; i < 3; ++i) c[i] = ink3[i];
+  };
+
+  if (st.shape == 0) {
+    // ---- Drift field ---------------------------------------------------------
+    const double across = 6.0 + st.count * 34.0;         // shapes across the short side
+    const double pitch = S / across;
+    const double rowH = pitch * 0.866;                    // a honeycomb: six neighbours a pitch away
+    const float rx = static_cast<float>(pitch * 0.5 * (0.45 + 0.55 * st.size));
+    static const float kAspect[kIllusionFormCount] = {0.53f, 0.75f, 1.0f, 1.0f};
+    const float ry = rx * kAspect[st.form];
+    const float e = rx * static_cast<float>(0.05 + 0.3 * st.edge);   // how far each crescent shows
+    const int rows = static_cast<int>(H / rowH) + 3;
+    const int cols = static_cast<int>(W / pitch) + 3;
+    std::vector<float> cosA(static_cast<std::size_t>(rows) * static_cast<std::size_t>(cols)), sinA(cosA.size());
+    for (int r = 0; r < rows; ++r) {
+      for (int c = 0; c < cols; ++c) {
+        const double x = (c - 1) * pitch + (((r - 1) & 1) ? pitch * 0.5 : 0.0);
+        const double y = (r - 1) * rowH;
+        const double dx = x - cx, dy = y - cy;
+        const double radial = std::atan2(dy, dx);
+        double a = st.flow == 0 ? radial + 1.5707963 : st.flow == 1 ? radial : st.flow == 2 ? radial + 3.14159265
+                 : std::sin(dy / S * 12.0 + t) * 1.2;
+        if (st.flow != 3) a += t;
+        if (st.flip) a += 3.14159265;
+        const std::size_t at = static_cast<std::size_t>(r) * static_cast<std::size_t>(cols) + static_cast<std::size_t>(c);
+        cosA[at] = static_cast<float>(std::cos(a));
+        sinA[at] = static_cast<float>(std::sin(a));
+      }
+    }
+    const std::array<std::uint8_t, 3> black {0, 0, 0}, white {255, 255, 255};   // the mechanism, always
+    const float reach = rx + e + 1.0f;
+    // Inside half a pitch a pixel is this shape's whatever the neighbours;
+    // past it, a neighbour nearer than its own centre takes it.
+    const double own2 = pitch * pitch * 0.25;
+    const double nbX[6] = {pitch, -pitch, pitch * 0.5, -pitch * 0.5, pitch * 0.5, -pitch * 0.5};
+    const double nbY[6] = {0.0, 0.0, rowH, rowH, -rowH, -rowH};
+    deckboy::effects::detail::parallelRows(H, W * 2, [&](int y0, int y1) {
+      for (int y = y0; y < y1; ++y) {
+        std::uint8_t* row = out + static_cast<std::size_t>(y) * static_cast<std::size_t>(W) * 4u;
+        for (int x = 0; x < W; ++x) {
+          row[x * 4] = ink.ground[0];
+          row[x * 4 + 1] = ink.ground[1];
+          row[x * 4 + 2] = ink.ground[2];
+          row[x * 4 + 3] = 255;
+        }
+      }
+      const int rFirst = std::max(0, static_cast<int>(std::floor((y0 - reach) / rowH)) + 1);
+      const int rLast = std::min(rows - 1, static_cast<int>(std::ceil((y1 + reach) / rowH)) + 1);
+      for (int r = rFirst; r <= rLast; ++r) {
+        const double off = ((r - 1) & 1) ? pitch * 0.5 : 0.0;
+        const double ey = (r - 1) * rowH;
+        const int ya = std::max(y0, static_cast<int>(std::floor(ey - reach)));
+        const int yb = std::min(y1 - 1, static_cast<int>(std::ceil(ey + reach)));
+        if (ya > yb) continue;
+        for (int c = 0; c < cols; ++c) {
+          const double ex = (c - 1) * pitch + off;
+          const int xa = std::max(0, static_cast<int>(std::floor(ex - reach)));
+          const int xb = std::min(W - 1, static_cast<int>(std::ceil(ex + reach)));
+          if (xa > xb) continue;
+          const std::size_t at = static_cast<std::size_t>(r) * static_cast<std::size_t>(cols) + static_cast<std::size_t>(c);
+          const float ca = cosA[at], sa = sinA[at];
+          for (int y = ya; y <= yb; ++y) {
+            const double pyd = y + 0.5 - ey;
+            const float dy = static_cast<float>(pyd);
+            std::uint8_t* row = out + static_cast<std::size_t>(y) * static_cast<std::size_t>(W) * 4u;
+            for (int x = xa; x <= xb; ++x) {
+              const double pxd = x + 0.5 - ex;
+              const float dx = static_cast<float>(pxd);
+              const float u = dx * ca + dy * sa, v = -dx * sa + dy * ca;
+              if (std::fabs(v) > ry + 1.0f || std::fabs(u) > rx + e + 1.0f) continue;
+              const double d2 = pxd * pxd + pyd * pyd;
+              if (d2 > own2) {
+                bool theirs = false;
+                for (int k = 0; k < 6 && !theirs; ++k) {
+                  const double qx = pxd - nbX[k], qy = pyd - nbY[k];
+                  theirs = qx * qx + qy * qy < d2;
+                }
+                if (theirs) continue;
+              }
+              const float cbody = illusionEllipse(u, v, rx * 0.97f, ry * 0.85f);
+              if (cbody >= 1.0f && st.form != 3) {
+                std::uint8_t* px = row + static_cast<std::size_t>(x) * 4u;
+                px[0] = ink.body[0];
+                px[1] = ink.body[1];
+                px[2] = ink.body[2];
+                continue;
+              }
+              const float cb = illusionEllipse(u - e, v, rx, ry);
+              const float cw = illusionEllipse(u + e, v, rx, ry);
+              if (cb <= 0.0f && cw <= 0.0f && cbody <= 0.0f) continue;
+              float col[3];
+              fill(col, ink.ground);
+              illusionBlend(col, black, cb);
+              illusionBlend(col, white, cw);
+              illusionBlend(col, ink.body, cbody);
+              if (st.form == 3) illusionBlend(col, ink.ground, illusionEllipse(u, v, rx * 0.45f, ry * 0.45f));
+              put((static_cast<std::size_t>(y) * static_cast<std::size_t>(W) + static_cast<std::size_t>(x)) * 4u, col);
+            }
+          }
+        }
+      }
+    });
+    return;
+  }
+
+  if (st.shape == 1) {
+    // ---- Ouchi ---------------------------------------------------------------
+    const double tw = S * (0.025 + 0.11 * st.size);       // a tile's length
+    const double th = tw * (0.12 + 0.5 * st.count);       // and its thickness
+    const float R = static_cast<float>(S * (0.08 + 0.4 * st.edge));
+    // With speed up, the disc wanders a little round its place; its tiles go
+    // with it, so it reads as a thing of its own.
+    const double discX = cx + S * 0.04 * std::cos(t), discY = cy + S * 0.04 * std::sin(t * 1.3);
+    const double invTh = 1.0 / th, invTw = 1.0 / tw;
+    deckboy::effects::detail::parallelRows(H, W * 3, [&](int y0, int y1) {
+      long long lastTile = -1;
+      for (int y = y0; y < y1; ++y) {
+        const double py = y + 0.5 - H * 0.5;
+        const long long tileRow = illusionFloor(py * invTw);
+        const bool clearOfDisc = std::fabs(y + 0.5 - discY) > R + 1.0;
+        std::uint8_t* row = out + static_cast<std::size_t>(y) * static_cast<std::size_t>(W) * 4u;
+        // A row clear of the disc is the row above it, down a tile.
+        if (clearOfDisc && y > y0 && tileRow == lastTile) {
+          std::memcpy(row, row - static_cast<std::size_t>(W) * 4u, static_cast<std::size_t>(W) * 4u);
+          continue;
+        }
+        lastTile = clearOfDisc ? tileRow : -1;
+        for (int x = 0; x < W; ++x) {
+          const double px = x + 0.5 - W * 0.5;
+          const bool down = ((illusionFloor(px * invTh) + tileRow) & 1) != 0;
+          float col[3];
+          fill(col, down ? ink.dark : ink.light);
+          const float ux = static_cast<float>(x + 0.5 - discX), uy = static_cast<float>(y + 0.5 - discY);
+          const float cover = std::fabs(ux) > R + 1.0f || std::fabs(uy) > R + 1.0f ? 0.0f : illusionEllipse(ux, uy, R, R);
+          if (cover > 0.0f) {
+            const bool across = ((illusionFloor(ux * invTw) + illusionFloor(uy * invTh)) & 1) != 0;
+            illusionBlend(col, across ? ink.dark : ink.light, cover);
+          }
+          put((static_cast<std::size_t>(y) * static_cast<std::size_t>(W) + static_cast<std::size_t>(x)) * 4u, col);
+        }
+      }
+    });
+    return;
+  }
+
+  if (st.shape == 3) {
+    // ---- Vanishing dots (motion-induced blindness) ---------------------------
+    // Crosses on a grid that turns round the centre, three still dots, and a
+    // point to look at. Stare at the point: the dots go, one or two at a time,
+    // and come back.
+    const double pitch = S / (4.0 + st.count * 20.0);
+    const float arm = static_cast<float>(pitch * (0.15 + 0.3 * st.edge));
+    const float thick = std::max(1.0f, arm * 0.28f);
+    const float dotR = static_cast<float>(S * (0.008 + 0.03 * st.size));
+    const double ca = std::cos(t), sa = std::sin(t);
+    const double ring = S * 0.28;
+    double dots[3][2];
+    for (int k = 0; k < 3; ++k) {
+      const double a = -1.5707963 + k * 2.0943951;
+      dots[k][0] = cx + ring * std::cos(a);
+      dots[k][1] = cy + ring * std::sin(a);
+    }
+    const double invPitch = 1.0 / pitch;
+    deckboy::effects::detail::parallelRows(H, W * 3, [&](int y0, int y1) {
+      for (int y = y0; y < y1; ++y) {
+        const double qy = y + 0.5 - cy;
+        // Only the dots (and the point) this row passes through are tested.
+        bool rowDots[3];
+        for (int k = 0; k < 3; ++k) rowDots[k] = std::fabs(y + 0.5 - dots[k][1]) <= dotR + 1.0;
+        const bool rowPoint = std::fabs(qy) <= dotR + 1.0;
+        // The turned grid, stepped along the row (in grid cells) rather than
+        // turned per pixel. Most pixels are the ground: written as they are.
+        const float pf = static_cast<float>(pitch);
+        const float cu = static_cast<float>(ca * invPitch), cv = static_cast<float>(sa * invPitch);
+        float uc = static_cast<float>(((0.5 - cx) * ca + qy * sa) * invPitch);
+        float vc = static_cast<float>((-(0.5 - cx) * sa + qy * ca) * invPitch);
+        std::uint8_t* row = out + static_cast<std::size_t>(y) * static_cast<std::size_t>(W) * 4u;
+        for (int x = 0; x < W; ++x, uc += cu, vc -= cv) {
+          const double qx = x + 0.5 - cx;
+          const float ur = uc + 0.5f, vr = vc + 0.5f;
+          const int ui = static_cast<int>(ur) - (ur < static_cast<float>(static_cast<int>(ur)) ? 1 : 0);
+          const int vi = static_cast<int>(vr) - (vr < static_cast<float>(static_cast<int>(vr)) ? 1 : 0);
+          const float lu = std::fabs(uc - static_cast<float>(ui)) * pf;
+          const float lv = std::fabs(vc - static_cast<float>(vi)) * pf;
+          const bool nearDot = (rowDots[0] || rowDots[1] || rowDots[2] || rowPoint);
+          if (!nearDot && (lu > arm + 0.5f || lv > arm + 0.5f) &&
+              (lu > thick * 0.5f + 0.5f && lv > thick * 0.5f + 0.5f)) {
+            std::uint8_t* px = row + static_cast<std::size_t>(x) * 4u;
+            px[0] = ink.dark[0];
+            px[1] = ink.dark[1];
+            px[2] = ink.dark[2];
+            px[3] = 255;
+            continue;
+          }
+          const float across = std::clamp(arm - lu + 0.5f, 0.0f, 1.0f) * std::clamp(thick * 0.5f - lv + 0.5f, 0.0f, 1.0f);
+          const float down = std::clamp(arm - lv + 0.5f, 0.0f, 1.0f) * std::clamp(thick * 0.5f - lu + 0.5f, 0.0f, 1.0f);
+          float col[3];
+          fill(col, ink.dark);
+          illusionBlend(col, ink.grid, std::max(across, down));
+          for (int k = 0; k < 3; ++k) {
+            if (!rowDots[k]) continue;
+            const float dx = static_cast<float>(x + 0.5 - dots[k][0]), dy = static_cast<float>(y + 0.5 - dots[k][1]);
+            if (std::fabs(dx) <= dotR + 1.0f && std::fabs(dy) <= dotR + 1.0f)
+              illusionBlend(col, ink.dots, illusionEllipse(dx, dy, dotR, dotR));
+          }
+          if (rowPoint) {
+            const float fx = static_cast<float>(qx), fy = static_cast<float>(qy);
+            if (std::fabs(fx) <= dotR + 1.0f)
+              illusionBlend(col, ink.light, illusionEllipse(fx, fy, dotR * 0.6f, dotR * 0.6f));
+          }
+          put((static_cast<std::size_t>(y) * static_cast<std::size_t>(W) + static_cast<std::size_t>(x)) * 4u, col);
+        }
+      }
+    });
+    return;
+  }
+
+  if (st.shape == 4) {
+    // ---- Scintillating grid --------------------------------------------------
+    // Grey streets between dark squares, a light disc at every crossing. Dark
+    // dots flicker in the discs you are not looking at; none is there.
+    const double pitch = S / (4.0 + st.count * 20.0);
+    const float bar = static_cast<float>(pitch * (0.06 + 0.25 * st.edge));
+    const float disc = bar * static_cast<float>(0.5 + 0.4 * st.size);
+    const double drift = t * pitch * 0.3;   // speed slides the grid diagonally
+    std::array<std::uint8_t, 3> grey {};
+    for (std::size_t i = 0; i < 3; ++i) grey[i] = illusionByte(static_cast<float>(ink.light[i] * st.tone));
+    deckboy::effects::detail::parallelRows(H, W * 2, [&](int y0, int y1) {
+      for (int y = y0; y < y1; ++y) {
+        const double qy = y + 0.5 - cy + drift;
+        const float ly = static_cast<float>(std::fabs(qy - pitch * illusionFloor(qy / pitch + 0.5)));
+        for (int x = 0; x < W; ++x) {
+          const double qx = x + 0.5 - cx + drift;
+          const float lx = static_cast<float>(std::fabs(qx - pitch * illusionFloor(qx / pitch + 0.5)));
+          float col[3];
+          fill(col, ink.dark);
+          illusionBlend(col, grey, std::clamp(bar * 0.5f - std::min(lx, ly) + 0.5f, 0.0f, 1.0f));
+          if (lx <= disc + 1.0f && ly <= disc + 1.0f) illusionBlend(col, ink.light, illusionEllipse(lx, ly, disc, disc));
+          put((static_cast<std::size_t>(y) * static_cast<std::size_t>(W) + static_cast<std::size_t>(x)) * 4u, col);
+        }
+      }
+    });
+    return;
+  }
+
+  if (st.shape == 5) {
+    // ---- Spinning dancer -----------------------------------------------------
+    // A flat silhouette turning in place. Nothing in it says which way: half
+    // a room sees it go one way, half the other, and it can flip as you watch.
+    const float Sf = static_cast<float>(S);
+    float minX = 1e9f, maxX = -1e9f, minY = 1e9f, maxY = -1e9f;
+    for (const auto& L : st.limb) {
+      minX = std::min({minX, L[0] - L[4], L[2] - L[4]});
+      maxX = std::max({maxX, L[0] + L[4], L[2] + L[4]});
+      minY = std::min({minY, L[1] - L[4], L[3] - L[4]});
+      maxY = std::max({maxY, L[1] + L[4], L[3] + L[4]});
+    }
+    const int bx0 = std::max(0, static_cast<int>(std::floor(cx + minX * Sf)) - 2);
+    const int bx1 = std::min(W, static_cast<int>(std::ceil(cx + maxX * Sf)) + 2);
+    (void) minY;
+    (void) maxY;
+    deckboy::effects::detail::parallelRows(H, W * 2, [&](int y0, int y1) {
+      for (int y = y0; y < y1; ++y) {
+        const float py = static_cast<float>((y + 0.5 - cy) / S);
+        // The limbs this row crosses (a pixel of ramp either side), and the
+        // span of the row they cover; every other pixel is the ground.
+        int active[kIllusionLimbs];
+        int nActive = 0;
+        float spanLo = 1e9f, spanHi = -1e9f;
+        const float px1 = 1.0f / Sf;
+        for (int k = 0; k < kIllusionLimbs; ++k) {
+          const auto& L = st.limb[k];
+          if (py < std::min(L[1], L[3]) - L[4] - px1 || py > std::max(L[1], L[3]) + L[4] + px1) continue;
+          active[nActive++] = k;
+          spanLo = std::min({spanLo, L[0] - L[4], L[2] - L[4]});
+          spanHi = std::max({spanHi, L[0] + L[4], L[2] + L[4]});
+        }
+        const int xa = std::max(bx0, static_cast<int>(std::floor(cx + spanLo * Sf)) - 2);
+        const int xb = std::min(bx1, static_cast<int>(std::ceil(cx + spanHi * Sf)) + 2);
+        for (int x = 0; x < W; ++x) {
+          float col[3];
+          fill(col, ink.light);
+          if (nActive > 0 && x >= xa && x < xb) {
+            const float px = static_cast<float>((x + 0.5 - cx) / S);
+            float cover = 0.0f;
+            for (int n = 0; n < nActive; ++n) {
+              const auto& L = st.limb[active[n]];
+              const float ax = px - L[0], ay = py - L[1], dx = L[2] - L[0], dy = L[3] - L[1];
+              const float len2 = dx * dx + dy * dy;
+              const float h = len2 > 0.0f ? std::clamp((ax * dx + ay * dy) / len2, 0.0f, 1.0f) : 0.0f;
+              const float ex = ax - dx * h, ey = ay - dy * h;
+              const float dist = (std::sqrt(ex * ex + ey * ey) - L[4]) * Sf;   // pixels outside the limb
+              cover = std::max(cover, std::clamp(0.5f - dist, 0.0f, 1.0f));
+              if (cover >= 1.0f) break;
+            }
+            illusionBlend(col, ink.dark, cover);
+          }
+          put((static_cast<std::size_t>(y) * static_cast<std::size_t>(W) + static_cast<std::size_t>(x)) * 4u, col);
+        }
+      }
+    });
+    return;
+  }
+
+  // ---- Cafe wall -------------------------------------------------------------
+  const double T = S * (0.04 + 0.16 * st.size);            // a tile
+  const double mortar = T * (0.01 + 0.12 * st.edge);
+  // Row r is shifted by d * {0, 1, 2, 1}[r % 4]: the classic wedge. Speed
+  // swings the shift back and forth, so the rows bend and straighten.
+  const double d = st.count * T * 0.5 * std::cos(t);
+  std::array<std::uint8_t, 3> grey {};
+  for (std::size_t i = 0; i < 3; ++i) grey[i] = illusionByte(static_cast<float>(ink.light[i] * st.tone));
+  deckboy::effects::detail::parallelRows(H, W * 2, [&](int y0, int y1) {
+    static const int kWedge[4] = {0, 1, 2, 1};
+    long long lastRow = -1;
+    float lastMortar = -1.0f;
+    for (int y = y0; y < y1; ++y) {
+      const double py = y + 0.5 - H * 0.5;
+      const long long r = illusionFloor(py / T);
+      const double within = py - static_cast<double>(r) * T;
+      const double shift = d * kWedge[((r % 4) + 4) % 4];
+      // The mortar line, with a pixel of ramp so a thin one stays even.
+      const double toEdge = std::min(within, T - within);
+      const float mortarCover = static_cast<float>(std::clamp(mortar * 0.5 - toEdge + 0.5, 0.0, 1.0));
+      std::uint8_t* row = out + static_cast<std::size_t>(y) * static_cast<std::size_t>(W) * 4u;
+      // The same tile row and the same mortar: the row above, copied.
+      if (y > y0 && r == lastRow && mortarCover == lastMortar) {
+        std::memcpy(row, row - static_cast<std::size_t>(W) * 4u, static_cast<std::size_t>(W) * 4u);
+        continue;
+      }
+      lastRow = r;
+      lastMortar = mortarCover;
+      for (int x = 0; x < W; ++x) {
+        const double px = x + 0.5 - W * 0.5 - shift;
+        const bool dark = (illusionFloor(px / T) & 1) == 0;
+        float col[3];
+        fill(col, dark ? ink.dark : ink.light);
+        if (mortarCover > 0.0f) illusionBlend(col, grey, mortarCover);
+        put((static_cast<std::size_t>(y) * static_cast<std::size_t>(W) + static_cast<std::size_t>(x)) * 4u, col);
+      }
+    }
+  });
+}
+
+// planIllusionSource - one moment of an Illusion for the card
+// (gpu_effects.hlsl illusionMain): the numbers illusionStep works out, which
+// the kernel draws at whatever size it is asked for. tab: the four inks (dark,
+// light, body, ground; 0-255), then size, count, edge, centre x, centre y,
+// tone and the clock; 19-24 the vanishing dots' two inks; 25 the dancer's
+// limb count and from 32 its limbs, five floats each. i: shape, form, flow, flip.
+static bool planIllusionSource(const Cue& cue, double animTime, int width, int height,
+                               deckboy::gpu::SourcePlan& plan) {
+  static std::atomic<std::uint64_t> moments {0};
+  const IllusionStep st = illusionStep(cue.illusion, animTime, cue.id);
+  plan.kind = deckboy::gpu::SourcePlan::Illusion;
+  plan.width = width;
+  plan.height = height;
+  plan.srcW = 2;   // nothing traced: the runner's buffers stay a token size
+  plan.srcH = 2;
+  plan.moment = ++moments;
+  plan.i[0] = st.shape;
+  plan.i[1] = st.form;
+  plan.i[2] = st.flow;
+  plan.i[3] = st.flip ? 1 : 0;
+  const std::array<std::uint8_t, 3>* inks[4] = {&st.ink.dark, &st.ink.light, &st.ink.body, &st.ink.ground};
+  for (int k = 0; k < 4; ++k) {
+    for (int c = 0; c < 3; ++c) plan.tab[k * 3 + c] = static_cast<float>((*inks[k])[static_cast<std::size_t>(c)]);
+  }
+  plan.tab[12] = static_cast<float>(st.size);
+  plan.tab[13] = static_cast<float>(st.count);
+  plan.tab[14] = static_cast<float>(st.edge);
+  plan.tab[15] = static_cast<float>(st.centreX);
+  plan.tab[16] = static_cast<float>(st.centreY);
+  plan.tab[17] = static_cast<float>(st.tone);
+  plan.tab[18] = static_cast<float>(st.t);
+  for (int c = 0; c < 3; ++c) {
+    plan.tab[19 + c] = static_cast<float>(st.ink.dots[static_cast<std::size_t>(c)]);
+    plan.tab[22 + c] = static_cast<float>(st.ink.grid[static_cast<std::size_t>(c)]);
+  }
+  plan.tab[25] = static_cast<float>(kIllusionLimbs);
+  for (int k = 0; k < kIllusionLimbs; ++k) {
+    for (int c = 0; c < 5; ++c) plan.tab[32 + k * 5 + c] = st.limb[k][c];
+  }
+  return true;
+}
+
 void buildLumia(DecodedFrame& frame, double animTime, const LumiaSettings& base, const std::string& cueId) {
   buildLumiaAt(frame, animTime, base, cueId, frame.height >= 600 ? 2 : 1);
 }
@@ -14205,12 +15025,17 @@ void MediaEngine::buildGpuSourceDeskPicture(DecodedFrame& frame, const Cue& cue,
     for (std::size_t i = 3; i < frame.pixels.size(); i += 4) frame.pixels[i] = 255;
     return;
   }
+  if (normalizePatternTypeId(cue.path) == "illusion") {
+    // Every size is a share of the short side: this is the card's picture, small.
+    buildIllusion(frame, animTime, cue.illusion, cue.id);
+    return;
+  }
   buildLumiaAt(frame, animTime, cue.lumia, cue.id, 1);
 }
 
 bool MediaEngine::patternMadeOnGpu(const std::string& patternPath) {
   const std::string base = stripPatternMotionSuffix(normalizePatternTypeId(patternPath));
-  return base == "lumia" || base == "isf";
+  return base == "lumia" || base == "isf" || base == "illusion";
 }
 
 // A SHADER's plan (ISF): the compiled program, each input's value for this
@@ -14254,6 +15079,9 @@ bool MediaEngine::planGpuSource(const Cue& cue, double animTime, int width, int 
   if (!patternMadeOnGpu(cue.path) || width < 2 || height < 2) return false;
   if (stripPatternMotionSuffix(normalizePatternTypeId(cue.path)) == "isf") {
     return planIsfSource(cue, animTime, width, height, plan);
+  }
+  if (stripPatternMotionSuffix(normalizePatternTypeId(cue.path)) == "illusion") {
+    return planIllusionSource(cue, animTime, width, height, plan);
   }
   const int q = height >= 600 ? 2 : 1;
   static std::mutex mutex;
@@ -17166,6 +17994,9 @@ void MediaEngine::buildPatternFrameInto(DecodedFrame& frame, const Cue& cue, dou
   } else if (basePatternType == "moire-field") {
     // Always animated: the bands scroll and the field drifts.
     buildMoireField(frame, animTime, cue.moire, cue.id);
+  } else if (basePatternType == "illusion") {
+    // Animated: its speed and oscillators can slide, turn and wander it.
+    buildIllusion(frame, animTime, cue.illusion, cue.id);
   } else if (basePatternType == "lumia") {
     // Always animated: the water flows.
     buildLumia(frame, animTime, cue.lumia, cue.id);

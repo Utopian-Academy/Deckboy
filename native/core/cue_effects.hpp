@@ -1317,6 +1317,13 @@ struct ParamLfo {
   // picture -- it starts moving from where it already was.
   float depth = 0.5f;
   float phase = 0.0f;      // 0-1, for running two parameters out of step
+  // LIMITS (James, 2026-11-20: "a min and max threshold for lfos"). The wave
+  // travels only between these, as fractions of its own swing: 0 and 1 is
+  // the whole swing, 0.5 and 1 only the half above the set value. Squeezed,
+  // not clipped, so the motion stays smooth to its ends. At 0 and 1 nothing
+  // changes, which is every LFO saved before they existed.
+  float lo = 0.0f;
+  float hi = 1.0f;
   // Follow the tempo instead of the clock. The tap tempo already exists for VJ
   // mode, so an LFO that ignored it would be the second, disagreeing clock in a
   // machine that already knows what the music is doing.
@@ -1388,8 +1395,8 @@ inline int lfoAudioSource(const ParamLfo& lfo) {
   return lfoAudioAutoHearsInput().load(std::memory_order_relaxed) ? 2 : 1;
 }
 
-inline double lfoUnitValue(const ParamLfo& lfo, double seconds, double beats01,
-                           double audio01 = 0.0) {
+inline double lfoUnitValueRaw(const ParamLfo& lfo, double seconds, double beats01,
+                              double audio01 = 0.0) {
   if (lfo.shape == LfoShape::Audio) {
     // Rate, phase and tempo mean nothing here: the value is the sound. AUTO
     // takes the level it was handed (the reactive level, which has always
@@ -1474,6 +1481,18 @@ inline double lfoUnitValue(const ParamLfo& lfo, double seconds, double beats01,
     default:
       return 0.5 - 0.5 * std::cos(phase * 6.283185307179586);
   }
+}
+
+// The wave this frame, 0-1, within the LFO's limits (ParamLfo::lo / hi).
+// Every LFO in the program is read through here, so the limits hold for
+// effect parameters, geometry, colour turns and lighting alike.
+inline double lfoUnitValue(const ParamLfo& lfo, double seconds, double beats01,
+                           double audio01 = 0.0) {
+  const double unit = lfoUnitValueRaw(lfo, seconds, beats01, audio01);
+  if (lfo.lo <= 0.0005f && lfo.hi >= 0.9995f) return unit;   // no limits: exactly as before
+  const double lo = std::clamp(static_cast<double>(std::min(lfo.lo, lfo.hi)), 0.0, 1.0);
+  const double hi = std::clamp(static_cast<double>(std::max(lfo.lo, lfo.hi)), 0.0, 1.0);
+  return lo + unit * (hi - lo);
 }
 
 // The value a parameter actually takes this frame.

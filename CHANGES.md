@@ -8,6 +8,22 @@
 - Changed: to step a paused video one frame, use Shift+Right / Shift+Left (Ctrl: 10 frames, Alt: 1 second). Plain arrows did this before. Shift+arrows no longer step 5 frames.
 - In the tracker's pattern view, Right and Left are GO and BACK. With EDIT on, or with Shift held, they move the cursor across playlists.
 
+### Sources
+- New: **Illusion** (SOURCE > MADE BY DECKBOY), pictures that trick the eye. **Drift**: rows of shapes that seem to turn round the screen. **Ouchi**: a disc of tiles that seems to float and slide. **Cafe wall**: straight rows that look tilted, and bend as they slide. **Vanish**: three dots that disappear while you stare at the middle. **Grid**: dark dots that flicker in light discs and are not there. **Dancer**: a silhouette that spins whichever way you see it, and can flip as you watch. Every number has an LFO. It is drawn on the graphics card (Direct3D 11 and 12; Metal and Vulkan written, not yet run), at 60 fps at 4K, and on the processor in about 12 ms a 4K frame where there is no card to use. Companion: `ILLUSION`, and the Companion module's two Illusion actions.
+
+### Graphics card
+- Fixed: on Linux, and on Windows with the Direct3D 12 renderer, 0.99.428 and 0.99.429 ran every effect, transition and Lumia on the processor, so a 4K show with effects could drop frames there. Windows (Direct3D 11) and macOS were not affected. Checked on Direct3D 12: all 25 GPU effects and Lumia now run on the card and match the processor's picture; Vulkan is not yet run.
+
+### Lessons
+- Fixed: Caroline Polkadot's mouth stayed shut while she sang in the Datamosh lesson. It now moves with her song.
+- Fixed: RESTART was missing from the cards of lessons with many steps, such as Draw. When there is no room beside VOICE, the two now share the row, VOICE above and RESTART below.
+
+### Site
+- The comparison page now includes Cue2.
+
+### Releases
+- Each release is now posted to the Deckboy Discord when it is published. 0.99.429 had to be posted by hand.
+
 ## 2026-11-16 - v0.99.429 (Lumia moves smoothly)
 
 ### Shows

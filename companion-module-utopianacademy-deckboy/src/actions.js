@@ -16,6 +16,12 @@ const LUMIA_CONTROLS = [
 ]
 // Two choices and two switches have no oscillator.
 const LUMIA_NO_LFO = ['palette', 'mode', 'topbottom', 'listens']
+// The Illusion controls ILLUSION takes by name; the pickers and FLIP have no oscillator.
+const ILLUSION_CONTROLS = [
+	'shape', 'form', 'flow', 'flip', 'palette', 'size', 'count', 'edge', 'speed', 'centrex', 'centrey',
+	'grey', 'hue1', 'hue2',
+]
+const ILLUSION_NO_LFO = ['shape', 'form', 'flow', 'flip', 'palette']
 
 export function buildActions(self) {
 	const send = (cmd) => self.sendCommand(cmd)
@@ -1313,6 +1319,51 @@ export function buildActions(self) {
 			callback: async ({ options }) => {
 				const value = String(options.value ?? '').trim()
 				send(`LUMIA LFO ${choice(options.control, 'flow')} ${choice(options.what, 'on')}${value ? ' ' + value : ''}`)
+			},
+		},
+
+		// -- Illusion ---------------------------------------------------------
+		illusion_set: {
+			name: 'Illusion: set a control',
+			description:
+				'For the selected Illusion cue. Shape: drift, ouchi, cafe, vanish, grid or dancer. Form: leaf, petal, scale or ring. Flow: turn, out, in or wave. Palette: classic, theme or hues. Flip: on or off. Hue1 and Hue2 take 0 to 360; the rest take 0 to 100.',
+			options: [
+				{
+					type: 'dropdown',
+					disableAutoExpression: true,
+					label: 'Control',
+					id: 'control',
+					default: 'shape',
+					choices: ILLUSION_CONTROLS.map((id) => ({ id, label: id[0].toUpperCase() + id.slice(1) })),
+				},
+				{ type: 'textinput', label: 'Value', id: 'value', default: 'drift', useVariables: true },
+			],
+			callback: async ({ options }) => {
+				const value = String(options.value ?? '').trim()
+				if (value.length > 0) send(`ILLUSION ${choice(options.control, 'shape')} ${value}`)
+			},
+		},
+		illusion_lfo: {
+			name: 'Illusion: control LFO',
+			description: 'Hand a slider of the selected Illusion cue to an oscillator.',
+			options: [
+				{
+					type: 'dropdown',
+					disableAutoExpression: true,
+					label: 'Control',
+					id: 'control',
+					default: 'speed',
+					choices: ILLUSION_CONTROLS.filter((id) => !ILLUSION_NO_LFO.includes(id)).map((id) => ({
+						id,
+						label: id[0].toUpperCase() + id.slice(1),
+					})),
+				},
+				lfoSettingOption(),
+				{ type: 'textinput', label: 'Value (blank for on/off)', id: 'value', default: '', useVariables: true },
+			],
+			callback: async ({ options }) => {
+				const value = String(options.value ?? '').trim()
+				send(`ILLUSION LFO ${choice(options.control, 'speed')} ${choice(options.what, 'on')}${value ? ' ' + value : ''}`)
 			},
 		},
 

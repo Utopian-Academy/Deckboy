@@ -4693,3 +4693,158 @@ listens to the live input while one is open, else the playlist	ag èisteachd ris
 TUTORIAL: no lesson running	TUTORIAL: chan eil leasan a' ruith
 TUTORIAL: expected START, SHOWME, SKIP, STEP <n>, RESTART, EXIT, STATUS or SCREENS	TUTORIAL: tha dùil ri START, SHOWME, SKIP, STEP <n>, RESTART, EXIT, STATUS no SCREENS
 cursor across	cùrsair tarsainn
+Edge	Oir
+Flip	Tionndaidh
+Form	Cumadh
+flip	tionndaidh
+form	cumadh
+pose	seasamh
+Count	Àireamh
+count	àireamh
+disc x	diosg x
+disc y	diosg y
+mortar	aol
+offset	claonadh
+wander	seachran
+RESTART	TÒISICH A-RITHIST
+crosses	croisean
+squares	ceàrnagan
+Colour 1	Dath 1
+Colour 2	Dath 2
+ILLUSION	MEALLADH
+Illusion	Mealladh
+colour 1	dath 1
+colour 2	dath 2
+dot size	meud dotaig
+disc size	meud diosga
+cross size	meud croise
+dot colour	dath dotaig
+edge width	leud oir
+mortar grey	liath an aoil
+street grey	liath na sràide
+tile length	faid leice
+cross colour	dath croise
+shape colour	dath cumaidh
+street width	leud na sràide
+ground colour	dath grunnd
+tile thickness	tiughad leice
+How big each tile is	Meud gach leac
+How big each cross is	Meud gach crois
+How long each tile is	Faid gach leac
+How tall the dancer is	Dè cho àrd ’s a tha an dannsair
+0-100%: 0 holds it still	0-100%: cumaidh 0 na stad e
+0 classic, 1 theme, 2 hues	0 clasaigeach, 1 ùrlar, 2 fiamhan
+Leaf, petal, scale or ring	Duilleag, bileag, lann no fàinne
+0 or 1: the other way round	0 no 1: an rathad eile
+0 turn, 1 out, 2 in, 3 wave	0 tionndadh, 1 a-mach, 2 a-steach, 3 tonn
+How big the floating disc is	Meud an diosga air fleòdradh
+How light the grey lines are	Dè cho bàn ’s a tha na loidhnichean liath
+select an illusion cue first	tagh cue mealladh-sùla an toiseach
+Turn the crosses the other way	Tionndaidh na croisean an rathad eile
+Illusion (Pictures that move!?)	Mealladh-sùla (Dealbhan a ghluaiseas!?)
+0 leaf, 1 petal, 2 scale, 3 ring	0 duilleag, 1 bileag, 2 lann, 3 fàinne
+How many shapes across the screen	Cia mheud cumadh tarsainn na sgrìn
+How many crosses across the screen	Cia mheud crois tarsainn na sgrìn
+How many squares across the screen	Cia mheud ceàrnag tarsainn na sgrìn
+Where the disc sits, left to right	Càite a bheil an diosga, bhon chlì gu deas
+Where the disc sits, top to bottom	Càite a bheil an diosga, bhon mhullach gu bonn
+0-100%: 0 black, 100 the light tile	0-100%: 0 dubh, 100 an leac bhàn
+How much of its place each shape fills	Dè na lìonas gach cumadh dhen àite aige
+Where the dancer stands, left to right	Càite a bheil an dannsair, bhon chlì gu deas
+Where the dancer stands, top to bottom	Càite a bheil an dannsair, bhon mhullach gu bonn
+Collapse/expand the illusion's controls	Fill/leudaich smachdan a’ mhealladh-sùla
+How far the free leg and the arms reach	Dè cho fada ’s a ruigeas a’ chas shaor agus na gàirdeanan
+Slide the grid slowly. 0 holds it still	Sleamhnaich an griod gu slaodach. Cumaidh 0 na stad e
+The first colour, round the colour wheel	A’ chiad dath, air cuibhle nan dathan
+The second colour, round the colour wheel	An dàrna dath, air cuibhle nan dathan
+How thick each tile is, against its length	Dè cho tiugh ’s a tha gach leac, an coimeas ri a faid
+Where the centre point sits, left to right	Càite a bheil a’ phuing mheadhain, bhon chlì gu deas
+Where the centre point sits, top to bottom	Càite a bheil a’ phuing mheadhain, bhon mhullach gu bonn
+How thick the grey line between the rows is	Dè cho tiugh ’s a tha an loidhne liath eadar na sreathan
+How big the light discs at the crossings are	Dè cho mòr ’s a tha na diosgan bàna aig na crosaidhean
+Where the field's centre sits, left to right	Càite a bheil meadhan an raoin, bhon chlì gu deas
+Where the field's centre sits, top to bottom	Càite a bheil meadhan an raoin, bhon mhullach gu bonn
+How wide the grey lines between the squares are	Dè cho leathann ’s a tha na loidhnichean liath eadar na ceàrnagan
+How fast the dancer turns. It always turns a little	Dè cho luath ’s a thionndaidheas an dannsair. Tionndaidhidh e beagan an-còmhnaidh
+0 drift, 1 ouchi, 2 cafe, 3 vanish, 4 grid, 5 dancer	0 siabadh, 1 ouchi, 2 cafaidh, 3 falbh, 4 griod, 5 dannsair
+How light the grey line is. Mid grey tilts the rows most	Dè cho bàn ’s a tha an loidhne liath. ’S e liath meadhanach as motha a chlaonas na sreathan
+How big the three dots are. Small dots vanish more easily	Dè cho mòr ’s a tha na trì dotagan. Falbhaidh dotagan beaga nas fhasa
+Swap the black and white edges: the field drifts the other way	Suaip na h-oirean dubha is geala: siabaidh an raon an rathad eile
+How much of the black and white edges shows. They make the drift	Dè na tha ri fhaicinn dhe na h-oirean dubha is geala. ’S iad a nì an siabadh
+LFO: size, count, edge, speed, centrex, centrey, grey, hue1 or hue2	LFO: meud, àireamh, oir, luaths, meadhan x, meadhan y, liath, dath1 no dath2
+How far each row is shifted. This makes the straight rows look tilted	Dè cho fad ’s a ghluaisear gach ràgh. Mar sin seallaidh na ràghan dìreach claon
+Spin the other way. Most people cannot tell which way it turns anyway	Cuairtich an rathad eile. Chan aithnich a’ mhòr-chuid co-dhiù dè an taobh a tha e a’ tionndadh
+Move the disc in a small loop. 0 holds it still: the eye moves it anyway	Gluais an diosg ann an lùb bheag. Cumaidh 0 na stad e: gluaisidh an t-sùil e co-dhiù
+Turn the shapes slowly, so the drift changes direction. 0 holds them still	Tionndaidh na cumaidhean gu slaodach, gus an atharraich an siabadh a chomhair. Cumaidh 0 na stad iad
+Classic, the theme's colours (taken when picked) or two colours of your own	Clasaigeach, dathan an ùrlair (air an gabhail nuair a thaghar e) no dà dhath agad fhèin
+Which way the field seems to go: turn round the centre, out, in, or in waves	Dè an taobh a tha an raon a’ dol a rèir coltais: tionndaidh mun mheadhan, a-mach, a-steach no ann an tonnan
+Slide the rows back and forth, so the wall bends and straightens. 0 holds it still	Sleamhnaich na ràghan air ais ’s air adhart, gus an lùb is an dìrich am balla. Cumaidh 0 na stad e
+How fast the crosses turn. They always turn a little: the dots vanish only while they move	Dè cho luath ’s a thionndaidheas na croisean. Tionndaidhidh iad beagan an-còmhnaidh: cha tèid na dotagan à sealladh ach fhad ’s a ghluaiseas iad
+Drift (still shapes that seem to turn), ouchi (a disc that floats), cafe (straight rows that look tilted), vanish (dots that disappear while you stare), grid (dots that flicker and are not there) or dancer (it spins whichever way you see it)	Siabadh (cumaidhean nan stad a tha coltach gu bheil iad a’ tionndadh), ouchi (diosg a tha a’ fleòdradh), cafaidh (ràghan dìreach a tha a’ coimhead claon), falbh (dotagan a dh’fhalbhas fhad ’s a bhios tu ag amharc), griod (dotagan a nì priobadh is nach eil ann) no dannsair (cuairtichidh e ge b’ e dè an taobh a chì thu e)
+STATUS | SHAPE drift|ouchi|cafe|vanish|grid|dancer | FORM leaf|petal|scale|ring | FLOW turn|out|in|wave | FLIP ON|OFF | PALETTE classic|theme|hues | SIZE|COUNT|EDGE|SPEED|CENTREX|CENTREY|GREY <0-100> | HUE1|HUE2 <0-360> | LFO <control> <setting>	STATUS | SHAPE drift|ouchi|cafe|vanish|grid|dancer | FORM leaf|petal|scale|ring | FLOW turn|out|in|wave | FLIP ON|OFF | PALETTE classic|theme|hues | SIZE|COUNT|EDGE|SPEED|CENTREX|CENTREY|GREY <0-100> | HUE1|HUE2 <0-360> | LFO <smachd> <roghainn>
+SYNC LEAD ON or OFF	SYNC LEAD ON no OFF
+{1} is following this desk	Tha {1} a' leantainn an deasg seo
+SYNC LEAD ON|OFF or SYNC STATUS	SYNC LEAD ON|OFF no SYNC STATUS
+FOLLOW needs a network connection that stays open	Feumaidh FOLLOW ceangal lìonra a dh'fhanas fosgailte
+this desk is not leading (SYNC LEAD ON, or Settings > Network > SYNC)	chan eil an deasg seo a' stiùireadh (SYNC LEAD ON, no Roghainnean > Lìonra > SYNC)
+LEADING	A' STIÙIREADH
+No longer leading	Chan eil e a' stiùireadh tuilleadh
+Lead other machines	Stiùir innealan eile
+Following this desk: {1}	A' leantainn an deasg seo: {1}
+Leading. Nobody is following yet.	A' stiùireadh. Chan eil duine a' leantainn fhathast.
+Leading: other machines may follow this desk	A' stiùireadh: faodaidh innealan eile an deasg seo a leantainn
+Not leading: no other machine can follow this desk.	Gun stiùireadh: chan urrainn do dh'inneal eile an deasg seo a leantainn.
+body	bodhaig
+burns	losgaidhean
+chaos	mì-rian
+breath	anail
+jitter	crith
+sparks	sradagan
+How big a blob grows	Dè cho mòr ’s a dh’fhàsas smal
+Tube, mandala or none	Tiùb, mandala no chan eil gin
+Turn the whole picture	Tionndaidh an dealbh slàn
+How far the field bends	Lùbadh an raoin
+How fast the water moves	Luas gluasad an uisge
+The halo round the lines	An fhàinne-solais timcheall nan loidhnichean
+How bright the picture is	Dè cho soilleir ’s a tha an dealbh
+How long the in move takes	Ùine a’ ghluasaid a-steach
+Scale of the whole graphic	Sgèile na grafaig gu lèir
+How hard the lines are bent	Neart lùbadh nan loidhnichean
+How long the out move takes	Ùine a’ ghluasaid a-mach
+How far the colours fan apart	Sgaoileadh nan dathan
+Thickness of the glowing edge	Tiughad an oir shoillsich
+How bright the laser lines are	Soilleireachd loidhnichean an leusair
+Spiral size: above 1 is bigger	Meud na snìomhaige: os cionn 1 nas motha
+How many mirror panels, 0 to 12	Cia mheud pannal sgàthain, 0 gu 12
+Turn the colours round the wheel	Tionndaidh na dathan timcheall na cuibhle
+Laser speckle: the focus trembles	Breacadh leusair: tha am fòcas air chrith
+Rotate the field round its centre	Tionndaidh an raon timcheall a mheadhain
+How bright the water's pale light is	Dè cho soilleir ’s a tha solas bàn an uisge
+How long light lingers on the screen	Dè cho fada ’s a dh’fhanas solas air an sgrìn
+Colour steps: 2 is stark, 8 is smooth	Ceumannan datha: 2 garbh, 8 rèidh
+Classic green, fire, ice, neon or mono	Uaine clasaigeach, teine, deigh, neon no aon-dath
+How fast they are born, drift and fade	Dè cho luath ’s a nochdas, a shiabas ’s a dh’fhalbhas iad
+Turbulence: 0 is still ripples, 3 boils	Buaireas: 0 preabadh ciùin, 3 a’ goil
+A second jet of water crossing the first	Dàrna steall uisge a’ dol tarsainn air a’ chiad fhear
+Broad ripples at 0, fine and busy at 100	Preabadh leathann aig 0, mìn is dripeil aig 100
+The flow surges with the programme sound	Èiridh an sruth le fuaim PROGRAM
+Zone, twin, flow, saddle, ripple or shear	Sòn, càraid, sruth, dìollaid, preabadh no rùsgadh
+Horizontal cells. More detail uses more CPU	Ceallan còmhnard. Cleachdaidh barrachd mion-fhios barrachd CPU
+How far each panel tilts from the one before	Claonadh gach pannail bhon fhear roimhe
+The share of each band drawn as grey stripes	An cuibhreann de gach bann a thèid a tharraing mar stiallan liath
+The top mirrors the bottom round a dark seam	Tha am mullach na sgàthan air a’ bhonn mu fhuaigheal dorcha
+0 holds the field; negative runs it backwards	Cumaidh 0 an raon na stad; ruithidh luach àicheil air ais e
+Where the eye of the swirl sits, left to right	Càite a bheil sùil na cuairteig, bhon chlì gu deas
+Where the eye of the swirl sits, top to bottom	Càite a bheil sùil na cuairteig, bhon mhullach gu bonn
+The round lens: a curved picture and a dark rim	An lionsa cruinn: dealbh lùbte agus oir dhorcha
+How fast the bands move; 0 holds the field still	Dè cho luath ’s a ghluaiseas na bannan; cumaidh 0 an raon na stad
+Turn the palette through all colours; 0 restores it	Tionndaidh am pailead tro gach dath; aisigidh 0 e
+Spiral strength, from a flowing field to tight turns	Neart an t-snìomhain, bho raon sruthach gu caran teann
+How long it stays before leaving by itself. 0 waits for OUT	Dè cho fada ’s a dh’fhanas e mus fhalbh e leis fhèin. Fuirichidh 0 ri A-MACH
+The laser colours: rgb, rainbow, floyd, warm, cool or green	Dathan an leusair: rgb, bogha-froise, floyd, blàth, fionnar no uaine
+How many are alive at once. Each is born, drifts out, grows and fades	Cia mheud a tha beò aig an aon àm. Beirear gach fear, siabaidh e a-mach, fàsaidh e agus seargaidh e
+How readily neighbours merge into one shape. 0 keeps every blob round	Dè cho deiseil ’s a tha nàbaidhean a dhol còmhla nan aon chumadh. Cumaidh 0 gach cnap cruinn
+Rainbow + grey, rainbow, the theme's colours (taken when picked) or mono	Bogha-froise + liath, bogha-froise, dathan an ùrlair (air an gabhail nuair a thaghar e) no aon-dath
+How many bands: 50% is the design, higher beats harder against the pixels	Cia mheud bann: ’s e 50% an dealbhadh; nas àirde, buailidh e nas cruaidhe an aghaidh nam piogsailean
+Turns the rim's colours round the wheel -- green, yellow, pink, violet, blue	Tionndaidhidh e dathan na h-oire mun chuibhle -- uaine, buidhe, pinc, bìolait, gorm
+The gap under it, as a share of the frame	Am beàrn fodha, mar chuibhreann dhen fhrèam

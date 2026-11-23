@@ -6,16 +6,26 @@ SPIR-V and DXIL for SDL_GPU's Vulkan and Direct3D 12, compiled here by dxc.
 gpu_effects.metal goes in as text (Metal compiles MSL source at run time).
 
     py -3 tools/build_effects_shaders.py           # regenerate (needs dxc)
-    py -3 tools/build_effects_shaders.py --check   # CI: is the .inc up to date?
+    py -3 tools/build_effects_shaders.py --check   # CI: is the .inc up to date and whole?
 
 dxc comes with the Windows SDK (Windows Kits/10/bin/<version>/x64/dxc.exe,
 with dxil.dll beside it so the DXIL is signed) or the Vulkan SDK; DXC=<path>
 overrides the search. --check needs no compiler: the .inc records a hash of
 both sources, and a source edited without regenerating fails it.
+
+THE KERNELS ARE THE ONES gpu_effects.cpp NAMES (kEntryNames), read from there,
+and the .inc carries one table of them by name (kEffectsBlobs). The list used
+to be written out here as well, and when Circuit Bend added bendMain to the
+engine and not to this list, Vulkan and Direct3D 12 got no code for it, its
+pipeline failed, and with it every GPU effect, transition and source on those
+renderers (0.99.428 and 0.99.429: Linux drew all of them on the CPU). --check
+now fails when a kernel the engine names has no embedded code, or no SPIR-V
+(the Windows SDK's dxc writes none, and its embed passed the hash check).
 """
 import glob
 import hashlib
 import os
+import re
 import shutil
 import subprocess
 import sys
@@ -27,8 +37,19 @@ ENGINE = ROOT / "native" / "engine"
 HLSL = ENGINE / "gpu_effects.hlsl"
 MSL = ENGINE / "gpu_effects.metal"
 OUT = ENGINE / "gpu_effects_shaders.inc"
-ENTRIES = ("pointMain", "downMain", "boxMain", "streakMain", "tileMain", "nv12Main", "transMain", "stereoMain", "tapeMain", "meltInitMain", "meltStepMain", "meltShowMain", "sourceMain", "lumiaClearMain", "lumiaWaterMain",
-           "lumiaPrismMain", "lumiaResolveMain", "lumiaBlurMain", "lumiaTrailMain")
+ENGINE_CPP = ENGINE / "gpu_effects.cpp"
+
+
+def engine_entries():
+    """The kernels the engine names, in its order (gpu_effects.cpp kEntryNames)."""
+    text = ENGINE_CPP.read_text(encoding="utf-8")
+    found = re.search(r"kEntryNames\[E_COUNT\]\s*=\s*\{(.*?)\};", text, re.S)
+    if not found:
+        sys.exit("build_effects_shaders: no kEntryNames in gpu_effects.cpp")
+    return re.findall(r'"(\w+)"', found.group(1))
+
+
+ENTRIES = tuple(engine_entries())
 
 
 def source_hash():
@@ -60,6 +81,10 @@ def compile_hlsl(dxc, entry, spirv):
         return out.read_bytes()
 
 
+def stem_of(entry):
+    return entry[0].upper() + entry[1:-4]   # columnsMain -> Columns
+
+
 def byte_array(name, data):
     if data is None:
         # No SPIR-V from this dxc: an empty array, and Vulkan stays on the CPU.
@@ -82,10 +107,20 @@ def raw_string(name, text, tag):
 
 def main():
     if "--check" in sys.argv:
-        recorded = OUT.read_text(encoding="utf-8").splitlines()[2] if OUT.exists() else ""
+        text = OUT.read_text(encoding="utf-8") if OUT.exists() else ""
+        recorded = text.splitlines()[2] if text else ""
         if recorded != f"// source sha256 {source_hash()}":
             sys.exit("gpu_effects_shaders.inc is stale: run py -3 tools/build_effects_shaders.py")
-        print("gpu effects shaders: embedded copies match their sources")
+        table = re.findall(r'\{"(\w+)", kEffects', text)
+        gone = [e for e in ENTRIES if e not in table]
+        if gone:
+            sys.exit("gpu_effects_shaders.inc has no code for %s, which gpu_effects.cpp names: "
+                     "run py -3 tools/build_effects_shaders.py" % ", ".join(gone))
+        no_spirv = [e for e in ENTRIES if f"kEffects{stem_of(e)}SpirvMissing = true" in text]
+        if no_spirv:
+            sys.exit("gpu_effects_shaders.inc has no SPIR-V for %s, so Vulkan would get no GPU effects: "
+                     "regenerate with a dxc that writes SPIR-V (DXC=<path>)" % ", ".join(no_spirv))
+        print("gpu effects shaders: embedded copies match their sources; all %d kernels have code" % len(ENTRIES))
         return 0
     dxc = find_dxc()
     if not dxc:
@@ -101,11 +136,22 @@ def main():
     ]
     missing = False
     for entry in ENTRIES:
-        stem = entry[0].upper() + entry[1:-4]   # columnsMain -> Columns
+        stem = stem_of(entry)
         spirv = compile_hlsl(dxc, entry, True)
         missing = missing or spirv is None
         parts.append(byte_array(f"kEffects{stem}Spirv", spirv))
         parts.append(byte_array(f"kEffects{stem}Dxil", compile_hlsl(dxc, entry, False)))
+    # One table by name: the engine looks each kernel up, so one it names and
+    # this file lacks is an error it can name, not a null it compiles.
+    rows = ["struct EffectsBlob {", "  const char* entry;", "  const unsigned char* spirv;", "  std::size_t spirvSize;",
+            "  const unsigned char* dxil;", "  std::size_t dxilSize;", "};",
+            "[[maybe_unused]] static const EffectsBlob kEffectsBlobs[] = {"]
+    for entry in ENTRIES:
+        stem = stem_of(entry)
+        rows.append(f'  {{"{entry}", kEffects{stem}Spirv, sizeof(kEffects{stem}Spirv), '
+                    f'kEffects{stem}Dxil, sizeof(kEffects{stem}Dxil)}},')
+    rows.append("};")
+    parts.append("\n".join(rows))
     OUT.write_text("\n".join(parts) + "\n", encoding="utf-8", newline="\n")
     print(f"wrote {OUT.relative_to(ROOT)} with {dxc}")
     if missing:

@@ -4668,3 +4668,155 @@ listens to the live input while one is open, else the playlist	hört auf den Liv
 TUTORIAL: no lesson running	TUTORIAL: keine Lektion läuft
 TUTORIAL: expected START, SHOWME, SKIP, STEP <n>, RESTART, EXIT, STATUS or SCREENS	TUTORIAL: erwartet START, SHOWME, SKIP, STEP <n>, RESTART, EXIT, STATUS oder SCREENS
 cursor across	Cursor quer
+Edge	Kante
+Flip	Spiegeln
+flip	Spiegeln
+form	Form
+pose	Pose
+Count	Anzahl
+count	Anzahl
+disc x	Scheibe x
+disc y	Scheibe y
+mortar	Mörtel
+offset	Versatz
+wander	Wandern
+RESTART	NEUSTART
+crosses	Kreuze
+squares	Quadrate
+Colour 1	Farbe 1
+Colour 2	Farbe 2
+colour 1	Farbe 1
+colour 2	Farbe 2
+dot size	Punktgröße
+disc size	Scheibengröße
+cross size	Kreuzgröße
+dot colour	Punktfarbe
+edge width	Kantenbreite
+mortar grey	Mörtelgrau
+street grey	Straßengrau
+tile length	Kachellänge
+cross colour	Kreuzfarbe
+shape colour	Formfarbe
+street width	Straßenbreite
+ground colour	Grundfarbe
+tile thickness	Kacheldicke
+How big each tile is	Wie groß jede Kachel ist
+How big each cross is	Wie groß jedes Kreuz ist
+How long each tile is	Wie lang jede Kachel ist
+How tall the dancer is	Wie groß die Tänzerin ist
+0-100%: 0 holds it still	0-100%: 0 hält es still
+0 classic, 1 theme, 2 hues	0 klassisch, 1 Thema, 2 Farbtöne
+Leaf, petal, scale or ring	Blatt, Blütenblatt, Schuppe oder Ring
+0 or 1: the other way round	0 oder 1: andersherum
+0 turn, 1 out, 2 in, 3 wave	0 Drehung, 1 aus, 2 ein, 3 Welle
+How big the floating disc is	Wie groß die schwebende Scheibe ist
+How light the grey lines are	Wie hell die grauen Linien sind
+select an illusion cue first	zuerst einen Illusions-Cue wählen
+Turn the crosses the other way	Die Kreuze andersherum drehen
+Illusion (Pictures that move!?)	Illusion (Bilder, die sich bewegen!?)
+0 leaf, 1 petal, 2 scale, 3 ring	0 Blatt, 1 Blütenblatt, 2 Schuppe, 3 Ring
+How many shapes across the screen	Wie viele Formen über den Bildschirm
+How many crosses across the screen	Wie viele Kreuze über den Bildschirm
+How many squares across the screen	Wie viele Quadrate über den Bildschirm
+Where the disc sits, left to right	Scheibenposition, links nach rechts
+Where the disc sits, top to bottom	Scheibenposition, oben nach unten
+0-100%: 0 black, 100 the light tile	0-100%: 0 schwarz, 100 die helle Kachel
+How much of its place each shape fills	Wie viel ihres Platzes jede Form füllt
+Where the dancer stands, left to right	Position der Tänzerin, links nach rechts
+Where the dancer stands, top to bottom	Position der Tänzerin, oben nach unten
+Collapse/expand the illusion's controls	Steuerung der Illusion ein-/ausklappen
+How far the free leg and the arms reach	Wie weit das freie Bein und die Arme reichen
+Slide the grid slowly. 0 holds it still	Das Raster langsam verschieben. 0 hält es still
+The first colour, round the colour wheel	Die erste Farbe, auf dem Farbkreis
+The second colour, round the colour wheel	Die zweite Farbe, auf dem Farbkreis
+How thick each tile is, against its length	Wie dick jede Kachel im Verhältnis zur Länge ist
+Where the centre point sits, left to right	Mittelpunkt, links nach rechts
+Where the centre point sits, top to bottom	Mittelpunkt, oben nach unten
+How thick the grey line between the rows is	Wie dick die graue Linie zwischen den Reihen ist
+How big the light discs at the crossings are	Wie groß die hellen Scheiben an den Kreuzungen sind
+Where the field's centre sits, left to right	Mitte des Feldes, links nach rechts
+Where the field's centre sits, top to bottom	Mitte des Feldes, oben nach unten
+How wide the grey lines between the squares are	Wie breit die grauen Linien zwischen den Quadraten sind
+How fast the dancer turns. It always turns a little	Wie schnell die Tänzerin dreht. Sie dreht sich immer ein wenig
+0 drift, 1 ouchi, 2 cafe, 3 vanish, 4 grid, 5 dancer	0 Drift, 1 Ouchi, 2 Café, 3 Verschwinden, 4 Raster, 5 Tänzerin
+How light the grey line is. Mid grey tilts the rows most	Wie hell die graue Linie ist. Mittelgrau neigt die Reihen am stärksten
+How big the three dots are. Small dots vanish more easily	Wie groß die drei Punkte sind. Kleine Punkte verschwinden leichter
+Swap the black and white edges: the field drifts the other way	Schwarze und weiße Kanten tauschen: Das Feld driftet andersherum
+How much of the black and white edges shows. They make the drift	Wie viel der schwarzen und weißen Kanten sichtbar ist. Sie erzeugen die Drift
+LFO: size, count, edge, speed, centrex, centrey, grey, hue1 or hue2	LFO: size, count, edge, speed, centrex, centrey, grey, hue1 oder hue2
+How far each row is shifted. This makes the straight rows look tilted	Wie weit jede Zeile versetzt ist. So wirken die geraden Zeilen schräg
+Spin the other way. Most people cannot tell which way it turns anyway	Andersherum drehen. Die meisten sehen ohnehin nicht, in welche Richtung es dreht
+Move the disc in a small loop. 0 holds it still: the eye moves it anyway	Bewegt die Scheibe in einer kleinen Schleife. 0 hält sie still: das Auge bewegt sie trotzdem
+Turn the shapes slowly, so the drift changes direction. 0 holds them still	Dreht die Formen langsam, sodass die Drift die Richtung wechselt. 0 hält sie still
+Classic, the theme's colours (taken when picked) or two colours of your own	Klassisch, die Farben des Themas (beim Auswählen übernommen) oder zwei eigene Farben
+Which way the field seems to go: turn round the centre, out, in, or in waves	Wohin das Feld zu gehen scheint: Drehung um die Mitte, nach außen, nach innen oder in Wellen
+Slide the rows back and forth, so the wall bends and straightens. 0 holds it still	Lässt die Zeilen hin und her gleiten, sodass die Wand sich biegt und streckt. 0 hält sie still
+How fast the crosses turn. They always turn a little: the dots vanish only while they move	Wie schnell sich die Kreuze drehen. Sie drehen sich immer etwas: die Punkte verschwinden nur, solange sie sich bewegen
+Drift (still shapes that seem to turn), ouchi (a disc that floats), cafe (straight rows that look tilted), vanish (dots that disappear while you stare), grid (dots that flicker and are not there) or dancer (it spins whichever way you see it)	Drift (stille Formen, die sich zu drehen scheinen), ouchi (eine schwebende Scheibe), Café (gerade Zeilen, die schräg wirken), Verschwinden (Punkte, die beim Hinstarren verschwinden), Raster (Punkte, die flackern und nicht da sind) oder Tänzerin (sie dreht sich so, wie du sie siehst)
+SYNC LEAD ON or OFF	SYNC LEAD ON oder OFF
+{1} is following this desk	{1} folgt diesem Pult
+SYNC LEAD ON|OFF or SYNC STATUS	SYNC LEAD ON|OFF oder SYNC STATUS
+FOLLOW needs a network connection that stays open	FOLLOW braucht eine dauerhaft offene Netzwerkverbindung
+this desk is not leading (SYNC LEAD ON, or Settings > Network > SYNC)	dieses Pult führt nicht (SYNC LEAD ON oder Einstellungen > Netzwerk > SYNC)
+LEADING	FÜHREND
+No longer leading	Nicht mehr führend
+Lead other machines	Andere Rechner führen
+Following this desk: {1}	Folgen diesem Pult: {1}
+Leading. Nobody is following yet.	Führend. Noch folgt niemand.
+Leading: other machines may follow this desk	Führend: andere Rechner können diesem Pult folgen
+Not leading: no other machine can follow this desk.	Nicht führend: kein anderer Rechner kann diesem Pult folgen.
+body	Körper
+burns	Brandspuren
+breath	Atem
+jitter	Zittern
+sparks	Funken
+note	Note
+glitch	Glitch
+How big a blob grows	Wie groß ein Klecks wird
+Tube, mandala or none	Röhre, Mandala oder keine
+Turn the whole picture	Dreht das ganze Bild
+How far the field bends	Stärke der Feldkrümmung
+How fast the water moves	Bewegungstempo des Wassers
+The halo round the lines	Der Lichthof um die Linien
+How bright the picture is	Helligkeit des Bildes
+How long the in move takes	Dauer der Ein-Bewegung
+Scale of the whole graphic	Skalierung der gesamten Grafik
+How hard the lines are bent	Stärke der Linienkrümmung
+How long the out move takes	Dauer der Aus-Bewegung
+How far the colours fan apart	Wie weit die Farben auffächern
+Thickness of the glowing edge	Dicke der leuchtenden Kante
+How bright the laser lines are	Helligkeit der Laserlinien
+Spiral size: above 1 is bigger	Spiralgröße: über 1 ist größer
+How many mirror panels, 0 to 12	Anzahl der Spiegelflächen, 0 bis 12
+Turn the colours round the wheel	Drehung der Farben im Farbkreis
+Laser speckle: the focus trembles	Laser-Speckle: der Fokus zittert
+Rotate the field round its centre	Dreht das Feld um seine Mitte
+How bright the water's pale light is	Helligkeit des fahlen Wasserlichts
+How long light lingers on the screen	Wie lange Licht auf dem Bildschirm nachleuchtet
+Colour steps: 2 is stark, 8 is smooth	Farbschritte: 2 ist hart, 8 ist weich
+Classic green, fire, ice, neon or mono	Klassisches Grün, Feuer, Eis, Neon oder Mono
+How fast they are born, drift and fade	Wie schnell sie entstehen, driften und verblassen
+Turbulence: 0 is still ripples, 3 boils	Turbulenz: 0 ruhige Wellen, 3 brodelt
+A second jet of water crossing the first	Ein zweiter Wasserstrahl kreuzt den ersten
+Broad ripples at 0, fine and busy at 100	Breite Wellen bei 0, fein und unruhig bei 100
+The flow surges with the programme sound	Der Fluss pulsiert mit dem Programmton
+Zone, twin, flow, saddle, ripple or shear	Zone, Zwilling, Fluss, Sattel, Wellen oder Scherung
+Horizontal cells. More detail uses more CPU	Waagerechte Zellen. Mehr Details brauchen mehr CPU
+How far each panel tilts from the one before	Neigung jedes Paneels gegenüber dem vorigen
+The share of each band drawn as grey stripes	Anteil jedes Bandes, der als graue Streifen gezeichnet wird
+The top mirrors the bottom round a dark seam	Oben spiegelt unten an einer dunklen Naht
+0 holds the field; negative runs it backwards	0 hält das Feld an; negativ lässt es rückwärts laufen
+Where the eye of the swirl sits, left to right	Wo das Auge des Wirbels sitzt, links nach rechts
+Where the eye of the swirl sits, top to bottom	Wo das Auge des Wirbels sitzt, oben nach unten
+The round lens: a curved picture and a dark rim	Die runde Linse: ein gewölbtes Bild und ein dunkler Rand
+How fast the bands move; 0 holds the field still	Wie schnell sich die Bänder bewegen; 0 hält das Feld still
+Turn the palette through all colours; 0 restores it	Dreht die Palette durch alle Farben; 0 stellt sie wieder her
+Spiral strength, from a flowing field to tight turns	Spiralstärke, von einem fließenden Feld bis zu engen Drehungen
+How long it stays before leaving by itself. 0 waits for OUT	Wie lange es bleibt, bevor es von selbst geht. 0 wartet auf AUS
+The laser colours: rgb, rainbow, floyd, warm, cool or green	Die Laserfarben: rgb, Regenbogen, floyd, warm, kühl oder grün
+How many are alive at once. Each is born, drifts out, grows and fades	Wie viele gleichzeitig leben. Jede entsteht, treibt nach außen, wächst und verblasst
+How readily neighbours merge into one shape. 0 keeps every blob round	Wie leicht Nachbarn zu einer Form verschmelzen. 0 hält jeden Blob rund
+Rainbow + grey, rainbow, the theme's colours (taken when picked) or mono	Regenbogen + Grau, Regenbogen, die Farben des Themas (beim Auswählen übernommen) oder Mono
+How many bands: 50% is the design, higher beats harder against the pixels	Wie viele Bänder: 50% ist der Entwurf, höher schwebt stärker gegen die Pixel
+Turns the rim's colours round the wheel -- green, yellow, pink, violet, blue	Dreht die Farben des Randes durch den Farbkreis -- grün, gelb, pink, violett, blau
+The gap under it, as a share of the frame	Die Lücke darunter als Anteil des Bildes

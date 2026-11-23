@@ -69,6 +69,9 @@ static bool padNumericAllowed(NumericParam id) {
     case NumericParam::MoireDensity: case NumericParam::MoireSpeed: case NumericParam::MoireWarp:
     case NumericParam::MoireTurn: case NumericParam::MoireCentreX: case NumericParam::MoireCentreY:
     case NumericParam::MoireGrey: case NumericParam::MoireHue:
+    case NumericParam::IllusionSize: case NumericParam::IllusionCount: case NumericParam::IllusionEdge:
+    case NumericParam::IllusionSpeed: case NumericParam::IllusionCentreX: case NumericParam::IllusionCentreY:
+    case NumericParam::IllusionTone: case NumericParam::IllusionHue1: case NumericParam::IllusionHue2:
     case NumericParam::LumiaFlow: case NumericParam::LumiaWater: case NumericParam::LumiaRipple:
     case NumericParam::LumiaJet: case NumericParam::LumiaPrism: case NumericParam::LumiaSplit:
     case NumericParam::LumiaFocus: case NumericParam::LumiaShimmer: case NumericParam::LumiaMirrors:

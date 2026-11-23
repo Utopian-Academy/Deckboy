@@ -732,6 +732,80 @@ struct MoireSettings {
   std::array<deckboy::effects::ParamLfo, 9> lfo {};   // [kMoireLfo*]; 8 unused
 };
 
+// AN ILLUSION source: pictures that trick the eye (James, 2026-11-13, board
+// FZUotaqJ1nioB1Vi4KYxcp, batch 1). Nothing copies an artwork; each shape is a
+// known effect on the eye, generated fresh. See buildIllusion.
+//
+//   drift  -- a peripheral-drift field: rows of shapes, each with a black edge
+//             on one side and a white edge on the other. The eye reads black to
+//             white as motion, so the still field seems to turn.
+//   ouchi  -- a disc of tiles running across, over tiles running down. The
+//             disc seems to float and slide as the eyes move.
+//   cafe   -- black and white tiles offset row to row, split by thin grey
+//             mortar. The straight rows look tilted; as they slide, they bend.
+//   vanish -- motion-induced blindness: crosses turn round three still dots;
+//             stare at the centre and the dots go, and come back.
+//   grid   -- the scintillating grid: dark dots flicker in light discs that
+//             have none.
+//   dancer -- a flat silhouette spinning in place: which way it turns is up
+//             to whoever is looking, and it can flip.
+// (The last three were James's pick from a second list, 2026-11-18.)
+//
+// The controls are shared and named for each shape on the desk, as an
+// effect's are. Every number is 0-1 so an oscillator can swing it.
+enum IllusionLfoSlot : int {
+  kIllusionLfoSize = 0,   // drift: shape size; ouchi: tile length; cafe: tile size
+  kIllusionLfoCount,      // drift: how many; ouchi: tile thickness; cafe: offset
+  kIllusionLfoEdge,       // drift: edge width; ouchi: disc size; cafe: mortar width
+  kIllusionLfoSpeed,      // drift: the field turns; ouchi: the disc wanders; cafe: the rows slide
+  kIllusionLfoCentreX,    // drift: the field's centre; ouchi: the disc's
+  kIllusionLfoCentreY,
+  kIllusionLfoTone,       // cafe: the mortar's grey
+  kIllusionLfoHue1,       // the "hues" palette's two colours
+  kIllusionLfoHue2,
+  kIllusionLfoSlots
+};
+inline constexpr int kIllusionShapeCount = 6;
+inline constexpr int kIllusionFormCount = 4;
+inline constexpr int kIllusionFlowCount = 4;
+inline constexpr int kIllusionPaletteCount = 3;
+inline const char* illusionShapeName(int shape) {
+  static const char* kNames[kIllusionShapeCount] = {"drift", "ouchi", "cafe", "vanish", "grid", "dancer"};
+  return kNames[shape >= 0 && shape < kIllusionShapeCount ? shape : 0];
+}
+inline const char* illusionFormName(int form) {
+  static const char* kNames[kIllusionFormCount] = {"leaf", "petal", "scale", "ring"};
+  return kNames[form >= 0 && form < kIllusionFormCount ? form : 0];
+}
+inline const char* illusionFlowName(int flow) {
+  static const char* kNames[kIllusionFlowCount] = {"turn", "out", "in", "wave"};
+  return kNames[flow >= 0 && flow < kIllusionFlowCount ? flow : 0];
+}
+inline const char* illusionPaletteName(int palette) {
+  static const char* kNames[kIllusionPaletteCount] = {"classic", "theme", "hues"};
+  return kNames[palette >= 0 && palette < kIllusionPaletteCount ? palette : 0];
+}
+struct IllusionSettings {
+  int shape = 0;            // drift: the one the board led with
+  int form = 0;             // drift: leaf
+  int flow = 0;             // drift: turn round the centre
+  bool flip = false;        // drift: the other way round
+  int palette = 0;          // classic: black and white, the drift field's green and orange
+  double size = 0.5;
+  double count = 0.4;
+  double edge = 0.5;
+  double speed = 0.0;       // still: the eye does the moving
+  double centreX = 0.5;
+  double centreY = 0.5;
+  double tone = 0.5;        // mid grey mortar
+  double hue1 = 0.05;       // orange
+  double hue2 = 0.25;       // green
+  // The "theme" palette's four inks, dark to light, captured from the desk's
+  // theme when it is picked (as Moire's). 0xRRGGBB.
+  std::array<std::uint32_t, 4> themeInks {0x0f3518u, 0x306230u, 0x9fb81au, 0xd4e05au};
+  std::array<deckboy::effects::ParamLfo, kIllusionLfoSlots> lfo {};
+};
+
 // A LUMIA source: laser light through moving water, a prism and a tube of
 // mirrors, as the light-art machines of the 1960s and 70s made it. Light is
 // traced into a small source picture each frame; the mirrors and the lens then
@@ -1392,6 +1466,8 @@ constexpr int kDrawLfoPackBase = 1 << 25;
 constexpr int kLumiaLfoPackBase = 1 << 26;
 // A shader cue's oscillators: base + input index.
 constexpr int kIsfLfoPackBase = 1 << 27;
+// An Illusion cue's oscillators: base + IllusionLfoSlot.
+constexpr int kIllusionLfoPackBase = 1 << 28;
 constexpr int kToneLfoFreq = 0;
 constexpr int kToneLfoLevel = 1;
 constexpr int kToneLfoCount = 2;
@@ -1866,8 +1942,8 @@ struct Cue {
   // Geometry transforms applied by the output compositor (normalized/degrees)
   float outputScaleX = 1.0f;              // horizontal scale (1.0 = 100%)
   float outputScaleY = 1.0f;              // vertical scale   (1.0 = 100%)
-  float outputOffsetX = 0.0f;             // horizontal offset (fraction of output width)
-  float outputOffsetY = 0.0f;             // vertical offset   (fraction of output height)
+  float outputOffsetX = 0.0f;             // horizontal offset, in OUTPUT PIXELS (the desk's compositor
+  float outputOffsetY = 0.0f;             // and the engine's own drawing both read it so; not a fraction)
   float outputRotationDegrees = 0.0f;     // clockwise rotation in degrees
   float cropLeft = 0.0f;                  // crop fraction from left edge   (0–1)
   float cropRight = 0.0f;                 // crop fraction from right edge  (0–1)
@@ -2080,6 +2156,8 @@ struct Cue {
   // A Moire source's controls. Only meaningful on a "moire-field" pattern cue.
   MoireSettings moire;
   LumiaSettings lumia;
+  // An Illusion source's controls. Only meaningful on an "illusion" pattern cue.
+  IllusionSettings illusion;
   // A SHADER cue's values (path "pattern://isf:<file>"), by input name.
   std::vector<IsfSetting> isf;
   // A text cue laid out as a lower third. Off on every other cue.
@@ -2120,6 +2198,10 @@ struct Cue {
   // whose trim or direction has moved on plays forwards until the new copy
   // lands. directionSeconds is the copy's own length.
   int playDirection = 0;  // 0 forward, 1 reverse, 2 bounce
+  // FLIP: the picture mirrored left-right and/or upside down (drawn by the
+  // desk's compositor and the engine's own drawing alike).
+  bool flipHorizontal = false;
+  bool flipVertical = false;
   std::string directionPath;
   std::string directionKey;
   double directionSeconds = 0.0;
@@ -2256,7 +2338,7 @@ struct Deck {
   // -- Warp geometry (projection mapping per-output) ---------------------------
   bool warpEnabled = false;                // enable warp mesh
   std::string warpMode = "linear";         // "linear" (bilinear) | "perspective" (4-corner pin)
-  float warpTopLeftX = 0.0f;              // corner offsets (normalized 0–1, relative to output)
+  float warpTopLeftX = 0.0f;              // corner offsets in OUTPUT PIXELS (the raster does not move; a layer's warp is in fractions)
   float warpTopLeftY = 0.0f;
   float warpTopRightX = 0.0f;
   float warpTopRightY = 0.0f;
@@ -2939,6 +3021,9 @@ struct Project {
   // nobody asked it to. Checking never installs anything -- see
   // checkForUpdateAsync.
   bool updateCheckEnabled = false;
+  // SYNC: this desk leads other machines (Pockets, Minis, a backup desk) that
+  // connect and FOLLOW it. Saved with the show so a restarted desk leads again.
+  bool syncLead = false;
   // MEDIAMTX: the media router a show can share -- phones, cameras and OBS
   // publish into it, and Deckboy's programme goes out through it to any number
   // of viewers. Where it runs; empty means this computer. Its own default

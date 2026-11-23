@@ -4710,3 +4710,157 @@ listens to the live input while one is open, else the playlist	ⵉⵙⴼⵍⵉ�
 TUTORIAL: no lesson running	TUTORIAL: ⵓⵔ ⵉⵜⴷⴷⵓ ⵓⵙⵍⵎⴷ
 TUTORIAL: expected START, SHOWME, SKIP, STEP <n>, RESTART, EXIT, STATUS or SCREENS	TUTORIAL: ⵉⵜⵜⵓⵔⴰⵊⵓ START, SHOWME, SKIP, STEP <n>, RESTART, EXIT, STATUS ⵏⵖ SCREENS
 cursor across	ⴰⵏⴽⴰⴹ ⵙ ⵜⴰⴳⵍⴰⵢⵜ
+Edge	ⵉⵔⵉ
+Flip	ⴰⵇⵍⵍⴱ
+Form	ⵜⴰⵍⵖⴰ
+flip	ⴰⵇⵍⵍⴱ
+form	ⵜⴰⵍⵖⴰ
+pose	ⵜⴰⴱⴷⴷⴰ
+Count	ⴰⵎⴹⴰⵏ
+count	ⴰⵎⴹⴰⵏ
+disc x	ⴰⴹⴱⵙⵉ x
+disc y	ⴰⴹⴱⵙⵉ y
+mortar	ⴰⵍⵍⵓⴹ
+offset	ⴰⵙⵎⵓⵜⵜⵉ
+wander	ⴰⵎⵓⴷⴷⵓ
+RESTART	ⴰⵍⵙ ⴰⵙⵏⵜⵉ
+crosses	ⵉⵙⵍⵉⴱⵏ
+squares	ⵉⵎⴽⵓⵥⵏ
+Colour 1	ⵉⵏⵉ 1
+Colour 2	ⵉⵏⵉ 2
+ILLUSION	ⴰⵙⵍⵍⵓⵙ
+Illusion	ⴰⵙⵍⵍⵓⵙ
+colour 1	ⵉⵏⵉ 1
+colour 2	ⵉⵏⵉ 2
+dot size	ⵜⵉⴷⴷⵉ ⵏ ⵜⵏⵇⵇⵉⴹⵜ
+disc size	ⵜⵉⴷⴷⵉ ⵏ ⵓⴹⴱⵙⵉ
+cross size	ⵜⵉⴷⴷⵉ ⵏ ⵓⵙⵍⵉⴱ
+dot colour	ⵉⵏⵉ ⵏ ⵜⵏⵇⵇⵉⴹⵜ
+edge width	ⵜⴰⵍⴱⴰⴹⵜ ⵏ ⵉⵔⵉ
+mortar grey	ⴰⵖⵉⵖⴷⴰⵏ ⵏ ⵓⵍⵍⵓⴹ
+street grey	ⴰⵖⵉⵖⴷⴰⵏ ⵏ ⵓⵖⴰⵔⴰⵙ
+tile length	ⵜⵉⵖⵥⵉ ⵏ ⵓⵣⵍⵍⵉⵊ
+cross colour	ⵉⵏⵉ ⵏ ⵓⵙⵍⵉⴱ
+shape colour	ⵉⵏⵉ ⵏ ⵜⵍⵖⴰ
+street width	ⵜⴰⵍⴱⴰⴹⵜ ⵏ ⵓⵖⴰⵔⴰⵙ
+ground colour	ⵉⵏⵉ ⵏ ⵡⴰⴽⴰⵍ
+tile thickness	ⵜⵓⵣⵓⵔⵜ ⵏ ⵓⵣⵍⵍⵉⵊ
+How big each tile is	ⵜⵉⴷⴷⵉ ⵏ ⴽⵔⴰⵢⴳⴰⵜⵜ ⴰⵣⵍⵍⵉⵊ
+How big each cross is	ⵜⵉⴷⴷⵉ ⵏ ⴽⵔⴰⵢⴳⴰⵜⵜ ⴰⵙⵍⵉⴱ
+How long each tile is	ⵜⵉⵖⵥⵉ ⵏ ⴽⵔⴰⵢⴳⴰⵜⵜ ⴰⵣⵍⵍⵉⵊ
+How tall the dancer is	ⵜⵉⵖⵥⵉ ⵏ ⵓⵎⴰⵀⵡⴰⵛ
+0-100%: 0 holds it still	0-100%: 0 ⴰⵔ ⵜ ⵉⵜⵜⴰⵟⵟⴰⴼ ⴱⵍⴰ ⴰⵎⵓⵙⵙⵓ
+0 classic, 1 theme, 2 hues	0 ⴰⵎⵏⵙⴰⵢ, 1 ⴰⵙⵏⵜⵍ, 2 ⵉⵏⵉⵜⵏ
+Leaf, petal, scale or ring	ⵉⴼⵔ, ⵉⴼⵔ ⵏ ⵜⵊⵊⵉⴳⵜ, ⵜⴰⵇⵛⵔⵜ ⵏⵖ ⵜⴰⵅⴰⵜⵎⵜ
+0 or 1: the other way round	0 ⵏⵖ 1: ⵜⴰⵏⵉⵍⴰ ⵢⴰⴹⵏ
+0 turn, 1 out, 2 in, 3 wave	0 ⵣⵣⵉ, 1 ⴱⵔⵔⴰ, 2 ⵖ, 3 ⵜⴰⵎⵡⵊⵜ
+How big the floating disc is	ⵜⵉⵎⵖⵓⵔⵉ ⵏ ⵜⵡⵔⵉⵇⵜ ⵍⵍⵉ ⵉⵜⵜⵎⵓⵜⵜⵓⵢⵏ
+How light the grey lines are	ⵜⴰⴼⴰⵡⵜ ⵏ ⵉⵣⵉⵔⵉⴳⵏ ⵉⵖⵉⵖⴷⴰⵏⵏ
+select an illusion cue first	ⵙⵜⵉ cue ⵏ ⵓⵖⵓⵕⵕⵓ ⴷ ⴰⵎⵣⵡⴰⵔⵓ
+Turn the crosses the other way	ⵣⵣⵉ ⵜⵉⵎⵣⴳⴰⵔⵉⵏ ⵙ ⵜⴰⵏⵉⵍⴰ ⵢⴰⴹⵏ
+Illusion (Pictures that move!?)	ⴰⵖⵓⵕⵕⵓ ⵏ ⵜⵉⵟⵟ (ⵜⵉⵡⵍⴰⴼⵉⵏ ⵍⵍⵉ ⵉⵜⵜⵎⵓⵜⵜⵓⵢⵏ!?)
+0 leaf, 1 petal, 2 scale, 3 ring	0 ⵉⴼⵔ, 1 ⵉⴼⵔ ⵏ ⵜⵊⵊⵉⴳⵜ, 2 ⵜⴰⵇⵛⵔⵜ, 3 ⵜⴰⵅⴰⵜⵎⵜ
+How many shapes across the screen	ⵎⵏⵛⴽ ⵏ ⵜⵍⵖⵉⵡⵉⵏ ⵖ ⵓⴳⴷⵉⵍ ⵙⴳ ⵓⵥⵍⵎⴰⴹ ⵙ ⵓⴼⴰⵙⵙⵉ
+How many crosses across the screen	ⵎⵏⵛⴽ ⵏ ⵜⵉⵎⵣⴳⴰⵔⵉⵏ ⵖ ⵓⴳⴷⵉⵍ ⵙⴳ ⵓⵥⵍⵎⴰⴹ ⵙ ⵓⴼⴰⵙⵙⵉ
+How many squares across the screen	ⵎⵏⵛⴽ ⵏ ⵉⵎⴽⵓⵥⵏ ⵖ ⵓⴳⴷⵉⵍ ⵙⴳ ⵓⵥⵍⵎⴰⴹ ⵙ ⵓⴼⴰⵙⵙⵉ
+Where the disc sits, left to right	ⴰⴷⵖⴰⵔ ⵏ ⵜⵡⵔⵉⵇⵜ, ⵙⴳ ⵓⵥⵍⵎⴰⴹ ⵙ ⵓⴼⴰⵙⵙⵉ
+Where the disc sits, top to bottom	ⴰⴷⵖⴰⵔ ⵏ ⵜⵡⵔⵉⵇⵜ, ⵙⴳ ⵓⴼⵍⵍⴰ ⵙ ⵡⴰⴷⴷⴰ
+0-100%: 0 black, 100 the light tile	0-100%: 0 ⴰⵙⴳⵏⵓ, 100 ⵜⴰⵥⵍⵉⵊⵜ ⵉⴼⴰⵡⵏ
+How much of its place each shape fills	ⵎⵏⵛⴽ ⵙ ⵜⵜⵄⵎⵎⴰⵔ ⴽⵓ ⵜⴰⵍⵖⴰ ⴰⴷⵖⴰⵔ ⵏⵏⵙ
+Where the dancer stands, left to right	ⴰⴷⵖⴰⵔ ⵏ ⵓⵎⴰⵀⵡⴰⵛ, ⵙⴳ ⵓⵥⵍⵎⴰⴹ ⵙ ⵓⴼⴰⵙⵙⵉ
+Where the dancer stands, top to bottom	ⴰⴷⵖⴰⵔ ⵏ ⵓⵎⴰⵀⵡⴰⵛ, ⵙⴳ ⵓⴼⵍⵍⴰ ⵙ ⵡⴰⴷⴷⴰ
+Collapse/expand the illusion's controls	ⵙⵎⵥⵉ/ⵙⵎⵖⵓⵔ ⵉⵎⵙⵙⵓⴷⵓⵙⵏ ⵏ ⵓⵖⵓⵕⵕⵓ
+How far the free leg and the arms reach	ⴰⵡⴰⴹ ⵏ ⵓⴹⴰⵕ ⵉⵍⵍⵉⵍⵏ ⴷ ⵉⵖⴰⵍⵏ
+Slide the grid slowly. 0 holds it still	ⵙⵎⵓⵜⵜⵉ ⴰⴼⵔⵔⵓⴳ ⵙ ⵜⵍⵉⵡⵉⵜ. 0 ⴰⵔ ⵜ ⵉⵜⵜⴰⵟⵟⴰⴼ ⴱⵍⴰ ⴰⵎⵓⵙⵙⵓ
+The first colour, round the colour wheel	ⵉⵏⵉ ⴰⵎⵣⵡⴰⵔⵓ, ⵖ ⵜⵡⵔⵉⵇⵜ ⵏ ⵉⵏⵉ
+The second colour, round the colour wheel	ⵉⵏⵉ ⵡⵉⵙⵙ ⵙⵉⵏ, ⵖ ⵜⵡⵔⵉⵇⵜ ⵏ ⵉⵏⵉ
+How thick each tile is, against its length	ⵜⴰⵣⵓⵔⵜ ⵏ ⴽⵓ ⵜⴰⵥⵍⵉⵊⵜ ⵙ ⵓⵙⵎⵣⴰⵣⴰⵍ ⴷ ⵜⵉⵖⵥⵉ ⵏⵏⵙ
+Where the centre point sits, left to right	ⴰⴷⵖⴰⵔ ⵏ ⵜⵏⵇⵇⵉⴹⵜ ⵏ ⵓⵍⵓⵎⵎⴰⵙ, ⵙⴳ ⵓⵥⵍⵎⴰⴹ ⵙ ⵓⴼⴰⵙⵙⵉ
+Where the centre point sits, top to bottom	ⴰⴷⵖⴰⵔ ⵏ ⵜⵏⵇⵇⵉⴹⵜ ⵏ ⵓⵍⵓⵎⵎⴰⵙ, ⵙⴳ ⵓⴼⵍⵍⴰ ⵙ ⵡⴰⴷⴷⴰ
+How thick the grey line between the rows is	ⵜⴰⵣⵓⵔⵜ ⵏ ⵉⵣⵉⵔⵉ ⴰⵖⵉⵖⴷⴰⵏ ⴳⵔ ⵉⵙⵡⵉⵔⵏ
+How big the light discs at the crossings are	ⵜⵉⵎⵖⵓⵔⵉ ⵏ ⵜⵡⵔⵉⵇⵉⵏ ⵉⴼⴰⵡⵏ ⵖ ⵉⵎⵣⴳⴰⵔⵏ
+Where the field's centre sits, left to right	ⴰⴷⵖⴰⵔ ⵏ ⵓⵍⵓⵎⵎⴰⵙ ⵏ ⵢⵉⴳⵔ, ⵙⴳ ⵓⵥⵍⵎⴰⴹ ⵙ ⵓⴼⴰⵙⵙⵉ
+Where the field's centre sits, top to bottom	ⴰⴷⵖⴰⵔ ⵏ ⵓⵍⵓⵎⵎⴰⵙ ⵏ ⵢⵉⴳⵔ, ⵙⴳ ⵓⴼⵍⵍⴰ ⵙ ⵡⴰⴷⴷⴰ
+How wide the grey lines between the squares are	ⵜⵉⵔⵓⵜ ⵏ ⵉⵣⵉⵔⵉⴳⵏ ⵉⵖⵉⵖⴷⴰⵏⵏ ⴳⵔ ⵉⵎⴽⵓⵥⵏ
+How fast the dancer turns. It always turns a little	ⵜⴰⵣⵣⵍⴰ ⵏ ⵓⵣⵣⵉ ⵏ ⵓⵎⴰⵀⵡⴰⵛ. ⴷⵉⵎⴰ ⴰⵔ ⵉⵜⵜⵣⵣⵉ ⵉⵎⵉⴽ
+0 drift, 1 ouchi, 2 cafe, 3 vanish, 4 grid, 5 dancer	0 ⴰⵎⵓⵜⵉ, 1 ouchi, 2 ⵜⴰⵇⴰⵀⵡⴰⵢⵜ, 3 ⴰⵖⴰⴱ, 4 ⴰⴼⵔⵔⵓⴳ, 5 ⴰⵎⴰⵀⵡⴰⵛ
+How light the grey line is. Mid grey tilts the rows most	ⵜⴰⴼⴰⵡⵜ ⵏ ⵉⵣⵉⵔⵉ ⴰⵖⵉⵖⴷⴰⵏ. ⴰⵖⵉⵖⴷⴰⵏ ⴰⵏⴰⵎⵎⴰⵙ ⴰⵔ ⵉⵙⵎⵢⴰⵍ ⵉⵙⵡⵉⵔⵏ ⵓⴳⴳⴰⵔ
+How big the three dots are. Small dots vanish more easily	ⵜⵉⵎⵖⵓⵔⵉ ⵏ ⴽⵔⴰⴹ ⵜⵏⵇⵇⵉⴹⵉⵏ. ⵜⵉⵏⵇⵇⵉⴹⵉⵏ ⵎⵥⵥⵉⵏⵉⵏ ⴰⵔ ⵖⴰⴱⵏⵜ ⵙ ⵜⵉⴼⵙⵙⵉ ⵓⴳⴳⴰⵔ
+Swap the black and white edges: the field drifts the other way	ⵙⵏⴼⵍ ⵉⵔⴰⵏ ⵉⵙⴳⵏⴰⵡⵏ ⴷ ⵉⵎⵍⵍⴰⵍⵏ: ⵉⴳⵔ ⴰⵔ ⵉⵜⵜⵎⵓⵜⵜⵓ ⵙ ⵜⴰⵏⵉⵍⴰ ⵢⴰⴹⵏ
+How much of the black and white edges shows. They make the drift	ⵎⵏⵛⴽ ⴰⵢ ⵉⵙⵙⴽⴰⵏⵏ ⵙⴳ ⵉⵔⴰⵏ ⵉⵙⴳⵏⴰⵡⵏ ⴷ ⵉⵎⵍⵍⴰⵍⵏ. ⵏⵜⵏⵉ ⴰⵢ ⵉⵙⴽⴰⵔⵏ ⴰⵎⵓⵜⵉ
+LFO: size, count, edge, speed, centrex, centrey, grey, hue1 or hue2	LFO: size, count, edge, speed, centrex, centrey, grey, hue1 ⵏⵖ hue2
+SYNC LEAD ON or OFF	SYNC LEAD ON ⵏⵖ OFF
+{1} is following this desk	{1} ⵉⵜⵜⴹⴼⴰⵔ ⵜⴰⴼⵉⵍⵓⵜ ⴰⴷ
+SYNC LEAD ON|OFF or SYNC STATUS	SYNC LEAD ON|OFF ⵏⵖ SYNC STATUS
+FOLLOW needs a network connection that stays open	FOLLOW ⵉⵅⵚⵚⴰ ⴰⵙ ⵓⵣⴷⴰⵢ ⵏ ⵓⵥⵟⵟⴰ ⵉⵇⵇⵉⵎⵏ ⵉⵕⵥⵎ
+this desk is not leading (SYNC LEAD ON, or Settings > Network > SYNC)	ⵜⴰⴼⵉⵍⵓⵜ ⴰⴷ ⵓⵔ ⵜⵜⵣⵡⴰⵔ (SYNC LEAD ON, ⵏⵖ ⵜⵉⵙⵖⴰⵍ > ⴰⵥⵟⵟⴰ > SYNC)
+LEADING	ⵉⵜⵜⵣⵡⵉⵔ
+No longer leading	ⵓⵔ ⵙⵓⵍ ⵉⵜⵜⵣⵡⵉⵔ
+Lead other machines	ⵣⵡⵓⵔ ⵉ ⵜⵎⴰⵛⵉⵏⵉⵏ ⵢⴰⴹⵏ
+Following this desk: {1}	ⵉⵜⵜⴹⴼⴰⵔⵏ ⵜⴰⴼⵉⵍⵓⵜ ⴰⴷ: {1}
+Leading. Nobody is following yet.	ⵉⵜⵜⵣⵡⵉⵔ. ⵃⵜⵜⴰ ⵢⴰⵏ ⵓⵔ ⵉⵜⵜⴹⴼⴰⵔ ⵖⵉⵍⴰ.
+Leading: other machines may follow this desk	ⵉⵜⵜⵣⵡⵉⵔ: ⵜⵉⵎⴰⵛⵉⵏⵉⵏ ⵢⴰⴹⵏ ⵣⵎⵔⵏⵜ ⴰⴷ ⴹⴼⵔⵏⵜ ⵜⴰⴼⵉⵍⵓⵜ ⴰⴷ
+Not leading: no other machine can follow this desk.	ⵓⵔ ⵉⵜⵜⵣⵡⵉⵔ: ⵓⵔ ⵜⵣⵎⵉⵔ ⵃⵜⵜⴰ ⵜⴰⵎⴰⵛⵉⵏⵜ ⵢⴰⴹⵏ ⴰⴷ ⵜⴹⴼⵔ ⵜⴰⴼⵉⵍⵓⵜ ⴰⴷ.
+body	ⵜⴰⴼⴽⴽⴰ
+burns	ⴰⵙⵔⵖ
+chaos	ⵜⴰⵔⵡⴰⵢⵜ
+breath	ⴰⵏⴼⵙ
+jitter	ⴰⵔⴳⴳⵉⴳ
+sparks	ⵜⵉⴼⴰⵡⵉⵏ
+How big a blob grows	ⵜⵉⴷⴷⵉ ⵏ ⵜⴱⵓⵇⵇⵉⵜ ⵎⵉ ⵜⵎⵖⵓⵔ
+Tube, mandala or none	ⵜⴰⵊⵄⴱⵓⵜ, ⵎⴰⵏⴷⴰⵍⴰ ⵏⵖ ⵡⴰⵍⵓ
+Turn the whole picture	ⵣⵣⵉ ⵜⴰⵡⵍⴰⴼⵜ ⴽⵓⵍⵍⵓ
+How far the field bends	ⴰⵎⵏⵏⴰⵢ ⵏ ⵢⵉⴳⵔ
+How fast the water moves	ⵜⴰⵣⵣⵍⴰ ⵏ ⵡⴰⵎⴰⵏ
+The halo round the lines	ⴰⵏⴰⴹ ⵏ ⵜⴼⴰⵡⵜ ⵖ ⵜⵙⴳⴰ ⵏ ⵉⵣⵉⵔⵉⴳⵏ
+How bright the picture is	ⵜⴰⴼⴰⵜ ⵏ ⵜⵡⵍⴰⴼⵜ
+How long the in move takes	ⴰⵣⵎⵣ ⵏ ⵓⵙⵎⵓⵜⵜⵉ ⵏ ⵓⴽⵛⵛⵓⵎ
+Scale of the whole graphic	ⵜⴰⵙⴽⴰⵍⴰ ⵏ ⵓⵙⵓⵏⵖ ⴽⵓⵍⵍⵓ
+How hard the lines are bent	ⵜⴰⵣⵎⵔⵜ ⵏ ⵓⵡⵏⵏⴰⵢ ⵏ ⵉⵣⵔⵉⴳⵏ
+How long the out move takes	ⴰⵣⵎⵣ ⵏ ⵓⵙⵎⵓⵜⵜⵉ ⵏ ⵜⵓⴼⴼⵖⴰ
+How far the colours fan apart	ⴰⵎⴼⴰⵔⴰⵣ ⵏ ⵉⵏⵉⵜⵏ
+Thickness of the glowing edge	ⵜⴰⵥⵓⵔⵉ ⵏ ⵉⵔⵉ ⴰⵛⵄⵍⴰⵍ
+How bright the laser lines are	ⵜⴰⴼⴰⵜ ⵏ ⵉⵣⵔⵉⴳⵏ ⵏ ⵍⴰⵣⵉⵔ
+Spiral size: above 1 is bigger	ⵜⵉⴷⴷⵉ ⵏ ⵜⵍⵍⵓⵢⵜ: ⵓⴳⴳⴰⵔ ⵏ 1 ⵉⵎⵖⵓⵔ
+How many mirror panels, 0 to 12	ⵎⵏⵛⴽ ⵏ ⵜⴼⵍⵡⵉⵏ ⵏ ⵍⵎⵔⵉ, 0 ⵙ 12
+Turn the colours round the wheel	ⵣⵣⵉ ⵉⵏⵉⵜⵏ ⵖ ⵜⵔⵓⴹⴰ
+Laser speckle: the focus trembles	ⵜⵉⵏⵇⵉⴹⵉⵏ ⵏ ⵍⴰⵣⵉⵔ: ⴰⵙⴰⴹⴰⵙ ⵉⵜⵜⵔⴳⵉⴳⵉ
+Rotate the field round its centre	ⵣⵣⵉ ⵉⴳⵔ ⵖ ⵓⵍⵓⵎⵎⴰⵙ ⵏⵏⵙ
+How bright the water's pale light is	ⵜⴰⴼⴰⵜ ⵏ ⵜⴼⴰⵡⵜ ⵜⴰⵎⵍⵍⴰⵍⵜ ⵏ ⵡⴰⵎⴰⵏ
+How long light lingers on the screen	ⵎⵏⵛⴽ ⴰⵔ ⵜⵇⵇⵉⵎ ⵜⴰⴼⴰⵡⵜ ⵖ ⵓⴳⴷⵉⵍ
+Colour steps: 2 is stark, 8 is smooth	ⵉⵙⵓⵔⵉⴼⵏ ⵏ ⵉⵏⵉ: 2 ⵉⵇⵇⵓⵔ, 8 ⵉⵍⴰⵏ
+Classic green, fire, ice, neon or mono	ⴰⵣⴳⵣⴰⵡ ⴰⵎⵏⵙⴰⵢ, ⵜⵉⵎⵙⵙⵉ, ⴰⴳⵔⵉⵙ, NEON ⵏⵖ ⵢⴰⵏ ⵓⵏⵉ
+How fast they are born, drift and fade	ⵜⴰⵣⵣⵍⴰ ⵏ ⵓⵍⴰⵍ, ⵓⵎⵓⵜⵉ ⴷ ⵓⵙⴼⵙⵉ ⵏⵏⵙⵏ
+Turbulence: 0 is still ripples, 3 boils	ⴰⵙⵓⵀⵓ: 0 ⵜⵉⵎⴹⵍⵉⵏ ⵜⵔⵙⴰⵏⵜ, 3 ⴰⵔ ⵉⴱⴱⵓⵖⵍ
+A second jet of water crossing the first	ⴰⵙⵙⵓⴼⵖ ⵡⵉⵙ ⵙⵉⵏ ⵏ ⵡⴰⵎⴰⵏ ⵉⵣⵔⵔⵉ ⵅⴼ ⵓⵎⵣⵡⴰⵔⵓ
+Broad ripples at 0, fine and busy at 100	ⵜⵉⵎⴹⵍⵉⵏ ⵜⵉⵎⵇⵇⵔⴰⵏⵉⵏ ⵖ 0, ⵜⵉⵎⵥⵥⵢⴰⵏⵉⵏ ⵓ ⵜⵓⴳⵜⵜ ⵖ 100
+The flow surges with the programme sound	ⴰⵣⵣⵍ ⴰⵔ ⵉⵜⵜⴰⵍⵉ ⵙ ⵉⵎⵙⵍⵉ ⵏ ⵡⴰⵀⵉⵍ
+Zone, twin, flow, saddle, ripple or shear	ⵜⴰⵎⵏⴰⴹⵜ, ⴰⴽⵏⵉⵡ, ⴰⵣⵣⵍ, ⵜⴰⴱⴰⵔⴷⴰ, ⵜⴰⵎⵡⴰⵊⵜ ⵏⵖ ⴰⵣⵍⴰⴳ
+Horizontal cells. More detail uses more CPU	ⵜⵉⵖⵔⴼⵉⵏ ⵜⵉⴳⵍⴰⵡⴰⵏⵉⵏ. ⵜⴰⵍⵇⴰⵢⵜ ⵓⴳⴳⴰⵔ ⵜⵙⵙⵎⵔⴰⵙ ⵓⴳⴳⴰⵔ ⵏ CPU
+How far each panel tilts from the one before	ⴰⵎⵏⵏⴰⵢ ⵏ ⴽⵔⴰⵢⴳⴰⵜⵜ ⵜⴰⴼⵍⵡⵉⵜ ⵖⴼ ⵜⵉⵏ ⵉⵣⵔⵉⵏ
+The share of each band drawn as grey stripes	ⴰⴳⵣⵣⵓⵎ ⵏ ⴽⵔⴰⵢⴳⴰⵜⵜ ⵜⴰⵙⴼⵉⴼⵜ ⵉⵜⵜⵓⵙⵓⵏⵖⵏ ⵙ ⵉⵣⵔⵉⴳⵏ ⵉⵖⵉⵖⴷⴰⵏⵏ
+The top mirrors the bottom round a dark seam	ⴰⴼⵍⵍⴰ ⴷ ⵜⴰⵙⵉⵜ ⵏ ⵡⴰⴷⴷⴰⵢ ⵖⴼ ⵓⵇⵇⴰⵏ ⴰⴱⵔⵓⴽ
+0 holds the field; negative runs it backwards	0 ⵉⵙⴱⴷⴷ ⵉⴳⵔ; ⴰⵣⴰⵍ ⴷⴷⴰⵡ 0 ⵉⵜⴷⴷⵓ ⵙ ⴷⴼⴼⵉⵔ
+Where the eye of the swirl sits, left to right	ⴰⵏⵙⴰ ⵏ ⵜⵉⵟⵟ ⵏ ⵜⵡⵔⴳⵉⵜ, ⵙⴳ ⵓⵥⵍⵎⴰⴹ ⵙ ⵓⴼⴰⵙⵙⵉ
+Where the eye of the swirl sits, top to bottom	ⴰⵏⵙⴰ ⵏ ⵜⵉⵟⵟ ⵏ ⵜⵡⵔⴳⵉⵜ, ⵙⴳ ⵓⴼⵍⵍⴰ ⵙ ⵡⴰⴷⴷⴰ
+The round lens: a curved picture and a dark rim	ⵜⴰⵎⵍⴰⵍⵜ ⵉⵎⴷⵡⵡⵕⵏ: ⵜⴰⵡⵍⴰⴼⵜ ⵉⴽⵏⵓⵏ ⴷ ⵉⵔⵉ ⴰⴱⵔⵓⴽ
+How fast the bands move; 0 holds the field still	ⵜⴰⵣⵣⵍⴰ ⵏ ⵜⵙⴼⵉⴼⵉⵏ; 0 ⵉⵙⴱⴷⴷ ⵉⴳⵔ
+Turn the palette through all colours; 0 restores it	ⵣⵣⵉ ⵜⴰⵏⴰⵢⵜ ⵖⴼ ⴰⴽⴽ ⵉⴽⵍⵓⵜⵏ; 0 ⵉⵔⴰⵔ ⵜⵜ ⵎⴰⴽ ⵜⵍⵍⴰ
+Spiral strength, from a flowing field to tight turns	ⵜⴰⵣⵎⵔⵜ ⵏ ⵜⵡⵔⴳⵉⵜ, ⵣⵖ ⵉⴳⵔ ⵉⵜⵜⴰⵣⵣⴰⵍⵏ ⵙ ⵜⵉⵣⵣⵉⵢⵉⵏ ⵉⵎⵥⵥⵉⵢⵏ
+How long it stays before leaving by itself. 0 waits for OUT	ⵎⵏⵛⴽ ⴰⴷ ⵉⵇⵇⵉⵎ ⵇⴱⵍ ⴰⴷ ⵉⴼⴼⵖ ⵙ ⵉⵅⴼ ⵏⵏⵙ. 0 ⵉⵜⵜⵔⴰⵊⵓ OUT
+The laser colours: rgb, rainbow, floyd, warm, cool or green	ⵉⴽⵍⵓⵜⵏ ⵏ ⵍⴰⵣⵔ: rgb, ⵜⴰⵙⵍⵍⵉⵜ ⵏ ⵓⵏⵥⴰⵔ, floyd, ⵉⵃⵎⴰ, ⵉⵙⵎⴹ ⵏⵖ ⴰⵣⴳⵣⴰⵡ
+How far each row is shifted. This makes the straight rows look tilted	ⵎⵏⵛⴽ ⴰⵔ ⵉⵜⵜⵓⵙⵎⵓⵜⵜⵉ ⴽⵔⴰⵢⴳⴰⵜⵜ ⵉⵣⵉⵔⵉⴳ. ⴰⵢⴰ ⴰⵔ ⵉⵙⵙⴱⴰⵢⴰⵏ ⵉⵣⵉⵔⵉⴳⵏ ⵏⵏⵉⵖ ⵙ ⵜⴰⴼⵍⵡⵉⵜ
+How many are alive at once. Each is born, drifts out, grows and fades	ⵎⵏⵛⴽ ⴰⵢⴷ ⵉⴷⴷⵔⵏ ⴳ ⵢⴰⵜ ⵜⵉⴽⴽⵍⵜ. ⴽⵓ ⵢⴰⵏ ⵉⵜⵜⵓⵍⴰⵍ, ⵉⵎⵓⵜⵜⵉ ⵙ ⴱⵔⵔⴰ, ⵉⵜⵜⵎⵖⵓⵔ ⴷ ⵉⵜⵜⵅⵙⵉ
+How readily neighbours merge into one shape. 0 keeps every blob round	ⵎⵏⵛⴽ ⴰⵔ ⵜⵜⵎⵓⵏⵏ ⵜⵉⴽⵓⵔⵉⵏ ⵏ ⴷⵉⵙ ⴳ ⵢⴰⵜ ⵜⵍⵖⴰ. 0 ⵉⵜⵜⴰⵊⵊⴰ ⴽⵓ ⵜⴰⴽⵓⵔⵜ ⵜⵎⴷⵡⵡⵕ
+Spin the other way. Most people cannot tell which way it turns anyway	ⵣⵣⵉ ⵙ ⵜⵏⵉⵍⴰ ⵢⴰⴹⵏ. ⴰⵟⵟⴰⵚ ⵏ ⵎⵉⴷⴷⵏ ⵓⵔ ⵙⵙⵏⵏ ⵎⴰⵏ ⵜⴰⵏⵉⵍⴰ ⵙ ⵉⵜⵜⵣⵣⵉ ⵖⴰⵙ
+Move the disc in a small loop. 0 holds it still: the eye moves it anyway	ⵙⵎⵓⵜⵜⵉ ⴰⴹⴰⵙ ⴳ ⵢⴰⵏ ⵓⵙⵙⵓⵖⵍ ⴰⵎⵥⵥⵢⴰⵏ. 0 ⵉⵙⴱⴷⴷ ⵜ: ⵜⵉⵟⵟ ⴰⵔ ⵜⵙⵎⵓⵜⵜⵉ ⵜ ⵖⴰⵙ
+Rainbow + grey, rainbow, the theme's colours (taken when picked) or mono	ⵜⴰⵙⵍⵍⵉⵜ ⵏ ⵓⵏⵥⴰⵔ + ⴰⵖⵉⵖⴷⴰⵏ, ⵜⴰⵙⵍⵍⵉⵜ ⵏ ⵓⵏⵥⴰⵔ, ⵉⴽⵍⵓⵜⵏ ⵏ ⵓⵙⵏⵜⵍ (ⵜⵜⵓⵟⵟⴰⴼⵏ ⴳ ⵓⵙⵜⴰⵢ) ⵏⵖ ⵢⴰⵏ ⵓⴽⵍⵓ
+How many bands: 50% is the design, higher beats harder against the pixels	ⵎⵏⵛⴽ ⵏ ⵜⵙⴼⵉⴼⵉⵏ: 50% ⴷ ⴰⵙⵏⴼⵍⵓⵍ, ⵓⴳⴳⴰⵔ ⴰⵔ ⵉⴽⴽⴰⵜ ⵓⴳⴳⴰⵔ ⵖⴼ ⵉⴱⵉⴽⵙⵉⵍⵏ
+Turn the shapes slowly, so the drift changes direction. 0 holds them still	ⵣⵣⵉ ⵜⵉⵍⵖⴰⵡⵉⵏ ⵙ ⵍⵎⵀⵍ, ⴰⴷ ⵉⵙⵏⴼⵍ ⵓⵎⵓⵜⵉ ⵜⴰⵏⵉⵍⴰ. 0 ⵉⵙⴱⴷⴷ ⵜⵏⵜ
+Classic, the theme's colours (taken when picked) or two colours of your own	ⴰⵎⵏⵙⴰⵢ, ⵉⴽⵍⵓⵜⵏ ⵏ ⵓⵙⵏⵜⵍ (ⵜⵜⵓⵟⵟⴰⴼⵏ ⴳ ⵓⵙⵜⴰⵢ) ⵏⵖ ⵙⵉⵏ ⵉⴽⵍⵓⵜⵏ ⵏⵏⴽ
+Turns the rim's colours round the wheel -- green, yellow, pink, violet, blue	ⴰⵔ ⵉⵜⵜⵣⵣⵉ ⵉⴽⵍⵓⵜⵏ ⵏ ⵢⵉⵔⵉ ⵖⴼ ⵜⵔⵓⴹⴰ -- ⴰⵣⴳⵣⴰⵡ, ⴰⵡⵔⴰⵖ, ⴰⵡⵔⴷⵉ, ⴰⴱⵏⴼⵙⵊⵉ, ⴰⵏⵉⵍⵉ
+Which way the field seems to go: turn round the centre, out, in, or in waves	ⵜⴰⵏⵉⵍⴰ ⵙ ⴷ ⵉⴱⴰⵢⵏ ⵉⴳⵔ ⵉⵜⴷⴷⵓ: ⵣⵣⵉ ⵖⴼ ⵓⵍⵓⵎⵎⴰⵙ, ⴱⵔⵔⴰ, ⵖ, ⵏⵖ ⵙ ⵜⵎⵓⵊⵊⴰ
+Slide the rows back and forth, so the wall bends and straightens. 0 holds it still	ⵙⵎⵓⵜⵜⵉ ⵉⵣⵉⵔⵉⴳⵏ ⵙ ⴷⴰⵜ ⴷ ⴷⴼⴼⵉⵔ, ⴰⴷ ⵉⴽⵏⵓ ⵓⵖⵔⴰⴱ ⵉⵙⵓⵍ ⵉⵏⵏⵉⵖ. 0 ⵉⵙⴱⴷⴷ ⵜⵏ
+How fast the crosses turn. They always turn a little: the dots vanish only while they move	ⵜⴰⵣⵣⵍⴰ ⵏ ⵜⵣⵣⵉⵜ ⵏ ⵉⵙⵍⵉⴱⵏ. ⴷⵉⵎⴰ ⴰⵔ ⵜⵜⵣⵣⵉⵏ ⵉⴷⵔⵓⵙ: ⵜⵉⵏⵇⵇⵉⴹⵉⵏ ⴰⵔ ⵜⵜⵖⴰⴱⵏⵜ ⵖⴰⵙ ⵎⵍⵍⵉ ⵜⵜⵎⵓⵙⵙⴰⵏ
+Drift (still shapes that seem to turn), ouchi (a disc that floats), cafe (straight rows that look tilted), vanish (dots that disappear while you stare), grid (dots that flicker and are not there) or dancer (it spins whichever way you see it)	ⴰⵎⵓⵜⵉ (ⵜⵉⵍⵖⴰⵡⵉⵏ ⵉⴱⴷⴷⵏ ⵍⵍⵉ ⵉⴱⴰⵢⵏ ⵜⵜⵣⵣⵉⵏ), ouchi (ⴰⴹⴰⵙ ⵉⵜⵜⵄⵓⵎⵎⵏ), cafe (ⵉⵣⵉⵔⵉⴳⵏ ⵏⵏⵉⵖ ⵍⵍⵉ ⵉⴱⴰⵢⵏ ⵙ ⵜⴰⴼⵍⵡⵉⵜ), ⴰⵖⴰⴱ (ⵜⵉⵏⵇⵇⵉⴹⵉⵏ ⵍⵍⵉ ⵜⵜⵖⴰⴱⵏⵜ ⵎⵍⵍⵉ ⵜⵙⵙⵎⵓⵇⵇⵍⴷ), ⴰⴼⵔⵔⵓⴳ (ⵜⵉⵏⵇⵇⵉⴹⵉⵏ ⵍⵍⵉ ⴰⵔ ⵙⵉⴷⵔⵏⵜ ⵓⵔ ⵍⵍⵉⵏⵜ) ⵏⵖ ⴰⵏⴰⵃⵡⴰⵛ (ⵉⵜⵜⵣⵣⵉ ⵙ ⵜⵏⵉⵍⴰ ⵍⵍⵉ ⵜⵥⵕⵉⴷ)
+The gap under it, as a share of the frame	ⵜⴰⵍⵍⵓⵏⵜ ⴷⴷⴰⵡⴰⵙ, ⴷ ⴰⵎⵓⵔ ⵏ ⵜⵡⵍⴰⴼⵜ

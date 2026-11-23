@@ -4696,3 +4696,157 @@ listens to the live input while one is open, else the playlist	有即時輸入�
 TUTORIAL: no lesson running	TUTORIAL：沒有正在執行的課程
 TUTORIAL: expected START, SHOWME, SKIP, STEP <n>, RESTART, EXIT, STATUS or SCREENS	TUTORIAL：應為 START、SHOWME、SKIP、STEP <n>、RESTART、EXIT、STATUS 或 SCREENS
 cursor across	游標橫向
+Edge	邊緣
+Flip	翻轉
+Form	形態
+flip	翻轉
+form	形態
+pose	姿態
+Count	數量
+count	數量
+disc x	圓盤 x
+disc y	圓盤 y
+mortar	灰縫
+offset	位移
+wander	遊移
+RESTART	重新開始
+crosses	十字
+squares	方塊
+Colour 1	顏色 1
+Colour 2	顏色 2
+ILLUSION	錯覺
+Illusion	錯覺
+colour 1	顏色 1
+colour 2	顏色 2
+dot size	圓點大小
+disc size	圓盤大小
+cross size	十字大小
+dot colour	圓點顏色
+edge width	邊緣寬度
+mortar grey	灰縫灰度
+street grey	街道灰度
+tile length	單元長度
+cross colour	十字顏色
+shape colour	形狀顏色
+street width	街道寬度
+ground colour	底色
+tile thickness	單元厚度
+How big each tile is	每塊磁磚的大小
+How big each cross is	每個十字的大小
+How long each tile is	每塊磁磚的長度
+How tall the dancer is	舞者的高度
+0-100%: 0 holds it still	0-100%: 0 時保持靜止
+0 classic, 1 theme, 2 hues	0 經典，1 主題，2 色相
+Leaf, petal, scale or ring	葉片、花瓣、鱗片或圓環
+0 or 1: the other way round	0 或 1：反方向
+0 turn, 1 out, 2 in, 3 wave	0 轉動，1 出，2 入，3 波浪
+How big the floating disc is	浮動圓盤的大小
+How light the grey lines are	灰色線條的明度
+select an illusion cue first	請先選取一個錯覺 cue
+Turn the crosses the other way	將十字反方向轉動
+Illusion (Pictures that move!?)	錯覺（會動的圖片！？）
+0 leaf, 1 petal, 2 scale, 3 ring	0 葉片，1 花瓣，2 鱗片，3 圓環
+How many shapes across the screen	螢幕橫向的形狀數量
+How many crosses across the screen	螢幕橫向的十字數量
+How many squares across the screen	螢幕橫向的方塊數量
+Where the disc sits, left to right	圓盤位置，從左到右
+Where the disc sits, top to bottom	圓盤位置，從上到下
+0-100%: 0 black, 100 the light tile	0-100%: 0 為黑，100 為淺色磁磚
+How much of its place each shape fills	每個形狀填滿其位置的程度
+Where the dancer stands, left to right	舞者位置，從左到右
+Where the dancer stands, top to bottom	舞者位置，從上到下
+Collapse/expand the illusion's controls	摺疊/展開錯覺控制項
+How far the free leg and the arms reach	自由腿與手臂的延伸距離
+Slide the grid slowly. 0 holds it still	緩慢滑動網格。0 為靜止
+The first colour, round the colour wheel	第一種顏色，在色環上的位置
+The second colour, round the colour wheel	第二種顏色，在色環上的位置
+How thick each tile is, against its length	每塊磁磚相對其長度的厚度
+Where the centre point sits, left to right	中心點位置，從左到右
+Where the centre point sits, top to bottom	中心點位置，從上到下
+How thick the grey line between the rows is	行間灰色線條的粗細
+How big the light discs at the crossings are	交叉處淺色圓點的大小
+Where the field's centre sits, left to right	場中心位置，從左到右
+Where the field's centre sits, top to bottom	場中心位置，從上到下
+How wide the grey lines between the squares are	方塊間灰色線條的寬度
+How fast the dancer turns. It always turns a little	舞者轉動的速度。總是會略微轉動
+0 drift, 1 ouchi, 2 cafe, 3 vanish, 4 grid, 5 dancer	0 漂移，1 ouchi，2 咖啡牆，3 消失，4 網格，5 舞者
+How light the grey line is. Mid grey tilts the rows most	灰色線條的明度。中灰使各行傾斜最大
+How big the three dots are. Small dots vanish more easily	三個圓點的大小。小圓點更容易消失
+Swap the black and white edges: the field drifts the other way	交換黑白邊緣：場向反方向漂移
+How much of the black and white edges shows. They make the drift	黑白邊緣顯示的程度。它們造成漂移
+LFO: size, count, edge, speed, centrex, centrey, grey, hue1 or hue2	LFO: 請選擇 size、count、edge、speed、centrex、centrey、grey、hue1 或 hue2
+SYNC LEAD ON or OFF	SYNC LEAD ON 或 OFF
+{1} is following this desk	{1} 正在跟隨此控制台
+SYNC LEAD ON|OFF or SYNC STATUS	SYNC LEAD ON|OFF 或 SYNC STATUS
+FOLLOW needs a network connection that stays open	FOLLOW 需要保持開啟的網路連線
+this desk is not leading (SYNC LEAD ON, or Settings > Network > SYNC)	此控制台未作為主導（SYNC LEAD ON，或 設定 > 網路 > SYNC）
+LEADING	主導中
+No longer leading	不再主導
+Lead other machines	主導其他機器
+Following this desk: {1}	正在跟隨此控制台：{1}
+Leading. Nobody is following yet.	主導中。尚無人跟隨。
+Leading: other machines may follow this desk	主導中：其他機器可跟隨此控制台
+Not leading: no other machine can follow this desk.	未主導：其他機器無法跟隨此控制台。
+body	主體
+burns	燃燒
+chaos	混沌
+breath	氣息
+jitter	抖動
+sparks	火花
+How big a blob grows	斑塊生長大小
+Tube, mandala or none	管道、曼陀羅或無
+Turn the whole picture	轉動整幅畫面
+How far the field bends	場彎曲程度
+How fast the water moves	水流速度
+The halo round the lines	線條周圍的光暈
+How bright the picture is	畫面亮度
+How long the in move takes	入動作時長
+Scale of the whole graphic	整個圖形的縮放
+How hard the lines are bent	線條彎曲強度
+How long the out move takes	出動作時長
+How far the colours fan apart	色彩散開程度
+Thickness of the glowing edge	發光邊緣厚度
+How bright the laser lines are	雷射線條亮度
+Spiral size: above 1 is bigger	螺旋尺寸：大於 1 更大
+How many mirror panels, 0 to 12	鏡像面板數量，0 到 12
+Turn the colours round the wheel	沿色輪轉動顏色
+Laser speckle: the focus trembles	雷射散斑：聚焦抖動
+Rotate the field round its centre	繞中心旋轉場
+How bright the water's pale light is	水面淡光亮度
+How long light lingers on the screen	光在螢幕上的停留時長
+Colour steps: 2 is stark, 8 is smooth	顏色步數：2 生硬，8 平滑
+Classic green, fire, ice, neon or mono	經典綠、火焰、冰、霓虹或單色
+How fast they are born, drift and fade	誕生、漂移與淡出的速度
+Turbulence: 0 is still ripples, 3 boils	湍流：0 為平靜漣漪，3 為沸騰
+A second jet of water crossing the first	第二道噴流與第一道交叉
+Broad ripples at 0, fine and busy at 100	0 為寬闊漣漪，100 為細密繁複
+The flow surges with the programme sound	流動隨節目聲音增強
+Zone, twin, flow, saddle, ripple or shear	區域、雙重、流動、鞍形、漣漪或剪切
+Horizontal cells. More detail uses more CPU	水平格數。細節越多，CPU 使用率越高
+How far each panel tilts from the one before	每塊面板相對前一塊的傾斜程度
+The share of each band drawn as grey stripes	每條頻帶中繪成灰色條紋的比例
+The top mirrors the bottom round a dark seam	上半部以暗色接縫為軸鏡像下半部
+0 holds the field; negative runs it backwards	0 使場靜止；負值使其倒轉
+Where the eye of the swirl sits, left to right	漩渦中心的位置，從左到右
+Where the eye of the swirl sits, top to bottom	漩渦中心的位置，從上到下
+The round lens: a curved picture and a dark rim	圓形鏡頭：彎曲的畫面與暗色邊緣
+How fast the bands move; 0 holds the field still	頻帶移動的速度；0 使場保持靜止
+Turn the palette through all colours; 0 restores it	讓調色盤轉遍所有顏色；0 恢復原狀
+Spiral strength, from a flowing field to tight turns	螺旋強度，從流動的場到緊密的旋轉
+How long it stays before leaving by itself. 0 waits for OUT	自動離開前停留的時間。0 表示等待 OUT
+The laser colours: rgb, rainbow, floyd, warm, cool or green	雷射顏色：rgb、彩虹、floyd、暖色、冷色或綠
+How far each row is shifted. This makes the straight rows look tilted	每列的偏移量。這會讓筆直的列看起來是傾斜的
+How many are alive at once. Each is born, drifts out, grows and fades	同時存在的數量。每個都會誕生、向外漂移、變大並淡出
+How readily neighbours merge into one shape. 0 keeps every blob round	相鄰團塊合併為一個形狀的傾向。0 讓每個團塊保持圓形
+Spin the other way. Most people cannot tell which way it turns anyway	反向自轉。反正大多數人也分不清它朝哪個方向轉
+Move the disc in a small loop. 0 holds it still: the eye moves it anyway	讓圓盤做小幅循環運動。0 使其靜止：眼睛仍會讓它動起來
+Rainbow + grey, rainbow, the theme's colours (taken when picked) or mono	彩虹 + 灰色、彩虹、主題顏色（選取時擷取）或單色
+How many bands: 50% is the design, higher beats harder against the pixels	頻帶數量：50% 為設計值，越高與像素的干涉越明顯
+Turn the shapes slowly, so the drift changes direction. 0 holds them still	緩慢轉動形狀，使漂移改變方向。0 使其靜止
+Classic, the theme's colours (taken when picked) or two colours of your own	經典、主題顏色（選取時擷取）或自選的兩種顏色
+Turns the rim's colours round the wheel -- green, yellow, pink, violet, blue	讓邊緣的顏色沿色輪轉動——綠、黃、粉紅、紫、藍
+Which way the field seems to go: turn round the centre, out, in, or in waves	場看似運動的方向：繞中心轉動、出、入或呈波浪狀
+Slide the rows back and forth, so the wall bends and straightens. 0 holds it still	讓各列來回滑動，使牆面彎曲又伸直。0 使其靜止
+How fast the crosses turn. They always turn a little: the dots vanish only while they move	十字轉動的速度。它們總是會稍微轉動：圓點只在運動時消失
+Drift (still shapes that seem to turn), ouchi (a disc that floats), cafe (straight rows that look tilted), vanish (dots that disappear while you stare), grid (dots that flicker and are not there) or dancer (it spins whichever way you see it)	漂移（看似在轉動的靜止形狀）、ouchi（漂浮的圓盤）、cafe（看似傾斜的筆直列）、消失（盯著看時消失的圓點）、網格（閃爍且並不存在的圓點）或舞者（無論你看到它朝哪個方向轉，它就朝那個方向轉）
+The gap under it, as a share of the frame	下方間隙占畫面的比例

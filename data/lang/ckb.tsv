@@ -4699,3 +4699,157 @@ listens to the live input while one is open, else the playlist	گوێ لە ها�
 TUTORIAL: no lesson running	TUTORIAL: هیچ وانەیەک لە کاردا نییە
 TUTORIAL: expected START, SHOWME, SKIP, STEP <n>, RESTART, EXIT, STATUS or SCREENS	TUTORIAL: چاوەڕوانکراو: START, SHOWME, SKIP, STEP <n>, RESTART, EXIT, STATUS یان SCREENS
 cursor across	نیشاندەر بە پانی
+Edge	لێوار
+Flip	هەڵگەڕاندنەوە
+Form	فۆرم
+flip	هەڵگەڕاندنەوە
+form	فۆرم
+pose	پۆز
+Count	ژمارە
+count	ژمارە
+disc x	دیسک x
+disc y	دیسک y
+mortar	چیمەنتۆ
+offset	لادان
+wander	گەڕان
+RESTART	دەستپێکردنەوە
+crosses	خاچەکان
+squares	چوارگۆشەکان
+Colour 1	ڕەنگی 1
+Colour 2	ڕەنگی 2
+ILLUSION	وەهمی بینین
+Illusion	وەهمی بینین
+colour 1	ڕەنگی 1
+colour 2	ڕەنگی 2
+dot size	قەبارەی خاڵ
+disc size	قەبارەی دیسک
+cross size	قەبارەی خاچ
+dot colour	ڕەنگی خاڵ
+edge width	پانی لێوار
+mortar grey	خۆڵەمێشیی چیمەنتۆ
+street grey	خۆڵەمێشیی شەقام
+tile length	درێژیی کاشی
+cross colour	ڕەنگی خاچ
+shape colour	ڕەنگی شێوە
+street width	پانی شەقام
+ground colour	ڕەنگی زەمینە
+tile thickness	ئەستووریی کاشی
+How big each tile is	قەبارەی هەر کاشییەک
+How big each cross is	قەبارەی هەر خاچێک
+How long each tile is	درێژیی هەر کاشییەک
+How tall the dancer is	بەرزیی سەماکەرەکە
+0-100%: 0 holds it still	0-100%: 0 جێگیری دەکات
+0 classic, 1 theme, 2 hues	0 کلاسیک، 1 ڕووکار، 2 تۆنی ڕەنگ
+Leaf, petal, scale or ring	گەڵا، پەڕە گوڵ، پوولەکە یان ئەڵقە
+0 or 1: the other way round	0 یان 1: بە پێچەوانەوە
+0 turn, 1 out, 2 in, 3 wave	0 سووڕان، 1 دەرچوون، 2 هاتن، 3 شەپۆل
+How big the floating disc is	قەبارەی دیسکە لەهەوادا ماوەکە
+How light the grey lines are	کاڵیی هێڵە خۆڵەمێشییەکان
+select an illusion cue first	سەرەتا cue ـێکی فریوی بینین هەڵبژێرە
+Turn the crosses the other way	خاچەکان بە ئاراستەی پێچەوانە بسووڕێنە
+Illusion (Pictures that move!?)	فریوی بینین (وێنەکان دەجووڵێن!؟)
+0 leaf, 1 petal, 2 scale, 3 ring	0 گەڵا، 1 پەڕە گوڵ، 2 پوولەکە، 3 ئەڵقە
+How many shapes across the screen	چەند شێوە بە پانایی شاشەدا
+How many crosses across the screen	چەند خاچ بە پانایی شاشەدا
+How many squares across the screen	چەند چوارگۆشە بە پانایی شاشەدا
+Where the disc sits, left to right	شوێنی دیسک، لە چەپەوە بۆ ڕاست
+Where the disc sits, top to bottom	شوێنی دیسک، لە سەرەوە بۆ خوارەوە
+0-100%: 0 black, 100 the light tile	0-100%: 0 ڕەش، 100 کاشیی کاڵ
+How much of its place each shape fills	هەر شێوەیەک چەندی شوێنەکەی خۆی پڕ دەکاتەوە
+Where the dancer stands, left to right	شوێنی سەماکەر، لە چەپەوە بۆ ڕاست
+Where the dancer stands, top to bottom	شوێنی سەماکەر، لە سەرەوە بۆ خوارەوە
+Collapse/expand the illusion's controls	داخستن/کردنەوەی کۆنتڕۆڵەکانی فریوی بینین
+How far the free leg and the arms reach	قاچە ئازادەکە و دەستەکان تا چەند درێژ دەبنەوە
+Slide the grid slowly. 0 holds it still	تۆڕەکە هێواش بخلیسکێنە. 0 جێگیری دەکات
+The first colour, round the colour wheel	ڕەنگی یەکەم، بە دەوری بازنەی ڕەنگ
+The second colour, round the colour wheel	ڕەنگی دووەم، بە دەوری بازنەی ڕەنگ
+How thick each tile is, against its length	ئەستووریی هەر کاشییەک بەراورد بە درێژییەکەی
+Where the centre point sits, left to right	شوێنی خاڵی ناوەڕاست، لە چەپەوە بۆ ڕاست
+Where the centre point sits, top to bottom	شوێنی خاڵی ناوەڕاست، لە سەرەوە بۆ خوارەوە
+How thick the grey line between the rows is	ئەستووریی هێڵە خۆڵەمێشییەکەی نێوان ڕیزەکان
+How big the light discs at the crossings are	قەبارەی دیسکە کاڵەکان لە خاڵەکانی یەکتربڕین
+Where the field's centre sits, left to right	ناوەڕاستی مەیدان، لە چەپەوە بۆ ڕاست
+Where the field's centre sits, top to bottom	ناوەڕاستی مەیدان، لە سەرەوە بۆ خوارەوە
+How wide the grey lines between the squares are	پانیی هێڵە خۆڵەمێشییەکانی نێوان چوارگۆشەکان
+How fast the dancer turns. It always turns a little	خێرایی سووڕانی سەماکەر. هەمیشە کەمێک دەسووڕێت
+0 drift, 1 ouchi, 2 cafe, 3 vanish, 4 grid, 5 dancer	0 خلیسکان، 1 ouchi، 2 کافێ، 3 ونبوون، 4 تۆڕ، 5 سەماکەر
+How light the grey line is. Mid grey tilts the rows most	کاڵیی هێڵە خۆڵەمێشییەکە. خۆڵەمێشیی مامناوەند ڕیزەکان زیاتر لار دەکات
+How big the three dots are. Small dots vanish more easily	قەبارەی سێ خاڵەکە. خاڵە بچووکەکان ئاسانتر ون دەبن
+Swap the black and white edges: the field drifts the other way	لێوارە ڕەش و سپییەکان بگۆڕەوە: مەیدانەکە بە ئاراستەی پێچەوانە دەخلیسکێت
+How much of the black and white edges shows. They make the drift	چەندی لێوارە ڕەش و سپییەکان نیشان دەدرێن. ئەوان خلیسکانەکە دروست دەکەن
+LFO: size, count, edge, speed, centrex, centrey, grey, hue1 or hue2	LFO: size, count, edge, speed, centrex, centrey, grey, hue1 یان hue2
+How far each row is shifted. This makes the straight rows look tilted	هەر ڕیزێک چەند لادەدرێت. ئەمە وا دەکات ڕیزە ڕاستەکان لار دیار بن
+Spin the other way. Most people cannot tell which way it turns anyway	سووڕان بە ئاراستەی پێچەوانە. زۆربەی خەڵک هەر نازانن بە کام ئاراستەدا دەسووڕێت
+Move the disc in a small loop. 0 holds it still: the eye moves it anyway	دیسکەکە لە بازنەیەکی بچووکدا بجوڵێنە. 0 جێگیری دەکات: چاو هەر دەیجوڵێنێت
+Turn the shapes slowly, so the drift changes direction. 0 holds them still	شێوەکان هێواش بسووڕێنە، تا ئاراستەی خلیسکان بگۆڕێت. 0 جێگیریان دەکات
+Classic, the theme's colours (taken when picked) or two colours of your own	کلاسیک، ڕەنگەکانی ڕووکار (کاتی هەڵبژاردن وەردەگیرێن) یان دوو ڕەنگی خۆت
+Which way the field seems to go: turn round the centre, out, in, or in waves	مەیدانەکە وا دیارە بەرەو کوێ دەڕوات: سووڕان بە دەوری ناوەڕاست، دەرچوون، هاتن، یان بە شەپۆل
+Slide the rows back and forth, so the wall bends and straightens. 0 holds it still	ڕیزەکان بەرەو پێش و دواوە بخلیسکێنە، تا دیوارەکە بچەمێتەوە و ڕاست ببێتەوە. 0 جێگیری دەکات
+How fast the crosses turn. They always turn a little: the dots vanish only while they move	خاچەکان چەند خێرا دەسووڕێن. هەمیشە کەمێک دەسووڕێن: خاڵەکان تەنها کاتی جووڵەیان ون دەبن
+Drift (still shapes that seem to turn), ouchi (a disc that floats), cafe (straight rows that look tilted), vanish (dots that disappear while you stare), grid (dots that flicker and are not there) or dancer (it spins whichever way you see it)	خلیسکان (شێوەی جێگیر کە وا دیارە دەسووڕێن)، ouchi (دیسکێک کە مەلە دەکات)، کافێ (ڕیزی ڕاست کە لار دیارن)، ونبوون (خاڵ کە کاتی سەیرکردن ون دەبن)، تۆڕ (خاڵ کە دەلەرزن و لەوێ نین) یان سەماکەر (بەو ئاراستەیەی دەیبینیت دەسووڕێت)
+SYNC LEAD ON or OFF	SYNC LEAD ON یان OFF
+{1} is following this desk	{1} شوێن ئەم مێزی کۆنترۆڵە دەکەوێت
+SYNC LEAD ON|OFF or SYNC STATUS	SYNC LEAD ON|OFF یان SYNC STATUS
+FOLLOW needs a network connection that stays open	FOLLOW پێویستی بە پەیوەندیی تۆڕێکە کە کراوە بمێنێتەوە
+this desk is not leading (SYNC LEAD ON, or Settings > Network > SYNC)	ئەم مێزی کۆنترۆڵە پێشەنگ نییە (SYNC LEAD ON، یان ڕێکخستنەکان > تۆڕ > SYNC)
+LEADING	ڕابەر
+No longer leading	چیتر ڕابەر نییە
+Lead other machines	ڕابەرایەتی ئامێرەکانی تر بکە
+Following this desk: {1}	شوێن ئەم مێزی کۆنترۆڵە دەکەون: {1}
+Leading. Nobody is following yet.	ڕابەر. هێشتا هیچ کەس شوێنی ناکەوێت.
+Leading: other machines may follow this desk	ڕابەر: ئامێرەکانی تر دەتوانن شوێن ئەم مێزی کۆنترۆڵە بکەون
+Not leading: no other machine can follow this desk.	ڕابەر نییە: هیچ ئامێرێکی تر ناتوانێت شوێن ئەم مێزی کۆنترۆڵە بکەوێت.
+body	جەستە
+burns	سووتانەکان
+chaos	پشێوی
+breath	هەناسە
+jitter	لەرزین
+sparks	پریشکەکان
+How big a blob grows	قەبارەی گەورەبوونی پەڵە
+Tube, mandala or none	لوولە، ماندالا یان هیچ
+Turn the whole picture	سووڕانی تەواوی وێنە
+How far the field bends	بڕی چەمانەوەی مەیدان
+How fast the water moves	خێرایی جووڵەی ئاو
+The halo round the lines	هالەی دەوری هێڵەکان
+How bright the picture is	ڕووناکیی وێنە
+How long the in move takes	ماوەی جوڵەی هاتن
+Scale of the whole graphic	پێوەری تەواوی گرافیک
+How hard the lines are bent	توندیی چەمانەوەی هێڵەکان
+How long the out move takes	ماوەی جوڵەی دەرچوون
+How far the colours fan apart	بڕی لێکدوورکەوتنەوەی ڕەنگەکان
+Thickness of the glowing edge	ئەستووریی لێواری درەوشاوە
+How bright the laser lines are	ڕووناکیی هێڵەکانی لەیزەر
+Spiral size: above 1 is bigger	قەبارەی پێچاوپێچ: سەرووی 1 گەورەترە
+How many mirror panels, 0 to 12	چەند پانێڵی ئاوێنە، 0 بۆ 12
+Turn the colours round the wheel	سووڕانی ڕەنگەکان بە دەوری بازنەدا
+Laser speckle: the focus trembles	پەڵەی لەیزەر: فۆکەس دەلەرزێت
+Rotate the field round its centre	سووڕاندنی مەیدان بە دەوری ناوەڕاستەکەیدا
+How bright the water's pale light is	گەشیی ڕووناکیی کاڵی ئاو
+How long light lingers on the screen	ماوەی مانەوەی ڕووناکی لەسەر شاشە
+Colour steps: 2 is stark, 8 is smooth	هەنگاوەکانی ڕەنگ: 2 توندە، 8 نەرمە
+Classic green, fire, ice, neon or mono	سەوزی کلاسیک، ئاگر، سەهۆڵ، نیۆن یان تاکڕەنگ
+How fast they are born, drift and fade	خێرایی لەدایکبوون، خلیسکان و کاڵبوونەوەیان
+Turbulence: 0 is still ripples, 3 boils	شڵەژان: 0 شەپۆلۆکەی هێمن، 3 دەکوڵێت
+A second jet of water crossing the first	فووارەیەکی دووەمی ئاو بە یەکەمدا تێدەپەڕێت
+Broad ripples at 0, fine and busy at 100	شەپۆلۆکەی پان لە 0، ورد و چڕ لە 100
+The flow surges with the programme sound	ڕەوتەکە لەگەڵ دەنگی بەرنامە بەهێز دەبێت
+Zone, twin, flow, saddle, ripple or shear	ناوچە، جووت، ڕەوت، زین، شەپۆلۆکە یان بڕین
+Horizontal cells. More detail uses more CPU	خانە ئاسۆییەکان. وردەکاری زیاتر CPU زیاتر بەکاردەهێنێت
+How far each panel tilts from the one before	بڕی لاربوونی هەر پانێڵێک لە چاو پێشوو
+The share of each band drawn as grey stripes	بەشی هەر باندێک کە وەک هێڵی خۆڵەمێشی دەکێشرێت
+The top mirrors the bottom round a dark seam	سەرەوە وەک ئاوێنە خوارەوە نیشان دەدات بە دەوری دروومانێکی تاریکدا
+0 holds the field; negative runs it backwards	0 مەیدانەکە ڕادەگرێت؛ نەرێنی بە پێچەوانەوە کاری پێدەکات
+Where the eye of the swirl sits, left to right	شوێنی چاوی گێژاوەکە، لە چەپەوە بۆ ڕاست
+Where the eye of the swirl sits, top to bottom	شوێنی چاوی گێژاوەکە، لە سەرەوە بۆ خوارەوە
+The round lens: a curved picture and a dark rim	لێنزی خڕ: وێنەیەکی چەماوە و لێوارێکی تاریک
+How fast the bands move; 0 holds the field still	خێرایی جوڵەی باندەکان؛ 0 مەیدانەکە ڕادەگرێت
+Turn the palette through all colours; 0 restores it	پالێتەکە بە هەموو ڕەنگەکاندا بسووڕێنە؛ 0 دەیگەڕێنێتەوە
+Spiral strength, from a flowing field to tight turns	هێزی پێچ، لە مەیدانێکی ڕەوانەوە بۆ سووڕانی توند
+How long it stays before leaving by itself. 0 waits for OUT	چەند دەمێنێتەوە پێش ئەوەی خۆی بڕوات. 0 چاوەڕێی دەرچوون دەکات
+The laser colours: rgb, rainbow, floyd, warm, cool or green	ڕەنگەکانی لەیزەر: rgb، کەوانەی باران، floyd، گەرم، سارد یان سەوز
+How many are alive at once. Each is born, drifts out, grows and fades	چەندیان لە یەک کاتدا زیندوون. هەریەکەیان لەدایک دەبێت، دەخلیسکێتە دەرەوە، گەورە دەبێت و کاڵ دەبێتەوە
+How readily neighbours merge into one shape. 0 keeps every blob round	دراوسێکان چەند بە ئاسانی تێکەڵ دەبن بۆ یەک شێوە. 0 هەموو پەڵەیەک بە خڕی دەهێڵێتەوە
+Rainbow + grey, rainbow, the theme's colours (taken when picked) or mono	کەوانەی باران + خۆڵەمێشی، کەوانەی باران، ڕەنگەکانی ڕووکار (لە کاتی هەڵبژاردن وەردەگیرێن) یان مۆنۆ
+How many bands: 50% is the design, higher beats harder against the pixels	چەند باند: 50% دیزاینەکەیە، زیاتر توندتر لەگەڵ پیکسڵەکان تێکدەچێت
+Turns the rim's colours round the wheel -- green, yellow, pink, violet, blue	ڕەنگەکانی لێوار بە دەوری بازنەکەدا دەسووڕێنێت -- سەوز، زەرد، پەمەیی، مۆر، شین
+The gap under it, as a share of the frame	بۆشایی ژێری وەک بەشێک لە چوارچێوە

@@ -4694,3 +4694,158 @@ listens to the live input while one is open, else the playlist	라이브 입력�
 TUTORIAL: no lesson running	TUTORIAL: 실행 중인 수업 없음
 TUTORIAL: expected START, SHOWME, SKIP, STEP <n>, RESTART, EXIT, STATUS or SCREENS	TUTORIAL: START, SHOWME, SKIP, STEP <n>, RESTART, EXIT, STATUS 또는 SCREENS 필요
 cursor across	커서 가로
+Edge	가장자리
+Flip	뒤집기
+Form	형태
+flip	뒤집기
+form	형태
+pose	자세
+Count	개수
+count	개수
+disc x	원판 x
+disc y	원판 y
+mortar	줄눈
+offset	오프셋
+wander	배회
+RESTART	다시 시작
+crosses	십자
+squares	사각형
+Colour 1	색 1
+Colour 2	색 2
+ILLUSION	착시
+Illusion	착시
+colour 1	색 1
+colour 2	색 2
+dot size	점 크기
+disc size	원판 크기
+cross size	십자 크기
+dot colour	점 색
+edge width	가장자리 너비
+mortar grey	줄눈 회색
+street grey	길 회색
+tile length	타일 길이
+cross colour	십자 색
+shape colour	모양 색
+street width	길 너비
+ground colour	바탕 색
+tile thickness	타일 두께
+How big each tile is	각 타일의 크기
+How big each cross is	각 십자의 크기
+How long each tile is	각 타일의 길이
+How tall the dancer is	댄서의 키
+0-100%: 0 holds it still	0-100%: 0이면 정지
+0 classic, 1 theme, 2 hues	0 클래식, 1 테마, 2 색조
+Leaf, petal, scale or ring	잎, 꽃잎, 비늘 또는 고리
+0 or 1: the other way round	0 또는 1: 반대 방향
+0 turn, 1 out, 2 in, 3 wave	0 돌리기, 1 아웃, 2 인, 3 물결
+How big the floating disc is	떠 있는 원판 크기
+How light the grey lines are	회색 선의 밝기
+select an illusion cue first	먼저 일루전 큐를 선택하세요
+Turn the crosses the other way	십자를 반대 방향으로 돌리기
+Illusion (Pictures that move!?)	일루전 (움직이는 그림!?)
+0 leaf, 1 petal, 2 scale, 3 ring	0 잎, 1 꽃잎, 2 비늘, 3 고리
+How many shapes across the screen	화면 가로 모양 개수
+How many crosses across the screen	화면 가로 십자 개수
+How many squares across the screen	화면 가로 정사각형 개수
+Where the disc sits, left to right	원판 위치, 왼쪽에서 오른쪽
+Where the disc sits, top to bottom	원판 위치, 위에서 아래로
+0-100%: 0 black, 100 the light tile	0-100%: 0 검정, 100 밝은 타일
+How much of its place each shape fills	각 모양이 자기 자리를 채우는 정도
+Where the dancer stands, left to right	댄서 위치, 왼쪽에서 오른쪽
+Where the dancer stands, top to bottom	댄서 위치, 위에서 아래로
+Collapse/expand the illusion's controls	일루전 컨트롤 접기/펼치기
+How far the free leg and the arms reach	들린 다리와 팔의 도달 범위
+Slide the grid slowly. 0 holds it still	격자를 천천히 슬라이드. 0이면 정지
+The first colour, round the colour wheel	첫째 색, 색상환 위치
+The second colour, round the colour wheel	둘째 색, 색상환 위치
+How thick each tile is, against its length	길이 대비 각 타일의 두께
+Where the centre point sits, left to right	중앙점 위치, 왼쪽에서 오른쪽
+Where the centre point sits, top to bottom	중앙점 위치, 위에서 아래로
+How thick the grey line between the rows is	줄 사이 회색 선 두께
+How big the light discs at the crossings are	교차점의 밝은 원판 크기
+Where the field's centre sits, left to right	필드 중앙 위치, 왼쪽에서 오른쪽
+Where the field's centre sits, top to bottom	필드 중앙 위치, 위에서 아래로
+How wide the grey lines between the squares are	정사각형 사이 회색 선 너비
+How fast the dancer turns. It always turns a little	댄서 회전 속도. 항상 조금은 돕니다
+0 drift, 1 ouchi, 2 cafe, 3 vanish, 4 grid, 5 dancer	0 드리프트, 1 오우치, 2 카페, 3 사라짐, 4 격자, 5 댄서
+How light the grey line is. Mid grey tilts the rows most	회색 선의 밝기. 중간 회색일 때 줄이 가장 많이 기웁니다
+How big the three dots are. Small dots vanish more easily	세 점의 크기. 작은 점일수록 더 쉽게 사라집니다
+Swap the black and white edges: the field drifts the other way	검정과 흰색 가장자리 바꾸기: 필드가 반대 방향으로 드리프트
+How much of the black and white edges shows. They make the drift	검정과 흰색 가장자리 표시 정도. 이것이 드리프트를 만듭니다
+LFO: size, count, edge, speed, centrex, centrey, grey, hue1 or hue2	LFO: size, count, edge, speed, centrex, centrey, grey, hue1 또는 hue2
+How far each row is shifted. This makes the straight rows look tilted	각 행이 밀리는 정도. 직선 행이 기울어져 보이게 합니다
+Spin the other way. Most people cannot tell which way it turns anyway	반대 방향으로 스핀. 대부분은 어느 방향으로 도는지 어차피 구분하지 못합니다
+Move the disc in a small loop. 0 holds it still: the eye moves it anyway	원판을 작은 루프로 이동. 0이면 정지: 그래도 눈에는 움직여 보입니다
+Turn the shapes slowly, so the drift changes direction. 0 holds them still	모양을 천천히 돌려 드리프트 방향을 바꿉니다. 0이면 정지
+Classic, the theme's colours (taken when picked) or two colours of your own	클래식, 테마 색상(선택 시점 기준) 또는 직접 고른 두 색상
+Which way the field seems to go: turn round the centre, out, in, or in waves	필드가 움직이는 듯 보이는 방향: 중앙을 돌기, 아웃, 인, 또는 물결
+Slide the rows back and forth, so the wall bends and straightens. 0 holds it still	행을 앞뒤로 슬라이드해 벽이 휘었다 펴지게 합니다. 0이면 정지
+How fast the crosses turn. They always turn a little: the dots vanish only while they move	십자가 도는 속도. 항상 조금씩 돕니다: 점은 움직이는 동안에만 사라집니다
+Drift (still shapes that seem to turn), ouchi (a disc that floats), cafe (straight rows that look tilted), vanish (dots that disappear while you stare), grid (dots that flicker and are not there) or dancer (it spins whichever way you see it)	drift(정지한 모양이 도는 것처럼 보임), ouchi(떠다니는 원판), cafe(기울어져 보이는 직선 행), vanish(바라보는 동안 사라지는 점), grid(깜빡이지만 실제로는 없는 점) 또는 dancer(보는 대로 어느 방향으로든 스핀)
+STATUS | SHAPE drift|ouchi|cafe|vanish|grid|dancer | FORM leaf|petal|scale|ring | FLOW turn|out|in|wave | FLIP ON|OFF | PALETTE classic|theme|hues | SIZE|COUNT|EDGE|SPEED|CENTREX|CENTREY|GREY <0-100> | HUE1|HUE2 <0-360> | LFO <control> <setting>	STATUS | SHAPE drift|ouchi|cafe|vanish|grid|dancer | FORM leaf|petal|scale|ring | FLOW turn|out|in|wave | FLIP ON|OFF | PALETTE classic|theme|hues | SIZE|COUNT|EDGE|SPEED|CENTREX|CENTREY|GREY <0-100> | HUE1|HUE2 <0-360> | LFO <컨트롤> <설정>
+SYNC LEAD ON or OFF	SYNC LEAD ON 또는 OFF
+{1} is following this desk	{1}이(가) 이 콘솔을 따르는 중
+SYNC LEAD ON|OFF or SYNC STATUS	SYNC LEAD ON|OFF 또는 SYNC STATUS
+FOLLOW needs a network connection that stays open	FOLLOW에는 계속 열려 있는 네트워크 연결이 필요합니다
+this desk is not leading (SYNC LEAD ON, or Settings > Network > SYNC)	이 콘솔이 리드하지 않음 (SYNC LEAD ON 또는 설정 > 네트워크 > SYNC)
+LEADING	리드 중
+No longer leading	더 이상 리드하지 않음
+Lead other machines	다른 기계 리드하기
+Following this desk: {1}	이 콘솔을 따르는 중: {1}
+Leading. Nobody is following yet.	리드 중. 아직 아무도 따르지 않음.
+Leading: other machines may follow this desk	리드 중: 다른 기계가 이 콘솔을 따를 수 있음
+Not leading: no other machine can follow this desk.	리드 안 함: 다른 기계가 이 콘솔을 따를 수 없음.
+body	몸체
+burns	그을림
+chaos	혼돈
+breath	숨소리
+jitter	지터
+sparks	불꽃
+How big a blob grows	덩어리가 커지는 정도
+Tube, mandala or none	튜브, 만다라 또는 없음
+Turn the whole picture	화면 전체 돌리기
+How far the field bends	필드 휘어짐 정도
+How fast the water moves	물 이동 속도
+The halo round the lines	선 주위의 후광
+How bright the picture is	영상 밝기
+How long the in move takes	인 이동에 걸리는 시간
+Scale of the whole graphic	그래픽 전체 배율
+How hard the lines are bent	선 휘어짐 강도
+How long the out move takes	아웃 이동에 걸리는 시간
+How far the colours fan apart	색 퍼짐 정도
+Thickness of the glowing edge	빛나는 가장자리 두께
+How bright the laser lines are	레이저 선 밝기
+Spiral size: above 1 is bigger	나선 크기: 1보다 크면 커짐
+How many mirror panels, 0 to 12	미러 패널 개수, 0부터 12까지
+Turn the colours round the wheel	색상환 따라 색 돌리기
+Laser speckle: the focus trembles	레이저 스페클: 초점이 떨림
+Rotate the field round its centre	필드를 중앙 기준으로 돌리기
+How bright the water's pale light is	물의 옅은 빛 밝기
+How long light lingers on the screen	빛이 화면에 남는 시간
+Colour steps: 2 is stark, 8 is smooth	색 단계: 2는 거칠게, 8은 부드럽게
+Classic green, fire, ice, neon or mono	클래식 초록, 불, 얼음, 네온 또는 모노
+How fast they are born, drift and fade	생성, 드리프트, 페이드 속도
+Turbulence: 0 is still ripples, 3 boils	난류: 0은 잔잔한 잔물결, 3은 끓어오름
+A second jet of water crossing the first	첫 번째를 가로지르는 두 번째 물 분사
+Broad ripples at 0, fine and busy at 100	0은 넓은 잔물결, 100은 잘고 촘촘함
+The flow surges with the programme sound	프로그램 소리에 따라 흐름이 강해짐
+Zone, twin, flow, saddle, ripple or shear	영역, 쌍, 흐름, 안장, 잔물결 또는 전단
+Horizontal cells. More detail uses more CPU	가로 셀 수. 세부가 많을수록 CPU를 더 씁니다
+How far each panel tilts from the one before	이전 패널에 대한 각 패널 기울기
+The share of each band drawn as grey stripes	각 대역 중 회색 줄무늬로 그리는 비율
+The top mirrors the bottom round a dark seam	위가 어두운 이음새를 축으로 아래를 비춥니다
+0 holds the field; negative runs it backwards	0은 필드 정지; 음수는 거꾸로 재생
+Where the eye of the swirl sits, left to right	소용돌이 중심 위치, 왼쪽에서 오른쪽
+Where the eye of the swirl sits, top to bottom	소용돌이 중심 위치, 위에서 아래로
+The round lens: a curved picture and a dark rim	둥근 렌즈: 휘어진 영상과 어두운 테두리
+How fast the bands move; 0 holds the field still	대역 이동 속도; 0이면 필드 정지
+Turn the palette through all colours; 0 restores it	팔레트를 모든 색에 걸쳐 돌립니다; 0은 원래대로
+Spiral strength, from a flowing field to tight turns	나선 강도: 흐르는 필드에서 촘촘한 회전까지
+How long it stays before leaving by itself. 0 waits for OUT	스스로 사라지기 전까지 머무는 시간. 0이면 아웃을 기다림
+The laser colours: rgb, rainbow, floyd, warm, cool or green	레이저 색: rgb, 무지개, floyd, 따뜻함, 차가움, 초록
+How many are alive at once. Each is born, drifts out, grows and fades	동시에 살아 있는 개수. 각각 생겨나 흘러가며 커지다 사라집니다
+How readily neighbours merge into one shape. 0 keeps every blob round	이웃끼리 한 모양으로 합쳐지는 정도. 0이면 모든 방울이 둥글게 유지
+Rainbow + grey, rainbow, the theme's colours (taken when picked) or mono	무지개 + 회색, 무지개, 테마 색(선택 시 가져옴) 또는 모노
+How many bands: 50% is the design, higher beats harder against the pixels	대역 개수: 50%가 설계값, 높을수록 픽셀과 더 강하게 간섭
+Turns the rim's colours round the wheel -- green, yellow, pink, violet, blue	테두리 색을 색상환을 따라 돌림 -- 초록, 노랑, 분홍, 보라, 파랑
+The gap under it, as a share of the frame	아래 간격의 프레임 대비 비율

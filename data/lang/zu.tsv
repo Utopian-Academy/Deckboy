@@ -4684,3 +4684,157 @@ listens to the live input while one is open, else the playlist	ilalela okokufaka
 TUTORIAL: no lesson running	TUTORIAL: asikho isifundo esisebenzayo
 TUTORIAL: expected START, SHOWME, SKIP, STEP <n>, RESTART, EXIT, STATUS or SCREENS	TUTORIAL: kulindelwe START, SHOWME, SKIP, STEP <n>, RESTART, EXIT, STATUS noma SCREENS
 cursor across	inkomba ngokuvundlile
+Edge	Umphetho
+Flip	Phenya
+Form	Ukwakheka
+flip	phenya
+form	ukwakheka
+pose	ukuma
+Count	Inani
+count	inani
+disc x	idiski x
+disc y	idiski y
+mortar	udaka
+offset	ukugudluka
+wander	ukuzula
+RESTART	QALA KABUSHA
+crosses	iziphambano
+squares	izikwele
+Colour 1	Umbala 1
+Colour 2	Umbala 2
+ILLUSION	INKOHLISO
+Illusion	Inkohliso
+colour 1	umbala 1
+colour 2	umbala 2
+dot size	usayizi wechashaza
+disc size	usayizi wediski
+cross size	usayizi wesiphambano
+dot colour	umbala wechashaza
+edge width	ububanzi bomphetho
+mortar grey	okumpunga kodaka
+street grey	okumpunga komgwaqo
+tile length	ubude bethayela
+cross colour	umbala wesiphambano
+shape colour	umbala wesimo
+street width	ububanzi bomgwaqo
+ground colour	umbala wangemuva
+tile thickness	ukujiya kwethayela
+How big each tile is	Ubukhulu bethayela ngalinye
+How big each cross is	Ubukhulu besiphambano ngasinye
+How long each tile is	Ubude bethayela ngalinye
+How tall the dancer is	Ubude bomdansi
+0-100%: 0 holds it still	0-100%: u-0 ukugcina kunganyakazi
+0 classic, 1 theme, 2 hues	0 okwakudala, 1 itimu, 2 imibala
+Leaf, petal, scale or ring	Iqabunga, ipetali, izengezi noma indandatho
+0 or 1: the other way round	0 noma 1: ngenye indlela
+0 turn, 1 out, 2 in, 3 wave	0 jika, 1 ngaphandle, 2 ngaphakathi, 3 igagasi
+How big the floating disc is	Ubukhulu bediski elintantayo
+How light the grey lines are	Ukukhanya kwemigqa empunga
+select an illusion cue first	khetha i-cue yokukhohlisa amehlo kuqala
+Turn the crosses the other way	Jika iziphambano ngenye indlela
+Illusion (Pictures that move!?)	Ukukhohlisa amehlo (Izithombe ezihambayo!?)
+0 leaf, 1 petal, 2 scale, 3 ring	0 iqabunga, 1 ipetali, 2 izengezi, 3 indandatho
+How many shapes across the screen	Zingaki izimo ezinqamula isikrini
+How many crosses across the screen	Zingaki iziphambano ezinqamula isikrini
+How many squares across the screen	Zingaki izikwele ezinqamula isikrini
+Where the disc sits, left to right	Lapho idiski likhona, kusuka kwesobunxele kuya kwesokudla
+Where the disc sits, top to bottom	Lapho idiski likhona, kusuka phezulu kuya phansi
+0-100%: 0 black, 100 the light tile	0-100%: 0 mnyama, 100 ithayela elikhanyayo
+How much of its place each shape fills	Izinga isimo ngasinye esigcwalisa ngalo indawo yaso
+Where the dancer stands, left to right	Lapho umdansi emi khona, kusuka kwesobunxele kuya kwesokudla
+Where the dancer stands, top to bottom	Lapho umdansi emi khona, kusuka phezulu kuya phansi
+Collapse/expand the illusion's controls	Goqa/vula izilawuli zokukhohlisa amehlo
+How far the free leg and the arms reach	Ibanga elifinyelelwa umlenze okhululekile nezingalo
+Slide the grid slowly. 0 holds it still	Shelela igridi kancane. U-0 ukugcina kunganyakazi
+The first colour, round the colour wheel	Umbala wokuqala, esondweni lemibala
+The second colour, round the colour wheel	Umbala wesibili, esondweni lemibala
+How thick each tile is, against its length	Ukushuba kwethayela ngalinye, uma kuqhathaniswa nobude balo
+Where the centre point sits, left to right	Lapho iphuzu elimaphakathi likhona, kusuka kwesobunxele kuya kwesokudla
+Where the centre point sits, top to bottom	Lapho iphuzu elimaphakathi likhona, kusuka phezulu kuya phansi
+How thick the grey line between the rows is	Ukushuba komugqa ompunga phakathi kwemigqa
+How big the light discs at the crossings are	Ubukhulu bamachashaza akhanyayo ezimpambanweni
+Where the field's centre sits, left to right	Lapho isikhungo senkambu sikhona, kusuka kwesobunxele kuya kwesokudla
+Where the field's centre sits, top to bottom	Lapho isikhungo senkambu sikhona, kusuka phezulu kuya phansi
+How wide the grey lines between the squares are	Ububanzi bemigqa empunga phakathi kwezikwele
+How fast the dancer turns. It always turns a little	Ijubane umdansi ajika ngalo. Ujika kancane njalo
+0 drift, 1 ouchi, 2 cafe, 3 vanish, 4 grid, 5 dancer	0 ukuntanta, 1 ouchi, 2 ikhefi, 3 nyamalala, 4 igridi, 5 umdansi
+How light the grey line is. Mid grey tilts the rows most	Ukukhanya komugqa ompunga. Okumpunga okuphakathi kutshekisa imigqa kakhulu
+How big the three dots are. Small dots vanish more easily	Ubukhulu bamachashaza amathathu. Amachashaza amancane anyamalala kalula
+Swap the black and white edges: the field drifts the other way	Shintshanisa imiphetho emnyama nemhlophe: inkambu intanta ngenye indlela
+How much of the black and white edges shows. They make the drift	Izinga imiphetho emnyama nemhlophe ebonakala ngalo. Yiyo edala ukuntanta
+LFO: size, count, edge, speed, centrex, centrey, grey, hue1 or hue2	LFO: size, count, edge, speed, centrex, centrey, grey, hue1 noma hue2
+SYNC LEAD ON or OFF	SYNC LEAD ON noma OFF
+{1} is following this desk	{1} ilandela leli deski
+SYNC LEAD ON|OFF or SYNC STATUS	SYNC LEAD ON|OFF noma SYNC STATUS
+FOLLOW needs a network connection that stays open	i-FOLLOW idinga uxhumano lwenethiwekhi oluhlala luvuliwe
+this desk is not leading (SYNC LEAD ON, or Settings > Network > SYNC)	leli deski aliholi (SYNC LEAD ON, noma Izilungiselelo > Inethiwekhi > SYNC)
+LEADING	IYAHOLA
+No longer leading	ayisaholi
+Lead other machines	Hola eminye imishini
+Following this desk: {1}	Ilandela leli deski: {1}
+Leading. Nobody is following yet.	Iyahola. Akekho olandelayo okwamanje.
+Leading: other machines may follow this desk	Iyahola: eminye imishini ingalandela leli deski
+Not leading: no other machine can follow this desk.	Ayiholi: awukho omunye umshini ongalandela leli deski.
+body	umzimba
+burns	ukusha
+chaos	isiphithiphithi
+breath	umoya
+jitter	ukuqhaqhazela
+sparks	izinhlansi
+How big a blob grows	Ubukhulu bokukhula kwechashaza
+Tube, mandala or none	Ishubhu, i-mandala noma lutho
+Turn the whole picture	Jika isithombe sonke
+How far the field bends	Ukugobeka kwenkundla
+How fast the water moves	Ijubane lokunyakaza kwamanzi
+The halo round the lines	Isiyingi sokukhanya esizungeze imigqa
+How bright the picture is	Ukukhanya kwesithombe
+How long the in move takes	Isikhathi sokunyakaza kokungena
+Scale of the whole graphic	Isikali somdwebo wonke
+How hard the lines are bent	Amandla okugoba imigqa
+How long the out move takes	Isikhathi sokunyakaza kokuphuma
+How far the colours fan apart	Ukuhlukana kwemibala
+Thickness of the glowing edge	Ukujiya komphetho okhanyayo
+How bright the laser lines are	Ukukhanya kwemigqa ye-laser
+Spiral size: above 1 is bigger	Ubukhulu bomjikelezo: ngaphezu kuka-1 kukhulu
+How many mirror panels, 0 to 12	Mangaki amaphaneli esibuko, 0 kuya ku-12
+Turn the colours round the wheel	Jika imibala izungeze isondo
+Laser speckle: the focus trembles	Amachashaza e-laser: ukugxila kuyathuthumela
+Rotate the field round its centre	Zungezisa inkundla ngasemaphakathi ayo
+How bright the water's pale light is	Ukukhanya kokukhanya okuphaphathekile kwamanzi
+How long light lingers on the screen	Isikhathi sokuhlala kokukhanya esikrinini
+Colour steps: 2 is stark, 8 is smooth	Izinyathelo zombala: 2 kuqinile, 8 kubushelele
+Classic green, fire, ice, neon or mono	Okuluhlaza okujwayelekile, umlilo, iqhwa, i-neon noma umbala owodwa
+How fast they are born, drift and fade	Ijubane lokuzalwa, ukuntanta nokufiphala kwazo
+Turbulence: 0 is still ripples, 3 boils	Isiphithiphithi: 0 amagagasi amancane azolile, 3 ayabila
+A second jet of water crossing the first	Umfudlana wesibili wamanzi unqamula owokuqala
+Broad ripples at 0, fine and busy at 100	Amagagasi abanzi ku-0, amancane naminyene ku-100
+The flow surges with the programme sound	Ukugeleza kukhuphuka ngomsindo wohlelo
+Zone, twin, flow, saddle, ripple or shear	Indawo, iwele, ukugeleza, isihlalo, igagasi noma ukushelela
+Horizontal cells. More detail uses more CPU	Amaseli ngokuvundlile. Imininingwane eminingi idla i-CPU eningi
+How far each panel tilts from the one before	Ukutsheka kwephaneli ngalinye uma kuqhathaniswa nelangaphambili
+The share of each band drawn as grey stripes	Ingxenye yebhande ngalinye edwetshwa njengemidwa empunga
+The top mirrors the bottom round a dark seam	Ingxenye ephezulu iyisibuko sengezansi, ezungeze umthungo omnyama
+0 holds the field; negative runs it backwards	U-0 umisa inkambu; inani elingaphansi kuka-0 liyihlehlisa
+Where the eye of the swirl sits, left to right	Lapho iso lokuzungeza likhona, kusuka kwesobunxele kuya kwesokudla
+Where the eye of the swirl sits, top to bottom	Lapho iso lokuzungeza likhona, kusuka phezulu kuya phansi
+The round lens: a curved picture and a dark rim	Ilensi eyindilinga: isithombe esigobile nonqenqema olumnyama
+How fast the bands move; 0 holds the field still	Ijubane lokunyakaza kwamabhande; u-0 umisa inkambu ingashukumi
+Turn the palette through all colours; 0 restores it	Jikisa iphalethi kuyo yonke imibala; u-0 uyayibuyisela
+Spiral strength, from a flowing field to tight turns	Amandla okuzungeza, kusuka enkambwini egelezayo kuya emajikweni aqinile
+How long it stays before leaving by itself. 0 waits for OUT	Isikhathi ehlala ngaso ngaphambi kokuhamba yodwa. U-0 ulinda i-OUT
+The laser colours: rgb, rainbow, floyd, warm, cool or green	Imibala yelaser: rgb, uthingo, floyd, efudumele, epholile noma luhlaza
+How far each row is shifted. This makes the straight rows look tilted	Ukuthi umugqa ngamunye ususwa kangakanani. Lokhu kwenza imigqa eqondile ibukeke itshekile
+How many are alive at once. Each is born, drifts out, grows and fades	Mangaki aphila ngesikhathi esisodwa. Ngamunye uyazalwa, untante uphume, akhule bese efiphala
+How readily neighbours merge into one shape. 0 keeps every blob round	Ukuthi izigaxa eziseduze zihlangana kalula kangakanani zibe isimo esisodwa. U-0 ugcina isigaxa ngasinye siyindilinga
+Spin the other way. Most people cannot tell which way it turns anyway	Jika ngakolunye uhlangothi. Abantu abaningi abakwazi ukusho ukuthi ijika ngakuphi noma kunjalo
+Move the disc in a small loop. 0 holds it still: the eye moves it anyway	Hambisa idiski ngomjikelezo omncane. U-0 uyayimisa: iso liyayihambisa noma kunjalo
+Rainbow + grey, rainbow, the theme's colours (taken when picked) or mono	Uthingo + okumpunga, uthingo, imibala yetimu (ithathwa lapho ikhethwa) noma umbala owodwa
+How many bands: 50% is the design, higher beats harder against the pixels	Mangaki amabhande: u-50% uwumklamo, okuphezulu kushayisana kakhulu namaphikiseli
+Turn the shapes slowly, so the drift changes direction. 0 holds them still	Jikisa izimo kancane, ukuze ukuntanta kushintshe inkomba. U-0 uyazimisa
+Classic, the theme's colours (taken when picked) or two colours of your own	Okwakudala, imibala yetimu (ithathwa lapho ikhethwa) noma imibala emibili yakho
+Turns the rim's colours round the wheel -- green, yellow, pink, violet, blue	Ijikisa imibala yonqenqema ezungeze isondo lemibala -- luhlaza, phuzi, pinki, nsomi, okwesibhakabhaka
+Which way the field seems to go: turn round the centre, out, in, or in waves	Ukuthi inkambu ibonakala iya kuphi: ijika izungeze maphakathi, ngaphandle, ngaphakathi, noma ngamagagasi
+Slide the rows back and forth, so the wall bends and straightens. 0 holds it still	Shelelisa imigqa iye emuva naphambili, ukuze udonga lugobe luphinde luqonde. U-0 uyayimisa
+How fast the crosses turn. They always turn a little: the dots vanish only while they move	Ijubane lokujika kweziphambano. Zihlala zijika kancane: amachashazi anyamalala kuphela uma zinyakaza
+Drift (still shapes that seem to turn), ouchi (a disc that floats), cafe (straight rows that look tilted), vanish (dots that disappear while you stare), grid (dots that flicker and are not there) or dancer (it spins whichever way you see it)	Ukuntanta (izimo ezimile ezibonakala zijika), ouchi (idiski entantayo), cafe (imigqa eqondile ebukeka itshekile), ukunyamalala (amachashazi anyamalalayo uma uwagqolozele), igridi (amachashazi acwayizayo angekho) noma umdansi (iyajika noma ngabe uyibona ijika ngakuphi)
+The gap under it, as a share of the frame	Igebe elingaphansi, njengengxenye yohlaka

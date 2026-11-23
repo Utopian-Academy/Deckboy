@@ -2094,6 +2094,7 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
+      actions: write   # to start discord.yml (see "Post to Discord")
     steps:
       - uses: actions/checkout@v4
 
@@ -2346,3 +2347,12 @@ jobs:
               echo "marked $previous as superseded"
             fi
           fi
+
+      # A release published with GITHUB_TOKEN raises no event that starts
+      # another workflow, so discord.yml's `release: published` never fired
+      # (0.99.429 was posted by hand). A workflow_dispatch from here does.
+      - name: Post to Discord
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          VERSION: ${{ needs.version-check.outputs.version }}
+        run: gh workflow run discord.yml --repo "${{ github.repository }}" --ref main -f tag="v$VERSION"

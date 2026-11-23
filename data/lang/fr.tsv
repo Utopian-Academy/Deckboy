@@ -4636,3 +4636,154 @@ listens to the live input while one is open, else the playlist	écoute l'entrée
 TUTORIAL: no lesson running	TUTORIAL : aucune leçon en cours
 TUTORIAL: expected START, SHOWME, SKIP, STEP <n>, RESTART, EXIT, STATUS or SCREENS	TUTORIAL : attendu START, SHOWME, SKIP, STEP <n>, RESTART, EXIT, STATUS ou SCREENS
 cursor across	curseur en largeur
+Edge	Bord
+Flip	Retourner
+Form	Forme
+flip	retourner
+form	forme
+Count	Nombre
+count	nombre
+disc x	disque x
+disc y	disque y
+mortar	mortier
+offset	décalage
+wander	errance
+RESTART	REDÉMARRER
+crosses	croix
+squares	carrés
+Colour 1	Couleur 1
+Colour 2	Couleur 2
+colour 1	couleur 1
+colour 2	couleur 2
+dot size	taille du point
+disc size	taille du disque
+cross size	taille de la croix
+dot colour	couleur du point
+edge width	largeur du bord
+mortar grey	gris du mortier
+street grey	gris des rues
+tile length	longueur des tuiles
+cross colour	couleur de la croix
+shape colour	couleur de forme
+street width	largeur des rues
+ground colour	couleur du fond
+tile thickness	épaisseur des tuiles
+How big each tile is	Taille de chaque tuile
+How big each cross is	Taille de chaque croix
+How long each tile is	Longueur de chaque tuile
+How tall the dancer is	Taille du danseur
+0-100%: 0 holds it still	0-100% : 0 l'immobilise
+0 classic, 1 theme, 2 hues	0 classique, 1 thème, 2 teintes
+Leaf, petal, scale or ring	Feuille, pétale, écaille ou anneau
+0 or 1: the other way round	0 ou 1 : dans l'autre sens
+0 turn, 1 out, 2 in, 3 wave	0 rotation, 1 dehors, 2 dedans, 3 vague
+How big the floating disc is	Taille du disque flottant
+How light the grey lines are	Clarté des lignes grises
+select an illusion cue first	choisissez d'abord un cue d'illusion
+Turn the crosses the other way	Tourner les croix dans l'autre direction
+Illusion (Pictures that move!?)	Illusion (Des images qui bougent !?)
+0 leaf, 1 petal, 2 scale, 3 ring	0 feuille, 1 pétale, 2 écaille, 3 anneau
+How many shapes across the screen	Nombre de formes sur la largeur de l'écran
+How many crosses across the screen	Nombre de croix sur la largeur de l'écran
+How many squares across the screen	Nombre de carrés sur la largeur de l'écran
+Where the disc sits, left to right	Position du disque, de gauche à droite
+Where the disc sits, top to bottom	Position du disque, de haut en bas
+0-100%: 0 black, 100 the light tile	0-100% : 0 noir, 100 la tuile claire
+How much of its place each shape fills	Part de son emplacement remplie par chaque forme
+Where the dancer stands, left to right	Position du danseur, de gauche à droite
+Where the dancer stands, top to bottom	Position du danseur, de haut en bas
+Collapse/expand the illusion's controls	Réduire/développer les réglages de l'illusion
+How far the free leg and the arms reach	Portée de la jambe libre et des bras
+Slide the grid slowly. 0 holds it still	Faire glisser la grille lentement. 0 l'immobilise
+The first colour, round the colour wheel	La première couleur, sur le cercle chromatique
+The second colour, round the colour wheel	La deuxième couleur, sur le cercle chromatique
+How thick each tile is, against its length	Épaisseur de chaque tuile par rapport à sa longueur
+Where the centre point sits, left to right	Position du point central, de gauche à droite
+Where the centre point sits, top to bottom	Position du point central, de haut en bas
+How thick the grey line between the rows is	Épaisseur de la ligne grise entre les rangées
+How big the light discs at the crossings are	Taille des disques clairs aux croisements
+Where the field's centre sits, left to right	Position du centre du champ, de gauche à droite
+Where the field's centre sits, top to bottom	Position du centre du champ, de haut en bas
+How wide the grey lines between the squares are	Largeur des lignes grises entre les carrés
+How fast the dancer turns. It always turns a little	Vitesse de rotation du danseur. Il tourne toujours un peu
+0 drift, 1 ouchi, 2 cafe, 3 vanish, 4 grid, 5 dancer	0 dérive, 1 ouchi, 2 café, 3 disparition, 4 grille, 5 danseur
+How light the grey line is. Mid grey tilts the rows most	Clarté de la ligne grise. Le gris moyen incline le plus les rangées
+How big the three dots are. Small dots vanish more easily	Taille des trois points. Les petits points disparaissent plus facilement
+Swap the black and white edges: the field drifts the other way	Inverser les contours noirs et blancs : le champ dérive dans l'autre direction
+How much of the black and white edges shows. They make the drift	Part visible des contours noirs et blancs. Ils créent la dérive
+LFO: size, count, edge, speed, centrex, centrey, grey, hue1 or hue2	LFO : taille, nombre, bord, vitesse, centre x, centre y, gris, teinte1 ou teinte2
+How far each row is shifted. This makes the straight rows look tilted	Décalage de chaque ligne. Les lignes droites semblent alors inclinées
+Spin the other way. Most people cannot tell which way it turns anyway	Tourner dans l'autre sens. De toute façon, presque personne ne voit dans quel sens ça tourne
+Move the disc in a small loop. 0 holds it still: the eye moves it anyway	Déplace le disque sur une petite boucle. 0 le fige : l'œil le déplace quand même
+Turn the shapes slowly, so the drift changes direction. 0 holds them still	Fait tourner lentement les formes pour inverser le sens de la dérive. 0 les fige
+Classic, the theme's colours (taken when picked) or two colours of your own	Classique, les couleurs du thème (prises au moment du choix) ou deux couleurs à vous
+Which way the field seems to go: turn round the centre, out, in, or in waves	Sens apparent du champ : rotation autour du centre, sortie, entrée ou vagues
+Slide the rows back and forth, so the wall bends and straightens. 0 holds it still	Fait glisser les lignes d'avant en arrière : le mur se courbe et se redresse. 0 le fige
+How fast the crosses turn. They always turn a little: the dots vanish only while they move	Vitesse de rotation des croix. Elles tournent toujours un peu : les points ne disparaissent que pendant le mouvement
+Drift (still shapes that seem to turn), ouchi (a disc that floats), cafe (straight rows that look tilted), vanish (dots that disappear while you stare), grid (dots that flicker and are not there) or dancer (it spins whichever way you see it)	Dérive (formes fixes qui semblent tourner), ouchi (un disque qui flotte), café (lignes droites qui semblent inclinées), disparition (points qui s'effacent quand on les fixe), grille (points qui scintillent et n'existent pas) ou danseuse (elle tourne dans le sens où vous la voyez)
+STATUS | SHAPE drift|ouchi|cafe|vanish|grid|dancer | FORM leaf|petal|scale|ring | FLOW turn|out|in|wave | FLIP ON|OFF | PALETTE classic|theme|hues | SIZE|COUNT|EDGE|SPEED|CENTREX|CENTREY|GREY <0-100> | HUE1|HUE2 <0-360> | LFO <control> <setting>	STATUS | SHAPE drift|ouchi|cafe|vanish|grid|dancer | FORM leaf|petal|scale|ring | FLOW turn|out|in|wave | FLIP ON|OFF | PALETTE classic|theme|hues | SIZE|COUNT|EDGE|SPEED|CENTREX|CENTREY|GREY <0-100> | HUE1|HUE2 <0-360> | LFO <contrôle> <réglage>
+SYNC LEAD ON or OFF	SYNC LEAD ON ou OFF
+{1} is following this desk	{1} suit ce pupitre
+SYNC LEAD ON|OFF or SYNC STATUS	SYNC LEAD ON|OFF ou SYNC STATUS
+FOLLOW needs a network connection that stays open	FOLLOW nécessite une connexion réseau qui reste ouverte
+this desk is not leading (SYNC LEAD ON, or Settings > Network > SYNC)	ce pupitre n'est pas maître (SYNC LEAD ON, ou Réglages > Réseau > SYNC)
+LEADING	MENEUR
+No longer leading	N'est plus meneur
+Lead other machines	Mener d'autres machines
+Following this desk: {1}	Suivent ce pupitre : {1}
+Leading. Nobody is following yet.	Meneur. Personne ne suit encore.
+Leading: other machines may follow this desk	Meneur : d'autres machines peuvent suivre ce pupitre
+Not leading: no other machine can follow this desk.	Pas meneur : aucune autre machine ne peut suivre ce pupitre.
+body	corps
+burns	brûlures
+breath	souffle
+jitter	gigue
+sparks	étincelles
+How big a blob grows	Taille que prend une tache
+Tube, mandala or none	Tube, mandala ou aucun
+Turn the whole picture	Rotation de toute l'image
+How far the field bends	Courbure du champ
+How fast the water moves	Vitesse de l'eau
+The halo round the lines	Le halo autour des lignes
+How bright the picture is	Luminosité de l'image
+How long the in move takes	Durée du mouvement d'entrée
+Scale of the whole graphic	Échelle de tout le graphisme
+How hard the lines are bent	Courbure des lignes
+How long the out move takes	Durée du mouvement de sortie
+How far the colours fan apart	Écartement des couleurs en éventail
+Thickness of the glowing edge	Épaisseur du bord lumineux
+How bright the laser lines are	Luminosité des lignes laser
+Spiral size: above 1 is bigger	Taille de la spirale : au-dessus de 1, plus grande
+How many mirror panels, 0 to 12	Combien de panneaux miroir, de 0 à 12
+Turn the colours round the wheel	Rotation des couleurs sur le cercle chromatique
+Laser speckle: the focus trembles	Granularité laser : la mise au point tremble
+Rotate the field round its centre	Rotation du champ autour de son centre
+How bright the water's pale light is	Luminosité de la lumière pâle de l'eau
+How long light lingers on the screen	Persistance de la lumière à l'écran
+Colour steps: 2 is stark, 8 is smooth	Pas de couleur : 2 est brut, 8 est doux
+Classic green, fire, ice, neon or mono	Vert classique, feu, glace, néon ou mono
+How fast they are born, drift and fade	Vitesse de naissance, de dérive et de disparition
+Turbulence: 0 is still ripples, 3 boils	Turbulence : 0 ondulations calmes, 3 bouillonne
+A second jet of water crossing the first	Un second jet d'eau croise le premier
+Broad ripples at 0, fine and busy at 100	Ondulations larges à 0, fines et denses à 100
+The flow surges with the programme sound	Le flux pulse avec le son du programme
+Zone, twin, flow, saddle, ripple or shear	Zone, double, flux, selle, ondes ou cisaillement
+Horizontal cells. More detail uses more CPU	Cellules horizontales. Plus de détail sollicite davantage le CPU
+How far each panel tilts from the one before	Inclinaison de chaque panneau par rapport au précédent
+The share of each band drawn as grey stripes	Part de chaque bande dessinée en rayures grises
+The top mirrors the bottom round a dark seam	Le haut reflète le bas autour d'une jonction sombre
+0 holds the field; negative runs it backwards	0 fige le champ ; négatif le fait défiler à l'envers
+Where the eye of the swirl sits, left to right	Position de l'œil du tourbillon, de gauche à droite
+Where the eye of the swirl sits, top to bottom	Position de l'œil du tourbillon, de haut en bas
+The round lens: a curved picture and a dark rim	La lentille ronde : une image courbée et un bord sombre
+How fast the bands move; 0 holds the field still	Vitesse des bandes ; 0 fige le champ
+Turn the palette through all colours; 0 restores it	Fait tourner la palette sur toutes les couleurs ; 0 la rétablit
+Spiral strength, from a flowing field to tight turns	Intensité de la spirale, d'un champ fluide à des tours serrés
+How long it stays before leaving by itself. 0 waits for OUT	Durée de présence avant de partir automatiquement. 0 attend SORTIE
+The laser colours: rgb, rainbow, floyd, warm, cool or green	Couleurs du laser : rgb, arc-en-ciel, floyd, chaud, froid ou vert
+How many are alive at once. Each is born, drifts out, grows and fades	Nombre de formes vivantes à la fois. Chacune naît, dérive, grandit et s'estompe
+How readily neighbours merge into one shape. 0 keeps every blob round	Facilité avec laquelle les voisines fusionnent en une seule forme. 0 garde chaque tache ronde
+Rainbow + grey, rainbow, the theme's colours (taken when picked) or mono	Arc-en-ciel + gris, arc-en-ciel, les couleurs du thème (prises lors du choix) ou mono
+How many bands: 50% is the design, higher beats harder against the pixels	Nombre de bandes : 50% est la valeur prévue, plus haut bat plus fort contre les pixels
+Turns the rim's colours round the wheel -- green, yellow, pink, violet, blue	Fait tourner les couleurs du bord sur la roue -- vert, jaune, rose, violet, bleu
+The gap under it, as a share of the frame	L'espacement en dessous, en part de l'image
