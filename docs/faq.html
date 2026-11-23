@@ -135,7 +135,7 @@
           "name": "Can I play PDF or PowerPoint slides from a cue list?",
           "acceptedAnswer": {
             "@type": "Answer",
-            "text": "Yes. A PDF, PowerPoint or Keynote deck imports as one cue per slide, sitting in the playlist alongside the video and audio cues. Each page is rendered once at import by the platform's own engine, so nothing during the show depends on a document program being open. Speaker notes import with the deck, and presenter view and a mirrored prompter are output types of their own, each able to take its own display."
+            "text": "Yes. A PDF, PowerPoint or Keynote deck imports as one cue per slide, sitting in the playlist alongside the video and audio cues. A PowerPoint file needs PowerPoint, Keynote or the free LibreOffice on the machine to convert it; a PDF needs nothing extra. Each page is rendered once at import, so nothing during the show depends on a document program being open. Speaker notes import with the deck, and presenter view and a mirrored prompter are output types of their own, each able to take its own display."
           }
         },
         {
@@ -152,6 +152,22 @@
           "acceptedAnswer": {
             "@type": "Answer",
             "text": "Yes. Deckboy answers MIDI Show Control. A lighting desk such as an ETC Eos or a grandMA sends GO with a cue number and Deckboy takes the cue with that number. STOP, RESUME, LOAD, ALL_OFF and RESET are honoured, and so is MIDI Machine Control. MIDI is in the Windows, macOS and Linux downloads."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Why not VLC or OBS?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "VLC plays files and OBS mixes scenes. Deckboy runs a cue list: you see the next cue on the desk, then you take it, with a fade or a transition, from the keyboard, a presentation clicker, a Stream Deck or the lighting desk. Video, slides, cameras, web pages, NDI, SRT and test signals are all cues in the same list, and the outputs include screens, NDI, Blackmagic SDI, SMPTE ST 2110 and streams, several at once."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "What if the machine fails during a show?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Run a second machine. Deckboy is free, so the backup machine needs no second licence, and the same show file opens on Windows, macOS and Linux. Both machines can follow the same timecode (LTC or MTC), or take the same Companion, OSC or MIDI triggers."
           }
         },
         {
@@ -344,11 +360,15 @@
         the Windows, macOS and Linux downloads.</p>
         <p class="more"><a href="manual.html#remote-control">Manual: Remote Control</a></p>
 
-        <h2>Can I play PDF or PowerPoint slides from a cue list?</h2>
-        <p>Yes, and this is the thing Deckboy does that the other cue players do not do at all. A
+        <h2 id="powerpoint">Can I play PDF or PowerPoint slides from a cue list?</h2>
+        <p>Yes. A
         PDF, PowerPoint or Keynote deck imports as <b>one cue per slide</b>, sitting in the playlist
         next to the video and the audio, fired by the same keys, the same Stream Deck, the same
         timecode.</p>
+        <p><b>A PowerPoint file needs a slide program on the machine</b> to convert it.
+        Deckboy asks PowerPoint or LibreOffice on Windows, Keynote or LibreOffice on a Mac, and
+        LibreOffice on Linux. <a href="https://www.libreoffice.org/">LibreOffice</a> is free. A PDF
+        needs nothing extra.</p>
         <p>Every page is rendered once on the way in, by the platform&rsquo;s own engine &mdash;
         Edge&rsquo;s on Windows, Preview&rsquo;s on macOS, <code>pdftoppm</code> on Linux &mdash; so
         during the show a slide is just a picture. Nothing depends on a document program still being
@@ -368,6 +388,25 @@
         duration, so you can see what you were actually sent. If a clip was mastered too quietly it
         can be normalised to a chosen &minus;16, &minus;23 (EBU R128) or
         &minus;24&nbsp;LUFS target before playout.</p>
+
+        <h2 id="why-not-vlc-or-obs">Why not VLC or OBS?</h2>
+        <p>VLC plays files and OBS mixes scenes. Deckboy runs a <b>cue list</b>: you see the next
+        cue on the desk, then you take it, with a fade or a transition, from the keyboard, a
+        presentation clicker, a Stream Deck or the lighting desk. A cue can wait, start the next one
+        by itself, or loop until you take the next.</p>
+        <p>Video, slides, cameras, web pages, NDI, SRT and test signals are all cues in the same
+        list, with the same fades, transitions and effects. The outputs include screens, NDI,
+        Blackmagic SDI, SMPTE ST 2110 and streams, several at once, each with its own warp, edge
+        blend and area, while Deckboy records the programme.</p>
+
+        <h2 id="backup">What if the machine fails during a show?</h2>
+        <p>Run a second machine. Deckboy is free, so the backup machine needs no second licence,
+        and the same show file opens on Windows, macOS and Linux. Both machines can follow the same
+        timecode (LTC or MTC), or take the same Companion, OSC or MIDI triggers.</p>
+        <p>On one machine, Deckboy also protects the show: a stalled decode goes dark and tells you
+        instead of freezing the desk, a lost full-screen output comes back by itself, and
+        <code>--soak</code> runs your show for hours on the show machine before the day.
+        <a href="manual.html">The manual</a> has the details.</p>
 
         <h2>Is there a Mitti, PlaybackPro or QLab alternative for Windows?</h2>
         <p>That is most of the reason Deckboy exists. Mitti, PlaybackPro Plus, QLab and Millumin

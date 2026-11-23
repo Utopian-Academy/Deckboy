@@ -35,9 +35,13 @@ Free and open source, for Windows, macOS and Linux.
 **If Deckboy is useful to you, ⭐ star this repository** (top right): it is how the next
 operator finds it, and how you find it again.
 
-### What's new in 0.99.428
+### What's new in 0.99.429
 
-[Release notes and downloads](https://github.com/Utopian-Academy/Deckboy/releases/tag/v0.99.428)
+[Release notes and downloads](https://github.com/Utopian-Academy/Deckboy/releases/tag/v0.99.429)
+
+0.99.429 makes Lumia's laser lines move smoothly, opens shows whose file paths have accented
+letters again on Windows, fixes the lessons' songs and voices, and brings back the Flatpak.
+It carries everything new in [0.99.428](https://github.com/Utopian-Academy/Deckboy/releases/tag/v0.99.428):
 
 <a href="docs/images/perf/four-layers.gif"><img src="docs/images/perf/four-layers.gif" width="60%" alt="Four picture-in-picture layers in four codecs, each with its own effect, recorded at 1080p while the app held 60 frames a second"></a>
 
@@ -144,7 +148,35 @@ Windows, macOS and Linux from one show file. No account, no licence server, no
 telemetry, and no second licence for the spare machine in the flight case —
 which is not true of most of what it gets compared to.
 
-**[deckboy website](https://utopian-academy.github.io/Deckboy/)** — what it does, and where to download it. · **[How it compares](https://utopian-academy.github.io/Deckboy/compare.html)** to Mitti, PlaybackPro, QLab, Millumin, vMix, SimplePlay, PlayDeck, ProVideoPlayer, Resolume and Inkue. · **[Manual](https://utopian-academy.github.io/Deckboy/manual.html)** — all of it, thirty chapters. · **[FAQ](https://utopian-academy.github.io/Deckboy/faq.html)** · **[Where latency hides](https://utopian-academy.github.io/Deckboy/latency.html)** — the four stages of a live chain, in frames and milliseconds
+### Questions operators ask
+
+**Why not VLC or OBS?** VLC plays files and OBS mixes scenes. Deckboy runs a cue
+list: you see the next cue on the desk, then you take it, with a fade or a
+transition, from the keyboard, a presentation clicker, a Stream Deck or the
+lighting desk. Video, slides, cameras, streams and test signals are all cues in
+the same list. The outputs include NDI, Blackmagic SDI and SMPTE ST 2110, with
+warp and edge blend on each one.
+[More in the FAQ](https://utopian-academy.github.io/Deckboy/faq.html#why-not-vlc-or-obs).
+
+**One machine is a single point of failure.** Yes. For a show that must not
+stop, run two. Deckboy is free, so the backup machine needs no second licence.
+The same show file opens on Windows, macOS and Linux. Both machines can follow
+the same timecode, or take the same Companion, OSC or MIDI triggers.
+[More in the FAQ](https://utopian-academy.github.io/Deckboy/faq.html#backup).
+
+**Can it play PowerPoint?** Yes. A `.pptx`, `.ppt`, `.key` or `.odp` file becomes
+one cue for each slide, with the speaker notes. Deckboy uses the slide program
+on the machine to convert it: PowerPoint or LibreOffice on Windows, Keynote or
+LibreOffice on a Mac, LibreOffice on Linux. LibreOffice is free. A PDF needs
+nothing extra.
+[More in the FAQ](https://utopian-academy.github.io/Deckboy/faq.html#powerpoint).
+
+**Can it look different?** There are 72 themes, from plain dark greys to bright
+colours. You can scale the whole interface, resize the panels and fold the
+inspector's sections away. Deckboy Mini plays a list from the terminal, with no
+desk at all.
+
+**[deckboy website](https://utopian-academy.github.io/Deckboy/)** — what it does, and where to download it. · **[How it compares](https://utopian-academy.github.io/Deckboy/compare.html)** to Mitti, PlaybackPro, QLab, Millumin, vMix, SimplePlay, PlayDeck, ProVideoPlayer, Resolume and Inkue. · **[Manual](https://utopian-academy.github.io/Deckboy/manual.html)** — all of it, 33 chapters. · **[FAQ](https://utopian-academy.github.io/Deckboy/faq.html)** · **[Where latency hides](https://utopian-academy.github.io/Deckboy/latency.html)** — the four stages of a live chain, in frames and milliseconds
 
 ---
 
@@ -447,11 +479,6 @@ importantly, what each feature deliberately does not do.
 
 **Picture:**
 
-- Every output at its own screen's refresh rate on Windows. Today an output
-  on a screen at a different rate from the main one (59.94 Hz beside 60) is
-  shown at the main screen's rate and drops or repeats a frame every so
-  often; for now, run the screens at the same rate (the manual's "Screens
-  at different refresh rates")
 - Lip sync held within a few milliseconds across a whole day of playback, on
   every platform
 - HDR the rest of the way: HDR over SDI shown on a real DeckLink card (it is
@@ -495,8 +522,9 @@ importantly, what each feature deliberately does not do.
 
 Deckboy is free software under the **GNU General Public License v3.0 or later**.
 
-Shader support builds on two libraries fetched at build time, both compatible with the GPL-3.0: [glslang](https://github.com/KhronosGroup/glslang) (Khronos Group; BSD-3-Clause with Apache-2.0 and other permissive parts, see its LICENSE.txt) and [SPIRV-Cross](https://github.com/KhronosGroup/SPIRV-Cross) (Khronos Group; Apache-2.0). Their notices ship in their own source trees; Deckboy's builds link them statically.
 Copyright © 2026 Deckboy Contributors. The full text is in [LICENSE](LICENSE).
+
+Shader support builds on two libraries fetched at build time, both compatible with the GPL-3.0: [glslang](https://github.com/KhronosGroup/glslang) (Khronos Group; BSD-3-Clause with Apache-2.0 and other permissive parts, see its LICENSE.txt) and [SPIRV-Cross](https://github.com/KhronosGroup/SPIRV-Cross) (Khronos Group; Apache-2.0). Their notices ship in their own source trees; Deckboy's builds link them statically.
 
 Bundled components keep their own licences — ffmpeg ships with its LGPL/GPL
 notice beside the binary, and the NDI and DeckLink SDKs are loaded at runtime
