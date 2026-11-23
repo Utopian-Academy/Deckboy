@@ -24,3 +24,4 @@ style_gradient	0.10
 style_rim	0.4
 style_lip	4
 style_shadow	6 10 0.5
+style_font	SpaceGrotesk-Variable.ttf 1.45

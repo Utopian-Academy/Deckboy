@@ -24,3 +24,4 @@ style_gradient	0.10
 style_rim	0.45
 style_lip	5
 style_background_texture	halftone 0.18
+style_font	Bangers-Regular.ttf 1.85

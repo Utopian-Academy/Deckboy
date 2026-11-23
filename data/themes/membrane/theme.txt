@@ -23,3 +23,4 @@ style_outline	1
 style_gradient	0.05
 style_shadow	2 4 0.4
 style_background_texture	grain 0.06
+style_font	ShareTechMono-Regular.ttf 1.45

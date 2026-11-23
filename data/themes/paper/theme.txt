@@ -22,3 +22,4 @@ style_control	rect 0
 style_outline	2
 style_shadow	3 0 1.0
 style_background_texture	grain 0.05
+style_font	Inter-Variable.ttf 1.4

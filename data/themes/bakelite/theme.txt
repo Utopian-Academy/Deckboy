@@ -26,3 +26,4 @@ style_rim	0.6
 style_lip	3
 style_shadow	6 14 0.45
 style_background_texture	grain 0.08
+style_font	Fraunces-Variable.ttf 1.45

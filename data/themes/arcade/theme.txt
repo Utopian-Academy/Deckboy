@@ -26,3 +26,4 @@ style_rim	0.45
 style_lip	4
 style_shadow	0 18 0.35
 style_background_texture	dots 0.12
+style_font	Bungee-Regular.ttf 1.2

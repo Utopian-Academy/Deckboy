@@ -28,3 +28,4 @@ style_shadow	2 4 0.30
 style_panel_texture	brushed 0.16
 style_control_texture	brushed 0.14
 style_background_texture	brushed 0.22
+style_font	BarlowCondensed-SemiBold.ttf 1.65

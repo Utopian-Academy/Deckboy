@@ -23,3 +23,4 @@ style_outline	3
 style_rim	0.0
 style_shadow	5 0 1.0
 style_background_texture	grain 0.10
+style_font	LuckiestGuy-Regular.ttf 1.3

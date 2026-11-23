@@ -26,3 +26,4 @@ style_lip	3
 style_shadow	2 4 0.4
 style_background_texture	crackle 0.35
 style_panel_texture	mesh 0.05
+style_font	BarlowCondensed-SemiBold.ttf 1.65

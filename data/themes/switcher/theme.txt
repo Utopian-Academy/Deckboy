@@ -26,3 +26,4 @@ style_lip	3
 style_shadow	2 4 0.5
 style_panel_texture	brushed 0.08
 style_background_texture	brushed 0.10
+style_font	IBMPlexSansCondensed-SemiBold.ttf 1.6

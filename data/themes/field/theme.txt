@@ -26,3 +26,4 @@ style_lip	3
 style_shadow	4 0 0.6
 style_panel_texture	grain 0.10
 style_background_texture	dots 0.16
+style_font	BlackOpsOne-Regular.ttf 1.3

@@ -23,3 +23,4 @@ style_outline	3
 style_lip	5
 style_rim	0.25
 style_background_texture	dots 0.06
+style_font	Fredoka-Variable.ttf 1.5

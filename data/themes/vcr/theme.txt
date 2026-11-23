@@ -27,3 +27,4 @@ style_lip	4
 style_shadow	3 6 0.3
 style_background_texture	brushed 0.18
 style_control_texture	brushed 0.12
+style_font	ShareTechMono-Regular.ttf 1.45

@@ -21,3 +21,4 @@ style_panel	round 6
 style_control	round 4
 style_outline	1
 style_shadow	0 12 0.25
+style_font	VT323-Regular.ttf 2.0
