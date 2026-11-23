@@ -284,6 +284,7 @@ void MediaEngine::stopAll() {
 void MediaEngine::loadCue(const Cue* cue, bool autoplay, double transitionSeconds,
                            TransitionStyle transitionStyle, bool suppressFadeIn) {
   devampRequested_ = false;   // a devamp belonged to the cue it was aimed at
+  externalAudioTime_ = 0.0;   // outside sound's fades count from this take
   drawClock_ = 0.0;           // a drawing replays from its start at every TAKE
   drawClockWall_ = -1.0;
   loopPassesPlayed_ = 0;      // and so do the repeats it has played
@@ -6872,6 +6873,11 @@ void MediaEngine::showBuiltFrame(DecodedFrame& frame) {
   skipPixelHook_ = true;
   uploadFrame(*displayFrame_);
   skipPixelHook_ = false;
+}
+
+void MediaEngine::queueExternalAudio(std::vector<std::int16_t>& stereo) {
+  if (stereo.size() < 2 || !audioStream_) return;
+  applyGainAndQueueAudio(stereo, externalAudioTime_);
 }
 
 void MediaEngine::refreshPixelHook() {

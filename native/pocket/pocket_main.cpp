@@ -1112,6 +1112,7 @@ class Pocket {
     }
     serviceShake();
     serviceCamera();
+    serviceMic();
     engine_->update();
     // Animated generators (Swirl, Fireside, Lumia...) are redrawn every tick
     // from the wall clock, as the desk's update loop does; without this they
@@ -2866,6 +2867,19 @@ class Pocket {
                [this, i] { Cue& m = cues_[static_cast<std::size_t>(i)]; m.flipHorizontal = !m.flipHorizontal; settingChanged(i); }, true,
                cc.flipHorizontal);
       }});
+      items.push_back({0.8f, [this, i](const SDL_FRect& row) {
+        const float u = unit_;
+        Cue& cc = cues_[static_cast<std::size_t>(i)];
+        const CamSettings k = camSettings(cc);
+        text_.draw(pixelSmall_, "SOUND", kDark, {row.x, row.y, row.w * 0.30f, row.h});
+        button({row.x + row.w * 0.32f, row.y + 0.4f * u, row.w * 0.68f, row.h - 0.8f * u}, k.mic ? "FROM THE MIC" : "OFF",
+               [this, i] {
+                 Cue& m = cues_[static_cast<std::size_t>(i)];
+                 CamSettings s2 = camSettings(m);
+                 s2.mic = !s2.mic;
+                 setCamSettings(m, s2);
+               }, true, k.mic);
+      }});
       if (pocketcam::available()) {
         cameraControlItems(i, items);
       } else {
@@ -2984,6 +2998,7 @@ class Pocket {
     float ev = 0.0f;      // exposure, in stops
     bool lock = false;
     bool flashlight = false;
+    bool mic = true;      // the phone's microphone is the cue's sound
   };
 
   static CamSettings camSettings(const Cue& c) {
@@ -3008,6 +3023,7 @@ class Pocket {
         else if (name == "ev") k.ev = v;
         else if (name == "lock") k.lock = v != 0;
         else if (name == "light") k.flashlight = v != 0;
+        else if (name == "mic") k.mic = v != 0;
       }
       if (amp == std::string::npos) break;
       at = amp + 1;
@@ -3016,9 +3032,10 @@ class Pocket {
   }
 
   static void setCamSettings(Cue& c, const CamSettings& k) {
-    char q[160];
-    std::snprintf(q, sizeof q, "?zoom=%.2f&mf=%d&focus=%.2f&ev=%.2f&lock=%d&light=%d", static_cast<double>(k.zoom), k.manualFocus ? 1 : 0,
-                  static_cast<double>(k.focus), static_cast<double>(k.ev), k.lock ? 1 : 0, k.flashlight ? 1 : 0);
+    char q[192];
+    std::snprintf(q, sizeof q, "?zoom=%.2f&mf=%d&focus=%.2f&ev=%.2f&lock=%d&light=%d&mic=%d", static_cast<double>(k.zoom),
+                  k.manualFocus ? 1 : 0, static_cast<double>(k.focus), static_cast<double>(k.ev), k.lock ? 1 : 0,
+                  k.flashlight ? 1 : 0, k.mic ? 1 : 0);
     c.path = "camera://" + k.key + q;
   }
 
@@ -3254,6 +3271,60 @@ class Pocket {
     cameraLookAndShow(f, c);
   }
 
+  // ── The camera's sound: the phone's microphone ──
+  //
+  // Open only while a camera cue with SOUND FROM THE MIC is on air; what it
+  // hears goes into the engine as the cue's sound (queueExternalAudio), so
+  // the cue's level, fades, audio effects, mute and meters all apply. With
+  // no TV connected the phone's own speaker is next to its microphone and
+  // can howl: the cue's level is the first thing to turn down.
+
+  void serviceMic() {
+    const Cue* c = active_ >= 0 && active_ < static_cast<int>(cues_.size()) ? &cues_[static_cast<std::size_t>(active_)] : nullptr;
+    const bool want = c && isCameraCue(*c) && !black_ && camSettings(*c).mic && (c->audioEnabled || !c->hasAudio);   // cues made before sound count as on
+    if (!want) {
+      if (mic_) {
+        SDL_DestroyAudioStream(mic_);
+        mic_ = nullptr;
+      }
+      micPeak_ = 0;
+      return;
+    }
+#if defined(SDL_PLATFORM_ANDROID)
+    if (micAllowed_ == -2) {
+      micAllowed_ = 0;
+      SDL_RequestAndroidPermission("android.permission.RECORD_AUDIO",
+                                   [](void* self, const char*, bool granted) { static_cast<Pocket*>(self)->micAllowed_ = granted ? 1 : -1; }, this);
+    }
+    if (micAllowed_ < 0) {
+      micNotice_ = "Pocket may not use the microphone. Allow it in the phone's settings.";
+      return;
+    }
+    if (micAllowed_ == 0) return;
+#endif
+    if (!mic_) {
+      const SDL_AudioSpec spec {SDL_AUDIO_S16, 2, engine_->audioRate()};
+      mic_ = SDL_OpenAudioDeviceStream(SDL_AUDIO_DEVICE_DEFAULT_RECORDING, &spec, nullptr, nullptr);
+      if (!mic_) {
+        micNotice_ = std::string("The microphone did not open: ") + SDL_GetError();
+        return;
+      }
+      SDL_ResumeAudioStreamDevice(mic_);
+      micNotice_.clear();
+    }
+    const int ready = SDL_GetAudioStreamAvailable(mic_);
+    if (ready < 4) return;
+    micBuf_.resize(static_cast<std::size_t>(ready) / sizeof(std::int16_t));
+    const int got = SDL_GetAudioStreamData(mic_, micBuf_.data(), ready);
+    if (got < 4) return;
+    micBuf_.resize(static_cast<std::size_t>(got) / sizeof(std::int16_t) & ~std::size_t {1});
+    int peak = 0;
+    for (std::int16_t v : micBuf_) peak = std::max(peak, std::abs(static_cast<int>(v)));
+    micPeak_ = std::max(micPeak_ * 0.9f, static_cast<float>(peak) / 32768.0f);
+    micFrames_ += micBuf_.size() / 2;
+    engine_->queueExternalAudio(micBuf_);
+  }
+
   // A tap on the picture while a phone camera is on air: focus there.
   bool cameraTap(float x, float y) {
     if (!pocketcam::isOpen() || active_ < 0 || !isCameraCue(cues_[static_cast<std::size_t>(active_)])) return false;
@@ -3309,6 +3380,7 @@ class Pocket {
     cue.height = programH_;
     cue.color = {40, 90, 70, 255};
     cue.formatName = "live";
+    cue.hasAudio = cue.audioEnabled = true;   // the microphone
     cue.pauseOnLastFrame = true;
     cue.stillDurationSeconds = 0.0;
     cue.id = "pocket-" + std::to_string(++nextId_);
@@ -4026,7 +4098,12 @@ class Pocket {
         const char* name = SDL_GetCameraName(k.id);
         out += " | " + k.key + " (" + (name ? name : "?") + ")";
       }
-      out += " | open=" + std::string(cam_ ? "yes" : "no") + " frames=" + std::to_string(camFrames_);
+      out += " | open=" + std::string(cam_ || pocketcam::isOpen() ? "yes" : "no") + " frames=" + std::to_string(camFrames_);
+      char mic[96];
+      std::snprintf(mic, sizeof mic, " | mic=%s heard=%llu peak=%.3f", mic_ ? "open" : "closed",
+                    static_cast<unsigned long long>(micFrames_), static_cast<double>(micPeak_));
+      out += mic;
+      if (!micNotice_.empty()) out += " | " + micNotice_;
       if (!camNotice_.empty()) out += " | " + camNotice_;
       return out + "\n";
     }
@@ -8609,6 +8686,12 @@ class Pocket {
   std::string camNotice_;
   std::uint64_t camFrames_ = 0;
   int camFrameW_ = 0, camFrameH_ = 0;   // the last camera frame, upright
+  SDL_AudioStream* mic_ = nullptr;      // the microphone, while a camera cue with sound is on air
+  std::vector<std::int16_t> micBuf_;
+  std::atomic<int> micAllowed_ {-2};    // Android: -2 never asked, 0 asked, 1 yes, -1 no
+  std::string micNotice_;
+  float micPeak_ = 0;
+  std::uint64_t micFrames_ = 0;
   float focusMarkX_ = 0, focusMarkY_ = 0;
   Uint64 focusMarkUntil_ = 0;
   Cue engineCamCue_;              // what the engine holds for a camera cue (forEngine)

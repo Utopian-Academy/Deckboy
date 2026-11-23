@@ -30,7 +30,8 @@
 
     <!-- Audio recording support -->
     <!-- if you want to record audio, uncomment this. -->
-    <!-- <uses-permission android:name="android.permission.RECORD_AUDIO" /> -->
+    <!-- the microphone: a camera cue's sound (asked for the first time one goes on air) -->
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
     <!-- <uses-feature
         android:name="android.hardware.microphone"
         android:required="false" /> -->

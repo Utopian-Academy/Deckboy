@@ -244,6 +244,12 @@ class MediaEngine {
   // on a worker thread): shown as it is, without the pixel hook. Swaps
   // buffers, so `frame` comes back holding the previous one for reuse.
   void showBuiltFrame(DecodedFrame& frame);
+  // Sound from outside the engine for the cue on air (Pocket: the phone's
+  // microphone under a camera cue): interleaved stereo 16-bit at
+  // audioRate(), through the same level, fades, effects, limiter, meters and
+  // devices as decoded sound. One caller thread; never while the cue's own
+  // decode is running (the desk does not call it).
+  void queueExternalAudio(std::vector<std::int16_t>& stereo);
   // A texture to draw in place of the uploaded frame: the frame with its
   // look already applied on the GPU (Pocket: runGpuEffects). Owned by the
   // caller and kept valid until replaced; null draws the frame as uploaded.
@@ -1294,6 +1300,7 @@ class MediaEngine {
   // sum below that turns frames into seconds reads it, so a stale value here
   // is not a glitch -- it is the video clock running at the wrong speed.
   int audioRate_ = 48000;
+  double externalAudioTime_ = 0.0;   // queueExternalAudio's clock, from the take
 
   // Twenty milliseconds of audio before the device is released, at whatever
   // rate is running. It was 960 frames, which is 20ms only at 48k -- at 96k
