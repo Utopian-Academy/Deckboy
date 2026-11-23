@@ -157,6 +157,11 @@ enum class CueEffectKind : int {
   // stripes after every edge, and sync tears. Also a SOURCE: the shipped
   // shader deckboy_circuit_bend.fs bends a picture of its own.
   CircuitBend,
+  // Added 2026-11-23 (James: "a bit like ripple but just subtle slow sexy
+  // motion, sometimes barely perceptible"; on a checkerboard "you cant tell
+  // if its your eyes or not"). The picture swells and settles on a slow,
+  // uneven breath, with a soft swell drifting through it.
+  Breath,
   Count,
 };
 
@@ -219,6 +224,7 @@ inline const char* cueEffectLabel(CueEffectKind kind) {
     case CueEffectKind::Melt:           return "melt";
     case CueEffectKind::Tape:           return "tape";
     case CueEffectKind::CircuitBend:    return "circuit bend";
+    case CueEffectKind::Breath:         return "breath";
     default:                            return "none";
   }
 }
@@ -284,6 +290,7 @@ inline const char* cueEffectToken(CueEffectKind kind) {
     case CueEffectKind::Melt:           return "melt";
     case CueEffectKind::Tape:           return "tape";
     case CueEffectKind::CircuitBend:    return "circuit_bend";
+    case CueEffectKind::Breath:         return "breath";
     default:                            return "none";
   }
 }
@@ -353,6 +360,8 @@ inline bool cueEffectKindAnimates(CueEffectKind kind) {
     case CueEffectKind::Tape:
     // Its colours drift and its tears move with the frame.
     case CueEffectKind::CircuitBend:
+    // It breathes on the clock.
+    case CueEffectKind::Breath:
       return true;
     default:
       return false;
@@ -529,6 +538,8 @@ inline const char* cueEffectParamLabel(CueEffectKind kind, int which) {
     case CueEffectKind::CircuitBend:
       return which == 0 ? "bands" : which == 1 ? "drift"
            : which == 2 ? "bleed" : which == 3 ? "ringing" : nullptr;
+    case CueEffectKind::Breath:
+      return which == 0 ? "pace" : which == 1 ? "flow" : nullptr;
     case CueEffectKind::Schlieren:
       return which == 0 ? "knife angle" : which == 1 ? "sensitivity"
            : which == 2 ? "colour" : nullptr;
@@ -891,6 +902,12 @@ inline const char* cueEffectParamTip(CueEffectKind kind, int which) {
           "thin neck with a heavier head."
         : "How fast what has dripped hardens away. At the left the drips "
           "stay until the cue changes.";
+    case CueEffectKind::Breath:
+      return which == 0
+        ? "How slowly it breathes: one breath in about twelve seconds at the left, "
+          "two and a half at the right."
+        : "A soft swell that drifts through the picture as it breathes. At the "
+          "left it only swells and settles.";
     case CueEffectKind::CircuitBend:
       return which == 0
         ? "How many brightness bands become colours: two loud slabs at the left, "
@@ -1692,6 +1709,11 @@ inline void applyCueEffectArrivalDefaults(CueEffect& fx) {
       break;
     case CueEffectKind::CircuitBend:
       fx.paramA = 0.4f; fx.paramB = 0.35f; fx.paramC = 0.4f; fx.paramD = 0.45f; fx.paramE = 0.25f;
+      break;
+    case CueEffectKind::Breath:
+      // It arrives barely there: about two pixels of swell on a 1080p picture.
+      fx.amount = 0.35f;
+      fx.paramA = 0.5f; fx.paramB = 0.5f;
       break;
     default:
       break;
@@ -6918,6 +6940,79 @@ inline void applyCueEffectStack(std::vector<std::uint8_t>& pixels,
               for (int c = 0; c < 3; ++c) {
                 const int out = detail::clamp8(kv[c] * shade + spec * (0.55 + kv[c] / 255.0 * 0.45));
                 p[c] = static_cast<std::uint8_t>(p[c] + (((out - p[c]) * a256) >> 8));
+              }
+            }
+          }
+        });
+        break;
+      }
+
+      case CueEffectKind::Breath: {
+        // BREATH (see the enum). The motion is a fraction of a pixel a frame,
+        // so the picture is read BILINEARLY: a nearest read (as Ripple's) would
+        // move in whole-pixel steps, and a step is exactly what the eye catches.
+        // Sizes are shares of the short side, so the effect is the same at the
+        // size the output draws it.
+        const int W = ctx.width, H = ctx.height;
+        if (W < 2 || H < 2) break;
+        const double t = ctx.seconds >= 0.0 ? ctx.seconds : static_cast<double>(ctx.frameIndex) / 30.0;
+        const double kTau = 6.283185307179586;
+        // pace: a breath every 12 s at the left, every 2.5 s at the right
+        const double period = 12.0 * std::pow(2.5 / 12.0, static_cast<double>(pA));
+        const double a = kTau * t / period;
+        // A breath is not a sine: in, a little hold, out, a longer rest. A
+        // second harmonic gives that shape, and a slow wander keeps one
+        // breath from being exactly the last.
+        double breath = 0.5 - 0.5 * std::cos(a) + 0.12 * std::sin(2.0 * a);
+        breath *= 0.85 + 0.15 * std::sin(t * 0.21 + 1.3);
+        const double shortSide = static_cast<double>(std::min(W, H));
+        const double swell = amt * 0.006 * breath;                                  // a share of the frame
+        const double flow = amt * static_cast<double>(pB) * 0.0035 * shortSide;   // pixels
+        // the swell's centre wanders a little, so it never pins to the middle
+        const double cxp = (W - 1) * 0.5 + 0.08 * W * std::sin(t * 0.05);
+        const double cyp = (H - 1) * 0.5 + 0.06 * H * std::cos(t * 0.043);
+        // the drifting swell, as separable tables: a column part and a row part
+        const double kx = kTau * 1.3 / W, ky = kTau * 1.1 / H;
+        const double d1 = t * 0.23, d2 = t * 0.17 + 2.0;
+        static thread_local std::vector<double> colA, colB, rowA, rowB;
+        colA.resize(static_cast<std::size_t>(W));
+        colB.resize(static_cast<std::size_t>(W));
+        rowA.resize(static_cast<std::size_t>(H));
+        rowB.resize(static_cast<std::size_t>(H));
+        for (int x = 0; x < W; ++x) {
+          colA[static_cast<std::size_t>(x)] = std::sin(kx * x + d1);
+          colB[static_cast<std::size_t>(x)] = std::cos(kx * 0.7 * x - d2);
+        }
+        for (int y = 0; y < H; ++y) {
+          rowA[static_cast<std::size_t>(y)] = std::sin(ky * y - d2);
+          rowB[static_cast<std::size_t>(y)] = std::cos(ky * 0.8 * y + d1);
+        }
+        static thread_local std::vector<std::uint8_t> src;
+        src.assign(pixels.begin(), pixels.begin() + static_cast<std::ptrdiff_t>(count * 4));
+        const double* cA = colA.data();
+        const double* cB = colB.data();
+        const double* rA = rowA.data();
+        const double* rB = rowB.data();
+        const std::uint8_t* from = src.data();
+        std::uint8_t* to = pixels.data();
+        detail::parallelRows(H, W, [=](int firstRow, int lastRow) {
+          for (int y = firstRow; y < lastRow; ++y) {
+            std::uint8_t* row = to + static_cast<std::size_t>(y) * static_cast<std::size_t>(W) * 4;
+            const double baseY = cyp + (y - cyp) * (1.0 - swell);
+            for (int x = 0; x < W; ++x) {
+              const double sxf = std::clamp(cxp + (x - cxp) * (1.0 - swell) + flow * rA[y] * cB[x], 0.0, W - 1.001);
+              const double syf = std::clamp(baseY + flow * cA[x] * rB[y], 0.0, H - 1.001);
+              const int x0 = static_cast<int>(sxf), y0 = static_cast<int>(syf);
+              const int fx256 = static_cast<int>((sxf - x0) * 256.0), fy256 = static_cast<int>((syf - y0) * 256.0);
+              const std::uint8_t* p00 = from + (static_cast<std::size_t>(y0) * static_cast<std::size_t>(W) + static_cast<std::size_t>(x0)) * 4;
+              const std::uint8_t* p10 = p00 + 4;
+              const std::uint8_t* p01 = p00 + static_cast<std::size_t>(W) * 4;
+              const std::uint8_t* p11 = p01 + 4;
+              std::uint8_t* dp = row + static_cast<std::size_t>(x) * 4;
+              for (int c = 0; c < 4; ++c) {
+                const int top = p00[c] * (256 - fx256) + p10[c] * fx256;
+                const int bot = p01[c] * (256 - fx256) + p11[c] * fx256;
+                dp[c] = static_cast<std::uint8_t>((top * (256 - fy256) + bot * fy256 + 32768) >> 16);
               }
             }
           }
