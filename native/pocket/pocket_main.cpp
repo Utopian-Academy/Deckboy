@@ -1103,6 +1103,7 @@ class Pocket {
               followError_.c_str());
       loggedFollow_ = follow_;
     }
+    serviceShake();
     engine_->update();
     // Animated generators (Swirl, Fireside, Lumia...) are redrawn every tick
     // from the wall clock, as the desk's update loop does; without this they
@@ -3490,7 +3491,11 @@ class Pocket {
       std::string what;
       float dx = 0, dy = 0;
       a >> what >> dx >> dy;
-      if (upper(what) != "POKE") return err("FACE POKE [dx dy]");
+      if (upper(what) == "SHAKE") {
+        shakeFace();
+        return ok();
+      }
+      if (upper(what) != "POKE") return err("FACE POKE [dx dy] | FACE SHAKE");
       if (!faceShown() || faceR_ <= 0) return err("no face to poke");
       const bool was = menuOpen_;
       const int sheet = sheet_;
@@ -5128,6 +5133,112 @@ class Pocket {
   bool faceShown() const { return active_ < 0 && !splashing(); }
   bool faceAsleep() const { return SDL_GetTicks() - lastInputMs_ > 45000 && facePokes_.fleeStartedMs == 0; }
 
+  // ── Shake him (James 11-20) ──
+  //
+  // Shake the phone hard and the face comes apart: every piece flies off,
+  // tumbles while the shaking goes on, then springs back into place. Then
+  // his eyes spin for a while, and then he is cross. The accelerometer is
+  // read only while the face is up, and by polling once a tick (its events
+  // are switched off), so it never wakes an idle phone by itself.
+
+  void serviceShake() {
+    if (!faceShown()) return;
+    if (!shakeTried_) {
+      shakeTried_ = true;
+      if (SDL_InitSubSystem(SDL_INIT_SENSOR)) {
+        SDL_SetEventEnabled(SDL_EVENT_SENSOR_UPDATE, false);
+        int n = 0;
+        if (SDL_SensorID* ids = SDL_GetSensors(&n)) {
+          for (int i = 0; i < n && !accel_; ++i) {
+            if (SDL_GetSensorTypeForID(ids[i]) == SDL_SENSOR_ACCEL) accel_ = SDL_OpenSensor(ids[i]);
+          }
+          SDL_free(ids);
+        }
+      }
+    }
+    if (!accel_) return;
+    SDL_UpdateSensors();
+    float a[3] = {0, 0, 0};
+    if (!SDL_GetSensorData(accel_, a, 3)) return;
+    const float jolt = std::fabs(std::sqrt(a[0] * a[0] + a[1] * a[1] + a[2] * a[2]) - SDL_STANDARD_GRAVITY);
+    const Uint64 now = SDL_GetTicks();
+    if (jolt > 12.0f && now - lastJolt_ > 80) {   // a hard flick, counted once
+      lastJolt_ = now;
+      jolts_.push_back(now);
+    }
+    while (!jolts_.empty() && now - jolts_.front() > 900) jolts_.erase(jolts_.begin());
+    // three flicks inside a second is a shake; still shaking keeps him apart
+    if (jolts_.size() >= 3) {
+      shakeFace();
+      jolts_.clear();
+    }
+  }
+
+  void shakeFace() {
+    const Uint64 now = SDL_GetTicks();
+    if (faceShakeAt_ == 0 || now - faceShakeAt_ > 1200) {   // a new shake, not more of the same one
+      ++faceShakes_;
+      faceShakeSeed_ = static_cast<std::uint32_t>(now * 2654435761u) | 1u;
+      buzz("go");
+    }
+    faceShakeAt_ = now;
+    lastInputMs_ = now;   // wide awake now
+  }
+
+  // 1 just after a shake, fading over about seven seconds once the spinning stops
+  float faceCross(Uint64 now) const {
+    if (faceShakeAt_ == 0) return 0;
+    const float s = static_cast<float>(now - faceShakeAt_) / 1000.0f;
+    if (s > 10.0f) return 0;
+    return s < 3.0f ? 1.0f : std::clamp(1.0f - (s - 3.0f) / 7.0f, 0.0f, 1.0f);
+  }
+
+  // The face's pieces, flown apart and coming back, and the eyes spinning.
+  std::vector<deckboy::face::Box> shakenPieces(const deckboy::face::Frame& f, const deckboy::face::Box& area, Uint64 now) const {
+    std::vector<deckboy::face::Box> out = f.solid;
+    if (faceShakeAt_ == 0 || now - faceShakeAt_ > 4000) return out;
+    const float tau = static_cast<float>(now - faceShakeAt_) / 1000.0f;
+    // out fast, then a spring home with an overshoot or two
+    const float spread = tau < 0.15f ? tau / 0.15f : std::exp(-2.6f * (tau - 0.15f)) * std::cos(5.5f * (tau - 0.15f));
+    const float t = static_cast<float>(now) / 1000.0f;
+    auto hash = [](std::uint32_t x) {
+      x ^= x >> 16; x *= 0x7feb352dU; x ^= x >> 15; x *= 0x846ca68bU; x ^= x >> 16;
+      return static_cast<float>(x & 0xffff) / 65535.0f;
+    };
+    const float reach = static_cast<float>(std::min(area.w, area.h)) * 0.42f;
+    for (std::size_t i = 0; i < out.size(); ++i) {
+      const std::uint32_t k = faceShakeSeed_ + static_cast<std::uint32_t>(i) * 0x9e3779b9u;
+      const float ang = hash(k) * 6.2832f;
+      const float dist = reach * (0.35f + 0.65f * hash(k ^ 0x51ed27u));
+      // tumbling while it flies
+      const float wob = std::sin(t * (7.0f + 6.0f * hash(k ^ 0x1234u)) + static_cast<float>(i)) * static_cast<float>(f.unit) * 0.4f;
+      out[i].x += static_cast<int>(std::lround((std::cos(ang) * dist + wob) * spread));
+      out[i].y += static_cast<int>(std::lround((std::sin(ang) * dist - wob) * spread));
+    }
+    // dizzy: once he is back together, the eyes are spirals going round
+    const float dizzy = tau < 0.6f ? 0.0f : std::clamp(1.0f - (tau - 2.8f) / 1.2f, 0.0f, 1.0f);
+    if (dizzy > 0.05f && out.size() >= 2) {
+      std::vector<deckboy::face::Box> eyes;
+      for (int e = 0; e < 2; ++e) {
+        const deckboy::face::Box& b = out[static_cast<std::size_t>(e)];
+        const float cx = static_cast<float>(b.x) + static_cast<float>(b.w) / 2;
+        const float cy = static_cast<float>(f.cy) - static_cast<float>(f.unit) + (static_cast<float>(b.y + b.h / 2) - (static_cast<float>(f.cy) - static_cast<float>(f.unit)));
+        const float dir = e == 0 ? 1.0f : -1.0f;
+        const float rmax = static_cast<float>(f.unit) * 0.75f;
+        const int dot = std::max(3, f.thick * 3 / 4);
+        for (int j = 0; j < 9; ++j) {
+          const float a = dir * t * 9.0f + static_cast<float>(j) * 0.85f;
+          const float rr = rmax * (static_cast<float>(j) + 1.0f) / 9.0f;
+          eyes.push_back({static_cast<int>(std::lround(cx + std::cos(a) * rr)) - dot / 2,
+                          static_cast<int>(std::lround(cy + std::sin(a) * rr)) - dot / 2, dot, dot});
+        }
+      }
+      out.erase(out.begin(), out.begin() + 2);
+      out.insert(out.end(), eyes.begin(), eyes.end());
+    }
+    return out;
+  }
+
   void facePoke(float x, float y) {
     if (sheet_ >= 0 || menuOpen_ || !faceShown() || faceR_ <= 0 || facePokes_.fleeStartedMs != 0) return;
     facePokes_.pointerX = static_cast<int>(x);
@@ -5149,6 +5260,19 @@ class Pocket {
   // wrap is worked out once and a line does not jump as it is typed.
   std::string faceLine(Uint64 now, const deckboy::face::Mood& mood, std::string& full) const {
     if (facePokes_.fleeStartedMs != 0) return full = deckboy::face::kFleeLine;
+    if (faceShakeAt_ != 0 && now - faceShakeAt_ < 9000) {   // shaken: dizzy, then cross
+      static const char* kDizzy[] = {"WHOA. Whoa. Whoa.", "Stop shaking me!", "I am not a bloody snow globe!",
+                                     "Everything is spinning.", "Which way is up?", "Put. Me. Down.",
+                                     "My pixels are all over the place!", "I think I am going to be sick."};
+      static const char* kCross[] = {"Rude.", "Was that really necessary?", "Do that again and I quit.",
+                                     "Some of us have a show to run.", "I am not talking to you.",
+                                     "I am telling the operator. Oh. You ARE the operator.", "Unbelievable.",
+                                     "I had all my pixels in a row."};
+      const bool dizzy = now - faceShakeAt_ < 3500;
+      const int k = faceShakes_ - 1;
+      full = dizzy ? kDizzy[k % 8] : kCross[k % 8];
+      return dizzy ? full : deckboy::face::typed(full, now - faceShakeAt_ - 3500, 38, now);
+    }
     if (facePokes_.count > 0 && facePokes_.atMs != 0 && now - facePokes_.atMs < 1800) return full = deckboy::face::pokeLine(facePokes_.count);
     if (mood.asleep) {
       full = "Zzz...";
@@ -5216,6 +5340,13 @@ class Pocket {
     }
     deckboy::face::Mood mood = deckboy::face::moodFor(static_cast<double>(now) / 3600000.0, false);
     mood.asleep = faceAsleep();
+    // shaken: cross for a while (the desk's stressed face: brows, frown, sweat)
+    const float cross = faceCross(now);
+    if (cross > 0) {
+      mood.stress = std::max(mood.stress, static_cast<double>(cross));
+      mood.cheek = 0;
+      mood.asleep = false;
+    }
     const deckboy::face::Box area {static_cast<int>(pic.x), static_cast<int>(pic.y), static_cast<int>(pic.w), static_cast<int>(pic.h)};
     // a little smaller than the desk's share of the box (James 11-20)
     const int unitMax = std::max(18, std::min(area.w, area.h) / 8);
@@ -5232,14 +5363,15 @@ class Pocket {
       SDL_SetRenderClipRect(renderer_, nullptr);
       return;
     }
+    std::vector<deckboy::face::Box> pieces = shakenPieces(f, area, now);
     // CRT bloom: a soft halo under every lit block, then the block
     const float bloom = std::max(2.0f, static_cast<float>(f.thick) * 0.9f);
-    for (const deckboy::face::Box& b : f.solid) {
+    for (const deckboy::face::Box& b : pieces) {
       const float wide = bloom * 2.2f;
       fillRoundAlpha(renderer_, Ink {255, 140, 60}, 0.07f, {b.x - wide, b.y - wide, b.w + 2 * wide, b.h + 2 * wide}, wide);
       fillRoundAlpha(renderer_, glow, 0.16f, {b.x - bloom, b.y - bloom, b.w + 2 * bloom, b.h + 2 * bloom}, bloom);
     }
-    for (const deckboy::face::Box& b : f.solid) {
+    for (const deckboy::face::Box& b : pieces) {
       // a touch of colour fringe either side, as a tube does
       fillRoundAlpha(renderer_, Ink {255, 90, 90}, 0.22f, {b.x - 1.5f, static_cast<float>(b.y), static_cast<float>(b.w), static_cast<float>(b.h)}, 0);
       fillRoundAlpha(renderer_, Ink {90, 160, 255}, 0.22f, {b.x + 1.5f, static_cast<float>(b.y), static_cast<float>(b.w), static_cast<float>(b.h)}, 0);
@@ -7948,6 +8080,12 @@ class Pocket {
   float faceCx_ = 0, faceCy_ = 0, faceR_ = 0;
   Uint64 faceLastPokeMs_ = 0, faceSince_ = 0;
   int faceDealt_ = 0;   // lines already said in earlier appearances
+  SDL_Sensor* accel_ = nullptr;
+  bool shakeTried_ = false;
+  std::vector<Uint64> jolts_;
+  Uint64 lastJolt_ = 0, faceShakeAt_ = 0;
+  int faceShakes_ = 0;
+  std::uint32_t faceShakeSeed_ = 1;
   bool faceWasShown_ = false;
   SDL_Texture* faceBack_ = nullptr;   // the tube behind her
   int splashQuip_ = 0;
