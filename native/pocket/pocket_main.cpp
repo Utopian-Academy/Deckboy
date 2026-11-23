@@ -642,7 +642,10 @@ class Pocket {
     }
     if (!TTF_Init()) SDL_Log("pocket: TTF_Init failed: %s", SDL_GetError());
 #if defined(SDL_PLATFORM_ANDROID) || defined(SDL_PLATFORM_IOS)
-    window_ = SDL_CreateWindow("Deckboy Pocket", 0, 0, SDL_WINDOW_FULLSCREEN | SDL_WINDOW_HIGH_PIXEL_DENSITY);
+    // RESIZABLE is what lets it turn: for a fixed window SDL locks the
+    // orientation to the window's first shape (portrait), whatever the hint
+    // allows (SDLActivity.setOrientationBis). James 11-23: "pocket isnt rotating".
+    window_ = SDL_CreateWindow("Deckboy Pocket", 0, 0, SDL_WINDOW_FULLSCREEN | SDL_WINDOW_RESIZABLE | SDL_WINDOW_HIGH_PIXEL_DENSITY);
 #else
     // A desktop build is for working on Pocket: a phone-shaped window.
     window_ = SDL_CreateWindow("Deckboy Pocket", 480, 1040, SDL_WINDOW_RESIZABLE | SDL_WINDOW_HIGH_PIXEL_DENSITY);
@@ -2981,6 +2984,9 @@ class Pocket {
     SDL_Surface* got = SDL_AcquireCameraFrame(cam_, &when);
     if (!got) return;
     camNotice_.clear();
+    // how far this frame must turn (clockwise) to stand upright: a phone's
+    // sensor is mounted sideways, and the phone may be held either way
+    const float turn = SDL_GetFloatProperty(SDL_GetSurfaceProperties(got), SDL_PROP_SURFACE_ROTATION_FLOAT, 0.0f);
     SDL_Surface* rgba = got->format == SDL_PIXELFORMAT_RGBA32 ? got : SDL_ConvertSurface(got, SDL_PIXELFORMAT_RGBA32);
     if (rgba) {
       DecodedFrame f;
@@ -2996,6 +3002,7 @@ class Pocket {
       if (rgba != got) SDL_DestroySurface(rgba);
       SDL_ReleaseCameraFrame(cam_, got);
       got = nullptr;
+      rotateRgba(f.pixels, f.width, f.height, static_cast<int>(std::lround(turn / 90.0f)) * 90);
       // its look: on the GPU where every effect has a GPU version, else here
       const double scale = static_cast<double>(f.width) / std::max(1, programW_);
       if (deckboy::effects::cueEffectStackActive(c->effects)) {
@@ -3020,6 +3027,30 @@ class Pocket {
       engine_->showBuiltFrame(f);
     }
     if (got) SDL_ReleaseCameraFrame(cam_, got);
+  }
+
+  // Turn an RGBA picture clockwise by 0, 90, 180 or 270 degrees.
+  static void rotateRgba(std::vector<std::uint8_t>& px, int& w, int& h, int degrees) {
+    const int d = ((degrees % 360) + 360) % 360;
+    if (d == 0 || w <= 0 || h <= 0) return;
+    std::vector<std::uint8_t> out(px.size());
+    const auto* src = reinterpret_cast<const std::uint32_t*>(px.data());
+    auto* dst = reinterpret_cast<std::uint32_t*>(out.data());
+    const std::size_t n = static_cast<std::size_t>(w) * static_cast<std::size_t>(h);
+    if (d == 180) {
+      for (std::size_t i = 0; i < n; ++i) dst[n - 1 - i] = src[i];
+    } else {
+      for (int y = 0; y < h; ++y) {
+        for (int x = 0; x < w; ++x) {
+          // 90: (x, y) -> (h-1-y, x) in an h-wide picture; 270: (y, w-1-x)
+          const std::size_t to = d == 90 ? static_cast<std::size_t>(x) * static_cast<std::size_t>(h) + static_cast<std::size_t>(h - 1 - y)
+                                         : static_cast<std::size_t>(w - 1 - x) * static_cast<std::size_t>(h) + static_cast<std::size_t>(y);
+          dst[to] = src[static_cast<std::size_t>(y) * static_cast<std::size_t>(w) + static_cast<std::size_t>(x)];
+        }
+      }
+      std::swap(w, h);
+    }
+    px.swap(out);
   }
 
   void addCamera(const std::string& which = "back") {
