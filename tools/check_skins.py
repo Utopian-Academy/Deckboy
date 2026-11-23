@@ -45,7 +45,14 @@ def main():
     # The runtime copies data/ into the work folder and keeps what is there:
     # start clean, or a theme edited since the last run is shot as it was.
     shutil.rmtree(out / "work", ignore_errors=True)
-    with Runtime(args.exe, out / "work", args.show) as rt:
+    # On a copy: SET marks the show changed and the desk saves it.
+    (out / "work").mkdir(parents=True)
+    show = out / "work" / Path(args.show).name
+    shutil.copy2(args.show, show)
+    media = Path(args.show).parent / "media"
+    if media.is_dir():
+        shutil.copytree(media, out / "work" / "media")
+    with Runtime(args.exe, out / "work", show) as rt:
         for scale in scales:
             rt.send(f"SET ui_scale {scale}")
             for theme in themes:
