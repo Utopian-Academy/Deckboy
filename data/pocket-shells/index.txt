@@ -7,3 +7,19 @@ mint-pearl	Mint Pearl	89 149 129
 pocket-grey	Pocket Grey	108 108 134
 smoke	Smoke	246 246 248
 terrazzo	Terrazzo	108 101 97
+arcade-cab	Arcade Cab	246 241 221
+bakelite	Bakelite	237 222 191
+brass	Brass	66 80 66
+broadcast	Broadcast	243 248 252
+carbon	Carbon	231 235 239
+ceramic	Ceramic	66 108 91
+clear-lab	Clear Lab	225 246 245
+concrete	Concrete	56 63 60
+field-kit	Field Kit	243 218 97
+hi-fi	Hi-Fi	36 44 47
+neon-night	Neon Night	137 236 243
+space-age	Space Age	75 93 105
+swiss	Swiss	53 56 53
+synth	Synth	234 230 212
+toybox	Toybox	53 85 124
+vapor	Vapor	101 72 126
