@@ -1249,3 +1249,63 @@ zh-Hant	crt
 zu	crt
 
 *	Mini
+ar	LFO
+bg	LFO
+ckb	LFO
+da	LFO
+da	SYNTH
+da	glitch
+da	ROTATION
+da	TERRARIUM
+da	1x (normal)
+de	LFO
+de	crt
+de	SYNTH
+de	TERRARIUM
+de	1x (normal)
+el	LFO
+es-CU	LFO
+es-CU	1x (normal)
+es	LFO
+es	1x (normal)
+fa	LFO
+fi	LFO
+fr	LFO
+fr	crt
+fr	note
+fr	glitch
+fr	lasers
+fr	pixels
+fr	ROTATION
+fr	TERRARIUM
+fr	second jet
+fr	1x (normal)
+gd	LFO
+haw	LFO
+haw	SYNTH
+hi	LFO
+is	LFO
+is	SYNTH
+it	LFO
+it	SYNTH
+ja	LFO
+kab	LFO
+kab	SYNTH
+kmr	LFO
+ko	LFO
+lo	LFO
+lum	LFO
+nl	LFO
+nl	crt
+nl	lens
+nl	SYNTH
+nl	WATER
+nl	chaos
+nl	water
+nl	detail
+nl	glitch
+nl	lasers
+nl	pixels
+nl	TERRARIUM
+pap-AW	LFO
+pap-AW	1x (normal)
