@@ -6,7 +6,7 @@ shell_outer	0D0D0FFF
 shell_inner	1C1D1FFF
 shell_shadow	000000FF
 screen_light	FF2A2AFF
-screen_mid	3A3B3FFF
+screen_mid	9A9DA3FF
 screen_dark	1A0606FF
 screen_deep	0A0A0BFF
 screen_ink_soft	A3A3A3FF
