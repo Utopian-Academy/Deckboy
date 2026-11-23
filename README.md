@@ -35,38 +35,26 @@ Free and open source, for Windows, macOS and Linux.
 **If Deckboy is useful to you, ⭐ star this repository** (top right): it is how the next
 operator finds it, and how you find it again.
 
-### What's new in 0.99.429
+### What's new in 0.99.430
 
-[Release notes and downloads](https://github.com/Utopian-Academy/Deckboy/releases/tag/v0.99.429)
+[Release notes and downloads](https://github.com/Utopian-Academy/Deckboy/releases/tag/v0.99.430)
 
-0.99.429 makes Lumia's laser lines move smoothly, opens shows whose file paths have accented
-letters again on Windows, fixes the lessons' songs and voices, and brings back the Flatpak.
-It carries everything new in [0.99.428](https://github.com/Utopian-Academy/Deckboy/releases/tag/v0.99.428):
+<img src="docs/images/readme/pocket-430.png" width="80%" alt="Deckboy Pocket on a phone in the Grape Soda shell, upright and on its side, playing a Lumia cue from its cue list">
 
-<a href="docs/images/perf/four-layers.gif"><img src="docs/images/perf/four-layers.gif" width="60%" alt="Four picture-in-picture layers in four codecs, each with its own effect, recorded at 1080p while the app held 60 frames a second"></a>
+<sub>Deckboy Pocket in the Grape Soda shell, upright and on its side.</sub>
 
-<sub>Recorded by Deckboy itself at 1080p: four layers in H.264, HEVC, ProRes and MJPEG, each with its own effect and an LFO, at 60 fps.</sub>
-
-- **Effects on the graphics card.** 25 picture effects, the shatter, portal, clouds and ghastly
-  transitions, and the new Melt and Circuit Bend all run on the GPU, and a layer's effects run at the
-  size it is drawn. On a 4K output, eight effects on a 4K clip went from 130 ms to 8 ms a frame; a 4K
-  base with four layers and effects on every one holds 60 fps. On Windows the video stays on the card
-  the whole way.
-- **A lighter desk.** The desk monitor shows the whole composite, drawn on the graphics card: a 1080p
-  show with effects went from 276% to 38% of a processor core. Live captions keep about a second
-  behind the speaker, half the delay they had.
-- **The Experimental voice.** The lesson characters can now really talk. A simulated vocal tract
-  (glottis, tongue, lips, nose) reads each line in any language, or, set to SOUNDS, says each
-  character's own nonsense words instead. The **Voice** source does the same for any text you type.
-- **New looks.** Melt goes liquid (glossy molten plastic with an oil-slick sheen and melting ghosts);
-  Circuit Bend crosses the wires of a video enhancer; Tape is VHS from its causes; ISF shaders run as
-  sources (Deckboy ships seven, among them a Dream Machine); Lumia is laser light through moving water;
-  and any clip can play in reverse or bounce.
-- **Scopes on an output.** Send the waveform, vectorscope and parade to a screen, over NDI, or into a
-  multiview window.
-- **Also new:** Render to file, Ableton Link and quantised takes, the STAGE projection planner, MIDI
-  files that play Deckboy's own synth, a Rainbow Road theme that turns slowly round the colour wheel, and songs of their own for the Sound and
-  Datamosh lessons.
+- **Deckboy Pocket (Android).** Deckboy on a phone: a cue list with GO and BACK, transitions, effects
+  on the phone's graphics card, the desk's show files, and the phone's cameras and microphone as
+  sources. Plug in USB-C to HDMI for a full-size output. 25 shells, upright and on their side.
+- **Follow a desk.** A desk can lead, and Deckboy Mini and Pocket follow it on the same network, on
+  the desk's clock: a backup screen, or a second room from one desk.
+- **20 skins.** A skin changes what the desk is made of: the shape of panels and buttons, light and
+  shadow, a surface and a typeface. Console HD, Studio, Bakelite, Arcade, VCR, Modular, Rubber Hose,
+  Goo and twelve more.
+- **Illusion**, pictures that trick the eye: drift, Ouchi, cafe wall, vanish, grid and dancer, drawn on
+  the graphics card.
+- **Breath**, an effect: the picture swells and settles, sometimes barely there.
+- **Lithuanian**, and a presentation clicker's arrow keys now take cues.
 - **Known issue (Windows):** when two screens run at different refresh rates, for example 59.94 Hz and
   60 Hz, an output drops or repeats a frame about every 15 seconds. Deckboy warns you when this
   happens. For now, set the screens to the same rate
@@ -504,12 +492,12 @@ importantly, what each feature deliberately does not do.
 - A media browser in the terminal: browse folders, filter by typing and add clips
   without leaving the keyboard, shared with the desk's own browser
 
-**Deckboy Pocket (iOS and Android):**
+**Deckboy Pocket:**
 
-- Deckboy on a phone or tablet: build and run a show from the touch screen, and
-  play it to a screen over USB-C HDMI, AirPlay or NDI
-- A backup machine that fits in your pocket: carry the show, take over if the
-  main computer stops
+- Pocket on iOS, and in Google Play
+- Output over AirPlay and NDI, beside USB-C HDMI
+- Take over by itself if the main computer stops (today it follows the desk,
+  and taking over means stopping the follow and pressing GO)
 
 **Web Monitor and network:**
 
