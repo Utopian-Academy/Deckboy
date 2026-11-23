@@ -26,3 +26,6 @@ style_rim	0.35
 style_lip	4
 style_shadow	4 10 0.35
 style_background_texture	grain 0.08
+style_sticker	star holo FFFFFF playlist -12 1.0
+style_sticker	bolt holo FFFFFF media 10 1.0
+style_sticker	cross vinyl C4307A desk -8 0.9

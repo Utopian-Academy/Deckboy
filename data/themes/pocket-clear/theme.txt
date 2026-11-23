@@ -25,4 +25,7 @@ style_sheen	0.24
 style_rim	0.5
 style_lip	4
 style_shadow	4 12 0.4
-style_background_texture	circuit 0.30
+style_background_texture	circuit 0.18
+style_sticker	heart holo FFFFFF playlist 14 1.0
+style_sticker	star vinyl 8CE65A transport -10 0.9
+style_sticker	dot holo FFFFFF desk 0 0.8

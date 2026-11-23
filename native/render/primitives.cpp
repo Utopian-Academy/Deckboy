@@ -19,6 +19,7 @@
 #include <algorithm>
 #include <cmath>
 #include <cstdint>
+#include <functional>
 #include <utility>
 #include <vector>
 
@@ -680,6 +681,177 @@ void Primitives::strokeChromeShape(SDL_Renderer* renderer, const SDL_Rect& rect,
   SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
   const ChromeGeom g = chromeGeomFor(rect, nullptr);
   chromeRing(renderer, g, insetGeom(g, static_cast<float>(width)), toF(color));
+}
+
+bool stickerShapeFromToken(const std::string& token, StickerShape* out) {
+  if (token == "star") { *out = StickerShape::Star; return true; }
+  if (token == "bolt") { *out = StickerShape::Bolt; return true; }
+  if (token == "heart") { *out = StickerShape::Heart; return true; }
+  if (token == "dot") { *out = StickerShape::Dot; return true; }
+  if (token == "cross") { *out = StickerShape::Cross; return true; }
+  return false;
+}
+
+namespace {
+
+// Outline of a sticker in -1..1.
+std::vector<SDL_FPoint> stickerOutline(StickerShape shape) {
+  std::vector<SDL_FPoint> p;
+  const float pi = 3.14159265f;
+  switch (shape) {
+    case StickerShape::Star:
+      for (int i = 0; i < 10; ++i) {
+        const float a = -pi / 2 + static_cast<float>(i) * pi / 5, r = (i % 2 == 0) ? 1.0f : 0.46f;
+        p.push_back({r * std::cos(a), r * std::sin(a)});
+      }
+      break;
+    case StickerShape::Bolt:
+      p = {{-0.10f, -1.0f}, {0.62f, -1.0f}, {0.18f, -0.18f}, {0.58f, -0.18f},
+           {-0.38f, 1.0f}, {-0.06f, 0.14f}, {-0.48f, 0.14f}};
+      break;
+    case StickerShape::Heart:
+      for (int i = 0; i < 40; ++i) {
+        const float t = static_cast<float>(i) / 40.0f * 2 * pi;
+        const float x = 16 * std::pow(std::sin(t), 3.0f);
+        const float y = 13 * std::cos(t) - 5 * std::cos(2 * t) - 2 * std::cos(3 * t) - std::cos(4 * t);
+        p.push_back({x / 17.0f, -y / 17.0f + 0.1f});
+      }
+      break;
+    case StickerShape::Dot:
+      for (int i = 0; i < 36; ++i) {
+        const float a = static_cast<float>(i) / 36.0f * 2 * pi;
+        p.push_back({std::cos(a), std::sin(a)});
+      }
+      break;
+    case StickerShape::Cross: {
+      const float w = 0.34f;
+      p = {{-w, -1}, {w, -1}, {w, -w}, {1, -w}, {1, w}, {w, w}, {w, 1}, {-w, 1}, {-w, w}, {-1, w}, {-1, -w}, {-w, -w}};
+      break;
+    }
+  }
+  return p;
+}
+
+// Ear clipping: the bolt and the heart are not convex, so a fan from the
+// middle would spill outside them.
+std::vector<int> triangulate(const std::vector<SDL_FPoint>& p) {
+  std::vector<int> out, idx(p.size());
+  for (std::size_t i = 0; i < p.size(); ++i) idx[i] = static_cast<int>(i);
+  float area = 0;
+  for (std::size_t i = 0; i < p.size(); ++i) {
+    const SDL_FPoint& a = p[i];
+    const SDL_FPoint& b = p[(i + 1) % p.size()];
+    area += a.x * b.y - b.x * a.y;
+  }
+  const float sign = area >= 0 ? 1.0f : -1.0f;
+  auto cross = [](SDL_FPoint a, SDL_FPoint b, SDL_FPoint c) {
+    return (b.x - a.x) * (c.y - a.y) - (b.y - a.y) * (c.x - a.x);
+  };
+  int guard = 0;
+  while (idx.size() > 3 && guard++ < 1000) {
+    bool clipped = false;
+    for (std::size_t i = 0; i < idx.size(); ++i) {
+      const int i0 = idx[(i + idx.size() - 1) % idx.size()], i1 = idx[i], i2 = idx[(i + 1) % idx.size()];
+      const SDL_FPoint& a = p[static_cast<std::size_t>(i0)];
+      const SDL_FPoint& b = p[static_cast<std::size_t>(i1)];
+      const SDL_FPoint& c = p[static_cast<std::size_t>(i2)];
+      if (cross(a, b, c) * sign <= 0) continue;
+      bool inside = false;
+      for (int j : idx) {
+        if (j == i0 || j == i1 || j == i2) continue;
+        const SDL_FPoint& q = p[static_cast<std::size_t>(j)];
+        if (cross(a, b, q) * sign >= 0 && cross(b, c, q) * sign >= 0 && cross(c, a, q) * sign >= 0) {
+          inside = true;
+          break;
+        }
+      }
+      if (inside) continue;
+      out.insert(out.end(), {i0, i1, i2});
+      idx.erase(idx.begin() + static_cast<std::ptrdiff_t>(i));
+      clipped = true;
+      break;
+    }
+    if (!clipped) break;
+  }
+  if (idx.size() == 3) out.insert(out.end(), {idx[0], idx[1], idx[2]});
+  return out;
+}
+
+SDL_FColor hueColour(float h, float sat, float val) {
+  h = h - std::floor(h);
+  const float r = std::clamp(std::fabs(h * 6 - 3) - 1, 0.0f, 1.0f);
+  const float g = std::clamp(2 - std::fabs(h * 6 - 2), 0.0f, 1.0f);
+  const float b = std::clamp(2 - std::fabs(h * 6 - 4), 0.0f, 1.0f);
+  auto mix = [&](float c) { return val * (1 - sat + sat * c); };
+  return {mix(r), mix(g), mix(b), 1.0f};
+}
+
+}  // namespace
+
+void Primitives::drawSticker(SDL_Renderer* renderer, const ChromeSticker& sticker, float cx, float cy,
+                             float sizePx, std::uint32_t seed) {
+  if (sizePx < 4.0f) return;
+  const std::vector<SDL_FPoint> unit = stickerOutline(sticker.shape);
+  const std::vector<int> tris = triangulate(unit);
+  const float ang = sticker.angle * 3.14159265f / 180.0f, ca = std::cos(ang), sa = std::sin(ang);
+  const float half = sizePx * 0.5f;
+  const float turn = static_cast<float>(seed % 997) / 997.0f;
+  // Each triangle is split into small ones so the foil's colours and its
+  // bright streak run smoothly across it (geometry colours only blend
+  // between corners).
+  auto emit = [&](float grow, float dx, float dy, const std::function<SDL_FColor(float, float)>& colourAt) {
+    std::vector<SDL_Vertex> v;
+    std::function<void(SDL_FPoint, SDL_FPoint, SDL_FPoint, int)> split =
+        [&](SDL_FPoint p0, SDL_FPoint p1, SDL_FPoint p2, int depth) {
+          if (depth == 0) {
+            for (SDL_FPoint q : {p0, p1, p2}) {
+              const float x = q.x * grow, y = q.y * grow;
+              SDL_Vertex vx {};
+              vx.position = {cx + dx + (x * ca - y * sa) * half, cy + dy + (x * sa + y * ca) * half};
+              vx.color = colourAt(q.x, q.y);
+              v.push_back(vx);
+            }
+            return;
+          }
+          const SDL_FPoint m01 {(p0.x + p1.x) / 2, (p0.y + p1.y) / 2};
+          const SDL_FPoint m12 {(p1.x + p2.x) / 2, (p1.y + p2.y) / 2};
+          const SDL_FPoint m20 {(p2.x + p0.x) / 2, (p2.y + p0.y) / 2};
+          split(p0, m01, m20, depth - 1);
+          split(m01, p1, m12, depth - 1);
+          split(m20, m12, p2, depth - 1);
+          split(m01, m12, m20, depth - 1);
+        };
+    for (std::size_t i = 0; i + 2 < tris.size(); i += 3) {
+      split(unit[static_cast<std::size_t>(tris[i])], unit[static_cast<std::size_t>(tris[i + 1])],
+            unit[static_cast<std::size_t>(tris[i + 2])], 3);
+    }
+    SDL_RenderGeometry(renderer, nullptr, v.data(), static_cast<int>(v.size()), nullptr, 0);
+  };
+  SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
+  const float border = 1.0f + std::max(0.08f, 3.0f / half);   // the die-cut white edge
+  const float lift = std::max(1.0f, sizePx * 0.03f);
+  emit(border, lift * 0.6f, lift, [](float, float) { return SDL_FColor {0, 0, 0, 0.28f}; });
+  emit(border, 0, 0, [](float, float) { return SDL_FColor {0.97f, 0.97f, 0.95f, 1.0f}; });
+  const SDL_FColor base = toF(sticker.colour);
+  const bool holo = sticker.holo;
+  emit(1.0f, 0, 0, [&](float x, float y) {
+    // A bright streak across the face, where the light catches it.
+    const float u = (x * 0.8f + y * 0.6f) * 0.5f + 0.5f;
+    const float d = (u - 0.35f) / 0.10f;
+    const float streak = 0.55f * std::exp(-d * d);
+    SDL_FColor c = holo ? hueColour(turn + x * 0.32f + y * 0.22f, 0.55f, 1.0f) : base;
+    if (!holo) {
+      const float shade = 0.08f * (y + 1) * 0.5f;
+      c.r -= shade;
+      c.g -= shade;
+      c.b -= shade;
+    }
+    c.r += (1 - c.r) * streak;
+    c.g += (1 - c.g) * streak;
+    c.b += (1 - c.b) * streak;
+    c.a = 1.0f;
+    return c;
+  });
 }
 
 void Primitives::forgetChromeRenderer(SDL_Renderer* renderer) {

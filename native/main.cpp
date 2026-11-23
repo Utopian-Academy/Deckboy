@@ -9290,6 +9290,21 @@ class App {
       st.backgroundTextureAlpha = std::clamp(num(b, 0.2f), 0.0f, 1.0f);
     } else if (name == "texture_scale") {
       st.textureScale = std::clamp(num(a, 1.0f), 0.25f, 4.0f);
+    } else if (name == "sticker") {   // style_sticker <shape> <holo|vinyl> <RRGGBB> <place> [angle] [size]
+      std::string place, angle, size;
+      in >> place >> angle >> size;
+      deckboy::render::ChromeSticker sticker;
+      if (deckboy::render::stickerShapeFromToken(a, &sticker.shape) && st.stickers.size() < 8) {
+        sticker.holo = b != "vinyl";
+        try {
+          const auto rgb = static_cast<std::uint32_t>(std::stoul(c.empty() ? "FFFFFF" : c, nullptr, 16));
+          sticker.colour = {static_cast<Uint8>(rgb >> 16), static_cast<Uint8>(rgb >> 8), static_cast<Uint8>(rgb), 255};
+        } catch (...) {}
+        sticker.place = place;
+        sticker.angle = std::clamp(num(angle, 0.0f), -60.0f, 60.0f);
+        sticker.size = std::clamp(num(size, 1.0f), 0.4f, 1.6f);
+        st.stickers.push_back(sticker);
+      }
     } else if (name == "font") {      // style_font <file in data/fonts> [size factor]
       themeChromeFont_ = a;
       themeChromeFontScale_ = std::clamp(static_cast<double>(num(b, 1.0f)), 0.5, 2.0);

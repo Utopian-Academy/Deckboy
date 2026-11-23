@@ -1384,6 +1384,15 @@
       ? programAreaRect_.x + programAreaRect_.w * 0.5 : width * 0.5;
     creatureLureY_ = programAreaRect_.h > 0
       ? programAreaRect_.y + programAreaRect_.h * 0.5 : height * 0.4;
+    // A skin's sticker in the playlist's empty space, under the creatures.
+    for (const auto& sticker : deckboy::render::gChrome.stickers) {
+      if (sticker.place != "playlist" || playlistFreeRect_.w <= 0 || playlistFreeRect_.h < uiScaled(80)) continue;
+      const float size = static_cast<float>(std::min(uiScaled(64), playlistFreeRect_.w / 3)) * sticker.size;
+      Primitives::drawSticker(controlRenderer_, sticker,
+                              static_cast<float>(playlistFreeRect_.x + playlistFreeRect_.w) - size * 0.8f,
+                              static_cast<float>(playlistFreeRect_.y + playlistFreeRect_.h) - size * 0.8f,
+                              size, 4242u);
+    }
     updateCreatures(static_cast<double>(animationNow_) / 1000.0);
     renderCreatures();
     // THE BUSY CRITTERS ARE NOT DRAWN HERE. See below, above the popups: the
@@ -2871,6 +2880,20 @@
     drawGroupFrame(transportGroupRect_, "TRANSPORT");
     drawGroupFrame(outputGroupRect_, "OUTPUT");
     drawGroupFrame(deskGroupRect_, "DESK");
+    // A skin's stickers on the plates: at the right end of the label strip,
+    // where nothing else is drawn (OUTPUT's carries the on-air badges).
+    for (const auto& sticker : deckboy::render::gChrome.stickers) {
+      const SDL_Rect* plate = sticker.place == "media" ? &mediaGroupRect_
+                            : sticker.place == "transport" ? &transportGroupRect_
+                            : sticker.place == "desk" ? &deskGroupRect_ : nullptr;
+      if (!plate || plate->w <= 0 || plate->h <= 0) continue;
+      // Stuck across the plate's top edge, the way a sticker gets slapped on.
+      const float size = static_cast<float>(uiScaled(36)) * sticker.size;
+      Primitives::drawSticker(controlRenderer_, sticker,
+                              static_cast<float>(plate->x + plate->w) - size * 0.5f - static_cast<float>(uiScaled(14)),
+                              static_cast<float>(plate->y) + size * 0.22f,
+                              size, static_cast<std::uint32_t>(plate->x * 7 + plate->w));
+    }
 
     // ── On-air row ────────────────────────────────────────────────────────
     // One transmitting badge per stream type, on the OUTPUT group header where

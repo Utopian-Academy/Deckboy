@@ -20,7 +20,9 @@
 
 #pragma once
 
+#include <cstdint>
 #include <string>
+#include <vector>
 
 #include "core/sdl_compat.hpp"
 
@@ -38,8 +40,22 @@ namespace deckboy::render {
 enum class ChromeShape { Rect, Round, Pill, Chamfer, Blob };
 enum class ChromeTexture { None, Brushed, Grain, Crackle, Dots, Wood, Carbon, Halftone, Circuit, Mesh };
 
+// A sticker on the desk: a die-cut shape with a white border, holographic
+// foil or plain vinyl. `place` names where it goes (the desk decides the
+// spot): playlist, media, transport, desk.
+enum class StickerShape { Star, Bolt, Heart, Dot, Cross };
+struct ChromeSticker {
+  StickerShape shape = StickerShape::Star;
+  bool holo = true;
+  SDL_Color colour {255, 255, 255, 255};
+  std::string place;
+  float angle = 0.0f;   // degrees
+  float size = 1.0f;    // against the spot's own size
+};
+
 struct ChromeStyle {
   bool enabled = false;
+  std::vector<ChromeSticker> stickers;
   float scale = 1.0f;
   ChromeShape panelShape = ChromeShape::Rect;
   ChromeShape controlShape = ChromeShape::Rect;
@@ -65,6 +81,7 @@ struct ChromeStyle {
 inline ChromeStyle gChrome;
 
 ChromeShape chromeShapeFromToken(const std::string& token, ChromeShape fallback);
+bool stickerShapeFromToken(const std::string& token, StickerShape* out);
 ChromeTexture chromeTextureFromToken(const std::string& token);
 
 class Primitives {
@@ -92,6 +109,9 @@ class Primitives {
   // wash and the open/release rings follow the control's own outline.
   static void fillChromeShape(SDL_Renderer* renderer, const SDL_Rect& rect, SDL_Color color);
   static void strokeChromeShape(SDL_Renderer* renderer, const SDL_Rect& rect, SDL_Color color, int width);
+  // A sticker centred at (cx, cy), `sizePx` across; `seed` turns the foil.
+  static void drawSticker(SDL_Renderer* renderer, const ChromeSticker& sticker,
+                          float cx, float cy, float sizePx, std::uint32_t seed);
   // Textures are made per renderer; call when a renderer goes away.
   static void forgetChromeRenderer(SDL_Renderer* renderer);
 
