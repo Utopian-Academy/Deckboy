@@ -1216,25 +1216,16 @@ zu	STATUS | SHAPE drift|ouchi|cafe|vanish|grid|dancer | FORM leaf|petal|scale|ri
 de	chaos
 fr	chaos
 nl	body
-nl	chaos
 pl	chaos
 ar	crt
 bg	crt
 ckb	crt
 da	crt
-da	glitch
-de	crt
 el	crt
 es-CU	crt
 es	crt
 fa	crt
 fi	crt
-fr	crt
-fr	note
-fr	glitch
-fr	lasers
-fr	pixels
-fr	second jet
 gd	crt
 haw	crt
 hi	crt
@@ -1246,19 +1237,8 @@ kmr	crt
 ko	crt
 lo	crt
 lum	crt
-nl	crt
-nl	lens
-nl	WATER
-nl	water
-nl	detail
-nl	glitch
-nl	lasers
-nl	pixels
 pap-AW	crt
-pl	crt
 pt-BR	crt
-pt-BR	lasers
-pt-BR	pixels
 ru	crt
 tr	crt
 uk	crt
@@ -1267,3 +1247,5 @@ zgh	crt
 zh-Hans	crt
 zh-Hant	crt
 zu	crt
+
+*	Mini

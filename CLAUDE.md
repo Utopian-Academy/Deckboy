@@ -661,3 +661,15 @@ full languages complete:
   property, absent in 3.2).
 - `#ifndef _WIN32` / `#ifdef _WIN32` guards for platform-specific code
 - Copyright year: 2026; license: GPL-3.0-or-later
+
+## Mini follows a desk
+
+`native/mini/mini_main.cpp`: `--follow <IPv4[:port]>` or `SYNC FOLLOW`,
+`SYNC STOP`, `SYNC STATUS` use the desk's FOLLOW/TIME/SYNC protocol. The
+non-blocking outbound socket is serviced on Mini's loop. Clock offset uses
+the lowest RTT of eight samples; drift over two frames triggers a seek with
+learned lead and a 600 ms settling interval. Missing cues go dark; loss of
+heartbeat keeps the current cue and retries. Local takes/GO/BACK are locked
+until SYNC STOP, including keyboard paths. Mini accepts `pattern://<type>`
+entries to match local generators. `codex/mini_follow_test.py` runs the real
+desk and Mini silently on a private desktop, with drift and reconnect timing.

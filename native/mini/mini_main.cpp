@@ -25,6 +25,9 @@
 #include "render/text_shaper.hpp"
 
 #include "core/constants.hpp"
+#include "core/i18n.hpp"
+#include "core/utils.hpp"
+#include <iomanip>
 #include "core/types.hpp"
 #include "deckboy_version.hpp"
 #include "core/media_probe.hpp"
@@ -85,6 +88,7 @@ const char* kUsage =
   "  --still S      seconds each image stays up. Default 5.\n"
   "  --volume P     volume, 0-100. Default 100.\n"
   "  --port N       remote control port. Default 5510 (the desk's).\n"
+  "  --follow HOST  follow a desk at IPv4 address[:port]. Default port 5510.\n"
   "  --remote       accept remote control from the network, not only this machine\n"
   "  --plain        plain log lines instead of the status panel\n"
   "  --overlay      start with the status bar shown on the output (H toggles it)\n"
@@ -117,7 +121,7 @@ const char* kRemoteHelp =
   "DISPLAYS | DISPLAY n|NEXT | OUTPUT ON|OFF|TOGGLE | AUDIO LIST|NEXT|DEFAULT|<name> | "
   "SPEED 0.25-4 | MUTE ON|OFF|TOGGLE | FRAME [BACK] | ABLOOP [a b|OFF] | SUBS [ON|OFF] | AUDIOTRACK n|NEXT | "
   "FIND words | QUEUE [n|CLEAR] | ENDAFTER ON|OFF|TOGGLE | SHUFFLE ON|OFF|TOGGLE | "
-  "CLOCK REMAINING|ELAPSED|TOGGLE | CROSSFADE seconds|NEXT | WATCH [folder|ON|OFF|TOGGLE]\n";
+  "SYNC FOLLOW <desk>|STOP|STATUS | BACK | CLOCK REMAINING|ELAPSED|TOGGLE | CROSSFADE seconds|NEXT | WATCH [folder|ON|OFF|TOGGLE]\n";
 
 std::string upper(std::string s) {
   for (char& c : s) c = static_cast<char>(std::toupper(static_cast<unsigned char>(c)));
@@ -150,6 +154,7 @@ struct Options {
   bool remote = false;
   bool plain = false;
   bool overlay = false;
+  std::string follow;
   fs::path watch;                 // --watch: empty is off
   std::vector<fs::path> inputs;
 };
@@ -185,6 +190,7 @@ Options parseArgs(int argc, char** argv) {
     else if (a == "--paused") o.paused = true;
     else if (a == "--still") o.stillSeconds = number(need(i, "--still"), "--still");
     else if (a == "--volume") o.volume = static_cast<int>(number(need(i, "--volume"), "--volume"));
+    else if (a == "--follow") o.follow = need(i, "--follow");
     else if (a == "--port") o.port = static_cast<int>(number(need(i, "--port"), "--port"));
     else if (a == "--remote") o.remote = true;
     else if (a == "--plain") o.plain = true;
@@ -228,6 +234,7 @@ std::vector<Cue> cuesFor(const std::vector<fs::path>& inputs, double stillSecond
                          const Report& report = toStderr) {
   std::vector<fs::path> files;
   for (const fs::path& in : inputs) {
+    if (in.string().rfind("pattern://", 0) == 0) { files.push_back(in); continue; }
     std::error_code ec;
     if (fs::is_directory(in, ec)) {
       std::vector<fs::path> found;
@@ -245,6 +252,17 @@ std::vector<Cue> cuesFor(const std::vector<fs::path>& inputs, double stillSecond
   }
   std::vector<Cue> cues;
   for (const fs::path& f : files) {
+    if (f.string().rfind("pattern://", 0) == 0) {
+      Cue cue;
+      cue.id = "mini-" + std::to_string(firstId + cues.size());
+      cue.kind = CueKind::Pattern;
+      cue.path = f.string();
+      cue.name = cue.path.substr(10);
+      cue.width = 1280; cue.height = 720; cue.fps = 30.0;
+      cue.stillDurationSeconds = stillSeconds;
+      cues.push_back(std::move(cue));
+      continue;
+    }
     std::optional<Cue> probed = deckboy::core::media::probeCue(fs::absolute(f));
     if (!probed) {
       report("skipping " + f.string() + " (could not read it)");
@@ -327,8 +345,11 @@ std::vector<PlaylistEntry> readPls(std::ifstream& in, const fs::path& file) {
       e.name = value;
     } else {
       fs::path path = pathFromUtf8(value);
-      if (path.is_relative()) path = file.parent_path() / path;
-      e.path = path.lexically_normal();
+      if (value.rfind("pattern://", 0) == 0) e.path = path;
+      else {
+        if (path.is_relative()) path = file.parent_path() / path;
+        e.path = path.lexically_normal();
+      }
     }
   }
   std::vector<PlaylistEntry> out;
@@ -372,8 +393,8 @@ std::vector<PlaylistEntry> readPlaylist(const fs::path& file, const Report& repo
     }
     if (line[0] == '#') continue;
     fs::path p = pathFromUtf8(line);
-    if (p.is_relative()) p = file.parent_path() / p;
-    pending.path = p.lexically_normal();
+    if (line.rfind("pattern://", 0) != 0 && p.is_relative()) p = file.parent_path() / p;
+    pending.path = line.rfind("pattern://", 0) == 0 ? p : p.lexically_normal();
     out.push_back(pending);
     pending = PlaylistEntry {};
   }
@@ -394,6 +415,7 @@ bool writePlaylist(const fs::path& file, const std::vector<Cue>& cues) {
         if (c.kind == CueKind::Image) out << ";still=" << c.stillDurationSeconds;
         out << "\n";
       }
+      if (c.path.rfind("pattern://", 0) == 0) { out << c.path << "\n"; continue; }
       fs::path p = fs::path(c.path);
       const fs::path rel = p.lexically_relative(dir);
       const bool inside = !rel.empty() && rel.native().find(fs::path("..").native()) != 0;
@@ -465,10 +487,12 @@ class Mini {
     }
     if (!opt_.watch.empty()) setWatch(opt_.watch.string());
     take(0, !opt_.paused);
+    if (!opt_.follow.empty()) { followHost_ = opt_.follow; startFollowing(); }
     while (!gQuit.load()) {
       pumpEvents();
       while (auto key = keys_.poll()) onKey(*key, true);
       pollRemote();
+      pollFollow();
       serviceWatch();
       {
         // update() is where a new frame is uploaded to the GPU, so it is
@@ -482,9 +506,9 @@ class Mini {
       collectEmbeddedSubtitles();
       // A-B LOOP: at B, back to A. Checked before the end, so a B at the very
       // end of the clip still loops rather than advancing.
-      if (abA_ >= 0.0 && abB_ > abA_ && active_ >= 0 && engine_->position() >= abB_) {
+      if (!followWanted_ && abA_ >= 0.0 && abB_ > abA_ && active_ >= 0 && engine_->position() >= abB_) {
         engine_->seek(abA_);
-      } else if (engine_->reachedEnd()) {
+      } else if (!followWanted_ && engine_->reachedEnd()) {
         cueEnded();
       }
       draw();
@@ -592,6 +616,7 @@ class Mini {
   }
 
   void shutdown() {
+    dropFollowSocket();
     if (subTex_) SDL_DestroyTexture(subTex_);
     if (subFont_) {
       deckboy::render::shaping::forgetFace(subFont_);
@@ -623,6 +648,7 @@ class Mini {
   // cue that just ended -- picking cue 7 to edit must not jump to cue 4 under
   // the next keypress because cue 3 finished.
   void take(int index, bool autoplay = true, bool followSelection = true) {
+    if (followLocked()) return;
     if (!validIndex(index)) return;
     if (followSelection || selected_ == active_ || active_ < 0) selected_ = index;
     active_ = index;
@@ -755,6 +781,7 @@ class Mini {
   }
 
   void go() {
+    if (followLocked()) return;
     // At the end of a held list the cue on screen has finished: GO takes the
     // picked cue rather than "playing" one with nothing left to play.
     if (active_ < 0 || atEnd_) { take(selected_); return; }
@@ -1200,7 +1227,7 @@ class Mini {
     }
     if (!blackout_) drawSubtitles();
     if (cues_.empty() && !blackout_) drawEmptyHint();
-    if (overlay_) drawOverlay();
+    if (overlay_ || followWanted_) drawOverlay();
     // OUTSNAP (a test verb, as on the desk): this frame as it leaves.
     if (!snapPath_.empty()) {
       if (SDL_Surface* shot = SDL_RenderReadPixels(renderer_, nullptr)) {
@@ -1691,6 +1718,18 @@ class Mini {
       return std::nullopt;
     };
 
+    if (verb == "SYNC") {
+      if (upper(arg) == "STATUS" && parts.size() == 2) return "OK SYNC: " + syncStatusFields() + "\n";
+      if (upper(arg) == "STOP" && parts.size() == 2) { stopFollowing(); return ok(); }
+      if (upper(arg) == "FOLLOW" && parts.size() == 3) {
+        followHost_ = parts[2]; startFollowing();
+        return followWanted_ ? ok() : err(followError_);
+      }
+      return err("SYNC FOLLOW <desk address[:port]> | STOP | STATUS");
+    }
+    if (followWanted_ && (verb == "GO" || verb == "TAKE" || verb == "BACK" || verb == "SKIP" || verb == "SKIPBACK" || verb == "FIND" || verb == "JUMP"))
+      return err("The desk has GO while following. SYNC STOP to stop following.");
+    if (verb == "BACK") { take(std::max(active_ - 1, 0)); return ok(); }
     if (verb == "STATUS" || verb == "STATE") return status();
     if (verb == "HELP") return kRemoteHelp;
     if (verb == "PING") return ok();
@@ -2126,6 +2165,7 @@ class Mini {
       s << (i == 0 ? " order=" : "|") << cues_[i].name << (cues_[i].loop ? "(loop)" : "");
     }
     s << "\n";
+    s << "SYNC " << syncStatusFields() << "\n";
     return s.str();
   }
 
@@ -2246,16 +2286,17 @@ class Mini {
     SDL_FRect rule {0.0f, top, vw, 1.0f};
     SDL_RenderFillRect(renderer_, &rule);
 
-    const std::string state = st.blackout ? "BLACKOUT" : st.status == "Playing" ? "> PLAYING" : st.status == "Paused" ? "|| PAUSED" : "# STOPPED";
+    const std::string state = followWanted_ ? followHeadline() : st.blackout ? "BLACKOUT" : st.status == "Playing" ? "> PLAYING" : st.status == "Paused" ? "|| PAUSED" : "# STOPPED";
     const std::string times = st.cue > 0 ? clock(st.position) + " / " + (st.duration > 0.0 ? clock(st.duration) : std::string("--:--.-")) : std::string();
-    const std::string cue = st.cue > 0 ? std::to_string(st.cue) + "/" + std::to_string(st.cueCount) + "  " + ascii(st.cueName)
+    const std::string cue = followWanted_ && !missingCue_.empty() ? ascii(missingCue_) : st.cue > 0 ? std::to_string(st.cue) + "/" + std::to_string(st.cueCount) + "  " + ascii(st.cueName)
                                        : "-/" + std::to_string(st.cueCount);
     const float y1 = top + pad, y2 = y1 + line + gap * 2 + 2.0f;
     const float timesX = vw - pad - times.size() * 8.0f;
 
     SDL_SetRenderDrawColor(renderer_, 155, 188, 15, 255);              // bright LCD
     SDL_RenderDebugText(renderer_, pad, y1, state.c_str());
-    SDL_RenderDebugText(renderer_, pad + 11 * 8.0f, y1, clip(cue, timesX - (pad + 11 * 8.0f) - 16.0f).c_str());
+    const float cueX = pad + static_cast<float>(state.size() + 2) * line;
+    SDL_RenderDebugText(renderer_, cueX, y1, clip(cue, timesX - cueX - gap).c_str());
     SDL_SetRenderDrawColor(renderer_, 139, 172, 15, 255);
     SDL_RenderDebugText(renderer_, timesX, y1, times.c_str());
 
@@ -2385,6 +2426,470 @@ class Mini {
     else if (removePending()) s.prompt = "press X again to remove cue " + std::to_string(removeArmedIndex_ + 1);
     return s;
   }
+
+  enum class Follow { Off, Connecting, Joining, Following, Lost };
+
+  struct SyncLine {
+    std::string cue = "-", file, name, state = "stopped", transStyle = "crossfade";
+    int num = 0;
+    double pos = 0.0, speed = 1.0, transSeconds = 0.5;
+    Uint64 at = 0;
+  };
+
+  struct ClockSample { Sint64 offset; Uint64 rtt; };
+
+  static bool parseSyncLine(const std::string& line, SyncLine& out) {
+    if (line.rfind("SYNC ", 0) != 0) return false;
+    // key=value pairs; a value in quotes may hold spaces (file=, name=).
+    const std::string body = line.substr(5);
+    std::size_t at = 0;
+    while (at < body.size()) {
+      while (at < body.size() && body[at] == ' ') ++at;
+      const std::size_t eq = body.find('=', at);
+      if (eq == std::string::npos) break;
+      const std::string k = body.substr(at, eq - at);
+      std::string v;
+      if (eq + 1 < body.size() && body[eq + 1] == '"') {
+        const std::size_t close = body.find('"', eq + 2);
+        v = body.substr(eq + 2, (close == std::string::npos ? body.size() : close) - eq - 2);
+        at = close == std::string::npos ? body.size() : close + 1;
+      } else {
+        const std::size_t sp = body.find(' ', eq + 1);
+        v = body.substr(eq + 1, (sp == std::string::npos ? body.size() : sp) - eq - 1);
+        at = sp == std::string::npos ? body.size() : sp + 1;
+      }
+      if (k == "cue") out.cue = v;
+      else if (k == "file") out.file = v;
+      else if (k == "name") out.name = v;
+      else if (k == "num") out.num = std::atoi(v.c_str());
+      else if (k == "state") out.state = v;
+      else if (k == "pos") out.pos = std::atof(v.c_str());
+      else if (k == "at") out.at = std::strtoull(v.c_str(), nullptr, 10);
+      else if (k == "speed") out.speed = std::atof(v.c_str());
+      else if (k == "trans") {
+        const std::size_t slash = v.find('/');
+        out.transStyle = v.substr(0, slash);
+        out.transSeconds = slash == std::string::npos ? 0.0 : std::atof(v.c_str() + slash + 1);
+      }
+    }
+    return out.at != 0 && std::isfinite(out.pos) && std::isfinite(out.speed) && std::isfinite(out.transSeconds);
+  }
+
+  static void setNonBlocking(SocketHandle sock) {
+#ifdef _WIN32
+    u_long on = 1;
+    ioctlsocket(static_cast<SOCKET>(sock), FIONBIO, &on);
+#else
+    fcntl(sock, F_SETFL, fcntl(sock, F_GETFL, 0) | O_NONBLOCK);
+#endif
+  }
+
+  static bool wouldBlock() {
+#ifdef _WIN32
+    const int e = WSAGetLastError();
+    return e == WSAEWOULDBLOCK || e == WSAEINPROGRESS;
+#else
+    return errno == EAGAIN || errno == EWOULDBLOCK || errno == EINPROGRESS;
+#endif
+  }
+
+  void startFollowing() {
+    dropFollowSocket();
+    followError_.clear();
+    syncCue_.clear();
+    missingCue_.clear();
+    seekHoldUntil_ = 0;
+    seekLanding_ = false;
+    seekLead_ = driftFrames_ = 0.0;
+    syncSeeks_ = 0;
+    std::string host = followHost_;
+    while (!host.empty() && host.back() == ' ') host.pop_back();
+    int port = 5510;
+    const std::size_t colon = host.find(':');
+    if (colon != std::string::npos) {
+      const std::string digits = host.substr(colon + 1);
+      port = digits.empty() || digits.size() > 5 || digits.find_first_not_of("0123456789") != std::string::npos
+               ? 0 : std::atoi(digits.c_str());
+      host.erase(colon);
+    }
+    sockaddr_in addr {};
+    addr.sin_family = AF_INET;
+    addr.sin_port = htons(static_cast<uint16_t>(port));
+    if (host.empty() || port <= 0 || port > 65535 || inet_pton(AF_INET, host.c_str(), &addr.sin_addr) != 1) {
+      followError_ = "Type the desk's IP address, like 192.168.1.20";
+      follow_ = Follow::Off;
+      followWanted_ = false;
+      return;
+    }
+    followWanted_ = true;
+    followAddr_ = addr;
+    connectFollow();
+  }
+
+  void connectFollow() {
+    dropFollowSocket();
+    const SocketHandle sock = static_cast<SocketHandle>(socket(AF_INET, SOCK_STREAM, 0));
+    if (sock == kInvalidSocket) {
+      followError_ = "No network socket";
+      follow_ = Follow::Lost;
+      followRetryAt_ = SDL_GetTicks() + 2000;
+      return;
+    }
+    setCloseOnExec(sock);
+#ifdef SO_NOSIGPIPE
+    int noSigpipe = 1;
+    setsockopt(sock, SOL_SOCKET, SO_NOSIGPIPE, &noSigpipe, sizeof(noSigpipe));
+#endif
+    setNonBlocking(sock);
+    const int rc = connect(sock, reinterpret_cast<const sockaddr*>(&followAddr_), sizeof(followAddr_));
+    if (rc != 0 && !wouldBlock()) {
+      closeSocket(sock);
+      followError_ = "Cannot reach the desk";
+      follow_ = Follow::Lost;
+      followRetryAt_ = SDL_GetTicks() + 2000;
+      return;
+    }
+    followSock_ = sock;
+    follow_ = Follow::Connecting;
+    followSince_ = SDL_GetTicks();
+  }
+
+  void dropFollowSocket() {
+    if (followSock_ != kInvalidSocket) {
+      const char bye[] = "UNFOLLOW\n";
+      send(followSock_, bye, static_cast<int>(sizeof(bye) - 1), kSocketSendFlags);
+      closeSocket(followSock_);
+    }
+    followSock_ = kInvalidSocket;
+    followBuffer_.clear();
+    followOutput_.clear();
+    clockSamples_.clear();
+    clockReady_ = false;
+    nextTimeProbe_ = 0;
+  }
+
+  void stopFollowing() {
+    dropFollowSocket();
+    followWanted_ = false;
+    follow_ = Follow::Off;
+    followError_.clear();
+    syncCue_.clear();
+    missingCue_.clear();
+  }
+
+  // The desk went quiet or the connection closed: say so, keep playing what
+  // is on air (a fleet screen does not go dark because Wi-Fi blinked), and
+  // try again.
+  void loseDesk(const std::string& why) {
+    SDL_Log("mini: sync lost (%s); last line %llu ms ago, state %s", why.c_str(),
+            static_cast<unsigned long long>(SDL_GetTicks() - lastHeard_), followHeadline().c_str());
+    if (followSock_ != kInvalidSocket) closeSocket(followSock_);
+    followSock_ = kInvalidSocket;
+    followBuffer_.clear();
+    followOutput_.clear();
+    clockSamples_.clear();
+    clockReady_ = false;
+    if (!why.empty()) followError_ = why;
+    follow_ = followWanted_ ? Follow::Lost : Follow::Off;
+    followRetryAt_ = SDL_GetTicks() + 2000;
+  }
+
+  bool flushFollow() {
+    while (!followOutput_.empty()) {
+      const int n = static_cast<int>(send(followSock_, followOutput_.data(),
+                                        static_cast<int>(followOutput_.size()), kSocketSendFlags));
+      if (n > 0) followOutput_.erase(0, static_cast<std::size_t>(n));
+      else if (n < 0 && wouldBlock()) return true;
+      else { loseDesk("Cannot send to the desk"); return false; }
+    }
+    return true;
+  }
+
+  bool followSend(const std::string& line) {
+    if (followSock_ == kInvalidSocket) return false;
+    if (followOutput_.size() + line.size() > 65536) { loseDesk("The desk is not reading"); return false; }
+    followOutput_ += line;
+    return flushFollow();
+  }
+
+  std::string computerName() {
+    char host[256] {};
+    if (gethostname(host, sizeof(host) - 1) != 0) return "Mini";
+    std::string name(host);
+    for (char& c : name) if (std::isspace(static_cast<unsigned char>(c))) c = '-';
+    return name;
+  }
+
+  void pollFollow() {
+    const Uint64 now = SDL_GetTicks();
+    if (follow_ == Follow::Off) return;
+    if (followSock_ == kInvalidSocket) {
+      if (followWanted_ && now >= followRetryAt_) connectFollow();
+      return;
+    }
+    if (follow_ == Follow::Connecting) {
+      fd_set writable, failed;
+      FD_ZERO(&writable);
+      FD_ZERO(&failed);
+      SocketHandle maxFd = followSock_;
+      watchFd(followSock_, &writable, maxFd);
+      watchFd(followSock_, &failed, maxFd);
+      timeval none {0, 0};
+      if (::select(selectNfds(maxFd), nullptr, &writable, &failed, &none) > 0 &&
+          (readyFd(followSock_, &writable) || readyFd(followSock_, &failed))) {
+        int soError = 0;
+        socklen_t len = sizeof(soError);
+        const int checked = getsockopt(followSock_, SOL_SOCKET, SO_ERROR, reinterpret_cast<char*>(&soError), &len);
+        if (checked != 0 || soError != 0) { loseDesk("The desk did not answer on port " + std::to_string(ntohs(followAddr_.sin_port))); return; }
+        follow_ = Follow::Joining;
+        followSend("FOLLOW " + computerName() + " mini fleet\n");
+        nextTimeProbe_ = 0;
+      } else if (now - followSince_ > 4000) {
+        loseDesk("No desk at that address (is network control on?)");
+        return;
+      }
+      return;
+    }
+    if (!flushFollow()) return;
+    // Clock probes: quick at first, then every two seconds.
+    if (now >= nextTimeProbe_) {
+      if (!followSend("TIME " + std::to_string(SDL_GetTicksNS()) + "\n")) return;
+      nextTimeProbe_ = now + (clockSamples_.size() < 8 ? 150 : 2000);
+    }
+    char buf[4096];
+    for (;;) {
+      const int n = static_cast<int>(recv(followSock_, buf, sizeof(buf), 0));
+      if (n > 0) {
+        followBuffer_.append(buf, static_cast<std::size_t>(n));
+        if (followBuffer_.size() > 65536) { loseDesk("The desk sent too much"); return; }
+        continue;
+      }
+      if (n == 0) { loseDesk("The desk closed the connection"); return; }
+      if (!wouldBlock()) { loseDesk("Lost the connection to the desk"); return; }
+      break;
+    }
+    std::size_t eol;
+    while ((eol = followBuffer_.find('\n')) != std::string::npos) {
+      std::string line = followBuffer_.substr(0, eol);
+      followBuffer_.erase(0, eol + 1);
+      if (!line.empty() && line.back() == '\r') line.pop_back();
+      takeFollowLine(line);
+      if (followSock_ == kInvalidSocket) return;
+    }
+    if (followBuffer_.size() > 65536) { loseDesk("The desk sent too much"); return; }
+    // Read the clock again: a line just taken set lastHeard_ after `now`
+    // was read, and `now - lastHeard_` would wrap to a huge number -- which
+    // dropped a working connection as "the desk went quiet".
+    const Uint64 after = SDL_GetTicks();
+    const Uint64 heard = std::max(lastHeard_, followSince_);
+    const Uint64 quiet = after > heard ? after - heard : 0;
+    if (follow_ == Follow::Following && quiet > 1000) {
+      follow_ = Follow::Lost;   // the 4 Hz heartbeat stopped
+    }
+    if ((follow_ == Follow::Lost || follow_ == Follow::Joining) && quiet > 6000) {
+      loseDesk(follow_ == Follow::Joining ? "The desk did not take FOLLOW" : "The desk went quiet");
+    }
+  }
+
+  void takeFollowLine(const std::string& line) {
+    const Uint64 now = SDL_GetTicks();
+    if (line.rfind("OK FOLLOW", 0) == 0) {
+      follow_ = Follow::Following;
+      followError_.clear();
+      lastHeard_ = now;
+      return;
+    }
+    if (line.rfind("ERR FOLLOW", 0) == 0) {
+      // Usually "this desk is not leading": keep asking, the operator may turn it on.
+      const std::size_t colon = line.find(": ");
+      loseDesk(colon == std::string::npos ? line : "Desk: " + line.substr(colon + 2));
+      followRetryAt_ = now + 2000;
+      return;
+    }
+    if (line.rfind("OK TIME: ", 0) == 0) {
+      std::istringstream in(line.substr(9));
+      Uint64 sent = 0, desk = 0;
+      if (in >> sent >> desk && sent) {
+        const Uint64 back = SDL_GetTicksNS();
+        if (back >= sent) {
+          ClockSample c;
+          c.rtt = back - sent;
+          c.offset = static_cast<Sint64>(desk) - static_cast<Sint64>(sent + c.rtt / 2);
+          clockSamples_.push_back(c);
+          if (clockSamples_.size() > 8) clockSamples_.erase(clockSamples_.begin());
+          // The sample with the shortest round trip has the least room for error.
+          const ClockSample* best = &clockSamples_.front();
+          for (const ClockSample& k : clockSamples_) if (k.rtt < best->rtt) best = &k;
+          clockOffset_ = best->offset;
+          clockRtt_ = best->rtt;
+          clockReady_ = clockSamples_.size() >= 3;
+        }
+      }
+      return;
+    }
+    SyncLine sync;
+    if (parseSyncLine(line, sync)) {
+      lastHeard_ = now;
+      if (follow_ != Follow::Following && follow_ != Follow::Off) follow_ = Follow::Following;
+      if (clockReady_) applySync(sync);
+    }
+  }
+
+  Uint64 deskNowNs() const {
+    return static_cast<Uint64>(static_cast<Sint64>(SDL_GetTicksNS()) + clockOffset_);
+  }
+
+  static std::string lowerStem(const std::string& path) {
+    std::string stem = dbfs::path(path).stem().string();
+    for (char& c : stem) c = static_cast<char>(std::tolower(static_cast<unsigned char>(c)));
+    return stem;
+  }
+
+  static std::string lower(std::string t) {
+    for (char& c : t) c = static_cast<char>(std::tolower(static_cast<unsigned char>(c)));
+    return t;
+  }
+
+  // This Mini's copy of the desk's cue: the same id (the same show file on
+  // both), else the same media (a file of the same name, the same generator),
+  // else the same cue name.
+  int localCueFor(const SyncLine& sync) const {
+    for (std::size_t i = 0; i < cues_.size(); ++i) if (cues_[i].id == sync.cue) return static_cast<int>(i);
+    if (!sync.file.empty()) {
+      const bool pattern = sync.file.rfind("pattern://", 0) == 0;
+      const std::string want = lower(pattern ? sync.file : dbfs::path(sync.file).filename().string());
+      for (std::size_t i = 0; i < cues_.size(); ++i) {
+        const std::string& path = cues_[i].path;
+        if (path.empty()) continue;
+        const std::string have = lower(pattern ? path : dbfs::path(path).filename().string());
+        if (have == want) return static_cast<int>(i);
+      }
+      // Also accept a locally renamed copy whose cue name is the file stem.
+      if (!pattern) {
+        const std::string stem = lowerStem(sync.file);
+        for (std::size_t i = 0; i < cues_.size(); ++i) if (lower(cues_[i].name) == stem) return static_cast<int>(i);
+      }
+    }
+    if (!sync.name.empty()) {
+      const std::string want = lower(sync.name);
+      for (std::size_t i = 0; i < cues_.size(); ++i) if (lower(cues_[i].name) == want) return static_cast<int>(i);
+      for (std::size_t i = 0; i < cues_.size(); ++i) {
+        if (!cues_[i].path.empty() && lowerStem(cues_[i].path) == lowerStem(sync.name)) return static_cast<int>(i);
+      }
+    }
+    return -1;
+  }
+
+  void applySync(const SyncLine& sync) {
+    const Uint64 now = SDL_GetTicks();
+    if (sync.cue == "-") {
+      if (active_ >= 0) { engine_->clear(); active_ = -1; }
+      syncCue_ = "-";
+      missingCue_.clear();
+      blackout_ = sync.state == "black";
+      return;
+    }
+    if (sync.cue != syncCue_ || !missingCue_.empty() || active_ < 0) {
+      syncCue_ = sync.cue;
+      const int local = localCueFor(sync);
+      if (local < 0) {
+        // Never show the wrong picture: go dark and say which cue is missing.
+        missingCue_ = !sync.name.empty() ? sync.name : !sync.file.empty() ? sync.file : "cue " + std::to_string(sync.num);
+        if (active_ >= 0) { engine_->clear(); active_ = -1; }
+        return;
+      }
+      missingCue_.clear();
+      active_ = local;
+      stopped_ = false;
+      atEnd_ = false;
+      abA_ = abB_ = -1.0;
+      loadSubtitlesFor(cues_[static_cast<std::size_t>(local)]);
+      Cue& c = cues_[static_cast<std::size_t>(local)];
+      speed_ = sync.speed >= 0.25 && sync.speed <= 4.0 ? sync.speed : 1.0;
+      c.playbackSpeed = speed_;
+      const TransitionStyle style = deckboy::core::utils::parseTransitionStyleToken(sync.transStyle);
+      const double fade = style == TransitionStyle::Cut ? 0.0 : std::max(0.0, sync.transSeconds);
+      engine_->loadCue(&c, sync.state == "playing" || sync.state == "black", fade,
+                       fade > 0 ? TransitionStyle::Crossfade : TransitionStyle::Cut);
+      selected_ = std::min(local + 1, static_cast<int>(cues_.size()) - 1);
+      seekHoldUntil_ = 0;
+    }
+    blackout_ = sync.state == "black";
+    if (active_ < 0 || !missingCue_.empty()) return;
+    const Cue& c = cues_[static_cast<std::size_t>(active_)];
+    const bool playing = sync.state == "playing" || sync.state == "black";
+    if (!playing && engine_->state() == TransportState::Playing) engine_->pause();
+    if (playing && engine_->state() != TransportState::Playing) engine_->play();
+    if (std::isfinite(sync.speed) && sync.speed >= 0.25 && sync.speed <= 4.0 && std::abs(speed_ - sync.speed) > 0.001) setSpeed(sync.speed);
+    if (c.kind != CueKind::Video && c.kind != CueKind::Audio && c.kind != CueKind::Pattern) return;
+    // Where the desk is now: its position when it wrote the line, plus the
+    // time since in the desk's own clock.
+    double expected = sync.pos;
+    if (playing) {
+      const double since = static_cast<double>(static_cast<Sint64>(deskNowNs() - sync.at)) / 1e9;
+      expected += std::max(0.0, since) * (sync.speed > 0 ? sync.speed : 1.0);
+    }
+    const double in = 0.0, out = engine_->duration();
+    if (out <= in) return;
+    if (expected > out && c.loop && out > in) expected = in + std::fmod(expected - in, out - in);
+    expected = std::clamp(expected, in, out);
+    const double frame = (c.fps > 0.0 ? 1.0 / c.fps : 1.0 / 30.0);
+    const double drift = engine_->position() - expected;
+    driftFrames_ = drift / frame;
+    if (now < seekHoldUntil_) return;   // a seek is still landing
+    // The first look after a playing seek says how late it landed: learn
+    // that, so the next seek aims ahead by as much (a phone's decoder takes
+    // longer to land than a desk's, and each phone differs).
+    if (seekLanding_ && playing && std::fabs(drift) < 0.5) {
+      seekLead_ = std::clamp(seekLead_ - 0.7 * drift, 0.0, 0.5);
+    }
+    seekLanding_ = false;
+    if (std::fabs(drift) > 2.0 * frame) {
+      engine_->seek(expected + (playing ? seekLead_ : 0.0));
+      seekHoldUntil_ = now + 600;   // let the decoder land before judging again
+      seekLanding_ = playing;
+      ++syncSeeks_;
+    }
+  }
+
+  bool followLocked() {
+    if (!followWanted_) return false;
+    hud_.log("The desk has GO while following. SYNC STOP to stop following.");
+    return true;
+  }
+
+  std::string followHeadline() const {
+    if (follow_ == Follow::Lost) return deckboy::core::i18n::translate("LOST");
+    if (!missingCue_.empty()) return deckboy::core::i18n::translate("MISSING CUE");
+    return deckboy::core::i18n::translate("FOLLOWING");
+  }
+
+  std::string syncStatusFields() const {
+    const char* names[] = {"off", "connecting", "joining", "following", "lost"};
+    std::ostringstream o;
+    o << std::fixed << std::setprecision(2);
+    o << "follow=" << names[static_cast<int>(follow_)] << " desk=" << (followHost_.empty() ? "-" : followHost_)
+      << " clock=" << (clockReady_ ? "ok" : "no") << " offset_ms=" << static_cast<double>(clockOffset_) / 1e6
+      << " rtt_ms=" << static_cast<double>(clockRtt_) / 1e6 << " drift_frames=" << driftFrames_
+      << " seeks=" << syncSeeks_ << " cue=" << (syncCue_.empty() ? "-" : syncCue_)
+      << " missing=\"" << missingCue_ << "\" error=\"" << followError_ << "\"";
+    return o.str();
+  }
+
+  Follow follow_ = Follow::Off;
+  bool followWanted_ = false;
+  std::string followHost_, followError_, followBuffer_, followOutput_;
+  sockaddr_in followAddr_ {};
+  SocketHandle followSock_ = kInvalidSocket;
+  Uint64 followSince_ = 0, followRetryAt_ = 0, lastHeard_ = 0, nextTimeProbe_ = 0, seekHoldUntil_ = 0;
+  std::vector<ClockSample> clockSamples_;
+  Sint64 clockOffset_ = 0;
+  Uint64 clockRtt_ = 0;
+  bool clockReady_ = false;
+  std::string syncCue_, missingCue_;
+  double driftFrames_ = 0.0, seekLead_ = 0.0;
+  int syncSeeks_ = 0;
+  bool seekLanding_ = false;
 
   mini::Hud hud_;
   Options opt_;

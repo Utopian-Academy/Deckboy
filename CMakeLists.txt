@@ -43,6 +43,7 @@ if(APPLE AND NOT CMAKE_OSX_DEPLOYMENT_TARGET)
       "Oldest macOS this build will run on" FORCE)
 endif()
 
+# Vendored C sources also build when ISF is OFF (glslang otherwise enables C).
 project(deckboy_native VERSION
   ${DECKBOY_VERSION_MAJOR}.${DECKBOY_VERSION_MINOR}.${DECKBOY_VERSION_PATCH}
   LANGUAGES C CXX
