@@ -1,0 +1,31 @@
+# Deckboy Theme: Rack: 19-inch units, silver ears, red LEDs.
+# A skinned theme: the style_ lines set shape and finish (render/primitives.hpp).
+# All colour values are RRGGBBAA hex.
+
+shell_outer	0D0D0FFF
+shell_inner	1C1D1FFF
+shell_shadow	000000FF
+screen_light	FF2A2AFF
+screen_mid	9A9DA3FF
+screen_dark	1A0606FF
+screen_deep	0A0A0BFF
+screen_ink_soft	A3A3A3FF
+screen_fg	E5E5E5FF
+screen_fg_soft	A3A3A3FF
+screen_tile	1C1D1FFF
+button_bezel	333538FF
+delete_bezel	FF2A2AFF
+scanline_alpha	0
+
+style_panel	rect 2
+style_control	round 3
+style_outline	1
+style_gradient	0.10
+style_sheen	0.10
+style_rim	0.25
+style_lip	2
+style_shadow	2 2 0.6
+style_panel_texture	brushed 0.14
+style_control_texture	brushed 0.10
+style_background_texture	mesh 0.10
+style_font	IBMPlexSansCondensed-SemiBold.ttf 1.6

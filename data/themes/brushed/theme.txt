@@ -1,0 +1,31 @@
+# Deckboy Theme: Brushed: machined aluminium, engraved labels.
+# A skinned theme: the style_ lines set shape and finish (render/primitives.hpp).
+# All colour values are RRGGBBAA hex.
+
+shell_outer	BCC1C6FF
+shell_inner	AEB3B9FF
+shell_shadow	4A4F55FF
+screen_light	E4E7EAFF
+screen_mid	C9CED3FF
+screen_dark	2A5486FF
+screen_deep	23272BFF
+screen_ink_soft	4F565DFF
+screen_fg	23272BFF
+screen_fg_soft	4F565DFF
+screen_tile	C6CBD0FF
+button_bezel	6F757BFF
+delete_bezel	A3302AFF
+scanline_alpha	0
+
+style_panel	round 4
+style_control	round 3
+style_outline	1
+style_gradient	0.12
+style_sheen	0.22
+style_rim	0.55
+style_lip	2
+style_shadow	2 4 0.30
+style_panel_texture	brushed 0.16
+style_control_texture	brushed 0.14
+style_background_texture	brushed 0.22
+style_font	BarlowCondensed-SemiBold.ttf 1.65

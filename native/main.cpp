@@ -2793,7 +2793,7 @@ class App {
       // Cached labels belong to the renderer that made them — same rule as the
       // PIP overlay textures above, and the same crash if it is skipped.
       purgeTextTextureCache(monitorsRenderer_);
-      SDL_DestroyRenderer(monitorsRenderer_);
+      Primitives::forgetChromeRenderer(monitorsRenderer_); SDL_DestroyRenderer(monitorsRenderer_);
       monitorsRenderer_ = nullptr;
     }
     closeDisplayIdentify();
@@ -2808,7 +2808,7 @@ class App {
     if (controlRenderer_) {
       purgeTextTextureCache(controlRenderer_);
       releasePreviewTransitionRuntime();
-      SDL_DestroyRenderer(controlRenderer_);
+      Primitives::forgetChromeRenderer(controlRenderer_); SDL_DestroyRenderer(controlRenderer_);
       controlRenderer_ = nullptr;
     }
     if (controlWindow_) {
@@ -3263,6 +3263,13 @@ class App {
       }
     }
     std::sort(contrastCheckThemes_.begin(), contrastCheckThemes_.end());
+    // DECKBOY_CONTRAST_ONLY=a,b,c renders just those (while one is being made).
+    if (const char* only = std::getenv("DECKBOY_CONTRAST_ONLY"); only && *only) {
+      const std::string want = std::string(",") + only + ",";
+      std::erase_if(contrastCheckThemes_, [&](const std::string& t) {
+        return want.find("," + t + ",") == std::string::npos;
+      });
+    }
     contrastCheckActive_ = !contrastCheckThemes_.empty();
     contrastCheckStep_ = 0;
     contrastCheckFrames_ = 90;  // the first theme also waits out the boot
@@ -3701,7 +3708,7 @@ class App {
           SDL_DestroyTexture(scanlineOverlay_);
           scanlineOverlay_ = nullptr;
         }
-        SDL_DestroyRenderer(controlRenderer_);
+        Primitives::forgetChromeRenderer(controlRenderer_); SDL_DestroyRenderer(controlRenderer_);
         controlRenderer_ = SDL_CreateRenderer(controlWindow_, next);
         if (!controlRenderer_) {
           renderDiagnosticLog(std::string("text fallback: ") + next + " would not open (" + SDL_GetError() + ")");
@@ -7060,6 +7067,11 @@ class App {
     // centre relative to the box around it, and two neighbouring controls drawn
     // with different helper pairs disagreed visibly. One coordinate space now:
     // the box and its label both use the caller's rect. See safeTextRect.
+    if (deckboy::render::gChrome.enabled) {
+      Primitives::drawChrome(controlRenderer_, rect, fill, border,
+                             accent.r + accent.g + accent.b >= fill.r + fill.g + fill.b);
+      return;
+    }
     SDL_Rect snapped = rect;
     Primitives::fillRect(controlRenderer_, snapped, fill);
     Primitives::notePressable(controlRenderer_, snapped);
@@ -7094,6 +7106,12 @@ class App {
   // reads as pushed in. Also the look of a button whose menu is open.
   void drawSunkControl(const SDL_Rect& rect) {
     if (rect.w <= 4 || rect.h <= 4) {
+      return;
+    }
+    if (deckboy::render::gChrome.enabled) {
+      Primitives::fillChromeShape(controlRenderer_, rect, SDL_Color {0, 0, 0, 72});
+      Primitives::strokeChromeShape(controlRenderer_, rect, SDL_Color {pal.deep.r, pal.deep.g, pal.deep.b, 200},
+                                    std::max(2, uiScaled(2)));
       return;
     }
     SDL_SetRenderDrawBlendMode(controlRenderer_, SDL_BLENDMODE_BLEND);
@@ -7140,6 +7158,10 @@ class App {
         if (SDL_HasRectIntersection(&ring, &cover)) {
           continue;
         }
+        if (deckboy::render::gChrome.enabled) {
+          Primitives::strokeChromeShape(controlRenderer_, ring, pal.light, ringW);
+          continue;
+        }
         SDL_SetRenderDrawBlendMode(controlRenderer_, SDL_BLENDMODE_BLEND);
         SDL_SetRenderDrawColor(controlRenderer_, pal.light.r, pal.light.g, pal.light.b, 255);
         for (int i = 1; i <= ringW; ++i) {
@@ -7156,10 +7178,18 @@ class App {
       SDL_SetRenderDrawColor(controlRenderer_, pal.light.r, pal.light.g, pal.light.b,
                              static_cast<Uint8>(std::clamp(left, 0.0, 1.0) * 255.0));
       const int ring = std::max(2, uiScaled(2));
-      for (int i = 1; i <= ring; ++i) {
-        SDL_Rect r {pressFlashRect_.x - i, pressFlashRect_.y - i,
-                    pressFlashRect_.w + i * 2, pressFlashRect_.h + i * 2};
-        SDL_RenderRect(controlRenderer_, &r);
+      if (deckboy::render::gChrome.enabled) {
+        const SDL_Rect r {pressFlashRect_.x - ring, pressFlashRect_.y - ring,
+                          pressFlashRect_.w + ring * 2, pressFlashRect_.h + ring * 2};
+        Primitives::strokeChromeShape(controlRenderer_, r,
+                                      SDL_Color {pal.light.r, pal.light.g, pal.light.b,
+                                                 static_cast<Uint8>(std::clamp(left, 0.0, 1.0) * 255.0)}, ring);
+      } else {
+        for (int i = 1; i <= ring; ++i) {
+          SDL_Rect r {pressFlashRect_.x - i, pressFlashRect_.y - i,
+                      pressFlashRect_.w + i * 2, pressFlashRect_.h + i * 2};
+          SDL_RenderRect(controlRenderer_, &r);
+        }
       }
     }
   }
@@ -7429,6 +7459,69 @@ class App {
   // Theme files live at data/themes/<name>/theme.txt.
   // Keys map directly onto the kScreen*/kShell* color inline globals.
 
+  // One style_<name><TAB><value...> line of a theme. Lengths are at 1x.
+  void applyThemeStyleLine(const std::string& key, const std::string& val) {
+    auto& st = deckboy::render::gChrome;
+    st.enabled = true;
+    std::istringstream in(val);
+    std::string a, b, c;
+    in >> a >> b >> c;
+    auto num = [](const std::string& s, float fallback) {
+      try { return s.empty() ? fallback : std::stof(s); } catch (...) { return fallback; }
+    };
+    const std::string name = key.substr(6);
+    if (name == "panel") {            // style_panel <shape> <radius>
+      st.panelShape = deckboy::render::chromeShapeFromToken(a, st.panelShape);
+      st.panelRadius = std::clamp(num(b, st.panelRadius), 0.0f, 80.0f);
+    } else if (name == "control") {   // style_control <shape> <radius>
+      st.controlShape = deckboy::render::chromeShapeFromToken(a, st.controlShape);
+      st.controlRadius = std::clamp(num(b, st.controlRadius), 0.0f, 80.0f);
+    } else if (name == "outline") {
+      st.outline = std::clamp(num(a, 1.0f), 0.0f, 8.0f);
+    } else if (name == "gradient") {
+      st.gradient = std::clamp(num(a, 0.0f), 0.0f, 0.4f);
+    } else if (name == "sheen") {
+      st.sheen = std::clamp(num(a, 0.0f), 0.0f, 0.6f);
+    } else if (name == "rim") {
+      st.rim = std::clamp(num(a, 0.0f), 0.0f, 1.0f);
+    } else if (name == "lip") {
+      st.lip = std::clamp(num(a, 0.0f), 0.0f, 12.0f);
+    } else if (name == "shadow") {    // style_shadow <y> <blur> <alpha>
+      st.shadowY = std::clamp(num(a, 0.0f), -20.0f, 40.0f);
+      st.shadowBlur = std::clamp(num(b, 0.0f), 0.0f, 40.0f);
+      st.shadowAlpha = std::clamp(num(c, 0.0f), 0.0f, 1.0f);
+    } else if (name == "panel_texture") {       // style_panel_texture <kind> <alpha>
+      st.panelTexture = deckboy::render::chromeTextureFromToken(a);
+      st.panelTextureAlpha = std::clamp(num(b, 0.2f), 0.0f, 1.0f);
+    } else if (name == "control_texture") {
+      st.controlTexture = deckboy::render::chromeTextureFromToken(a);
+      st.controlTextureAlpha = std::clamp(num(b, 0.2f), 0.0f, 1.0f);
+    } else if (name == "background_texture") {
+      st.backgroundTexture = deckboy::render::chromeTextureFromToken(a);
+      st.backgroundTextureAlpha = std::clamp(num(b, 0.2f), 0.0f, 1.0f);
+    } else if (name == "texture_scale") {
+      st.textureScale = std::clamp(num(a, 1.0f), 0.25f, 4.0f);
+    } else if (name == "sticker") {   // style_sticker <shape> <holo|vinyl> <RRGGBB> <place> [angle] [size]
+      std::string place, angle, size;
+      in >> place >> angle >> size;
+      deckboy::render::ChromeSticker sticker;
+      if (deckboy::render::stickerShapeFromToken(a, &sticker.shape) && st.stickers.size() < 8) {
+        sticker.holo = b != "vinyl";
+        try {
+          const auto rgb = static_cast<std::uint32_t>(std::stoul(c.empty() ? "FFFFFF" : c, nullptr, 16));
+          sticker.colour = {static_cast<Uint8>(rgb >> 16), static_cast<Uint8>(rgb >> 8), static_cast<Uint8>(rgb), 255};
+        } catch (...) {}
+        sticker.place = place;
+        sticker.angle = std::clamp(num(angle, 0.0f), -60.0f, 60.0f);
+        sticker.size = std::clamp(num(size, 1.0f), 0.4f, 1.6f);
+        st.stickers.push_back(sticker);
+      }
+    } else if (name == "font") {      // style_font <file in data/fonts> [size factor]
+      themeChromeFont_ = a;
+      themeChromeFontScale_ = std::clamp(static_cast<double>(num(b, 1.0f)), 0.5, 2.0);
+    }
+  }
+
   void applyThemeFromFile(const fs::path& path) {
     std::ifstream f(path);
     if (!f) return;
@@ -7440,6 +7533,13 @@ class App {
     themeCreatures_.clear();
     themeHueCycleSeconds_ = 0.0;
     themeHueStep_ = -1;
+    {
+      const float scale = deckboy::render::gChrome.scale;
+      deckboy::render::gChrome = {};
+      deckboy::render::gChrome.scale = scale;
+    }
+    themeChromeFont_.clear();
+    themeChromeFontScale_ = 1.0;
     bool sawFg = false;
     bool sawTile = false;
     bool sawFgSoft = false;
@@ -7487,6 +7587,11 @@ class App {
         try { pal.scanlineAlpha = static_cast<Uint8>(std::clamp(std::stoi(val), 0, 255)); }
         catch (...) { pal.scanlineAlpha = 18; }
       }
+      // SKINS: shape and finish (render/primitives.hpp, ChromeStyle). Any
+      // style_ line turns the skinned painter on for this theme.
+      else if (key.rfind("style_", 0) == 0) {
+        applyThemeStyleLine(key, val);
+      }
       else if (key == "hue_cycle") {
         // Seconds for the whole palette to turn once round the colour wheel.
         try { themeHueCycleSeconds_ = std::clamp(std::stod(val), 10.0, 3600.0); }
@@ -7514,6 +7619,11 @@ class App {
   // constantly. Danger (delete_bezel) does not turn: red must stay red.
   double themeHueCycleSeconds_ = 0.0;
   int themeHueStep_ = -1;
+  // A skin's own face for the chrome (the pixel role): a file in data/fonts,
+  // and a size factor (a regular face reads larger than the pixel face at
+  // the same point size).
+  std::string themeChromeFont_;
+  double themeChromeFontScale_ = 1.0;
   std::array<std::uint32_t, 13> themeBaseColors_ {};
 
   static std::uint32_t rotateThemeHue(std::uint32_t rgba, double degrees) {
@@ -7570,9 +7680,14 @@ class App {
       std::cerr << "Theme not found: " << themePath << '\n';
       return;
     }
+    const std::string fontBefore = themeChromeFont_;
+    const double fontScaleBefore = themeChromeFontScale_;
     applyThemeFromFile(themePath);
     rebuildPalette();
     currentThemeName_ = name;
+    if ((themeChromeFont_ != fontBefore || themeChromeFontScale_ != fontScaleBefore) && fontBase_) {
+      loadFonts(effectiveUiScale());
+    }
     rebuildCreatures();
   }
 
@@ -7670,6 +7785,19 @@ class App {
     auto sans  = Paths::fontPath(Paths::FontName::Sans).string();
     auto mono  = Paths::fontPath(Paths::FontName::Mono).string();
     auto pixel = Paths::fontPath(Paths::FontName::Pixel).string();
+    double pixelScale = 1.0;
+    if (!themeChromeFont_.empty()) {
+      std::error_code skinEc;
+      const fs::path skinFace = Paths::dataDir() / "fonts" / themeChromeFont_;
+      if (fs::exists(skinFace, skinEc)) {
+        pixel = skinFace.string();
+        pixelScale = themeChromeFontScale_;
+      }
+    }
+    deckboy::render::gChrome.scale = static_cast<float>(scale);
+    auto ppt = [&](int base) {
+      return std::max(6, static_cast<int>(std::lround(base * k * pixelScale)));
+    };
 
     // ── THE LANGUAGE MAY NEED A DIFFERENT FACE ──────────────────────────────
     //
@@ -7731,8 +7859,8 @@ class App {
     };
     std::array<TTF_Font*, 7> nextFonts {
       open(sans, pt(32)), open(sans, pt(21)), open(sans, pt(17)),
-      open(mono, pt(18)), open(pixel, pt(24)), open(pixel, pt(12)),
-      open(pixel, pt(42))
+      open(mono, pt(18)), open(pixel, ppt(24)), open(pixel, ppt(12)),
+      open(pixel, ppt(42))
     };
     // Where each one actually came from and at what size, for the shaper,
     // which opens its fallback faces to match.
@@ -7791,8 +7919,8 @@ class App {
     ladder(fontBase_,       sans,  pt(21));
     ladder(fontSmall_,      sans,  pt(17));
     ladder(fontMono_,       mono,  pt(18));
-    ladder(fontPixel_,      pixel, pt(24));
-    ladder(fontPixelSmall_, pixel, pt(12));
+    ladder(fontPixel_,      pixel, ppt(24));
+    ladder(fontPixelSmall_, pixel, ppt(12));
 
     // ── CAN THIS BUILD SHAPE AT ALL ─────────────────────────────────────────
     //

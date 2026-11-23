@@ -852,11 +852,18 @@
       }
       int tabW = std::max(uiScaled(88), labelW + uiScaled(24));
       SDL_Rect tab {tabX, tabY + recess, tabW, kTabH - recess};
-      Primitives::drawFramedPanel(controlRenderer_, tab, active ? pal.dark : pal.light,
-                      pal.deep, active ? pal.light : pal.mid);
+      if (deckboy::render::gChrome.enabled) {
+        SDL_Rect face = tab;
+        if (active) face.h += uiScaled(8);
+        Primitives::drawChrome(controlRenderer_, face, active ? pal.dark : pal.light,
+                               pal.deep, active, deckboy::render::ChromeRole::Control);
+      } else {
+        Primitives::drawFramedPanel(controlRenderer_, tab, active ? pal.dark : pal.light,
+                                    pal.deep, active ? pal.light : pal.mid);
+      }
       drawCenteredTextSafe(controlRenderer_, fontSmall_, tab, tabs[t],
                            active ? pal.light : pal.deep);
-      if (active) {
+      if (active && !deckboy::render::gChrome.enabled) {
         SDL_Rect joint {tab.x + 2, tab.y + tab.h - 2, tab.w - 4, uiScaled(8)};
         Primitives::fillRect(controlRenderer_, joint, pal.dark);
       }

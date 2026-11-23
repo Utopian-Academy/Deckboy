@@ -1,0 +1,26 @@
+# Deckboy Theme: Toybox: chunky outlines, primary colours.
+# A skinned theme: the style_ lines set shape and finish (render/primitives.hpp).
+# All colour values are RRGGBBAA hex.
+
+shell_outer	FFCF3FFF
+shell_inner	FFFDF7FF
+shell_shadow	2B2350FF
+screen_light	4CC9F0FF
+screen_mid	FF6FA8FF
+screen_dark	7C5CFFFF
+screen_deep	2B2350FF
+screen_ink_soft	5A5180FF
+screen_fg	2B2350FF
+screen_fg_soft	5A5180FF
+screen_tile	FFFDF7FF
+button_bezel	2B2350FF
+delete_bezel	FF5A3DFF
+scanline_alpha	0
+
+style_panel	round 24
+style_control	round 18
+style_outline	3
+style_lip	5
+style_rim	0.25
+style_background_texture	dots 0.06
+style_font	Fredoka-Variable.ttf 1.5

@@ -1,0 +1,28 @@
+# Deckboy Theme: Console HD: the green handheld, rebuilt in moulded plastic.
+# A skinned theme: the style_ lines set shape and finish (render/primitives.hpp).
+# All colour values are RRGGBBAA hex.
+
+shell_outer	9CB61EFF
+shell_inner	8EA819FF
+shell_shadow	1C3010FF
+screen_light	CBE444FF
+screen_mid	A6C226FF
+screen_dark	2C5420FF
+screen_deep	13280BFF
+screen_ink_soft	3F5C17FF
+screen_fg	1D3A0FFF
+screen_fg_soft	41601AFF
+screen_tile	B4CE30FF
+button_bezel	56741AFF
+delete_bezel	9B2D20FF
+scanline_alpha	10
+
+style_panel	round 14
+style_control	round 10
+style_outline	1
+style_gradient	0.10
+style_sheen	0.05
+style_rim	0.5
+style_lip	4
+style_shadow	3 10 0.28
+style_background_texture	grain 0.10

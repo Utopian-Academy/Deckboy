@@ -1,0 +1,24 @@
+# Deckboy Theme: Phosphor: OLED black, glowing green.
+# A skinned theme: the style_ lines set shape and finish (render/primitives.hpp).
+# All colour values are RRGGBBAA hex.
+
+shell_outer	000000FF
+shell_inner	000000FF
+shell_shadow	000000FF
+screen_light	59FF9CFF
+screen_mid	2FA866FF
+screen_dark	0B3A20FF
+screen_deep	001A0BFF
+screen_ink_soft	46B97AFF
+screen_fg	7DFFB3FF
+screen_fg_soft	46B97AFF
+screen_tile	03100AFF
+button_bezel	2F8A55FF
+delete_bezel	FF4A5AFF
+scanline_alpha	22
+
+style_panel	round 6
+style_control	round 4
+style_outline	1
+style_shadow	0 12 0.25
+style_font	VT323-Regular.ttf 2.0

@@ -1,0 +1,29 @@
+# Deckboy Theme: Field: olive rubber, stencil, cut corners.
+# A skinned theme: the style_ lines set shape and finish (render/primitives.hpp).
+# All colour values are RRGGBBAA hex.
+
+shell_outer	49512FFF
+shell_inner	3B422DFF
+shell_shadow	1C2014FF
+screen_light	F2C230FF
+screen_mid	C89A1CFF
+screen_dark	545D3EFF
+screen_deep	22260FFF
+screen_ink_soft	C1C3A3FF
+screen_fg	EFEEDCFF
+screen_fg_soft	C8CAA9FF
+screen_tile	3B422DFF
+button_bezel	262B1CFF
+delete_bezel	D8452EFF
+scanline_alpha	0
+
+style_panel	round 12
+style_control	chamfer 10
+style_outline	2
+style_gradient	0.08
+style_rim	0.2
+style_lip	3
+style_shadow	4 0 0.6
+style_panel_texture	grain 0.10
+style_background_texture	dots 0.16
+style_font	BlackOpsOne-Regular.ttf 1.3

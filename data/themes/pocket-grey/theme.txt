@@ -1,0 +1,31 @@
+# Deckboy Theme: Pocket Grey: the handheld, grown up.
+# A skinned theme: the style_ lines set shape and finish (render/primitives.hpp).
+# All colour values are RRGGBBAA hex.
+
+shell_outer	CAC8D0FF
+shell_inner	BDBBC4FF
+shell_shadow	35364AFF
+screen_light	C4307AFF
+screen_mid	6D6F7DFF
+screen_dark	2F3A10FF
+screen_deep	1F2A0AFF
+screen_ink_soft	4A4C5EFF
+screen_fg	1F2A0AFF
+screen_fg_soft	34420FFF
+screen_tile	9AA63AFF
+button_bezel	4E5060FF
+delete_bezel	C4307AFF
+scanline_alpha	0
+
+style_panel	round 12
+style_control	pill 12
+style_outline	1
+style_gradient	0.12
+style_sheen	0.10
+style_rim	0.35
+style_lip	4
+style_shadow	4 10 0.35
+style_background_texture	grain 0.08
+style_sticker	star holo FFFFFF playlist -12 1.0
+style_sticker	bolt holo FFFFFF media 10 1.0
+style_sticker	cross vinyl C4307A desk -8 0.9

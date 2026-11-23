@@ -1,0 +1,29 @@
+# Deckboy Theme: Switcher: a 1980s vision mixer, lit push buttons.
+# A skinned theme: the style_ lines set shape and finish (render/primitives.hpp).
+# All colour values are RRGGBBAA hex.
+
+shell_outer	2D3035FF
+shell_inner	1F2124FF
+shell_shadow	0C0D0EFF
+screen_light	FF3B30FF
+screen_mid	34C759FF
+screen_dark	3A0D0DFF
+screen_deep	1B1B1BFF
+screen_ink_soft	A9A597FF
+screen_fg	EBE7D8FF
+screen_fg_soft	A9A597FF
+screen_tile	2C2F33FF
+button_bezel	111111FF
+delete_bezel	FF3B30FF
+scanline_alpha	0
+
+style_panel	rect 2
+style_control	round 3
+style_outline	2
+style_gradient	0.10
+style_rim	0.5
+style_lip	3
+style_shadow	2 4 0.5
+style_panel_texture	brushed 0.08
+style_background_texture	brushed 0.10
+style_font	IBMPlexSansCondensed-SemiBold.ttf 1.6

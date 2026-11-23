@@ -1,0 +1,26 @@
+# Deckboy Theme: Membrane: an 80s digital synth with LCD strips.
+# A skinned theme: the style_ lines set shape and finish (render/primitives.hpp).
+# All colour values are RRGGBBAA hex.
+
+shell_outer	282A2FFF
+shell_inner	23252AFF
+shell_shadow	111111FF
+screen_light	D9D4C5FF
+screen_mid	5FB3A8FF
+screen_dark	B4C96DFF
+screen_deep	1C1C1CFF
+screen_ink_soft	A6ABB2FF
+screen_fg	E7E9ECFF
+screen_fg_soft	A6ABB2FF
+screen_tile	2C2F34FF
+button_bezel	111111FF
+delete_bezel	E8866AFF
+scanline_alpha	0
+
+style_panel	round 4
+style_control	round 2
+style_outline	1
+style_gradient	0.05
+style_shadow	2 4 0.4
+style_background_texture	grain 0.06
+style_font	ShareTechMono-Regular.ttf 1.45

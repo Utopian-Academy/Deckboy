@@ -1,0 +1,27 @@
+# Deckboy Theme: Goo: Saturday-morning slime.
+# A skinned theme: the style_ lines set shape and finish (render/primitives.hpp).
+# All colour values are RRGGBBAA hex.
+
+shell_outer	5A2BD6FF
+shell_inner	4A22B8FF
+shell_shadow	24104FFF
+screen_light	FF5FD2FF
+screen_mid	3DF5FFFF
+screen_dark	FFD93DFF
+screen_deep	24104FFF
+screen_ink_soft	4A3A85FF
+screen_fg	24104FFF
+screen_fg_soft	4A3A85FF
+screen_tile	B9FF5AFF
+button_bezel	24104FFF
+delete_bezel	FF8A2AFF
+scanline_alpha	0
+
+style_panel	blob 34
+style_control	blob 24
+style_outline	3
+style_gradient	0.10
+style_rim	0.45
+style_lip	5
+style_background_texture	halftone 0.18
+style_font	Bangers-Regular.ttf 1.85

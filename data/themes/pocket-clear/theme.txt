@@ -1,0 +1,31 @@
+# Deckboy Theme: Pocket Clear: purple candy over the circuit board.
+# A skinned theme: the style_ lines set shape and finish (render/primitives.hpp).
+# All colour values are RRGGBBAA hex.
+
+shell_outer	6E3CB8FF
+shell_inner	4E2A86FF
+shell_shadow	1A1028FF
+screen_light	8CE65AFF
+screen_mid	B07CF0FF
+screen_dark	2F3A10FF
+screen_deep	1F2A0AFF
+screen_ink_soft	C3B2E6FF
+screen_fg	1F2A0AFF
+screen_fg_soft	34420FFF
+screen_tile	9AA63AFF
+button_bezel	3A2066FF
+delete_bezel	FF5A7AFF
+scanline_alpha	0
+
+style_panel	round 12
+style_control	pill 12
+style_outline	1
+style_gradient	0.16
+style_sheen	0.24
+style_rim	0.5
+style_lip	4
+style_shadow	4 12 0.4
+style_background_texture	circuit 0.18
+style_sticker	heart holo FFFFFF playlist 14 1.0
+style_sticker	star vinyl 8CE65A transport -10 0.9
+style_sticker	dot holo FFFFFF desk 0 0.8

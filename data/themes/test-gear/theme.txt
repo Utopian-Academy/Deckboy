@@ -1,0 +1,29 @@
+# Deckboy Theme: Test Gear: crackle-finish grey, a green CRT grid.
+# A skinned theme: the style_ lines set shape and finish (render/primitives.hpp).
+# All colour values are RRGGBBAA hex.
+
+shell_outer	646F75FF
+shell_inner	5A656BFF
+shell_shadow	2B3236FF
+screen_light	F2A900FF
+screen_mid	B9BEB6FF
+screen_dark	13361FFF
+screen_deep	0D1A12FF
+screen_ink_soft	5FCF88FF
+screen_fg	8DFFB0FF
+screen_fg_soft	5FCF88FF
+screen_tile	0D1A12FF
+button_bezel	2B3236FF
+delete_bezel	E0503AFF
+scanline_alpha	8
+
+style_panel	round 6
+style_control	round 4
+style_outline	2
+style_gradient	0.08
+style_rim	0.3
+style_lip	3
+style_shadow	2 4 0.4
+style_background_texture	crackle 0.35
+style_panel_texture	mesh 0.05
+style_font	BarlowCondensed-SemiBold.ttf 1.65
