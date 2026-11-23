@@ -1104,6 +1104,7 @@ class Pocket {
       loggedFollow_ = follow_;
     }
     serviceShake();
+    serviceCamera();
     engine_->update();
     // Animated generators (Swirl, Fireside, Lumia...) are redrawn every tick
     // from the wall clock, as the desk's update loop does; without this they
@@ -1909,7 +1910,7 @@ class Pocket {
       // One PATTERN and one SYNTH (James 11-20): the type is the cue's own
       // setting (its SET page), not a button each. A secret, once found, also
       // gets a button of its own here -- the reward for finding it.
-      static const std::pair<const char*, const char*> kMade[] = {{"smpte-bars", "PATTERN"}, {"swirl", "SYNTH"}};
+      static const std::pair<const char*, const char*> kMade[] = {{"smpte-bars", "PATTERN"}, {"swirl", "SYNTH"}, {"camera", "CAMERA"}};
       std::vector<std::pair<const char*, const char*>> made(std::begin(kMade), std::end(kMade));
       if (terrariumUnlocked_) made.push_back({"terrarium", "TERRARIUM"});
       if (tabletopUnlocked_) made.push_back({"tabletop", "TABLETOP"});
@@ -1918,7 +1919,12 @@ class Pocket {
       for (int i = 0; i < static_cast<int>(made.size()); ++i) {
         const char* type = made[static_cast<std::size_t>(i)].first;
         sourceButton({lx + static_cast<float>(i % 2) * (bw + u), y, bw, 4.5f * u}, type, made[static_cast<std::size_t>(i)].second,
-                     [this, type] { if (std::string(type) == "video-synth") addVideoSynth(); else addGenerator(type); });
+                     [this, type] {
+                       const std::string t = type;
+                       if (t == "video-synth") addVideoSynth();
+                       else if (t == "camera") addCamera();
+                       else addGenerator(type);
+                     });
         if (i % 2 == 1) y += 5.5f * u;
       }
       y += made.size() % 2 == 1 ? 7 * u : 1.5f * u;
@@ -2674,7 +2680,7 @@ class Pocket {
   void settingChanged(int i) {
     if (i != active_ || i < 0) return;
     const Cue& c = cues_[static_cast<std::size_t>(i)];
-    engine_->syncActiveCueSnapshot(c);
+    engine_->syncActiveCueSnapshot(forEngine(c));
     if (c.kind == CueKind::Pattern && !patternTypeIsAnimated(c.path)) {
       engine_->rebuildPatternFrame(c, static_cast<double>(SDL_GetTicks()) / 1000.0);
     }
@@ -2730,6 +2736,39 @@ class Pocket {
           for (std::size_t k = 0; k < all.size(); ++k) if (all[k].first == now) typePickPage_ = static_cast<int>(k) / 16;
         });
       }});
+    }
+    if (isCameraCue(c)) {   // CAMERA: which one, and mirrored or not
+      items.push_back({1.0f, [this, i](const SDL_FRect& row) {
+        const float u = unit_;
+        const Cue& cc = cues_[static_cast<std::size_t>(i)];
+        text_.draw(pixelSmall_, "CAMERA", kDark, {row.x, row.y, row.w * 0.30f, row.h});
+        const auto list = cameras();
+        std::string now = cameraWanted(cc);
+        std::string label = list.empty() ? std::string("NONE FOUND") : upper(now);
+        button({row.x + row.w * 0.32f, row.y + 0.4f * u, row.w * 0.68f, row.h - 0.8f * u}, label + (list.size() > 1 ? "  >" : ""),
+               [this, i, list, now] {
+                 if (list.size() < 2) return;
+                 std::size_t at = 0;
+                 for (std::size_t k = 0; k < list.size(); ++k) if (list[k].key == now) at = k;
+                 Cue& m = cues_[static_cast<std::size_t>(i)];
+                 const CamInfo& next = list[(at + 1) % list.size()];
+                 m.path = "camera://" + next.key;
+                 m.name = "Camera (" + next.key + ")";
+                 settingChanged(i);
+               }, !list.empty());
+      }});
+      items.push_back({0.8f, [this, i](const SDL_FRect& row) {
+        const float u = unit_;
+        Cue& cc = cues_[static_cast<std::size_t>(i)];
+        text_.draw(pixelSmall_, "MIRROR", kDark, {row.x, row.y, row.w * 0.30f, row.h});
+        button({row.x + row.w * 0.32f, row.y + 0.4f * u, row.w * 0.68f, row.h - 0.8f * u}, cc.flipHorizontal ? "ON" : "OFF",
+               [this, i] { Cue& m = cues_[static_cast<std::size_t>(i)]; m.flipHorizontal = !m.flipHorizontal; settingChanged(i); }, true,
+               cc.flipHorizontal);
+      }});
+      if (!camNotice_.empty()) {
+        items.push_back({0.8f, [this](const SDL_FRect& row) { text_.draw(mono_, camNotice_, kDeep, row); }});
+      }
+      return;
     }
     // its settings: the desk's choices first, then its numbers, a page at a time
     struct Row { int choice = -1; deckboy::params::ParamRow num {"", deckboy::params::NumericParam::None, ""}; };
@@ -2816,6 +2855,193 @@ class Pocket {
     }
   }
 
+  // ── CAMERA: the phone's own cameras as a cue ──
+  //
+  // SDL3's camera (Camera2 on Android, Media Foundation / AVFoundation / V4L2
+  // on a desktop). The engine holds a black picture for a camera cue
+  // (forEngine) and Pocket brings it each new camera frame, with the cue's
+  // look on it -- as it does for the synths. The camera is open only while a
+  // camera cue is on air, so the phone's camera light means it is in use.
+  // path: camera://back, camera://front, or camera://<the camera's name>.
+
+  struct CamInfo { SDL_CameraID id; std::string key; };
+
+  static bool isCameraCue(const Cue& c) { return c.kind == CueKind::Camera; }
+
+  const Cue& forEngine(const Cue& c) {
+    if (!isCameraCue(c)) return c;
+    engineCamCue_ = c;
+    engineCamCue_.kind = CueKind::Pattern;
+    engineCamCue_.path = "pattern://full-black";
+    return engineCamCue_;
+  }
+
+  std::vector<CamInfo> cameras() {
+    std::vector<CamInfo> out;
+    if (!camInit_) {
+      camInit_ = true;
+      if (!SDL_InitSubSystem(SDL_INIT_CAMERA)) SDL_Log("pocket: no camera subsystem: %s", SDL_GetError());
+    }
+    int n = 0;
+    SDL_CameraID* ids = SDL_GetCameras(&n);
+    if (!ids) return out;
+    for (int k = 0; k < n; ++k) {
+      std::string key;
+      switch (SDL_GetCameraPosition(ids[k])) {
+        case SDL_CAMERA_POSITION_BACK_FACING: key = "back"; break;
+        case SDL_CAMERA_POSITION_FRONT_FACING: key = "front"; break;
+        default: {
+          const char* name = SDL_GetCameraName(ids[k]);
+          key = name && *name ? name : "camera " + std::to_string(k + 1);
+        }
+      }
+      for (const CamInfo& seen : out) if (seen.key == key) key += " " + std::to_string(k + 1);   // two backs: tell them apart
+      out.push_back({ids[k], key});
+    }
+    SDL_free(ids);
+    return out;
+  }
+
+  static std::string cameraWanted(const Cue& c) {
+    return c.path.rfind("camera://", 0) == 0 ? c.path.substr(9) : std::string("back");
+  }
+
+  SDL_CameraID cameraFor(const Cue& c) {
+    const auto list = cameras();
+    if (list.empty()) return 0;
+    const std::string want = cameraWanted(c);
+    for (const CamInfo& k : list) if (k.key == want) return k.id;
+    return list.front().id;   // not on this machine: the first there is
+  }
+
+  void closeCamera() {
+    if (cam_) SDL_CloseCamera(cam_);
+    cam_ = nullptr;
+    camId_ = 0;
+  }
+
+  // A format near 1280 x 720 (enough for a picture that is scaled anyway,
+  // and light on the phone), else what the camera offers first.
+  static SDL_CameraSpec cameraSpec(SDL_CameraID id, bool& found) {
+    SDL_CameraSpec best {};
+    found = false;
+    int n = 0;
+    SDL_CameraSpec** specs = SDL_GetCameraSupportedFormats(id, &n);
+    if (!specs) return best;
+    long bestScore = 0;
+    for (int k = 0; k < n; ++k) {
+      const SDL_CameraSpec& sp = *specs[k];
+      const float fps = sp.framerate_denominator > 0 ? static_cast<float>(sp.framerate_numerator) / static_cast<float>(sp.framerate_denominator) : 0;
+      const long score = std::labs(static_cast<long>(sp.width) * sp.height - 1280L * 720L) + (fps < 24.0f ? 4000000L : 0L);
+      if (!found || score < bestScore) {
+        best = sp;
+        bestScore = score;
+        found = true;
+      }
+    }
+    SDL_free(specs);
+    return best;
+  }
+
+  void serviceCamera() {
+    const Cue* c = active_ >= 0 && active_ < static_cast<int>(cues_.size()) ? &cues_[static_cast<std::size_t>(active_)] : nullptr;
+    if (!c || !isCameraCue(*c) || black_) {
+      closeCamera();
+      return;
+    }
+    const SDL_CameraID id = cameraFor(*c);
+    if (!id) {
+      camNotice_ = "No camera found.";
+      return;
+    }
+    if (cam_ && camId_ != id) closeCamera();
+    if (!cam_) {
+      bool found = false;
+      SDL_CameraSpec spec = cameraSpec(id, found);
+      if (found) spec.format = SDL_PIXELFORMAT_RGBA32;   // SDL converts to what Pocket draws
+      cam_ = SDL_OpenCamera(id, found ? &spec : nullptr);
+      camId_ = id;
+      if (!cam_) {
+        camNotice_ = std::string("The camera did not open: ") + SDL_GetError();
+        return;
+      }
+    }
+    const int allowed = static_cast<int>(SDL_GetCameraPermissionState(cam_));
+    if (allowed < 0) {
+      camNotice_ = "Pocket may not use the camera. Allow it in the phone's settings.";
+      return;
+    }
+    if (allowed == 0) {
+      camNotice_ = "Waiting for you to allow the camera...";
+      return;
+    }
+    Uint64 when = 0;
+    SDL_Surface* got = SDL_AcquireCameraFrame(cam_, &when);
+    if (!got) return;
+    camNotice_.clear();
+    SDL_Surface* rgba = got->format == SDL_PIXELFORMAT_RGBA32 ? got : SDL_ConvertSurface(got, SDL_PIXELFORMAT_RGBA32);
+    if (rgba) {
+      DecodedFrame f;
+      f.width = rgba->w;
+      f.height = rgba->h;
+      f.format = FramePixelFormat::RGBA32;
+      f.pixels.resize(static_cast<std::size_t>(rgba->w) * static_cast<std::size_t>(rgba->h) * 4u);
+      for (int y = 0; y < rgba->h; ++y) {
+        std::memcpy(f.pixels.data() + static_cast<std::size_t>(y) * static_cast<std::size_t>(rgba->w) * 4u,
+                    static_cast<const std::uint8_t*>(rgba->pixels) + static_cast<std::size_t>(y) * static_cast<std::size_t>(rgba->pitch),
+                    static_cast<std::size_t>(rgba->w) * 4u);
+      }
+      if (rgba != got) SDL_DestroySurface(rgba);
+      SDL_ReleaseCameraFrame(cam_, got);
+      got = nullptr;
+      // its look: on the GPU where every effect has a GPU version, else here
+      const double scale = static_cast<double>(f.width) / std::max(1, programW_);
+      if (deckboy::effects::cueEffectStackActive(c->effects)) {
+        if (!gpuLook(f.pixels.data(), f.width, f.height, *c, ++camFrames_, scale)) {
+          if (fxState_.size() < c->effects.size()) fxState_.resize(c->effects.size());
+          deckboy::effects::CueEffectContext ctx;
+          ctx.width = f.width;
+          ctx.height = f.height;
+          ctx.frameIndex = camFrames_;
+          ctx.seconds = static_cast<double>(SDL_GetTicksNS()) / 1e9;
+          ctx.pixelScale = scale;
+          ctx.effectState = &fxState_;
+          std::vector<deckboy::effects::CueEffect> modulated;
+          const bool moving = deckboy::effects::modulateCueEffectStack(c->effects, ctx.seconds, ctx.seconds * 2.0, modulated,
+                                                                       engine_->programAudioLevel01());
+          deckboy::effects::applyCueEffectStack(f.pixels, moving ? modulated : c->effects, ctx);
+        }
+      } else {
+        engine_->setLookTexture(nullptr, 0, 0);
+      }
+      if (!deckboy::effects::cueEffectStackActive(c->effects)) ++camFrames_;
+      engine_->showBuiltFrame(f);
+    }
+    if (got) SDL_ReleaseCameraFrame(cam_, got);
+  }
+
+  void addCamera(const std::string& which = "back") {
+    Cue cue;
+    cue.kind = CueKind::Camera;
+    cue.path = "camera://" + which;
+    cue.name = "Camera (" + which + ")";
+    cue.width = programW_;
+    cue.height = programH_;
+    cue.color = {40, 90, 70, 255};
+    cue.formatName = "live";
+    cue.pauseOnLastFrame = true;
+    cue.stillDurationSeconds = 0.0;
+    cue.id = "pocket-" + std::to_string(++nextId_);
+    applyDefaults(cue);
+    const int at = std::min(selected_ + 1, static_cast<int>(cues_.size()));
+    cues_.insert(cues_.begin() + at, cue);
+    if (active_ >= at) ++active_;
+    select(at);
+    notice_ = "Added " + cue.name;
+    noticeUntil_ = SDL_GetTicks() + 2500;
+    landOnAdded(cue.id);
+  }
+
   void addGenerator(const char* type) {
     Cue cue;
     cue.kind = CueKind::Pattern;
@@ -2878,8 +3104,8 @@ class Pocket {
   void cueEdited(int i, bool trim) {
     if (i != active_ || i < 0) return;
     const Cue& c = cues_[static_cast<std::size_t>(i)];
-    engine_->syncActiveCueSnapshot(c);
-    if (trim) engine_->applyActiveCueTrimEdit(c);
+    engine_->syncActiveCueSnapshot(forEngine(c));
+    if (trim) engine_->applyActiveCueTrimEdit(forEngine(c));
   }
 
   // A cue set to NEXT takes what is selected when it ends (the next cue, or
@@ -3514,9 +3740,20 @@ class Pocket {
       return ok();
     }
     if (verb == "UNDO") { if (!undoCue_) return err("nothing to undo"); undoDelete(); return ok(); }
+    if (verb == "CAMERA") {   // CAMERA LIST: the cameras, the open one, frames so far, any notice
+      std::string out = "OK CAMERA";
+      for (const CamInfo& k : cameras()) {
+        const char* name = SDL_GetCameraName(k.id);
+        out += " | " + k.key + " (" + (name ? name : "?") + ")";
+      }
+      out += " | open=" + std::string(cam_ ? "yes" : "no") + " frames=" + std::to_string(camFrames_);
+      if (!camNotice_.empty()) out += " | " + camNotice_;
+      return out + "\n";
+    }
     if (verb == "ADD") {   // ADD <generator type> (smpte-bars, swirl, lumia...) or ADD video-synth
       if (rest.empty()) return err("ADD <generator> or ADD video-synth");
       if (rest == "video-synth" || rest == "VIDEO-SYNTH") addVideoSynth();
+      else if (upper(rest) == "CAMERA" || upper(rest) == "CAMERA FRONT") addCamera(upper(rest) == "CAMERA FRONT" ? "front" : "back");
       else addGenerator(rest.c_str());
       return ok();
     }
@@ -4135,7 +4372,7 @@ class Pocket {
       const Cue& c = cues_[static_cast<std::size_t>(local)];
       const TransitionStyle style = deckboy::core::utils::parseTransitionStyleToken(sync.transStyle);
       const double fade = style == TransitionStyle::Cut ? 0.0 : std::max(0.0, sync.transSeconds);
-      engine_->loadCue(&c, sync.state == "playing" || sync.state == "black", fade,
+      engine_->loadCue(&forEngine(c), sync.state == "playing" || sync.state == "black", fade,
                        fade > 0 ? drawableStyle(style) : TransitionStyle::Cut);
       selected_ = std::min(local + 1, static_cast<int>(cues_.size()) - 1);
       seekHoldUntil_ = 0;
@@ -4436,7 +4673,7 @@ class Pocket {
           notice_ = (c.playDirection == kCueBounce ? "Bounce ready: " : "Reverse ready: ") + c.name;
           noticeUntil_ = SDL_GetTicks() + 2500;
           // On air: start the copy now, from its beginning, with a short mix.
-          if (static_cast<int>(i) == active_) engine_->loadCue(&c, engine_->state() == TransportState::Playing, 0.2,
+          if (static_cast<int>(i) == active_) engine_->loadCue(&forEngine(c), engine_->state() == TransportState::Playing, 0.2,
                                                                 TransitionStyle::Crossfade);
         } else if (dirResult_ != deckboy::engine::RemuxResult::Done && dirResult_ != deckboy::engine::RemuxResult::Cancelled) {
           dirFailed_ = dirWhy_;
@@ -4500,7 +4737,7 @@ class Pocket {
     int i = 3;
     for (int k = 0; k < 9; ++k) if (std::fabs(kSteps[k] - c.playbackSpeed) < 1e-6) i = k;
     c.playbackSpeed = kSteps[std::clamp(i + by, 0, 8)];
-    if (sheet_ == active_) engine_->refreshActiveCueRuntime(&c);
+    if (sheet_ == active_) engine_->refreshActiveCueRuntime(&forEngine(c));
   }
 
   // -- Rendered shells (pocket-skins/devices.py, TALL family) --
@@ -6510,7 +6747,7 @@ class Pocket {
     bool want = false;
     if (active_ >= 0 && active_ < static_cast<int>(cues_.size())) {
       const Cue& c = cues_[static_cast<std::size_t>(active_)];
-      want = !builtOnWorker(c) && deckboy::effects::cueEffectStackActive(c.effects);
+      want = !builtOnWorker(c) && !isCameraCue(c) && deckboy::effects::cueEffectStackActive(c.effects);
     }
     if (want == hookSet_) return;
     hookSet_ = want;
@@ -6614,8 +6851,8 @@ class Pocket {
   void lookChanged(int i) {
     if (i != active_ || i < 0) return;
     const Cue& c = cues_[static_cast<std::size_t>(i)];
-    engine_->syncActiveCueSnapshot(c);
-    if (!engine_->adoptLookWithoutRestart(c)) take(i);
+    engine_->syncActiveCueSnapshot(forEngine(c));
+    if (!engine_->adoptLookWithoutRestart(forEngine(c))) take(i);
   }
 
   // The desk's order: the basics first, then the rest as they were added.
@@ -6835,7 +7072,7 @@ class Pocket {
         n.set = [this, i](double v) {
           Cue& cc = cues_[static_cast<std::size_t>(i)];
           cc.playbackSpeed = v;
-          if (i == active_) engine_->refreshActiveCueRuntime(&cc);
+          if (i == active_) engine_->refreshActiveCueRuntime(&forEngine(cc));
         };
         numberRow(row, n);
       }});
@@ -7098,7 +7335,7 @@ class Pocket {
       chipRow(row, {{c.audioEnabled ? "SOUND ON" : "SOUND OFF", [this, i] {
                        Cue& cc = cues_[static_cast<std::size_t>(i)];
                        cc.audioEnabled = !cc.audioEnabled;
-                       if (i == active_) engine_->refreshActiveCueRuntime(&cc);
+                       if (i == active_) engine_->refreshActiveCueRuntime(&forEngine(cc));
                      }},
                     {"MONO", [this, i] { Cue& cc = cues_[static_cast<std::size_t>(i)]; cc.audioMono = !cc.audioMono; cueEdited(i, false); }}},
               {c.audioEnabled, c.audioMono});
@@ -7134,7 +7371,7 @@ class Pocket {
           chips.push_back({"TRACK " + std::to_string(k + 1), [this, i, k] {
                              Cue& cc = cues_[static_cast<std::size_t>(i)];
                              cc.audioTrack = k;
-                             if (i == active_) engine_->refreshActiveCueRuntime(&cc);
+                             if (i == active_) engine_->refreshActiveCueRuntime(&forEngine(cc));
                            }});
           on.push_back(c.audioTrack == k);
         }
@@ -7316,7 +7553,7 @@ class Pocket {
     const int slot = lfoSlot_;
     auto& L = c.geometryLfo[static_cast<std::size_t>(slot)];
     // the engine plays its own copy of the live cue: hand it this one's LFOs
-    if (i == active_) engine_->syncActiveCueSnapshot(c);
+    if (i == active_) engine_->syncActiveCueSnapshot(forEngine(c));
     const float lx = lcd.x + u, lw = lcd.w - 2 * u;
     float y = lcd.y + u;
     text_.draw(pixelSmall_, std::string("~ ") + lfoSlotName(slot) + " MOVES BY ITSELF", kDark, {lx, y, lw, 4 * u});
@@ -7742,7 +7979,7 @@ class Pocket {
     const Cue& c = cues_[static_cast<std::size_t>(i)];
     const double fade = c.cueTransitionSeconds >= 0 ? c.cueTransitionSeconds : listGlide();
     const TransitionStyle style = cueStyle(c);
-    engine_->loadCue(&c, true, style == TransitionStyle::Cut ? 0.0 : fade, fade > 0 ? style : TransitionStyle::Cut);
+    engine_->loadCue(&forEngine(c), true, style == TransitionStyle::Cut ? 0.0 : fade, fade > 0 ? style : TransitionStyle::Cut);
   }
 
   // -- Playing the list: shuffle, loop, stop after this, play next --
@@ -8085,6 +8322,12 @@ class Pocket {
   std::vector<Uint64> jolts_;
   Uint64 lastJolt_ = 0, faceShakeAt_ = 0;
   int faceShakes_ = 0;
+  SDL_Camera* cam_ = nullptr;     // open only while a camera cue is on air
+  SDL_CameraID camId_ = 0;
+  bool camInit_ = false;
+  std::string camNotice_;
+  std::uint64_t camFrames_ = 0;
+  Cue engineCamCue_;              // what the engine holds for a camera cue (forEngine)
   std::uint32_t faceShakeSeed_ = 1;
   bool faceWasShown_ = false;
   SDL_Texture* faceBack_ = nullptr;   // the tube behind her
