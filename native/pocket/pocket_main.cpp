@@ -4064,6 +4064,25 @@ class Pocket {
       if (key == "LIST") return out + "\n";
       return err("no setting " + key);
     }
+    if (verb == "LAYOUT") {   // LAYOUT: where everything is, in the layout's units (for the shell renderers)
+      const float u = unit_;
+      auto rect = [&](const char* name, const SDL_FRect& f) {
+        char b[160];
+        std::snprintf(b, sizeof b, " | %s %.2f %.2f %.2f %.2f", name, static_cast<double>((f.x - safe_.x) / u),
+                      static_cast<double>((f.y - safe_.y) / u), static_cast<double>(f.w / u), static_cast<double>(f.h / u));
+        return std::string(b);
+      };
+      auto point = [&](const char* name, const SDL_FPoint& p0) {
+        char b[96];
+        std::snprintf(b, sizeof b, " | %s %.2f %.2f", name, static_cast<double>((p0.x - safe_.x) / u), static_cast<double>((p0.y - safe_.y) / u));
+        return std::string(b);
+      };
+      char head[96];
+      std::snprintf(head, sizeof head, "OK LAYOUT %s %.2f x %.2f units, unit %.2f px", landscape_ ? "wide" : "tall",
+                    static_cast<double>(safe_.w / u), static_cast<double>(safe_.h / u), static_cast<double>(u));
+      return std::string(head) + rect("program", program_) + rect("picture", picRect_) + rect("list", list_) + point("pad", padCentre_) +
+             point("go", goCentre_) + point("back", backCentre_) + rect("black", blackPill_) + rect("menu", menuPill_) + "\n";
+    }
     if (verb == "FACE") {   // FACE POKE [dx dy]: a finger on her, dx dy in face radii from her centre
       std::istringstream a(rest);
       std::string what;
