@@ -1169,7 +1169,17 @@ class Pocket {
     // a flat sheet behind MENU read as a white page (James, 11-20). Only the
     // show screen lets the shell's own windows and buttons stand in for
     // Pocket's (shellFace); editing draws its panels over the shell.
+    // Landscape has no rendered shells yet: it keeps the chosen shell's own
+    // colours, sampled from its picture (James 11-23: "it should stay in
+    // the same theme"), and puts the theme's back when the frame is done.
+    const bool shellColours = landscape_ && shellTex_ && shellPal_.valid && !(shellWideTex_ && !editing_);
+    const std::array<Ink, 8> themeInks {kShell, kShellShade, kBezel, kPad, kButton, kButtonLit, kPill, kPrint};
+    if (shellColours) {
+      kShell = shellPal_.shell; kShellShade = shellPal_.shade; kBezel = shellPal_.bezel; kPad = shellPal_.pad;
+      kButton = shellPal_.button; kButtonLit = shellPal_.buttonLit; kPill = shellPal_.pill; kPrint = shellPal_.print;
+    }
     if (shellTex_ && !landscape_) drawShell();
+    else if (shellWideTex_ && landscape_ && !editing_) drawShellWide();
     else fillRect(r, kShell, {0, 0, pxW_, pxH_});
     drawProgram();
     if (hostEditing_) drawTextEditor("DESK ADDRESS", followHost_, "ENTER TO FOLLOW");
@@ -1183,6 +1193,10 @@ class Pocket {
     } else {
       drawCueList();
       drawControls();
+    }
+    if (shellColours) {
+      kShell = themeInks[0]; kShellShade = themeInks[1]; kBezel = themeInks[2]; kPad = themeInks[3];
+      kButton = themeInks[4]; kButtonLit = themeInks[5]; kPill = themeInks[6]; kPrint = themeInks[7];
     }
     takeSnap();
     SDL_RenderPresent(r);
@@ -3576,7 +3590,7 @@ class Pocket {
   void drawControls() {
     SDL_Renderer* r = renderer_;
     const float u = unit_;
-    if (shellTex_ && !landscape_ && (!editing_ || aboutPage())) {
+    if (platePresent() && (!editing_ || aboutPage())) {
       drawShellPresses();
       return;
     }
@@ -5156,11 +5170,49 @@ class Pocket {
     }
   }
 
+  // A shell's colours, read off its picture at known places of the TALLAPP
+  // layout: the body beside the list, the pad's arm, GO, a pill, the
+  // screen's frame.
+  struct ShellPalette { bool valid = false; Ink shell, shade, bezel, pad, button, buttonLit, pill, print; };
+  static ShellPalette samplePalette(const std::vector<std::uint8_t>& px, int w, int h) {
+    ShellPalette p;
+    const float k = static_cast<float>(w) / 72.0f;
+    const float margin = std::max(0.0f, (static_cast<float>(h) / k - 156.0f) / 2);
+    auto at = [&](float ux, float uy) {
+      long sum[3] = {0, 0, 0}, n = 0;
+      const int cx = static_cast<int>(ux * k), cy = static_cast<int>((uy + margin) * k), rad = std::max(1, static_cast<int>(k * 0.4f));
+      for (int y = cy - rad; y <= cy + rad; ++y) {
+        for (int x = cx - rad; x <= cx + rad; ++x) {
+          if (x < 0 || y < 0 || x >= w || y >= h) continue;
+          const std::uint8_t* q = px.data() + (static_cast<std::size_t>(y) * static_cast<std::size_t>(w) + static_cast<std::size_t>(x)) * 4;
+          sum[0] += q[0]; sum[1] += q[1]; sum[2] += q[2]; ++n;
+        }
+      }
+      if (!n) return Ink {128, 128, 128};
+      return Ink {static_cast<Uint8>(sum[0] / n), static_cast<Uint8>(sum[1] / n), static_cast<Uint8>(sum[2] / n)};
+    };
+    if (w <= 0 || h <= 0 || px.size() < static_cast<std::size_t>(w) * static_cast<std::size_t>(h) * 4) return p;
+    p.shell = mixInk(at(0.8f, 80), at(71.2f, 80), 0.5f);
+    p.shade = mixInk(p.shell, Ink {0, 0, 0}, 0.25f);
+    p.bezel = at(36, 3.5f);
+    p.pad = at(17, 102);
+    p.button = at(53, 106.6f);
+    p.buttonLit = mixInk(p.button, Ink {255, 255, 255}, 0.3f);
+    p.pill = at(24, 131.1f);
+    p.print = lumaOf(p.shell) > 0.45f ? mixInk(p.shell, Ink {0, 0, 0}, 0.7f) : mixInk(p.shell, Ink {255, 255, 255}, 0.75f);
+    p.valid = true;
+    return p;
+  }
+
   // "" is the flat drawn chrome (the theme's own colours).
   void setShell(const std::string& slug) {
     if (shellTex_) {
       SDL_DestroyTexture(shellTex_);
       shellTex_ = nullptr;
+    }
+    if (shellWideTex_) {
+      SDL_DestroyTexture(shellWideTex_);
+      shellWideTex_ = nullptr;
     }
     shell_.clear();
     const auto it = std::find_if(shells_.begin(), shells_.end(), [&](const ShellInfo& s) { return s.slug == slug; });
@@ -5190,9 +5242,30 @@ class Pocket {
           shellH_ = h;
           shell_ = slug;
           shellInk_ = it->ink;
+          shellPal_ = samplePalette(rgba, w, h);
         }
       } else {
         SDL_Log("pocket: could not read the shell %s", file.c_str());
+      }
+      // and its face on its side, where it has one (wide-<slug>.jpg)
+      {
+        const std::string wideFile = std::string(root ? root : ".") + "/data/pocket-shells/wide-" + slug + ".jpg";
+        size_t n = 0;
+        if (void* bytes = SDL_LoadFile(("data/pocket-shells/wide-" + slug + ".jpg").c_str(), &n)) {
+          SDL_SaveFile(wideFile.c_str(), bytes, n);
+          SDL_free(bytes);
+          int ww = 0, wh = 0;
+          std::vector<std::uint8_t> wrgba;
+          if (deckboy::libav::decodeImageRgba(wideFile, ww, wh, wrgba) && ww > 0 && wh > 0) {
+            shellWideTex_ = SDL_CreateTexture(renderer_, SDL_PIXELFORMAT_RGBA32, SDL_TEXTUREACCESS_STATIC, ww, wh);
+            if (shellWideTex_) {
+              SDL_UpdateTexture(shellWideTex_, nullptr, wrgba.data(), ww * 4);
+              SDL_SetTextureScaleMode(shellWideTex_, SDL_SCALEMODE_LINEAR);
+              shellWideW_ = ww;
+              shellWideH_ = wh;
+            }
+          }
+        }
       }
 #endif
     }
@@ -5213,7 +5286,38 @@ class Pocket {
 
   // The rendered face covers the portrait show screen; editing pages and
   // landscape have their own shapes and draw the flat chrome.
-  bool shellFace() const { return shellTex_ && !landscape_ && !editing_; }
+  // a rendered face for the way the phone is held: TALLAPP upright, WIDEAPP on its side
+  bool platePresent() const { return landscape_ ? shellWideTex_ != nullptr : shellTex_ != nullptr; }
+  bool shellFace() const { return platePresent() && !editing_; }
+
+  // WIDEAPP (pocket-skins devices.py --wideplate): Pocket's landscape show
+  // layout, 72 units tall and 156 wide, with 14 units of plastic past it at
+  // the left and the right. The band of columns 60..96 runs through the
+  // middle of the program and list windows and stretches (or squeezes) to
+  // the phone's width; the right-hand part is anchored to the right edge.
+  void drawShellWide() {
+    SDL_Renderer* r = renderer_;
+    fillRect(r, kBlack, {0, 0, pxW_, pxH_});
+    const float u = unit_;
+    const float k = static_cast<float>(shellWideH_) / 72.0f;         // plate pixels per unit
+    const float plateUnits = static_cast<float>(shellWideW_) / k;    // 184
+    const float margin = std::max(0.0f, (plateUnits - 156.0f) / 2);
+    const float wide = safe_.w / u;
+    auto part = [&](float fromLayout, float toLayout, float atLayout, float widthLayout) {
+      const SDL_FRect src {(fromLayout + margin) * k, 0, (toLayout - fromLayout) * k, static_cast<float>(shellWideH_)};
+      const SDL_FRect dst {safe_.x + atLayout * u, safe_.y, widthLayout * u, safe_.h};
+      SDL_RenderTexture(r, shellWideTex_, &src, &dst);
+    };
+    const float cutLeft = 60.0f, cutRight = 96.0f;
+    const float right = 156.0f - cutRight;   // 60: anchored to the right edge
+    if (wide < cutLeft + right) {
+      part(-margin, 156.0f + margin, -margin, wide + 2 * margin);   // too narrow to cut: squeeze it whole
+      return;
+    }
+    part(-margin, cutLeft, -margin, cutLeft + margin);
+    part(cutRight, 156.0f + margin, wide - right, right + margin);
+    part(cutLeft, cutRight, cutLeft, wide - right - cutLeft);
+  }
 
   std::string shellName() const {
     for (const ShellInfo& s : shells_) if (s.slug == shell_) return s.name;
@@ -8625,7 +8729,10 @@ class Pocket {
   std::vector<ShellInfo> shells_;
   std::string shell_;
   SDL_Texture* shellTex_ = nullptr;
+  ShellPalette shellPal_;
   int shellW_ = 0, shellH_ = 0;
+  SDL_Texture* shellWideTex_ = nullptr;   // the same shell on its side (WIDEAPP), where it has one
+  int shellWideW_ = 0, shellWideH_ = 0;
   Ink shellInk_ {46, 46, 70};
   std::vector<std::string> themes_;
   double huePhase_ = -1.0;
