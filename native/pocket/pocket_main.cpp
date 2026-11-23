@@ -2986,6 +2986,10 @@ class Pocket {
           deckboy::params::writeNumericParam(cues_[static_cast<std::size_t>(i)], id, v);
           settingChanged(i);
         };
+        n.lfo = [this, i, id]() -> deckboy::effects::ParamLfo* {
+          if (i < 0 || i >= static_cast<int>(cues_.size())) return nullptr;
+          return deckboy::params::paramLfoFor(cues_[static_cast<std::size_t>(i)], id);
+        };
         numberRow(row, std::move(n));
       }});
     }
@@ -6974,6 +6978,9 @@ class Pocket {
     int decimals = 0;
     double percentOf = 0;   // what "25%" means when typed (0: a plain hundredth)
     int lfoSlot = -1;       // a Cue::geometryLfo slot: the row gets a ~ chip
+    // ...or any other oscillator behind the number (a source's, an effect's):
+    // the row gets the same ~ chip, and it opens the same LFO page
+    std::function<deckboy::effects::ParamLfo*()> lfo;
     std::string zeroText;   // what 0 says, when 0 means something ("until GO")
     bool live = true;       // the calculator applies each key as typed; false: only OK does (an action, not a value)
     std::function<double()> get;
@@ -7004,11 +7011,17 @@ class Pocket {
     const float u = unit_;
     const double v = n.get();
     const float half = row.h * 0.5f;
-    text_.draw(pixelSmall_, n.label, kDark, {row.x, row.y, row.w * (n.lfoSlot >= 0 ? 0.30f : 0.46f), half});
+    const bool hasLfo = (n.lfoSlot >= 0 && sheet_ >= 0) || (n.lfo && n.lfo());
+    text_.draw(pixelSmall_, n.label, kDark, {row.x, row.y, row.w * (hasLfo ? 0.30f : 0.46f), half});
     if (n.lfoSlot >= 0 && sheet_ >= 0) {
       const int slot = n.lfoSlot;
       const bool on = cues_[static_cast<std::size_t>(sheet_)].geometryLfo[static_cast<std::size_t>(slot)].on;
       button({row.x + row.w * 0.33f, row.y + 0.3f * u, row.w * 0.12f, half - 0.3f * u}, "~", [this, slot] { openLfo(slot); }, true, on);
+    } else if (n.lfo && n.lfo()) {
+      const auto get = n.lfo;
+      const std::string name = n.label;
+      button({row.x + row.w * 0.33f, row.y + 0.3f * u, row.w * 0.12f, half - 0.3f * u}, "~",
+             [this, get, name] { openParamLfo(get, name); }, true, get()->on);
     }
     const std::string vt = numText(n, v);
     const SDL_FRect vbox {row.x + row.w * 0.48f, row.y + 0.3f * u, row.w * 0.52f, half - 0.3f * u};
@@ -7449,6 +7462,17 @@ class Pocket {
             CueEffect& f = cues_[static_cast<std::size_t>(i)].effects[static_cast<std::size_t>(fxShown_)];
             (which < 0 ? f.amount : cueEffectParam(f, which)) = static_cast<float>(v / 100.0);
             cueEdited(i, false);
+          };
+          // its oscillator, as on the desk: slot 4 is the amount's
+          const int e = fxShown_;
+          s.lfo = [this, i, e, which]() -> deckboy::effects::ParamLfo* {
+            if (i < 0 || i >= static_cast<int>(cues_.size())) return nullptr;
+            auto& stack = cues_[static_cast<std::size_t>(i)].effects;
+            if (e < 0 || e >= static_cast<int>(stack.size())) return nullptr;
+            CueEffect& f = stack[static_cast<std::size_t>(e)];
+            const int slot = which < 0 ? 4 : deckboy::effects::cueEffectLfoIndex(which);
+            if (slot < 0 || slot >= static_cast<int>(std::size(f.lfo))) return nullptr;
+            return &f.lfo[static_cast<std::size_t>(slot)];
           };
           numberRow(row, s);
         };
@@ -8012,7 +8036,23 @@ class Pocket {
   // the value you set, so turning one on never jumps the picture.
 
   void openLfo(int slot) {
+    const int i = sheet_;
     lfoSlot_ = slot;
+    lfoRef_ = [this, i, slot]() -> deckboy::effects::ParamLfo* {
+      if (i < 0 || i >= static_cast<int>(cues_.size())) return nullptr;
+      return &cues_[static_cast<std::size_t>(i)].geometryLfo[static_cast<std::size_t>(slot)];
+    };
+    lfoName_ = lfoSlotName(slot);
+    buzz("tap");
+  }
+
+  // Any other oscillator (a source's number, an effect's dial or amount):
+  // the same page, the same controls (James 11-23: "most of pocket's
+  // parameters that could have lfo/mod control don't").
+  void openParamLfo(std::function<deckboy::effects::ParamLfo*()> get, const std::string& name) {
+    lfoSlot_ = kOtherLfo;
+    lfoRef_ = std::move(get);
+    lfoName_ = name;
     buzz("tap");
   }
 
@@ -8032,12 +8072,17 @@ class Pocket {
     const float u = unit_;
     const int i = sheet_;
     const int slot = lfoSlot_;
-    auto& L = c.geometryLfo[static_cast<std::size_t>(slot)];
+    deckboy::effects::ParamLfo* lfoNow = lfoRef_ ? lfoRef_() : nullptr;
+    if (!lfoNow) {   // its row went away (the cue's type changed, the effect was removed)
+      lfoSlot_ = -1;
+      return;
+    }
+    auto& L = *lfoNow;
     // the engine plays its own copy of the live cue: hand it this one's LFOs
     if (i == active_) engine_->syncActiveCueSnapshot(forEngine(c));
     const float lx = lcd.x + u, lw = lcd.w - 2 * u;
     float y = lcd.y + u;
-    text_.draw(pixelSmall_, std::string("~ ") + lfoSlotName(slot) + " MOVES BY ITSELF", kDark, {lx, y, lw, 4 * u});
+    text_.draw(pixelSmall_, "~ " + lfoName_ + " MOVES BY ITSELF", kDark, {lx, y, lw, 4 * u});
     y += 5 * u;
     // a small picture of it moving: the wave, and where it is now
     {
@@ -8064,7 +8109,7 @@ class Pocket {
     const float rowH = std::min(9.0f * u, (bottom - y) / (slot == kGeoLfoRotation ? 9.4f : 8.4f));
     auto row = [&](float weight) { const SDL_FRect rr {lx, y, lw, rowH * weight}; y += rowH * weight; return rr; };
     chipRow(row(1), {{L.on ? "MOVING" : "STILL", [this, i, slot] {
-                        auto& l = cues_[static_cast<std::size_t>(i)].geometryLfo[static_cast<std::size_t>(slot)];
+                        auto& l = *lfoRef_();
                         l.on = !l.on;
                         if (l.on) buzz("spin");
                       }}}, {L.on});
@@ -8077,7 +8122,7 @@ class Pocket {
       for (std::size_t k = line ? 4 : 0; k < (line ? shapes.size() : 4); ++k) {
         const LfoShape sh = shapes[k].second;
         chips.push_back({shapes[k].first, [this, i, slot, sh] {
-                           auto& l = cues_[static_cast<std::size_t>(i)].geometryLfo[static_cast<std::size_t>(slot)];
+                           auto& l = *lfoRef_();
                            l.shape = sh;
                            l.on = true;
                          }});
@@ -8090,7 +8135,7 @@ class Pocket {
       // range, whose two ends are the same angle, so it never jumps.
       auto spin = [this, i, slot](bool right) {
         return [this, i, slot, right] {
-          auto& l = cues_[static_cast<std::size_t>(i)].geometryLfo[static_cast<std::size_t>(slot)];
+          auto& l = *lfoRef_();
           l.on = true;
           l.shape = right ? deckboy::effects::LfoShape::Saw : deckboy::effects::LfoShape::Ramp;
           l.depth = 1.0f;
@@ -8101,8 +8146,8 @@ class Pocket {
       chipRow(row(1), {{"SPIN RIGHT", spin(true)}, {"SPIN LEFT", spin(false)}},
               {spinning && L.shape == deckboy::effects::LfoShape::Saw, spinning && L.shape == deckboy::effects::LfoShape::Ramp});
     }
-    chipRow(row(1), {{"FREE", [this, i, slot] { cues_[static_cast<std::size_t>(i)].geometryLfo[static_cast<std::size_t>(slot)].beatSync = false; }},
-                     {"ON THE BEAT", [this, i, slot] { cues_[static_cast<std::size_t>(i)].geometryLfo[static_cast<std::size_t>(slot)].beatSync = true; }}},
+    chipRow(row(1), {{"FREE", [this, i, slot] { (*lfoRef_()).beatSync = false; }},
+                     {"ON THE BEAT", [this, i, slot] { (*lfoRef_()).beatSync = true; }}},
             {!L.beatSync, L.beatSync});
     {
       NumSpec n;
@@ -8115,8 +8160,8 @@ class Pocket {
         n.step = 0.25;
         n.reset = 4;
         n.presets = {{"1 BEAT", 1}, {"1 BAR", 4}, {"4 BARS", 16}};
-        n.get = [this, i, slot] { return static_cast<double>(cues_[static_cast<std::size_t>(i)].geometryLfo[static_cast<std::size_t>(slot)].beats); };
-        n.set = [this, i, slot](double v) { cues_[static_cast<std::size_t>(i)].geometryLfo[static_cast<std::size_t>(slot)].beats = static_cast<float>(v); };
+        n.get = [this, i, slot] { return static_cast<double>((*lfoRef_()).beats); };
+        n.set = [this, i, slot](double v) { (*lfoRef_()).beats = static_cast<float>(v); };
       } else {
         const bool spinning = slot == kGeoLfoRotation && L.depth >= 0.999f &&
                               (L.shape == deckboy::effects::LfoShape::Saw || L.shape == deckboy::effects::LfoShape::Ramp);
@@ -8128,8 +8173,8 @@ class Pocket {
         n.step = 0.01;
         n.reset = 0.25;
         n.presets = {{"SLOW", 0.1}, {"BREATH", 0.25}, {"FAST", 2}};
-        n.get = [this, i, slot] { return static_cast<double>(cues_[static_cast<std::size_t>(i)].geometryLfo[static_cast<std::size_t>(slot)].rateHz); };
-        n.set = [this, i, slot](double v) { cues_[static_cast<std::size_t>(i)].geometryLfo[static_cast<std::size_t>(slot)].rateHz = static_cast<float>(v); };
+        n.get = [this, i, slot] { return static_cast<double>((*lfoRef_()).rateHz); };
+        n.set = [this, i, slot](double v) { (*lfoRef_()).rateHz = static_cast<float>(v); };
       }
       numberRow(row(1.3f), n);
     }
@@ -8142,8 +8187,8 @@ class Pocket {
       n.step = 1;
       n.reset = 50;
       n.presets = {{"A LITTLE", 10}, {"HALF", 50}, {"ALL", 100}};
-      n.get = [this, i, slot] { return cues_[static_cast<std::size_t>(i)].geometryLfo[static_cast<std::size_t>(slot)].depth * 100.0; };
-      n.set = [this, i, slot](double v) { cues_[static_cast<std::size_t>(i)].geometryLfo[static_cast<std::size_t>(slot)].depth = static_cast<float>(v / 100.0); };
+      n.get = [this, i, slot] { return (*lfoRef_()).depth * 100.0; };
+      n.set = [this, i, slot](double v) { (*lfoRef_()).depth = static_cast<float>(v / 100.0); };
       numberRow(row(1.3f), n);
     }
     {
@@ -8161,11 +8206,11 @@ class Pocket {
         n.presets = high ? std::vector<std::pair<std::string, double>> {{"HALF", 50}, {"3/4", 75}, {"TOP", 100}}
                          : std::vector<std::pair<std::string, double>> {{"BOTTOM", 0}, {"1/4", 25}, {"HALF", 50}};
         n.get = [this, i, slot, high] {
-          const auto& l = cues_[static_cast<std::size_t>(i)].geometryLfo[static_cast<std::size_t>(slot)];
+          const auto& l = (*lfoRef_());
           return (high ? l.hi : l.lo) * 100.0;
         };
         n.set = [this, i, slot, high](double v) {
-          auto& l = cues_[static_cast<std::size_t>(i)].geometryLfo[static_cast<std::size_t>(slot)];
+          auto& l = *lfoRef_();
           const float f = static_cast<float>(v / 100.0);
           if (high) { l.hi = f; if (l.lo > f) l.lo = f; }
           else { l.lo = f; if (l.hi < f) l.hi = f; }
@@ -8178,7 +8223,7 @@ class Pocket {
     // back to the page
     const float bw = lw / 2 - u / 2;
     button({lx, bottom - 6 * u, bw, 6 * u}, "STOP IT", [this, i, slot] {
-      cues_[static_cast<std::size_t>(i)].geometryLfo[static_cast<std::size_t>(slot)].on = false;
+      (*lfoRef_()).on = false;
       lfoSlot_ = -1;
     }, true, false, true);
     button({lx + bw + u, bottom - 6 * u, bw, 6 * u}, "DONE", [this] { lfoSlot_ = -1; }, true, true);
@@ -8682,7 +8727,10 @@ class Pocket {
   double sliderStartValue_ = 0;
   bool linkScale_ = true;
   bool calcOpen_ = false;
-  int lfoSlot_ = -1;   // the cue sheet's LFO page, for this Cue::geometryLfo slot
+  int lfoSlot_ = -1;   // the cue sheet's LFO page is open: a Cue::geometryLfo slot, or kOtherLfo
+  static constexpr int kOtherLfo = 100;
+  std::function<deckboy::effects::ParamLfo*()> lfoRef_;   // the oscillator it shows
+  std::string lfoName_;
   NumSpec calcSpec_;
   std::string calcExpr_;
   double calcBefore_ = 0;

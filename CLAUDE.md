@@ -671,5 +671,4 @@ the lowest RTT of eight samples; drift over two frames triggers a seek with
 learned lead and a 600 ms settling interval. Missing cues go dark; loss of
 heartbeat keeps the current cue and retries. Local takes/GO/BACK are locked
 until SYNC STOP, including keyboard paths. Mini accepts `pattern://<type>`
-entries to match local generators. `codex/mini_follow_test.py` runs the real
-desk and Mini silently on a private desktop, with drift and reconnect timing.
+entries to match local generators.

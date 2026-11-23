@@ -1353,6 +1353,78 @@ inline std::vector<ParamRow> paramRowsForCue(const Cue& cue, bool includeHeading
   }
   return rows;
 }
+// Which oscillator slot a Moire row's ~ drives, or -1 for the two pickers.
+inline int moireLfoSlotFor(NumericParam id) {
+  switch (id) {
+    case NumericParam::MoireDensity: return kMoireLfoDensity;
+    case NumericParam::MoireSpeed: return kMoireLfoSpeed;
+    case NumericParam::MoireWarp: return kMoireLfoWarp;
+    case NumericParam::MoireTurn: return kMoireLfoTurn;
+    case NumericParam::MoireCentreX: return kMoireLfoCentreX;
+    case NumericParam::MoireCentreY: return kMoireLfoCentreY;
+    case NumericParam::MoireGrey: return kMoireLfoGrey;
+    case NumericParam::MoireHue: return kMoireLfoHue;
+    default: return -1;
+  }
+}
+
+// Which oscillator slot an Illusion row's ~ drives, or -1 for a picker or a toggle.
+inline int illusionLfoSlotFor(NumericParam id) {
+  switch (id) {
+    case NumericParam::IllusionSize: return kIllusionLfoSize;
+    case NumericParam::IllusionCount: return kIllusionLfoCount;
+    case NumericParam::IllusionEdge: return kIllusionLfoEdge;
+    case NumericParam::IllusionSpeed: return kIllusionLfoSpeed;
+    case NumericParam::IllusionCentreX: return kIllusionLfoCentreX;
+    case NumericParam::IllusionCentreY: return kIllusionLfoCentreY;
+    case NumericParam::IllusionTone: return kIllusionLfoTone;
+    case NumericParam::IllusionHue1: return kIllusionLfoHue1;
+    case NumericParam::IllusionHue2: return kIllusionLfoHue2;
+    default: return -1;
+  }
+}
+
+// Which oscillator slot a Lumia row's ~ drives, or -1 for a picker or a toggle.
+inline int lumiaLfoSlotFor(NumericParam id) {
+  switch (id) {
+    case NumericParam::LumiaFlow: return kLumiaLfoFlow;
+    case NumericParam::LumiaWater: return kLumiaLfoWater;
+    case NumericParam::LumiaRipple: return kLumiaLfoRipple;
+    case NumericParam::LumiaJet: return kLumiaLfoJet;
+    case NumericParam::LumiaPrism: return kLumiaLfoPrism;
+    case NumericParam::LumiaSplit: return kLumiaLfoSplit;
+    case NumericParam::LumiaFocus: return kLumiaLfoFocus;
+    case NumericParam::LumiaShimmer: return kLumiaLfoShimmer;
+    case NumericParam::LumiaMirrors: return kLumiaLfoMirrors;
+    case NumericParam::LumiaAngle: return kLumiaLfoAngle;
+    case NumericParam::LumiaSpin: return kLumiaLfoSpin;
+    case NumericParam::LumiaLens: return kLumiaLfoLens;
+    case NumericParam::LumiaGlow: return kLumiaLfoGlow;
+    case NumericParam::LumiaBright: return kLumiaLfoBright;
+    case NumericParam::LumiaTrail: return kLumiaLfoTrail;
+    default: return -1;
+  }
+}
+
+// The oscillator behind a source row, or nullptr when the row has none (a
+// picker, a toggle, or a source whose numbers do not move by themselves).
+inline deckboy::effects::ParamLfo* paramLfoFor(Cue& cue, NumericParam id) {
+  if (cue.kind == CueKind::Pattern) {
+    const std::string type = normalizePatternTypeId(cue.path);
+    if (type == "moire-field") {
+      const int s = moireLfoSlotFor(id);
+      if (s >= 0) return &cue.moire.lfo[static_cast<std::size_t>(s)];
+    } else if (type == "illusion") {
+      const int s = illusionLfoSlotFor(id);
+      if (s >= 0) return &cue.illusion.lfo[static_cast<std::size_t>(s)];
+    } else if (type == "lumia") {
+      const int s = lumiaLfoSlotFor(id);
+      if (s >= 0) return &cue.lumia.lfo[static_cast<std::size_t>(s)];
+    }
+  }
+  return nullptr;
+}
+
 inline ParamRow paramRowForCue(const Cue& cue, NumericParam id) {
   if (id == NumericParam::MotionDriverSpeed) return {"driver speed", id, "Fields per rendered frame. 1 is one for one, 0.5 holds "
                          "each field for two frames, 0 freezes it."};

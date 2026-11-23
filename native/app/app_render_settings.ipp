@@ -997,11 +997,14 @@
       // without being added here, so the card kept its old height and the last
       // control drifted across the edge into SAFETY / TIMECODE below -- which
       // is the same way this card ended up a row short once before.
-      // Eleven rows, every one the same height now that they all follow the
-      // label-and-control shape: theme, language, sound effects, hover tips,
-      // Miami cursor, splash, beast mode, creatures, clock, UI scale, Pocket 3.
+      // Twelve rows, every one the same height now that they all follow the
+      // label-and-control shape: theme, language, sound effects, lesson
+      // voices, hover tips, Miami cursor, splash, beast mode, creatures,
+      // clock, UI scale, Pocket 3. LESSON VOICES arrived without its row
+      // here, so Pocket 3 / touch hung off the card's bottom (James,
+      // 2026-11-23) -- the third time this card has been a row short.
       int appearanceH = stackH({sRowH, sRowH, sRowH, sRowH, sRowH, sRowH,
-                                sRowH, sRowH, sRowH, sRowH, sRowH});
+                                sRowH, sRowH, sRowH, sRowH, sRowH, sRowH});
       int safetyH = stackH({sRowH, sRowH, sRowH, sRowH});
       // SHOW FLOW: vj mode, jump mode + global crossfade, panic profile label
       // and its row. Grew by a row when VJ mode got a switch.
@@ -1539,7 +1542,8 @@
                            settingsStateInk(false));
       settingsBtns_.push_back({recClear, kSettingsActionRecordDirClear, "record_dir_clear"});
       // RENDER TO FILE: the same programme drawn frame by frame, not recorded.
-      recY += sRowH + sGap;
+      // (settingsRow above already stepped recY past the Destination row; a
+      // second step here put RENDER a row low, under WATCH FOLDER's heading.)
       const SDL_Rect renderRow = settingsRow(recX, recW, recY, sRowH, "Render", sGap);
       drawSettingsStateFill(renderRow, false);
       drawCenteredTextSafe(controlRenderer_, fontSmall_, renderRow, "RENDER TO FILE...", settingsStateInk(false));

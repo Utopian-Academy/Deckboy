@@ -16,58 +16,11 @@
 
 using NumericParam = deckboy::params::NumericParam;
 
-// Which oscillator slot a Moire row's ~ drives, or -1 for the two pickers.
-inline int moireLfoSlotFor(NumericParam id) {
-  switch (id) {
-    case NumericParam::MoireDensity: return kMoireLfoDensity;
-    case NumericParam::MoireSpeed: return kMoireLfoSpeed;
-    case NumericParam::MoireWarp: return kMoireLfoWarp;
-    case NumericParam::MoireTurn: return kMoireLfoTurn;
-    case NumericParam::MoireCentreX: return kMoireLfoCentreX;
-    case NumericParam::MoireCentreY: return kMoireLfoCentreY;
-    case NumericParam::MoireGrey: return kMoireLfoGrey;
-    case NumericParam::MoireHue: return kMoireLfoHue;
-    default: return -1;
-  }
-}
-
-// Which oscillator slot an Illusion row's ~ drives, or -1 for a picker or a toggle.
-inline int illusionLfoSlotFor(NumericParam id) {
-  switch (id) {
-    case NumericParam::IllusionSize: return kIllusionLfoSize;
-    case NumericParam::IllusionCount: return kIllusionLfoCount;
-    case NumericParam::IllusionEdge: return kIllusionLfoEdge;
-    case NumericParam::IllusionSpeed: return kIllusionLfoSpeed;
-    case NumericParam::IllusionCentreX: return kIllusionLfoCentreX;
-    case NumericParam::IllusionCentreY: return kIllusionLfoCentreY;
-    case NumericParam::IllusionTone: return kIllusionLfoTone;
-    case NumericParam::IllusionHue1: return kIllusionLfoHue1;
-    case NumericParam::IllusionHue2: return kIllusionLfoHue2;
-    default: return -1;
-  }
-}
-
-// Which oscillator slot a Lumia row's ~ drives, or -1 for a picker or a toggle.
-inline int lumiaLfoSlotFor(NumericParam id) {
-  switch (id) {
-    case NumericParam::LumiaFlow: return kLumiaLfoFlow;
-    case NumericParam::LumiaWater: return kLumiaLfoWater;
-    case NumericParam::LumiaRipple: return kLumiaLfoRipple;
-    case NumericParam::LumiaJet: return kLumiaLfoJet;
-    case NumericParam::LumiaPrism: return kLumiaLfoPrism;
-    case NumericParam::LumiaSplit: return kLumiaLfoSplit;
-    case NumericParam::LumiaFocus: return kLumiaLfoFocus;
-    case NumericParam::LumiaShimmer: return kLumiaLfoShimmer;
-    case NumericParam::LumiaMirrors: return kLumiaLfoMirrors;
-    case NumericParam::LumiaAngle: return kLumiaLfoAngle;
-    case NumericParam::LumiaSpin: return kLumiaLfoSpin;
-    case NumericParam::LumiaLens: return kLumiaLfoLens;
-    case NumericParam::LumiaGlow: return kLumiaLfoGlow;
-    case NumericParam::LumiaBright: return kLumiaLfoBright;
-    case NumericParam::LumiaTrail: return kLumiaLfoTrail;
-    default: return -1;
-  }
-}
+// Which oscillator a source row's ~ drives: core/numeric_params.hpp, so
+// Pocket's rows find the same ones.
+int moireLfoSlotFor(NumericParam id) const { return deckboy::params::moireLfoSlotFor(id); }
+int illusionLfoSlotFor(NumericParam id) const { return deckboy::params::illusionLfoSlotFor(id); }
+int lumiaLfoSlotFor(NumericParam id) const { return deckboy::params::lumiaLfoSlotFor(id); }
 
 using NumericParamSpec = deckboy::params::NumericParamSpec;
 
@@ -686,6 +639,30 @@ void effectLfoToggleSync(int packed) {
     lfo->beatSync = !lfo->beatSync;
     triggerToast(lfo->beatSync ? "lfo follows the tempo" : "lfo runs free");
     markProjectDirty();
+  }
+}
+
+// An effect's (or audio effect's) amount and dials: 5% a press of - or +,
+// 1% a step while the value is being dragged.
+float effectDialStep() const { return valueScrubEngaged_ ? 0.01f : 0.05f; }
+
+static bool isEffectDialAction(QuickAction a) {
+  switch (a) {
+    case QuickAction::EffectAmountInc: case QuickAction::EffectAmountDec:
+    case QuickAction::EffectParamAInc: case QuickAction::EffectParamADec:
+    case QuickAction::EffectParamBInc: case QuickAction::EffectParamBDec:
+    case QuickAction::EffectParamCInc: case QuickAction::EffectParamCDec:
+    case QuickAction::EffectParamDInc: case QuickAction::EffectParamDDec:
+    case QuickAction::EffectParamEInc: case QuickAction::EffectParamEDec:
+    case QuickAction::EffectParamFInc: case QuickAction::EffectParamFDec:
+    case QuickAction::AudioEffectAmountInc: case QuickAction::AudioEffectAmountDec:
+    case QuickAction::AudioEffectParamAInc: case QuickAction::AudioEffectParamADec:
+    case QuickAction::AudioEffectParamBInc: case QuickAction::AudioEffectParamBDec:
+    case QuickAction::AudioEffectParamCInc: case QuickAction::AudioEffectParamCDec:
+    case QuickAction::AudioEffectParamDInc: case QuickAction::AudioEffectParamDDec:
+      return true;
+    default:
+      return false;
   }
 }
 

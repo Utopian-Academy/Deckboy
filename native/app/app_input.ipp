@@ -1637,7 +1637,12 @@
       // whichever way the value is changed, so the only honest way to make a
       // control finer is to demand more travel per step.
       const bool fineScrub = (SDL_GetModState() & SDL_KMOD_SHIFT) != 0;
-      const int kScrubPxPerStep = fineScrub ? 16 : 4;  // mouse px per dec/inc step
+      // An effect's dial moves 1% a step while dragged (effectDialStep), so it
+      // takes a step every 2 px: a full sweep is a 200 px drag, smooth from 1
+      // to 100. It used to move by the buttons' 5%, in visible jumps (James
+      // 2026-11-23: "only in multiples of 5, which sucks").
+      const bool effectDial = isEffectDialAction(activeValueScrub_.incAction);
+      const int kScrubPxPerStep = effectDial ? (fineScrub ? 8 : 2) : (fineScrub ? 16 : 4);  // mouse px per dec/inc step
       if (!valueScrubEngaged_ && std::abs(x - valueScrubStartX_) >= kScrubEngagePx) {
         valueScrubEngaged_ = true;
         valueScrubPending_ = false;
