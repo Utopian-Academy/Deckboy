@@ -3611,6 +3611,43 @@ audit.
 
 ---
 
+### Skins
+
+A skin is a theme that also says what the desk is made of: the shape of the
+panels and buttons, their edges, light and shadow, a surface and a typeface.
+Twenty ship with Deckboy: **Console HD**, **Studio**, **Brushed**,
+**Bakelite**, **Arcade**, **Paper**, **Synth**, **Toybox**, **Phosphor**,
+**Field**, **Switcher**, **VCR**, **Test Gear**, **Modular**, **Membrane**,
+**Rack**, **Pocket Grey**, **Pocket Clear**, **Rubber Hose** and **Goo**.
+Pick one in `Settings → theme`. A skin scales with the UI scale, the same as
+the rest of the desk. The layout and every control stay where they are.
+
+**Writing your own.** Add `style_` lines to a theme's `theme.txt`. Lengths are
+at 1x. A theme with no `style_` line draws as a plain theme.
+
+| Line | Meaning |
+|------|---------|
+| `style_panel <shape> <radius>` | Shape of the large panels: `rect`, `round`, `pill`, `chamfer` (cut corners) or `blob` (hand-drawn) |
+| `style_control <shape> <radius>` | Shape of buttons, rows and chips. `pill` gives round ends to short controls only |
+| `style_outline <width>` | Width of the edge line |
+| `style_gradient <0-0.4>` | Top lighter and bottom darker by this much |
+| `style_sheen <0-0.6>` | A bright band a third of the way down (metal, gloss) |
+| `style_rim <0-1>` | Light along the top inside edge |
+| `style_lip <px>` | A hard, darker step under each button |
+| `style_shadow <y> <blur> <alpha>` | A shadow under panels and buttons |
+| `style_panel_texture <kind> <alpha>` | A surface on the panels: `brushed`, `grain`, `crackle`, `dots`, `wood`, `carbon`, `halftone`, `circuit` or `mesh` |
+| `style_control_texture <kind> <alpha>` | The same, on buttons |
+| `style_background_texture <kind> <alpha>` | The same, on the desk's body |
+| `style_texture_scale <0.25-4>` | Size of the texture |
+| `style_font <file> [size]` | A typeface in `data/fonts` for titles and buttons, and a size factor |
+| `style_sticker <shape> <holo\|vinyl> <RRGGBB> <place> [angle] [size]` | A sticker: `star`, `bolt`, `heart`, `dot` or `cross`, on `playlist`, `media`, `transport` or `desk`. Up to eight |
+
+Check a skin's labels with `--contrast-check` the same way as a theme. To see
+it at several scales, `tools/check_skins.py <folder> --themes <name>
+--scales 0.75,1,2` saves a picture of the desk at each one.
+
+---
+
 ### Creatures
 
 Some themes have things living in them. They occupy the empty part of the

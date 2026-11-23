@@ -2,6 +2,15 @@
 
 ## Unreleased
 
+### Skins
+- New: 20 skins. A skin changes what the desk is made of, not only its colours: the shape of panels and buttons (round, pill, cut corner, hand-drawn), their edges, light and shadow, a surface texture and a typeface. They are Console HD, Studio, Brushed, Bakelite, Arcade, Paper, Synth, Toybox, Phosphor, Field, Switcher, VCR, Test Gear, Modular, Membrane, Rack, Pocket Grey, Pocket Clear, Rubber Hose and Goo. Pick one in Settings, like a theme.
+- Every skin scales with the UI scale (checked at 0.75x, 1x and 2x).
+- The cue colour stripe, the selection glow, scrollbars, toasts, tips, menus, dropdown lists and the settings tabs follow the skin's shape.
+- Pocket Grey and Pocket Clear carry stickers: holographic foil and vinyl, on the playlist's empty space and on the bottom-bar plates.
+- Twelve typefaces come with Deckboy for the skins, each with its licence in data/fonts (SIL Open Font License; Luckiest Guy: Apache 2.0).
+- The existing themes look exactly as before.
+- For theme authors: `style_` lines in theme.txt set the shape and finish. See the manual, section 21.
+
 ### Clickers
 - Fixed: a presenter clicker that sends the arrow keys did nothing. A D'San Perfect Cue sends Right arrow, Left arrow and B unless it is reprogrammed, and so do many other clickers. Right and Left now take the next and previous cue with the transition, the same as Page Down and Page Up, also when a full-screen output has the keyboard and while the shortcuts sheet is open. With the tracker open, they are GO and BACK.
 - The clicker's blank button (B, blackout) now also works when a full-screen output has the keyboard.
