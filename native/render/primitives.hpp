@@ -20,9 +20,52 @@
 
 #pragma once
 
+#include <string>
+
 #include "core/sdl_compat.hpp"
 
 namespace deckboy::render {
+
+// SKINS: SHAPE AND FINISH. A theme's colours say what the desk looks like;
+// its style_* lines say what it is made of. With `enabled` false (every theme
+// without style_* lines) the panels draw exactly as they always have.
+//
+// Two roles, told apart the way the press tracker tells them (a control is at
+// most a row of the inspector wide and a bottom-bar button tall): PANELS are
+// the large surfaces, CONTROLS everything an operator presses. All lengths are
+// at 1x and are multiplied by `scale`, the UI scale the fonts were loaded at,
+// so a skin scales with the desk.
+enum class ChromeShape { Rect, Round, Pill, Chamfer, Blob };
+enum class ChromeTexture { None, Brushed, Grain, Crackle, Dots, Wood, Carbon, Halftone, Circuit, Mesh };
+
+struct ChromeStyle {
+  bool enabled = false;
+  float scale = 1.0f;
+  ChromeShape panelShape = ChromeShape::Rect;
+  ChromeShape controlShape = ChromeShape::Rect;
+  float panelRadius = 0.0f;
+  float controlRadius = 0.0f;
+  float outline = 1.0f;        // border width
+  float gradient = 0.0f;       // top this much lighter, bottom this much darker (0..0.4)
+  float sheen = 0.0f;          // a bright band a third of the way down (metal, gloss)
+  float rim = 0.0f;            // strength of the light along the top inside edge (0..1)
+  float lip = 0.0f;            // a hard darker step under each control, in px
+  float shadowY = 0.0f;        // soft shadow under each panel/control
+  float shadowBlur = 0.0f;
+  float shadowAlpha = 0.0f;
+  ChromeTexture panelTexture = ChromeTexture::None;
+  float panelTextureAlpha = 0.0f;
+  ChromeTexture controlTexture = ChromeTexture::None;
+  float controlTextureAlpha = 0.0f;
+  ChromeTexture backgroundTexture = ChromeTexture::None;   // the desk's body behind the panels
+  float backgroundTextureAlpha = 0.0f;
+  float textureScale = 1.0f;
+};
+
+inline ChromeStyle gChrome;
+
+ChromeShape chromeShapeFromToken(const std::string& token, ChromeShape fallback);
+ChromeTexture chromeTextureFromToken(const std::string& token);
 
 class Primitives {
  public:
@@ -38,6 +81,19 @@ class Primitives {
   // the panel appears raised; if darker, it appears inset.
   static void drawFramedPanel(SDL_Renderer* renderer, const SDL_Rect& rect,
                               SDL_Color body, SDL_Color border, SDL_Color innerBorder);
+
+  // A skinned face (gChrome.enabled): shadow, lip, outline, rim light,
+  // gradient face and texture, in the shape its size gives it. `raised`
+  // false is a well (inverted gradient, no lip or shadow). Records the
+  // surface and the pressable exactly as the flat panels do.
+  static void drawChrome(SDL_Renderer* renderer, const SDL_Rect& rect,
+                         SDL_Color fill, SDL_Color border, bool raised);
+  // The skin's shape for this rect, filled flat or outlined: the pressed
+  // wash and the open/release rings follow the control's own outline.
+  static void fillChromeShape(SDL_Renderer* renderer, const SDL_Rect& rect, SDL_Color color);
+  static void strokeChromeShape(SDL_Renderer* renderer, const SDL_Rect& rect, SDL_Color color, int width);
+  // Textures are made per renderer; call when a renderer goes away.
+  static void forgetChromeRenderer(SDL_Renderer* renderer);
 
   // Draw a decorative speaker grille pattern: evenly-spaced horizontal bars.
   // Each bar is 3px tall with 4px gaps (7px pitch). Used for cosmetic detail

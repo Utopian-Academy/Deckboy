@@ -1,0 +1,27 @@
+# Deckboy Theme: Studio: broadcast graphite with a red tally.
+# A skinned theme: the style_ lines set shape and finish (render/primitives.hpp).
+# All colour values are RRGGBBAA hex.
+
+shell_outer	141619FF
+shell_inner	1E2125FF
+shell_shadow	08090AFF
+screen_light	E0303FFF
+screen_mid	3A3F46FF
+screen_dark	33291AFF
+screen_deep	0E1012FF
+screen_ink_soft	7D8690FF
+screen_fg	E7EAEEFF
+screen_fg_soft	9AA3ADFF
+screen_tile	24272CFF
+button_bezel	4A5058FF
+delete_bezel	E0303FFF
+scanline_alpha	0
+
+style_panel	round 6
+style_control	round 5
+style_outline	1
+style_gradient	0.06
+style_rim	0.18
+style_shadow	6 18 0.45
+style_panel_texture	brushed 0.06
+style_background_texture	brushed 0.07

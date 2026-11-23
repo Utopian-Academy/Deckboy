@@ -1,0 +1,28 @@
+# Deckboy Theme: Bakelite: brown gloss, brass trim, cream knobs.
+# A skinned theme: the style_ lines set shape and finish (render/primitives.hpp).
+# All colour values are RRGGBBAA hex.
+
+shell_outer	4A2412FF
+shell_inner	3A1D0FFF
+shell_shadow	1F0E05FF
+screen_light	EEDFBCFF
+screen_mid	D4AE66FF
+screen_dark	6E4A2AFF
+screen_deep	2A1408FF
+screen_ink_soft	CDB68AFF
+screen_fg	3A1D0FFF
+screen_fg_soft	6E4A2AFF
+screen_tile	EADBB6FF
+button_bezel	B8945AFF
+delete_bezel	C04A28FF
+scanline_alpha	0
+
+style_panel	round 20
+style_control	pill 16
+style_outline	2
+style_gradient	0.14
+style_sheen	0.20
+style_rim	0.6
+style_lip	3
+style_shadow	6 14 0.45
+style_background_texture	grain 0.08

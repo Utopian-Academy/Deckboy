@@ -1,0 +1,25 @@
+# Deckboy Theme: Rubber Hose: a 1930s cartoon in wobbly ink.
+# A skinned theme: the style_ lines set shape and finish (render/primitives.hpp).
+# All colour values are RRGGBBAA hex.
+
+shell_outer	F3E7C9FF
+shell_inner	FFF8E6FF
+shell_shadow	161210FF
+screen_light	D7261EFF
+screen_mid	FFFDF5FF
+screen_dark	F2BB2EFF
+screen_deep	161210FF
+screen_ink_soft	4A3F33FF
+screen_fg	161210FF
+screen_fg_soft	4A3F33FF
+screen_tile	FFF8E6FF
+button_bezel	161210FF
+delete_bezel	D7261EFF
+scanline_alpha	0
+
+style_panel	blob 26
+style_control	blob 22
+style_outline	3
+style_rim	0.0
+style_shadow	5 0 1.0
+style_background_texture	grain 0.10

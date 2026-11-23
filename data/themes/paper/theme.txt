@@ -1,0 +1,24 @@
+# Deckboy Theme: Paper: a printed Swiss grid, one red TAKE.
+# A skinned theme: the style_ lines set shape and finish (render/primitives.hpp).
+# All colour values are RRGGBBAA hex.
+
+shell_outer	F3F0E8FF
+shell_inner	FBFAF6FF
+shell_shadow	161616FF
+screen_light	E5361FFF
+screen_mid	FBFAF6FF
+screen_dark	D8D4C8FF
+screen_deep	161616FF
+screen_ink_soft	555555FF
+screen_fg	161616FF
+screen_fg_soft	555555FF
+screen_tile	FBFAF6FF
+button_bezel	161616FF
+delete_bezel	E5361FFF
+scanline_alpha	0
+
+style_panel	rect 0
+style_control	rect 0
+style_outline	2
+style_shadow	3 0 1.0
+style_background_texture	grain 0.05

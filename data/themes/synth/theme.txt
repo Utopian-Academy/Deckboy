@@ -1,0 +1,26 @@
+# Deckboy Theme: Synth: matte black, walnut, colour-coded keys.
+# A skinned theme: the style_ lines set shape and finish (render/primitives.hpp).
+# All colour values are RRGGBBAA hex.
+
+shell_outer	17171BFF
+shell_inner	1E1E23FF
+shell_shadow	0C0C0EFF
+screen_light	FF8A00FF
+screen_mid	D6D3CBFF
+screen_dark	3A2914FF
+screen_deep	1B1B1BFF
+screen_ink_soft	A2A2AAFF
+screen_fg	EDEDEDFF
+screen_fg_soft	A2A2AAFF
+screen_tile	26262CFF
+button_bezel	55555EFF
+delete_bezel	FF4A2AFF
+scanline_alpha	0
+
+style_panel	round 4
+style_control	round 4
+style_outline	1
+style_gradient	0.10
+style_rim	0.4
+style_lip	4
+style_shadow	6 10 0.5

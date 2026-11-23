@@ -1,0 +1,28 @@
+# Deckboy Theme: Arcade: black cabinet, candy buttons, a glow.
+# A skinned theme: the style_ lines set shape and finish (render/primitives.hpp).
+# All colour values are RRGGBBAA hex.
+
+shell_outer	0D0A17FF
+shell_inner	14111FFF
+shell_shadow	05040AFF
+screen_light	FF5FB8FF
+screen_mid	22D3EEFF
+screen_dark	2C2249FF
+screen_deep	07060CFF
+screen_ink_soft	AB9FD6FF
+screen_fg	F4F0FFFF
+screen_fg_soft	AB9FD6FF
+screen_tile	1D1830FF
+button_bezel	3B2D63FF
+delete_bezel	FF3B4EFF
+scanline_alpha	12
+
+style_panel	round 16
+style_control	pill 12
+style_outline	2
+style_gradient	0.16
+style_sheen	0.22
+style_rim	0.45
+style_lip	4
+style_shadow	0 18 0.35
+style_background_texture	dots 0.12
