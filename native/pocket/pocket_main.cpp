@@ -648,7 +648,10 @@ class Pocket {
     window_ = SDL_CreateWindow("Deckboy Pocket", 0, 0, SDL_WINDOW_FULLSCREEN | SDL_WINDOW_RESIZABLE | SDL_WINDOW_HIGH_PIXEL_DENSITY);
 #else
     // A desktop build is for working on Pocket: a phone-shaped window.
-    window_ = SDL_CreateWindow("Deckboy Pocket", 480, 1040, SDL_WINDOW_RESIZABLE | SDL_WINDOW_HIGH_PIXEL_DENSITY);
+    // DECKBOY_POCKET_WINDOW=WxH (tests: 1040x480 is the phone on its side)
+    int winW = 480, winH = 1040;
+    if (const char* size = SDL_getenv("DECKBOY_POCKET_WINDOW")) std::sscanf(size, "%dx%d", &winW, &winH);
+    window_ = SDL_CreateWindow("Deckboy Pocket", winW, winH, SDL_WINDOW_RESIZABLE | SDL_WINDOW_HIGH_PIXEL_DENSITY);
 #endif
     if (!window_) {
       SDL_Log("pocket: no window: %s", SDL_GetError());
@@ -1280,25 +1283,26 @@ class Pocket {
         sheetRect_ = {program_.x + program_.w + 1.5f * u, y0 + 1.5f * u, 0, (H - 3) * u};
         sheetRect_.w = x0 + safe_.w - 1.5f * u - sheetRect_.x;
       } else {
-        // the middle: the program (title, picture, buttons) over the cue list
-        const float side = 34;
+        // the middle: the program (title, picture, one row of name, time and
+        // buttons) over the cue list, the controls either side. James 11-23:
+        // same layout, used properly -- the program spans the middle, the
+        // name and buttons share a row, and nothing overlaps the list.
+        const float side = 30;   // the pad is 28 units across
         const float cw = W - 2 * side;
-        const float listRows = 3;
-        const float listH = listRows * 5.2f + 5;
-        const float maxPicH = H - 3 - 5 - 1 - 1.2f - 6 - 2.5f - 1.5f - listH;
-        const float picW = std::min(cw - 7, maxPicH * 16.0f / 9.0f);
-        const float picH = picW * 9.0f / 16.0f;
-        const float pw = picW + 7;
-        program_ = {x0 + (W - pw) / 2 * u, y0 + 1.5f * u, pw * u, (5 + 1 + picH + 1.2f + 6 + 2.5f) * u};
-        picRect_ = {program_.x + 3.5f * u, program_.y + 6 * u, picW * u, picH * u};
-        list_ = {x0 + (side + 1) * u, program_.y + program_.h + 1.5f * u, (cw - 2) * u, 0};
+        const float listH = 3 * 5.2f + 5;   // three cues at least
+        const float chrome = 5 + 1 + 1.2f + 6 + 2.5f;   // title, gaps, the row, margin
+        const float picH = std::max(12.0f, std::min((cw - 7) * 9.0f / 16.0f, H - 3 - 1.5f - listH - chrome));
+        const float picW = picH * 16.0f / 9.0f;
+        program_ = {x0 + side * u, y0 + 1.5f * u, cw * u, (chrome + picH) * u};
+        picRect_ = {program_.x + (program_.w - picW * u) / 2, program_.y + 6 * u, picW * u, picH * u};
+        list_ = {x0 + side * u, program_.y + program_.h + 1.5f * u, cw * u, 0};
         list_.h = y0 + safe_.h - 1.5f * u - list_.y;
         strip_ = {};
-        padCentre_ = at(17, 26);
-        blackPill_ = {x0 + 4 * u, y0 + (H - 13) * u, 12 * u, 4 * u};
-        menuPill_ = {x0 + 18 * u, y0 + (H - 13) * u, 12 * u, 4 * u};
-        goCentre_ = at(W - 13, 24);
-        backCentre_ = at(W - 26, 41);
+        padCentre_ = at(side / 2, H * 0.40f);
+        blackPill_ = {x0 + 2 * u, y0 + (H - 9) * u, (side - 5) / 2 * u, 4 * u};
+        menuPill_ = {x0 + (3 + (side - 5) / 2) * u, y0 + (H - 9) * u, (side - 5) / 2 * u, 4 * u};
+        goCentre_ = at(W - side / 2, H * 0.34f);
+        backCentre_ = at(W - side / 2 - 4, H * 0.64f);
       }
     }
     header_ = {program_.x + 5 * u, program_.y + 1.2f * u, program_.w - 21 * u, 3.2f * u};
@@ -1356,11 +1360,14 @@ class Pocket {
     }
     int cw = 0, ch = 0;
     if (mono_ && !clockText.empty()) TTF_GetStringSize(mono_, clockText.c_str(), 0, &cw, &ch);
-    text_.draw(mono_, onAir ? onAir->name : "Nothing on air", kDeep, {lcd.x + u, y, lcd.w - 3 * u - static_cast<float>(cw), 4 * u});
+    // landscape: the name and time take the row's left part, the buttons the rest
+    const float textW = landscape_ ? lcd.w * 0.42f : lcd.w;
+    const float textY = landscape_ ? y + 0.5f * u : y;
+    text_.draw(mono_, onAir ? onAir->name : "Nothing on air", kDeep, {lcd.x + u, textY, textW - 3 * u - static_cast<float>(cw), 4 * u});
     if (!clockText.empty()) {
-      text_.draw(mono_, clockText, kDeep, {lcd.x + lcd.w - u - static_cast<float>(cw), y, static_cast<float>(cw) + 1, 4 * u});
+      text_.draw(mono_, clockText, kDeep, {lcd.x + textW - u - static_cast<float>(cw), textY, static_cast<float>(cw) + 1, 4 * u});
     }
-    y += 4.5f * u;
+    if (!landscape_) y += 4.5f * u;
     if (!landscape_) {
       scrub_ = {lcd.x + u, y, lcd.w - 2 * u, 3.4f * u};
       fillRect(r, kMid, {scrub_.x, scrub_.y + 1.2f * u, scrub_.w, 1.0f * u});
@@ -1380,9 +1387,11 @@ class Pocket {
     const bool paused = onAir && engine_->state() == TransportState::Paused;
     const bool canTrim = onAir && cueHasTimeline(*onAir);
     const float gap = 0.8f * u;
-    const float small = (lcd.w - 2 * u - 4 * gap) * 0.17f;
-    const float wide = (lcd.w - 2 * u - 4 * gap - 4 * small);
-    float bx = lcd.x + u;
+    const float rowX = landscape_ ? lcd.x + textW : lcd.x + u;
+    const float rowW = landscape_ ? lcd.w - textW - u : lcd.w - 2 * u;
+    const float small = (rowW - 4 * gap) * 0.17f;
+    const float wide = (rowW - 4 * gap - 4 * small);
+    float bx = rowX;
     button({bx, y, small, 5 * u}, "-10", [this] { skipBy(-10); }, canTrim); bx += small + gap;
     button({bx, y, wide, 5 * u}, paused ? "PLAY" : "PAUSE", [this, paused] { paused ? engine_->play() : engine_->pause(); }, onAir != nullptr); bx += wide + gap;
     button({bx, y, small, 5 * u}, "+10", [this] { skipBy(10); }, canTrim); bx += small + gap;
