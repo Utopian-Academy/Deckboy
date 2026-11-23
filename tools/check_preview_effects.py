@@ -105,6 +105,7 @@ EFFECTS = [
     ("stereogram",      "1:0.6:0.5:0:0.5:0"),
     ("tape",            "1:0.6:0.6:0.5:0.5"),
     ("circuit_bend",    "1:0.4:0.35:0.4:0.45"),
+    ("breath",          "1:0.5:0.5"),
 ]
 
 # Both need something a paused frame cannot give them.
