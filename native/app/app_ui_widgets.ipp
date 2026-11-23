@@ -963,13 +963,23 @@
       const int off = uiScaled(step * 2);
       SDL_Rect shade {contextMenuRect_.x + off, contextMenuRect_.y + off,
                       contextMenuRect_.w, contextMenuRect_.h};
-      Primitives::fillRect(controlRenderer_, shade,
-                           SDL_Color {0, 0, 0, static_cast<Uint8>(60 - step * 15)});
+      if (deckboy::render::gChrome.enabled) {
+        SDL_Color shadow = pal.shellShadow;
+        shadow.a = static_cast<Uint8>(60 - step * 15);
+        Primitives::fillChromeShape(controlRenderer_, shade, shadow, deckboy::render::ChromeRole::Panel);
+      } else {
+        Primitives::fillRect(controlRenderer_, shade,
+                             SDL_Color {0, 0, 0, static_cast<Uint8>(60 - step * 15)});
+      }
     }
     SDL_SetRenderDrawBlendMode(controlRenderer_, SDL_BLENDMODE_NONE);
 
-    Primitives::drawFramedPanel(controlRenderer_, contextMenuRect_,
-                                pal.tile, pal.deep, pal.mid);
+    if (deckboy::render::gChrome.enabled) {
+      Primitives::drawChrome(controlRenderer_, contextMenuRect_, pal.tile, pal.deep, false, deckboy::render::ChromeRole::Panel);
+    } else {
+      Primitives::drawFramedPanel(controlRenderer_, contextMenuRect_,
+                                  pal.tile, pal.deep, pal.mid);
+    }
     const int swatchW = uiScaled(12);
     const int textX = uiScaled(22);
     for (const auto& item : contextItems_) {
@@ -1637,10 +1647,14 @@
       return;
     }
     refreshDropdownPopoverRect();
-    Primitives::drawFramedPanel(controlRenderer_, dropdown_.popoverRect,
-                                pal.light,
-                                pal.deep,
-                                pal.mid);
+    if (deckboy::render::gChrome.enabled) {
+      Primitives::drawChrome(controlRenderer_, dropdown_.popoverRect, pal.light, pal.deep, true, deckboy::render::ChromeRole::Panel);
+    } else {
+      Primitives::drawFramedPanel(controlRenderer_, dropdown_.popoverRect,
+                                  pal.light,
+                                  pal.deep,
+                                  pal.mid);
+    }
     int filterH = dropdownFilterHeight();
     if (filterH > 0) {
       const bool hinting = dropdown_.filter.empty();
@@ -1671,7 +1685,12 @@
       SDL_Rect rowRect {listRect.x, drawY, listRect.w, dropdown_.rowHeight};
       SDL_Color rowFill = highlighted ? pal.dark : pal.light;
       SDL_Color rowInk = highlighted ? pal.light : pal.deep;
-      Primitives::fillRect(controlRenderer_, rowRect, rowFill);
+      if (deckboy::render::gChrome.enabled) {
+        Primitives::fillChromeSlice(controlRenderer_, dropdown_.popoverRect, rowRect, rowFill,
+                                    uiScaled(1), deckboy::render::ChromeRole::Panel);
+      } else {
+        Primitives::fillRect(controlRenderer_, rowRect, rowFill);
+      }
       const auto& option = dropdown_.options[optionIndex];
       if (!option.fontPath.empty()) {
         // The sample in the font itself, the family's name beside it in the
