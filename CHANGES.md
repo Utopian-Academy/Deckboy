@@ -2,6 +2,30 @@
 
 ## Unreleased
 
+### Deckboy Pocket (Android)
+- New: **Deckboy Pocket**, Deckboy on an Android phone (Android 10 or newer, 64-bit). The same engine as the desk: a cue list with GO and BACK, transitions, effects on the phone's graphics card, and the desk's show files, opened and saved.
+- Sources: video, pictures and sound from the phone; PATTERN (the desk's test signals) and SYNTH (Swirl, Lumia, Illusion, Fireside, Portal, Moire, the Video Synth) with every setting on the cue's SET page; the phone's cameras, with zoom across the lenses, tap-to-focus, focus by hand, exposure, LOCK and the flashlight, and the microphone as the camera's sound.
+- Output: plug in USB-C to HDMI for a full-size output with its own resolution, or use the phone's own screen, full screen with ghost controls. MAP pins the output's corners to fit a screen.
+- Every number that can move by itself has its ~ (LFO), as on the desk, and an LFO can stay between a lowest and a highest.
+- 25 rendered shells, upright and on their side, and the desk's face when nothing is on air.
+- Pocket keeps the phone awake through a show and can follow a desk (below).
+- Remote control on the desk's port (5510), answering many of the desk's own commands.
+- Not yet: iOS, and Pocket in Google Play. The APK is on the releases page; Android asks once to allow installing it.
+
+### Following a desk (backup and second rooms)
+- New: a desk can **lead** (Settings > Network > Lead other machines). Deckboy Mini (`--follow`, or `SYNC FOLLOW <address>`) and Deckboy Pocket (MENU > SYNC) follow it on the same network: they take, pause, seek and black out with the desk, on the desk's clock. Use one as a backup screen, or to run a second room from one desk.
+- Companion: `FOLLOW`, `TIME`, `SYNC LEAD ON|OFF` and `SYNC STATUS` on the desk; `SYNC FOLLOW`, `SYNC STOP` and `SYNC STATUS` on Mini.
+
+### Effects
+- New: **Breath**. The picture swells and settles on a slow, uneven breath, with a soft swell drifting through it, sometimes barely there. PACE (a breath every 12 seconds to 2.5) and FLOW. It arrives at 35%, about two pixels at the edges of a 1080p picture.
+- Fixed: dragging an effect's amount or a setting moved it in steps of 5%. A drag now moves it 1% a step (hold Shift for finer). The - and + buttons still move 5%.
+
+### Settings
+- Fixed: in Settings > System, the APPEARANCE card was one row too short, so Pocket 3 / touch hung off its bottom. RECORDING's Render row sat under WATCH FOLDER's heading.
+
+### Languages
+- New: **Lithuanian** (Lietuvių).
+
 ### Skins
 - New: 20 skins. A skin changes what the desk is made of, not only its colours: the shape of panels and buttons (round, pill, cut corner, hand-drawn), their edges, light and shadow, a surface texture and a typeface. They are Console HD, Studio, Brushed, Bakelite, Arcade, Paper, Synth, Toybox, Phosphor, Field, Switcher, VCR, Test Gear, Modular, Membrane, Rack, Pocket Grey, Pocket Clear, Rubber Hose and Goo. Pick one in Settings, like a theme.
 - Every skin scales with the UI scale (checked at 0.75x, 1x and 2x).

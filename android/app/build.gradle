@@ -12,8 +12,13 @@ android {
         applicationId "io.github.utopian_academy.deckboy.pocket"
         minSdkVersion 29
         targetSdkVersion 35
-        versionCode 1
-        versionName "0.1"
+        // The version is Deckboy's (the repo's VERSION file, the one source of
+        // truth): 0.99.430 -> versionName "0.99.430", versionCode 99430, so
+        // every release installs over the one before.
+        def deckboyVersion = file("../../VERSION").text.trim()
+        def parts = deckboyVersion.tokenize('.').collect { it as int }
+        versionName deckboyVersion
+        versionCode parts[0] * 10000000 + parts[1] * 1000 + parts[2]
         externalNativeBuild {
             ndkBuild {
                 arguments "APP_PLATFORM=android-29"
@@ -30,8 +35,27 @@ android {
             }
         }
     }
+    // RELEASE SIGNING. The key never lives in the repo: DECKBOY_POCKET_SIGNING
+    // names a properties file (storeFile, storePassword, keyAlias, keyPassword)
+    // kept with the keystore. Every update must be signed with the same key or
+    // phones refuse it, so the keystore is backed up by its owner. Without the
+    // variable a release build comes out unsigned.
+    def signingFile = System.getenv("DECKBOY_POCKET_SIGNING")
+    if (signingFile && new File(signingFile).exists()) {
+        def props = new Properties()
+        new File(signingFile).withInputStream { props.load(it) }
+        signingConfigs {
+            release {
+                storeFile new File(props.storeFile)
+                storePassword props.storePassword
+                keyAlias props.keyAlias
+                keyPassword props.keyPassword
+            }
+        }
+    }
     buildTypes {
         release {
+            if (signingFile && new File(signingFile).exists()) signingConfig signingConfigs.release
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
