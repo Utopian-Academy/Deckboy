@@ -2008,10 +2008,11 @@ class Pocket {
     }
     heading("PHONE");
     {
-      const float hw = (lw - u) * 0.66f;
-      button({lx, y, hw, 5 * u}, haptics_ ? "BUTTONS YOU CAN FEEL: ON" : "BUTTONS YOU CAN FEEL: OFF",
+      // one a row: side by side, the longer label was cut off (James 11-23: "squished")
+      button({lx, y, lw, 5 * u}, haptics_ ? "BUTTONS YOU CAN FEEL: ON" : "BUTTONS YOU CAN FEEL: OFF",
              [this] { setHaptics(!haptics_); }, true, haptics_);
-      button({lx + hw + u, y, lw - hw - u, 5 * u}, splashOn_ ? "SPLASH: ON" : "SPLASH: OFF",
+      y += 6 * u;
+      button({lx, y, lw, 5 * u}, splashOn_ ? "SPLASH AT START: ON" : "SPLASH AT START: OFF",
              [this] { splashOn_ = !splashOn_; saveHelpers(); }, true, splashOn_);
       y += 6.5f * u;
     }
@@ -2024,8 +2025,10 @@ class Pocket {
       button({lx + 2 * (tw + u), y, tw, 5 * u}, "FPS", [this] { showFps_ = !showFps_; saveHelpers(); }, true, showFps_);
       y += 6.5f * u;
     }
-    text_.draw(mono_, healthLabel().empty() ? "-" : "Battery " + healthLabel(), kDeep, {lx, y, lw, 4.5f * u});
-    y += 5.5f * u;
+    if (!healthLabel().empty()) {   // nothing to say, no line (it drew a lone "-")
+      text_.draw(mono_, "Battery " + healthLabel(), kDeep, {lx, y, lw, 4.5f * u});
+      y += 5.5f * u;
+    }
     button({lx, y, lw, 5 * u}, "ABOUT", [this] { menuTab_ = 6; });
     }
     if (menuTab_ == 6) {
