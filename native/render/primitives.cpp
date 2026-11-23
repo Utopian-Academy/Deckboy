@@ -568,9 +568,10 @@ void chromeTextureOver(SDL_Renderer* renderer, const ChromeGeom& g, ChromeTextur
 
 // What shape a rect is in this skin. Controls and panels are told apart the
 // way the press tracker does it.
-ChromeGeom chromeGeomFor(const SDL_Rect& rect, bool* isControl) {
+ChromeGeom chromeGeomFor(const SDL_Rect& rect, bool* isControl, ChromeRole role = ChromeRole::Auto) {
   const float s = std::max(0.25f, gChrome.scale);
-  const bool control = rect.w <= 560.0f * s && rect.h <= 150.0f * s;
+  const bool control = role == ChromeRole::Control ||
+    (role == ChromeRole::Auto && rect.w <= 560.0f * s && rect.h <= 150.0f * s);
   if (isControl) *isControl = control;
   ChromeGeom g;
   g.x0 = static_cast<float>(rect.x);
@@ -616,10 +617,10 @@ ChromeGeom chromeGeomFor(const SDL_Rect& rect, bool* isControl) {
 }  // namespace
 
 void Primitives::drawChrome(SDL_Renderer* renderer, const SDL_Rect& rect, SDL_Color fill, SDL_Color border,
-                            bool raised) {
+                            bool raised, ChromeRole role) {
   if (rect.w <= 0 || rect.h <= 0) return;
   bool control = false;
-  const ChromeGeom g = chromeGeomFor(rect, &control);
+  const ChromeGeom g = chromeGeomFor(rect, &control, role);
   const float s = std::max(0.25f, gChrome.scale);
   SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
   if (raised && gChrome.shadowAlpha > 0.0f) {
@@ -669,17 +670,34 @@ void Primitives::drawChrome(SDL_Renderer* renderer, const SDL_Rect& rect, SDL_Co
   notePressable(renderer, rect);
 }
 
-void Primitives::fillChromeShape(SDL_Renderer* renderer, const SDL_Rect& rect, SDL_Color color) {
+void Primitives::fillChromeShape(SDL_Renderer* renderer, const SDL_Rect& rect, SDL_Color color, ChromeRole role) {
   if (rect.w <= 0 || rect.h <= 0) return;
   SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
-  chromeFillFlat(renderer, chromeGeomFor(rect, nullptr), toF(color), 0.7f);
+  chromeFillFlat(renderer, chromeGeomFor(rect, nullptr, role), toF(color), 0.7f);
 }
 
-void Primitives::strokeChromeShape(SDL_Renderer* renderer, const SDL_Rect& rect, SDL_Color color, int width) {
+void Primitives::strokeChromeShape(SDL_Renderer* renderer, const SDL_Rect& rect, SDL_Color color, int width,
+                                  ChromeRole role, int inset) {
   if (rect.w <= 0 || rect.h <= 0 || width <= 0) return;
   SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
-  const ChromeGeom g = chromeGeomFor(rect, nullptr);
+  const ChromeGeom g = insetGeom(chromeGeomFor(rect, nullptr, role), static_cast<float>(inset));
   chromeRing(renderer, g, insetGeom(g, static_cast<float>(width)), toF(color));
+}
+
+void Primitives::fillChromeSlice(SDL_Renderer* renderer, const SDL_Rect& parent, const SDL_Rect& area,
+                                SDL_Color color, int inset, ChromeRole role) {
+  SDL_Rect clip;
+  if (!SDL_GetRectIntersection(&parent, &area, &clip)) return;
+  const bool clipped = SDL_RenderClipEnabled(renderer);
+  SDL_Rect previous;
+  SDL_GetRenderClipRect(renderer, &previous);
+  if (clipped && !SDL_GetRectIntersection(&previous, &clip, &clip)) return;
+  SDL_SetRenderClipRect(renderer, &clip);
+  SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
+  chromeFillFlat(renderer, insetGeom(chromeGeomFor(parent, nullptr, role), static_cast<float>(inset)),
+                 toF(color), 0.0f);
+  recordSurface(renderer, clip, color);
+  SDL_SetRenderClipRect(renderer, clipped ? &previous : nullptr);
 }
 
 void Primitives::forgetChromeRenderer(SDL_Renderer* renderer) {

@@ -42,7 +42,13 @@
     // Color chip
     SDL_Rect chip {row.x + 2, row.y + 3, 4, row.h - 6};
     SDL_Color chipColor = !cue.colorTag.empty() ? colorTagToSdl(cue.colorTag) : cue.color;
-    Primitives::fillRect(controlRenderer_, chip, chipColor);
+    if (deckboy::render::gChrome.enabled) {
+      chip = {row.x + uiScaled(chip.x - row.x), row.y + uiScaled(chip.y - row.y),
+                uiScaled(chip.w), row.h - uiScaled(row.h - chip.h)};
+      Primitives::fillChromeSlice(controlRenderer_, row, chip, chipColor);
+    } else {
+      Primitives::fillRect(controlRenderer_, chip, chipColor);
+    }
 
     // Status glyph
     const char* glyph = isLive ? "\xe2\x97\x8f" : (isSelected ? "\xe2\x96\xb8" : (isNext ? "N" : " "));
@@ -1904,7 +1910,11 @@
       const int railInset = uiScaled(12);
       SDL_Rect rail {primaryFrame.x + primaryFrame.w - railInset, primaryClip.y,
                      railW, primaryClip.h};
-      Primitives::fillRect(controlRenderer_, rail, pal.mid);
+      if (deckboy::render::gChrome.enabled) {
+        Primitives::drawChrome(controlRenderer_, rail, pal.mid, pal.mid, false, deckboy::render::ChromeRole::Control);
+      } else {
+        Primitives::fillRect(controlRenderer_, rail, pal.mid);
+      }
       int thumbH = std::max(uiScaled(24),
                             (primaryClip.h * primaryClip.h) /
                               std::max(1, primaryClip.h + primaryScrollMax));
@@ -1917,8 +1927,12 @@
       const int thumbOffset = static_cast<int>(std::lround(
         static_cast<double>(shown) / static_cast<double>(primaryScrollMax) * travel));
       SDL_Rect thumb {rail.x - 1, rail.y + thumbOffset, rail.w + 2, thumbH};
-      Primitives::drawFramedPanel(controlRenderer_, thumb, pal.dark, pal.deep,
-                                  pal.light);
+      if (deckboy::render::gChrome.enabled) {
+        Primitives::drawChrome(controlRenderer_, thumb, pal.dark, pal.deep, true, deckboy::render::ChromeRole::Control);
+      } else {
+        Primitives::drawFramedPanel(controlRenderer_, thumb, pal.dark, pal.deep,
+                                    pal.light);
+      }
       // Widened for the input layer: the bar is a drawing, not a target.
       const int grab = uiScaled(9);
       deckListScrollRails_[deckIndex] = SDL_Rect {rail.x - grab, rail.y,
@@ -2166,8 +2180,12 @@
     // also the live one -- a cue that is both would otherwise wear two marks
     // for one fact.
     if (isStandby && !isLive) {
-      Primitives::fillRect(controlRenderer_,
-                           SDL_Rect {row.x, row.y, uiScaled(4), row.h}, pal.light);
+      const SDL_Rect stripe {row.x, row.y, uiScaled(4), row.h};
+      if (deckboy::render::gChrome.enabled) {
+        Primitives::fillChromeSlice(controlRenderer_, row, stripe, pal.light);
+      } else {
+        Primitives::fillRect(controlRenderer_, stripe, pal.light);
+      }
     }
 
     // Color tag chip
@@ -2349,7 +2367,13 @@
     }
     SDL_Rect chip {row.x + 4, row.y + 4, 6, row.h - 8};
     SDL_Color chipColor = !cue.colorTag.empty() ? colorTagToSdl(cue.colorTag) : cue.color;
-    Primitives::fillRect(controlRenderer_, chip, chipColor);
+    if (deckboy::render::gChrome.enabled) {
+      chip = {row.x + uiScaled(chip.x - row.x), row.y + uiScaled(chip.y - row.y),
+                uiScaled(chip.w), row.h - uiScaled(row.h - chip.h)};
+      Primitives::fillChromeSlice(controlRenderer_, row, chip, chipColor);
+    } else {
+      Primitives::fillRect(controlRenderer_, chip, chipColor);
+    }
 
     // Bright fill (selected highlight, light-theme rows) wants dark ink; dark
     // fill (terminal idle rows) wants bright fg ink. isSelected keeps the
@@ -2700,7 +2724,11 @@
     if (!cue.armed) {
       SDL_Color scrim = fill;
       scrim.a = 165;
-      Primitives::fillRect(controlRenderer_, insetRect(row, 1), scrim);
+      if (deckboy::render::gChrome.enabled) {
+        Primitives::fillChromeSlice(controlRenderer_, row, row, scrim, uiScaled(1));
+      } else {
+        Primitives::fillRect(controlRenderer_, insetRect(row, 1), scrim);
+      }
       // And one mark that survives the wash, so a disarmed row is readable as
       // a decision rather than as a rendering fault.
       const SDL_Rect tag {row.x + row.w - uiScaled(26), row.y + uiScaled(4),
@@ -2712,7 +2740,14 @@
     if (project_.uiTransitionsEnabled && isSelected) {
       double pulse = 0.5 + 0.5 * std::sin(static_cast<double>(animationNow_ - selectionChangedAt_) / 95.0);
       SDL_Color glow {155, 188, 15, static_cast<Uint8>(40 + pulse * 60.0)};
-      Primitives::strokeRect(controlRenderer_, insetRect(row, 1), glow);
+      if (deckboy::render::gChrome.enabled) {
+        glow = paletteMix(border, pal.light, pulse);
+        glow.a = static_cast<Uint8>(40 + pulse * 60.0);
+        Primitives::strokeChromeShape(controlRenderer_, row, glow, uiScaled(1),
+                                      deckboy::render::ChromeRole::Auto, uiScaled(1));
+      } else {
+        Primitives::strokeRect(controlRenderer_, insetRect(row, 1), glow);
+      }
     }
 
     // Hover tooltip logic preserved...
@@ -2819,10 +2854,16 @@
     // what makes a tooltip read as ON TOP rather than drawn into the panel.
     SDL_Color shadow {pal.shellShadow.r, pal.shellShadow.g, pal.shellShadow.b,
                       static_cast<Uint8>(alpha / 2)};
-    Primitives::fillRect(controlRenderer_,
-                         SDL_Rect{panel.x + 2, panel.y + 2, panel.w, panel.h}, shadow);
     SDL_Color fill {pal.deep.r, pal.deep.g, pal.deep.b, alpha};
-    Primitives::fillRect(controlRenderer_, panel, fill);
+    if (deckboy::render::gChrome.enabled) {
+      Primitives::fillChromeShape(controlRenderer_,
+        SDL_Rect{panel.x + uiScaled(2), panel.y + uiScaled(2), panel.w, panel.h}, shadow, deckboy::render::ChromeRole::Panel);
+      Primitives::drawChrome(controlRenderer_, panel, fill, fill, false, deckboy::render::ChromeRole::Panel);
+    } else {
+      Primitives::fillRect(controlRenderer_,
+                           SDL_Rect{panel.x + 2, panel.y + 2, panel.w, panel.h}, shadow);
+      Primitives::fillRect(controlRenderer_, panel, fill);
+    }
     // A notch pointing at the control, so a tip that has been nudged sideways
     // to stay on screen still says which button it belongs to.
     const int notch = uiScaled(4);
@@ -2834,7 +2875,11 @@
                                     (notch - i) * 2, 1}, fill);
     }
     SDL_Color edge {pal.light.r, pal.light.g, pal.light.b, static_cast<Uint8>(alpha / 2)};
-    Primitives::strokeRect(controlRenderer_, panel, edge);
+    if (deckboy::render::gChrome.enabled) {
+      Primitives::strokeChromeShape(controlRenderer_, panel, edge, uiScaled(1), deckboy::render::ChromeRole::Panel);
+    } else {
+      Primitives::strokeRect(controlRenderer_, panel, edge);
+    }
     SDL_SetRenderDrawBlendMode(controlRenderer_, SDL_BLENDMODE_NONE);
 
     SDL_Color ink {pal.light.r, pal.light.g, pal.light.b, alpha};
@@ -3476,10 +3521,16 @@
     // A drop shadow lifts it off whatever it floats over, as the hover tip's does.
     SDL_Color shadow = pal.shellShadow;
     shadow.a = 150;
-    Primitives::fillRect(controlRenderer_,
-                         SDL_Rect {panel.x + uiScaled(3), panel.y + uiScaled(3), panel.w, panel.h},
-                         shadow);
-    Primitives::fillRect(controlRenderer_, panel, look.fill);
+    if (deckboy::render::gChrome.enabled) {
+      Primitives::fillChromeShape(controlRenderer_,
+        SDL_Rect {panel.x + uiScaled(3), panel.y + uiScaled(3), panel.w, panel.h}, shadow, deckboy::render::ChromeRole::Panel);
+      Primitives::drawChrome(controlRenderer_, panel, look.fill, look.border, false, deckboy::render::ChromeRole::Panel);
+    } else {
+      Primitives::fillRect(controlRenderer_,
+                           SDL_Rect {panel.x + uiScaled(3), panel.y + uiScaled(3), panel.w, panel.h},
+                           shadow);
+      Primitives::fillRect(controlRenderer_, panel, look.fill);
+    }
     // Border weight scales with the UI, and a warning's pulses for its first
     // two seconds -- it is the one that has to be noticed.
     const int borderW = std::max(1, uiScaled(warning ? 3 : 2));
@@ -3488,13 +3539,21 @@
       const double pulse = 0.5 + 0.5 * std::cos(static_cast<double>(elapsed) * 0.012566);
       border = paletteMix(look.border, look.fill, 0.55 * (1.0 - pulse));
     }
-    for (int i = 0; i < borderW; ++i) {
-      Primitives::strokeRect(controlRenderer_, insetRect(panel, i), border);
+    if (deckboy::render::gChrome.enabled) {
+      Primitives::strokeChromeShape(controlRenderer_, panel, border, borderW, deckboy::render::ChromeRole::Panel);
+    } else {
+      for (int i = 0; i < borderW; ++i) {
+        Primitives::strokeRect(controlRenderer_, insetRect(panel, i), border);
+      }
     }
 
     const SDL_Rect badge {panel.x + borderW, panel.y + borderW, accentW,
                           std::max(0, panel.h - borderW * 2)};
-    Primitives::fillRect(controlRenderer_, badge, look.accent);
+    if (deckboy::render::gChrome.enabled) {
+      Primitives::fillChromeSlice(controlRenderer_, panel, badge, look.accent, borderW, deckboy::render::ChromeRole::Panel);
+    } else {
+      Primitives::fillRect(controlRenderer_, badge, look.accent);
+    }
     if (warning) {
       TTF_Font* badgeFont = fontPixel_ ? fontPixel_ : fontBase_;
       drawCenteredTextSafe(controlRenderer_, badgeFont, badge, "!", look.fill);

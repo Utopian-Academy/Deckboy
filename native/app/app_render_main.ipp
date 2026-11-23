@@ -8286,7 +8286,11 @@
         4,
         cueSettingsViewportRect_.h - 4
       };
-      Primitives::fillRect(controlRenderer_, rail, pal.mid);
+      if (deckboy::render::gChrome.enabled) {
+        Primitives::drawChrome(controlRenderer_, rail, pal.mid, pal.mid, false, deckboy::render::ChromeRole::Control);
+      } else {
+        Primitives::fillRect(controlRenderer_, rail, pal.mid);
+      }
       int thumbH = std::max(24, (cueSettingsViewportRect_.h * cueSettingsViewportRect_.h) /
                                  std::max(1, cueSettingsViewportRect_.h + cueSettingsScrollMax_));
       thumbH = std::min(thumbH, rail.h);
@@ -8294,8 +8298,12 @@
       int thumbOffset = static_cast<int>(std::lround(
         static_cast<double>(cueSettingsScroll_) / static_cast<double>(cueSettingsScrollMax_) * travel));
       SDL_Rect thumb {rail.x - 1, rail.y + thumbOffset, rail.w + 2, thumbH};
-      Primitives::drawFramedPanel(controlRenderer_, thumb, pal.dark,
-                      pal.deep, pal.light);
+      if (deckboy::render::gChrome.enabled) {
+        Primitives::drawChrome(controlRenderer_, thumb, pal.dark, pal.deep, true, deckboy::render::ChromeRole::Control);
+      } else {
+        Primitives::drawFramedPanel(controlRenderer_, thumb, pal.dark,
+                                    pal.deep, pal.light);
+      }
       // GRABBABLE. This was a picture of a scrollbar: it sized itself
       // correctly and moved with the wheel, and nothing in the program
       // handled a press on it -- so the one thing an operator instinctively

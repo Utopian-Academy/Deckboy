@@ -36,6 +36,7 @@ namespace deckboy::render {
 // at 1x and are multiplied by `scale`, the UI scale the fonts were loaded at,
 // so a skin scales with the desk.
 enum class ChromeShape { Rect, Round, Pill, Chamfer, Blob };
+enum class ChromeRole { Auto, Panel, Control };
 enum class ChromeTexture { None, Brushed, Grain, Crackle, Dots, Wood, Carbon, Halftone, Circuit, Mesh };
 
 struct ChromeStyle {
@@ -87,11 +88,17 @@ class Primitives {
   // false is a well (inverted gradient, no lip or shadow). Records the
   // surface and the pressable exactly as the flat panels do.
   static void drawChrome(SDL_Renderer* renderer, const SDL_Rect& rect,
-                         SDL_Color fill, SDL_Color border, bool raised);
+                         SDL_Color fill, SDL_Color border, bool raised, ChromeRole role = ChromeRole::Auto);
   // The skin's shape for this rect, filled flat or outlined: the pressed
   // wash and the open/release rings follow the control's own outline.
-  static void fillChromeShape(SDL_Renderer* renderer, const SDL_Rect& rect, SDL_Color color);
-  static void strokeChromeShape(SDL_Renderer* renderer, const SDL_Rect& rect, SDL_Color color, int width);
+  static void fillChromeShape(SDL_Renderer* renderer, const SDL_Rect& rect, SDL_Color color,
+                              ChromeRole role = ChromeRole::Auto);
+  static void strokeChromeShape(SDL_Renderer* renderer, const SDL_Rect& rect, SDL_Color color, int width,
+                                ChromeRole role = ChromeRole::Auto, int inset = 0);
+  // Paint only `area` of the parent's shape, preserving its corner geometry
+  // and the caller's clip. Insets shrink that geometry, not a fresh shape.
+  static void fillChromeSlice(SDL_Renderer* renderer, const SDL_Rect& parent, const SDL_Rect& area,
+                              SDL_Color color, int inset = 0, ChromeRole role = ChromeRole::Auto);
   // Textures are made per renderer; call when a renderer goes away.
   static void forgetChromeRenderer(SDL_Renderer* renderer);
 
