@@ -35,12 +35,9 @@
         android:name="android.hardware.microphone"
         android:required="false" /> -->
 
-    <!-- Camera support -->
-    <!-- if you want to record video, uncomment this. -->
-    <!--
+    <!-- Camera: the CAMERA source (asked for the first time a camera cue goes on air) -->
     <uses-permission android:name="android.permission.CAMERA" />
     <uses-feature android:name="android.hardware.camera" android:required="false" />
-    -->
 
     <!-- Allow downloading to the external storage on Android 5.1 and older -->
     <!-- <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" android:maxSdkVersion="22" /> -->

@@ -2895,7 +2895,9 @@ class Pocket {
           key = name && *name ? name : "camera " + std::to_string(k + 1);
         }
       }
-      for (const CamInfo& seen : out) if (seen.key == key) key += " " + std::to_string(k + 1);   // two backs: tell them apart
+      int same = 1;   // a second back camera is "back 2", and so on
+      for (const CamInfo& seen : out) if (seen.key == key || seen.key.rfind(key + " ", 0) == 0) ++same;
+      if (same > 1) key += " " + std::to_string(same);
       out.push_back({ids[k], key});
     }
     SDL_free(ids);
