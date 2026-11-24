@@ -611,6 +611,17 @@ void effectLfoNudgeDepth(int packed, float delta) {
   }
 }
 
+// LOWEST and HIGHEST: the share of its swing an oscillator may use (0-1), so a
+// number can wander only through part of it. Each stays at least 5% from the
+// other, the same rule as Pocket's.
+void effectLfoNudgeLimit(int packed, bool high, float delta) {
+  if (auto* lfo = effectLfoAt(packed)) {
+    if (high) lfo->hi = std::clamp(lfo->hi + delta, lfo->lo + 0.05f, 1.0f);
+    else lfo->lo = std::clamp(lfo->lo + delta, 0.0f, lfo->hi - 0.05f);
+    markProjectDirty();
+  }
+}
+
 // CHLADNI THAT LISTENS (James, 2026-11-06). One switch: the mode's ~ on,
 // following the sound's pitch at full depth from the middle, so the figure
 // walks through every mode as the music climbs. Off puts the mode back.
@@ -665,6 +676,7 @@ bool isFluidScrub(QuickAction inc, int param) const {
   switch (inc) {
     case QuickAction::ScaleXInc: case QuickAction::ScaleYInc: case QuickAction::RotInc:
     case QuickAction::FadeInInc: case QuickAction::FadeOutInc:
+    case QuickAction::EffectLfoLowInc: case QuickAction::EffectLfoHighInc:
       return true;
     case QuickAction::NumericParamInc: {
       const NumericParamSpec* spec = numericParamSpec(static_cast<NumericParam>(param));

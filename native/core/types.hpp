@@ -4075,7 +4075,11 @@ enum class QuickAction {
   VoiceModeToggle,        // WORDS <-> SOUNDS
   VoicePitchDec, VoicePitchInc,
   VoiceSizeDec, VoiceSizeInc,
-  VoiceBreathDec, VoiceBreathInc
+  VoiceBreathDec, VoiceBreathInc,
+  // An oscillator's LOWEST and HIGHEST (ParamLfo::lo/hi), on the desk as on
+  // Pocket (appended: remote QUICK ids must not move).
+  EffectLfoLowDec, EffectLfoLowInc,
+  EffectLfoHighDec, EffectLfoHighInc
 };
 
 // ---------------------------------------------------------------------------

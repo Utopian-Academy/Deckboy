@@ -540,6 +540,10 @@
       case QuickAction::EffectLfoRateInc:   effectLfoNudgeRate(param, +1); return;
       case QuickAction::EffectLfoDepthDec:  effectLfoNudgeDepth(param, -0.05f); return;
       case QuickAction::EffectLfoDepthInc:  effectLfoNudgeDepth(param, +0.05f); return;
+      case QuickAction::EffectLfoLowDec:    effectLfoNudgeLimit(param, false, -dragOr(0.05f, 0.01f)); return;
+      case QuickAction::EffectLfoLowInc:    effectLfoNudgeLimit(param, false, +dragOr(0.05f, 0.01f)); return;
+      case QuickAction::EffectLfoHighDec:   effectLfoNudgeLimit(param, true, -dragOr(0.05f, 0.01f)); return;
+      case QuickAction::EffectLfoHighInc:   effectLfoNudgeLimit(param, true, +dragOr(0.05f, 0.01f)); return;
       case QuickAction::EffectLfoSync:      effectLfoToggleSync(param); return;
       case QuickAction::EffectChladniListen: effectChladniListen(param); return;
       // The pad draws on press and on drag, both handled in the input layer

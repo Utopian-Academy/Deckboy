@@ -4567,6 +4567,29 @@ class App {
                                 QuickAction::ToggleLoop, false, packed});
     rowY += ix.rowStep;
 
+    // LOWEST and HIGHEST (ParamLfo::lo/hi): the part of its swing it may use.
+    // Pocket has had them; the desk had no way to set them.
+    {
+      const int halfW = (w - gap) / 2;
+      const SDL_Rect loBtn {x0, rowY, halfW, std::max(16, ix.rowH - 6)};
+      const SDL_Rect hiBtn {x0 + halfW + gap, rowY, w - halfW - gap, loBtn.h};
+      const bool limited = lfo.lo > 0.0005f || lfo.hi < 0.9995f;
+      char loText[32], hiText[32];
+      std::snprintf(loText, sizeof loText, "lowest %d%%", static_cast<int>(std::lround(lfo.lo * 100)));
+      std::snprintf(hiText, sizeof hiText, "highest %d%%", static_cast<int>(std::lround(lfo.hi * 100)));
+      for (const auto& [rect, text, dec, inc] :
+           {std::tuple {loBtn, loText, QuickAction::EffectLfoLowDec, QuickAction::EffectLfoLowInc},
+            std::tuple {hiBtn, hiText, QuickAction::EffectLfoHighDec, QuickAction::EffectLfoHighInc}}) {
+        drawUIPanel(rect, pal.tile, pal.deep, pal.mid);
+        drawCenteredTextSafe(controlRenderer_, fontSmall_, rect,
+                             ellipsizeToPixelWidth(fontSmall_, text, rect.w - 8),
+                             limited ? pal.fg : pal.inkSoft);
+        quickButtons_.push_back({rect, inc, "Keep it between a lowest and a highest point of its swing -- drag to scrub", packed});
+        valueScrubZones_.push_back({rect, dec, inc, QuickAction::ToggleLoop, false, packed});
+      }
+      rowY += ix.rowStep;
+    }
+
     // The tempo switch, its own narrow row, because it changes what the middle
     // cell above MEANS and that is worth its own control rather than a
     // modifier-click nobody would find. Not for Audio or Motion, which follow
