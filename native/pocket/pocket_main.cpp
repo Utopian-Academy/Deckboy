@@ -5307,10 +5307,26 @@ class Pocket {
     const float plateUnits = static_cast<float>(shellWideW_) / k;    // 184
     const float margin = std::max(0.0f, (plateUnits - 156.0f) / 2);
     const float wide = safe_.w / u;
+    // Each part is drawn three times over: the plate itself in the safe
+    // area, and its top and bottom edge (a unit of plastic) stretched over
+    // the status bar and the gesture bar, so no black strip shows there.
     auto part = [&](float fromLayout, float toLayout, float atLayout, float widthLayout) {
-      const SDL_FRect src {(fromLayout + margin) * k, 0, (toLayout - fromLayout) * k, static_cast<float>(shellWideH_)};
-      const SDL_FRect dst {safe_.x + atLayout * u, safe_.y, widthLayout * u, safe_.h};
+      const float sx = (fromLayout + margin) * k, sw = (toLayout - fromLayout) * k;
+      const float dx = safe_.x + atLayout * u, dw = widthLayout * u;
+      const SDL_FRect src {sx, 0, sw, static_cast<float>(shellWideH_)};
+      const SDL_FRect dst {dx, safe_.y, dw, safe_.h};
       SDL_RenderTexture(r, shellWideTex_, &src, &dst);
+      if (safe_.y > 0) {
+        const SDL_FRect top {sx, 0, sw, k};
+        const SDL_FRect above {dx, 0, dw, safe_.y};
+        SDL_RenderTexture(r, shellWideTex_, &top, &above);
+      }
+      const float below = pxH_ - (safe_.y + safe_.h);
+      if (below > 0) {
+        const SDL_FRect bottom {sx, static_cast<float>(shellWideH_) - k, sw, k};
+        const SDL_FRect under {dx, safe_.y + safe_.h, dw, below};
+        SDL_RenderTexture(r, shellWideTex_, &bottom, &under);
+      }
     };
     const float cutLeft = 60.0f, cutRight = 96.0f;
     const float right = 156.0f - cutRight;   // 60: anchored to the right edge
