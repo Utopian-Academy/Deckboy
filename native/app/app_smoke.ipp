@@ -2946,7 +2946,7 @@
           // Moire fields went in, only two of five checks were bumped, and the
           // other three trimmed nothing but Moire -- passing without testing
           // the show they were named for.
-          constexpr int kAfterTrackerFields = 74;   // + direction, its copy, key, length, the voice and the sting (ten), the illusion (sixteen), flip H and V (two)
+          constexpr int kAfterTrackerFields = 75;   // + direction, its copy, key, length, the voice and the sting (ten), the illusion (sixteen), flip H and V (two), the oscillators on any number (one)
           // A show from immediately before the fixture patch (one tail field
           // fewer) keeps its mic channel and has no fixture levels.
           {
@@ -3106,7 +3106,7 @@
         // the spine and trimming 3 stopped reaching preWaitSeconds -- the test
         // failed loudly, which is the only reason this comment exists rather
         // than a silent hole in the backward-compatibility check.
-        constexpr int kSpineTailFields = 167;  // preWait, postWait, continue, masters, (flip H/V added the last two)
+        constexpr int kSpineTailFields = 168;  // preWait, postWait, continue, masters, (flip H/V, then the oscillators on any number, added the last three)
                                               // target id/deck/verb, armed, panel w/h,
                                               // fade secs/to/what/curve/stop,
                                               // fireside view, overlay lower-third
