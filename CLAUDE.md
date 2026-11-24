@@ -53,6 +53,15 @@ was modified before it.
 - Tag CI validates VERSION matches git tag before builds run
 - **Never hardcode version strings** in source code
 
+**The README and the site describe RELEASED versions only.** `README.md` and
+`docs/` are the public pages (GitHub's front page and Pages): pushing them to
+main announces whatever they say. Text for the next version (what's new, a
+download button, a release link) waits in CHANGES.md "Unreleased" and is
+written into the README and site in the release step, when James says
+"release". `tools/audit_site_version.py` (CI) fails if either names a version
+without a dated CHANGES heading. On 2026-11-24 both said "0.99.430" with 430
+nowhere near done, and the README linked a release page that did not exist.
+
 ---
 
 ## Key File Map
