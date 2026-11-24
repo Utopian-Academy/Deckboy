@@ -8,6 +8,6 @@ tile_panel	tile_panel.png
 tile_well	tile_well.png
 tile_desk	tile_desk.png
 sticker	68	37.44
-surface_panel	9CA2A4FF
-surface_well	757A7CFF
-surface_desk	485154FF
+surface_panel	727779FF
+surface_well	55595AFF
+surface_desk	33393BFF

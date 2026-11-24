@@ -1,0 +1,27 @@
+# Deckboy Theme: desk 3D: Pocket's desk shell, rendered as a desk.
+# A RENDERED skin: style_kit names the pieces in data/desk-kits (pocket-skins/desk_kit.py);
+# the colours below are read off those renders. All colour values are RRGGBBAA hex.
+
+shell_outer	338829FF
+shell_inner	40882DFF
+shell_shadow	1A3612FF
+screen_light	1D2D17FF
+screen_mid	59953FFF
+screen_dark	509039FF
+screen_deep	879983FF
+screen_ink_soft	22431AFF
+screen_fg	090A0AFF
+screen_fg_soft	1A3014FF
+screen_tile	40882DFF
+button_bezel	59953FFF
+delete_bezel	AA2820FF
+scanline_alpha	0
+
+style_kit	lime-jelly
+style_panel	round 12
+style_control	round 9
+style_outline	0
+style_sticker	star	holo	FFFFFF	transport	-2	1.0
+style_sticker	heart	holo	FFFFFF	playlist	-4	1.1
+
+creature	frog	2
