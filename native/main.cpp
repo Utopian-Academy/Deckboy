@@ -4574,9 +4574,8 @@ class App {
       const SDL_Rect loBtn {x0, rowY, halfW, std::max(16, ix.rowH - 6)};
       const SDL_Rect hiBtn {x0 + halfW + gap, rowY, w - halfW - gap, loBtn.h};
       const bool limited = lfo.lo > 0.0005f || lfo.hi < 0.9995f;
-      char loText[32], hiText[32];
-      std::snprintf(loText, sizeof loText, "lowest %d%%", static_cast<int>(std::lround(lfo.lo * 100)));
-      std::snprintf(hiText, sizeof hiText, "highest %d%%", static_cast<int>(std::lround(lfo.hi * 100)));
+      const std::string loText = deckboy::core::i18n::format("lowest {1}%", {std::to_string(std::lround(lfo.lo * 100))});
+      const std::string hiText = deckboy::core::i18n::format("highest {1}%", {std::to_string(std::lround(lfo.hi * 100))});
       for (const auto& [rect, text, dec, inc] :
            {std::tuple {loBtn, loText, QuickAction::EffectLfoLowDec, QuickAction::EffectLfoLowInc},
             std::tuple {hiBtn, hiText, QuickAction::EffectLfoHighDec, QuickAction::EffectLfoHighInc}}) {
