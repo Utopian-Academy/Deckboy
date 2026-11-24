@@ -17,7 +17,7 @@
 
   // One clickable piece of a layout. Layouts draw immediate-mode like the rest
   // of the desk; the press handler walks this list (handleLayoutClick).
-  enum class LayoutHitKind { Go, Back, Hold, Skip, Transition, HotCue, Black, Row, ModeShow, ModeEdit, Fader, Cut, Clip, StopDeck, Quick, Crossfade, VjOn };
+  enum class LayoutHitKind { Go, Back, Hold, Skip, Transition, HotCue, Black, Row, ModeShow, ModeEdit, Fader, Cut, Clip, StopDeck, Quick, Crossfade, VjOn, PauseAll, Panic };
   struct LayoutHit {
     SDL_Rect rect {};
     LayoutHitKind kind = LayoutHitKind::Go;
@@ -44,6 +44,7 @@
       {"showpiece", "Showpiece"},
       {"rundown", "Rundown"},
       {"clipgrid", "Clip Grid"},
+      {"cuestack", "Cue Stack"},
     };
     return choices;
   }
@@ -74,6 +75,7 @@
     if (deskLayoutIs("showpiece")) renderShowpieceLayout(area);
     else if (deskLayoutIs("rundown")) renderRundownLayout(area);
     else if (deskLayoutIs("clipgrid")) renderClipGridLayout(area);
+    else if (deskLayoutIs("cuestack")) renderCueStackLayout(area);
     else renderOperatorLayout(area);
   }
 
@@ -93,6 +95,17 @@
     layoutHits_.push_back({r, kind, a, b});
   }
 
+  // The face to draw `text` in within `w`: `font`, or the next smaller one
+  // that fits. The headline face is wide; a narrow box must not ellipsize a
+  // countdown or turn AUTO into "AU...".
+  TTF_Font* layoutFitFont(TTF_Font* font, const std::string& text, int w) {
+    for (TTF_Font* smaller : {fontLarge_, fontBase_, fontSmall_}) {
+      if (!font || !smaller || measuredTextWidth(font, text) <= w) break;
+      font = smaller;
+    }
+    return font;
+  }
+
   // A plain layout button: a panel, a big label and an optional small line.
   void drawLayoutButton(const SDL_Rect& r, const std::string& label, const std::string& subtitle,
                         SDL_Color fill, SDL_Color border, TTF_Font* font) {
@@ -100,10 +113,7 @@
     const SDL_Color ink = paletteInkOnFill(fill);
     // The label steps down a face until it fits: the headline face is wide,
     // and a narrow window must not turn AUTO into "AU...".
-    for (TTF_Font* smaller : {fontLarge_, fontBase_, fontSmall_}) {
-      if (!font || !smaller || measuredTextWidth(font, label) <= r.w - uiScaled(12)) break;
-      font = smaller;
-    }
+    font = layoutFitFont(font, label, r.w - uiScaled(12));
     if (subtitle.empty()) {
       drawCenteredTextSafe(controlRenderer_, font, r, label, ink);
       return;
@@ -440,6 +450,12 @@
           setVjMix(static_cast<double>(x - hit.rect.x) / std::max(1, hit.rect.w));
           break;
         case LayoutHitKind::VjOn: setVjMode(true); break;
+        case LayoutHitKind::PauseAll: {
+          const int acted = transportAllDecks(CueTargetVerb::PauseAll);
+          triggerToast(deckboy::core::i18n::format("paused {1}", {std::to_string(acted)}));
+          break;
+        }
+        case LayoutHitKind::Panic: triggerPanicProfile(); break;
         case LayoutHitKind::Back: layoutMoveNext(-1); break;
         case LayoutHitKind::Skip: layoutMoveNext(+1); break;
         case LayoutHitKind::Hold: toggleTransport(); break;
@@ -1320,5 +1336,213 @@
       drawLayoutButton(SDL_Rect {xf.x + uiScaled(10), xf.y + uiScaled(10), xf.w - uiScaled(20), xf.h - uiScaled(20)},
                        "VJ MODE", "two playlists and a crossfader", pal.tile, pal.deep, fontBase_);
       layoutHit(SDL_Rect {xf.x + uiScaled(10), xf.y + uiScaled(10), xf.w - uiScaled(20), xf.h - uiScaled(20)}, LayoutHitKind::VjOn);
+    }
+  }
+
+  // ── CUE STACK ─────────────────────────────────────────────────────────────
+  //
+  // For theatre and conferences (the board's "Cue Stack"): big rows with
+  // pre-wait, action, post-wait and continue; the cue standing by in the
+  // middle of the eye line with GO beside it; the stage manager's notes; and
+  // the running cue's countdown in large type.
+
+  // Words onto lines no wider than `w`; draws them from `y`, returns the y
+  // after the last line. Stops at `bottom`.
+  int drawWrappedLines(TTF_Font* font, const std::string& text, int x, int y, int w, int bottom, SDL_Color ink) {
+    const int lineH = textLineHeight(font) + uiScaled(2);
+    std::string line;
+    std::size_t at = 0;
+    auto flush = [&]() {
+      if (!line.empty() && y + lineH <= bottom) {
+        drawTextSafe(controlRenderer_, font, SDL_Rect {x, y, w, lineH}, line, ink);
+        y += lineH;
+      }
+      line.clear();
+    };
+    while (at <= text.size()) {
+      std::size_t end = text.find_first_of(" \n", at);
+      if (end == std::string::npos) end = text.size();
+      const std::string word = text.substr(at, end - at);
+      const std::string tryLine = line.empty() ? word : line + " " + word;
+      if (!line.empty() && measuredTextWidth(font, tryLine) > w) {
+        flush();
+        line = word;
+      } else {
+        line = tryLine;
+      }
+      if (end < text.size() && text[end] == '\n') flush();
+      at = end + 1;
+    }
+    flush();
+    return y;
+  }
+
+  static const char* layoutContinueLabel(CueContinueMode mode) {
+    switch (mode) {
+      case CueContinueMode::AutoContinue: return "continue";
+      case CueContinueMode::AutoFollow: return "follow";
+      default: return "no";
+    }
+  }
+
+  void renderCueStackLayout(const SDL_Rect& area) {
+    layoutHits_.clear();
+    layoutBlackRect_ = {};
+    const int deckIndex = project_.focusedDeckIndex;
+    if (deckIndex < 0 || deckIndex >= static_cast<int>(project_.decks.size())) return;
+    const Deck& deck = project_.decks[static_cast<std::size_t>(deckIndex)];
+    const int gap = uiScaled(12);
+    const SDL_Color red {220, 50, 45, 255}, green {60, 200, 90, 255};
+    const int sideW = std::clamp(area.w * 26 / 100, uiScaled(300), uiScaled(520));
+    SDL_Rect side {area.x + area.w - sideW, area.y, sideW, area.h};
+    SDL_Rect main {area.x, area.y, std::max(0, area.w - sideW - gap), area.h};
+    int nextIndex = -1;
+    const Cue* next = previewCuePtr(deckIndex, &nextIndex);
+    const Cue* live = activeCuePtr();
+    TTF_Font* big = fontPixelTitle_ ? fontPixelTitle_ : (fontLarge_ ? fontLarge_ : fontBase_);
+
+    // ── GO | standing by | running ──
+    const int topH = std::max(uiScaled(96), textLineHeight(big) + textLineHeight(fontBase_) * 2 + uiScaled(20));
+    {
+      const int goW = std::clamp(main.w * 20 / 100, uiScaled(140), uiScaled(280));
+      const int runW = std::clamp(main.w * 18 / 100, uiScaled(150), uiScaled(260));
+      SDL_Rect go {main.x, main.y, goW, topH};
+      SDL_Rect run {main.x + main.w - runW, main.y, runW, topH};
+      SDL_Rect sb {go.x + go.w + gap, main.y, std::max(0, run.x - go.x - go.w - gap * 2), topH};
+      drawLayoutButton(go, "GO", "", pal.light, pal.deep, big);
+      layoutHit(go, LayoutHitKind::Go);
+      drawUIPanel(sb, pal.tile, green, pal.mid);
+      const int pad = uiScaled(12);
+      const int smallH = textLineHeight(fontSmall_) + uiScaled(4);
+      drawTextSafe(controlRenderer_, fontSmall_, SDL_Rect {sb.x + pad, sb.y + uiScaled(6), sb.w - pad * 2, smallH}, "STANDING BY", green);
+      TTF_Font* nameFont = fontLarge_ ? fontLarge_ : fontBase_;
+      const int nameH = textLineHeight(nameFont) + uiScaled(4);
+      drawTextSafe(controlRenderer_, nameFont, SDL_Rect {sb.x + pad, sb.y + uiScaled(6) + smallH, sb.w - pad * 2, nameH},
+                   next ? ellipsizeToPixelWidth(nameFont, next->name, sb.w - pad * 2) : std::string("nothing follows"), pal.fg);
+      if (next) {
+        const double len = layoutCueLength(*next);
+        std::string detail = deckboy::core::i18n::format("pre-wait {1}  -  {2}  -  then {3}",
+          {formatSeconds(next->preWaitSeconds), len > 0.0 ? formatSeconds(len) : std::string("holds"),
+           next->continueMode == CueContinueMode::DoNotContinue ? std::string("waits for GO")
+             : deckboy::core::i18n::format("continues after {1}", {formatSeconds(next->postWaitSeconds)})});
+        drawTextSafe(controlRenderer_, fontSmall_, SDL_Rect {sb.x + pad, sb.y + uiScaled(6) + smallH + nameH, sb.w - pad * 2, smallH},
+                     ellipsizeToPixelWidth(fontSmall_, detail, sb.w - pad * 2), pal.fgSoft);
+      }
+      drawUIPanel(run, pal.tile, live ? red : pal.deep, pal.mid);
+      std::string runLabel = live ? deckboy::core::i18n::format("{1} RUNNING", {live->name}) : std::string("NOTHING RUNNING");
+      drawTextSafe(controlRenderer_, fontSmall_, SDL_Rect {run.x + pad, run.y + uiScaled(6), run.w - pad * 2, smallH},
+                   ellipsizeToPixelWidth(fontSmall_, runLabel, run.w - pad * 2), live ? red : pal.fgSoft);
+      const double left = layoutLiveRemaining();
+      const std::string count = left >= 0.0 ? "-" + formatSeconds(left) : std::string(live ? "holds" : "--");
+      drawCenteredTextSafe(controlRenderer_, layoutFitFont(big, "-00:00.0", run.w - uiScaled(16)),
+                           SDL_Rect {run.x, run.y + smallH, run.w, run.h - smallH}, count, pal.fg);
+    }
+
+    // ── the stack ──
+    SDL_Rect list {main.x, main.y + topH + gap, main.w, std::max(0, main.h - topH - gap)};
+    drawUIPanel(list, pal.tile, pal.deep, pal.mid);
+    TTF_Font* rowFont = fontLarge_ ? fontLarge_ : fontBase_;
+    const int rowH = std::max(uiScaled(44), textLineHeight(rowFont) + uiScaled(16));
+    const int headH = std::max(uiScaled(26), textLineHeight(fontSmall_) + uiScaled(8));
+    const int cQ = uiScaled(70), cPre = uiScaled(100), cAct = uiScaled(110), cPost = uiScaled(100), cCont = uiScaled(110);
+    const int cWhat = std::max(uiScaled(120), list.w - cQ - cPre - cAct - cPost - cCont - uiScaled(28));
+    auto cols = [&](int y, int h, const std::string& q, const std::string& what, const std::string& pre, const std::string& act,
+                    const std::string& post, const std::string& cont, TTF_Font* font, SDL_Color ink, SDL_Color soft) {
+      int x = list.x + uiScaled(16);
+      TTF_Font* mono = fontMono_ ? fontMono_ : font;
+      drawTextSafe(controlRenderer_, font, SDL_Rect {x, y, cQ, h}, q, ink); x += cQ;
+      drawTextSafe(controlRenderer_, font, SDL_Rect {x, y, cWhat - uiScaled(8), h}, ellipsizeToPixelWidth(font, what, cWhat - uiScaled(8)), ink); x += cWhat;
+      drawTextSafe(controlRenderer_, mono, SDL_Rect {x, y, cPre, h}, pre, soft); x += cPre;
+      drawTextSafe(controlRenderer_, mono, SDL_Rect {x, y, cAct, h}, act, ink); x += cAct;
+      drawTextSafe(controlRenderer_, mono, SDL_Rect {x, y, cPost, h}, post, soft); x += cPost;
+      drawTextSafe(controlRenderer_, fontSmall_, SDL_Rect {x, y, cCont, h}, cont, soft);
+    };
+    SDL_Rect head {list.x + 1, list.y + 1, list.w - 2, headH};
+    Primitives::fillRect(controlRenderer_, head, pal.shellInner);
+    cols(head.y, head.h, "CUE", "WHAT HAPPENS", "PRE-WAIT", "ACTION", "POST-WAIT", "CONTINUE", fontSmall_, pal.fgSoft, pal.fgSoft);
+    const int count = static_cast<int>(deck.cues.size());
+    const int rowsFit = std::max(1, (list.h - headH - uiScaled(4)) / rowH);
+    // the standing-by row sits a third of the way down, where the eye rests
+    const int anchor = nextIndex >= 0 ? nextIndex : std::max(0, deck.activeIndex);
+    int first = std::clamp(anchor - rowsFit / 3, 0, std::max(0, count - rowsFit));
+    SDL_Rect clip {list.x + 1, list.y + headH + 1, list.w - 2, list.h - headH - 2};
+    SDL_SetRenderClipRect(controlRenderer_, &clip);
+    for (int i = first; i < count && i < first + rowsFit; ++i) {
+      const Cue& cue = deck.cues[static_cast<std::size_t>(i)];
+      SDL_Rect r {list.x + 1, list.y + headH + 1 + (i - first) * rowH, list.w - 2, rowH};
+      const bool isLive = i == deck.activeIndex;
+      const bool isNext = i == nextIndex && !isLive;
+      const bool done = deck.activeIndex >= 0 && i < deck.activeIndex;
+      SDL_Color fill = pal.tile;
+      if (isLive) fill = paletteMix(pal.tile, red, 0.30);
+      else if (isNext) fill = paletteMix(pal.tile, green, 0.25);
+      Primitives::fillRect(controlRenderer_, r, fill);
+      Primitives::fillRect(controlRenderer_, SDL_Rect {r.x, r.y + r.h - 1, r.w, 1}, pal.mid);
+      if (isNext) Primitives::fillRect(controlRenderer_, SDL_Rect {r.x, r.y, uiScaled(6), r.h}, green);
+      if (isLive) Primitives::fillRect(controlRenderer_, SDL_Rect {r.x, r.y, uiScaled(6), r.h}, red);
+      const SDL_Color ink = detail::paletteLiftToContrast(done || !cue.armed ? pal.inkSoft : pal.fg, fill, 4.5);
+      const SDL_Color soft = detail::paletteLiftToContrast(pal.fgSoft, fill, 3.0);
+      const double len = layoutCueLength(cue);
+      cols(r.y, r.h, std::to_string(i + 1), cue.name, formatSeconds(cue.preWaitSeconds), len > 0.0 ? formatSeconds(len) : "holds",
+           formatSeconds(cue.postWaitSeconds), layoutContinueLabel(cue.continueMode), isNext ? fontLarge_ ? fontLarge_ : rowFont : fontBase_, ink, soft);
+      layoutHit(r, LayoutHitKind::Row, deckIndex, i);
+    }
+    SDL_SetRenderClipRect(controlRenderer_, nullptr);
+
+    // ── the side: programme, notes, back / pause all / panic ──
+    if (operatorEditMode_) {
+      const int pillH = std::max(uiScaled(26), textLineHeight(fontSmall_) + uiScaled(10));
+      drawLayoutModePair(SDL_Rect {side.x, side.y, side.w, pillH});
+      renderInspectorBody(SDL_Rect {side.x, side.y + pillH + gap, side.w, side.h - pillH - gap});
+      return;
+    }
+    const int labelH = std::max(uiScaled(14), textLineHeight(fontSmall_));
+    const int pillH = std::max(uiScaled(26), textLineHeight(fontSmall_) + uiScaled(10));
+    drawLayoutModePair(SDL_Rect {side.x, side.y, side.w, pillH});
+    const int monY = side.y + pillH + gap;
+    const int monH = std::min(side.h * 32 / 100, side.w * 9 / 16 + labelH + uiScaled(8));
+    MultiviewTile feed;
+    feed.source = "programme";
+    drawMonitorTile(SDL_Rect {side.x, monY, side.w, monH}, feed, -1, false, labelH, uiScaled(7));
+    const int btnH = std::max(uiScaled(50), textLineHeight(fontBase_) + uiScaled(20));
+    SDL_Rect notes {side.x, monY + monH + gap, side.w, std::max(0, side.y + side.h - monY - monH - btnH - gap * 2)};
+    drawUIPanel(notes, pal.tile, pal.deep, pal.mid);
+    {
+      const int pad = uiScaled(12);
+      const std::string title = next ? deckboy::core::i18n::format("NOTES  {1}", {std::to_string(nextIndex + 1)}) : std::string("NOTES");
+      drawTextSafe(controlRenderer_, fontSmall_, SDL_Rect {notes.x + pad, notes.y + uiScaled(6), notes.w - pad * 2, labelH}, title, pal.fgSoft);
+      int y = notes.y + labelH + uiScaled(14);
+      const int bottom = notes.y + notes.h - pad;
+      if (next && !next->notes.empty()) {
+        y = drawWrappedLines(fontBase_, next->notes, notes.x + pad, y, notes.w - pad * 2, bottom, pal.fg);
+      } else {
+        y = drawWrappedLines(fontSmall_, "no notes on the cue standing by", notes.x + pad, y, notes.w - pad * 2, bottom, pal.inkSoft);
+      }
+      // coming up: the notes of the cues after it, a line each
+      y += uiScaled(10);
+      if (y + labelH < bottom) {
+        drawTextSafe(controlRenderer_, fontSmall_, SDL_Rect {notes.x + pad, y, notes.w - pad * 2, labelH}, "COMING UP", pal.fgSoft);
+        y += labelH + uiScaled(4);
+      }
+      for (int i = nextIndex + 1; i >= 1 && i < count && y + labelH < bottom; ++i) {
+        const Cue& c = deck.cues[static_cast<std::size_t>(i)];
+        if (c.notes.empty()) continue;
+        const std::string line = std::to_string(i + 1) + "  " + c.notes;
+        drawTextSafe(controlRenderer_, fontSmall_, SDL_Rect {notes.x + pad, y, notes.w - pad * 2, labelH},
+                     ellipsizeToPixelWidth(fontSmall_, line, notes.w - pad * 2), pal.fg);
+        y += labelH + uiScaled(4);
+      }
+    }
+    {
+      const int w = (side.w - gap * 2) / 3;
+      SDL_Rect back {side.x, side.y + side.h - btnH, w, btnH};
+      SDL_Rect pause {side.x + w + gap, back.y, w, btnH};
+      SDL_Rect panic {side.x + (w + gap) * 2, back.y, side.w - (w + gap) * 2, btnH};
+      drawLayoutButton(back, "BACK", "Up", pal.tile, pal.deep, fontBase_);
+      drawLayoutButton(pause, "PAUSE ALL", "", pal.tile, pal.deep, fontBase_);
+      drawLayoutButton(panic, "PANIC", "", paletteMix(pal.tile, pal.deleteBezel, 0.4), pal.deleteBezel, fontBase_);
+      layoutHit(back, LayoutHitKind::Back);
+      layoutHit(pause, LayoutHitKind::PauseAll);
+      layoutHit(panic, LayoutHitKind::Panic);
     }
   }
