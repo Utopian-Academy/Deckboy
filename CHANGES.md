@@ -6,7 +6,8 @@
 - New: **Deckboy Pocket**, Deckboy on an Android phone (Android 10 or newer, 64-bit). The same engine as the desk: a cue list with GO and BACK, transitions, effects on the phone's graphics card, and the desk's show files, opened and saved.
 - Sources: video, pictures and sound from the phone; PATTERN (the desk's test signals) and SYNTH (Swirl, Lumia, Illusion, Fireside, Portal, Moire, the Video Synth) with every setting on the cue's SET page; the phone's cameras, with zoom across the lenses, tap-to-focus, focus by hand, exposure, LOCK and the flashlight, and the microphone as the camera's sound.
 - Output: plug in USB-C to HDMI for a full-size output with its own resolution, or use the phone's own screen, full screen with ghost controls. MAP pins the output's corners to fit a screen.
-- Every number that can move by itself has its ~ (LFO), as on the desk, and an LFO can stay between a lowest and a highest.
+- Every number that can move by itself has its ~ (LFO), as on the desk, and an LFO can stay between a lowest and a highest. Remote: `LFO <cue> <setting> ON|OFF [shape] [rate] [depth]` takes a setting's name as well as X, Y, SCALE and ROTATION.
+- Turned on its side, the picture fills the screen frame's height (about a fifth bigger), with the transport in a column beside it and the cue's name and time above.
 - 25 rendered shells, upright and on their side, and the desk's face when nothing is on air.
 - Pocket keeps the phone awake through a show and can follow a desk (below).
 - Remote control on the desk's port (5510), answering many of the desk's own commands.
@@ -22,6 +23,10 @@
 ### Effects
 - New: **Breath**. The picture swells and settles on a slow, uneven breath, with a soft swell drifting through it, sometimes barely there. PACE (a breath every 12 seconds to 2.5) and FLOW. It arrives at 35%, about two pixels at the edges of a 1080p picture.
 - Fixed: dragging an effect's amount or a setting moved it in steps of 5%. A drag now moves it 1% a step (hold Shift for finer). The - and + buttons still move 5%.
+
+### Numbers that move
+- New: **every number of a pattern or synth has a ~ (LFO)**: Swirl, Portal, Fireside, Moire, the Video Synth and the test signals, as Lumia and Illusion already had. Click ~ and the number moves by itself around where it is set, with the same shapes, rate, depth, beat sync and lowest/highest as every other LFO. It is saved with the show, and Pocket shows and moves it the same way. A still pattern keeps redrawing while one of its numbers moves.
+- Changed: **dragging a number is smooth**. A drag moves a source's number in 250 steps across its range (a step every 2 pixels); scale moves 0.5% a step, rotation 0.25 degrees, fades 0.05 seconds. The - and + buttons keep their steps. On Pocket, a slider is no longer held to the desk's button steps.
 
 ### Settings
 - Fixed: in Settings > System, the APPEARANCE card was one row too short, so Pocket 3 / touch hung off its bottom. RECORDING's Render row sat under WATCH FOLDER's heading.
