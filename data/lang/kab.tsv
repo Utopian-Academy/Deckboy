@@ -4889,3 +4889,7 @@ pre-wait {1}  -  {2}  -  then {3}	araǧu uqbel {1}  -  {2}  -  sakin {3}
 ' (CLASSIC, OPERATOR, SHOWPIECE, RUNDOWN, CLIPGRID, CUESTACK, CONSOLE or COMPACT)	' (CLASSIC, OPERATOR, SHOWPIECE, RUNDOWN, CLIPGRID, CUESTACK, CONSOLE neɣ COMPACT)
 nothing loaded	ulac ayen yulin
 add a playlist for deck B	rnu tabdart i deck B
+RENAME	SNIFEL ISEM
+Rename output	Snifel isem n tuffɣa
+Rename playlist	Snifel isem n tbdart
+Playlist name (blank: the default)	Isem n tbdart (ilem: amezwer)

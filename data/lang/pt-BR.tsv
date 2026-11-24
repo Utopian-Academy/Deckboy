@@ -4864,3 +4864,7 @@ pre-wait {1}  -  {2}  -  then {3}	pré-espera {1}  -  {2}  -  depois {3}
 ' (CLASSIC, OPERATOR, SHOWPIECE, RUNDOWN, CLIPGRID, CUESTACK, CONSOLE or COMPACT)	' (CLÁSSICO, OPERADOR, VITRINE, ROTEIRO, GRADE DE CLIPES, PILHA DE CUES, CONSOLE ou COMPACTO)
 nothing loaded	nada carregado
 add a playlist for deck B	adicionar uma lista para o deck B
+RENAME	RENOMEAR
+Rename output	Renomear saída
+Rename playlist	Renomear playlist
+Playlist name (blank: the default)	Nome da playlist (vazio: o padrão)

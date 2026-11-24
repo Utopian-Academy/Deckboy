@@ -4900,3 +4900,7 @@ pre-wait {1}  -  {2}  -  then {3}	ro-fheitheamh {1}  -  {2}  -  an uairsin {3}
 ' (CLASSIC, OPERATOR, SHOWPIECE, RUNDOWN, CLIPGRID, CUESTACK, CONSOLE or COMPACT)	' (CLASAIGEACH, OBRAICHE, TAISBEANADH, CLÀR-RUITH, GRIOD CHLIOPAICHEAN, CRUACH CUE, CONSAIL no DLÙTH)
 nothing loaded	cha deach dad a luchdadh
 add a playlist for deck B	cuir liosta-chluich ris airson deck B
+RENAME	ATH-AINMICH
+Rename output	Ath-ainmich an t-às-chur
+Rename playlist	Ath-ainmich an liosta
+Playlist name (blank: the default)	Ainm na liosta (falamh: am bun-roghainn)

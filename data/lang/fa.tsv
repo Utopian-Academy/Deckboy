@@ -4918,3 +4918,7 @@ pre-wait {1}  -  {2}  -  then {3}	پیش‌انتظار {1}  -  {2}  -  سپس {
 ' (CLASSIC, OPERATOR, SHOWPIECE, RUNDOWN, CLIPGRID, CUESTACK, CONSOLE or COMPACT)	' (کلاسیک، اپراتور، ویترین، ترتیب اجرا، شبکه کلیپ، پشته کیو، کنسول یا فشرده)
 nothing loaded	چیزی بارگذاری نشده
 add a playlist for deck B	افزودن فهرست پخش برای دک B
+RENAME	تغییر نام
+Rename output	تغییر نام خروجی
+Rename playlist	تغییر نام فهرست پخش
+Playlist name (blank: the default)	نام فهرست پخش (خالی: پیش‌فرض)

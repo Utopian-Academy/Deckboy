@@ -3068,14 +3068,17 @@
       // ADD OUTPUT sits against the picker it adds to (James, 2026-11-13: it
       // was two sections down, under the playlist buttons).
       const int addOutW = measuredTextWidth(fontSmall_, "ADD OUTPUT") + uiScaled(24);
-      int headerBtnW = std::min(uiScaled(240), (availW - uiScaled(12) * 4 - addOutW - kCtlGap) / 5);
+      const int renameOutW = measuredTextWidth(fontSmall_, "RENAME") + uiScaled(24);
+      int headerBtnW = std::min(uiScaled(240), (availW - uiScaled(12) * 4 - addOutW - renameOutW - kCtlGap * 2) / 5);
       SDL_Rect outSelectRect {cx, cy, headerBtnW, std::max(sTallH, uiScaled(32))};
       // A list of the outputs by name, not a click that steps to the next
       // one: with four outputs, reaching the third took two clicks and a
       // guess at which way round it went.
       drawUIDropdown(outSelectRect, "Output", outputLabel(focusedOutputIndex), "settings.focused_output");
       settingsBtns_.push_back({outSelectRect, 251, "choose_output"});
-      SDL_Rect addOutBtn {outSelectRect.x + outSelectRect.w + kCtlGap, cy, addOutW, outSelectRect.h};
+      SDL_Rect renameOutBtn {outSelectRect.x + outSelectRect.w + kCtlGap, cy, renameOutW, outSelectRect.h};
+      drawActionBtn(renameOutBtn, "RENAME", kSettingsActionOutputRename, false);
+      SDL_Rect addOutBtn {renameOutBtn.x + renameOutBtn.w + kCtlGap, cy, addOutW, outSelectRect.h};
       drawActionBtn(addOutBtn, "ADD OUTPUT", kSettingsActionOutputAdd, false);
       SDL_Rect enableBtn {addOutBtn.x + addOutBtn.w + uiScaled(12), cy, headerBtnW, std::max(sTallH, uiScaled(32))};
       drawActionBtn(enableBtn, outputTarget.enabled ? "OUTPUT ON" : "OUTPUT OFF", kSettingsActionOutputToggle, outputTarget.enabled);
@@ -6230,6 +6233,9 @@
       } else if (sb.action == kSettingsActionCanvasHeightPrompt) {
         settingsOpen_ = false;
         openInlineCanvasHeightEditor();
+      } else if (sb.action == kSettingsActionOutputRename) {
+        openRenameOutput(project_.focusedOutputIndex);
+        return;
       } else if (sb.action == kSettingsActionLayoutDropdown) {
         openDropdown("settings.layout", sb.rect, deskLayoutChoices(),
           project_.deskLayout.empty() ? std::string("classic") : project_.deskLayout,

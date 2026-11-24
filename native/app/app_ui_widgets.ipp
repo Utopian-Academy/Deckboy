@@ -147,6 +147,20 @@
       }
       return;
     }
+    // A playlist's tab, or the name across the top of its column: rename it.
+    for (int di = 0; di < static_cast<int>(deckTabRects_.size()); ++di) {
+      if (deckTabRects_[di].w > 0 && pointInRect(x, y, deckTabRects_[di])) {
+        openRenamePlaylist(di);
+        return;
+      }
+    }
+    for (int di = 0; di < static_cast<int>(deckListClipRects_.size()); ++di) {
+      const SDL_Rect& col = deckListClipRects_[di];
+      if (col.w > 0 && pointInRect(x, y, SDL_Rect {col.x, col.y, col.w, 30})) {
+        openRenamePlaylist(di);
+        return;
+      }
+    }
     // Determine which cue was right-clicked
     for (int di = 0; di < static_cast<int>(deckListClipRects_.size()); ++di) {
       const Deck& deck = project_.decks[di];

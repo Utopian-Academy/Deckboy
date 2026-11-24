@@ -4919,3 +4919,7 @@ pre-wait {1}  -  {2}  -  then {3}	انتظار مسبق {1}  -  {2}  -  ثم {3}
 ' (CLASSIC, OPERATOR, SHOWPIECE, RUNDOWN, CLIPGRID, CUESTACK, CONSOLE or COMPACT)	' (كلاسيكي، المشغّل، واجهة العرض، جدول الفقرات، شبكة المقاطع، مكدس الكيو، وحدة التحكم أو مضغوط)
 nothing loaded	لم يُحمّل شيء
 add a playlist for deck B	إضافة قائمة تشغيل للديك B
+RENAME	إعادة التسمية
+Rename output	إعادة تسمية الخرج
+Rename playlist	إعادة تسمية قائمة التشغيل
+Playlist name (blank: the default)	اسم قائمة التشغيل (فارغ: الافتراضي)

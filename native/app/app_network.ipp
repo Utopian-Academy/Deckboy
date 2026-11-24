@@ -3263,13 +3263,13 @@ html,body{width:100%;height:100%;overflow:hidden}
     // without something saying so.
     if (upper == "HELP ALL" || upper == "HELP FULL" || upper == "?? ") {
       sendSnapshot(
-        "DECKBOY_0.01 every verb (408)\n"
+        "DECKBOY_0.01 every verb (409)\n"
         "ADDTIMER ALLGO ALLPAUSE ALLPLAY ALLSTOP ALLTAKE ANIM ANIMATION ARM AUDITION\n"
         "ARTNET ARTNETEVENT ARTNETPORT ART_NET_PORT ASCII ATEM ATEMEVENT\n"
         "ATEMTRIGGER AUDIO AUDIOCUE AUDIOENABLED AUDIOFX AUDIOGAIN AUDIOMONO\n"
         "AUDIONORM AUDIOOUTS AUDIOPAN AUDIOVIS AUDIOVISUAL AUTOADVANCE\n"
         "MASK MOTION BUGSWAT LESSONS RENDER DRAW SLICE SLICES SCREENS CLICK HOVER PRESS KEY TYPE TESTTHROW TRUST COMPANIONPASS SCOPES MIDICLOCK OUTSNAP OUTPROBE UISNAP UIASSETS QUICK QUICKLIST DROPTEST\n"
-        "MESH MESH3D SEQ\n"
+        "MESH MESH3D SEQ NAME\n"
         "OFFSET OFFSETX OFFSETY ROTATION CROP CROPLEFT CROPRIGHT CROPTOP CROPBOTTOM\n"
         "AUTOID AUTONEXT AVJUMP BLACKOUT DEFAULTS NEWSHOW LIMITER OUTPUTFX OUTPUTS PATCH\n"
         "BACKDROP BLEND BROKEN BROWSE BROWSER CAMERACUE CANVAS CC CHECK CHIP CLEAR CLEAROVERLAY CODE COLOR\n"
@@ -3407,6 +3407,7 @@ html,body{width:100%;height:100%;overflow:hidden}
         "         BROWSER TYPE <text> | BROWSER KEY <Enter|Tab|Backspace|Escape>\n"
         "output: OUTPUT [STATUS|LIST|ON|OFF|TOGGLE|SPOUT ...|<n>]\n"
         "        OUTPUT ADD [<deck>] | SELECT <n> | DECK [<n>] - a second screen, and which deck it shows\n"
+        "        OUTPUT NAME <text> - rename the selected output; NAME <text> renames the focused playlist (DECK <n> NAME <text>); blank: the default\n"
         "        OUTPUT AOI [<WxH>|FULL [<x> <y>]] | OUTPUT AOI MODE PIXEL|FILL - send just this region, e.g. one 256x256 LED tile\n"
         "        OUTPUT HDR ON|OFF|AUTO|STATUS | WHITE <nits> | SIGNAL PQ|HLG - HDR on this output, and how it leaves as a signal\n"
         "        STREAM HDR SDR|PQ|HLG - what the selected stream cue's feed carries (a stream is never probed)\n"

@@ -10901,8 +10901,25 @@
     //
     // OUT is the trim out-point and cannot be reused, which is also why HELP
     // advertising "OUT <on|off>" was wrong.
+    // NAME <text>: rename the focused playlist (DECK <n> NAME <text> for
+    // another); blank gives the default name back.
+    if (command == "NAME") {
+      renamePlaylist(project_.focusedDeckIndex, joinParts(parts, 1));
+      remoteCommandDetail_ = focusedDeck().name;
+      return;
+    }
     if (command == "OUTPUT") {
       const std::string sub = parts.size() < 2 ? std::string("STATUS") : toUpper(parts[1]);
+      // OUTPUT NAME <text>: rename the focused output (OUTPUT SELECT <n> first)
+      if (sub == "NAME") {
+        if (project_.outputs.empty()) {
+          failRemoteCommand("OUTPUT NAME: no outputs");
+          return;
+        }
+        renameOutput(project_.focusedOutputIndex, joinParts(parts, 2));
+        remoteCommandDetail_ = outputLabel(project_.focusedOutputIndex);
+        return;
+      }
       // OUTPUT ADD [<deck>]  -> a second output, hosted by that deck
       // OUTPUT DECK <n>      -> point the focused output at deck n
       // OUTPUT SELECT <n>    -> which output the other verbs act on

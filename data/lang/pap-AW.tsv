@@ -4884,3 +4884,7 @@ pre-wait {1}  -  {2}  -  then {3}	pre-warda {1}  -  {2}  -  despues {3}
 ' (CLASSIC, OPERATOR, SHOWPIECE, RUNDOWN, CLIPGRID, CUESTACK, CONSOLE or COMPACT)	' (CLASICO, OPERADO, VITRINA, ORDEN DI SHOW, REDA DI CLIP, STACK DI CUE, CONSOLA of COMPACTO)
 nothing loaded	nada no ta carga
 add a playlist for deck B	agrega un playlist pa deck B
+RENAME	RENOMBRA
+Rename output	Renombra salida
+Rename playlist	Renombra playlist
+Playlist name (blank: the default)	Nomber di playlist (bashi: e standard)

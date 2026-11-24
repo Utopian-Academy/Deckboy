@@ -4917,3 +4917,7 @@ pre-wait {1}  -  {2}  -  then {3}	munpena {1}  -  {2}  -  novtok {3}
 ' (CLASSIC, OPERATOR, SHOWPIECE, RUNDOWN, CLIPGRID, CUESTACK, CONSOLE or COMPACT)	' (CLASSIC, OPERATOR, SHOWPIECE, RUNDOWN, CLIPGRID, CUESTACK, CONSOLE nu COMPACT)
 nothing loaded	vaala tiro
 add a playlist for deck B	lani vekaku go deka B
+RENAME	SETI HOLA
+Rename output	Seti senahola
+Rename playlist	Seti hola vekaku
+Playlist name (blank: the default)	Hola vekaku (vahola: koro)

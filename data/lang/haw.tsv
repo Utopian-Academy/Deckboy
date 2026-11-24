@@ -4869,3 +4869,7 @@ pre-wait {1}  -  {2}  -  then {3}	kali mua {1}  -  {2}  -  a laila {3}
 ' (CLASSIC, OPERATOR, SHOWPIECE, RUNDOWN, CLIPGRID, CUESTACK, CONSOLE or COMPACT)	' (CLASSIC, OPERATOR, SHOWPIECE, RUNDOWN, CLIPGRID, CUESTACK, CONSOLE a i ʻole COMPACT)
 nothing loaded	ʻaʻohe mea i hoʻouka ʻia
 add a playlist for deck B	hoʻohui i papa helu no ka papa B
+RENAME	HOʻOLOLI INOA
+Rename output	Hoʻololi inoa puka
+Rename playlist	Hoʻololi inoa papa helu
+Playlist name (blank: the default)	Inoa papa helu (hakahaka: ka maʻamau)

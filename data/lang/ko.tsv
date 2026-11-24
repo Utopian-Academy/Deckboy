@@ -4902,3 +4902,7 @@ pre-wait {1}  -  {2}  -  then {3}	사전 대기 {1}  -  {2}  -  이후 {3}
 ' (CLASSIC, OPERATOR, SHOWPIECE, RUNDOWN, CLIPGRID, CUESTACK, CONSOLE or COMPACT)	' (CLASSIC, OPERATOR, SHOWPIECE, RUNDOWN, CLIPGRID, CUESTACK, CONSOLE 또는 COMPACT)
 nothing loaded	불러온 것 없음
 add a playlist for deck B	덱 B용 재생 목록 추가
+RENAME	이름 바꾸기
+Rename output	출력 이름 바꾸기
+Rename playlist	플레이리스트 이름 바꾸기
+Playlist name (blank: the default)	플레이리스트 이름(비워 두면 기본값)

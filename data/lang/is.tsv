@@ -4896,3 +4896,7 @@ pre-wait {1}  -  {2}  -  then {3}	forbið {1}  -  {2}  -  svo {3}
 ' (CLASSIC, OPERATOR, SHOWPIECE, RUNDOWN, CLIPGRID, CUESTACK, CONSOLE or COMPACT)	' (CLASSIC, OPERATOR, SHOWPIECE, RUNDOWN, CLIPGRID, CUESTACK, CONSOLE eða COMPACT)
 nothing loaded	ekkert hlaðið
 add a playlist for deck B	bæta við spilunarlista fyrir deck B
+RENAME	ENDURNEFNA
+Rename output	Endurnefna úttak
+Rename playlist	Endurnefna spilunarlista
+Playlist name (blank: the default)	Heiti spilunarlista (tómt: sjálfgefið)

@@ -4889,3 +4889,7 @@ pre-wait {1}  -  {2}  -  then {3}	ລໍຖ້າກ່ອນ {1}  -  {2}  -  �
 ' (CLASSIC, OPERATOR, SHOWPIECE, RUNDOWN, CLIPGRID, CUESTACK, CONSOLE or COMPACT)	' (CLASSIC, OPERATOR, SHOWPIECE, RUNDOWN, CLIPGRID, CUESTACK, CONSOLE ຫຼື COMPACT)
 nothing loaded	ຍັງບໍ່ໄດ້ໂຫຼດຫຍັງ
 add a playlist for deck B	ເພີ່ມ playlist ສຳລັບ deck B
+RENAME	ປ່ຽນຊື່
+Rename output	ປ່ຽນຊື່ຂາອອກ
+Rename playlist	ປ່ຽນຊື່ playlist
+Playlist name (blank: the default)	ຊື່ playlist (ຫວ່າງ: ຄ່າເລີ່ມຕົ້ນ)

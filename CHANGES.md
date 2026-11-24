@@ -34,6 +34,9 @@
 ### Languages
 - New: **Lithuanian** (Lietuvių).
 
+### Names
+- New: rename a playlist: right-click its tab or the name at the top of its column. Rename an output: RENAME beside the output's name in Settings > Video Outputs. Leave the name blank for the default back. Companion: `NAME <text>` (the focused playlist, or `DECK <n> NAME <text>`) and `OUTPUT NAME <text>` (the selected output).
+
 ### Desk layouts
 - New: **Layout**, in Settings > System > APPEARANCE under Theme. A layout decides where the desk's pieces go; the theme and skin still decide how they look, so every theme works with every layout. Saved with the show. Companion: `LAYOUT CLASSIC|OPERATOR|SHOWPIECE|RUNDOWN|CLIPGRID|CUESTACK|CONSOLE|COMPACT`, and `LAYOUT SHOW|EDIT`.
 - **Classic**: the desk as before.

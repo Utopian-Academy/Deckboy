@@ -4904,3 +4904,7 @@ pre-wait {1}  -  {2}  -  then {3}	プリウェイト {1}  -  {2}  -  その後 {
 ' (CLASSIC, OPERATOR, SHOWPIECE, RUNDOWN, CLIPGRID, CUESTACK, CONSOLE or COMPACT)	' (CLASSIC、OPERATOR、SHOWPIECE、RUNDOWN、CLIPGRID、CUESTACK、CONSOLE または COMPACT)
 nothing loaded	読み込みなし
 add a playlist for deck B	デッキB用のプレイリストを追加
+RENAME	名前変更
+Rename output	出力名を変更
+Rename playlist	プレイリスト名を変更
+Playlist name (blank: the default)	プレイリスト名 (空欄: 既定)

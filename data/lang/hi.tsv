@@ -4906,3 +4906,7 @@ pre-wait {1}  -  {2}  -  then {3}	पूर्व-प्रतीक्षा {1
 ' (CLASSIC, OPERATOR, SHOWPIECE, RUNDOWN, CLIPGRID, CUESTACK, CONSOLE or COMPACT)	' (CLASSIC, OPERATOR, SHOWPIECE, RUNDOWN, CLIPGRID, CUESTACK, CONSOLE या COMPACT)
 nothing loaded	कुछ लोड नहीं
 add a playlist for deck B	डेक B के लिए प्लेलिस्ट जोड़ें
+RENAME	नाम बदलें
+Rename output	आउटपुट का नाम बदलें
+Rename playlist	प्लेलिस्ट का नाम बदलें
+Playlist name (blank: the default)	प्लेलिस्ट नाम (खाली: डिफ़ॉल्ट)

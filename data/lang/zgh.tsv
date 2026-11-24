@@ -4917,3 +4917,7 @@ pre-wait {1}  -  {2}  -  then {3}	ⴰⵔⴰⵊⵓ ⴰⵎⵣⵡⴰⵔⵓ {1}  -  
 ' (CLASSIC, OPERATOR, SHOWPIECE, RUNDOWN, CLIPGRID, CUESTACK, CONSOLE or COMPACT)	' (ⴰⵎⵏⵙⴰⵢ, ⴰⵎⵏⴱⴱⴰⴹ, ⴰⵙⴽⴰⵏ, ⴰⵙⵍⵙⵍ, ⴰⴼⵔⵔⵓⴳ ⵏ ⵉⵙⴳⵣⵓⵎⵏ, ⴰⵙⵎⵓⵏ ⵏ CUE, ⴰⵏⴱⴹ ⵏⵖ ⴰⵎⵥⵢⴰⵏ)
 nothing loaded	ⵓⵔ ⵉⵍⵍⵉ ⵎⴰ ⵉⵜⵜⵓⵙⵎⵖⵔⵏ
 add a playlist for deck B	ⵔⵏⵓ ⵜⴰⴱⴷⴰⵔⵜ ⵉ deck B
+RENAME	ⵙⵏⴼⵍ ⵉⵙⵎ
+Rename output	ⵙⵏⴼⵍ ⵉⵙⵎ ⵏ ⵜⵓⴼⴼⵖⴰ
+Rename playlist	ⵙⵏⴼⵍ ⵉⵙⵎ ⵏ ⵜⴱⴷⴰⵔⵜ
+Playlist name (blank: the default)	ⵉⵙⵎ ⵏ ⵜⴱⴷⴰⵔⵜ (ⵉⵍⵎ: ⴰⵎⵣⵡⴰⵔⵓ)

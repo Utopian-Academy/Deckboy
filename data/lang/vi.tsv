@@ -4890,3 +4890,7 @@ pre-wait {1}  -  {2}  -  then {3}	chờ trước {1}  -  {2}  -  rồi {3}
 ' (CLASSIC, OPERATOR, SHOWPIECE, RUNDOWN, CLIPGRID, CUESTACK, CONSOLE or COMPACT)	' (CỔ ĐIỂN, NGƯỜI VẬN HÀNH, TRÌNH DIỄN, TRÌNH TỰ, LƯỚI CLIP, CHỒNG CUE, BÀN ĐIỀU KHIỂN hoặc GỌN)
 nothing loaded	chưa nạp gì
 add a playlist for deck B	thêm một playlist cho deck B
+RENAME	ĐỔI TÊN
+Rename output	Đổi tên đầu ra
+Rename playlist	Đổi tên playlist
+Playlist name (blank: the default)	Tên playlist (trống: mặc định)

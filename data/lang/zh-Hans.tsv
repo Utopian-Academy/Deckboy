@@ -4903,3 +4903,7 @@ pre-wait {1}  -  {2}  -  then {3}	预等待 {1}  -  {2}  -  然后 {3}
 ' (CLASSIC, OPERATOR, SHOWPIECE, RUNDOWN, CLIPGRID, CUESTACK, CONSOLE or COMPACT)	' (经典、操作员、展示、串联单、片段网格、CUE 堆栈、控制台或紧凑)
 nothing loaded	未载入任何内容
 add a playlist for deck B	为卡座 B 添加播放列表
+RENAME	重命名
+Rename output	重命名输出
+Rename playlist	重命名播放列表
+Playlist name (blank: the default)	播放列表名称（留空：默认）

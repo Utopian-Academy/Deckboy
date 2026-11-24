@@ -4896,3 +4896,7 @@ pre-wait {1}  -  {2}  -  then {3}	pêşbendewarî {1}  -  {2}  -  paşê {3}
 ' (CLASSIC, OPERATOR, SHOWPIECE, RUNDOWN, CLIPGRID, CUESTACK, CONSOLE or COMPACT)	' (CLASSIC, OPERATOR, SHOWPIECE, RUNDOWN, CLIPGRID, CUESTACK, CONSOLE an COMPACT)
 nothing loaded	tiştek nehatiye barkirin
 add a playlist for deck B	ji bo deck B lîsteyeke lêxistinê zêde bike
+RENAME	NAV BIGUHERE
+Rename output	Navê derketinê biguhere
+Rename playlist	Navê lîsteya lêxistinê biguhere
+Playlist name (blank: the default)	Navê lîsteya lêxistinê (vala: pêşdanasîn)

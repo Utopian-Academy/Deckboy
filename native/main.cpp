@@ -8679,6 +8679,7 @@ class App {
   static constexpr int kSettingsActionTransitionStyleCycle = 613;
   static constexpr int kSettingsActionThemeDropdown = 614;
   static constexpr int kSettingsActionLayoutDropdown = 60301;
+  static constexpr int kSettingsActionOutputRename = 60302;
   // AOI is edited as a pixel rect (X/Y position + WxH size) of the output
   // raster; the fractions in OutputTarget stay the storage format.
   static constexpr int kSettingsActionOutputAoiXInc  = 615;

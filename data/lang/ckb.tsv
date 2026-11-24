@@ -4906,3 +4906,7 @@ pre-wait {1}  -  {2}  -  then {3}	پێش-چاوەڕوانی {1}  -  {2}  -  پا
 ' (CLASSIC, OPERATOR, SHOWPIECE, RUNDOWN, CLIPGRID, CUESTACK, CONSOLE or COMPACT)	' (کلاسیک، کارمەند، نمایشی، ڕیزبەندی بەرنامە، تۆڕی کلیپ، کۆمەڵەی cue، کۆنسۆڵ یان چڕ)
 nothing loaded	هیچ بار نەکراوە
 add a playlist for deck B	زیادکردنی لیستی لێدان بۆ دێکی B
+RENAME	ناوگۆڕین
+Rename output	ناوی دەرچوون بگۆڕە
+Rename playlist	ناوی لیستی لێدان بگۆڕە
+Playlist name (blank: the default)	ناوی لیستی لێدان (بەتاڵ: بنەڕەت)

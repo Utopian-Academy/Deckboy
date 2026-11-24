@@ -4897,3 +4897,7 @@ pre-wait {1}  -  {2}  -  then {3}	ön bekleme {1}  -  {2}  -  sonra {3}
 ' (CLASSIC, OPERATOR, SHOWPIECE, RUNDOWN, CLIPGRID, CUESTACK, CONSOLE or COMPACT)	' (KLASİK, OPERATÖR, VİTRİN, AKIŞ, KLİP IZGARASI, CUE YIĞINI, KONSOL veya KOMPAKT)
 nothing loaded	hiçbir şey yüklenmedi
 add a playlist for deck B	deck B için çalma listesi ekle
+RENAME	YENİDEN ADLANDIR
+Rename output	Çıkışı yeniden adlandır
+Rename playlist	Çalma listesini yeniden adlandır
+Playlist name (blank: the default)	Çalma listesi adı (boş: varsayılan)

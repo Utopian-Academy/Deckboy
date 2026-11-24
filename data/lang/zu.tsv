@@ -4891,3 +4891,7 @@ pre-wait {1}  -  {2}  -  then {3}	ukulinda kuqala {1}  -  {2}  -  bese {3}
 ' (CLASSIC, OPERATOR, SHOWPIECE, RUNDOWN, CLIPGRID, CUESTACK, CONSOLE or COMPACT)	' (OKWAKUDALA, UMSEBENZISI, OKOKUBUKISA, UHLU LOHLELO, IGRIDI YAMAKLIPHU, INQWABA YAMA-CUE, IKHONSOLI noma OKUNCANE)
 nothing loaded	akukho okufakiwe
 add a playlist for deck B	engeza uhlu lokudlala lwe-deck B
+RENAME	SHINTSHA IGAMA
+Rename output	Shintsha igama lokuphumayo
+Rename playlist	Shintsha igama lohlu
+Playlist name (blank: the default)	Igama lohlu (akunalutho: okujwayelekile)

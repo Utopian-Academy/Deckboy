@@ -4906,3 +4906,7 @@ pre-wait {1}  -  {2}  -  then {3}	попереднє очікування {1}  -
 ' (CLASSIC, OPERATOR, SHOWPIECE, RUNDOWN, CLIPGRID, CUESTACK, CONSOLE or COMPACT)	' (КЛАСИКА, ОПЕРАТОР, ВІТРИНА, СЦЕНАРІЙ, СІТКА КЛІПІВ, СТЕК CUE, КОНСОЛЬ або КОМПАКТНИЙ)
 nothing loaded	нічого не завантажено
 add a playlist for deck B	додати плейлист для деки B
+RENAME	ПЕРЕЙМЕНУВАТИ
+Rename output	Перейменувати вихід
+Rename playlist	Перейменувати плейлист
+Playlist name (blank: the default)	Назва плейлиста (порожньо — типова)

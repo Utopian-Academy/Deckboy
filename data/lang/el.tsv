@@ -4899,3 +4899,7 @@ pre-wait {1}  -  {2}  -  then {3}	προαναμονή {1}  -  {2}  -  μετά 
 ' (CLASSIC, OPERATOR, SHOWPIECE, RUNDOWN, CLIPGRID, CUESTACK, CONSOLE or COMPACT)	' (ΚΛΑΣΙΚΟ, ΧΕΙΡΙΣΤΗΣ, ΒΙΤΡΙΝΑ, ΡΟΗ ΕΚΠΟΜΠΗΣ, ΠΛΕΓΜΑ ΚΛΙΠ, ΣΤΟΙΒΑ CUE, ΚΟΝΣΟΛΑ ή ΣΥΜΠΑΓΕΣ)
 nothing loaded	δεν φορτώθηκε τίποτα
 add a playlist for deck B	προσθήκη λίστας για το deck B
+RENAME	ΜΕΤΟΝΟΜΑΣΙΑ
+Rename output	Μετονομασία εξόδου
+Rename playlist	Μετονομασία λίστας
+Playlist name (blank: the default)	Όνομα λίστας (κενό: προεπιλογή)

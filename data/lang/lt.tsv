@@ -3971,3 +3971,7 @@ pre-wait {1}  -  {2}  -  then {3}	laukimas prieš {1}  -  {2}  -  tada {3}
 ' (CLASSIC, OPERATOR, SHOWPIECE, RUNDOWN, CLIPGRID, CUESTACK, CONSOLE or COMPACT)	' (CLASSIC, OPERATOR, SHOWPIECE, RUNDOWN, CLIPGRID, CUESTACK, CONSOLE arba COMPACT)
 nothing loaded	nieko neįkelta
 add a playlist for deck B	pridėti grojaraštį rinkiniui B
+RENAME	PERVADINTI
+Rename output	Pervadinti išvestį
+Rename playlist	Pervadinti grojaraštį
+Playlist name (blank: the default)	Grojaraščio pavadinimas (tuščia: numatytasis)

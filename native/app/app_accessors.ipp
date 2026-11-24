@@ -224,6 +224,41 @@
     return project_.outputs[index];
   }
 
+  // RENAMING A PLAYLIST OR AN OUTPUT (James 11-24: "outputs and playlist can
+  // be renamed? if not, why not?" -- there was no reason; the control was
+  // never built). Blank gives the default name back. The show file has always
+  // kept both names.
+  void renamePlaylist(int d, const std::string& raw) {
+    if (d < 0 || d >= static_cast<int>(project_.decks.size())) return;
+    pushUndoSnapshot(/*force=*/true);
+    const std::string v = trim(raw);
+    project_.decks[static_cast<std::size_t>(d)].name = v.empty() ? deckDefaultName(d) : v;
+    markProjectDirty();
+    triggerToast(deckboy::core::i18n::format("playlist: {1}", {project_.decks[static_cast<std::size_t>(d)].name}));
+  }
+
+  void renameOutput(int o, const std::string& raw) {
+    if (o < 0 || o >= static_cast<int>(project_.outputs.size())) return;
+    pushUndoSnapshot(/*force=*/true);
+    const std::string v = trim(raw);
+    project_.outputs[static_cast<std::size_t>(o)].name = v.empty() ? outputDefaultName(o) : v;
+    markProjectDirty();
+    triggerToast(deckboy::core::i18n::format("output: {1}", {outputLabel(o)}));
+  }
+
+  void openRenamePlaylist(int d) {
+    if (d < 0 || d >= static_cast<int>(project_.decks.size())) return;
+    openInlineTextEditor("playlist.rename", "Rename playlist", "Playlist name (blank: the default)",
+                         project_.decks[static_cast<std::size_t>(d)].name,
+                         [this, d](const std::string& value) { renamePlaylist(d, value); });
+  }
+
+  void openRenameOutput(int o) {
+    if (o < 0 || o >= static_cast<int>(project_.outputs.size())) return;
+    openInlineTextEditor("output.rename", "Rename output", "Output name (blank: the default)", outputLabel(o),
+                         [this, o](const std::string& value) { renameOutput(o, value); });
+  }
+
   std::string outputLabel(int outputIndex) const {
     if (outputIndex < 0 || outputIndex >= static_cast<int>(project_.outputs.size())) {
       return outputDefaultName(0);
