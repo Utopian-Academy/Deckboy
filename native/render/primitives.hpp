@@ -54,8 +54,34 @@ struct ChromeSticker {
   float size = 1.0f;    // against the spot's own size
 };
 
+// A RENDERED skin's pieces: data/desk-kits/<name>, rendered in Blender by
+// pocket-skins/desk_kit.py and installed by desk_kit_post.py. The desk's
+// layout is fluid, so the skin is not a picture of a desk but the parts one
+// is built from: a raised panel and a recess (9-sliced: corners kept, edges
+// stretched along their length, the middle tiled from a seamless material),
+// a key cap lit in white plastic (multiplied by the control's own colour, so
+// a red tally is a red cap) with its reflections added on top, the desk's
+// body, and die-cut holographic stickers. Lengths are UI px at 1x.
+struct ChromeKitPiece {
+  std::string file, gloss;
+  float pad = 0.0f;     // room round the piece for its shadow
+  float inset = 0.0f;   // the corner region kept unstretched (pad included)
+  float fade = 0.0f;    // the edge fades into what is under the middle over this band
+};
+struct ChromeKit {
+  std::string dir;      // empty: no kit (the drawn painter)
+  float density = 4.0f, tileDensity = 2.0f;
+  ChromeKitPiece panel, well, cap;
+  std::string tilePanel, tileWell, tileDesk;
+  float stickerImage = 68.0f, stickerFoil = 37.44f;   // a sticker's picture and its foil, across
+  SDL_Color surfacePanel {0, 0, 0, 255}, surfaceWell {0, 0, 0, 255}, surfaceDesk {0, 0, 0, 255};
+};
+// Reads <dir>/kit.txt. False (and `kit` untouched) when it is missing or short.
+bool loadChromeKit(const std::string& dir, ChromeKit& kit);
+
 struct ChromeStyle {
   bool enabled = false;
+  ChromeKit kit;
   std::vector<ChromeSticker> stickers;
   float scale = 1.0f;
   ChromeShape panelShape = ChromeShape::Rect;

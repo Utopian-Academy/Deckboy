@@ -55,6 +55,9 @@
 - Twelve typefaces come with Deckboy for the skins, each with its licence in data/fonts (SIL Open Font License; Luckiest Guy: Apache 2.0).
 - The existing themes look exactly as before.
 - For theme authors: `style_` lines in theme.txt set the shape and finish. See the manual, section 21.
+- New: **rendered skins** (3D), listed first in the Theme list: Broadcast, Bakelite, Hi-Fi and Synth, the materials of Pocket's shells of the same names. Their panels, recesses, key caps, the desk behind them and their holographic stickers are rendered in Blender with real light and shadow, then built to fit at whatever size each piece is, so they work in every layout, at every UI scale and in any window. A key keeps its own colour: a lit tally is a lit cap. Fixed colours: each looks the way its material does.
+- Stickers on the new layouts, next to SHOW and EDIT (not on Showpiece or Rundown, whose strip holds the clock).
+- For theme authors: `style_kit <folder>` names a kit in data/desk-kits.
 
 ### Clickers
 - Fixed: a presenter clicker that sends the arrow keys did nothing. A D'San Perfect Cue sends Right arrow, Left arrow and B unless it is reprogrammed, and so do many other clickers. Right and Left now take the next and previous cue with the transition, the same as Page Down and Page Up, also when a full-screen output has the keyboard and while the shortcuts sheet is open. With the tracker open, they are GO and BACK.

@@ -7569,6 +7569,10 @@ class App {
         sticker.size = std::clamp(num(size, 1.0f), 0.4f, 1.6f);
         st.stickers.push_back(sticker);
       }
+    } else if (name == "kit") {       // style_kit <folder in data/desk-kits>: a RENDERED skin
+      if (!deckboy::render::loadChromeKit((Paths::dataDir() / "desk-kits" / a).generic_string(), st.kit)) {
+        st.kit = {};   // the colours and shapes still apply, drawn
+      }
     } else if (name == "font") {      // style_font <file in data/fonts> [size factor]
       themeChromeFont_ = a;
       themeChromeFontScale_ = std::clamp(static_cast<double>(num(b, 1.0f)), 0.5, 2.0);

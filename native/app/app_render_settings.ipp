@@ -6250,11 +6250,17 @@
           for (auto& entry : fs::directory_iterator(themesDir)) {
             if (entry.is_directory() && fs::exists(entry.path() / "theme.txt")) {
               std::string name = entry.path().filename().string();
-              choices.push_back({name, name});
+              // The RENDERED skins (style_kit) are their own group, first.
+              std::string label = name;
+              if (name.rfind("rendered-", 0) == 0) label = "3D  " + name.substr(9);
+              choices.push_back({name, label});
             }
           }
         }
-        std::sort(choices.begin(), choices.end());
+        std::sort(choices.begin(), choices.end(), [](const auto& a, const auto& b) {
+          const bool a3 = a.first.rfind("rendered-", 0) == 0, b3 = b.first.rfind("rendered-", 0) == 0;
+          return a3 != b3 ? a3 : a.first < b.first;
+        });
         std::string current = currentThemeName_.empty() ? "gameboy" : currentThemeName_;
         openDropdown("settings.theme", sb.rect, choices, current,
           [this](const std::string& value) {

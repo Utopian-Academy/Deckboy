@@ -671,6 +671,24 @@ full languages complete:
 - `#ifndef _WIN32` / `#ifdef _WIN32` guards for platform-specific code
 - Copyright year: 2026; license: GPL-3.0-or-later
 
+## Rendered skins (`style_kit`, `data/desk-kits/`)
+
+A theme with `style_kit <name>` draws its chrome from pictures rendered in
+Blender, not from the drawn painter: `Primitives::drawChrome` hands it to
+`drawKitChrome` (render/primitives.cpp). Panels and recesses are 9-sliced
+(corners kept, edges stretched along their length) with a seamless material
+TILED under the middle; the piece's edge fades into the tile (a hard join drew
+a box on brushed metal). Controls are ALWAYS caps: a white-lit cap multiplied
+by the control's own colour, its reflections added (`SDL_BLENDMODE_ADD`); the
+drawn painter's raised/sunken guess put lit keys down a black hole. Pictures
+are halved (alpha-weighted) to the density the UI scale needs, per renderer.
+The kits are made OUTSIDE this repo, beside Pocket's shells:
+`~/pocket-skins/desk_kit.py` (Blender 5.2, `blender --background
+--factory-startup --python desk_kit.py -- [slug]`, about 30 s a skin) then
+`py -3 desk_kit_post.py` (seamless tiles, fades, die-cut stickers, colours read
+off the renders into `data/themes/rendered-<slug>/theme.txt`, contrast-checked).
+Never hand-edit a rendered theme's colours: rerun the post step.
+
 ## Mini follows a desk
 
 `native/mini/mini_main.cpp`: `--follow <IPv4[:port]>` or `SYNC FOLLOW`,

@@ -21,6 +21,7 @@
 #include <cstddef>
 #include <cstdint>
 #include <functional>
+#include <string>
 #include <utility>
 #include <vector>
 
@@ -618,9 +619,288 @@ ChromeGeom chromeGeomFor(const SDL_Rect& rect, bool* isControl, ChromeRole role 
 
 }  // namespace
 
+// ── RENDERED SKINS ──────────────────────────────────────────────────────────
+//
+// A skin with style_kit draws its panels, recesses, caps and stickers from
+// pictures rendered in Blender (ChromeKit, primitives.hpp). Everything else
+// about the skin (shape for the press wash and the rings, the colours the
+// labels are judged against) still comes from its theme.
+
+namespace {
+
+bool parseKitColour(const std::string& s, SDL_Color* out) {
+  if (s.size() < 6) return false;
+  try {
+    const auto v = static_cast<std::uint32_t>(std::stoul(s.substr(0, 6), nullptr, 16));
+    *out = {static_cast<Uint8>(v >> 16), static_cast<Uint8>(v >> 8), static_cast<Uint8>(v), 255};
+    return true;
+  } catch (...) {
+    return false;
+  }
+}
+
+struct KitTexture {
+  SDL_Renderer* renderer = nullptr;
+  std::string path;
+  int density = 0;          // texture px per UI px, after halving
+  SDL_Texture* texture = nullptr;
+};
+std::vector<KitTexture> gKitTextures;
+
+void forgetKitTextures(SDL_Renderer* renderer) {
+  for (auto it = gKitTextures.begin(); it != gKitTextures.end();) {
+    if (!renderer || it->renderer == renderer) {
+      if (it->texture) SDL_DestroyTexture(it->texture);
+      it = gKitTextures.erase(it);
+    } else {
+      ++it;
+    }
+  }
+}
+
+// Half the size, each pixel the average of four weighted by their alpha (a
+// plain average darkens the edge of a cut-out against its transparent black).
+SDL_Surface* halveSurface(SDL_Surface* in) {
+  const int w = std::max(1, in->w / 2), h = std::max(1, in->h / 2);
+  SDL_Surface* out = SDL_CreateSurface(w, h, SDL_PIXELFORMAT_RGBA32);
+  if (!out) return nullptr;
+  for (int y = 0; y < h; ++y) {
+    auto* dst = static_cast<std::uint8_t*>(out->pixels) + static_cast<std::size_t>(y) * out->pitch;
+    const auto* r0 = static_cast<const std::uint8_t*>(in->pixels) + static_cast<std::size_t>(std::min(in->h - 1, y * 2)) * in->pitch;
+    const auto* r1 = static_cast<const std::uint8_t*>(in->pixels) + static_cast<std::size_t>(std::min(in->h - 1, y * 2 + 1)) * in->pitch;
+    for (int x = 0; x < w; ++x) {
+      const int x0 = std::min(in->w - 1, x * 2) * 4, x1 = std::min(in->w - 1, x * 2 + 1) * 4;
+      const std::uint8_t* q[4] = {r0 + x0, r0 + x1, r1 + x0, r1 + x1};
+      int a = 0, rr = 0, gg = 0, bb = 0;
+      for (const std::uint8_t* p : q) {
+        a += p[3];
+        rr += p[0] * p[3];
+        gg += p[1] * p[3];
+        bb += p[2] * p[3];
+      }
+      std::uint8_t* o = dst + x * 4;
+      o[0] = static_cast<std::uint8_t>(a ? rr / a : 0);
+      o[1] = static_cast<std::uint8_t>(a ? gg / a : 0);
+      o[2] = static_cast<std::uint8_t>(a ? bb / a : 0);
+      o[3] = static_cast<std::uint8_t>(a / 4);
+    }
+  }
+  return out;
+}
+
+// The kit's picture for this renderer, halved while it stays at least as
+// fine as the UI scale draws it: linear filtering alone, shrinking a 4x
+// picture to 1x, skips three pixels in four and the bevels shimmer.
+SDL_Texture* kitTexture(SDL_Renderer* renderer, const std::string& file, int density, float scale, int* densityOut) {
+  if (file.empty() || gChrome.kit.dir.empty()) return nullptr;
+  int want = std::max(1, density);
+  while (want % 2 == 0 && static_cast<float>(want / 2) >= scale) want /= 2;
+  const std::string path = gChrome.kit.dir + "/" + file;
+  for (const auto& t : gKitTextures) {
+    if (t.renderer == renderer && t.density == want && t.path == path) {
+      if (densityOut) *densityOut = want;
+      return t.texture;
+    }
+  }
+  SDL_Texture* texture = nullptr;
+  if (SDL_Surface* loaded = SDL_LoadSurface(path.c_str())) {
+    SDL_Surface* surface = SDL_ConvertSurface(loaded, SDL_PIXELFORMAT_RGBA32);
+    SDL_DestroySurface(loaded);
+    for (int d = std::max(1, density); surface && d > want; d /= 2) {
+      SDL_Surface* half = halveSurface(surface);
+      SDL_DestroySurface(surface);
+      surface = half;
+    }
+    if (surface) {
+      texture = SDL_CreateTextureFromSurface(renderer, surface);
+      SDL_DestroySurface(surface);
+    }
+    if (texture) {
+      SDL_SetTextureScaleMode(texture, SDL_SCALEMODE_LINEAR);   // a photograph, not pixel art
+      SDL_SetTextureBlendMode(texture, SDL_BLENDMODE_BLEND);
+    }
+  }
+  // A miss is remembered too, so a kit with a missing file costs one look.
+  gKitTextures.push_back({renderer, path, want, texture});
+  if (densityOut) *densityOut = want;
+  return texture;
+}
+
+int colourDistance(SDL_Color a, SDL_Color b) {
+  return std::abs(a.r - b.r) + std::abs(a.g - b.g) + std::abs(a.b - b.b);
+}
+
+// One 9-sliced piece round `rect` (grown by its shadow room). The corners
+// shrink together on a rect too small for them. Returns the middle, which
+// the caller fills (a tile) or leaves (the cap, stretched).
+bool drawKitPiece(SDL_Renderer* renderer, const ChromeKitPiece& piece, const std::string& file,
+                  const SDL_Rect& rect, float s, SDL_Color mod, SDL_BlendMode mode, SDL_FRect* middle,
+                  const std::function<void(const SDL_FRect&)>& under = {}) {
+  int density = 1;
+  SDL_Texture* tex = kitTexture(renderer, file, static_cast<int>(gChrome.kit.density), s, &density);
+  if (!tex) return false;
+  const float body = std::max(1.0f, piece.inset - piece.pad);
+  const float k = std::min({1.0f, static_cast<float>(rect.w) / (2.0f * body * s),
+                            static_cast<float>(rect.h) / (2.0f * body * s)});
+  const float pad = piece.pad * s * k, inset = piece.inset * s * k;
+  const SDL_FRect dst {rect.x - pad, rect.y - pad, rect.w + 2.0f * pad, rect.h + 2.0f * pad};
+  const float srcInset = piece.inset * static_cast<float>(density);
+  // What fills the middle goes UNDER the piece, out as far as its edge
+  // fades, so the render melts into it instead of meeting it at a line.
+  if (under) {
+    const float reach = inset - piece.fade * s * k;
+    under(SDL_FRect {dst.x + reach, dst.y + reach, std::max(0.0f, dst.w - 2 * reach), std::max(0.0f, dst.h - 2 * reach)});
+  }
+  SDL_SetTextureColorMod(tex, mod.r, mod.g, mod.b);
+  SDL_SetTextureBlendMode(tex, mode);
+  SDL_RenderTexture9Grid(renderer, tex, nullptr, srcInset, srcInset, srcInset, srcInset, inset / srcInset, &dst);
+  SDL_SetTextureColorMod(tex, 255, 255, 255);
+  SDL_SetTextureBlendMode(tex, SDL_BLENDMODE_BLEND);
+  if (middle) *middle = {dst.x + inset, dst.y + inset, std::max(0.0f, dst.w - 2 * inset), std::max(0.0f, dst.h - 2 * inset)};
+  return true;
+}
+
+// A seamless material over `area`, at the UI scale.
+bool drawKitTile(SDL_Renderer* renderer, const std::string& file, const SDL_FRect& area, float s) {
+  if (area.w <= 0.0f || area.h <= 0.0f) return true;
+  int density = 1;
+  SDL_Texture* tex = kitTexture(renderer, file, static_cast<int>(gChrome.kit.tileDensity), s, &density);
+  if (!tex) return false;
+  SDL_RenderTextureTiled(renderer, tex, nullptr, s / static_cast<float>(density), &area);
+  return true;
+}
+
+bool drawKitChrome(SDL_Renderer* renderer, const SDL_Rect& rect, SDL_Color fill, bool raised, ChromeRole role) {
+  const ChromeKit& kit = gChrome.kit;
+  bool control = false;
+  chromeGeomFor(rect, &control, role);
+  const float s = std::max(0.25f, gChrome.scale);
+  SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
+  // The desk's own body: a panel covering most of the window.
+  int outW = 0, outH = 0;
+  if (!control && SDL_GetCurrentRenderOutputSize(renderer, &outW, &outH) && outW > 0 && outH > 0 &&
+      static_cast<double>(rect.w) * rect.h > 0.6 * static_cast<double>(outW) * outH) {
+    const SDL_FRect area {static_cast<float>(rect.x), static_cast<float>(rect.y), static_cast<float>(rect.w), static_cast<float>(rect.h)};
+    if (!drawKitTile(renderer, kit.tileDesk, area, s)) return false;
+    recordSurface(renderer, rect, kit.surfaceDesk);
+    return true;
+  }
+  // Is this the skin's own surface, or a colour a control is lit in?
+  const int tol = 60;
+  const bool panelColour = colourDistance(fill, kit.surfacePanel) < tol;
+  const bool wellColour = colourDistance(fill, kit.surfaceWell) < tol;
+  const bool deskColour = colourDistance(fill, kit.surfaceDesk) < tol;
+  const bool surface = panelColour || wellColour || deskColour;
+  // A dark fill on a large area is a screen or a monitor's surround.
+  const bool screenDark = fill.r + fill.g + fill.b < 3 * 34;
+  SDL_FRect middle {};
+  // Controls are always caps. The drawn painter's raised/sunken comes from
+  // comparing two colours, and on a lit key that says "sunken": rendered,
+  // that was a lit key down a black hole.
+  if (!control && !raised && (surface || screenDark)) {
+    // A recess: its lip and the shadow under it rendered, the floor tiled,
+    // or the colour asked for (a black monitor well stays black).
+    auto floor = [&](const SDL_FRect& area) {
+      if (surface) {
+        drawKitTile(renderer, kit.tileWell, area, s);
+      } else {
+        SDL_SetRenderDrawColor(renderer, fill.r, fill.g, fill.b, 255);
+        SDL_RenderFillRect(renderer, &area);
+      }
+    };
+    if (!drawKitPiece(renderer, kit.well, kit.well.file, rect, s, {255, 255, 255, 255}, SDL_BLENDMODE_BLEND, &middle, floor)) return false;
+    recordSurface(renderer, rect, surface ? kit.surfaceWell : fill);
+    return true;
+  }
+  if (!control && surface) {
+    if (!drawKitPiece(renderer, kit.panel, kit.panel.file, rect, s, {255, 255, 255, 255}, SDL_BLENDMODE_BLEND, &middle,
+                      [&](const SDL_FRect& area) { drawKitTile(renderer, kit.tilePanel, area, s); })) return false;
+    recordSurface(renderer, rect, kit.surfacePanel);
+    return true;
+  }
+  // A cap in the control's own colour: the white render's light times the
+  // colour, then its reflections added.
+  if (!drawKitPiece(renderer, kit.cap, kit.cap.file, rect, s, fill, SDL_BLENDMODE_BLEND, nullptr)) return false;
+  drawKitPiece(renderer, kit.cap, kit.cap.gloss, rect, s, {255, 255, 255, 255}, SDL_BLENDMODE_ADD, nullptr);
+  recordSurface(renderer, rect, SDL_Color {static_cast<Uint8>(fill.r * 15 / 16), static_cast<Uint8>(fill.g * 15 / 16),
+                                           static_cast<Uint8>(fill.b * 15 / 16), 255});
+  return true;
+}
+
+}  // namespace
+
+bool loadChromeKit(const std::string& dir, ChromeKit& kit) {
+  forgetKitTextures(nullptr);
+  SDL_IOStream* io = SDL_IOFromFile((dir + "/kit.txt").c_str(), "rb");
+  if (!io) return false;
+  std::string text;
+  char buf[1024];
+  std::size_t n = 0;
+  while ((n = SDL_ReadIO(io, buf, sizeof(buf))) > 0) text.append(buf, n);
+  SDL_CloseIO(io);
+  ChromeKit k;
+  k.dir = dir;
+  int seen = 0;
+  std::size_t start = 0;
+  while (start < text.size()) {
+    std::size_t end = text.find('\n', start);
+    if (end == std::string::npos) end = text.size();
+    std::string line = text.substr(start, end - start);
+    start = end + 1;
+    if (!line.empty() && line.back() == '\r') line.pop_back();
+    if (line.empty() || line[0] == '#') continue;
+    std::vector<std::string> f;
+    for (std::size_t p = 0;;) {
+      const std::size_t tab = line.find('\t', p);
+      f.push_back(line.substr(p, tab == std::string::npos ? std::string::npos : tab - p));
+      if (tab == std::string::npos) break;
+      p = tab + 1;
+    }
+    auto num = [&](std::size_t i, float fallback) {
+      try { return i < f.size() ? std::stof(f[i]) : fallback; } catch (...) { return fallback; }
+    };
+    auto str = [&](std::size_t i) { return i < f.size() ? f[i] : std::string(); };
+    const std::string& key = f[0];
+    if (key == "density") k.density = std::clamp(num(1, 4.0f), 1.0f, 16.0f);
+    else if (key == "tile_density") k.tileDensity = std::clamp(num(1, 2.0f), 1.0f, 16.0f);
+    else if (key == "panel" || key == "well") {
+      ChromeKitPiece& piece = key == "panel" ? k.panel : k.well;
+      piece.file = str(1);
+      piece.pad = num(2, 0.0f);
+      piece.inset = num(3, 16.0f);
+      piece.fade = std::clamp(num(4, 0.0f), 0.0f, piece.inset);
+      ++seen;
+    } else if (key == "cap") {
+      k.cap.file = str(1);
+      k.cap.gloss = str(2);
+      k.cap.pad = num(3, 0.0f);
+      k.cap.inset = num(4, 16.0f);
+      ++seen;
+    } else if (key == "tile_panel") { k.tilePanel = str(1); ++seen; }
+    else if (key == "tile_well") k.tileWell = str(1);
+    else if (key == "tile_desk") k.tileDesk = str(1);
+    else if (key == "sticker") {
+      k.stickerImage = num(1, 68.0f);
+      k.stickerFoil = std::max(1.0f, num(2, 37.44f));
+    }
+    else if (key == "surface_panel") parseKitColour(str(1), &k.surfacePanel);
+    else if (key == "surface_well") parseKitColour(str(1), &k.surfaceWell);
+    else if (key == "surface_desk") parseKitColour(str(1), &k.surfaceDesk);
+  }
+  if (seen < 4) return false;
+  kit = k;
+  return true;
+}
+
 void Primitives::drawChrome(SDL_Renderer* renderer, const SDL_Rect& rect, SDL_Color fill, SDL_Color border,
                             bool raised, ChromeRole role) {
   if (rect.w <= 0 || rect.h <= 0) return;
+  // A rendered skin draws what it has a picture for; a translucent fill (a
+  // wash, a fade) or a kit that will not load falls through to the painter.
+  if (!gChrome.kit.dir.empty() && fill.a == 255 && drawKitChrome(renderer, rect, fill, raised, role)) {
+    notePressable(renderer, rect);
+    return;
+  }
   bool control = false;
   const ChromeGeom g = chromeGeomFor(rect, &control, role);
   const float s = std::max(0.25f, gChrome.scale);
@@ -794,6 +1074,21 @@ SDL_FColor hueColour(float h, float sat, float val) {
 void Primitives::drawSticker(SDL_Renderer* renderer, const ChromeSticker& sticker, float cx, float cy,
                              float sizePx, std::uint32_t seed) {
   if (sizePx < 4.0f) return;
+  if (!gChrome.kit.dir.empty()) {
+    static const char* const kNames[] = {"sticker_star.png", "sticker_bolt.png", "sticker_heart.png", "sticker_dot.png", "sticker_cross.png"};
+    const std::size_t which = static_cast<std::size_t>(sticker.shape);
+    int density = 1;
+    SDL_Texture* tex = which < 5 ? kitTexture(renderer, kNames[which], 3, std::max(0.25f, gChrome.scale), &density) : nullptr;
+    if (tex) {
+      // The rendered foil is `stickerFoil` across inside a picture
+      // `stickerImage` across (its border and shadow round it).
+      const float side = sizePx * gChrome.kit.stickerImage / gChrome.kit.stickerFoil;
+      const SDL_FRect dst {cx - side / 2, cy - side / 2, side, side};
+      SDL_RenderTextureRotated(renderer, tex, nullptr, &dst, sticker.angle, nullptr, SDL_FLIP_NONE);
+      (void)seed;
+      return;
+    }
+  }
   const std::vector<SDL_FPoint> unit = stickerOutline(sticker.shape);
   const std::vector<int> tris = triangulate(unit);
   const float ang = sticker.angle * 3.14159265f / 180.0f, ca = std::cos(ang), sa = std::sin(ang);
@@ -874,6 +1169,7 @@ void Primitives::fillChromeSlice(SDL_Renderer* renderer, const SDL_Rect& parent,
 }
 
 void Primitives::forgetChromeRenderer(SDL_Renderer* renderer) {
+  forgetKitTextures(renderer);
   for (auto it = gChromeTextures.begin(); it != gChromeTextures.end();) {
     if (it->first.renderer == renderer) {
       if (it->second) SDL_DestroyTexture(it->second);

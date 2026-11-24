@@ -59,10 +59,13 @@
 
   // SHOW / EDIT, the pair every layout but Classic carries: SHOW hides the
   // editing (and the bottom bar), EDIT brings the inspector and the bar back.
-  void drawLayoutModePair(const SDL_Rect& right) {
+  // `stickerRoom`: the strip left of the pair is empty, so a skin's stickers
+  // can go there (drawLayoutStickers). Rundown's holds the clock.
+  void drawLayoutModePair(const SDL_Rect& right, bool stickerRoom = true) {
     const int segW = std::max(uiScaled(66), measuredTextWidth(fontSmall_, "SHOW") + uiScaled(24));
     SDL_Rect editSeg {right.x + right.w - segW, right.y, segW, right.h};
     SDL_Rect showSeg {editSeg.x - segW, right.y, segW, right.h};
+    if (stickerRoom) layoutStickerStrip_ = {right.x, right.y, std::max(0, showSeg.x - uiScaled(8) - right.x), right.h};
     for (int k = 0; k < 2; ++k) {
       const SDL_Rect& seg = k == 0 ? showSeg : editSeg;
       const bool on = (k == 1) == operatorEditMode_;
@@ -73,7 +76,32 @@
   }
 
   // The layout's whole content area, for every layout but Classic.
+  SDL_Rect layoutStickerStrip_ {};
+
+  // A skin's stickers, slapped in a row next to SHOW / EDIT, the way a
+  // sticker goes on the one bare bit of a panel.
+  void drawLayoutStickers() {
+    const SDL_Rect strip = layoutStickerStrip_;
+    if (strip.w <= 0 || deckboy::render::gChrome.stickers.empty()) return;
+    const float base = static_cast<float>(uiScaled(30));
+    float x = static_cast<float>(strip.x + strip.w);
+    for (const auto& sticker : deckboy::render::gChrome.stickers) {
+      const float size = base * sticker.size;
+      x -= size * 0.75f;
+      if (x - size * 0.6f < static_cast<float>(strip.x)) break;
+      Primitives::drawSticker(controlRenderer_, sticker, x, static_cast<float>(strip.y) + strip.h * 0.5f, size,
+                              static_cast<std::uint32_t>(strip.x * 7 + static_cast<int>(x)));
+      x -= size * 0.85f;
+    }
+  }
+
   void renderDeskLayout(const SDL_Rect& area) {
+    layoutStickerStrip_ = {};
+    renderDeskLayoutBody(area);
+    drawLayoutStickers();
+  }
+
+  void renderDeskLayoutBody(const SDL_Rect& area) {
     if (deskLayoutIs("showpiece")) renderShowpieceLayout(area);
     else if (deskLayoutIs("rundown")) renderRundownLayout(area);
     else if (deskLayoutIs("clipgrid")) renderClipGridLayout(area);
@@ -1081,7 +1109,7 @@
                                        : std::string("ends: a cue holds for its GO");
       drawTextSafe(controlRenderer_, fontBase_, SDL_Rect {x, clockRow.y, clockRow.w - (x - clockRow.x) - uiScaled(160), clockRow.h}, ends, pal.fgSoft);
       const int pillH = std::max(uiScaled(26), textLineHeight(fontSmall_) + uiScaled(10));
-      drawLayoutModePair(SDL_Rect {clockRow.x, clockRow.y + (clockRow.h - pillH) / 2, clockRow.w, pillH});
+      drawLayoutModePair(SDL_Rect {clockRow.x, clockRow.y + (clockRow.h - pillH) / 2, clockRow.w, pillH}, false);
     }
 
     // ── the rundown ──

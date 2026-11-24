@@ -1,0 +1,13 @@
+# Deckboy desk kit (made by pocket-skins/desk_kit.py and desk_kit_post.py). Lengths in UI px at 1x.
+density	4
+tile_density	2
+panel	panel.png	10	26	10
+well	well.png	0	16	10
+cap	cap_shade.png	cap_gloss.png	10	24
+tile_panel	tile_panel.png
+tile_well	tile_well.png
+tile_desk	tile_desk.png
+sticker	68	37.44
+surface_panel	404245FF
+surface_well	323436FF
+surface_desk	7A5840FF
