@@ -627,10 +627,10 @@
         break;
       }
       case QuickAction::CycleEndAction:  cycleSelectedEndAction(); break;
-      case QuickAction::FadeInDec:       adjustSelectedFade(true,  -0.25); break;
-      case QuickAction::FadeInInc:       adjustSelectedFade(true,   0.25); break;
-      case QuickAction::FadeOutDec:      adjustSelectedFade(false, -0.25); break;
-      case QuickAction::FadeOutInc:      adjustSelectedFade(false,  0.25); break;
+      case QuickAction::FadeInDec:       adjustSelectedFade(true,  -dragOr(0.25f, 0.05f)); break;
+      case QuickAction::FadeInInc:       adjustSelectedFade(true,   dragOr(0.25f, 0.05f)); break;
+      case QuickAction::FadeOutDec:      adjustSelectedFade(false, -dragOr(0.25f, 0.05f)); break;
+      case QuickAction::FadeOutInc:      adjustSelectedFade(false,  dragOr(0.25f, 0.05f)); break;
       case QuickAction::InDec:           adjustSelectedIn(-0.5); break;
       case QuickAction::InInc:           adjustSelectedIn( 0.5); break;
       case QuickAction::OutDec:          adjustSelectedOut(-0.5); break;
@@ -819,16 +819,16 @@
         markProjectDirty();
         break;
       case QuickAction::ScaleXDec:
-        adjustSelectedScaleX(-0.05f);
+        adjustSelectedScaleX(-dragOr(0.05f, 0.005f));
         break;
       case QuickAction::ScaleXInc:
-        adjustSelectedScaleX(0.05f);
+        adjustSelectedScaleX(dragOr(0.05f, 0.005f));
         break;
       case QuickAction::ScaleYDec:
-        adjustSelectedScaleY(-0.05f);
+        adjustSelectedScaleY(-dragOr(0.05f, 0.005f));
         break;
       case QuickAction::ScaleYInc:
-        adjustSelectedScaleY(0.05f);
+        adjustSelectedScaleY(dragOr(0.05f, 0.005f));
         break;
       case QuickAction::EditScaleX:
         editSelectedScaleX();
@@ -855,10 +855,10 @@
         editSelectedOffsetY();
         break;
       case QuickAction::RotDec:
-        adjustSelectedRotation(-1.0f);
+        adjustSelectedRotation(-dragOr(1.0f, 0.25f));
         break;
       case QuickAction::RotInc:
-        adjustSelectedRotation(1.0f);
+        adjustSelectedRotation(dragOr(1.0f, 0.25f));
         break;
       case QuickAction::EditRotation:
         editSelectedRotation();

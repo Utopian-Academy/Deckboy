@@ -116,7 +116,9 @@ void nudgeNumericParam(int rawId, int direction) {
     }
     return;
   }
-  const double step = spec->step > 0.0 ? spec->step : (spec->hi - spec->lo) / 50.0;
+  // a drag on a continuous value moves it a 250th of its range a step (fluid)
+  const double step = valueScrubEngaged_ && !spec->integral ? (spec->hi - spec->lo) / 250.0
+                    : spec->step > 0.0 ? spec->step : (spec->hi - spec->lo) / 50.0;
   bool changed = false;
   double shown = 0.0;
   forEachFocusedSelectedCueMutable([&](Cue& each, int) {
@@ -645,6 +647,27 @@ void effectLfoToggleSync(int packed) {
 // An effect's (or audio effect's) amount and dials: 5% a press of - or +,
 // 1% a step while the value is being dragged.
 float effectDialStep() const { return valueScrubEngaged_ ? 0.01f : 0.05f; }
+
+// FLUID NUMBERS (James 2026-11-23: "make them numbers fluid"). A press of
+// - or + moves a value by its button step; a DRAG moves it by a much finer
+// one, a step every 2 px, so it sweeps smoothly instead of in jumps.
+float dragOr(float buttonStep, float dragStep) const { return valueScrubEngaged_ ? dragStep : buttonStep; }
+
+// Whether a drag on this value takes the fine path (2 px a step).
+bool isFluidScrub(QuickAction inc, int param) const {
+  if (isEffectDialAction(inc)) return true;
+  switch (inc) {
+    case QuickAction::ScaleXInc: case QuickAction::ScaleYInc: case QuickAction::RotInc:
+    case QuickAction::FadeInInc: case QuickAction::FadeOutInc:
+      return true;
+    case QuickAction::NumericParamInc: {
+      const NumericParamSpec* spec = numericParamSpec(static_cast<NumericParam>(param));
+      return spec && !spec->integral;
+    }
+    default:
+      return false;
+  }
+}
 
 static bool isEffectDialAction(QuickAction a) {
   switch (a) {

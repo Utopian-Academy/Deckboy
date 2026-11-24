@@ -3003,7 +3003,7 @@ class Pocket {
         n.min = spec->lo;
         n.max = spec->hi;
         n.decimals = spec->integral ? 0 : spec->precision;
-        n.step = spec->step > 0 ? spec->step : (spec->integral ? 1.0 : 0.0);
+        n.step = spec->integral ? 1.0 : 0.0;   // fluid: a slider is not held to the desk's button step
         double now = 0;
         deckboy::params::readNumericParam(cc, pr.id, now);
         n.zero = std::clamp(0.0, n.min, n.max);
