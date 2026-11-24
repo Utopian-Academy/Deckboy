@@ -4873,3 +4873,5 @@ continues after {1}	kontynuuje po {1}
 no effects on the live cue	brak efektów w cue na żywo
 pre-wait {1}  -  {2}  -  then {3}	wstępne czekanie {1}  -  {2}  -  potem {3}
 ' (CLASSIC, OPERATOR, SHOWPIECE, RUNDOWN, CLIPGRID, CUESTACK, CONSOLE or COMPACT)	' (KLASYCZNY, OPERATOR, POKAZOWY, SCENARIUSZ, SIATKA KLIPÓW, STOS CUE, KONSOLA lub KOMPAKTOWY)
+nothing loaded	nic nie wczytano
+add a playlist for deck B	dodaj playlistę dla decka B

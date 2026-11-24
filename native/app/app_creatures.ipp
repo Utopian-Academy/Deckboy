@@ -89,6 +89,10 @@
     for (const SDL_Rect& freeRect : playlistFreeRects_) {
       consider(freeRect, true);
     }
+    // A desk layout's own empty space (app_layouts.ipp, layoutHabitats_).
+    if (!deskLayoutIsClassic()) {
+      for (const auto& h : layoutHabitats_) consider(h.rect, h.ledge);
+    }
     // The floor of the idle program monitor. A ledge, like the playlist: the
     // bottom of the monitor is a surface. Cleared the moment a cue goes live
     // (see below), so nothing is ever drawn over a picture.

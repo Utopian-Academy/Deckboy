@@ -4904,3 +4904,5 @@ continues after {1}	продолжится после {1}
 no effects on the live cue	нет эффектов на кью в эфире
 pre-wait {1}  -  {2}  -  then {3}	предожидание {1}  -  {2}  -  затем {3}
 ' (CLASSIC, OPERATOR, SHOWPIECE, RUNDOWN, CLIPGRID, CUESTACK, CONSOLE or COMPACT)	' (КЛАССИКА, ОПЕРАТОР, ВИТРИНА, СЦЕНАРИЙ, СЕТКА КЛИПОВ, СТЕК CUE, КОНСОЛЬ или КОМПАКТНЫЙ)
+nothing loaded	ничего не загружено
+add a playlist for deck B	добавить плейлист для деки B

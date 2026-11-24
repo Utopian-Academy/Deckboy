@@ -482,6 +482,10 @@
     SDL_SetRenderDrawColor(controlRenderer_,
       red(kShellShadowColor), green(kShellShadowColor), blue(kShellShadowColor), 255);
     SDL_RenderClear(controlRenderer_);
+    deckboy::render::gChrome.time = static_cast<double>(animationNow_) / 1000.0;
+    // The creatures' rule (creaturesShouldBeAwake): still while an output is on.
+    deckboy::render::gChrome.lively = project_.creaturesWhileLive ||
+      std::none_of(project_.outputs.begin(), project_.outputs.end(), [](const OutputTarget& o) { return o.enabled; });
     Primitives::beginSurfaceFrame(controlRenderer_, paletteColorFromRgba(kShellShadowColor));
 
     SDL_Rect shell {kLayoutSpacingUnit, kLayoutSpacingUnit,
@@ -610,6 +614,10 @@
 
     SDL_SetRenderDrawColor(controlRenderer_, red(kShellShadowColor), green(kShellShadowColor), blue(kShellShadowColor), 255);
     SDL_RenderClear(controlRenderer_);
+    deckboy::render::gChrome.time = static_cast<double>(animationNow_) / 1000.0;
+    // The creatures' rule (creaturesShouldBeAwake): still while an output is on.
+    deckboy::render::gChrome.lively = project_.creaturesWhileLive ||
+      std::none_of(project_.outputs.begin(), project_.outputs.end(), [](const OutputTarget& o) { return o.enabled; });
     Primitives::beginSurfaceFrame(controlRenderer_, paletteColorFromRgba(kShellShadowColor));
 
     SDL_Rect shell {kLayoutSpacingUnit, kLayoutSpacingUnit,

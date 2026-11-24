@@ -4901,3 +4901,5 @@ continues after {1}	jatkuu {1} jälkeen
 no effects on the live cue	ei tehosteita suoralla cuella
 pre-wait {1}  -  {2}  -  then {3}	esiodotus {1}  -  {2}  -  sitten {3}
 ' (CLASSIC, OPERATOR, SHOWPIECE, RUNDOWN, CLIPGRID, CUESTACK, CONSOLE or COMPACT)	' (KLASSINEN, KÄYTTÄJÄ, ESITTELY, AJOJÄRJESTYS, KLIPPIRUUDUKKO, CUE-PINO, KONSOLI tai TIIVIS)
+nothing loaded	mitään ei ladattu
+add a playlist for deck B	lisää soittolista deckille B

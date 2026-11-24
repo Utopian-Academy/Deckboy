@@ -4917,3 +4917,5 @@ continues after {1}	يتابع بعد {1}
 no effects on the live cue	بلا مؤثرات على الكيو الذي على الهواء
 pre-wait {1}  -  {2}  -  then {3}	انتظار مسبق {1}  -  {2}  -  ثم {3}
 ' (CLASSIC, OPERATOR, SHOWPIECE, RUNDOWN, CLIPGRID, CUESTACK, CONSOLE or COMPACT)	' (كلاسيكي، المشغّل، واجهة العرض، جدول الفقرات، شبكة المقاطع، مكدس الكيو، وحدة التحكم أو مضغوط)
+nothing loaded	لم يُحمّل شيء
+add a playlist for deck B	إضافة قائمة تشغيل للديك B

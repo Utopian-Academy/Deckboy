@@ -4903,3 +4903,5 @@ continues after {1}	продължава след {1}
 no effects on the live cue	няма ефекти върху живото cue
 pre-wait {1}  -  {2}  -  then {3}	предизчакване {1}  -  {2}  -  после {3}
 ' (CLASSIC, OPERATOR, SHOWPIECE, RUNDOWN, CLIPGRID, CUESTACK, CONSOLE or COMPACT)	' (КЛАСИЧЕСКО, ОПЕРАТОР, ВИТРИНА, СЦЕНАРИЙ, МРЕЖА КЛИПОВЕ, СТЕК С CUE, КОНЗОЛА или КОМПАКТНО)
+nothing loaded	нищо не е заредено
+add a playlist for deck B	добави плейлист за дек B

@@ -4851,3 +4851,5 @@ continues after {1}	fortsætter efter {1}
 no effects on the live cue	ingen effekter på det live cue
 pre-wait {1}  -  {2}  -  then {3}	ventetid før {1}  -  {2}  -  derefter {3}
 ' (CLASSIC, OPERATOR, SHOWPIECE, RUNDOWN, CLIPGRID, CUESTACK, CONSOLE or COMPACT)	' (KLASSISK, OPERATØR, FREMVISNING, KØREPLAN, KLIPGITTER, CUE-STAK, KONSOL eller KOMPAKT)
+nothing loaded	intet indlæst
+add a playlist for deck B	tilføj en playliste til deck B

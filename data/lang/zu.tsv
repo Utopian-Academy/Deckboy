@@ -4889,3 +4889,5 @@ continues after {1}	iqhubeka emva kwe-{1}
 no effects on the live cue	ayikho imiphumela ku-cue ebukhoma
 pre-wait {1}  -  {2}  -  then {3}	ukulinda kuqala {1}  -  {2}  -  bese {3}
 ' (CLASSIC, OPERATOR, SHOWPIECE, RUNDOWN, CLIPGRID, CUESTACK, CONSOLE or COMPACT)	' (OKWAKUDALA, UMSEBENZISI, OKOKUBUKISA, UHLU LOHLELO, IGRIDI YAMAKLIPHU, INQWABA YAMA-CUE, IKHONSOLI noma OKUNCANE)
+nothing loaded	akukho okufakiwe
+add a playlist for deck B	engeza uhlu lokudlala lwe-deck B

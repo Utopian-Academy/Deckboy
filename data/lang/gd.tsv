@@ -4898,3 +4898,5 @@ continues after {1}	leanaidh air às dèidh {1}
 no effects on the live cue	gun èifeachd air a’ chue bheò
 pre-wait {1}  -  {2}  -  then {3}	ro-fheitheamh {1}  -  {2}  -  an uairsin {3}
 ' (CLASSIC, OPERATOR, SHOWPIECE, RUNDOWN, CLIPGRID, CUESTACK, CONSOLE or COMPACT)	' (CLASAIGEACH, OBRAICHE, TAISBEANADH, CLÀR-RUITH, GRIOD CHLIOPAICHEAN, CRUACH CUE, CONSAIL no DLÙTH)
+nothing loaded	cha deach dad a luchdadh
+add a playlist for deck B	cuir liosta-chluich ris airson deck B

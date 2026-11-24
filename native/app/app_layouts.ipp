@@ -17,7 +17,7 @@
 
   // One clickable piece of a layout. Layouts draw immediate-mode like the rest
   // of the desk; the press handler walks this list (handleLayoutClick).
-  enum class LayoutHitKind { Go, Back, Hold, Skip, Transition, HotCue, Black, Row, ModeShow, ModeEdit, Fader, Cut, Clip, StopDeck, Quick, Crossfade, VjOn, PauseAll, Panic, HotCut, Style, Duration, Ftb, Tab };
+  enum class LayoutHitKind { Go, Back, Hold, Skip, Transition, HotCue, Black, Row, ModeShow, ModeEdit, Fader, Cut, Clip, StopDeck, Quick, Crossfade, VjOn, PauseAll, Panic, HotCut, Style, Duration, Ftb, Tab, DeckPlay, DeckSkip, Column, Page };
   struct LayoutHit {
     SDL_Rect rect {};
     LayoutHitKind kind = LayoutHitKind::Go;
@@ -97,9 +97,25 @@
 
   SDL_Rect layoutContentRect_ {};
 
+  // THE LAYOUT'S EMPTY SPACE, for the theme's creatures (app_creatures.ipp).
+  // Classic's habitats (the empty playlist, an idle monitor, the bare
+  // inspector) are Classic's; a layout names its own, the floor under its
+  // last row, and only there may anything walk.
+  struct LayoutHabitat { SDL_Rect rect; bool ledge; };
+  std::vector<LayoutHabitat> layoutHabitats_;
+  void layoutHabitatUnder(const SDL_Rect& list, int top, int rowsH) {
+    const int y = list.y + top + std::max(0, rowsH) + uiScaled(4);
+    const SDL_Rect r {list.x + uiScaled(6), y, list.w - uiScaled(12), list.y + list.h - y - uiScaled(6)};
+    if (r.w > 0 && r.h > 0) layoutHabitats_.push_back({r, true});
+  }
+
   void renderDeskLayout(const SDL_Rect& area) {
     layoutStickerStrip_ = {};
     layoutContentRect_ = area;
+    layoutHabitats_.clear();
+    playlistFreeRects_.clear();
+    idleMonitorRect_ = SDL_Rect {};
+    inspectorBodyRect_ = SDL_Rect {};
     // The per-frame hit lists the inspector fills. renderMainPanel clears
     // them in Classic; a layout never runs it, so without this they kept the
     // last Classic frame's buttons (pressable, unseen) and EDIT added the
@@ -355,6 +371,7 @@
     first = std::clamp(first, 0, std::max(0, count - rowsFit));
     SDL_Rect clip {list.x + 1, list.y + headH + 1, list.w - 2, list.h - headH - 2};
     SDL_SetRenderClipRect(controlRenderer_, &clip);
+    layoutHabitatUnder(list, headH + 1, std::min(count - first, rowsFit) * rowH);   // creatures live under the last row
     for (int i = first; i < count && i < first + rowsFit; ++i) {
       const Cue& cue = deck.cues[static_cast<std::size_t>(i)];
       SDL_Rect row {list.x + 1, list.y + headH + 1 + (i - first) * rowH, list.w - 2, rowH};
@@ -510,6 +527,10 @@
         }
         case LayoutHitKind::Panic: triggerPanicProfile(); break;
         case LayoutHitKind::HotCut: layoutHotCut(hit.a, hit.b); break;
+        case LayoutHitKind::DeckPlay: layoutDeckPlay(hit.a); break;
+        case LayoutHitKind::DeckSkip: layoutDeckSkip(hit.a, hit.b); break;
+        case LayoutHitKind::Column: layoutFireColumn(hit.a); break;
+        case LayoutHitKind::Page: clipGridPage_ = std::max(0, clipGridPage_ + hit.a * 4); break;
         case LayoutHitKind::Style: {
           const auto& styles = consoleStyles();
           const int d = project_.focusedDeckIndex;
@@ -881,8 +902,22 @@
       SDL_Rect dialArea {moving.x, moving.y + moving.h + gap, moving.w, std::max(0, mid.y + mid.h - moving.y - moving.h - gap)};
       const int dia = std::min(dialArea.w, dialArea.h);
       if (dia > uiScaled(80)) {
-        const float cx = dialArea.x + dialArea.w / 2.0f, cy = dialArea.y + dialArea.h / 2.0f;
-        const float rOut = dia / 2.0f - 8.0f, ring = std::max(6.0f, rOut * 0.09f);
+        // GO up and to the right, BACK below it to the left: Pocket's pair.
+        const float backR = std::max(static_cast<float>(uiScaled(22)), dia * 0.16f);
+        const float shift = backR * 0.55f;
+        const float cx = dialArea.x + dialArea.w / 2.0f + shift, cy = dialArea.y + dialArea.h / 2.0f - shift;
+        const float rOut = dia / 2.0f - 8.0f - shift, ring = std::max(6.0f, rOut * 0.09f);
+        {
+          const float reach = (rOut + backR * 0.75f) * 0.7071f;
+          const float bx = cx - reach, by = cy + reach;
+          drawRing(bx, by, backR + 4, backR - 4, 1.0, pal.light, 30);
+          drawRing(bx, by, backR, 0.0f, 1.0, pal.deep, 235);
+          drawRing(bx, by, backR, backR - std::max(3.0f, ring * 0.5f), 1.0, pal.light, 150);
+          const int side = static_cast<int>(backR * 2);
+          const SDL_Rect backFace {static_cast<int>(bx - backR), static_cast<int>(by - backR), side, side};
+          drawCenteredTextSafe(controlRenderer_, layoutFitFont(fontBase_, "BACK", side - uiScaled(10)), backFace, "BACK", pal.light);
+          layoutHit(backFace, LayoutHitKind::Back);
+        }
         double frac = 0.0;
         const double left = layoutLiveRemaining(&frac);
         drawRing(cx, cy, rOut + 7, rOut - ring - 7, 1.0, pal.light, 34);
@@ -1175,6 +1210,7 @@
     first = std::clamp(first, 0, std::max(0, count - rowsFit));
     SDL_Rect clip {list.x + 1, list.y + headH + 1, list.w - 2, list.h - headH - 2};
     SDL_SetRenderClipRect(controlRenderer_, &clip);
+    layoutHabitatUnder(list, headH + 1, std::min(count - first, rowsFit) * rowH);   // creatures live under the last row
     for (int i = first; i < count && i < first + rowsFit; ++i) {
       const Cue& cue = deck.cues[static_cast<std::size_t>(i)];
       SDL_Rect r {list.x + 1, list.y + headH + 1 + (i - first) * rowH, list.w - 2, rowH};
@@ -1209,10 +1245,14 @@
 
   // ── CLIP GRID ─────────────────────────────────────────────────────────────
   //
-  // For VJs (the board's "Clip Grid"): every playlist is a column of clips,
-  // fired with one press (on the beat when quantise is on, the desk's own
-  // take); the tempo, Link and quantise above; the programme, the live cue's
-  // effects and the crossfader at the side.
+  // For VJs, laid out the way a VJ's hands already know from DJ software:
+  // two DECKS (the crossfader's A and B), each with its own picture, its
+  // progress, its transport and its channel fader; the MIXER between them
+  // with the output, the tempo and the crossfader; and the BROWSER below,
+  // every playlist a row of clips, a column fired as one scene (on the beat
+  // when QUANTISE is on).
+
+  int clipGridPage_ = 0;   // the browser's first column
 
   // Fire one clip: its playlist becomes the focus and takes it.
   void layoutFireClip(int deckIndex, int cueIndex) {
@@ -1226,190 +1266,347 @@
     stopTransport();
   }
 
+  // A column: clip `col` of every playlist that has one, together. With
+  // QUANTISE on, the first take is held for the beat and the rest are held
+  // with it (vjSceneDecks_), so the whole scene lands on one beat.
+  void layoutFireColumn(int col) {
+    const int restore = project_.focusedDeckIndex;
+    vjSceneDecks_.clear();
+    bool first = true, held = false;
+    for (int d = 0; d < static_cast<int>(project_.decks.size()); ++d) {
+      if (col < 0 || col >= static_cast<int>(project_.decks[static_cast<std::size_t>(d)].cues.size())) continue;
+      if (!setFocusedDeckIndex(d)) continue;
+      selectCueInDeck(d, col, false, false);
+      if (first) {
+        jumpSelectedCue();
+        held = vjTakePending_;
+        first = false;
+      } else if (held) {
+        vjSceneDecks_.push_back(d);
+      } else {
+        jumpSelectedCue();
+      }
+    }
+    setFocusedDeckIndex(restore);
+  }
+
+  void layoutDeckPlay(int deckIndex) {
+    if (!setFocusedDeckIndex(deckIndex)) return;
+    const MediaEngine* engine = mediaEngineForDeck(deckIndex);
+    if (engine && activeCuePtr(deckIndex) && engine->state() != TransportState::Paused &&
+        engine->state() != TransportState::Stopped) pauseTransport();
+    else playTransport();
+  }
+
+  void layoutDeckSkip(int deckIndex, int step) {
+    if (!setFocusedDeckIndex(deckIndex)) return;
+    if (step > 0) skipToNextCue(true);
+    else skipToPrevCue(true);
+  }
+
+  // How far the deck's live cue is: seconds left (-1: it holds), and the fraction played.
+  double layoutDeckRemaining(int deckIndex, double* fraction) const {
+    if (fraction) *fraction = 0.0;
+    const Cue* live = activeCuePtr(deckIndex);
+    const MediaEngine* engine = mediaEngineForDeck(deckIndex);
+    if (!live || !engine) return -1.0;
+    double end = live->outPointSeconds > 0.001 ? live->outPointSeconds : live->duration;
+    if (end <= 0.0 && live->stillDurationSeconds > 0.0) end = live->stillDurationSeconds;
+    if (end <= 0.0) return -1.0;
+    const double start = live->inPointSeconds;
+    const double pos = engine->position();
+    if (fraction && end > start) *fraction = std::clamp((pos - start) / (end - start), 0.0, 1.0);
+    return std::max(0.0, end - pos);
+  }
+
+  // One clip's picture in `pic`: the cue's still, or its kind in words.
+  void drawClipStill(const Cue& cue, int deckIndex, int cueIndex, const SDL_Rect& pic) {
+    if (pic.w <= 0 || pic.h <= 0) return;
+    SDL_Texture* still = cueRowStillTexture(cue);
+    if (!still && (cue.kind == CueKind::Video || cue.kind == CueKind::Image)) wantCueStill(cueVisualCacheKey(cue), deckIndex, cueIndex);
+    if (still) {
+      float tw = 0, th = 0;
+      SDL_GetTextureSize(still, &tw, &th);
+      const double s = std::max(pic.w / std::max(1.0f, tw), pic.h / std::max(1.0f, th));   // fill the cell
+      const float dw = static_cast<float>(tw * s), dh = static_cast<float>(th * s);
+      SDL_SetRenderClipRect(controlRenderer_, &pic);
+      drawTextureSmooth(still, SDL_FRect {pic.x + (pic.w - dw) / 2, pic.y + (pic.h - dh) / 2, dw, dh});
+      SDL_SetRenderClipRect(controlRenderer_, nullptr);
+    } else {
+      drawCenteredTextSafe(controlRenderer_, fontSmall_, pic, cueKindLabel(cue.kind), pal.fgSoft);
+    }
+  }
+
   void renderClipGridLayout(const SDL_Rect& area) {
     layoutHits_.clear();
     layoutBlackRect_ = {};
     const int gap = uiScaled(10);
     const SDL_Color red {220, 50, 45, 255}, amber {240, 180, 41, 255};
+    const int deckCount = static_cast<int>(project_.decks.size());
+    const bool twoDecks = project_.vjModeEnabled && deckCount > 1;
+    const int deckA = twoDecks ? std::clamp(project_.vjDeckA, 0, deckCount - 1) : 0;
+    const int deckB = twoDecks ? std::clamp(project_.vjDeckB, 0, deckCount - 1) : (deckCount > 1 ? 1 : -1);
+    const int labelH = std::max(uiScaled(14), textLineHeight(fontSmall_));
+    TTF_Font* big = fontLarge_ ? fontLarge_ : fontBase_;
+    TTF_Font* head = fontPixelTitle_ ? fontPixelTitle_ : big;
 
-    // ── the tempo row ──
-    const int barH = std::max(uiScaled(40), textLineHeight(fontBase_) + uiScaled(16));
-    SDL_Rect bar {area.x, area.y, area.w, barH};
-    {
-      int x = bar.x;
-      auto button = [&](int w, const std::string& label, bool on, QuickAction action) {
-        SDL_Rect r {x, bar.y, w, bar.h};
-        drawLayoutButton(r, label, "", on ? pal.light : pal.tile, pal.deep, fontBase_);
-        layoutHit(r, LayoutHitKind::Quick, static_cast<int>(action));
+    const int topH = std::clamp(area.h * 50 / 100, uiScaled(260), uiScaled(640));
+    SDL_Rect top {area.x, area.y, area.w, topH};
+    SDL_Rect browser {area.x, area.y + topH + gap, area.w, std::max(0, area.h - topH - gap)};
+    const int mixW = std::clamp(area.w * 30 / 100, uiScaled(300), uiScaled(700));
+    const int deckW = (top.w - mixW - gap * 2) / 2;
+    SDL_Rect panelA {top.x, top.y, deckW, top.h};
+    SDL_Rect mixer {top.x + deckW + gap, top.y, mixW, top.h};
+    SDL_Rect panelB {mixer.x + mixW + gap, top.y, top.x + top.w - mixer.x - mixW - gap, top.h};
+
+    // ── a deck: letter and name, its picture, how far, transport, channel fader ──
+    auto drawDeck = [&](const SDL_Rect& panel, int d, const char* letter, bool faderOnRight) {
+      drawUIPanel(panel, pal.tile, pal.deep, pal.mid);
+      const int pad = uiScaled(10);
+      if (d < 0 || d >= deckCount) {
+        drawCenteredTextSafe(controlRenderer_, fontBase_, panel, "add a playlist for deck B", pal.fgSoft);
+        return;
+      }
+      const Deck& dk = project_.decks[static_cast<std::size_t>(d)];
+      const bool focused = d == project_.focusedDeckIndex;
+      const int faderW = uiScaled(46);
+      SDL_Rect inner {panel.x + pad + (faderOnRight ? 0 : faderW + pad), panel.y + pad,
+                      panel.w - pad * 3 - faderW, panel.h - pad * 2};
+      // header: the big letter, the playlist, the live clip
+      const int headH = std::max(textLineHeight(head), textLineHeight(fontBase_) + labelH) + uiScaled(4);
+      const int letterW = measuredTextWidth(head, "W") + uiScaled(12);
+      drawTextSafe(controlRenderer_, head, SDL_Rect {inner.x, inner.y, letterW, headH}, letter, focused ? pal.light : pal.fgSoft);
+      const Cue* live = activeCuePtr(d);
+      drawTextSafe(controlRenderer_, fontSmall_, SDL_Rect {inner.x + letterW, inner.y, inner.w - letterW, labelH},
+                   ellipsizeToPixelWidth(fontSmall_, dk.name, inner.w - letterW), pal.fgSoft);
+      drawTextSafe(controlRenderer_, fontBase_, SDL_Rect {inner.x + letterW, inner.y + labelH, inner.w - letterW, headH - labelH},
+                   ellipsizeToPixelWidth(fontBase_, live ? live->name : std::string("nothing loaded"), inner.w - letterW), pal.fg);
+      // transport along the bottom; progress above it; the picture fills the rest
+      const int btnH = std::max(uiScaled(40), textLineHeight(fontBase_) + uiScaled(16));
+      const int progH = std::max(uiScaled(30), textLineHeight(big) + uiScaled(6));
+      SDL_Rect pic {inner.x, inner.y + headH + uiScaled(6), inner.w,
+                    std::max(0, inner.h - headH - progH - btnH - uiScaled(6) - gap * 2)};
+      MultiviewTile feed;
+      feed.source = "deck:" + std::to_string(d);
+      drawMonitorTile(pic, feed, d, false, 0, 0);
+      // progress: a bar of the clip with the playhead, the time left in big type
+      double frac = 0.0;
+      const double left = layoutDeckRemaining(d, &frac);
+      SDL_Rect prog {inner.x, pic.y + pic.h + gap, inner.w, progH};
+      const int timeW = measuredTextWidth(big, "-88:88.8") + uiScaled(10);
+      SDL_Rect bar {prog.x, prog.y + prog.h / 2 - uiScaled(5), prog.w - timeW - uiScaled(8), uiScaled(10)};
+      Primitives::fillRect(controlRenderer_, bar, pal.deep);
+      Primitives::fillRect(controlRenderer_, SDL_Rect {bar.x, bar.y, static_cast<int>(bar.w * frac), bar.h}, focused ? pal.light : pal.mid);
+      Primitives::fillRect(controlRenderer_, SDL_Rect {bar.x + static_cast<int>(bar.w * frac) - 1, bar.y - uiScaled(6), 3, bar.h + uiScaled(12)}, red);
+      const bool ending = left >= 0.0 && left < 5.0;
+      drawTextSafe(controlRenderer_, big, SDL_Rect {prog.x + prog.w - timeW, prog.y, timeW, prog.h},
+                   left >= 0.0 ? "-" + formatSeconds(left) : std::string("hold"), ending ? red : pal.light);
+      // transport: back, play / pause, stop, next
+      const MediaEngine* engine = mediaEngineForDeck(d);
+      // Running unless paused or stopped: a generated picture (a pattern, a
+      // text) moves without the engine calling itself Playing.
+      const bool playing = engine && live && engine->state() != TransportState::Paused && engine->state() != TransportState::Stopped;
+      SDL_Rect row {inner.x, prog.y + prog.h + gap, inner.w, btnH};
+      const int sideB = (row.w - gap * 3) / 5;
+      const int playW = row.w - gap * 3 - sideB * 3;
+      int x = row.x;
+      auto btn = [&](int w, const std::string& label, SDL_Color fill, LayoutHitKind kind, int b) {
+        SDL_Rect r {x, row.y, w, row.h};
+        drawLayoutButton(r, label, "", fill, pal.deep, layoutFitFont(fontBase_, label, w - uiScaled(8)));
+        layoutHit(r, kind, d, b);
         x += w + gap;
       };
-      button(uiScaled(80), "TAP", false, QuickAction::VjTapTempo);
+      btn(sideB, "|<", pal.tile, LayoutHitKind::DeckSkip, -1);
+      btn(playW, playing ? "PAUSE" : "PLAY", playing ? paletteMix(pal.tile, pal.light, 0.5) : pal.light, LayoutHitKind::DeckPlay, 0);
+      btn(sideB, "STOP", pal.tile, LayoutHitKind::StopDeck, 0);
+      btn(sideB, ">|", pal.tile, LayoutHitKind::DeckSkip, 1);
+      // the channel fader: this playlist's opacity
+      SDL_Rect rail {faderOnRight ? panel.x + panel.w - pad - faderW : panel.x + pad, inner.y + headH, faderW,
+                     std::max(0, inner.h - headH - btnH - gap)};
+      const int railW = uiScaled(8);
+      SDL_Rect groove {rail.x + (rail.w - railW) / 2, rail.y + uiScaled(8), railW, std::max(0, rail.h - uiScaled(16) - labelH)};
+      Primitives::fillRect(controlRenderer_, groove, pal.deep);
+      const double v = std::clamp(static_cast<double>(dk.playlistOpacity), 0.0, 1.0);
+      const int capH = uiScaled(22);
+      const int cy = groove.y + static_cast<int>((groove.h - capH) * (1.0 - v));
+      drawUIPanel(SDL_Rect {rail.x + uiScaled(4), cy, rail.w - uiScaled(8), capH}, pal.light, pal.deep, pal.mid);
+      char pct[16];
+      std::snprintf(pct, sizeof pct, "%d", static_cast<int>(std::lround(v * 100)));
+      drawCenteredTextSafe(controlRenderer_, fontSmall_, SDL_Rect {rail.x, groove.y + groove.h + uiScaled(4), rail.w, labelH}, pct, pal.fgSoft);
+      layoutHit(SDL_Rect {rail.x, groove.y, rail.w, groove.h}, LayoutHitKind::Fader, d);
+    };
+    drawDeck(panelA, deckA, "A", true);
+    drawDeck(panelB, deckB, "B", false);
+
+    // ── the mixer: the output, the tempo, the crossfader ──
+    drawUIPanel(mixer, pal.shellInner, pal.deep, pal.mid);
+    {
+      const int pad = uiScaled(10);
+      const int pillH = std::max(uiScaled(26), textLineHeight(fontSmall_) + uiScaled(10));
+      drawLayoutModePair(SDL_Rect {mixer.x + pad, mixer.y + pad / 2, mixer.w - pad * 2, pillH});
+      const int xfH = std::max(uiScaled(70), textLineHeight(head) + uiScaled(40));
+      const int tempoH = std::max(uiScaled(44), textLineHeight(big) + uiScaled(12));
+      const int btnH = std::max(uiScaled(34), textLineHeight(fontBase_) + uiScaled(12));
+      SDL_Rect out {mixer.x + pad, mixer.y + pillH + pad, mixer.w - pad * 2,
+                    std::max(0, mixer.h - pillH - pad * 2 - tempoH - btnH - xfH - gap * 3)};
+      MultiviewTile feed;
+      feed.source = "programme";
+      drawMonitorTile(out, feed, -1, false, labelH, 0);
+      // the tempo: BPM, the bar's four beats
+      SDL_Rect tempo {out.x, out.y + out.h + gap, out.w, tempoH};
+      char bpm[24];
+      std::snprintf(bpm, sizeof bpm, "%.1f", std::clamp(project_.vjTempoBpm, 20.0, 300.0));
+      const int bpmW = measuredTextWidth(big, "888.8") + uiScaled(8);
+      drawTextSafe(controlRenderer_, big, SDL_Rect {tempo.x, tempo.y, bpmW, tempo.h}, bpm, pal.light);
+      drawTextSafe(controlRenderer_, fontSmall_, SDL_Rect {tempo.x + bpmW, tempo.y, uiScaled(44), tempo.h}, "BPM", pal.fgSoft);
       {
-        TTF_Font* big = fontLarge_ ? fontLarge_ : fontBase_;
-        char bpm[24];
-        std::snprintf(bpm, sizeof bpm, "%.1f", std::clamp(project_.vjTempoBpm, 20.0, 300.0));
-        const int w = measuredTextWidth(big, "888.8") + uiScaled(12);
-        drawTextSafe(controlRenderer_, big, SDL_Rect {x, bar.y, w, bar.h}, bpm, pal.light);
-        x += w;
         const double beats = vjBeatCount();
         int now = static_cast<int>(std::floor(beats)) % 4;
         if (now < 0) now += 4;
-        const int d = uiScaled(14);
+        const double within = beats - std::floor(beats);
+        const int lx = tempo.x + bpmW + uiScaled(48);
+        const int lw = (tempo.x + tempo.w - lx - uiScaled(5) * 3) / 4;
         for (int i = 0; i < 4; ++i) {
-          Primitives::fillRect(controlRenderer_, SDL_Rect {x + i * (d + uiScaled(5)), bar.y + (bar.h - d) / 2, d, d},
-                               i == now ? amber : paletteMix(pal.tile, pal.deep, 0.4));
+          SDL_Rect light {lx + i * (lw + uiScaled(5)), tempo.y + tempo.h / 4, lw, tempo.h / 2};
+          const bool on = i == now;
+          const SDL_Color c = on ? paletteMix(amber, pal.deep, static_cast<float>(within * 0.7)) : paletteMix(pal.tile, pal.deep, 0.4);
+          if (on && within < 0.25) drawGlowAround(light, amber, 3, 2);
+          Primitives::fillRect(controlRenderer_, light, c);
         }
-        x += 4 * (d + uiScaled(5)) + gap;
       }
-      std::string link = project_.vjLinkEnabled ? deckboy::core::i18n::format("LINK {1}", {std::to_string(link_.peers())})
-                                                : std::string("LINK");
-      button(std::max(uiScaled(100), measuredTextWidth(fontBase_, link) + uiScaled(24)), link, project_.vjLinkEnabled, QuickAction::VjToggleLink);
-      const std::string quant = deckboy::vjclock::quantiseLabel({project_.vjQuantiseTakes, project_.vjQuantiseBeats});
-      button(std::max(uiScaled(150), measuredTextWidth(fontBase_, quant) + uiScaled(24)), quant, project_.vjQuantiseTakes, QuickAction::VjCycleQuantise);
-      // SHOW / EDIT at the right end
-      drawLayoutModePair(SDL_Rect {x, bar.y + uiScaled(4), bar.x + bar.w - x, bar.h - uiScaled(8)});
-    }
-
-    SDL_Rect body {area.x, area.y + barH + gap, area.w, std::max(0, area.h - barH - gap)};
-    const int sideW = std::clamp(body.w * 28 / 100, uiScaled(300), uiScaled(560));
-    SDL_Rect side {body.x + body.w - sideW, body.y, sideW, body.h};
-    SDL_Rect grid {body.x, body.y, std::max(0, body.w - sideW - gap), body.h};
-
-    // ── the grid: a column per playlist ──
-    drawUIPanel(grid, pal.tile, pal.deep, pal.mid);
-    {
-      const int deckCount = static_cast<int>(project_.decks.size());
-      const int cols = std::clamp(deckCount, 1, 6);
-      const int pad = uiScaled(8);
-      const int colW = (grid.w - pad * (cols + 1)) / cols;
-      const int headH = textLineHeight(fontSmall_) + uiScaled(8);
-      const int stopH = std::max(uiScaled(28), textLineHeight(fontSmall_) + uiScaled(10));
-      const int tileH = std::max(uiScaled(70), colW * 9 / 16 + textLineHeight(fontSmall_) + uiScaled(10));
-      const int labelH = textLineHeight(fontSmall_) + uiScaled(6);
-      for (int d = 0; d < cols; ++d) {
-        const Deck& dk = project_.decks[static_cast<std::size_t>(d)];
-        const int x = grid.x + pad + d * (colW + pad);
-        char pct[16];
-        std::snprintf(pct, sizeof pct, "%d%%", static_cast<int>(std::lround(dk.playlistOpacity * 100)));
-        drawTextSafe(controlRenderer_, fontSmall_, SDL_Rect {x, grid.y + uiScaled(4), colW - uiScaled(40), headH},
-                     ellipsizeToPixelWidth(fontSmall_, dk.name, colW - uiScaled(44)), d == project_.focusedDeckIndex ? pal.light : pal.fgSoft);
-        drawTextSafe(controlRenderer_, fontSmall_, SDL_Rect {x + colW - uiScaled(40), grid.y + uiScaled(4), uiScaled(40), headH}, pct, pal.fgSoft);
-        const int top = grid.y + headH + uiScaled(6);
-        const int bottom = grid.y + grid.h - stopH - pad * 2;
-        const int fit = std::max(1, (bottom - top + pad) / (tileH + pad));
-        const int count = static_cast<int>(dk.cues.size());
-        // keep the live clip on screen
-        int first = std::clamp(dk.activeIndex - fit / 2, 0, std::max(0, count - fit));
-        int nextIndex = -1;
-        previewCuePtr(d, &nextIndex);
-        for (int i = first; i < count && i < first + fit; ++i) {
-          const Cue& cue = dk.cues[static_cast<std::size_t>(i)];
-          SDL_Rect tile {x, top + (i - first) * (tileH + pad), colW, tileH};
-          const bool live = i == dk.activeIndex;
-          const bool queued = vjTakeDeck_ == d && i == dk.selectedIndex && !live && project_.vjQuantiseTakes;
-          drawUIPanel(tile, pal.deep, live ? red : (queued ? amber : pal.deep), pal.mid);
-          if (live || queued) {
-            const SDL_Color c = live ? red : amber;
-            const int t = std::max(2, uiScaled(2));
-            Primitives::fillRect(controlRenderer_, SDL_Rect {tile.x, tile.y, tile.w, t}, c);
-            Primitives::fillRect(controlRenderer_, SDL_Rect {tile.x, tile.y + tile.h - t, tile.w, t}, c);
-            Primitives::fillRect(controlRenderer_, SDL_Rect {tile.x, tile.y, t, tile.h}, c);
-            Primitives::fillRect(controlRenderer_, SDL_Rect {tile.x + tile.w - t, tile.y, t, tile.h}, c);
-          }
-          SDL_Rect pic {tile.x + uiScaled(3), tile.y + uiScaled(3), tile.w - uiScaled(6), tile.h - labelH - uiScaled(4)};
-          SDL_Texture* still = cueRowStillTexture(cue);
-          if (!still && (cue.kind == CueKind::Video || cue.kind == CueKind::Image)) wantCueStill(cueVisualCacheKey(cue), d, i);
-          if (still && pic.w > 0 && pic.h > 0) {
-            float tw = 0, th = 0;
-            SDL_GetTextureSize(still, &tw, &th);
-            const double s = std::min(pic.w / std::max(1.0f, tw), pic.h / std::max(1.0f, th));
-            const float dw = static_cast<float>(tw * s), dh = static_cast<float>(th * s);
-            drawTextureSmooth(still, SDL_FRect {pic.x + (pic.w - dw) / 2, pic.y + (pic.h - dh) / 2, dw, dh});
-          } else if (pic.w > 0 && pic.h > 0) {
-            drawCenteredTextSafe(controlRenderer_, fontSmall_, pic, cueKindLabel(cue.kind), pal.fgSoft);
-          }
-          SDL_Rect label {tile.x + uiScaled(6), tile.y + tile.h - labelH, tile.w - uiScaled(12), labelH};
-          std::string tag = live ? "LIVE" : (queued ? "NEXT BEAT" : (i == nextIndex && d == project_.focusedDeckIndex ? "NEXT" : ""));
-          const int tagW = tag.empty() ? 0 : measuredTextWidth(fontSmall_, tag) + uiScaled(6);
-          drawTextSafe(controlRenderer_, fontSmall_, SDL_Rect {label.x, label.y, label.w - tagW, label.h},
-                       ellipsizeToPixelWidth(fontSmall_, cue.name, label.w - tagW), pal.light);
-          if (!tag.empty()) {
-            drawTextSafe(controlRenderer_, fontSmall_, SDL_Rect {label.x + label.w - tagW, label.y, tagW, label.h}, tag, live ? red : amber);
-          }
-          layoutHit(tile, LayoutHitKind::Clip, d, i);
-        }
-        SDL_Rect stop {x, grid.y + grid.h - stopH - pad, colW, stopH};
-        drawLayoutButton(stop, "STOP", "", pal.tile, pal.deep, fontSmall_);
-        layoutHit(stop, LayoutHitKind::StopDeck, d);
+      SDL_Rect row {out.x, tempo.y + tempo.h + gap, out.w, btnH};
+      {
+        const std::string link = project_.vjLinkEnabled ? deckboy::core::i18n::format("LINK {1}", {std::to_string(link_.peers())})
+                                                        : std::string("LINK");
+        const std::string quant = deckboy::vjclock::quantiseLabel({project_.vjQuantiseTakes, project_.vjQuantiseBeats});
+        const int w3 = (row.w - gap * 2) / 3;
+        int x = row.x;
+        auto btn = [&](int w, const std::string& label, bool on, QuickAction action) {
+          SDL_Rect r {x, row.y, w, row.h};
+          drawLayoutButton(r, label, "", on ? pal.light : pal.tile, pal.deep, layoutFitFont(fontBase_, label, w - uiScaled(8)));
+          layoutHit(r, LayoutHitKind::Quick, static_cast<int>(action));
+          x += w + gap;
+        };
+        btn(w3, "TAP", false, QuickAction::VjTapTempo);
+        btn(w3, link, project_.vjLinkEnabled, QuickAction::VjToggleLink);
+        btn(row.x + row.w - x, quant, project_.vjQuantiseTakes, QuickAction::VjCycleQuantise);
+      }
+      SDL_Rect xf {out.x, row.y + row.h + gap, out.w, std::max(0, mixer.y + mixer.h - pad - row.y - row.h - gap)};
+      if (twoDecks) {
+        // A and B at the ends of the rail, the rail between them
+        const int letterW = measuredTextWidth(head, "W") + uiScaled(8);
+        const int railY = xf.y + xf.h / 2;
+        drawCenteredTextSafe(controlRenderer_, head, SDL_Rect {xf.x, xf.y, letterW, xf.h}, "A", pal.fgSoft);
+        drawCenteredTextSafe(controlRenderer_, head, SDL_Rect {xf.x + xf.w - letterW, xf.y, letterW, xf.h}, "B", pal.fgSoft);
+        SDL_Rect rail {xf.x + letterW, railY - uiScaled(5), xf.w - letterW * 2, uiScaled(10)};
+        Primitives::fillRect(controlRenderer_, rail, pal.deep);
+        const int capW = uiScaled(44);
+        const int cx = rail.x + static_cast<int>((rail.w - capW) * std::clamp(project_.vjMixPosition, 0.0, 1.0));
+        drawUIPanel(SDL_Rect {cx, rail.y - uiScaled(12), capW, rail.h + uiScaled(24)}, pal.light, pal.deep, pal.mid);
+        layoutHit(SDL_Rect {rail.x, rail.y - uiScaled(16), rail.w, rail.h + uiScaled(32)}, LayoutHitKind::Crossfade);
+      } else {
+        drawLayoutButton(xf, "VJ MODE", deckCount > 1 ? "deck A, deck B and a crossfader" : "add a second playlist first",
+                         pal.tile, pal.deep, fontBase_);
+        if (deckCount > 1) layoutHit(xf, LayoutHitKind::VjOn);
       }
     }
 
-    // ── the side: programme, effects, crossfader ──
+    // ── the browser: every playlist a row of clips; EDIT puts the inspector here ──
     if (operatorEditMode_) {
-      renderInspectorBody(side);
+      renderInspectorBody(browser);
       return;
     }
-    const int labelH = std::max(uiScaled(14), textLineHeight(fontSmall_));
-    const int monH = std::min(side.h * 40 / 100, side.w * 9 / 16 + labelH + uiScaled(8));
-    MultiviewTile feed;
-    feed.source = "programme";
-    drawMonitorTile(SDL_Rect {side.x, side.y, side.w, monH}, feed, -1, false, labelH, uiScaled(7));
-    const int xfH = std::max(uiScaled(64), labelH * 2 + uiScaled(30));
-    SDL_Rect fxPanel {side.x, side.y + monH + gap, side.w, std::max(0, side.h - monH - xfH - gap * 2)};
-    drawUIPanel(fxPanel, pal.tile, pal.deep, pal.mid);
+    drawUIPanel(browser, pal.tile, pal.deep, pal.mid);
     {
-      const Cue* live = activeCuePtr();
-      const int pad = uiScaled(10);
-      const int rowH = std::max(uiScaled(36), textLineHeight(fontBase_) + uiScaled(14));
-      std::string title = "EFFECTS";
-      if (live) title += "  " + live->name;
-      drawTextSafe(controlRenderer_, fontSmall_, SDL_Rect {fxPanel.x + pad, fxPanel.y + uiScaled(4), fxPanel.w - pad * 2, labelH},
-                   ellipsizeToPixelWidth(fontSmall_, title, fxPanel.w - pad * 2), pal.fgSoft);
-      int y = fxPanel.y + labelH + uiScaled(10);
-      if (!live || live->effects.empty()) {
-        drawTextSafe(controlRenderer_, fontSmall_, SDL_Rect {fxPanel.x + pad, y, fxPanel.w - pad * 2, labelH},
-                     live ? "no effects on the live cue" : "nothing live", pal.inkSoft);
-      } else {
-        for (const auto& fx : live->effects) {
-          if (y + rowH > fxPanel.y + fxPanel.h - pad) break;
-          SDL_Rect r {fxPanel.x + pad, y, fxPanel.w - pad * 2, rowH - uiScaled(6)};
-          drawUIPanel(r, pal.shellInner, pal.deep, pal.mid);
-          const int nameW = r.w * 40 / 100;
-          drawTextSafe(controlRenderer_, fontBase_, SDL_Rect {r.x + uiScaled(8), r.y, nameW, r.h},
-                       ellipsizeToPixelWidth(fontBase_, deckboy::effects::cueEffectLabel(fx.kind), nameW), pal.fg);
-          // the amount as a bar; a ~ when something on it moves
-          SDL_Rect meter {r.x + nameW + uiScaled(12), r.y + r.h / 2 - uiScaled(4), r.w - nameW - uiScaled(60), uiScaled(8)};
-          Primitives::fillRect(controlRenderer_, meter, pal.deep);
-          Primitives::fillRect(controlRenderer_, SDL_Rect {meter.x, meter.y, static_cast<int>(meter.w * std::clamp(fx.amount, 0.0f, 1.0f)), meter.h}, pal.light);
-          bool moving = false;
-          for (const auto& l : fx.lfo) moving = moving || l.on;
-          if (moving) {
-            drawTextSafe(controlRenderer_, fontBase_, SDL_Rect {r.x + r.w - uiScaled(36), r.y, uiScaled(30), r.h}, "~", amber);
-          }
-          y += rowH;
+      const int pad = uiScaled(8);
+      const int headH = std::max(uiScaled(30), textLineHeight(fontSmall_) + uiScaled(12));
+      const int stripW = std::clamp(browser.w / 9, uiScaled(110), uiScaled(200));
+      int maxClips = 0;
+      for (const auto& dk : project_.decks) maxClips = std::max(maxClips, static_cast<int>(dk.cues.size()));
+      const int rowsWanted = std::max(1, deckCount);
+      const int rowH = std::clamp((browser.h - headH - pad * 2) / rowsWanted - pad, uiScaled(56), uiScaled(220));
+      const int cellW = std::max(uiScaled(80), rowH * 16 / 9);
+      const int gridX = browser.x + pad + stripW + pad;
+      const int pageW = uiScaled(40);
+      const int cols = std::max(1, (browser.x + browser.w - pad - gridX + pad) / (cellW + pad));
+      clipGridPage_ = std::clamp(clipGridPage_, 0, std::max(0, maxClips - cols));
+      const int firstCol = clipGridPage_;
+      // header: page arrows, then a number above each column: press to fire the column
+      {
+        SDL_Rect prev {browser.x + pad, browser.y + pad, pageW, headH - pad};
+        SDL_Rect next {prev.x + pageW + uiScaled(4), prev.y, pageW, headH - pad};
+        drawLayoutButton(prev, "<", "", firstCol > 0 ? pal.tile : paletteMix(pal.tile, pal.deep, 0.4), pal.deep, fontSmall_);
+        drawLayoutButton(next, ">", "", firstCol + cols < maxClips ? pal.tile : paletteMix(pal.tile, pal.deep, 0.4), pal.deep, fontSmall_);
+        layoutHit(prev, LayoutHitKind::Page, -1);
+        layoutHit(next, LayoutHitKind::Page, 1);
+        for (int c = 0; c < cols && firstCol + c < maxClips; ++c) {
+          SDL_Rect r {gridX + c * (cellW + pad), browser.y + pad, cellW, headH - pad};
+          drawLayoutButton(r, std::to_string(firstCol + c + 1), "", paletteMix(pal.tile, pal.shellInner, 0.5), pal.deep, fontSmall_);
+          layoutHit(r, LayoutHitKind::Column, firstCol + c);
         }
       }
-    }
-    SDL_Rect xf {side.x, side.y + side.h - xfH, side.w, xfH};
-    drawUIPanel(xf, pal.tile, pal.deep, pal.mid);
-    if (project_.vjModeEnabled && project_.decks.size() > 1) {
-      const int pad = uiScaled(14);
-      const int deckCount = static_cast<int>(project_.decks.size());
-      const std::string a = project_.decks[static_cast<std::size_t>(std::clamp(project_.vjDeckA, 0, deckCount - 1))].name;
-      const std::string b = project_.decks[static_cast<std::size_t>(std::clamp(project_.vjDeckB, 0, deckCount - 1))].name;
-      drawTextSafe(controlRenderer_, fontSmall_, SDL_Rect {xf.x + pad, xf.y + uiScaled(4), xf.w / 2, labelH}, a, pal.fgSoft);
-      const int bw = measuredTextWidth(fontSmall_, b);
-      drawTextSafe(controlRenderer_, fontSmall_, SDL_Rect {xf.x + xf.w - pad - bw, xf.y + uiScaled(4), bw + 1, labelH}, b, pal.fgSoft);
-      SDL_Rect rail {xf.x + pad, xf.y + labelH + uiScaled(18), xf.w - pad * 2, uiScaled(10)};
-      Primitives::fillRect(controlRenderer_, rail, pal.deep);
-      const int capW = uiScaled(40);
-      const int cx = rail.x + static_cast<int>((rail.w - capW) * std::clamp(project_.vjMixPosition, 0.0, 1.0));
-      Primitives::fillRect(controlRenderer_, SDL_Rect {cx, rail.y - uiScaled(10), capW, rail.h + uiScaled(20)}, SDL_Color {225, 225, 225, 255});
-      layoutHit(SDL_Rect {rail.x, rail.y - uiScaled(14), rail.w, rail.h + uiScaled(28)}, LayoutHitKind::Crossfade);
-    } else {
-      drawLayoutButton(SDL_Rect {xf.x + uiScaled(10), xf.y + uiScaled(10), xf.w - uiScaled(20), xf.h - uiScaled(20)},
-                       "VJ MODE", "two playlists and a crossfader", pal.tile, pal.deep, fontBase_);
-      layoutHit(SDL_Rect {xf.x + uiScaled(10), xf.y + uiScaled(10), xf.w - uiScaled(20), xf.h - uiScaled(20)}, LayoutHitKind::VjOn);
+      const int fitRows = std::max(1, (browser.h - headH - pad) / (rowH + pad));
+      for (int d = 0; d < deckCount && d < fitRows; ++d) {
+        const Deck& dk = project_.decks[static_cast<std::size_t>(d)];
+        const int y = browser.y + headH + pad + d * (rowH + pad);
+        // the strip: which deck, the playlist, STOP
+        SDL_Rect strip {browser.x + pad, y, stripW, rowH};
+        drawUIPanel(strip, pal.shellInner, pal.deep, pal.mid);
+        const char* tag = twoDecks ? (d == deckA ? "A" : (d == deckB ? "B" : "")) : "";
+        const int tagW = *tag ? measuredTextWidth(head, "W") + uiScaled(6) : 0;
+        if (*tag) drawTextSafe(controlRenderer_, head, SDL_Rect {strip.x + uiScaled(6), strip.y, tagW, rowH / 2}, tag, pal.light);
+        drawTextSafe(controlRenderer_, fontSmall_, SDL_Rect {strip.x + uiScaled(6) + tagW, strip.y + uiScaled(4), strip.w - tagW - uiScaled(10), labelH},
+                     ellipsizeToPixelWidth(fontSmall_, dk.name, strip.w - tagW - uiScaled(10)),
+                     d == project_.focusedDeckIndex ? pal.light : pal.fgSoft);
+        const int stopH = std::min(rowH / 2 - uiScaled(4), std::max(uiScaled(24), textLineHeight(fontSmall_) + uiScaled(8)));
+        SDL_Rect stop {strip.x + uiScaled(6), strip.y + strip.h - stopH - uiScaled(6), strip.w - uiScaled(12), stopH};
+        drawLayoutButton(stop, "STOP", "", pal.tile, pal.deep, fontSmall_);
+        layoutHit(stop, LayoutHitKind::StopDeck, d);
+        // the clips
+        double frac = 0.0;
+        layoutDeckRemaining(d, &frac);
+        for (int c = 0; c < cols; ++c) {
+          const int i = firstCol + c;
+          SDL_Rect cell {gridX + c * (cellW + pad), y, cellW, rowH};
+          if (i >= static_cast<int>(dk.cues.size())) {
+            Primitives::fillRect(controlRenderer_, cell, paletteMix(pal.tile, pal.deep, 0.25));
+            continue;
+          }
+          const Cue& cue = dk.cues[static_cast<std::size_t>(i)];
+          const bool live = i == dk.activeIndex;
+          const bool queued = vjTakePending_ && i == dk.selectedIndex && !live &&
+                              (vjTakeDeck_ == d || std::find(vjSceneDecks_.begin(), vjSceneDecks_.end(), d) != vjSceneDecks_.end());
+          Primitives::fillRect(controlRenderer_, cell, pal.deep);
+          const int nameH = labelH + uiScaled(4);
+          drawClipStill(cue, d, i, SDL_Rect {cell.x, cell.y, cell.w, cell.h - nameH});
+          Primitives::fillRect(controlRenderer_, SDL_Rect {cell.x, cell.y + cell.h - nameH, cell.w, nameH}, SDL_Color {0, 0, 0, 200});
+          drawTextSafe(controlRenderer_, fontSmall_, SDL_Rect {cell.x + uiScaled(4), cell.y + cell.h - nameH, cell.w - uiScaled(8), nameH},
+                       ellipsizeToPixelWidth(fontSmall_, cue.name, cell.w - uiScaled(8)), SDL_Color {235, 235, 235, 255});
+          if (live || queued) {
+            // live: red, its progress along the bottom; waiting for the beat: amber, pulsing with it
+            double pulse = 1.0;
+            if (queued) {
+              const double b = vjBeatCount();
+              pulse = 0.45 + 0.55 * (1.0 - (b - std::floor(b)));
+            }
+            const SDL_Color edge = live ? red : paletteMix(pal.deep, amber, static_cast<float>(pulse));
+            const int t = std::max(2, uiScaled(3));
+            Primitives::fillRect(controlRenderer_, SDL_Rect {cell.x, cell.y, cell.w, t}, edge);
+            Primitives::fillRect(controlRenderer_, SDL_Rect {cell.x, cell.y, t, cell.h}, edge);
+            Primitives::fillRect(controlRenderer_, SDL_Rect {cell.x + cell.w - t, cell.y, t, cell.h}, edge);
+            Primitives::fillRect(controlRenderer_, SDL_Rect {cell.x, cell.y + cell.h - t, cell.w, t}, edge);
+            if (live) Primitives::fillRect(controlRenderer_, SDL_Rect {cell.x, cell.y + cell.h - t * 2, static_cast<int>(cell.w * frac), t * 2}, SDL_Color {255, 255, 255, 230});
+            const std::string word = live ? "LIVE" : "ON BEAT";
+            const int ww = measuredTextWidth(fontSmall_, word) + uiScaled(8);
+            Primitives::fillRect(controlRenderer_, SDL_Rect {cell.x + t, cell.y + t, ww, labelH + uiScaled(2)}, edge);
+            drawTextSafe(controlRenderer_, fontSmall_, SDL_Rect {cell.x + t + uiScaled(4), cell.y + t, ww, labelH + uiScaled(2)}, word,
+                         paletteInkOnFill(edge));
+          }
+          layoutHit(cell, LayoutHitKind::Clip, d, i);
+        }
+      }
+      const int rowsDrawn = std::min(deckCount, fitRows);
+      layoutHabitatUnder(browser, headH + pad, rowsDrawn * (rowH + pad));
     }
   }
 
@@ -1541,6 +1738,7 @@
     int first = std::clamp(anchor - rowsFit / 3, 0, std::max(0, count - rowsFit));
     SDL_Rect clip {list.x + 1, list.y + headH + 1, list.w - 2, list.h - headH - 2};
     SDL_SetRenderClipRect(controlRenderer_, &clip);
+    layoutHabitatUnder(list, headH + 1, std::min(count - first, rowsFit) * rowH);   // creatures live under the last row
     for (int i = first; i < count && i < first + rowsFit; ++i) {
       const Cue& cue = deck.cues[static_cast<std::size_t>(i)];
       SDL_Rect r {list.x + 1, list.y + headH + 1 + (i - first) * rowH, list.w - 2, rowH};
@@ -1834,6 +2032,7 @@
       const int first = std::clamp(deck.activeIndex - 1, 0, std::max(0, count - rowsFit));
       SDL_Rect clip {list.x + 1, list.y + headH, list.w - 2, list.h - headH - 1};
       SDL_SetRenderClipRect(controlRenderer_, &clip);
+      layoutHabitatUnder(list, headH + 1, std::min(count - first, rowsFit) * rowH);   // creatures live under the last row
       for (int i = first; i < count && i < first + rowsFit; ++i) {
         const Cue& cue = deck.cues[static_cast<std::size_t>(i)];
         SDL_Rect r {list.x + 1, list.y + headH + (i - first) * rowH, list.w - 2, rowH};

@@ -4900,3 +4900,5 @@ continues after {1}	{1} 후 계속
 no effects on the live cue	라이브 큐에 효과 없음
 pre-wait {1}  -  {2}  -  then {3}	사전 대기 {1}  -  {2}  -  이후 {3}
 ' (CLASSIC, OPERATOR, SHOWPIECE, RUNDOWN, CLIPGRID, CUESTACK, CONSOLE or COMPACT)	' (CLASSIC, OPERATOR, SHOWPIECE, RUNDOWN, CLIPGRID, CUESTACK, CONSOLE 또는 COMPACT)
+nothing loaded	불러온 것 없음
+add a playlist for deck B	덱 B용 재생 목록 추가

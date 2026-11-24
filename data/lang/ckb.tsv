@@ -4904,3 +4904,5 @@ continues after {1}	دوای {1} بەردەوام دەبێت
 no effects on the live cue	هیچ کاریگەرییەک لەسەر cue ی ڕاستەوخۆ نییە
 pre-wait {1}  -  {2}  -  then {3}	پێش-چاوەڕوانی {1}  -  {2}  -  پاشان {3}
 ' (CLASSIC, OPERATOR, SHOWPIECE, RUNDOWN, CLIPGRID, CUESTACK, CONSOLE or COMPACT)	' (کلاسیک، کارمەند، نمایشی، ڕیزبەندی بەرنامە، تۆڕی کلیپ، کۆمەڵەی cue، کۆنسۆڵ یان چڕ)
+nothing loaded	هیچ بار نەکراوە
+add a playlist for deck B	زیادکردنی لیستی لێدان بۆ دێکی B

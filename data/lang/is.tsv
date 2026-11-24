@@ -4894,3 +4894,5 @@ continues after {1}	heldur áfram eftir {1}
 no effects on the live cue	engin áhrif á cue í beinni
 pre-wait {1}  -  {2}  -  then {3}	forbið {1}  -  {2}  -  svo {3}
 ' (CLASSIC, OPERATOR, SHOWPIECE, RUNDOWN, CLIPGRID, CUESTACK, CONSOLE or COMPACT)	' (CLASSIC, OPERATOR, SHOWPIECE, RUNDOWN, CLIPGRID, CUESTACK, CONSOLE eða COMPACT)
+nothing loaded	ekkert hlaðið
+add a playlist for deck B	bæta við spilunarlista fyrir deck B

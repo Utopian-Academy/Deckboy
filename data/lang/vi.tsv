@@ -4888,3 +4888,5 @@ continues after {1}	tiếp tục sau {1}
 no effects on the live cue	không hiệu ứng trên cue trực tiếp
 pre-wait {1}  -  {2}  -  then {3}	chờ trước {1}  -  {2}  -  rồi {3}
 ' (CLASSIC, OPERATOR, SHOWPIECE, RUNDOWN, CLIPGRID, CUESTACK, CONSOLE or COMPACT)	' (CỔ ĐIỂN, NGƯỜI VẬN HÀNH, TRÌNH DIỄN, TRÌNH TỰ, LƯỚI CLIP, CHỒNG CUE, BÀN ĐIỀU KHIỂN hoặc GỌN)
+nothing loaded	chưa nạp gì
+add a playlist for deck B	thêm một playlist cho deck B

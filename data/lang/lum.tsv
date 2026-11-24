@@ -4915,3 +4915,5 @@ continues after {1}	novtiri novtok {1}
 no effects on the live cue	vasetapataku sov veka lumo
 pre-wait {1}  -  {2}  -  then {3}	munpena {1}  -  {2}  -  novtok {3}
 ' (CLASSIC, OPERATOR, SHOWPIECE, RUNDOWN, CLIPGRID, CUESTACK, CONSOLE or COMPACT)	' (CLASSIC, OPERATOR, SHOWPIECE, RUNDOWN, CLIPGRID, CUESTACK, CONSOLE nu COMPACT)
+nothing loaded	vaala tiro
+add a playlist for deck B	lani vekaku go deka B

@@ -4836,3 +4836,5 @@ continues after {1}	continue après {1}
 no effects on the live cue	aucun effet sur le cue en direct
 pre-wait {1}  -  {2}  -  then {3}	pré-attente {1}  -  {2}  -  puis {3}
 ' (CLASSIC, OPERATOR, SHOWPIECE, RUNDOWN, CLIPGRID, CUESTACK, CONSOLE or COMPACT)	' (CLASSIQUE, OPÉRATEUR, VITRINE, CONDUCTEUR, GRILLE DE CLIPS, PILE DE CUES, CONSOLE ou COMPACT)
+nothing loaded	rien de chargé
+add a playlist for deck B	ajouter une playlist pour le deck B

@@ -9683,6 +9683,7 @@ class App {
   // When the bar started dropping in, so the reveal can be eased.
   double vjBarRevealAt_ = 0.0;
   int vjTakeDeck_ = -1;        // which deck asked for the held take
+  std::vector<int> vjSceneDecks_;   // more decks that fire with the held take (a Clip Grid column)
   bool vjTakeFiring_ = false;  // guards the deferred take against re-queueing
   bool vjTakeAdvances_ = false;     // a held operator TAKE moves the selection on when it fires
   bool operatorTakeAdvances_ = false;   // inside operatorTake (jumpSelectedCue then select the next)

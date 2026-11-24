@@ -4887,3 +4887,5 @@ continues after {1}	ສືບຕໍ່ຫຼັງ {1}
 no effects on the live cue	ບໍ່ມີເອັບເຟັກໃນ cue ສົດ
 pre-wait {1}  -  {2}  -  then {3}	ລໍຖ້າກ່ອນ {1}  -  {2}  -  ແລ້ວ {3}
 ' (CLASSIC, OPERATOR, SHOWPIECE, RUNDOWN, CLIPGRID, CUESTACK, CONSOLE or COMPACT)	' (CLASSIC, OPERATOR, SHOWPIECE, RUNDOWN, CLIPGRID, CUESTACK, CONSOLE ຫຼື COMPACT)
+nothing loaded	ຍັງບໍ່ໄດ້ໂຫຼດຫຍັງ
+add a playlist for deck B	ເພີ່ມ playlist ສຳລັບ deck B

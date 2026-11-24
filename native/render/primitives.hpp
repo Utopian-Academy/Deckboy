@@ -75,6 +75,8 @@ struct ChromeKit {
   std::string tilePanel, tileWell, tileDesk;
   float stickerImage = 68.0f, stickerFoil = 37.44f;   // a sticker's picture and its foil, across
   SDL_Color surfacePanel {0, 0, 0, 255}, surfaceWell {0, 0, 0, 255}, surfaceDesk {0, 0, 0, 255};
+  // A clear skin: a circuit board under the plastic, alive (drawKitBoardLife).
+  bool board = false;
 };
 // Reads <dir>/kit.txt. False (and `kit` untouched) when it is missing or short.
 bool loadChromeKit(const std::string& dir, ChromeKit& kit);
@@ -82,6 +84,11 @@ bool loadChromeKit(const std::string& dir, ChromeKit& kit);
 struct ChromeStyle {
   bool enabled = false;
   ChromeKit kit;
+  // Set by the desk every frame: the clock the board's LEDs and pulses run
+  // on, and whether anything may move (not while an output is live, the
+  // creatures' rule).
+  double time = 0.0;
+  bool lively = true;
   std::vector<ChromeSticker> stickers;
   float scale = 1.0f;
   ChromeShape panelShape = ChromeShape::Rect;

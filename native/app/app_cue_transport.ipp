@@ -5711,6 +5711,7 @@
     }
     if (!project_.vjModeEnabled || !project_.vjQuantiseTakes) {
       vjTakePending_ = false;   // the mode went away under it
+      vjSceneDecks_.clear();
       return;
     }
     if (static_cast<double>(SDL_GetTicks()) / 1000.0 < vjTakeDueAt_) {
@@ -5725,6 +5726,13 @@
     }
     vjTakeFiring_ = true;      // so the take does not queue itself again
     jumpSelectedCue();
+    // A whole column (Clip Grid): the other playlists land on the same beat.
+    for (const int d : vjSceneDecks_) {
+      if (d < 0 || d >= static_cast<int>(project_.decks.size()) || d == vjTakeDeck_) continue;
+      project_.focusedDeckIndex = d;
+      jumpSelectedCue();
+    }
+    vjSceneDecks_.clear();
     vjTakeFiring_ = false;
     project_.focusedDeckIndex = restore;
   }

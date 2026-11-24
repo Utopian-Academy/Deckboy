@@ -4916,3 +4916,5 @@ continues after {1}	پس از {1} ادامه می‌یابد
 no effects on the live cue	بدون افکت روی کیوی زنده
 pre-wait {1}  -  {2}  -  then {3}	پیش‌انتظار {1}  -  {2}  -  سپس {3}
 ' (CLASSIC, OPERATOR, SHOWPIECE, RUNDOWN, CLIPGRID, CUESTACK, CONSOLE or COMPACT)	' (کلاسیک، اپراتور، ویترین، ترتیب اجرا، شبکه کلیپ، پشته کیو، کنسول یا فشرده)
+nothing loaded	چیزی بارگذاری نشده
+add a playlist for deck B	افزودن فهرست پخش برای دک B

@@ -4902,3 +4902,5 @@ continues after {1}	{1} 後に続行
 no effects on the live cue	ライブキューにエフェクトなし
 pre-wait {1}  -  {2}  -  then {3}	プリウェイト {1}  -  {2}  -  その後 {3}
 ' (CLASSIC, OPERATOR, SHOWPIECE, RUNDOWN, CLIPGRID, CUESTACK, CONSOLE or COMPACT)	' (CLASSIC、OPERATOR、SHOWPIECE、RUNDOWN、CLIPGRID、CUESTACK、CONSOLE または COMPACT)
+nothing loaded	読み込みなし
+add a playlist for deck B	デッキB用のプレイリストを追加

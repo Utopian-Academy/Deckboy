@@ -38,13 +38,16 @@
 - New: **Layout**, in Settings > System > APPEARANCE under Theme. A layout decides where the desk's pieces go; the theme and skin still decide how they look, so every theme works with every layout. Saved with the show. Companion: `LAYOUT CLASSIC|OPERATOR|SHOWPIECE|RUNDOWN|CLIPGRID|CUESTACK|CONSOLE|COMPACT`, and `LAYOUT SHOW|EDIT`.
 - **Classic**: the desk as before.
 - **Operator**, built for speed: LIVE and NEXT monitors (live counts down), one running order with the live, next and played rows marked, GO naming the cue it plays, BACK / HOLD / SKIP with their keys, the transition (cut, 1, 2, 4 s), hot cues F1-F8, a status row with every output's tally, and BLACK only on a half-second hold, at the far end from GO.
-- **Showpiece**: the programme fills the window as soft light behind smoked-glass panels: the live timecode, the beat, BPM and Link, the playlists' faders, every oscillator moving on the live cue drawn as its wave, GO as a dial whose ring counts the live cue down, and the cues as a filmstrip along the bottom.
+- **Showpiece**: the programme fills the window as soft light behind smoked-glass panels: the live timecode, the beat, BPM and Link, the playlists' faders, every oscillator moving on the live cue drawn as its wave, GO as a dial whose ring counts the live cue down, and the cues as a filmstrip along the bottom, with BACK beside it as on Pocket.
 - **Rundown**: preview and programme, a multiview of the other playlists and outputs, CUT and AUTO, and the rundown back-timed: when each item reaches air and when the show ends, with ON AIR, PREVIEW, READY, MISSING, SKIPPED and DONE.
-- **Clip Grid**: a column of clips per playlist, fired with one press (on the beat when QUANTISE is on), STOP per column, TAP, BPM, LINK and QUANTISE, the live cue's effects, and the crossfader.
+- **Clip Grid**, for VJs, laid out the way DJ software is: deck A and deck B (the crossfader's two sides), each with its own live picture, how far its clip is and the time left, back / play-pause / stop / next and a channel fader; the mixer between them with the output, BPM and the beat, TAP, LINK, QUANTISE and the crossfader; and the clips below, a row per playlist. A column number fires that clip on every playlist at once, and with QUANTISE on the whole column lands on one beat. A clip waiting for the beat pulses with it.
 - **Cue Stack**: GO, the cue standing by with its pre-wait and what follows, and the running cue's countdown across the top; big rows with pre-wait, action, post-wait and continue; the stage manager's notes for the cue standing by and those coming up; BACK, PAUSE ALL and PANIC.
 - **Console**: a vision mixer: monitors, a PROGRAM bus that cuts, a PRESET bus that picks what AUTO takes, the next transition and its time, CUT, AUTO and FTB.
 - **Compact**, for a 1366 x 768 laptop: one playlist, the live monitor, a tray with INSPECT, NEXT and OUTPUTS, and GO along the bottom.
 - Every layout but Classic has SHOW and EDIT: SHOW hides editing and the bottom bar; EDIT brings the inspector and the bar back.
+- The layouts that show each playlist's own picture (Console, Rundown, Clip Grid) show it: those windows said "no picture" unless the multiview was on.
+- A theme's creatures live in each layout's own empty space, under its last row.
+- Fixed: in the new layouts, a press could land on one of Classic's controls that was not drawn (a playlist row, the monitor's MASK and WARP).
 - Fixed: when the inspector's header filled the space it was given, its rows drew over whatever was below.
 
 ### Skins
@@ -55,8 +58,11 @@
 - Twelve typefaces come with Deckboy for the skins, each with its licence in data/fonts (SIL Open Font License; Luckiest Guy: Apache 2.0).
 - The existing themes look exactly as before.
 - For theme authors: `style_` lines in theme.txt set the shape and finish. See the manual, section 21.
-- New: **rendered skins** (3D), listed first in the Theme list: Broadcast, Bakelite, Hi-Fi and Synth, the materials of Pocket's shells of the same names. Their panels, recesses, key caps, the desk behind them and their holographic stickers are rendered in Blender with real light and shadow, then built to fit at whatever size each piece is, so they work in every layout, at every UI scale and in any window. A key keeps its own colour: a lit tally is a lit cap. Fixed colours: each looks the way its material does.
-- Stickers on the new layouts, next to SHOW and EDIT (not on Showpiece or Rundown, whose strip holds the clock).
+- New: **rendered skins** (3D), listed first in the Theme list: 24 of them, the materials of Pocket's shells. Their panels, recesses, key caps, the desk behind them and their holographic stickers are rendered in Blender with real light and shadow, then built to fit at whatever size each piece is, so they work in every layout, at every UI scale and in any window. A key keeps its own colour: a lit tally is a lit cap.
+  - Fourteen solid ones: Broadcast, Bakelite, Hi-Fi, Synth, Space Age, Field Kit, Arcade Cab, Swiss, Neon Night, Ceramic, Carbon, Toybox, Brass, Concrete.
+  - Ten in clear plastic over a circuit board: Grape Soda, Lime Jelly, Orange Soda, Cherry Jelly, Ocean Jelly, Ice, Smoke, Glow, Crystal Pink, Teal Insides. The board is alive under the plastic: LEDs blink, flicker and breathe, and pulses of data run along its traces. While an output is on they glow steady and nothing runs (the creatures' rule).
+  - Each has its own creatures and stickers.
+- Stickers on the new layouts, next to SHOW and EDIT (not on Rundown, whose strip holds the clock).
 - For theme authors: `style_kit <folder>` names a kit in data/desk-kits.
 
 ### Clickers

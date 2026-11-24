@@ -1605,7 +1605,11 @@
 
   void syncDeckPreviewTextures() {
     const int deckCount = static_cast<int>(project_.decks.size());
-    if (project_.multiviewMode == 0 || deckCount <= 0) {
+    // The multiview, and the desk layouts that show each playlist's own
+    // picture (Console, Rundown, Clip Grid): they said "no picture" on a
+    // live deck, because only the multiview asked for these.
+    const bool layoutWants = deskLayoutIs("console") || deskLayoutIs("rundown") || deskLayoutIs("clipgrid");
+    if ((project_.multiviewMode == 0 && !layoutWants) || deckCount <= 0) {
       return;
     }
     if (static_cast<int>(deckPreviewTex_.size()) != deckCount) {

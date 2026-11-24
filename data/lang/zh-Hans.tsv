@@ -4901,3 +4901,5 @@ continues after {1}	{1} 后继续
 no effects on the live cue	直播 cue 无效果
 pre-wait {1}  -  {2}  -  then {3}	预等待 {1}  -  {2}  -  然后 {3}
 ' (CLASSIC, OPERATOR, SHOWPIECE, RUNDOWN, CLIPGRID, CUESTACK, CONSOLE or COMPACT)	' (经典、操作员、展示、串联单、片段网格、CUE 堆栈、控制台或紧凑)
+nothing loaded	未载入任何内容
+add a playlist for deck B	为卡座 B 添加播放列表
