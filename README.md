@@ -54,6 +54,8 @@ operator finds it, and how you find it again.
 - **Illusion**, pictures that trick the eye: drift, Ouchi, cafe wall, vanish, grid and dancer, drawn on
   the graphics card.
 - **Breath**, an effect: the picture swells and settles, sometimes barely there.
+- **TAKE moves on.** After a TAKE the next cue is selected, so the next TAKE plays it (Settings >
+  System > SHOW FLOW turns it off).
 - **Lithuanian**, and a presentation clicker's arrow keys now take cues.
 - **Known issue (Windows):** when two screens run at different refresh rates, for example 59.94 Hz and
   60 Hz, an output drops or repeats a frame about every 15 seconds. Deckboy warns you when this
