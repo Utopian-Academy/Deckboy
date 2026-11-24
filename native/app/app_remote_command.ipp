@@ -4650,7 +4650,7 @@
           return;
         }
       }
-      failRemoteCommand("no layout '" + parts[1] + "' (CLASSIC, OPERATOR, SHOWPIECE, RUNDOWN, CLIPGRID, CUESTACK or CONSOLE)");
+      failRemoteCommand("no layout '" + parts[1] + "' (CLASSIC, OPERATOR, SHOWPIECE, RUNDOWN, CLIPGRID, CUESTACK, CONSOLE or COMPACT)");
       return;
     }
     if (command == "FULLSCREEN") {

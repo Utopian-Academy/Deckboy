@@ -17,7 +17,7 @@
 
   // One clickable piece of a layout. Layouts draw immediate-mode like the rest
   // of the desk; the press handler walks this list (handleLayoutClick).
-  enum class LayoutHitKind { Go, Back, Hold, Skip, Transition, HotCue, Black, Row, ModeShow, ModeEdit, Fader, Cut, Clip, StopDeck, Quick, Crossfade, VjOn, PauseAll, Panic, HotCut, Style, Duration, Ftb };
+  enum class LayoutHitKind { Go, Back, Hold, Skip, Transition, HotCue, Black, Row, ModeShow, ModeEdit, Fader, Cut, Clip, StopDeck, Quick, Crossfade, VjOn, PauseAll, Panic, HotCut, Style, Duration, Ftb, Tab };
   struct LayoutHit {
     SDL_Rect rect {};
     LayoutHitKind kind = LayoutHitKind::Go;
@@ -46,6 +46,7 @@
       {"clipgrid", "Clip Grid"},
       {"cuestack", "Cue Stack"},
       {"console", "Console"},
+      {"compact", "Compact"},
     };
     return choices;
   }
@@ -78,6 +79,7 @@
     else if (deskLayoutIs("clipgrid")) renderClipGridLayout(area);
     else if (deskLayoutIs("cuestack")) renderCueStackLayout(area);
     else if (deskLayoutIs("console")) renderConsoleLayout(area);
+    else if (deskLayoutIs("compact")) renderCompactLayout(area);
     else renderOperatorLayout(area);
   }
 
@@ -478,6 +480,7 @@
           break;
         }
         case LayoutHitKind::Ftb: triggerButton("BLACK"); break;
+        case LayoutHitKind::Tab: compactTab_ = hit.a; break;
         case LayoutHitKind::Back: layoutMoveNext(-1); break;
         case LayoutHitKind::Skip: layoutMoveNext(+1); break;
         case LayoutHitKind::Hold: toggleTransport(); break;
@@ -1710,5 +1713,179 @@
       layoutHit(cut, LayoutHitKind::Cut);
       layoutHit(autoB, LayoutHitKind::Go);
       layoutHit(ftb, LayoutHitKind::Ftb);
+    }
+  }
+
+  // ── COMPACT ───────────────────────────────────────────────────────────────
+  //
+  // For a laptop screen, 1366x768 (the board's "Compact"): one playlist, the
+  // live monitor, a tray with tabs (the inspector, what is next, the outputs),
+  // and GO along the bottom where a thumb or a trackpad finds it.
+
+  int compactTab_ = 0;   // 0 inspect, 1 next, 2 outputs
+
+  void renderCompactLayout(const SDL_Rect& area) {
+    layoutHits_.clear();
+    layoutBlackRect_ = {};
+    const int deckIndex = project_.focusedDeckIndex;
+    if (deckIndex < 0 || deckIndex >= static_cast<int>(project_.decks.size())) return;
+    const Deck& deck = project_.decks[static_cast<std::size_t>(deckIndex)];
+    const int gap = uiScaled(8);
+    const SDL_Color red {220, 50, 45, 255}, green {60, 200, 90, 255};
+    const int labelH = std::max(uiScaled(14), textLineHeight(fontSmall_));
+
+    // ── the GO bar along the bottom ──
+    const int barH = std::max(uiScaled(52), textLineHeight(fontLarge_ ? fontLarge_ : fontBase_) + uiScaled(18));
+    SDL_Rect bar {area.x, area.y + area.h - barH, area.w, barH};
+    {
+      const int sideW = std::max(uiScaled(80), measuredTextWidth(fontBase_, "BACK") + uiScaled(30));
+      const int blackW = std::max(uiScaled(140), measuredTextWidth(fontSmall_, "HOLD TO BLACK") + uiScaled(24));
+      SDL_Rect back {bar.x, bar.y, sideW, bar.h};
+      SDL_Rect hold {back.x + back.w + gap, bar.y, sideW, bar.h};
+      SDL_Rect black {bar.x + bar.w - blackW, bar.y, blackW, bar.h};
+      SDL_Rect go {hold.x + hold.w + gap, bar.y, black.x - hold.x - hold.w - gap * 2, bar.h};
+      drawLayoutButton(back, "BACK", "Up", pal.tile, pal.deep, fontBase_);
+      drawLayoutButton(hold, "HOLD", "Space", pal.tile, pal.deep, fontBase_);
+      const Cue* next = previewCuePtr(deckIndex, nullptr);
+      const std::string goLabel = next ? deckboy::core::i18n::format("GO  {1}", {next->name}) : std::string("GO");
+      drawLayoutButton(go, ellipsizeToPixelWidth(fontLarge_ ? fontLarge_ : fontBase_, goLabel, go.w - uiScaled(20)), "",
+                       pal.light, pal.deep, fontLarge_ ? fontLarge_ : fontBase_);
+      const bool dark = masterDimmerTarget_ < 0.5;
+      drawLayoutButton(black, dark ? "HOLD FOR PICTURE" : "HOLD TO BLACK", "", paletteMix(pal.tile, pal.deleteBezel, 0.35),
+                       pal.deleteBezel, fontSmall_);
+      if (layoutBlackHoldStart_ && !layoutBlackHoldFired_) {
+        const double held = std::clamp((static_cast<double>(SDL_GetTicks()) - static_cast<double>(layoutBlackHoldStart_)) / kLayoutBlackHoldMs, 0.0, 1.0);
+        Primitives::fillRect(controlRenderer_, SDL_Rect {black.x + 2, black.y + black.h - uiScaled(5), static_cast<int>((black.w - 4) * held), uiScaled(3)}, pal.deleteBezel);
+      }
+      layoutHit(back, LayoutHitKind::Back);
+      layoutHit(hold, LayoutHitKind::Hold);
+      layoutHit(go, LayoutHitKind::Go);
+      layoutHit(black, LayoutHitKind::Black);
+      layoutBlackRect_ = black;
+    }
+
+    SDL_Rect body {area.x, area.y, area.w, std::max(0, area.h - barH - gap)};
+    const int listW = std::clamp(body.w * 30 / 100, uiScaled(240), uiScaled(440));
+    SDL_Rect list {body.x, body.y, listW, body.h};
+    SDL_Rect right {body.x + listW + gap, body.y, std::max(0, body.w - listW - gap), body.h};
+
+    // ── the running order ──
+    drawUIPanel(list, pal.tile, pal.deep, pal.mid);
+    {
+      const int pillH = std::max(uiScaled(24), textLineHeight(fontSmall_) + uiScaled(8));
+      const int headH = pillH + uiScaled(8);
+      drawTextSafe(controlRenderer_, fontSmall_, SDL_Rect {list.x + uiScaled(8), list.y + uiScaled(4), list.w / 2, pillH},
+                   ellipsizeToPixelWidth(fontSmall_, deck.name, list.w / 2), pal.fgSoft);
+      drawLayoutModePair(SDL_Rect {list.x + list.w / 2, list.y + uiScaled(4), list.w / 2 - uiScaled(6), pillH});
+      const int rowH = std::max(uiScaled(34), textLineHeight(fontBase_) + uiScaled(14));
+      const int count = static_cast<int>(deck.cues.size());
+      const int rowsFit = std::max(1, (list.h - headH) / rowH);
+      int nextIndex = -1;
+      previewCuePtr(deckIndex, &nextIndex);
+      const int first = std::clamp(deck.activeIndex - 1, 0, std::max(0, count - rowsFit));
+      SDL_Rect clip {list.x + 1, list.y + headH, list.w - 2, list.h - headH - 1};
+      SDL_SetRenderClipRect(controlRenderer_, &clip);
+      for (int i = first; i < count && i < first + rowsFit; ++i) {
+        const Cue& cue = deck.cues[static_cast<std::size_t>(i)];
+        SDL_Rect r {list.x + 1, list.y + headH + (i - first) * rowH, list.w - 2, rowH};
+        const bool isLive = i == deck.activeIndex;
+        const bool isNext = i == nextIndex && !isLive;
+        const bool done = deck.activeIndex >= 0 && i < deck.activeIndex;
+        SDL_Color fill = pal.tile;
+        if (isLive) fill = paletteMix(pal.tile, red, 0.30);
+        else if (isNext) fill = paletteMix(pal.tile, green, 0.22);
+        Primitives::fillRect(controlRenderer_, r, fill);
+        Primitives::fillRect(controlRenderer_, SDL_Rect {r.x, r.y + r.h - 1, r.w, 1}, pal.mid);
+        if (isLive || isNext) Primitives::fillRect(controlRenderer_, SDL_Rect {r.x, r.y, uiScaled(4), r.h}, isLive ? red : green);
+        const SDL_Color ink = detail::paletteLiftToContrast(done ? pal.inkSoft : pal.fg, fill, 4.5);
+        const SDL_Color soft = detail::paletteLiftToContrast(pal.fgSoft, fill, 3.0);
+        const double len = layoutCueLength(cue);
+        const std::string lenText = len > 0.0 ? formatSeconds(len) : std::string("hold");
+        const int lenW = measuredTextWidth(fontMono_ ? fontMono_ : fontSmall_, "00:00.0") + uiScaled(10);
+        const int numW = uiScaled(34);
+        drawTextSafe(controlRenderer_, fontMono_ ? fontMono_ : fontSmall_, SDL_Rect {r.x + uiScaled(10), r.y, numW, r.h},
+                     std::to_string(i + 1), soft);
+        drawTextSafe(controlRenderer_, fontBase_, SDL_Rect {r.x + uiScaled(10) + numW, r.y, r.w - numW - lenW - uiScaled(20), r.h},
+                     ellipsizeToPixelWidth(fontBase_, cue.name, r.w - numW - lenW - uiScaled(20)), ink);
+        drawTextSafe(controlRenderer_, fontMono_ ? fontMono_ : fontSmall_, SDL_Rect {r.x + r.w - lenW, r.y, lenW, r.h}, lenText, soft);
+        layoutHit(r, LayoutHitKind::Row, deckIndex, i);
+      }
+      SDL_SetRenderClipRect(controlRenderer_, nullptr);
+    }
+
+    // ── the live monitor ──
+    // the monitor takes a third: the tray below carries the inspector
+    const int monH = std::min(right.h * 34 / 100, right.w * 9 / 16 + labelH + uiScaled(8));
+    MultiviewTile feed;
+    feed.source = "programme";
+    SDL_Rect mon {right.x, right.y, right.w, monH};
+    drawMonitorTile(mon, feed, -1, false, labelH, uiScaled(7));
+    {
+      const double left = layoutLiveRemaining();
+      if (left >= 0.0) {
+        TTF_Font* big = fontLarge_ ? fontLarge_ : fontBase_;
+        const std::string t = "-" + formatSeconds(left);
+        const int tw = measuredTextWidth(big, t) + uiScaled(14);
+        const int th = textLineHeight(big) + uiScaled(4);
+        SDL_Rect tag {mon.x + mon.w - tw - uiScaled(8), mon.y + mon.h - th - labelH - uiScaled(10), tw, th};
+        drawUIPanel(tag, pal.deep, pal.deep, pal.mid);
+        drawCenteredTextSafe(controlRenderer_, big, tag, t, SDL_Color {255, 255, 255, 255});
+      }
+    }
+
+    // ── the tray ──
+    SDL_Rect tray {right.x, right.y + monH + gap, right.w, std::max(0, right.h - monH - gap)};
+    const int tabH = std::max(uiScaled(30), textLineHeight(fontSmall_) + uiScaled(12));
+    {
+      const char* tabs[3] = {"INSPECT", "NEXT", "OUTPUTS"};
+      int x = tray.x;
+      for (int k = 0; k < 3; ++k) {
+        const int w = measuredTextWidth(fontSmall_, tabs[k]) + uiScaled(32);
+        SDL_Rect t {x, tray.y, w, tabH};
+        const bool on = compactTab_ == k;
+        drawUIPanel(t, on ? pal.light : pal.tile, pal.deep, pal.mid);
+        drawCenteredTextSafe(controlRenderer_, fontSmall_, t, tabs[k], paletteInkOnFill(on ? pal.light : pal.tile));
+        layoutHit(t, LayoutHitKind::Tab, k);
+        x += w + uiScaled(4);
+      }
+    }
+    SDL_Rect page {tray.x, tray.y + tabH, tray.w, std::max(0, tray.h - tabH)};
+    if (compactTab_ == 0) {
+      renderInspectorBody(page);
+    } else if (compactTab_ == 1) {
+      drawUIPanel(page, pal.tile, pal.deep, pal.mid);
+      const int pad = uiScaled(10);
+      const int monW = std::min(page.w * 45 / 100, (page.h - pad * 2) * 16 / 9);
+      MultiviewTile nf;
+      nf.source = "next";
+      drawMonitorTile(SDL_Rect {page.x + pad, page.y + pad, monW, std::min(page.h - pad * 2, monW * 9 / 16 + labelH)}, nf, -2, false, labelH, uiScaled(7));
+      const Cue* next = previewCuePtr(deckIndex, nullptr);
+      const int tx = page.x + pad * 2 + monW;
+      const int tw = page.x + page.w - tx - pad;
+      if (next) {
+        int y = page.y + pad;
+        drawTextSafe(controlRenderer_, fontBase_, SDL_Rect {tx, y, tw, textLineHeight(fontBase_) + uiScaled(4)},
+                     ellipsizeToPixelWidth(fontBase_, next->name, tw), pal.fg);
+        y += textLineHeight(fontBase_) + uiScaled(8);
+        drawWrappedLines(fontSmall_, next->notes.empty() ? std::string("no notes") : next->notes, tx, y, tw, page.y + page.h - pad,
+                         next->notes.empty() ? pal.inkSoft : pal.fg);
+      }
+    } else {
+      drawUIPanel(page, pal.tile, pal.deep, pal.mid);
+      const int pad = uiScaled(10);
+      const int rowH = std::max(uiScaled(30), textLineHeight(fontBase_) + uiScaled(10));
+      int y = page.y + pad;
+      for (int o = 0; o < static_cast<int>(project_.outputs.size()) && y + rowH <= page.y + page.h; ++o) {
+        const auto& out = project_.outputs[static_cast<std::size_t>(o)];
+        const int d = uiScaled(10);
+        Primitives::fillRect(controlRenderer_, SDL_Rect {page.x + pad, y + (rowH - d) / 2, d, d}, out.enabled ? red : pal.inkSoft);
+        drawTextSafe(controlRenderer_, fontBase_, SDL_Rect {page.x + pad + d + uiScaled(10), y, page.w / 2, rowH}, outputLabel(o), pal.fg);
+        drawTextSafe(controlRenderer_, fontSmall_, SDL_Rect {page.x + page.w / 2, y, page.w / 2 - pad, rowH},
+                     out.enabled ? std::string("ON") : std::string("off"), out.enabled ? red : pal.fgSoft);
+        y += rowH;
+      }
+      if (project_.outputs.empty()) {
+        drawTextSafe(controlRenderer_, fontSmall_, SDL_Rect {page.x + pad, y, page.w - pad * 2, rowH}, "no outputs", pal.inkSoft);
+      }
     }
   }

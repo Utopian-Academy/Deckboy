@@ -3450,7 +3450,7 @@ html,body{width:100%;height:100%;overflow:hidden}
         "           DASH CLEAR <n>   (a slot runs any command line above)\n"
         "           DASH SHOW|HIDE|TOGGLE | DASH TRACKER|TILES   (put the page, or one view of it, on screen)\n"
         "        FULLSCREEN DISPLAY <n> TC <hh:mm:ss:ff>   (OUT is trim-out)\n"
-        "layout: LAYOUT [CLASSIC|OPERATOR|SHOWPIECE|RUNDOWN|CLIPGRID|CUESTACK|CONSOLE] | LAYOUT SHOW|EDIT   (where the desk's pieces go; Operator's SHOW/EDIT)\n"
+        "layout: LAYOUT [CLASSIC|OPERATOR|SHOWPIECE|RUNDOWN|CLIPGRID|CUESTACK|CONSOLE|COMPACT] | LAYOUT SHOW|EDIT   (where the desk's pieces go; Operator's SHOW/EDIT)\n"
         "vj: VJ ON|OFF|TOGGLE | VJ MIX <0-1> | VJ BLEND [mode]\n"
         "    blends: dissolve add screen multiply lighten darken subtract\n"
         "            undercut infiltrate ember   (no argument cycles)\n"

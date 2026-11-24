@@ -4604,8 +4604,13 @@
     cueSettingsScrubZoneStartIndex_ = valueScrubZones_.size();
     inspectorSectionBottomMax_ = settingsContentTopY - cueSettingsScroll_;
     applyInspectorFolding(selectedCuePtr());
+    // NO ROOM IS STILL A CLIP. When the header (picture, summary) fills the
+    // space the inspector was given, the rows below have nowhere to go: clip
+    // them to a single line at the bottom rather than switching clipping off,
+    // which drew them over whatever lies below (2026-11-24, a 1366x768 desk).
+    SDL_Rect noRoom {cueSettingsViewportRect_.x, ctrl.y + ctrl.h - 1, cueSettingsViewportRect_.w, 1};
     SDL_SetRenderClipRect(controlRenderer_,
-      cueSettingsViewportRect_.h > 0 ? &cueSettingsViewportRect_ : nullptr);
+      cueSettingsViewportRect_.h > 0 ? &cueSettingsViewportRect_ : &noRoom);
 
     auto formatFloat = [](float v, int d = 2) { return fmtFloat(v, d); };
     auto formatPercent = [](float v) { return fmtPercent(v); };
