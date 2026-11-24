@@ -4286,7 +4286,7 @@
                             QuickAction incAction, QuickAction toggleAction = QuickAction::ToggleLoop,
                             bool isToggle = false, bool toggleOn = false, std::string tip = "",
                             bool valueEditable = false, QuickAction valueAction = QuickAction::ToggleLoop) {
-      inspDrawQuickRow(ix, rowY, label, decAction, value, incAction, toggleAction, isToggle, toggleOn, tip, valueEditable, valueAction);
+      rowY += inspDrawQuickRow(ix, rowY, label, decAction, value, incAction, toggleAction, isToggle, toggleOn, tip, valueEditable, valueAction);
     };
 
     // Label, then the value AS the button. For a row whose whole job is one
@@ -5018,12 +5018,12 @@
       // pill to learn what it was about and read it again for the answer.
       {
         int togY = ry + kRowStep * 7;
-        inspDrawQuickRow(ix, togY, "loop", QuickAction::ToggleLoop,
+        togY += inspDrawQuickRow(ix, togY, "loop", QuickAction::ToggleLoop,
                          cueLoopsAtEnd(*selectedCue) ? "on" : "off", QuickAction::ToggleLoop,
                          QuickAction::ToggleLoop, true, cueLoopsAtEnd(*selectedCue),
                          "L - loop this cue continuously");
         togY += ix.rowStep;
-        inspDrawQuickRow(ix, togY, "hold", QuickAction::ToggleHold,
+        togY += inspDrawQuickRow(ix, togY, "hold", QuickAction::ToggleHold,
                          cueHoldsAtEnd(*selectedCue) ? "on" : "off",
                          QuickAction::ToggleHold, QuickAction::ToggleHold, true,
                          cueHoldsAtEnd(*selectedCue),
@@ -5504,7 +5504,7 @@
                      row.id == NumericParam::SwirlCentreY)
               std::snprintf(text, sizeof(text), "%.0f%%", value * 100);
             else std::snprintf(text, sizeof(text), "%.2f", value);
-            inspDrawQuickRow(ix, swY, row.key, QuickAction::NumericParamDec, text,
+            swY += inspDrawQuickRow(ix, swY, row.key, QuickAction::NumericParamDec, text,
               QuickAction::NumericParamInc, QuickAction::ToggleLoop, false, false,
               row.tip, true, QuickAction::EditNumericParam, static_cast<int>(row.id));
             swY += kInspectorRowStep;
@@ -5534,14 +5534,14 @@
             else std::snprintf(text, sizeof(text), "%.0f%%", value);
             const int slot = moireLfoSlotFor(row.id);
             if (slot < 0) {
-              inspDrawQuickRow(ix, moY, row.key, QuickAction::NumericParamDec, text,
+              moY += inspDrawQuickRow(ix, moY, row.key, QuickAction::NumericParamDec, text,
                 QuickAction::NumericParamInc, QuickAction::ToggleLoop, false, false,
                 row.tip, true, QuickAction::EditNumericParam, static_cast<int>(row.id));
               moY += kInspectorRowStep;
               continue;
             }
             const auto& lfo = m.lfo[static_cast<std::size_t>(slot)];
-            inspDrawQuickRow(ix, moY, row.key, QuickAction::NumericParamDec, text,
+            moY += inspDrawQuickRow(ix, moY, row.key, QuickAction::NumericParamDec, text,
               QuickAction::NumericParamInc, QuickAction::ToggleLoop, false, false,
               row.tip, true, QuickAction::EditNumericParam, static_cast<int>(row.id),
               QuickAction::EffectLfoToggle, lfo.on, kMoireLfoPackBase + slot, "~",
@@ -5585,14 +5585,14 @@
             else std::snprintf(text, sizeof(text), "%.0f%%", value);
             const int slot = illusionLfoSlotFor(row.id);
             if (slot < 0) {
-              inspDrawQuickRow(ix, ilY, row.key, QuickAction::NumericParamDec, text,
+              ilY += inspDrawQuickRow(ix, ilY, row.key, QuickAction::NumericParamDec, text,
                 QuickAction::NumericParamInc, QuickAction::ToggleLoop, false, false,
                 row.tip, true, QuickAction::EditNumericParam, static_cast<int>(row.id));
               ilY += kInspectorRowStep;
               continue;
             }
             const auto& lfo = il.lfo[static_cast<std::size_t>(slot)];
-            inspDrawQuickRow(ix, ilY, row.key, QuickAction::NumericParamDec, text,
+            ilY += inspDrawQuickRow(ix, ilY, row.key, QuickAction::NumericParamDec, text,
               QuickAction::NumericParamInc, QuickAction::ToggleLoop, false, false,
               row.tip, true, QuickAction::EditNumericParam, static_cast<int>(row.id),
               QuickAction::EffectLfoToggle, lfo.on, kIllusionLfoPackBase + slot, "~",
@@ -5637,14 +5637,14 @@
             else std::snprintf(text, sizeof(text), "%.0f%%", value);
             const int slot = lumiaLfoSlotFor(row.id);
             if (slot < 0) {
-              inspDrawQuickRow(ix, luY, row.key, QuickAction::NumericParamDec, text,
+              luY += inspDrawQuickRow(ix, luY, row.key, QuickAction::NumericParamDec, text,
                 QuickAction::NumericParamInc, QuickAction::ToggleLoop, false, false,
                 row.tip, true, QuickAction::EditNumericParam, static_cast<int>(row.id));
               luY += kInspectorRowStep;
               continue;
             }
             const auto& lfo = l.lfo[static_cast<std::size_t>(slot)];
-            inspDrawQuickRow(ix, luY, row.key, QuickAction::NumericParamDec, text,
+            luY += inspDrawQuickRow(ix, luY, row.key, QuickAction::NumericParamDec, text,
               QuickAction::NumericParamInc, QuickAction::ToggleLoop, false, false,
               row.tip, true, QuickAction::EditNumericParam, static_cast<int>(row.id),
               QuickAction::EffectLfoToggle, lfo.on, kLumiaLfoPackBase + slot, "~",
@@ -5696,13 +5696,13 @@
             shY += box.h + uiScaled(8);
           }
           // The three buttons.
-          inspDrawQuickRow(ix, shY, "shader", QuickAction::NumericParamDec, "LOAD .FS", QuickAction::NumericParamInc,
+          shY += inspDrawQuickRow(ix, shY, "shader", QuickAction::NumericParamDec, "LOAD .FS", QuickAction::NumericParamInc,
             QuickAction::IsfLoad, true, false, "Pick an ISF shader file (.fs) for this cue");
           shY += kInspectorRowStep;
-          inspDrawQuickRow(ix, shY, "folder", QuickAction::NumericParamDec, "SHADER FOLDER", QuickAction::NumericParamInc,
+          shY += inspDrawQuickRow(ix, shY, "folder", QuickAction::NumericParamDec, "SHADER FOLDER", QuickAction::NumericParamInc,
             QuickAction::IsfFolder, true, false, "Open the folder where your own shaders live; they appear in SOURCE");
           shY += kInspectorRowStep;
-          inspDrawQuickRow(ix, shY, "edit", QuickAction::NumericParamDec, "EDIT", QuickAction::NumericParamInc,
+          shY += inspDrawQuickRow(ix, shY, "edit", QuickAction::NumericParamDec, "EDIT", QuickAction::NumericParamInc,
             QuickAction::IsfEdit, true, false, "Open this file in your editor; save it and the picture follows");
           shY += kInspectorRowStep;
           if (shader && shader->ok()) {
@@ -5715,7 +5715,7 @@
                 case deckboy::isf::InputType::Float: {
                   const deckboy::effects::ParamLfo none;
                   const deckboy::effects::ParamLfo& lfo = set ? set->lfo : none;
-                  inspDrawQuickRow(ix, shY, deckboy::params::paramRowForCue(*selectedCue, static_cast<NumericParam>(isfParamId(idx, 0))).key, QuickAction::NumericParamDec, text, QuickAction::NumericParamInc,
+                  shY += inspDrawQuickRow(ix, shY, deckboy::params::paramRowForCue(*selectedCue, static_cast<NumericParam>(isfParamId(idx, 0))).key, QuickAction::NumericParamDec, text, QuickAction::NumericParamInc,
                     QuickAction::ToggleLoop, false, false, deckboy::params::paramRowForCue(*selectedCue, static_cast<NumericParam>(isfParamId(idx, 0))).tip, true,
                     QuickAction::EditNumericParam, isfParamId(idx, 0), QuickAction::EffectLfoToggle, lfo.on,
                     kIsfLfoPackBase + idx, "~", "Put this control on an oscillator");
@@ -5727,20 +5727,20 @@
                   for (int c = 0; c < 2; ++c) {
                     char one[32];
                     std::snprintf(one, sizeof(one), "%.3g", static_cast<double>(set ? set->v[c] : in.def[c]));
-                    inspDrawQuickRow(ix, shY, deckboy::params::paramRowForCue(*selectedCue, static_cast<NumericParam>(isfParamId(idx, c))).key, QuickAction::NumericParamDec, one,
+                    shY += inspDrawQuickRow(ix, shY, deckboy::params::paramRowForCue(*selectedCue, static_cast<NumericParam>(isfParamId(idx, c))).key, QuickAction::NumericParamDec, one,
                       QuickAction::NumericParamInc, QuickAction::ToggleLoop, false, false, deckboy::params::paramRowForCue(*selectedCue, static_cast<NumericParam>(isfParamId(idx, c))).tip,
                       true, QuickAction::EditNumericParam, isfParamId(idx, c));
                     shY += kInspectorRowStep;
                   }
                   break;
                 case deckboy::isf::InputType::Long:
-                  inspDrawQuickRow(ix, shY, in.label, QuickAction::IsfChoicePrev, text, QuickAction::IsfChoiceNext,
+                  shY += inspDrawQuickRow(ix, shY, in.label, QuickAction::IsfChoicePrev, text, QuickAction::IsfChoiceNext,
                     QuickAction::ToggleLoop, false, false, "Step through the choices", true, QuickAction::IsfChoiceNext,
                     idx);
                   shY += kInspectorRowStep;
                   break;
                 case deckboy::isf::InputType::Color: {
-                  inspDrawQuickRow(ix, shY, in.label, QuickAction::NumericParamDec, text, QuickAction::NumericParamInc,
+                  shY += inspDrawQuickRow(ix, shY, in.label, QuickAction::NumericParamDec, text, QuickAction::NumericParamInc,
                     QuickAction::IsfColour, true, false, "Pick the colour");
                   if (quickButtons_.size() >= 2) {
                     quickButtons_[quickButtons_.size() - 1].param = idx;
@@ -5758,7 +5758,7 @@
                 }
                 default: {
                   const bool on = (set ? set->v[0] : in.def[0]) >= 0.5f;
-                  inspDrawQuickRow(ix, shY, in.label, QuickAction::NumericParamDec, text, QuickAction::NumericParamInc,
+                  shY += inspDrawQuickRow(ix, shY, in.label, QuickAction::NumericParamDec, text, QuickAction::NumericParamInc,
                     QuickAction::IsfToggle, true, on, "Switch it on or off");
                   if (quickButtons_.size() >= 2) {
                     quickButtons_[quickButtons_.size() - 1].param = idx;
@@ -5824,7 +5824,7 @@
             std::snprintf(speedText, sizeof(speedText), "%.1fx", value);
             const auto text = row.id == NumericParam::PortalBlobs ? std::to_string(selectedCue->portal.blobs)
                             : row.id == NumericParam::PortalSpeed ? std::string(speedText) : pct(value);
-            inspDrawQuickRow(ix, poY, row.key, QuickAction::NumericParamDec, text,
+            poY += inspDrawQuickRow(ix, poY, row.key, QuickAction::NumericParamDec, text,
                              QuickAction::NumericParamInc, QuickAction::ToggleLoop,
                              false, false, row.tip, true, QuickAction::EditNumericParam,
                              static_cast<int>(row.id));
@@ -5969,9 +5969,9 @@
           // 168px panels mapped as 128 puts every label in the wrong place,
           // so this is not a preference -- it is the pattern's subject.
           if (stripPatternMotionSuffix(typeId) == "panel-map") {
-            inspDrawQuickRow(ix, playbackY, deckboy::params::paramRowForCue(*selectedCue, NumericParam::LedPanelWidth).key, QuickAction::NumericParamDec, std::to_string(selectedCue->ledPanelWidth), QuickAction::NumericParamInc, QuickAction::ToggleLoop, false, false, deckboy::params::paramRowForCue(*selectedCue, NumericParam::LedPanelWidth).tip, true, QuickAction::EditNumericParam, static_cast<int>(NumericParam::LedPanelWidth));
+            playbackY += inspDrawQuickRow(ix, playbackY, deckboy::params::paramRowForCue(*selectedCue, NumericParam::LedPanelWidth).key, QuickAction::NumericParamDec, std::to_string(selectedCue->ledPanelWidth), QuickAction::NumericParamInc, QuickAction::ToggleLoop, false, false, deckboy::params::paramRowForCue(*selectedCue, NumericParam::LedPanelWidth).tip, true, QuickAction::EditNumericParam, static_cast<int>(NumericParam::LedPanelWidth));
             playbackY += kRowStep;
-            inspDrawQuickRow(ix, playbackY, deckboy::params::paramRowForCue(*selectedCue, NumericParam::LedPanelHeight).key, QuickAction::NumericParamDec, std::to_string(selectedCue->ledPanelHeight), QuickAction::NumericParamInc, QuickAction::ToggleLoop, false, false, deckboy::params::paramRowForCue(*selectedCue, NumericParam::LedPanelHeight).tip, true, QuickAction::EditNumericParam, static_cast<int>(NumericParam::LedPanelHeight));
+            playbackY += inspDrawQuickRow(ix, playbackY, deckboy::params::paramRowForCue(*selectedCue, NumericParam::LedPanelHeight).key, QuickAction::NumericParamDec, std::to_string(selectedCue->ledPanelHeight), QuickAction::NumericParamInc, QuickAction::ToggleLoop, false, false, deckboy::params::paramRowForCue(*selectedCue, NumericParam::LedPanelHeight).tip, true, QuickAction::EditNumericParam, static_cast<int>(NumericParam::LedPanelHeight));
             playbackY += kRowStep;
           }
         }
@@ -6008,12 +6008,12 @@
         // pill to learn what it was about and read it again for the answer.
         {
           int togY = playbackY;
-          inspDrawQuickRow(ix, togY, "loop", QuickAction::ToggleLoop,
+          togY += inspDrawQuickRow(ix, togY, "loop", QuickAction::ToggleLoop,
                            cueLoopsAtEnd(*selectedCue) ? "on" : "off", QuickAction::ToggleLoop,
                            QuickAction::ToggleLoop, true, cueLoopsAtEnd(*selectedCue),
                            "L - loop this cue continuously");
           togY += ix.rowStep;
-          inspDrawQuickRow(ix, togY, "hold", QuickAction::ToggleHold,
+          togY += inspDrawQuickRow(ix, togY, "hold", QuickAction::ToggleHold,
                            cueHoldsAtEnd(*selectedCue) ? "on" : "off",
                            QuickAction::ToggleHold, QuickAction::ToggleHold, true,
                            cueHoldsAtEnd(*selectedCue),
@@ -6223,12 +6223,12 @@
         // pill to learn what it was about and read it again for the answer.
         {
           int togY = playbackY;
-          inspDrawQuickRow(ix, togY, "loop", QuickAction::ToggleLoop,
+          togY += inspDrawQuickRow(ix, togY, "loop", QuickAction::ToggleLoop,
                            cueLoopsAtEnd(*selectedCue) ? "on" : "off", QuickAction::ToggleLoop,
                            QuickAction::ToggleLoop, true, cueLoopsAtEnd(*selectedCue),
                            "L - loop this cue continuously");
           togY += ix.rowStep;
-          inspDrawQuickRow(ix, togY, "hold", QuickAction::ToggleHold,
+          togY += inspDrawQuickRow(ix, togY, "hold", QuickAction::ToggleHold,
                            cueHoldsAtEnd(*selectedCue) ? "on" : "off",
                            QuickAction::ToggleHold, QuickAction::ToggleHold, true,
                            cueHoldsAtEnd(*selectedCue),
@@ -6703,7 +6703,7 @@
           // inspDrawQuickRow directly, not the drawQuickRow lambda above: the
           // lambda stops at the editable-value arguments and the bypass chip
           // lives past them.
-          inspDrawQuickRow(ix, mY, project_.decks[d].name.empty()
+          mY += inspDrawQuickRow(ix, mY, project_.decks[d].name.empty()
                              ? ("deck " + std::to_string(d + 1))
                              : project_.decks[d].name,
                        QuickAction::MasterAssignPrev, value,
@@ -7161,7 +7161,7 @@
               case NumericParam::L3HoldSeconds: text = holdBuf; break;
               default: break;
           }
-          inspDrawQuickRow(ix, txY, n.key, QuickAction::NumericParamDec, text,
+          txY += inspDrawQuickRow(ix, txY, n.key, QuickAction::NumericParamDec, text,
                            QuickAction::NumericParamInc, QuickAction::ToggleLoop,
                            false, false, n.tip, true, QuickAction::EditNumericParam,
                            static_cast<int>(n.id));

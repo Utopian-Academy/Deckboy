@@ -70,6 +70,7 @@ void deckboy::engine::DrmPrimeImporterDeleter::operator()(DrmPrimeImporter* impo
 #include <deque>
 #include <thread>
 #include "core/pattern_helpers.hpp"   // normalizePatternTypeId, patternTypeIsAnimated
+#include "core/numeric_params.hpp"    // applyParamLfos: oscillators on any number
 #include "core/paths.hpp"             // dataDir, for the bundled face
 #include "render/text_shaper.hpp"     // frame text: bidi, fallback faces, one baseline
 #include "core/pixel_effects.hpp"     // applyChromaKeyToPixels, applyColorControlsToPixels
@@ -4239,6 +4240,14 @@ void MediaEngine::renderTextMode(const std::uint8_t* src, int srcW, int srcH,
 
 void MediaEngine::rebuildVideoSynthFrame(const Cue& cue, double wallSeconds,
                                          double audioLevel) {
+  // Oscillators on its numbers: build from a copy with them applied.
+  if (!cue.paramLfo.empty() && deckboy::params::paramLfosOn(cue)) {
+    Cue moved = cue;
+    deckboy::params::applyParamLfos(moved, wallSeconds, wallSeconds * 2.0, audioLevel);
+    moved.paramLfo.clear();
+    rebuildVideoSynthFrame(moved, wallSeconds, audioLevel);
+    return;
+  }
   // DISPLAY RATE, not render-loop rate. The render loop runs to a 240 Hz
   // floor; the synth was rebuilding on every tick of it, so three of every
   // four frames were generated, uploaded and thrown away -- and each one
@@ -4842,6 +4851,13 @@ void buildLumiaAt(DecodedFrame& frame, double animTime, const LumiaSettings& bas
                   int q);
 
 void MediaEngine::rebuildPatternFrame(const Cue& cue, double wallSeconds) {
+  if (!cue.paramLfo.empty() && deckboy::params::paramLfosOn(cue)) {
+    Cue moved = cue;
+    deckboy::params::applyParamLfos(moved, wallSeconds, wallSeconds * 2.0, programAudioLevel01());
+    moved.paramLfo.clear();
+    rebuildPatternFrame(moved, wallSeconds);
+    return;
+  }
   // Animated patterns rebuild at the SELECTED DISPLAY's refresh rate (or
   // the project's explicit refresh override — the app's mode provider
   // decides), never the render-loop rate (240 Hz floor): a full-raster CPU
@@ -17755,6 +17771,13 @@ void MediaEngine::buildFrameCount(DecodedFrame& frame, double t,
 // so once the raster settles this allocates nothing at all.
 void MediaEngine::buildPatternFrameInto(DecodedFrame& frame, const Cue& cue, double animTime,
                                         int fallbackWidth, int fallbackHeight) {
+  if (!cue.paramLfo.empty() && deckboy::params::paramLfosOn(cue)) {
+    Cue moved = cue;
+    deckboy::params::applyParamLfos(moved, animTime, animTime * 2.0, 0.0);
+    moved.paramLfo.clear();
+    buildPatternFrameInto(frame, moved, animTime, fallbackWidth, fallbackHeight);
+    return;
+  }
   const std::string patternType = normalizePatternTypeId(cue.path);
   const std::string basePatternType = stripPatternMotionSuffix(patternType);
   const deckboy::code::CompiledSource* codeProgram = nullptr;

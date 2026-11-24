@@ -1408,7 +1408,16 @@ inline int lumiaLfoSlotFor(NumericParam id) {
 
 // The oscillator behind a source row, or nullptr when the row has none (a
 // picker, a toggle, or a source whose numbers do not move by themselves).
-inline deckboy::effects::ParamLfo* paramLfoFor(Cue& cue, NumericParam id) {
+// Whether a number of this cue's can carry an oscillator of the general
+// store: the cue kinds whose picture is built where applyParamLfos runs.
+inline bool generalParamLfoKind(const Cue& cue) {
+  if (cue.kind == CueKind::VideoSynth) return true;
+  if (cue.kind != CueKind::Pattern) return false;
+  const std::string type = normalizePatternTypeId(cue.path);
+  return type != "lumia" && type != "illusion" && type != "isf";
+}
+
+inline deckboy::effects::ParamLfo* paramLfoFor(Cue& cue, NumericParam id, bool create = true) {
   if (cue.kind == CueKind::Pattern) {
     const std::string type = normalizePatternTypeId(cue.path);
     if (type == "moire-field") {
@@ -1422,7 +1431,35 @@ inline deckboy::effects::ParamLfo* paramLfoFor(Cue& cue, NumericParam id) {
       if (s >= 0) return &cue.lumia.lfo[static_cast<std::size_t>(s)];
     }
   }
-  return nullptr;
+  // the general store, for any other number with a range
+  if (!generalParamLfoKind(cue) || isfParamIs(id) || !numericParamSpec(id, &cue)) return nullptr;
+  const auto it = cue.paramLfo.find(static_cast<int>(id));
+  if (it != cue.paramLfo.end()) return &it->second;
+  return create ? &cue.paramLfo[static_cast<int>(id)] : nullptr;
+}
+
+inline bool paramLfosOn(const Cue& cue) {
+  for (const auto& kv : cue.paramLfo) if (kv.second.on) return true;
+  return false;
+}
+
+// Move each number the general store drives: the set value is the centre,
+// HOW FAR is the share of the number's range it swings over, within the
+// LFO's lowest and highest. Whole numbers stay whole.
+inline void applyParamLfos(Cue& cue, double seconds, double beats, double audio01) {
+  for (const auto& kv : cue.paramLfo) {
+    const deckboy::effects::ParamLfo& lfo = kv.second;
+    if (!lfo.on) continue;
+    const NumericParam id = static_cast<NumericParam>(kv.first);
+    const NumericParamSpec* spec = numericParamSpec(id, &cue);
+    double value = 0;
+    if (!spec || !readNumericParam(cue, id, value)) continue;
+    const double unit = deckboy::effects::lfoUnitValue(lfo, seconds, beats, audio01);
+    double out = value + (unit - 0.5) * static_cast<double>(lfo.depth) * (spec->hi - spec->lo);
+    out = std::clamp(out, spec->lo, spec->hi);
+    if (spec->integral) out = std::round(out);
+    writeNumericParam(cue, id, out);
+  }
 }
 
 inline ParamRow paramRowForCue(const Cue& cue, NumericParam id) {

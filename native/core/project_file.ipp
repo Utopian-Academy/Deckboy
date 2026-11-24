@@ -1135,6 +1135,8 @@ void writeProjectRecords(std::ostream& output, const Project& project) {
         << '\t' << escapeField(serializeGeometryLfos(cue.illusion.lfo))
         << '\t' << (cue.flipHorizontal ? 1 : 0)
         << '\t' << (cue.flipVertical ? 1 : 0)
+        // vs + 224: oscillators on any number (Cue::paramLfo)
+        << '\t' << escapeField(serializeParamLfoMap(cue.paramLfo))
         << '\n';
   };
   for (size_t deckIndex = 0; deckIndex < project.decks.size(); ++deckIndex) {
@@ -3120,6 +3122,10 @@ Project loadProject(const fs::path& projectFile,
         if (fields.size() >= static_cast<std::size_t>(vs + 224)) {
           cue.flipHorizontal = safeBool(fields, vs + 222, false);
           cue.flipVertical = safeBool(fields, vs + 223, false);
+        }
+        // Absent before 0.99.430: no number moves by itself.
+        if (fields.size() >= static_cast<std::size_t>(vs + 225)) {
+          cue.paramLfo = parseParamLfoMap(safeString(fields, vs + 224));
         }
       }
       // A MASTER CUE HAS NO PATH, and this gate would have dropped it on load

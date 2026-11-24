@@ -64,6 +64,12 @@ int main(int argc, char** argv) {
         cue.geometryLfo[0].depth = 0.25f;
         cue.geometryLfo[0].lo = 0.25f;   // limits (tagged field)
         cue.geometryLfo[0].hi = 0.75f;
+        cue.paramLfo[7].on = true;       // an oscillator on any number (Cue::paramLfo)
+        cue.paramLfo[7].rateHz = 1.5f;
+        cue.paramLfo[7].depth = 0.625f;
+        cue.paramLfo[123].on = false;    // switched off but shaped: kept
+        cue.paramLfo[123].rateHz = 2.0f;
+        cue.paramLfo[9];                 // untouched: not written
         deckboy::effects::CueEffect fx;
         fx.kind = deckboy::effects::CueEffectKind::Blur;
         fx.amount = 0.375f;
@@ -87,6 +93,8 @@ int main(int argc, char** argv) {
                 cue.cropLeft == 0.125f && cue.flipHorizontal && cue.flipVertical &&
                 cue.geometryLfo[0].on && cue.geometryLfo[0].rateHz == 0.75f &&
                 cue.geometryLfo[0].depth == 0.25f && cue.geometryLfo[0].lo == 0.25f && cue.geometryLfo[0].hi == 0.75f &&
+                cue.paramLfo.size() == 2 && cue.paramLfo.at(7).on && cue.paramLfo.at(7).rateHz == 1.5f &&
+                cue.paramLfo.at(7).depth == 0.625f && !cue.paramLfo.at(123).on && cue.paramLfo.at(123).rateHz == 2.0f &&
                 cue.effects.size() == 1 &&
                 cue.effects[0].kind == deckboy::effects::CueEffectKind::Blur &&
                 cue.effects[0].amount == 0.375f && cue.textBody == project.decks[d].cues[c].textBody,

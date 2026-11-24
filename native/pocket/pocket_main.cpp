@@ -1121,7 +1121,8 @@ class Pocket {
       const Cue& c = cues_[static_cast<std::size_t>(active_)];
       if (builtOnWorker(c) && engine_->hasPictureToShow()) {
         serviceGenerator(c);
-      } else if (c.kind == CueKind::Pattern && patternTypeIsAnimated(c.path) && engine_->hasPictureToShow()) {
+      } else if (c.kind == CueKind::Pattern && (patternTypeIsAnimated(c.path) || deckboy::params::paramLfosOn(c)) &&
+                 engine_->hasPictureToShow()) {
         engine_->rebuildPatternFrame(c, static_cast<double>(SDL_GetTicks()) / 1000.0);
       } else if (c.kind == CueKind::VideoSynth) {
         engine_->rebuildVideoSynthFrame(c, static_cast<double>(SDL_GetTicks()) / 1000.0, engine_->programAudioLevel01());
@@ -4259,9 +4260,19 @@ class Pocket {
       if (n < 1 || n > count) return err("LFO <cue> X|Y|SCALE|ROTATION ON|OFF [shape] [rate] [depth]");
       const int slot = what == "X" ? kGeoLfoOffsetX : what == "Y" ? kGeoLfoOffsetY : what == "SCALE" ? kGeoLfoScaleX
                      : what == "ROTATION" ? kGeoLfoRotation : -1;
-      if (slot < 0) return err("X, Y, SCALE or ROTATION");
+      // ...or any number of the source's, by its row's name (spaces as _)
+      deckboy::effects::ParamLfo* found = nullptr;
+      Cue& lc = cues_[static_cast<std::size_t>(n - 1)];
+      if (slot < 0) {
+        for (const auto& row : deckboy::params::paramRowsForCue(lc)) {
+          std::string k = row.key;
+          for (char& ch : k) ch = ch == ' ' ? '_' : static_cast<char>(std::toupper(static_cast<unsigned char>(ch)));
+          if (k == what) { found = deckboy::params::paramLfoFor(lc, row.id); break; }
+        }
+        if (!found) return err("X, Y, SCALE, ROTATION or a number of the source's that can move");
+      }
       using deckboy::effects::LfoShape;
-      auto& l = cues_[static_cast<std::size_t>(n - 1)].geometryLfo[static_cast<std::size_t>(slot)];
+      auto& l = found ? *found : lc.geometryLfo[static_cast<std::size_t>(slot)];
       l.on = onoff != "OFF";
       if (!shape.empty()) {
         l.shape = shape == "tri" ? LfoShape::Triangle : shape == "saw" ? LfoShape::Saw : shape == "ramp" ? LfoShape::Ramp

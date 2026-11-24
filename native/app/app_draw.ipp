@@ -325,14 +325,14 @@
     });
     char text[48];
     std::snprintf(text, sizeof text, "%.1f%%", b.size * 100.0f);
-    inspDrawQuickRow(ix, y, "size", QuickAction::NumericParamDec, text, QuickAction::NumericParamInc,
+    y += inspDrawQuickRow(ix, y, "size", QuickAction::NumericParamDec, text, QuickAction::NumericParamInc,
                      QuickAction::ToggleLoop, false, false, "The brush's width, as % of the picture's height", true,
                      QuickAction::EditNumericParam, static_cast<int>(NumericParam::DrawSize), QuickAction::EffectLfoToggle,
                      project_.drawBrushLfo[0].on, kDrawLfoPackBase + 0, "~", "Put the brush's size on an oscillator");
     y += ix.rowStep;
     if (project_.drawBrushLfo[0].on) y = inspDrawLfoRowFor(ix, y, project_.drawBrushLfo[0], kDrawLfoPackBase + 0);
     std::snprintf(text, sizeof text, "%.0f%%", b.opacity * 100.0f);
-    inspDrawQuickRow(ix, y, "opacity", QuickAction::NumericParamDec, text, QuickAction::NumericParamInc,
+    y += inspDrawQuickRow(ix, y, "opacity", QuickAction::NumericParamDec, text, QuickAction::NumericParamInc,
                      QuickAction::ToggleLoop, false, false, "How solid the ink is", true, QuickAction::EditNumericParam,
                      static_cast<int>(NumericParam::DrawOpacity), QuickAction::EffectLfoToggle,
                      project_.drawBrushLfo[1].on, kDrawLfoPackBase + 1, "~", "Put the brush's opacity on an oscillator");
@@ -341,7 +341,7 @@
 
     // Frames: which one, and the frames around it.
     const std::string frameText = "frame " + std::to_string(d.editFrame + 1) + " of " + std::to_string(d.frames.size());
-    inspDrawQuickRow(ix, y, "frame", QuickAction::DrawFramePrev, frameText, QuickAction::DrawFrameNext,
+    y += inspDrawQuickRow(ix, y, "frame", QuickAction::DrawFramePrev, frameText, QuickAction::DrawFrameNext,
                      QuickAction::ToggleLoop, false, false, "Which frame you draw on");
     y += ix.rowStep;
     chipRow(3, [&](int i, const SDL_Rect& r) {
@@ -363,11 +363,11 @@
                           "first frame stroke by stroke, the way it was drawn, then holds and starts again");
     if (d.playback == deckboy::draw::Playback::Flipbook) {
       std::snprintf(text, sizeof text, "%.0f fps", d.fps);
-      inspDrawQuickRow(ix, y, deckboy::params::paramRowForCue(*cue, NumericParam::DrawFps).key, QuickAction::NumericParamDec, text, QuickAction::NumericParamInc, QuickAction::ToggleLoop, false, false, deckboy::params::paramRowForCue(*cue, NumericParam::DrawFps).tip, true, QuickAction::EditNumericParam, static_cast<int>(NumericParam::DrawFps));
+      y += inspDrawQuickRow(ix, y, deckboy::params::paramRowForCue(*cue, NumericParam::DrawFps).key, QuickAction::NumericParamDec, text, QuickAction::NumericParamInc, QuickAction::ToggleLoop, false, false, deckboy::params::paramRowForCue(*cue, NumericParam::DrawFps).tip, true, QuickAction::EditNumericParam, static_cast<int>(NumericParam::DrawFps));
       y += ix.rowStep;
     } else if (d.playback == deckboy::draw::Playback::Replay) {
       std::snprintf(text, sizeof text, "%.1f s", d.holdSeconds);
-      inspDrawQuickRow(ix, y, deckboy::params::paramRowForCue(*cue, NumericParam::DrawHold).key, QuickAction::NumericParamDec, text, QuickAction::NumericParamInc, QuickAction::ToggleLoop, false, false, deckboy::params::paramRowForCue(*cue, NumericParam::DrawHold).tip, true, QuickAction::EditNumericParam, static_cast<int>(NumericParam::DrawHold));
+      y += inspDrawQuickRow(ix, y, deckboy::params::paramRowForCue(*cue, NumericParam::DrawHold).key, QuickAction::NumericParamDec, text, QuickAction::NumericParamInc, QuickAction::ToggleLoop, false, false, deckboy::params::paramRowForCue(*cue, NumericParam::DrawHold).tip, true, QuickAction::EditNumericParam, static_cast<int>(NumericParam::DrawHold));
       y += ix.rowStep;
     }
     chipRow(2, [&](int i, const SDL_Rect& r) {

@@ -35,6 +35,7 @@
 #include "drawing.hpp"
 #include "slices.hpp"
 #include "core/sdl_compat.hpp"
+#include <map>
 #include <memory>
 #include <string>
 #include <vector>
@@ -1468,6 +1469,8 @@ constexpr int kLumiaLfoPackBase = 1 << 26;
 constexpr int kIsfLfoPackBase = 1 << 27;
 // An Illusion cue's oscillators: base + IllusionLfoSlot.
 constexpr int kIllusionLfoPackBase = 1 << 28;
+// Cue::paramLfo: kParamLfoPackBase + the NumericParam id.
+constexpr int kParamLfoPackBase = 1 << 29;
 constexpr int kToneLfoFreq = 0;
 constexpr int kToneLfoLevel = 1;
 constexpr int kToneLfoCount = 2;
@@ -2147,6 +2150,12 @@ struct Cue {
   // output and in the preview alike without its pixels being touched. All off
   // on every cue that has never had one, which is what an older show means.
   std::array<deckboy::effects::ParamLfo, 9> geometryLfo {};
+  // AN OSCILLATOR ON ANY NUMBER (2026-11-23, James: LFOs on every control).
+  // Keyed by deckboy::params::NumericParam id, for the numbers that have no
+  // oscillator of their own (Moire, Illusion and Lumia keep theirs). Applied
+  // to a copy of the cue where its picture is built (params::applyParamLfos),
+  // so the desk and Pocket move it alike. Saved at the end of the cue record.
+  std::map<int, deckboy::effects::ParamLfo> paramLfo;
   // A Portal source's controls. Only meaningful on a "portal" pattern cue.
   PortalSettings portal;
   // A DRAW cue's strokes (core/drawing.hpp): what was drawn, frame by frame,

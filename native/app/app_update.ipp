@@ -1092,7 +1092,9 @@
         // the deck has a picture up. STOP darkens a deck and leaves its cue
         // racked; rebuilding here regardless relit a stopped pattern on the
         // very next tick, so STOP on an animated pattern did nothing visible.
-        if (patternTypeIsAnimated(activeCue->path) && engine->hasPictureToShow()) {
+        // (a still pattern with a number on an oscillator moves too)
+        if ((patternTypeIsAnimated(activeCue->path) || deckboy::params::paramLfosOn(*activeCue)) &&
+            engine->hasPictureToShow()) {
           engine->rebuildPatternFrame(*activeCue, static_cast<double>(now) / 1000.0);
         }
       }

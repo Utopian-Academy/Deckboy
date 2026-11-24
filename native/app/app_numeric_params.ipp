@@ -442,6 +442,12 @@ void effectStackNudge(int index, float delta) {
 // Every one of these takes the PACKED id described on the QuickAction enum:
 // effectIndex * 8 + slot, slot 0-3 for paramA-D and 4 for the amount.
 deckboy::effects::ParamLfo* effectLfoAt(int packed) {
+  // Any other number of a source's (Cue::paramLfo): the highest range.
+  if (packed >= kParamLfoPackBase) {
+    Cue* cue = selectedCueMutable();
+    if (!cue) return nullptr;
+    return deckboy::params::paramLfoFor(*cue, static_cast<NumericParam>(packed - kParamLfoPackBase));
+  }
   // An Illusion cue's oscillators: the highest range of all.
   if (packed >= kIllusionLfoPackBase) {
     const int slot = packed - kIllusionLfoPackBase;

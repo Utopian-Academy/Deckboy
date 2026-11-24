@@ -500,6 +500,44 @@ std::string serializeGeometryLfos(const std::array<deckboy::effects::ParamLfo, N
   return out.str();
 }
 
+// Cue::paramLfo, one field: "id@lfo" entries split by ';' (only those that
+// differ from a fresh oscillator).
+std::string serializeParamLfoMap(const std::map<int, deckboy::effects::ParamLfo>& lfos) {
+  const deckboy::effects::ParamLfo fresh;
+  std::ostringstream out;
+  bool first = true;
+  for (const auto& kv : lfos) {
+    const auto& lfo = kv.second;
+    const bool same = !lfo.on && lfo.shape == fresh.shape && lfo.rateHz == fresh.rateHz && lfo.depth == fresh.depth &&
+                      lfo.phase == fresh.phase && lfo.beatSync == fresh.beatSync && lfo.beats == fresh.beats &&
+                      lfo.lo == fresh.lo && lfo.hi == fresh.hi;
+    if (same) continue;
+    if (!first) out << ';';
+    first = false;
+    out << kv.first << '@';
+    writeParamLfo(out, lfo);
+  }
+  return out.str();
+}
+
+std::map<int, deckboy::effects::ParamLfo> parseParamLfoMap(const std::string& text) {
+  std::map<int, deckboy::effects::ParamLfo> out;
+  std::size_t at = 0;
+  while (at < text.size()) {
+    const std::size_t semi = text.find(';', at);
+    const std::string one = text.substr(at, semi == std::string::npos ? std::string::npos : semi - at);
+    const std::size_t sep = one.find('@');
+    if (sep != std::string::npos) {
+      deckboy::effects::ParamLfo lfo;
+      readParamLfo(one.substr(sep + 1), lfo);
+      out[std::atoi(one.substr(0, sep).c_str())] = lfo;
+    }
+    if (semi == std::string::npos) break;
+    at = semi + 1;
+  }
+  return out;
+}
+
 // A Moire cue's theme inks, one field: four RRGGBB hex values split by ','.
 std::string serializeMoireInks(const std::array<std::uint32_t, 4>& inks) {
   std::string out;

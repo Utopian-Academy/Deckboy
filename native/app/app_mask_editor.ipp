@@ -626,7 +626,7 @@
       if (row.id == NumericParam::MaskRotation) std::snprintf(text, sizeof(text), "%.0f deg", value);
       else std::snprintf(text, sizeof(text), "%.0f%%", value);
       const auto& lfo = m->lfo[static_cast<std::size_t>(row.slot)];
-      inspDrawQuickRow(ix, y, row.label, QuickAction::NumericParamDec, text, QuickAction::NumericParamInc,
+      y += inspDrawQuickRow(ix, y, row.label, QuickAction::NumericParamDec, text, QuickAction::NumericParamInc,
                        QuickAction::ToggleLoop, false, false, row.tip, true, QuickAction::EditNumericParam,
                        static_cast<int>(row.id), QuickAction::EffectLfoToggle, lfo.on, kMaskLfoPackBase + row.slot,
                        "~", "Put this control on an oscillator");
