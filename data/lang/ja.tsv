@@ -4870,3 +4870,6 @@ Unsaved list	未保存のリスト
 SMPTE colour bars	SMPTE カラーバー
 A soft swell that drifts through the picture as it breathes. At the left it only swells and settles.	呼吸するように映像の中を漂うソフトなうねり。左端ではふくらんで落ち着くだけです。
 How slowly it breathes: one breath in about twelve seconds at the left, two and a half at the right.	呼吸の遅さ: 左端で約12秒に1ブレス、右端で2.5秒に1ブレス。
+TAKE selects next	TAKE で次を選択
+TAKE selects the next cue	TAKE で次のキューを選択
+TAKE leaves the selection where it is	TAKE 後も選択はそのまま

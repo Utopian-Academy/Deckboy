@@ -55,7 +55,7 @@ if hasattr(sys.stdout, "reconfigure"):
 # The languages Deckboy ships whole. The word lists (Scots, Klingon, Sindarin,
 # Mohawk, Navajo...) and the cyphers are not translated wholesale.
 FULL = ("ar bg ckb da de el es-CU es fa fi fr gd haw hi is it ja kab kmr ko lo lum nl "
-        "pap-AW pl pt-BR ru tr uk vi zgh zh-Hans zh-Hant zu").split()
+        "lt pap-AW pl pt-BR ru tr uk vi zgh zh-Hans zh-Hant zu").split()
 
 # James's rules for every translation (private-notes/codex/2026-11-07-i18n-missing.md).
 TRADE = ["TAKE ALL", "TAKE", "PROGRAM", "NDI", "SRT", "RTMP", "OSC", "MIDI", "LTC", "MTC", "ATEM",

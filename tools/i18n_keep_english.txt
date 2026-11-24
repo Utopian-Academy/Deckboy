@@ -1309,3 +1309,73 @@ nl	pixels
 nl	TERRARIUM
 pap-AW	LFO
 pap-AW	1x (normal)
+lt	JAM
+lt	KEY
+lt	LFO
+lt	OSC
+lt	crt
+lt	+10s
+lt	AUTO
+lt	TAKE
+lt	auto
+lt	mono
+lt	.PPTX
+lt	KEY L
+lt	Lumia
+lt	MULTI
+lt	RTMPS
+lt	@hello
+lt	STEREO
+lt	Twitch
+lt	Art-Net
+lt	Note on
+lt	PROGRAM
+lt	YouTube
+lt	chladni
+lt	kaleido
+lt	vibrato
+lt	datamosh
+lt	purkinje
+lt	vMix API
+lt	PROGRAMME
+lt	lissajous
+lt	Deckboy Ag
+lt	PQ - HDR10
+lt	Lower Third
+lt	4:2:2  8-BIT
+lt	sACN (E1.31)
+lt	bohlen-pierce
+lt	Syphon / Spout
+lt	Terrarium Pico
+lt	DECKBOY  POCKET
+lt	25 fps (PAL/EBU)
+lt	29.97 fps (NTSC)
+lt	kbps (500-50000)
+lt	universe: 0-63999
+lt	DECKLINK SDI / HDMI
+lt	st 2110: 4:2:2 10-bit
+lt	src=... | cmd=... | ...
+lt	AMWA NMOS  IS-04 / IS-05
+lt	DEFAULTS: STATUS | SAVE | FORGET
+lt	OUTPUT TESTCARD: ON | OFF | TOGGLE | ALL [ON|OFF]
+lt	DASH: LIST | <n> | SET <n> <label> | <command> | CLEAR <n>
+pl	LFO
+pl	crt
+pl	TERRARIUM
+pt-BR	LFO
+pt-BR	lasers
+pt-BR	pixels
+pt-BR	1x (normal)
+ru	LFO
+tr	LFO
+tr	1x (normal)
+uk	LFO
+vi	LFO
+zgh	LFO
+zh-Hans	LFO
+zh-Hant	LFO
+zu	LFO
+lt	VIDEO OUTPUT ADD: WINDOW | STREAM | MULTIVIEW | PRESENTER | PROMPTER | SCOPES
+lt	STATUS | SHAPE <0-5> | PALETTE <0-3> | DENSITY|SPEED|WARP|CENTREX|CENTREY|GREY <0-100> | TURN|HUE <0-360> | LFO <control> <setting>
+lt	CHIP
+lt	PAD CHIP: <slot> ON|OFF
