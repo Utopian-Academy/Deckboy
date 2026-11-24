@@ -272,6 +272,14 @@
       return;
     }
 
+    // A DESK LAYOUT OWNS ITS CONTENT AREA. The two blocks gated on this test
+    // rects only the Classic desk draws (the playlists and their rows, the
+    // monitor's buttons, the splitters, the timeline): in any other layout
+    // they are left from the last Classic frame, so a press there landed on
+    // a control nobody could see. The inspector's own rows (EDIT) are tested
+    // outside both blocks, and renderDeskLayout resets them every frame.
+    const bool classicHits = deskLayoutIsClassic() || !pointInRect(x, y, layoutContentRect_);
+    if (classicHits) {
     // CLICKING THE PREVIEW CLICKS THE PAGE.
     //
     // Reported as "there is no way to click through a prompt on a page" --
@@ -365,6 +373,7 @@
       markProjectDirty();
       return;
     }
+    }  // classicHits
 
 
     // The cue-inspector dropdown triggers live inside the inspector's SCROLLING
@@ -460,6 +469,7 @@
         });
       return;
     }
+    if (classicHits) {
     // THE MONITORS WINDOW'S BUTTONS ARE NOT TESTED HERE. outputMenuButtons_ is
     // filled only by the Monitors window, in ITS coordinates, and is handled by
     // handleMonitorsMouseDown. Testing it in the control window made a click on
@@ -1040,6 +1050,7 @@
         }
       }
     }
+    }  // classicHits
 
     // A desk layout's own controls (app_layouts.ipp): GO, the running order...
     if (handleLayoutClick(x, y)) {

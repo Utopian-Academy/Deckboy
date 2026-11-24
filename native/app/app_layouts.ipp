@@ -95,8 +95,29 @@
     }
   }
 
+  SDL_Rect layoutContentRect_ {};
+
   void renderDeskLayout(const SDL_Rect& area) {
     layoutStickerStrip_ = {};
+    layoutContentRect_ = area;
+    // The per-frame hit lists the inspector fills. renderMainPanel clears
+    // them in Classic; a layout never runs it, so without this they kept the
+    // last Classic frame's buttons (pressable, unseen) and EDIT added the
+    // inspector's again every frame.
+    quickButtons_.clear();
+    valueScrubZones_.clear();
+    cueSettingsQuickButtonStartIndex_ = 0;
+    cueSettingsScrubZoneStartIndex_ = 0;
+    cueSettingsViewportRect_ = SDL_Rect {};
+    cuePatternTypeDropdownRect_ = SDL_Rect {};
+    cueTransitionStyleDropdownRect_ = SDL_Rect {};
+    cueSourceTypeDropdownRect_ = SDL_Rect {};
+    cueWindowSourceDropdownRect_ = SDL_Rect {};
+    cueSettingsScrollRailRect_ = SDL_Rect {};
+    motionDriverScrubRect_ = SDL_Rect {};
+    // The playlist's empty space is Classic's: its sticker and the theme's
+    // creatures live there, and a stale one drew them over the layout.
+    playlistFreeRect_ = SDL_Rect {};
     renderDeskLayoutBody(area);
     drawLayoutStickers();
   }
