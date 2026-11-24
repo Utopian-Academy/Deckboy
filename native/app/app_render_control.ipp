@@ -1170,7 +1170,7 @@
       playlistSplitterRect_ = {};
       inspectorSplitterRect_ = {};
       mainPanelLayoutRect_ = {};
-      renderOperatorLayout(contentArea);
+      renderDeskLayout(contentArea);
     } else if (vjSplitDecks) {
       // A on the left and B on the right, matching the bar above and the way
       // a hand moves across a fader.

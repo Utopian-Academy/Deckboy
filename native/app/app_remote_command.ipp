@@ -4650,7 +4650,7 @@
           return;
         }
       }
-      failRemoteCommand("no layout '" + parts[1] + "' (CLASSIC or OPERATOR)");
+      failRemoteCommand("no layout '" + parts[1] + "' (CLASSIC, OPERATOR or SHOWPIECE)");
       return;
     }
     if (command == "FULLSCREEN") {
