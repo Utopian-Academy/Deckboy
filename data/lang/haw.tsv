@@ -4844,3 +4844,26 @@ HOT CUES	NĀ CUE WELA
 Operator	Mea hoʻohana
 {1} followers	{1} mea hahai
 ' (CLASSIC or OPERATOR)	' (CLASSIC a i ʻole OPERATOR)
+DECKS	NĀ PAPA
+Showpiece	Mea hōʻikeʻike
+MOVING NOW	E NEʻE ANA
+nothing on an oscillator	ʻaʻohe mea ma ka oscillator
+' (CLASSIC, OPERATOR or SHOWPIECE)	' (CLASSIC, OPERATOR a i ʻole SHOWPIECE)
+Compact	Paʻapū
+Console	Papa hoʻokele
+Rundown	Papa holo
+COMING UP	E HIKI MAI ANA
+Clip Grid	Makaʻaha kiʻi
+Cue Stack	Pūʻulu cue
+NEXT TRANS	HOʻOLOLI AʻE
+no outputs	ʻaʻohe puka
+paused {1}	hoʻomaha ʻia {1}
+STANDING BY	E KALI ANA
+{1} RUNNING	KE HOLO NEI {1}
+nothing live	ʻaʻohe mea ola
+waits for GO	kali no GO
+ends about {1}	pau ma kahi o {1}
+continues after {1}	hoʻomau ma hope o {1}
+no effects on the live cue	ʻaʻohe hopena ma ka cue ola
+pre-wait {1}  -  {2}  -  then {3}	kali mua {1}  -  {2}  -  a laila {3}
+' (CLASSIC, OPERATOR, SHOWPIECE, RUNDOWN, CLIPGRID, CUESTACK, CONSOLE or COMPACT)	' (CLASSIC, OPERATOR, SHOWPIECE, RUNDOWN, CLIPGRID, CUESTACK, CONSOLE a i ʻole COMPACT)

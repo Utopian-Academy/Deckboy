@@ -4859,3 +4859,26 @@ HOT CUES	CUES RAPIDO
 Operator	Operado
 {1} followers	{1} seguidornan
 ' (CLASSIC or OPERATOR)	' (CLASICO of OPERADO)
+DECKS	DECK
+Showpiece	Vitrina
+MOVING NOW	TA MOVE AWOR
+nothing on an oscillator	nada riba un oscilador
+' (CLASSIC, OPERATOR or SHOWPIECE)	' (CLASICO, OPERADO of VITRINA)
+Compact	Compacto
+Console	Consola
+Rundown	Orden di show
+COMING UP	TA BINI
+Clip Grid	Reda di clip
+Cue Stack	Stack di cue
+NEXT TRANS	SIGUIENTE TRANSICION
+no outputs	sin salida
+paused {1}	pousa {1}
+STANDING BY	PARA KLA
+{1} RUNNING	{1} CORIENDO
+nothing live	nada bibu
+waits for GO	ta warda GO
+ends about {1}	ta caba rond di {1}
+continues after {1}	ta sigui despues di {1}
+no effects on the live cue	sin efecto riba e cue bibu
+pre-wait {1}  -  {2}  -  then {3}	pre-warda {1}  -  {2}  -  despues {3}
+' (CLASSIC, OPERATOR, SHOWPIECE, RUNDOWN, CLIPGRID, CUESTACK, CONSOLE or COMPACT)	' (CLASICO, OPERADO, VITRINA, ORDEN DI SHOW, REDA DI CLIP, STACK DI CUE, CONSOLA of COMPACTO)

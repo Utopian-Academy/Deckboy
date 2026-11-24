@@ -4892,3 +4892,26 @@ HOT CUES	ZARVEKAKU
 Operator	Setawia
 {1} followers	{1} mirawiaku
 ' (CLASSIC or OPERATOR)	' (CLASSIC nu OPERATOR)
+DECKS	DEKAKU
+Showpiece	Vekapata
+MOVING NOW	TIRISET NOVTOK
+nothing on an oscillator	vaala lan mirkora
+' (CLASSIC, OPERATOR or SHOWPIECE)	' (CLASSIC, OPERATOR nu SHOWPIECE)
+Compact	Kispata
+Console	Batkara
+Rundown	Taldora
+COMING UP	MUNA LUMO
+Clip Grid	Vekisareta
+Cue Stack	Vekabufa
+NEXT TRANS	NOVTOKSETA
+no outputs	vasenadoraku
+paused {1}	halo kiso {1}
+STANDING BY	PONO
+{1} RUNNING	{1} ZARO
+nothing live	vaala lumo
+waits for GO	peni GO
+ends about {1}	tamtoka {1}
+continues after {1}	novtiri novtok {1}
+no effects on the live cue	vasetapataku sov veka lumo
+pre-wait {1}  -  {2}  -  then {3}	munpena {1}  -  {2}  -  novtok {3}
+' (CLASSIC, OPERATOR, SHOWPIECE, RUNDOWN, CLIPGRID, CUESTACK, CONSOLE or COMPACT)	' (CLASSIC, OPERATOR, SHOWPIECE, RUNDOWN, CLIPGRID, CUESTACK, CONSOLE nu COMPACT)

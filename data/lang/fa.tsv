@@ -4893,3 +4893,26 @@ HOT CUES	کیوهای فوری
 Operator	اپراتور
 {1} followers	{1} دنبال‌کننده
 ' (CLASSIC or OPERATOR)	' (کلاسیک یا اپراتور)
+DECKS	دک‌ها
+Showpiece	ویترین
+MOVING NOW	اکنون در حرکت
+nothing on an oscillator	هیچ‌چیز روی نوسان‌ساز نیست
+' (CLASSIC, OPERATOR or SHOWPIECE)	' (کلاسیک، اپراتور یا ویترین)
+Compact	فشرده
+Console	کنسول
+Rundown	ترتیب اجرا
+COMING UP	در راه
+Clip Grid	شبکه کلیپ
+Cue Stack	پشته کیو
+NEXT TRANS	گذار بعدی
+no outputs	بدون خروجی
+paused {1}	مکث {1}
+STANDING BY	آماده
+{1} RUNNING	{1} در حال اجرا
+nothing live	هیچ‌چیز زنده نیست
+waits for GO	منتظر GO است
+ends about {1}	حدود {1} تمام می‌شود
+continues after {1}	پس از {1} ادامه می‌یابد
+no effects on the live cue	بدون افکت روی کیوی زنده
+pre-wait {1}  -  {2}  -  then {3}	پیش‌انتظار {1}  -  {2}  -  سپس {3}
+' (CLASSIC, OPERATOR, SHOWPIECE, RUNDOWN, CLIPGRID, CUESTACK, CONSOLE or COMPACT)	' (کلاسیک، اپراتور، ویترین، ترتیب اجرا، شبکه کلیپ، پشته کیو، کنسول یا فشرده)

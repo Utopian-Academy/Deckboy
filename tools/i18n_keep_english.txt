@@ -1384,3 +1384,89 @@ de	HOT CUES
 kmr	Operator
 nl	HOT CUES
 pl	Operator
+ar	LINK {1}
+bg	LINK {1}
+ckb	LINK {1}
+da	DECKS
+da	LINK {1}
+de	DECKS
+de	LINK {1}
+el	LINK {1}
+es-CU	DECKS
+es-CU	LINK {1}
+es	DECKS
+es	LINK {1}
+fa	LINK {1}
+fi	LINK {1}
+fr	DECKS
+fr	LINK {1}
+gd	DECKS
+gd	LINK {1}
+haw	LINK {1}
+hi	LINK {1}
+is	LINK {1}
+it	LINK {1}
+ja	LINK {1}
+kab	DECKS
+kab	LINK {1}
+kmr	LINK {1}
+ko	LINK {1}
+lo	LINK {1}
+lum	LINK {1}
+nl	DECKS
+nl	LINK {1}
+pap-AW	LINK {1}
+pl	LINK {1}
+pt-BR	DECKS
+pt-BR	LINK {1}
+ru	LINK {1}
+tr	LINK {1}
+uk	LINK {1}
+vi	LINK {1}
+zgh	LINK {1}
+zh-Hans	LINK {1}
+zh-Hant	LINK {1}
+zu	LINK {1}
+ar	GO  {1}
+bg	GO  {1}
+ckb	GO  {1}
+da	GO  {1}
+de	GO  {1}
+el	GO  {1}
+es-CU	GO  {1}
+es	GO  {1}
+fa	GO  {1}
+fi	GO  {1}
+fr	Compact
+fr	Console
+fr	GO  {1}
+gd	GO  {1}
+haw	GO  {1}
+hi	GO  {1}
+is	GO  {1}
+it	Console
+it	GO  {1}
+ja	GO  {1}
+kab	GO  {1}
+kmr	GO  {1}
+ko	GO  {1}
+lo	GO  {1}
+lum	GO  {1}
+nl	Compact
+nl	Console
+nl	GO  {1}
+lt	GO  {1}
+lt	AUTO: {1}
+pap-AW	GO  {1}
+pl	GO  {1}
+pl	AUTO: {1}
+pt-BR	Console
+pt-BR	GO  {1}
+ru	GO  {1}
+tr	GO  {1}
+uk	GO  {1}
+vi	GO  {1}
+zgh	GO  {1}
+zh-Hans	GO  {1}
+zh-Hant	GO  {1}
+zu	GO  {1}

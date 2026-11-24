@@ -4864,3 +4864,26 @@ HOT CUES	cue ດ່ວນ
 Operator	ຜູ້ຄວບຄຸມ
 {1} followers	ຜູ້ຕິດຕາມ {1} ຄົນ
 ' (CLASSIC or OPERATOR)	' (CLASSIC ຫຼື OPERATOR)
+DECKS	DECK
+Showpiece	ຜົນງານເດັ່ນ
+MOVING NOW	ກຳລັງເຄື່ອນໄຫວ
+nothing on an oscillator	ບໍ່ມີຫຍັງເຊື່ອມກັບອອສຊິເລເຕີ
+' (CLASSIC, OPERATOR or SHOWPIECE)	' (CLASSIC, OPERATOR ຫຼື SHOWPIECE)
+Compact	ກະທັດຮັດ
+Console	ຄອນໂຊນ
+Rundown	ລຳດັບລາຍການ
+COMING UP	ກຳລັງຈະມາ
+Clip Grid	ຕາຂ່າຍຄລິບ
+Cue Stack	ກອງ cue
+NEXT TRANS	ການປ່ຽນຖັດໄປ
+no outputs	ບໍ່ມີຂາອອກ
+paused {1}	ພັກໄວ້ {1}
+STANDING BY	ກຽມພ້ອມ
+{1} RUNNING	{1} ກຳລັງແລ່ນ
+nothing live	ບໍ່ມີຫຍັງສົດ
+waits for GO	ລໍຖ້າ GO
+ends about {1}	ຈົບປະມານ {1}
+continues after {1}	ສືບຕໍ່ຫຼັງ {1}
+no effects on the live cue	ບໍ່ມີເອັບເຟັກໃນ cue ສົດ
+pre-wait {1}  -  {2}  -  then {3}	ລໍຖ້າກ່ອນ {1}  -  {2}  -  ແລ້ວ {3}
+' (CLASSIC, OPERATOR, SHOWPIECE, RUNDOWN, CLIPGRID, CUESTACK, CONSOLE or COMPACT)	' (CLASSIC, OPERATOR, SHOWPIECE, RUNDOWN, CLIPGRID, CUESTACK, CONSOLE ຫຼື COMPACT)

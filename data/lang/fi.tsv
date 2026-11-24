@@ -4878,3 +4878,26 @@ HOT CUES	PIKACUET
 Operator	Käyttäjä
 {1} followers	{1} seuraajaa
 ' (CLASSIC or OPERATOR)	' (KLASSINEN tai KÄYTTÄJÄ)
+DECKS	DECKIT
+Showpiece	Esittely
+MOVING NOW	LIIKKUU NYT
+nothing on an oscillator	ei mitään oskillaattorilla
+' (CLASSIC, OPERATOR or SHOWPIECE)	' (KLASSINEN, KÄYTTÄJÄ tai ESITTELY)
+Compact	Tiivis
+Console	Konsoli
+Rundown	Ajojärjestys
+COMING UP	TULOSSA
+Clip Grid	Klippiruudukko
+Cue Stack	Cue-pino
+NEXT TRANS	SEURAAVA SIIRT.
+no outputs	ei ulostuloja
+paused {1}	tauolla {1}
+STANDING BY	VALMIUDESSA
+{1} RUNNING	{1} KÄYNNISSÄ
+nothing live	ei mitään suorana
+waits for GO	odottaa GO:ta
+ends about {1}	päättyy noin {1}
+continues after {1}	jatkuu {1} jälkeen
+no effects on the live cue	ei tehosteita suoralla cuella
+pre-wait {1}  -  {2}  -  then {3}	esiodotus {1}  -  {2}  -  sitten {3}
+' (CLASSIC, OPERATOR, SHOWPIECE, RUNDOWN, CLIPGRID, CUESTACK, CONSOLE or COMPACT)	' (KLASSINEN, KÄYTTÄJÄ, ESITTELY, AJOJÄRJESTYS, KLIPPIRUUDUKKO, CUE-PINO, KONSOLI tai TIIVIS)

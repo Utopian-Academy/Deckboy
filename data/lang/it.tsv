@@ -4847,3 +4847,25 @@ HOT CUES	CUE RAPIDI
 Operator	Operatore
 {1} followers	{1} follower
 ' (CLASSIC or OPERATOR)	' (CLASSIC o OPERATOR)
+DECKS	DECK
+Showpiece	Vetrina
+MOVING NOW	IN MOVIMENTO ORA
+nothing on an oscillator	niente su un oscillatore
+' (CLASSIC, OPERATOR or SHOWPIECE)	' (CLASSIC, OPERATOR o SHOWPIECE)
+Compact	Compatto
+Rundown	Scaletta
+COMING UP	A SEGUIRE
+Clip Grid	Griglia clip
+Cue Stack	Pila di cue
+NEXT TRANS	TRANS AVANTI
+no outputs	nessuna uscita
+paused {1}	in pausa {1}
+STANDING BY	IN ATTESA
+{1} RUNNING	{1} IN CORSO
+nothing live	niente in onda
+waits for GO	attende GO
+ends about {1}	termina circa {1}
+continues after {1}	continua dopo {1}
+no effects on the live cue	nessun effetto sul cue in onda
+pre-wait {1}  -  {2}  -  then {3}	pre-attesa {1}  -  {2}  -  poi {3}
+' (CLASSIC, OPERATOR, SHOWPIECE, RUNDOWN, CLIPGRID, CUESTACK, CONSOLE or COMPACT)	' (CLASSIC, OPERATOR, SHOWPIECE, RUNDOWN, CLIPGRID, CUESTACK, CONSOLE o COMPACT)

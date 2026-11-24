@@ -4881,3 +4881,26 @@ HOT CUES	हॉट क्यू
 Operator	ऑपरेटर
 {1} followers	{1} फ़ॉलोअर्स
 ' (CLASSIC or OPERATOR)	' (CLASSIC या OPERATOR)
+DECKS	डेक
+Showpiece	शोपीस
+MOVING NOW	अभी हिल रहा है
+nothing on an oscillator	किसी ऑसिलेटर पर कुछ नहीं
+' (CLASSIC, OPERATOR or SHOWPIECE)	' (CLASSIC, OPERATOR या SHOWPIECE)
+Compact	कॉम्पैक्ट
+Console	कंसोल
+Rundown	रनडाउन
+COMING UP	आगे आ रहा है
+Clip Grid	क्लिप ग्रिड
+Cue Stack	क्यू स्टैक
+NEXT TRANS	अगला संक्रमण
+no outputs	कोई आउटपुट नहीं
+paused {1}	ठहरा {1}
+STANDING BY	स्टैंडबाय
+{1} RUNNING	{1} चल रहा है
+nothing live	कुछ लाइव नहीं
+waits for GO	GO की प्रतीक्षा में
+ends about {1}	लगभग {1} पर समाप्त
+continues after {1}	{1} के बाद जारी
+no effects on the live cue	लाइव क्यू पर कोई प्रभाव नहीं
+pre-wait {1}  -  {2}  -  then {3}	पूर्व-प्रतीक्षा {1}  -  {2}  -  फिर {3}
+' (CLASSIC, OPERATOR, SHOWPIECE, RUNDOWN, CLIPGRID, CUESTACK, CONSOLE or COMPACT)	' (CLASSIC, OPERATOR, SHOWPIECE, RUNDOWN, CLIPGRID, CUESTACK, CONSOLE या COMPACT)

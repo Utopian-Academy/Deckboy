@@ -13,7 +13,7 @@
 - Remote control on the desk's port (5510), answering many of the desk's own commands.
 - Not yet: iOS, and Pocket in Google Play. The APK is on the releases page; Android asks once to allow installing it.
 
-### Following a desk (backup and second rooms)
+### Following a desk (second screens and rooms)
 - New: a desk can **lead** (Settings > Network > Lead other machines). Deckboy Mini (`--follow`, or `SYNC FOLLOW <address>`) and Deckboy Pocket (MENU > SYNC) follow it on the same network: they take, pause, seek and black out with the desk, on the desk's clock. Use one as a backup screen, or to run a second room from one desk.
 - Companion: `FOLLOW`, `TIME`, `SYNC LEAD ON|OFF` and `SYNC STATUS` on the desk; `SYNC FOLLOW`, `SYNC STOP` and `SYNC STATUS` on Mini.
 
@@ -33,6 +33,19 @@
 
 ### Languages
 - New: **Lithuanian** (Lietuvių).
+
+### Desk layouts
+- New: **Layout**, in Settings > System > APPEARANCE under Theme. A layout decides where the desk's pieces go; the theme and skin still decide how they look, so every theme works with every layout. Saved with the show. Companion: `LAYOUT CLASSIC|OPERATOR|SHOWPIECE|RUNDOWN|CLIPGRID|CUESTACK|CONSOLE|COMPACT`, and `LAYOUT SHOW|EDIT`.
+- **Classic**: the desk as before.
+- **Operator**, built for speed: LIVE and NEXT monitors (live counts down), one running order with the live, next and played rows marked, GO naming the cue it plays, BACK / HOLD / SKIP with their keys, the transition (cut, 1, 2, 4 s), hot cues F1-F8, a status row with every output's tally, and BLACK only on a half-second hold, at the far end from GO.
+- **Showpiece**: the programme fills the window as soft light behind smoked-glass panels: the live timecode, the beat, BPM and Link, the playlists' faders, every oscillator moving on the live cue drawn as its wave, GO as a dial whose ring counts the live cue down, and the cues as a filmstrip along the bottom.
+- **Rundown**: preview and programme, a multiview of the other playlists and outputs, CUT and AUTO, and the rundown back-timed: when each item reaches air and when the show ends, with ON AIR, PREVIEW, READY, MISSING, SKIPPED and DONE.
+- **Clip Grid**: a column of clips per playlist, fired with one press (on the beat when QUANTISE is on), STOP per column, TAP, BPM, LINK and QUANTISE, the live cue's effects, and the crossfader.
+- **Cue Stack**: GO, the cue standing by with its pre-wait and what follows, and the running cue's countdown across the top; big rows with pre-wait, action, post-wait and continue; the stage manager's notes for the cue standing by and those coming up; BACK, PAUSE ALL and PANIC.
+- **Console**: a vision mixer: monitors, a PROGRAM bus that cuts, a PRESET bus that picks what AUTO takes, the next transition and its time, CUT, AUTO and FTB.
+- **Compact**, for a 1366 x 768 laptop: one playlist, the live monitor, a tray with INSPECT, NEXT and OUTPUTS, and GO along the bottom.
+- Every layout but Classic has SHOW and EDIT: SHOW hides editing and the bottom bar; EDIT brings the inspector and the bar back.
+- Fixed: when the inspector's header filled the space it was given, its rows drew over whatever was below.
 
 ### Skins
 - New: 20 skins. A skin changes what the desk is made of, not only its colours: the shape of panels and buttons (round, pill, cut corner, hand-drawn), their edges, light and shadow, a surface texture and a typeface. They are Console HD, Studio, Brushed, Bakelite, Arcade, Paper, Synth, Toybox, Phosphor, Field, Switcher, VCR, Test Gear, Modular, Membrane, Rack, Pocket Grey, Pocket Clear, Rubber Hose and Goo. Pick one in Settings, like a theme.

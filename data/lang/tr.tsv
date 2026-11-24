@@ -4872,3 +4872,26 @@ HOT CUES	HIZLI CUE'LAR
 Operator	Operatör
 {1} followers	{1} takipçi
 ' (CLASSIC or OPERATOR)	' (KLASİK veya OPERATÖR)
+DECKS	DECK'LER
+Showpiece	Vitrin
+MOVING NOW	ŞİMDİ HAREKETTE
+nothing on an oscillator	osilatörde hiçbir şey yok
+' (CLASSIC, OPERATOR or SHOWPIECE)	' (KLASİK, OPERATÖR veya VİTRİN)
+Compact	Kompakt
+Console	Konsol
+Rundown	Akış
+COMING UP	SIRADA
+Clip Grid	Klip ızgarası
+Cue Stack	Cue yığını
+NEXT TRANS	SONRAKİ GEÇİŞ
+no outputs	çıkış yok
+paused {1}	duraklatıldı {1}
+STANDING BY	BEKLEMEDE
+{1} RUNNING	{1} ÇALIŞIYOR
+nothing live	canlı hiçbir şey yok
+waits for GO	GO'yu bekler
+ends about {1}	yaklaşık {1} biter
+continues after {1}	{1} sonra devam eder
+no effects on the live cue	yayındaki cue'da efekt yok
+pre-wait {1}  -  {2}  -  then {3}	ön bekleme {1}  -  {2}  -  sonra {3}
+' (CLASSIC, OPERATOR, SHOWPIECE, RUNDOWN, CLIPGRID, CUESTACK, CONSOLE or COMPACT)	' (KLASİK, OPERATÖR, VİTRİN, AKIŞ, KLİP IZGARASI, CUE YIĞINI, KONSOL veya KOMPAKT)

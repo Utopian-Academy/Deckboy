@@ -4850,3 +4850,26 @@ highest {1}%	najwyższe {1}%
 HOT CUES	SZYBKIE CUE
 {1} followers	Obserwujący: {1}
 ' (CLASSIC or OPERATOR)	' (KLASYCZNY lub OPERATOR)
+DECKS	DECKI
+Showpiece	Pokazowy
+MOVING NOW	TERAZ W RUCHU
+nothing on an oscillator	nic na oscylatorze
+' (CLASSIC, OPERATOR or SHOWPIECE)	' (KLASYCZNY, OPERATOR lub POKAZOWY)
+Compact	Kompaktowy
+Console	Konsola
+Rundown	Scenariusz
+COMING UP	ZA CHWILĘ
+Clip Grid	Siatka klipów
+Cue Stack	Stos cue
+NEXT TRANS	NASTĘPNE PRZEJŚ.
+no outputs	brak wyjść
+paused {1}	wstrzymany {1}
+STANDING BY	W GOTOWOŚCI
+{1} RUNNING	{1} DZIAŁA
+nothing live	nic na żywo
+waits for GO	czeka na GO
+ends about {1}	kończy się około {1}
+continues after {1}	kontynuuje po {1}
+no effects on the live cue	brak efektów w cue na żywo
+pre-wait {1}  -  {2}  -  then {3}	wstępne czekanie {1}  -  {2}  -  potem {3}
+' (CLASSIC, OPERATOR, SHOWPIECE, RUNDOWN, CLIPGRID, CUESTACK, CONSOLE or COMPACT)	' (KLASYCZNY, OPERATOR, POKAZOWY, SCENARIUSZ, SIATKA KLIPÓW, STOS CUE, KONSOLA lub KOMPAKTOWY)

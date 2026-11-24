@@ -4871,3 +4871,26 @@ HOT CUES	FLÝTI-CUE
 Operator	Stjórnandi
 {1} followers	{1} fylgjendur
 ' (CLASSIC or OPERATOR)	' (CLASSIC eða OPERATOR)
+DECKS	DEKK
+Showpiece	Sýningargripur
+MOVING NOW	Í HREYFINGU NÚNA
+nothing on an oscillator	ekkert á sveifli
+' (CLASSIC, OPERATOR or SHOWPIECE)	' (CLASSIC, OPERATOR eða SHOWPIECE)
+Compact	Þjappað
+Console	Stjórnborð
+Rundown	Keyrsluröð
+COMING UP	NÆST Á DAGSKRÁ
+Clip Grid	Bútahnitanet
+Cue Stack	Cue-stafli
+NEXT TRANS	NÆSTA YFIRF.
+no outputs	engin úttök
+paused {1}	í bið {1}
+STANDING BY	Í BIÐSTÖÐU
+{1} RUNNING	{1} Í GANGI
+nothing live	ekkert í beinni
+waits for GO	bíður eftir GO
+ends about {1}	lýkur u.þ.b. {1}
+continues after {1}	heldur áfram eftir {1}
+no effects on the live cue	engin áhrif á cue í beinni
+pre-wait {1}  -  {2}  -  then {3}	forbið {1}  -  {2}  -  svo {3}
+' (CLASSIC, OPERATOR, SHOWPIECE, RUNDOWN, CLIPGRID, CUESTACK, CONSOLE or COMPACT)	' (CLASSIC, OPERATOR, SHOWPIECE, RUNDOWN, CLIPGRID, CUESTACK, CONSOLE eða COMPACT)

@@ -4881,3 +4881,26 @@ HOT CUES	cue ی خێرا
 Operator	کارمەند
 {1} followers	{1} شوێنکەوتوو
 ' (CLASSIC or OPERATOR)	' (کلاسیک یان کارمەند)
+DECKS	دێکەکان
+Showpiece	نمایشی
+MOVING NOW	ئێستا دەجووڵێت
+nothing on an oscillator	هیچ لەسەر ئۆسیلەیتەر نییە
+' (CLASSIC, OPERATOR or SHOWPIECE)	' (کلاسیک، کارمەند یان نمایشی)
+Compact	چڕ
+Console	کۆنسۆڵ
+Rundown	ڕیزبەندی بەرنامە
+COMING UP	بەم زووانە
+Clip Grid	تۆڕی کلیپ
+Cue Stack	کۆمەڵەی cue
+NEXT TRANS	گواستنەوەی دواتر
+no outputs	دەرچوون نییە
+paused {1}	ڕاگیراوە {1}
+STANDING BY	ئامادەباش
+{1} RUNNING	{1} لە کاردایە
+nothing live	هیچ ڕاستەوخۆ نییە
+waits for GO	چاوەڕێی GO دەکات
+ends about {1}	نزیکەی {1} کۆتایی دێت
+continues after {1}	دوای {1} بەردەوام دەبێت
+no effects on the live cue	هیچ کاریگەرییەک لەسەر cue ی ڕاستەوخۆ نییە
+pre-wait {1}  -  {2}  -  then {3}	پێش-چاوەڕوانی {1}  -  {2}  -  پاشان {3}
+' (CLASSIC, OPERATOR, SHOWPIECE, RUNDOWN, CLIPGRID, CUESTACK, CONSOLE or COMPACT)	' (کلاسیک، کارمەند، نمایشی، ڕیزبەندی بەرنامە، تۆڕی کلیپ، کۆمەڵەی cue، کۆنسۆڵ یان چڕ)

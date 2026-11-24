@@ -4876,3 +4876,25 @@ HOT CUES	CUES LUATHA
 Operator	Obraiche
 {1} followers	{1} luchd-leantainn
 ' (CLASSIC or OPERATOR)	' (CLASAIGEACH no OBRAICHE)
+Showpiece	Taisbeanadh
+MOVING NOW	A' GLUASAD A-NIS
+nothing on an oscillator	dad air osgalair
+' (CLASSIC, OPERATOR or SHOWPIECE)	' (CLASAIGEACH, OBRAICHE no TAISBEANADH)
+Compact	Dlùth
+Console	Consail
+Rundown	Clàr-ruith
+COMING UP	RI THIGHINN
+Clip Grid	Griod chliopaichean
+Cue Stack	Cruach cue
+NEXT TRANS	AN ATH THAR-CHUR
+no outputs	gun às-chur
+paused {1}	na thàmh {1}
+STANDING BY	DEISEIL
+{1} RUNNING	{1} A' RUITH
+nothing live	dad beò
+waits for GO	a' feitheamh ri GO
+ends about {1}	crìochnaichidh mu {1}
+continues after {1}	leanaidh air às dèidh {1}
+no effects on the live cue	gun èifeachd air a’ chue bheò
+pre-wait {1}  -  {2}  -  then {3}	ro-fheitheamh {1}  -  {2}  -  an uairsin {3}
+' (CLASSIC, OPERATOR, SHOWPIECE, RUNDOWN, CLIPGRID, CUESTACK, CONSOLE or COMPACT)	' (CLASAIGEACH, OBRAICHE, TAISBEANADH, CLÀR-RUITH, GRIOD CHLIOPAICHEAN, CRUACH CUE, CONSAIL no DLÙTH)

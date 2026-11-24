@@ -3944,3 +3944,28 @@ TRANSITION	PERĖJIMAS
 {1} followers	Sekėjai: {1}
 transition: {1}	perėjimas: {1}
 ' (CLASSIC or OPERATOR)	' (CLASSIC arba OPERATOR)
+DECKS	RINKINIAI
+LINK {1}	RYŠYS {1}
+Showpiece	Vitrina
+MOVING NOW	DABAR JUDA
+nothing on an oscillator	prie osciliatoriaus nieko neprijungta
+' (CLASSIC, OPERATOR or SHOWPIECE)	' (CLASSIC, OPERATOR arba SHOWPIECE)
+Compact	Kompaktiškas
+Console	Konsolė
+Rundown	Eiga
+continue	tęsti
+COMING UP	NETRUKUS
+Clip Grid	Klipų tinklelis
+Cue Stack	Ženklų eilė
+NEXT TRANS	KITAS PERĖJIMAS
+no outputs	be išvesčių
+paused {1}	pristabdyta {1}
+STANDING BY	PARENGTA
+{1} RUNNING	{1} VYKDOMA
+nothing live	niekas negroja
+waits for GO	laukia GO
+ends about {1}	baigsis apie {1}
+continues after {1}	tęsis po {1}
+no effects on the live cue	tiesioginiam ženklui efektų nėra
+pre-wait {1}  -  {2}  -  then {3}	laukimas prieš {1}  -  {2}  -  tada {3}
+' (CLASSIC, OPERATOR, SHOWPIECE, RUNDOWN, CLIPGRID, CUESTACK, CONSOLE or COMPACT)	' (CLASSIC, OPERATOR, SHOWPIECE, RUNDOWN, CLIPGRID, CUESTACK, CONSOLE arba COMPACT)

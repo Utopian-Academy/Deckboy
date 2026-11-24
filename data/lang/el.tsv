@@ -4874,3 +4874,26 @@ HOT CUES	ΓΡΗΓΟΡΑ CUE
 Operator	Χειριστής
 {1} followers	{1} ακόλουθοι
 ' (CLASSIC or OPERATOR)	' (ΚΛΑΣΙΚΟ ή ΧΕΙΡΙΣΤΗΣ)
+DECKS	ΚΟΝΣΟΛΕΣ
+Showpiece	Βιτρίνα
+MOVING NOW	ΚΙΝΕΙΤΑΙ ΤΩΡΑ
+nothing on an oscillator	τίποτα σε ταλαντωτή
+' (CLASSIC, OPERATOR or SHOWPIECE)	' (ΚΛΑΣΙΚΟ, ΧΕΙΡΙΣΤΗΣ ή ΒΙΤΡΙΝΑ)
+Compact	Συμπαγές
+Console	Κονσόλα
+Rundown	Ροή εκπομπής
+COMING UP	ΕΡΧΕΤΑΙ
+Clip Grid	Πλέγμα κλιπ
+Cue Stack	Στοίβα cue
+NEXT TRANS	ΕΠΟΜΕΝΗ ΜΕΤΑΒ.
+no outputs	χωρίς εξόδους
+paused {1}	παύση {1}
+STANDING BY	ΣΕ ΑΝΑΜΟΝΗ
+{1} RUNNING	{1} ΤΡΕΧΕΙ
+nothing live	τίποτα ζωντανά
+waits for GO	περιμένει GO
+ends about {1}	λήγει περίπου {1}
+continues after {1}	συνεχίζει μετά από {1}
+no effects on the live cue	χωρίς εφέ στο cue στον αέρα
+pre-wait {1}  -  {2}  -  then {3}	προαναμονή {1}  -  {2}  -  μετά {3}
+' (CLASSIC, OPERATOR, SHOWPIECE, RUNDOWN, CLIPGRID, CUESTACK, CONSOLE or COMPACT)	' (ΚΛΑΣΙΚΟ, ΧΕΙΡΙΣΤΗΣ, ΒΙΤΡΙΝΑ, ΡΟΗ ΕΚΠΟΜΠΗΣ, ΠΛΕΓΜΑ ΚΛΙΠ, ΣΤΟΙΒΑ CUE, ΚΟΝΣΟΛΑ ή ΣΥΜΠΑΓΕΣ)

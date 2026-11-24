@@ -4829,3 +4829,25 @@ highest {1}%	højeste {1}%
 Operator	Operatør
 {1} followers	{1} følgere
 ' (CLASSIC or OPERATOR)	' (KLASSISK eller OPERATØR)
+Showpiece	Fremvisning
+MOVING NOW	BEVÆGER SIG NU
+nothing on an oscillator	intet på en oscillator
+' (CLASSIC, OPERATOR or SHOWPIECE)	' (KLASSISK, OPERATØR eller FREMVISNING)
+Compact	Kompakt
+Console	Konsol
+Rundown	Køreplan
+COMING UP	KOMMER SNART
+Clip Grid	Klipgitter
+Cue Stack	Cue-stak
+NEXT TRANS	NÆSTE OVERG
+no outputs	ingen udgange
+paused {1}	pauset {1}
+STANDING BY	STÅR KLAR
+{1} RUNNING	{1} KØRER
+nothing live	intet direkte
+waits for GO	venter på GO
+ends about {1}	slutter ca. {1}
+continues after {1}	fortsætter efter {1}
+no effects on the live cue	ingen effekter på det live cue
+pre-wait {1}  -  {2}  -  then {3}	ventetid før {1}  -  {2}  -  derefter {3}
+' (CLASSIC, OPERATOR, SHOWPIECE, RUNDOWN, CLIPGRID, CUESTACK, CONSOLE or COMPACT)	' (KLASSISK, OPERATØR, FREMVISNING, KØREPLAN, KLIPGITTER, CUE-STAK, KONSOL eller KOMPAKT)

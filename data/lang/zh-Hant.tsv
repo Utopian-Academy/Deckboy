@@ -4878,3 +4878,26 @@ HOT CUES	快捷 CUE
 Operator	操作員
 {1} followers	{1} 位追蹤者
 ' (CLASSIC or OPERATOR)	' (經典或操作員)
+DECKS	播放器
+Showpiece	展示
+MOVING NOW	正在移動
+nothing on an oscillator	無內容綁定到振盪器
+' (CLASSIC, OPERATOR or SHOWPIECE)	' (經典、操作員或展示)
+Compact	精簡
+Console	控制台
+Rundown	流程表
+COMING UP	即將播出
+Clip Grid	片段網格
+Cue Stack	Cue 堆疊
+NEXT TRANS	下一個轉場
+no outputs	無輸出
+paused {1}	已暫停 {1}
+STANDING BY	待命
+{1} RUNNING	{1} 執行中
+nothing live	無直播內容
+waits for GO	等待 GO
+ends about {1}	約 {1} 結束
+continues after {1}	{1} 後繼續
+no effects on the live cue	直播 cue 無效果
+pre-wait {1}  -  {2}  -  then {3}	預等待 {1}  -  {2}  -  然後 {3}
+' (CLASSIC, OPERATOR, SHOWPIECE, RUNDOWN, CLIPGRID, CUESTACK, CONSOLE or COMPACT)	' (經典、操作員、展示、流程表、片段網格、CUE 堆疊、控制台或精簡)

@@ -4815,3 +4815,24 @@ HOT CUES	CUES RAPIDES
 Operator	Opérateur
 {1} followers	{1} abonnés
 ' (CLASSIC or OPERATOR)	' (CLASSIQUE ou OPÉRATEUR)
+Showpiece	Vitrine
+MOVING NOW	BOUGE MAINTENANT
+nothing on an oscillator	rien sur un oscillateur
+' (CLASSIC, OPERATOR or SHOWPIECE)	' (CLASSIQUE, OPÉRATEUR ou VITRINE)
+Rundown	Conducteur
+AUTO: {1}	AUTO : {1}
+COMING UP	À SUIVRE
+Clip Grid	Grille de clips
+Cue Stack	Pile de cues
+NEXT TRANS	TRANS SUIVANTE
+no outputs	aucune sortie
+paused {1}	en pause {1}
+STANDING BY	EN ATTENTE
+{1} RUNNING	{1} EN COURS
+nothing live	rien en direct
+waits for GO	attend GO
+ends about {1}	finit vers {1}
+continues after {1}	continue après {1}
+no effects on the live cue	aucun effet sur le cue en direct
+pre-wait {1}  -  {2}  -  then {3}	pré-attente {1}  -  {2}  -  puis {3}
+' (CLASSIC, OPERATOR, SHOWPIECE, RUNDOWN, CLIPGRID, CUESTACK, CONSOLE or COMPACT)	' (CLASSIQUE, OPÉRATEUR, VITRINE, CONDUCTEUR, GRILLE DE CLIPS, PILE DE CUES, CONSOLE ou COMPACT)

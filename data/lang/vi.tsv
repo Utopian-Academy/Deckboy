@@ -4865,3 +4865,26 @@ HOT CUES	CUE NHANH
 Operator	Người vận hành
 {1} followers	{1} người theo dõi
 ' (CLASSIC or OPERATOR)	' (CỔ ĐIỂN hoặc NGƯỜI VẬN HÀNH)
+DECKS	DECK
+Showpiece	Trình diễn
+MOVING NOW	ĐANG CHUYỂN ĐỘNG
+nothing on an oscillator	không gì gắn với bộ dao động
+' (CLASSIC, OPERATOR or SHOWPIECE)	' (CỔ ĐIỂN, NGƯỜI VẬN HÀNH hoặc TRÌNH DIỄN)
+Compact	Gọn
+Console	Bàn điều khiển
+Rundown	Trình tự
+COMING UP	SẮP TỚI
+Clip Grid	Lưới clip
+Cue Stack	Chồng cue
+NEXT TRANS	CHUYỂN TIẾP
+no outputs	không output
+paused {1}	tạm dừng {1}
+STANDING BY	CHỜ SẴN
+{1} RUNNING	{1} ĐANG CHẠY
+nothing live	không gì trực tiếp
+waits for GO	chờ GO
+ends about {1}	kết thúc khoảng {1}
+continues after {1}	tiếp tục sau {1}
+no effects on the live cue	không hiệu ứng trên cue trực tiếp
+pre-wait {1}  -  {2}  -  then {3}	chờ trước {1}  -  {2}  -  rồi {3}
+' (CLASSIC, OPERATOR, SHOWPIECE, RUNDOWN, CLIPGRID, CUESTACK, CONSOLE or COMPACT)	' (CỔ ĐIỂN, NGƯỜI VẬN HÀNH, TRÌNH DIỄN, TRÌNH TỰ, LƯỚI CLIP, CHỒNG CUE, BÀN ĐIỀU KHIỂN hoặc GỌN)

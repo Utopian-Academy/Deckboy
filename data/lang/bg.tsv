@@ -4880,3 +4880,26 @@ HOT CUES	БЪРЗИ CUE
 Operator	Оператор
 {1} followers	{1} последователи
 ' (CLASSIC or OPERATOR)	' (КЛАСИЧЕСКО или ОПЕРАТОР)
+DECKS	ПУЛТОВЕ
+Showpiece	Витрина
+MOVING NOW	ДВИЖИ СЕ СЕГА
+nothing on an oscillator	нищо върху осцилатор
+' (CLASSIC, OPERATOR or SHOWPIECE)	' (КЛАСИЧЕСКО, ОПЕРАТОР или ВИТРИНА)
+Compact	Компактно
+Console	Конзола
+Rundown	Сценарий
+COMING UP	ПРЕДСТОИ
+Clip Grid	Мрежа клипове
+Cue Stack	Стек с cue
+NEXT TRANS	СЛЕДВАЩ ПРЕХОД
+no outputs	няма изходи
+paused {1}	на пауза {1}
+STANDING BY	В ГОТОВНОСТ
+{1} RUNNING	{1} РАБОТИ
+nothing live	нищо на живо
+waits for GO	чака GO
+ends about {1}	свършва около {1}
+continues after {1}	продължава след {1}
+no effects on the live cue	няма ефекти върху живото cue
+pre-wait {1}  -  {2}  -  then {3}	предизчакване {1}  -  {2}  -  после {3}
+' (CLASSIC, OPERATOR, SHOWPIECE, RUNDOWN, CLIPGRID, CUESTACK, CONSOLE or COMPACT)	' (КЛАСИЧЕСКО, ОПЕРАТОР, ВИТРИНА, СЦЕНАРИЙ, МРЕЖА КЛИПОВЕ, СТЕК С CUE, КОНЗОЛА или КОМПАКТНО)

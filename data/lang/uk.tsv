@@ -4881,3 +4881,26 @@ HOT CUES	ШВИДКІ CUE
 Operator	Оператор
 {1} followers	Підписники: {1}
 ' (CLASSIC or OPERATOR)	' (КЛАСИКА або ОПЕРАТОР)
+DECKS	ДЕКИ
+Showpiece	Вітрина
+MOVING NOW	РУХАЄТЬСЯ ЗАРАЗ
+nothing on an oscillator	нічого на осциляторі
+' (CLASSIC, OPERATOR or SHOWPIECE)	' (КЛАСИКА, ОПЕРАТОР або ВІТРИНА)
+Compact	Компактний
+Console	Консоль
+Rundown	Сценарій
+COMING UP	ДАЛІ
+Clip Grid	Сітка кліпів
+Cue Stack	Стек cue
+NEXT TRANS	НАСТУПНИЙ ПЕРЕХІД
+no outputs	немає виходів
+paused {1}	пауза {1}
+STANDING BY	НАПОГОТОВІ
+{1} RUNNING	{1} ПРАЦЮЄ
+nothing live	нічого в ефірі
+waits for GO	чекає на GO
+ends about {1}	закінчиться близько {1}
+continues after {1}	продовжиться після {1}
+no effects on the live cue	немає ефектів на к’ю в ефірі
+pre-wait {1}  -  {2}  -  then {3}	попереднє очікування {1}  -  {2}  -  потім {3}
+' (CLASSIC, OPERATOR, SHOWPIECE, RUNDOWN, CLIPGRID, CUESTACK, CONSOLE or COMPACT)	' (КЛАСИКА, ОПЕРАТОР, ВІТРИНА, СЦЕНАРІЙ, СІТКА КЛІПІВ, СТЕК CUE, КОНСОЛЬ або КОМПАКТНИЙ)

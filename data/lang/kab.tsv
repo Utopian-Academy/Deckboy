@@ -4865,3 +4865,25 @@ HOT CUES	CUE YEḤMAN
 Operator	Amsefrek
 {1} followers	{1} n yimeḍfaren
 ' (CLASSIC or OPERATOR)	' (CLASSIC neɣ OPERATOR)
+Showpiece	Askan
+MOVING NOW	YETTḤERRIK TURA
+nothing on an oscillator	ulac ayen ɣef umsenkez
+' (CLASSIC, OPERATOR or SHOWPIECE)	' (CLASSIC, OPERATOR neɣ SHOWPIECE)
+Compact	Amectuḥ
+Console	Tafelwit
+Rundown	Tabdart n uskan
+COMING UP	AD D-YAS
+Clip Grid	Aferrug n yifmizen
+Cue Stack	Tagrumma n cue
+NEXT TRANS	ASAKA WIN I D-ITEDDUN
+no outputs	ulac tuffɣiwin
+paused {1}	yesteɛfa {1}
+STANDING BY	YEHEGGA
+{1} RUNNING	{1} YETTEDDU
+nothing live	ulac ayen yellan s tidet
+waits for GO	yettraǧu GO
+ends about {1}	ad yekfu azal n {1}
+continues after {1}	ikemmel deffir {1}
+no effects on the live cue	ulac isemda ɣef cue s tidet
+pre-wait {1}  -  {2}  -  then {3}	araǧu uqbel {1}  -  {2}  -  sakin {3}
+' (CLASSIC, OPERATOR, SHOWPIECE, RUNDOWN, CLIPGRID, CUESTACK, CONSOLE or COMPACT)	' (CLASSIC, OPERATOR, SHOWPIECE, RUNDOWN, CLIPGRID, CUESTACK, CONSOLE neɣ COMPACT)

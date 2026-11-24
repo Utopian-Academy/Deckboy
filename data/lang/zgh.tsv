@@ -4892,3 +4892,26 @@ HOT CUES	CUE ⵉⵣⵔⴱⵏ
 Operator	ⴰⵎⵏⴱⴱⴰⴹ
 {1} followers	{1} ⵉⵎⴹⴼⴰⵕⵏ
 ' (CLASSIC or OPERATOR)	' (ⴰⵎⵏⵙⴰⵢ ⵏⵖ ⴰⵎⵏⴱⴱⴰⴹ)
+DECKS	DECK
+Showpiece	ⴰⵙⴽⴰⵏ
+MOVING NOW	ⵉⵜⵜⵎⵓⵙⵙⵓ ⵖⵉⵍⴰ
+nothing on an oscillator	ⵡⴰⵍⵓ ⵖⴼ ⵓⵎⵙⵏⴳⵉ
+' (CLASSIC, OPERATOR or SHOWPIECE)	' (ⴰⵎⵏⵙⴰⵢ, ⴰⵎⵏⴱⴱⴰⴹ ⵏⵖ ⴰⵙⴽⴰⵏ)
+Compact	ⴰⵎⵥⵢⴰⵏ
+Console	ⴰⵏⴱⴹ
+Rundown	ⴰⵙⵍⵙⵍ
+COMING UP	ⴰⵔ ⴷ ⵉⵜⵜⴰⵙ
+Clip Grid	ⴰⴼⵔⵔⵓⴳ ⵏ ⵉⵙⴳⵣⵓⵎⵏ
+Cue Stack	ⴰⵙⵎⵓⵏ ⵏ cue
+NEXT TRANS	ⴰⵙⴰⴽⴰ ⵡⵉⵏ ⴷ ⵉⴷⴷⵏ
+no outputs	ⵓⵔ ⵍⵍⵉⵏⵜ ⵜⵓⴼⴼⵖⴰⵜⵉⵏ
+paused {1}	ⵉⵙⴳⵓⵏⴼⴰ {1}
+STANDING BY	ⵉⵀⵢⵢⴰ
+{1} RUNNING	{1} ⵉⵜⴷⴷⵓ
+nothing live	ⵡⴰⵍⵓ ⵙ ⵜⵓⴷⵔⵜ
+waits for GO	ⴰⵔ ⵉⵜⵜⵔⴰⵊⵓ GO
+ends about {1}	ⵜⵉⴳⵉⵔⴰ ⵣⵓⵏⴷ {1}
+continues after {1}	ⴰⵔ ⵉⵜⵜⴽⵎⵎⴰⵍ ⴷⴼⴼⵉⵔ {1}
+no effects on the live cue	ⵓⵔ ⵍⵍⵉⵏ ⵉⵙⵏⴼⴰⵍⵏ ⵖ cue ⵙ ⵜⵓⴷⵔⵜ
+pre-wait {1}  -  {2}  -  then {3}	ⴰⵔⴰⵊⵓ ⴰⵎⵣⵡⴰⵔⵓ {1}  -  {2}  -  ⴷⴼⴼⵉⵔⵙ {3}
+' (CLASSIC, OPERATOR, SHOWPIECE, RUNDOWN, CLIPGRID, CUESTACK, CONSOLE or COMPACT)	' (ⴰⵎⵏⵙⴰⵢ, ⴰⵎⵏⴱⴱⴰⴹ, ⴰⵙⴽⴰⵏ, ⴰⵙⵍⵙⵍ, ⴰⴼⵔⵔⵓⴳ ⵏ ⵉⵙⴳⵣⵓⵎⵏ, ⴰⵙⵎⵓⵏ ⵏ CUE, ⴰⵏⴱⴹ ⵏⵖ ⴰⵎⵥⵢⴰⵏ)

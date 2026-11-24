@@ -4818,3 +4818,23 @@ highest {1}%	hoogste {1}%
 Operator	Technicus
 {1} followers	{1} volgers
 ' (CLASSIC or OPERATOR)	' (CLASSIC of OPERATOR)
+Showpiece	Pronkstuk
+MOVING NOW	NU IN BEWEGING
+nothing on an oscillator	niets op een oscillator
+' (CLASSIC, OPERATOR or SHOWPIECE)	' (CLASSIC, OPERATOR of SHOWPIECE)
+Rundown	Draaiboek
+COMING UP	HIERNA
+Clip Grid	Clipraster
+Cue Stack	Cuestapel
+NEXT TRANS	VOLGENDE OVERG.
+no outputs	geen uitgangen
+paused {1}	gepauzeerd {1}
+STANDING BY	STAND-BY
+{1} RUNNING	{1} LOOPT
+nothing live	niets live
+waits for GO	wacht op GO
+ends about {1}	eindigt rond {1}
+continues after {1}	gaat door na {1}
+no effects on the live cue	geen effecten op de livecue
+pre-wait {1}  -  {2}  -  then {3}	vooraf wachten {1}  -  {2}  -  dan {3}
+' (CLASSIC, OPERATOR, SHOWPIECE, RUNDOWN, CLIPGRID, CUESTACK, CONSOLE or COMPACT)	' (CLASSIC, OPERATOR, SHOWPIECE, RUNDOWN, CLIPGRID, CUESTACK, CONSOLE of COMPACT)

@@ -4877,3 +4877,26 @@ HOT CUES	핫 큐
 Operator	오퍼레이터
 {1} followers	팔로워 {1}명
 ' (CLASSIC or OPERATOR)	' (CLASSIC 또는 OPERATOR)
+DECKS	데크
+Showpiece	쇼피스
+MOVING NOW	지금 움직이는 중
+nothing on an oscillator	오실레이터에 연결된 것 없음
+' (CLASSIC, OPERATOR or SHOWPIECE)	' (CLASSIC, OPERATOR 또는 SHOWPIECE)
+Compact	컴팩트
+Console	콘솔
+Rundown	런다운
+COMING UP	다음 순서
+Clip Grid	클립 격자
+Cue Stack	큐 스택
+NEXT TRANS	다음 전환
+no outputs	출력 없음
+paused {1}	일시 정지 {1}
+STANDING BY	대기 중
+{1} RUNNING	{1} 실행 중
+nothing live	라이브 없음
+waits for GO	GO 대기
+ends about {1}	약 {1}에 종료
+continues after {1}	{1} 후 계속
+no effects on the live cue	라이브 큐에 효과 없음
+pre-wait {1}  -  {2}  -  then {3}	사전 대기 {1}  -  {2}  -  이후 {3}
+' (CLASSIC, OPERATOR, SHOWPIECE, RUNDOWN, CLIPGRID, CUESTACK, CONSOLE or COMPACT)	' (CLASSIC, OPERATOR, SHOWPIECE, RUNDOWN, CLIPGRID, CUESTACK, CONSOLE 또는 COMPACT)

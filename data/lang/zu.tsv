@@ -4866,3 +4866,26 @@ HOT CUES	AMA-CUE ASHESHAYO
 Operator	Umsebenzisi
 {1} followers	{1} abalandeli
 ' (CLASSIC or OPERATOR)	' (OKWAKUDALA noma UMSEBENZISI)
+DECKS	AMA-DECK
+Showpiece	Okokubukisa
+MOVING NOW	KUYANYAKAZA MANJE
+nothing on an oscillator	akukho lutho ku-oscillator
+' (CLASSIC, OPERATOR or SHOWPIECE)	' (OKWAKUDALA, UMSEBENZISI noma OKOKUBUKISA)
+Compact	Okuncane
+Console	Ikhonsoli
+Rundown	Uhlu lohlelo
+COMING UP	OKUZAYO
+Clip Grid	Igridi yamakliphu
+Cue Stack	Inqwaba yama-cue
+NEXT TRANS	UKUSHINTSHA OKULANDELAYO
+no outputs	akukho okuphumayo
+paused {1}	kumisiwe {1}
+STANDING BY	KULINDILE
+{1} RUNNING	{1} IYASEBENZA
+nothing live	akukho okubukhomayo
+waits for GO	ilinda u-GO
+ends about {1}	iphela cishe ngo-{1}
+continues after {1}	iqhubeka emva kwe-{1}
+no effects on the live cue	ayikho imiphumela ku-cue ebukhoma
+pre-wait {1}  -  {2}  -  then {3}	ukulinda kuqala {1}  -  {2}  -  bese {3}
+' (CLASSIC, OPERATOR, SHOWPIECE, RUNDOWN, CLIPGRID, CUESTACK, CONSOLE or COMPACT)	' (OKWAKUDALA, UMSEBENZISI, OKOKUBUKISA, UHLU LOHLELO, IGRIDI YAMAKLIPHU, INQWABA YAMA-CUE, IKHONSOLI noma OKUNCANE)

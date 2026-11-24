@@ -4879,3 +4879,26 @@ HOT CUES	ホットキュー
 Operator	オペレーター
 {1} followers	フォロワー {1}人
 ' (CLASSIC or OPERATOR)	' (CLASSIC または OPERATOR)
+DECKS	デッキ
+Showpiece	ショーピース
+MOVING NOW	いま動いています
+nothing on an oscillator	オシレーターにはなし
+' (CLASSIC, OPERATOR or SHOWPIECE)	' (CLASSIC、OPERATOR または SHOWPIECE)
+Compact	コンパクト
+Console	コンソール
+Rundown	進行表
+COMING UP	まもなく
+Clip Grid	クリップグリッド
+Cue Stack	キュースタック
+NEXT TRANS	次へ遷移
+no outputs	出力なし
+paused {1}	一時停止 {1}
+STANDING BY	スタンバイ
+{1} RUNNING	{1} 実行中
+nothing live	ライブなし
+waits for GO	GO を待機
+ends about {1}	約{1}で終了
+continues after {1}	{1} 後に続行
+no effects on the live cue	ライブキューにエフェクトなし
+pre-wait {1}  -  {2}  -  then {3}	プリウェイト {1}  -  {2}  -  その後 {3}
+' (CLASSIC, OPERATOR, SHOWPIECE, RUNDOWN, CLIPGRID, CUESTACK, CONSOLE or COMPACT)	' (CLASSIC、OPERATOR、SHOWPIECE、RUNDOWN、CLIPGRID、CUESTACK、CONSOLE または COMPACT)
