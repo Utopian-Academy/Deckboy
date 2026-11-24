@@ -3150,14 +3150,30 @@ class Pocket {
   SDL_CameraID cameraFor(const Cue& c) {
     const auto list = cameras();
     if (list.empty()) return 0;
+    // DECKBOY_TEST_CAMERA=<part of a name>: a check's camera (a virtual one,
+    // so testing never turns on the machine's own camera and its light).
+    if (const char* test = SDL_getenv("DECKBOY_TEST_CAMERA")) {
+      for (const CamInfo& k : list) {
+        const char* name = SDL_GetCameraName(k.id);
+        if (name && std::string(name).find(test) != std::string::npos) return k.id;
+      }
+    }
     const std::string want = cameraWanted(c);
     for (const CamInfo& k : list) if (k.key == want) return k.id;
     return list.front().id;   // not on this machine: the first there is
   }
 
   void closeCamera() {
+    camPrerollHas_ = false;
     if (pocketcam::isOpen()) pocketcam::close();
-    if (cam_) SDL_CloseCamera(cam_);
+    // SDL's close can block: on Windows, closing a camera that never sent
+    // a frame did not return at all, and Pocket froze with it. Its own
+    // thread, so the desk keeps drawing whatever happens there.
+    if (cam_) {
+      SDL_Camera* closing = cam_;
+      std::thread([closing] { SDL_CloseCamera(closing); }).detach();
+    }
+
     cam_ = nullptr;
     camId_ = 0;
   }
@@ -3185,14 +3201,84 @@ class Pocket {
     return best;
   }
 
+  // TRANSITIONS INTO AND OUT OF A CAMERA (James 11-24: "transitions
+  // definitely arent working to and from camera source"). A camera takes a
+  // moment to open and to close, and both used to happen on the take:
+  // the transition ran into the engine's black stand-in while the camera was
+  // still opening (then the picture popped in), and out of it while the
+  // close held the loop (on Android the capture session's close waits; on
+  // Windows it could wait forever). So:
+  //   - a camera cue STANDING BY (selected, not live) opens its camera and
+  //     keeps its newest frame (camPreroll_), so the take crossfades from
+  //     the last picture into a live one;
+  //   - a take into a camera with no frame yet waits for its first (up to
+  //     1.5 s, camTakePending_), then takes, with that frame on air;
+  //   - the camera closes only after the transition out has finished.
+  int camTakePending_ = -1;
+  Uint64 camTakeAskedAt_ = 0;
+  Uint64 camCloseAt_ = 0;   // 0: no close waiting
+  DecodedFrame camPreroll_;
+  bool camPrerollHas_ = false;
+  std::string camPrerollPath_;
+
+  const Cue* cameraCueWanted(bool* show) {
+    auto at = [&](int i) -> const Cue* {
+      return i >= 0 && i < static_cast<int>(cues_.size()) && isCameraCue(cues_[static_cast<std::size_t>(i)])
+                 ? &cues_[static_cast<std::size_t>(i)] : nullptr;
+    };
+    *show = false;
+    if (const Cue* live = at(active_)) {
+      if (black_) return nullptr;
+      *show = true;
+      return live;
+    }
+    if (const Cue* asked = at(camTakePending_)) return asked;
+    if (selected_ != active_) return at(selected_);   // standing by: warm
+    return nullptr;
+  }
+
+  // A frame from the camera: on air when its cue is live, else kept for the take.
+  void deliverCameraFrame(DecodedFrame& f, const Cue& c, bool show) {
+    if (show) {
+      cameraLookAndShow(f, c);
+      return;
+    }
+    camPreroll_ = std::move(f);
+    camPrerollHas_ = true;
+    camPrerollPath_ = c.path;
+    if (camTakePending_ >= 0 && camTakePending_ < static_cast<int>(cues_.size()) &&
+        &cues_[static_cast<std::size_t>(camTakePending_)] == &c) {
+      const int i = camTakePending_;
+      camTakePending_ = -1;
+      doTake(i);
+    }
+  }
+
   void serviceCamera() {
-    const Cue* c = active_ >= 0 && active_ < static_cast<int>(cues_.size()) ? &cues_[static_cast<std::size_t>(active_)] : nullptr;
-    if (!c || !isCameraCue(*c) || black_) {
-      closeCamera();
+    bool show = false;
+    const Cue* c = cameraCueWanted(&show);
+    if (!c) {
+      camPrerollHas_ = false;
+      if (cam_ || pocketcam::isOpen()) {
+        const Uint64 now = SDL_GetTicks();
+        if (camCloseAt_ == 0) camCloseAt_ = now + 600;
+        if (now >= camCloseAt_) {
+          closeCamera();
+          camCloseAt_ = 0;
+        }
+      }
+      return;
+    }
+    camCloseAt_ = 0;
+    if (camTakePending_ >= 0 && SDL_GetTicks() - camTakeAskedAt_ > 1500) {
+      const int i = camTakePending_;   // the camera did not come in time: take it anyway
+      camTakePending_ = -1;
+      camNotice_ = "The camera has not sent a picture yet.";
+      doTake(i);
       return;
     }
     if (pocketcam::available()) {
-      serviceNdkCamera(*c);
+      serviceNdkCamera(*c, show);
       return;
     }
     const SDL_CameraID id = cameraFor(*c);
@@ -3244,7 +3330,7 @@ class Pocket {
       SDL_ReleaseCameraFrame(cam_, got);
       got = nullptr;
       rotateRgba(f.pixels, f.width, f.height, static_cast<int>(std::lround(turn / 90.0f)) * 90);
-      cameraLookAndShow(f, *c);
+      deliverCameraFrame(f, *c, show);
     }
     if (got) SDL_ReleaseCameraFrame(cam_, got);
   }
@@ -3278,7 +3364,7 @@ class Pocket {
   }
 
   // The phone's camera through Camera2, with the cue's controls.
-  void serviceNdkCamera(const Cue& c) {
+  void serviceNdkCamera(const Cue& c, bool show) {
     const int allowed = pocketcam::permission();
     if (allowed < 0) {
       camNotice_ = "Pocket may not use the camera. Allow it in the phone's settings.";
@@ -3332,7 +3418,7 @@ class Pocket {
     }
     camNotice_.clear();
     f.format = FramePixelFormat::RGBA32;
-    cameraLookAndShow(f, c);
+    deliverCameraFrame(f, c, show);
   }
 
   // ── The camera's sound: the phone's microphone ──
@@ -8566,6 +8652,23 @@ class Pocket {
 
   void take(int i) {
     if (i < 0 || i >= static_cast<int>(cues_.size())) return;
+    const Cue& asked = cues_[static_cast<std::size_t>(i)];
+    // A camera with no picture yet: wait for its first frame (see cameraCueWanted).
+    if (isCameraCue(asked) && !(camPrerollHas_ && camPrerollPath_ == asked.path) &&
+        !(active_ >= 0 && active_ < static_cast<int>(cues_.size()) && isCameraCue(cues_[static_cast<std::size_t>(active_)]))) {
+      camTakePending_ = i;
+      camTakeAskedAt_ = SDL_GetTicks();
+      camNotice_ = "Starting the camera...";
+      return;
+    }
+    camTakePending_ = -1;
+    doTake(i);
+  }
+
+  void doTake(int i) {
+    if (i < 0 || i >= static_cast<int>(cues_.size())) return;
+    const bool leavingCamera = active_ >= 0 && active_ < static_cast<int>(cues_.size()) &&
+                               isCameraCue(cues_[static_cast<std::size_t>(active_)]) && active_ != i;
     fxState_.clear();   // an effect that remembers starts fresh on each take
     {
       std::lock_guard<std::mutex> hold(genLock_);
@@ -8580,6 +8683,14 @@ class Pocket {
     const double fade = c.cueTransitionSeconds >= 0 ? c.cueTransitionSeconds : listGlide();
     const TransitionStyle style = cueStyle(c);
     engine_->loadCue(&forEngine(c), true, style == TransitionStyle::Cut ? 0.0 : fade, fade > 0 ? style : TransitionStyle::Cut);
+    // Into a camera: its newest frame is the picture the transition goes to.
+    if (isCameraCue(c) && camPrerollHas_ && camPrerollPath_ == c.path) {
+      DecodedFrame first = camPreroll_;
+      cameraLookAndShow(first, c);
+      camPrerollHas_ = false;
+    }
+    // Out of a camera: it closes once the transition has run.
+    if (leavingCamera) camCloseAt_ = SDL_GetTicks() + static_cast<Uint64>((style == TransitionStyle::Cut ? 0.0 : fade) * 1000.0) + 400;
   }
 
   // -- Playing the list: shuffle, loop, stop after this, play next --
