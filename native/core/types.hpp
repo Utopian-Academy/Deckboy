@@ -3019,6 +3019,10 @@ struct Project {
   // so opening an older, theme-less show doesn't override the operator's pick.
   // Saved with the show so a chosen colorway survives restarts.
   std::string theme = "";
+  // THE DESK LAYOUT (2026-11-24): where the desk's pieces go, chosen apart
+  // from the theme ("classic", "operator", ...; app_layouts.ipp). Empty or
+  // unknown is Classic.
+  std::string deskLayout = "classic";
   // The MIDI input port, BY NAME. It lived only in memory, so every restart
   // fell back to "whichever port enumerates first" -- on a machine with a DAW's
   // virtual ports that is not a control surface at all, and a stray note from

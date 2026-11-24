@@ -4629,6 +4629,30 @@
       clearOutput();
       return;
     }
+    // THE DESK LAYOUT (app_layouts.ipp): LAYOUT alone says which; a name
+    // switches; SHOW / EDIT is Operator's mode.
+    if (command == "LAYOUT") {
+      if (parts.size() < 2) {
+        remoteCommandDetail_ = (project_.deskLayout.empty() ? std::string("classic") : project_.deskLayout) +
+                               (operatorEditMode_ ? " edit" : " show");
+        return;
+      }
+      const std::string want = toLower(parts[1]);
+      if (want == "show" || want == "edit") {
+        operatorEditMode_ = want == "edit";
+        return;
+      }
+      for (const auto& c : deskLayoutChoices()) {
+        if (c.first == want) {
+          project_.deskLayout = want;
+          operatorEditMode_ = false;
+          markProjectDirty();
+          return;
+        }
+      }
+      failRemoteCommand("no layout '" + parts[1] + "' (CLASSIC or OPERATOR)");
+      return;
+    }
     if (command == "FULLSCREEN") {
       toggleOutputFullscreen();
       return;

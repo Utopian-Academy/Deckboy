@@ -3263,7 +3263,7 @@ html,body{width:100%;height:100%;overflow:hidden}
     // without something saying so.
     if (upper == "HELP ALL" || upper == "HELP FULL" || upper == "?? ") {
       sendSnapshot(
-        "DECKBOY_0.01 every verb (407)\n"
+        "DECKBOY_0.01 every verb (408)\n"
         "ADDTIMER ALLGO ALLPAUSE ALLPLAY ALLSTOP ALLTAKE ANIM ANIMATION ARM AUDITION\n"
         "ARTNET ARTNETEVENT ARTNETPORT ART_NET_PORT ASCII ATEM ATEMEVENT\n"
         "ATEMTRIGGER AUDIO AUDIOCUE AUDIOENABLED AUDIOFX AUDIOGAIN AUDIOMONO\n"
@@ -3284,7 +3284,7 @@ html,body{width:100%;height:100%;overflow:hidden}
         "FINDPREV FINDPREVIOUS FINDRESET FINDSTATUS FINDTAKE FULLSCREEN FX\n"
         "GO GOEND GOGUARD GOTO GOTOTARGET GRAPHIC GROUP GROUPPRESET HEIGHT HOLD\n"
         "HOLDLAST IN INPUTMONITOR INTEGRATION INTEGRATIONS JUMPMODE JUMPTRANS\n"
-        "JUMPTRANSITION JUMP_MODE JUMP_XFADE LANG LANGUAGE LAYER LAYERNAME LOCKSCREEN LOOP LOOPCOUNT\n"
+        "JUMPTRANSITION JUMP_MODE JUMP_XFADE LANG LANGUAGE LAYER LAYERNAME LAYOUT LOCKSCREEN LOOP LOOPCOUNT\n"
         "LOWERALPHA LOWERANIM LOWERSTYLE LOWERSUB LOWERTEXT LOWERTHIRD LTC LTCEXT LTCINGEST\n"
         "LTCOUT LTC_INGEST MARK MARKER MASTER MASTERCUE MASTERVOL\n"
         "MASTERVOLUME MIDI MIDIIN MIDIINPUT MIDI_INPUT MOSH MOSHLOOK MTC MTCEXT\n"
@@ -3450,6 +3450,7 @@ html,body{width:100%;height:100%;overflow:hidden}
         "           DASH CLEAR <n>   (a slot runs any command line above)\n"
         "           DASH SHOW|HIDE|TOGGLE | DASH TRACKER|TILES   (put the page, or one view of it, on screen)\n"
         "        FULLSCREEN DISPLAY <n> TC <hh:mm:ss:ff>   (OUT is trim-out)\n"
+        "layout: LAYOUT [CLASSIC|OPERATOR] | LAYOUT SHOW|EDIT   (where the desk's pieces go; Operator's SHOW/EDIT)\n"
         "vj: VJ ON|OFF|TOGGLE | VJ MIX <0-1> | VJ BLEND [mode]\n"
         "    blends: dissolve add screen multiply lighten darken subtract\n"
         "            undercut infiltrate ember   (no argument cycles)\n"

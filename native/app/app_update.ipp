@@ -212,6 +212,7 @@
           break;
         case SDL_EVENT_MOUSE_BUTTON_UP:
           endScreensDrag();   // a drag in the Screens window ends wherever it is let go
+          endLayoutPress();   // a held BLACK in a desk layout lets go
           if (event.button.windowID == SDL_GetWindowID(controlWindow_)) {
               notePress(false, static_cast<int>(event.button.x), static_cast<int>(event.button.y));
               if (valueScrubPending_ || valueScrubEngaged_) {

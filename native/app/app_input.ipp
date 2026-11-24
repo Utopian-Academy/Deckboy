@@ -1041,6 +1041,11 @@
       }
     }
 
+    // A desk layout's own controls (app_layouts.ipp): GO, the running order...
+    if (handleLayoutClick(x, y)) {
+      return;
+    }
+
     // Value scrub zones claim the press before quickButtons_: holding and
     // dragging horizontally scrubs the value; releasing without crossing the
     // drag threshold fires the exact-entry popup on mouse-up instead.

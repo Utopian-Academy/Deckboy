@@ -591,6 +591,21 @@
     int width = 0, height = 0;
     SDL_GetWindowSize(controlWindow_, &width, &height);
     layoutButtons(width, height);
+    // A DESK LAYOUT (app_layouts.ipp) may take the bottom bar away: Operator
+    // in SHOW has everything a show needs on screen. Its hit list goes too,
+    // so a press where the bar was does nothing.
+    if (deskLayoutHidesBottomBar()) {
+      buttons_.clear();
+      bottomBarRect_ = SDL_Rect {};
+      mediaGroupRect_ = SDL_Rect {};
+      transportGroupRect_ = SDL_Rect {};
+      outputGroupRect_ = SDL_Rect {};
+      deskGroupRect_ = SDL_Rect {};
+      sourceDefaultDropdownRect_ = SDL_Rect {};
+      patternDefaultDropdownRect_ = SDL_Rect {};
+    }
+    if (deskLayoutIsClassic()) layoutHits_.clear();
+    serviceLayoutBlackHold();
     auto uiLayoutDone = std::chrono::steady_clock::now();
 
     SDL_SetRenderDrawColor(controlRenderer_, red(kShellShadowColor), green(kShellShadowColor), blue(kShellShadowColor), 255);
@@ -1064,7 +1079,9 @@
 
     // Content area: below toolbar
     int contentY = toolbar.y + toolbar.h + kLayoutPanelGap;
-    int controlsTop = bottomBarRect_.w > 0 ? bottomBarRect_.y : (height - kLayoutBottomBarHeight - kLayoutPanelPadding);
+    int controlsTop = bottomBarRect_.w > 0 ? bottomBarRect_.y
+                    : deskLayoutHidesBottomBar() ? height - kLayoutPanelPadding - kLayoutSpacingUnit
+                    : (height - kLayoutBottomBarHeight - kLayoutPanelPadding);
     int contentBottom = controlsTop - kLayoutPanelGap;
     int contentH = std::max(120, contentBottom - contentY);
     int contentLeft  = shell.x + kLayoutPanelBorder * 2;
@@ -1147,7 +1164,14 @@
     deckAddTabRect_ = SDL_Rect {};
     deckRemoveTabRect_ = SDL_Rect {};
 
-    if (vjSplitDecks) {
+    // A DESK LAYOUT other than Classic draws the whole content area itself.
+    const bool layoutOwnsContent = !deskLayoutIsClassic();
+    if (layoutOwnsContent) {
+      playlistSplitterRect_ = {};
+      inspectorSplitterRect_ = {};
+      mainPanelLayoutRect_ = {};
+      renderOperatorLayout(contentArea);
+    } else if (vjSplitDecks) {
       // A on the left and B on the right, matching the bar above and the way
       // a hand moves across a fader.
       const int deckCount = static_cast<int>(project_.decks.size());
@@ -1319,7 +1343,9 @@
         }
       }
     }
-    if (mainPanel.w > 60 && mainPanel.h > 60) {
+    if (layoutOwnsContent) {
+      // drawn above
+    } else if (mainPanel.w > 60 && mainPanel.h > 60) {
       renderMainPanel(mainPanel);
     } else {
       mainPanelLayoutRect_ = {};
@@ -1348,7 +1374,7 @@
       }
     }
 
-    renderButtons();
+    if (!deskLayoutHidesBottomBar()) renderButtons();
     // The theme's creatures, on the chrome between the panels.
     //
     // AFTER the panels, so they are not painted over, and BEFORE every popup,

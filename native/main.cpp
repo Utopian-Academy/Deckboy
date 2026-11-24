@@ -3995,6 +3995,7 @@ class App {
   // deleted in v0.81.5 after ~1,646 lines of it had silently drifted out of sync
   // with the real one and been edited by mistake more than once.)
 #include "app/app_render_main.ipp"
+#include "app/app_layouts.ipp"
   // Geometry: cue/output geometry calculations (crop, scale, rotation)
 #include "app/app_geometry.ipp"
   // Render: output window compositor → NDI/DeckLink/Siphon blit
@@ -8673,6 +8674,7 @@ class App {
   static constexpr int kSettingsActionTransitionSecondsInc = 612;
   static constexpr int kSettingsActionTransitionStyleCycle = 613;
   static constexpr int kSettingsActionThemeDropdown = 614;
+  static constexpr int kSettingsActionLayoutDropdown = 60301;
   // AOI is edited as a pixel rect (X/Y position + WxH size) of the output
   // raster; the fractions in OutputTarget stay the storage format.
   static constexpr int kSettingsActionOutputAoiXInc  = 615;

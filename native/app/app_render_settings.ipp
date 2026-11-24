@@ -1004,7 +1004,7 @@
       // here, so Pocket 3 / touch hung off the card's bottom (James,
       // 2026-11-23) -- the third time this card has been a row short.
       int appearanceH = stackH({sRowH, sRowH, sRowH, sRowH, sRowH, sRowH,
-                                sRowH, sRowH, sRowH, sRowH, sRowH, sRowH});
+                                sRowH, sRowH, sRowH, sRowH, sRowH, sRowH, sRowH});
       int safetyH = stackH({sRowH, sRowH, sRowH, sRowH});
       // SHOW FLOW: vj mode, jump mode, global crossfade, TAKE selects next,
       // double-GO guard, panic profile, panic now. Seven rows, one each.
@@ -1121,6 +1121,15 @@
       SDL_Rect themeBtn = settingsRow(appX, appW, appY, sRowH, "Theme", sGap);
       drawUIValueControl(themeBtn, themeName);
       settingsBtns_.push_back({themeBtn, kSettingsActionThemeDropdown, "theme"});
+      // THE LAYOUT, under the theme and apart from it (James 2026-11-24: "a
+      // seperate subsection of themes"): where things go, not how they look.
+      SDL_Rect layoutBtn = settingsRow(appX, appW, appY, sRowH, "Layout", sGap);
+      {
+        std::string shown = "Classic";
+        for (const auto& c : deskLayoutChoices()) if (c.first == project_.deskLayout) shown = c.second;
+        drawUIValueControl(layoutBtn, shown);
+      }
+      settingsBtns_.push_back({layoutBtn, kSettingsActionLayoutDropdown, "Where the desk's pieces go: Classic, Operator..."});
       // Beside the theme, because it is the same kind of decision: what this
       // desk looks and reads like to whoever is standing at it.
       // THE WAY BACK, and it is never translated.
@@ -6221,6 +6230,18 @@
       } else if (sb.action == kSettingsActionCanvasHeightPrompt) {
         settingsOpen_ = false;
         openInlineCanvasHeightEditor();
+      } else if (sb.action == kSettingsActionLayoutDropdown) {
+        openDropdown("settings.layout", sb.rect, deskLayoutChoices(),
+          project_.deskLayout.empty() ? std::string("classic") : project_.deskLayout,
+          [this](const std::string& value) {
+            project_.deskLayout = value;
+            operatorEditMode_ = false;
+            markProjectDirty();
+            for (const auto& c : deskLayoutChoices()) {
+              if (c.first == value) triggerToast(deckboy::core::i18n::format("layout: {1}", {c.second}));
+            }
+          });
+        return;
       } else if (sb.action == kSettingsActionThemeDropdown) {
         // Scan for available themes
         std::vector<std::pair<std::string, std::string>> choices;
