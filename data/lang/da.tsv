@@ -4857,3 +4857,4 @@ RENAME	OMDØB
 Rename output	Omdøb udgang
 Rename playlist	Omdøb playliste
 Playlist name (blank: the default)	Playlistenavn (tomt: standard)
+LAYOUT SPLIT: expected a divider and a share between 0 and 1, or RESET	LAYOUT SPLIT: forventede en skillelinje og en andel mellem 0 og 1, eller RESET

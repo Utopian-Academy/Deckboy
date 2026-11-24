@@ -4910,3 +4910,4 @@ RENAME	ПЕРЕЙМЕНУВАТИ
 Rename output	Перейменувати вихід
 Rename playlist	Перейменувати плейлист
 Playlist name (blank: the default)	Назва плейлиста (порожньо — типова)
+LAYOUT SPLIT: expected a divider and a share between 0 and 1, or RESET	LAYOUT SPLIT: очікується роздільник і частка від 0 до 1 або RESET

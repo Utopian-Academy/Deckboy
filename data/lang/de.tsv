@@ -4874,3 +4874,4 @@ RENAME	UMBENENNEN
 Rename output	Ausgang umbenennen
 Rename playlist	Playlist umbenennen
 Playlist name (blank: the default)	Playlist-Name (leer: Standard)
+LAYOUT SPLIT: expected a divider and a share between 0 and 1, or RESET	LAYOUT SPLIT: Trenner und Anteil zwischen 0 und 1 oder RESET erwartet

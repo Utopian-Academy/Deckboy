@@ -251,6 +251,7 @@
               endMaskEditorDrag();
               endDrawEditorDrag();
               layoutDragMode_ = LayoutDragMode::None;
+              endLayoutSplitDrag();
               endPresenterLayoutDrag();
             }
           break;

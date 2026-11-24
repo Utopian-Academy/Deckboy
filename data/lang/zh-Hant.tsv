@@ -4907,3 +4907,4 @@ RENAME	重新命名
 Rename output	重新命名輸出
 Rename playlist	重新命名播放清單
 Playlist name (blank: the default)	播放清單名稱（留白：預設）
+LAYOUT SPLIT: expected a divider and a share between 0 and 1, or RESET	LAYOUT SPLIT：應為分隔線及 0 到 1 之間的比例，或 RESET

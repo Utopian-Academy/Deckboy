@@ -4908,3 +4908,4 @@ RENAME	名前変更
 Rename output	出力名を変更
 Rename playlist	プレイリスト名を変更
 Playlist name (blank: the default)	プレイリスト名 (空欄: 既定)
+LAYOUT SPLIT: expected a divider and a share between 0 and 1, or RESET	LAYOUT SPLIT: 区切りと0から1の間の比率、またはRESETを指定

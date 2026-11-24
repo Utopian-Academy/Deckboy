@@ -4923,3 +4923,4 @@ RENAME	إعادة التسمية
 Rename output	إعادة تسمية الخرج
 Rename playlist	إعادة تسمية قائمة التشغيل
 Playlist name (blank: the default)	اسم قائمة التشغيل (فارغ: الافتراضي)
+LAYOUT SPLIT: expected a divider and a share between 0 and 1, or RESET	LAYOUT SPLIT: المتوقع فاصل وحصة بين 0 و1، أو RESET

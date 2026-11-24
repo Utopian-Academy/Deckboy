@@ -4879,3 +4879,4 @@ RENAME	ZMIEŃ NAZWĘ
 Rename output	Zmień nazwę wyjścia
 Rename playlist	Zmień nazwę playlisty
 Playlist name (blank: the default)	Nazwa playlisty (puste: domyślna)
+LAYOUT SPLIT: expected a divider and a share between 0 and 1, or RESET	LAYOUT SPLIT: oczekiwano separatora i udziału między 0 a 1 lub RESET

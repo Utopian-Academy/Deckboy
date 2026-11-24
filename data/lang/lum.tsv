@@ -4921,3 +4921,4 @@ RENAME	SETI HOLA
 Rename output	Seti senahola
 Rename playlist	Seti hola vekaku
 Playlist name (blank: the default)	Hola vekaku (vahola: koro)
+LAYOUT SPLIT: expected a divider and a share between 0 and 1, or RESET	LAYOUT SPLIT: peni patiwia o kispata 0..1, o RESET

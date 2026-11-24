@@ -4894,3 +4894,4 @@ RENAME	ĐỔI TÊN
 Rename output	Đổi tên đầu ra
 Rename playlist	Đổi tên playlist
 Playlist name (blank: the default)	Tên playlist (trống: mặc định)
+LAYOUT SPLIT: expected a divider and a share between 0 and 1, or RESET	LAYOUT SPLIT: cần một đường chia và một tỉ lệ từ 0 đến 1, hoặc RESET

@@ -11,4 +11,3 @@ sticker	68	37.44
 surface_panel	6A2C2DFF
 surface_well	518455FF
 surface_desk	6A2929FF
-board	1

@@ -3975,3 +3975,4 @@ RENAME	PERVADINTI
 Rename output	Pervadinti išvestį
 Rename playlist	Pervadinti grojaraštį
 Playlist name (blank: the default)	Grojaraščio pavadinimas (tuščia: numatytasis)
+LAYOUT SPLIT: expected a divider and a share between 0 and 1, or RESET	LAYOUT SPLIT: tikėtasi skyriklio ir dalies tarp 0 ir 1, arba RESET

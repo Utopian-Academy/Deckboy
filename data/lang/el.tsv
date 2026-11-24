@@ -4903,3 +4903,4 @@ RENAME	ΜΕΤΟΝΟΜΑΣΙΑ
 Rename output	Μετονομασία εξόδου
 Rename playlist	Μετονομασία λίστας
 Playlist name (blank: the default)	Όνομα λίστας (κενό: προεπιλογή)
+LAYOUT SPLIT: expected a divider and a share between 0 and 1, or RESET	LAYOUT SPLIT: αναμένονται διαχωριστικό και μερίδιο μεταξύ 0 και 1, ή RESET

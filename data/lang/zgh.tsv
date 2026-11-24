@@ -4921,3 +4921,4 @@ RENAME	ⵙⵏⴼⵍ ⵉⵙⵎ
 Rename output	ⵙⵏⴼⵍ ⵉⵙⵎ ⵏ ⵜⵓⴼⴼⵖⴰ
 Rename playlist	ⵙⵏⴼⵍ ⵉⵙⵎ ⵏ ⵜⴱⴷⴰⵔⵜ
 Playlist name (blank: the default)	ⵉⵙⵎ ⵏ ⵜⴱⴷⴰⵔⵜ (ⵉⵍⵎ: ⴰⵎⵣⵡⴰⵔⵓ)
+LAYOUT SPLIT: expected a divider and a share between 0 and 1, or RESET	LAYOUT SPLIT: ⵉⵜⵜⵓⵔⵊⴰ ⴰⵙⴱⴹⵓ ⴷ ⵜⴰⴳⵣⵣⵓⵎⵜ ⴳⵔ 0 ⴷ 1, ⵏⵖ RESET

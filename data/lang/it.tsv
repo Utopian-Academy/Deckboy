@@ -4875,3 +4875,4 @@ RENAME	RINOMINA
 Rename output	Rinomina uscita
 Rename playlist	Rinomina scaletta
 Playlist name (blank: the default)	Nome scaletta (vuoto: predefinito)
+LAYOUT SPLIT: expected a divider and a share between 0 and 1, or RESET	LAYOUT SPLIT: previsti un divisore e una quota tra 0 e 1, o RESET

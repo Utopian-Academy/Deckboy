@@ -4868,3 +4868,4 @@ RENAME	RENOMEAR
 Rename output	Renomear saída
 Rename playlist	Renomear playlist
 Playlist name (blank: the default)	Nome da playlist (vazio: o padrão)
+LAYOUT SPLIT: expected a divider and a share between 0 and 1, or RESET	LAYOUT SPLIT: esperado um divisor e uma proporção entre 0 e 1, ou RESET

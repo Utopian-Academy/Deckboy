@@ -4910,3 +4910,4 @@ RENAME	नाम बदलें
 Rename output	आउटपुट का नाम बदलें
 Rename playlist	प्लेलिस्ट का नाम बदलें
 Playlist name (blank: the default)	प्लेलिस्ट नाम (खाली: डिफ़ॉल्ट)
+LAYOUT SPLIT: expected a divider and a share between 0 and 1, or RESET	LAYOUT SPLIT: विभाजक और 0 से 1 के बीच हिस्सा अपेक्षित है, या RESET

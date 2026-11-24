@@ -4904,3 +4904,4 @@ RENAME	ATH-AINMICH
 Rename output	Ath-ainmich an t-às-chur
 Rename playlist	Ath-ainmich an liosta
 Playlist name (blank: the default)	Ainm na liosta (falamh: am bun-roghainn)
+LAYOUT SPLIT: expected a divider and a share between 0 and 1, or RESET	LAYOUT SPLIT: bha dùil ri roinneadair is cuibhreann eadar 0 is 1, no RESET

@@ -1052,7 +1052,10 @@
     }
     }  // classicHits
 
-    // A desk layout's own controls (app_layouts.ipp): GO, the running order...
+    // A desk layout's dividers, then its own controls (app_layouts.ipp).
+    if (beginLayoutSplitDrag(x, y)) {
+      return;
+    }
     if (handleLayoutClick(x, y)) {
       return;
     }
@@ -1681,6 +1684,9 @@
     if (presenterDragPanel_ > 0) {
       updatePresenterLayoutDrag(x, y);
       return;   // the arranger owns the pointer until release
+    }
+    if (updateLayoutSplitDrag(x, y)) {
+      return;   // a desk layout's divider owns the pointer until release
     }
     if (layoutDragMode_ == LayoutDragMode::Playlist && contentAreaRect_.w > 0) {
       constexpr int kPlaylistMinW = 236;

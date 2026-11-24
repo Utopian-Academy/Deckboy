@@ -4642,6 +4642,28 @@
         operatorEditMode_ = want == "edit";
         return;
       }
+      // LAYOUT SPLIT <name> <share 0-1> | LAYOUT SPLIT RESET: this layout's dividers
+      if (want == "split") {
+        const std::string layout = project_.deskLayout.empty() ? std::string("classic") : project_.deskLayout;
+        if (parts.size() >= 3 && toLower(parts[2]) == "reset") {
+          for (auto it = project_.deskLayoutSplits.begin(); it != project_.deskLayoutSplits.end();) {
+            it = it->first.rfind(layout + ".", 0) == 0 ? project_.deskLayoutSplits.erase(it) : std::next(it);
+          }
+          markProjectDirty();
+          return;
+        }
+        double share = -1.0;
+        if (parts.size() >= 4) {
+          try { share = std::stod(parts[3]); } catch (...) { share = -1.0; }
+        }
+        if (parts.size() < 4 || share <= 0.0 || share >= 1.0) {
+          failRemoteCommand("LAYOUT SPLIT: expected a divider and a share between 0 and 1, or RESET");
+          return;
+        }
+        project_.deskLayoutSplits[layout + "." + toLower(parts[2])] = share;
+        markProjectDirty();
+        return;
+      }
       for (const auto& c : deskLayoutChoices()) {
         if (c.first == want) {
           project_.deskLayout = want;

@@ -4909,3 +4909,4 @@ RENAME	ПРЕИМЕНУВАЙ
 Rename output	Преименуване на изхода
 Rename playlist	Преименуване на плейлиста
 Playlist name (blank: the default)	Име на плейлиста (празно: по подразбиране)
+LAYOUT SPLIT: expected a divider and a share between 0 and 1, or RESET	LAYOUT SPLIT: очакват се разделител и дял между 0 и 1, или RESET

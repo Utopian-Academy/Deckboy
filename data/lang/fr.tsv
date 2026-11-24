@@ -4842,3 +4842,4 @@ RENAME	RENOMMER
 Rename output	Renommer la sortie
 Rename playlist	Renommer la liste
 Playlist name (blank: the default)	Nom de la liste (vide : par défaut)
+LAYOUT SPLIT: expected a divider and a share between 0 and 1, or RESET	LAYOUT SPLIT : séparateur et part entre 0 et 1, ou RESET attendus

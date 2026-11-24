@@ -3023,6 +3023,9 @@ struct Project {
   // from the theme ("classic", "operator", ...; app_layouts.ipp). Empty or
   // unknown is Classic.
   std::string deskLayout = "classic";
+  // Where the operator dragged each desk layout's dividers: "<layout>.<split>"
+  // -> the first (or, for a side panel, the far) part's share of its span.
+  std::map<std::string, double> deskLayoutSplits;
   // The MIDI input port, BY NAME. It lived only in memory, so every restart
   // fell back to "whichever port enumerates first" -- on a machine with a DAW's
   // virtual ports that is not a control surface at all, and a stray note from

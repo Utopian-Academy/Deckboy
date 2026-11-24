@@ -48,6 +48,7 @@
 - **Console**: a vision mixer: monitors, a PROGRAM bus that cuts, a PRESET bus that picks what AUTO takes, the next transition and its time, CUT, AUTO and FTB. With two or more playlists it has an M/E bank per playlist, as a real switcher does: each with its own PROGRAM and PRESET buses, next transition, CUT and AUTO, acting on that playlist alone; FTB stays one for the whole desk. When the banks do not all fit, M/E buttons beside SHOW / EDIT choose which are on the panel.
 - **Compact**, for a 1366 x 768 laptop: one playlist, the live monitor, a tray with INSPECT, NEXT and OUTPUTS, and GO along the bottom.
 - Every layout but Classic has SHOW and EDIT: SHOW hides editing and the bottom bar; EDIT brings the inspector and the bar back.
+- Drag the dividers between a layout's main panels to resize them: Operator's side column and monitors, Rundown's monitors, Clip Grid's decks against the clips, Cue Stack's side column, Console's monitor row, Compact's playlist and monitor, Showpiece's filmstrip and side panel. The sizes are saved with the show, as shares of the window, so they keep their shape at any size, in every skin, the 3D ones included. Companion: `LAYOUT SPLIT <divider> <0-1>` and `LAYOUT SPLIT RESET`.
 - The layouts that show each playlist's own picture (Console, Rundown, Clip Grid) show it: those windows said "no picture" unless the multiview was on.
 - A theme's creatures live in each layout's own empty space, under its last row.
 - Fixed: in the new layouts, a press could land on one of Classic's controls that was not drawn (a playlist row, the monitor's MASK and WARP).
@@ -63,7 +64,7 @@
 - For theme authors: `style_` lines in theme.txt set the shape and finish. See the manual, section 21.
 - New: **rendered skins** (3D), listed first in the Theme list: 24 of them, the materials of Pocket's shells. Their panels, recesses, key caps, the desk behind them and their holographic stickers are rendered in Blender with real light and shadow, then built to fit at whatever size each piece is, so they work in every layout, at every UI scale and in any window. A key keeps its own colour: a lit tally is a lit cap.
   - Fourteen solid ones: Broadcast, Bakelite, Hi-Fi, Synth, Space Age, Field Kit, Arcade Cab, Swiss, Neon Night, Ceramic, Carbon, Toybox, Brass, Concrete.
-  - Ten in clear plastic over a circuit board: Grape Soda, Lime Jelly, Orange Soda, Cherry Jelly, Ocean Jelly, Ice, Smoke, Glow, Crystal Pink, Teal Insides. The board is alive under the plastic: LEDs blink, flicker and breathe, and pulses of data run along its traces. While an output is on they glow steady and nothing runs (the creatures' rule).
+  - Ten in clear plastic over a circuit board: Grape Soda, Lime Jelly, Orange Soda, Cherry Jelly, Ocean Jelly, Ice, Smoke, Glow, Crystal Pink, Teal Insides.
   - Each has its own creatures and stickers.
 - Stickers on the new layouts, next to SHOW and EDIT (not on Rundown, whose strip holds the clock).
 - For theme authors: `style_kit <folder>` names a kit in data/desk-kits.

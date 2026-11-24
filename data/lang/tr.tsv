@@ -4901,3 +4901,4 @@ RENAME	YENİDEN ADLANDIR
 Rename output	Çıkışı yeniden adlandır
 Rename playlist	Çalma listesini yeniden adlandır
 Playlist name (blank: the default)	Çalma listesi adı (boş: varsayılan)
+LAYOUT SPLIT: expected a divider and a share between 0 and 1, or RESET	LAYOUT SPLIT: bölücü ve 0 ile 1 arasında bir pay veya RESET beklenir

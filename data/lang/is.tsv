@@ -4900,3 +4900,4 @@ RENAME	ENDURNEFNA
 Rename output	Endurnefna úttak
 Rename playlist	Endurnefna spilunarlista
 Playlist name (blank: the default)	Heiti spilunarlista (tómt: sjálfgefið)
+LAYOUT SPLIT: expected a divider and a share between 0 and 1, or RESET	LAYOUT SPLIT: vænst er skilrúms og hlutfalls milli 0 og 1, eða RESET

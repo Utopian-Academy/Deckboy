@@ -4844,3 +4844,4 @@ RENAME	HERNOEMEN
 Rename output	Uitgang hernoemen
 Rename playlist	Afspeellijst hernoemen
 Playlist name (blank: the default)	Afspeellijstnaam (leeg: standaard)
+LAYOUT SPLIT: expected a divider and a share between 0 and 1, or RESET	LAYOUT SPLIT: verwacht een scheiding en een aandeel tussen 0 en 1, of RESET

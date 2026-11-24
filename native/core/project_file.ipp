@@ -359,6 +359,15 @@ void writeProjectScalars(std::ostream& output, const Project& project) {
   output << "hap_suggestion_dismissed\t" << (project.hapSuggestionDismissed ? 1 : 0) << '\n';
   output << "theme\t" << escapeField(project.theme) << '\n';
   output << "desk_layout\t" << escapeField(project.deskLayout) << '\n';
+  if (!project.deskLayoutSplits.empty()) {
+    output << "desk_layout_splits\t";
+    bool firstSplit = true;
+    for (const auto& [key, share] : project.deskLayoutSplits) {
+      output << (firstSplit ? "" : ";") << escapeField(key) << '=' << share;
+      firstSplit = false;
+    }
+    output << '\n';
+  }
   output << "terrarium_unlocked\t" << (project.terrariumUnlocked ? 1 : 0) << '\n';
   output << "tabletop_unlocked\t" << (project.tabletopUnlocked ? 1 : 0) << '\n';
   output << "geometry_aspect_link\t" << (project.geometryAspectLinked ? 1 : 0) << '\n';
@@ -1675,6 +1684,23 @@ bool applyProjectScalarLinePart2(Project& project, const std::vector<std::string
     }
   } else if (fields[0] == "theme") {
     project.theme = safeString(fields, 1);
+  } else if (fields[0] == "desk_layout_splits") {
+    project.deskLayoutSplits.clear();
+    std::string list = fields.size() > 1 ? fields[1] : std::string();
+    std::size_t at = 0;
+    while (at < list.size()) {
+      std::size_t end = list.find(';', at);
+      if (end == std::string::npos) end = list.size();
+      const std::string item = list.substr(at, end - at);
+      const std::size_t eq = item.find('=');
+      if (eq != std::string::npos) {
+        try {
+          const double share = std::stod(item.substr(eq + 1));
+          if (share > 0.0 && share < 1.0) project.deskLayoutSplits[item.substr(0, eq)] = share;
+        } catch (...) {}
+      }
+      at = end + 1;
+    }
   } else if (fields[0] == "desk_layout") {
     project.deskLayout = safeString(fields, 1);
     if (project.deskLayout.empty()) project.deskLayout = "classic";

@@ -78,6 +78,101 @@
   // The layout's whole content area, for every layout but Classic.
   SDL_Rect layoutStickerStrip_ {};
 
+  // ── DIVIDERS THE OPERATOR CAN DRAG (James 11-24: "i wish elements were
+  // resizable", every layout) ──
+  //
+  // A layout asks layoutSplit() for the size of one part of a span instead of
+  // fixing it; the answer is the operator's share of that span once they have
+  // dragged it (saved with the show, so it keeps its shape at any window
+  // size), else the layout's own default, never less than either side's
+  // minimum. The handle sits in the gap between the two parts. A 3D skin's
+  // panels are built to fit at any size, so they follow.
+  struct LayoutSplitter {
+    SDL_Rect hit {};
+    std::string key;
+    bool alongX = true;     // the divider moves left-right (a vertical bar)
+    bool fromEnd = false;   // the size is of the far part (a side panel)
+    int origin = 0, span = 0, minSize = 0, minOther = 0, gap = 0;
+  };
+  std::vector<LayoutSplitter> layoutSplitters_;
+  bool layoutSplitDragging_ = false;
+  LayoutSplitter layoutSplitDrag_;
+
+  int layoutSplit(const std::string& name, bool alongX, bool fromEnd, int origin, int span, int gap,
+                  int defaultSize, int minSize, int minOther, int crossStart, int crossLen) {
+    const std::string key = (project_.deskLayout.empty() ? std::string("classic") : project_.deskLayout) + "." + name;
+    int size = defaultSize;
+    const auto it = project_.deskLayoutSplits.find(key);
+    if (it != project_.deskLayoutSplits.end() && span > 0) size = static_cast<int>(std::lround(it->second * span));
+    const int hi = std::max(0, span - gap - minOther);
+    size = std::clamp(size, std::min(minSize, hi), std::max(std::min(minSize, hi), hi));
+    const int edge = fromEnd ? origin + span - size - gap / 2 : origin + size + gap / 2;
+    const int grab = std::max(uiScaled(12), gap);
+    LayoutSplitter sp;
+    sp.hit = alongX ? SDL_Rect {edge - grab / 2, crossStart, grab, crossLen} : SDL_Rect {crossStart, edge - grab / 2, crossLen, grab};
+    sp.key = key;
+    sp.alongX = alongX;
+    sp.fromEnd = fromEnd;
+    sp.origin = origin;
+    sp.span = span;
+    sp.minSize = minSize;
+    sp.minOther = minOther;
+    sp.gap = gap;
+    layoutSplitters_.push_back(sp);
+    return size;
+  }
+
+  bool beginLayoutSplitDrag(int x, int y) {
+    if (deskLayoutIsClassic()) return false;
+    for (const auto& sp : layoutSplitters_) {
+      if (pointInRect(x, y, sp.hit)) {
+        layoutSplitDragging_ = true;
+        layoutSplitDrag_ = sp;
+        return true;
+      }
+    }
+    return false;
+  }
+
+  bool updateLayoutSplitDrag(int x, int y) {
+    if (!layoutSplitDragging_) return false;
+    const LayoutSplitter& sp = layoutSplitDrag_;
+    if (sp.span <= 0) return true;
+    const int p = sp.alongX ? x : y;
+    int size = sp.fromEnd ? sp.origin + sp.span - p - sp.gap / 2 : p - sp.gap / 2 - sp.origin;
+    const int hi = std::max(0, sp.span - sp.gap - sp.minOther);
+    size = std::clamp(size, std::min(sp.minSize, hi), std::max(std::min(sp.minSize, hi), hi));
+    project_.deskLayoutSplits[sp.key] = static_cast<double>(size) / sp.span;
+    return true;
+  }
+
+  void endLayoutSplitDrag() {
+    if (!layoutSplitDragging_) return;
+    layoutSplitDragging_ = false;
+    markProjectDirty();
+  }
+
+  // The handles: a grip in the gap, a rail along it under the pointer or while dragged.
+  void drawLayoutSplitters() {
+    for (const auto& sp : layoutSplitters_) {
+      const bool active = layoutSplitDragging_ && layoutSplitDrag_.key == sp.key;
+      const bool hover = !inTouchMode() && pointInRect(mouseX_, mouseY_, sp.hit);
+      const int t = std::max(2, uiScaled(2));
+      if (active || hover) {
+        const SDL_Rect rail = sp.alongX ? SDL_Rect {sp.hit.x + sp.hit.w / 2 - t / 2, sp.hit.y, t, sp.hit.h}
+                                        : SDL_Rect {sp.hit.x, sp.hit.y + sp.hit.h / 2 - t / 2, sp.hit.w, t};
+        Primitives::fillRect(controlRenderer_, rail, active ? pal.light : paletteMix(pal.light, pal.deep, 0.35));
+      }
+      // three dots in the middle, always, so the divider can be found
+      const int cx = sp.hit.x + sp.hit.w / 2, cy = sp.hit.y + sp.hit.h / 2;
+      const int d = std::max(2, uiScaled(3)), step = uiScaled(8);
+      for (int k = -1; k <= 1; ++k) {
+        const SDL_Rect dot = sp.alongX ? SDL_Rect {cx - d / 2, cy + k * step - d / 2, d, d} : SDL_Rect {cx + k * step - d / 2, cy - d / 2, d, d};
+        Primitives::fillRect(controlRenderer_, dot, active || hover ? pal.light : paletteMix(pal.fgSoft, pal.deep, 0.3));
+      }
+    }
+  }
+
   // A skin's stickers, slapped in a row next to SHOW / EDIT, the way a
   // sticker goes on the one bare bit of a panel.
   void drawLayoutStickers() {
@@ -112,6 +207,8 @@
   void renderDeskLayout(const SDL_Rect& area) {
     layoutStickerStrip_ = {};
     layoutContentRect_ = area;
+    layoutSplitters_.clear();
+    playlistSplitterRect_ = SDL_Rect {};   // Classic's, drawn over the layout otherwise
     layoutHabitats_.clear();
     playlistFreeRects_.clear();
     idleMonitorRect_ = SDL_Rect {};
@@ -135,6 +232,7 @@
     // creatures live there, and a stale one drew them over the layout.
     playlistFreeRect_ = SDL_Rect {};
     renderDeskLayoutBody(area);
+    drawLayoutSplitters();
     drawLayoutStickers();
   }
 
@@ -302,12 +400,14 @@
     }
 
     SDL_Rect body {area.x, area.y + statusH + gap, area.w, std::max(0, area.h - statusH - gap)};
-    const int sideW = std::clamp(body.w * 27 / 100, uiScaled(300), uiScaled(460));
+    const int sideW = layoutSplit("side", true, true, body.x, body.w, gap,
+                                  std::clamp(body.w * 27 / 100, uiScaled(300), uiScaled(460)), uiScaled(220), uiScaled(360), body.y, body.h);
     SDL_Rect side {body.x + body.w - sideW, body.y, sideW, body.h};
     SDL_Rect main {body.x, body.y, std::max(0, body.w - sideW - gap), body.h};
 
     // ── LIVE and NEXT ──
-    const int monH = std::clamp(main.h * 44 / 100, uiScaled(160), main.w * 9 / 32 + uiScaled(30));
+    const int monH = layoutSplit("monitors", false, false, main.y, main.h, gap,
+                                 std::clamp(main.h * 44 / 100, uiScaled(160), main.w * 9 / 32 + uiScaled(30)), uiScaled(100), uiScaled(120), main.x, main.w);
     const int labelH = std::max(uiScaled(14), textLineHeight(fontSmall_));
     const int nextW = (main.w - gap) * 42 / 100;
     SDL_Rect nextTile {main.x, main.y, nextW, monH};
@@ -815,10 +915,12 @@
     }
 
     // ── below the HUD: faders | hero monitor | moving now + GO ──
-    const int stripH = std::clamp(area.h * 22 / 100, uiScaled(120), uiScaled(220));
+    const int stripH = layoutSplit("filmstrip", false, true, area.y, area.h - gap, gap,
+                                   std::clamp(area.h * 22 / 100, uiScaled(120), uiScaled(220)), uiScaled(80), uiScaled(260), area.x + gap, area.w - gap * 2);
     SDL_Rect mid {area.x + gap, hud.y + hud.h + gap, area.w - gap * 2,
                   std::max(0, area.h - hud.h - stripH - gap * 4)};
-    const int sideW = std::clamp(mid.w * 17 / 100, uiScaled(170), uiScaled(320));
+    const int sideW = layoutSplit("side", true, true, mid.x, mid.w, gap,
+                                  std::clamp(mid.w * 17 / 100, uiScaled(170), uiScaled(320)), uiScaled(150), uiScaled(420), mid.y, mid.h);
     SDL_Rect faders {mid.x, mid.y, std::max(uiScaled(120), sideW * 2 / 3), mid.h};
     SDL_Rect moving {mid.x + mid.w - sideW, mid.y, sideW, mid.h * 52 / 100};
     SDL_Rect hero {faders.x + faders.w + gap, mid.y, std::max(0, moving.x - faders.x - faders.w - gap * 2), mid.h};
@@ -1069,7 +1171,8 @@
     const int labelH = std::max(uiScaled(14), textLineHeight(fontSmall_));
 
     // ── the monitors ──
-    const int monH = std::clamp(area.h * 40 / 100, uiScaled(150), uiScaled(520));
+    const int monH = layoutSplit("monitors", false, false, area.y, area.h, gap,
+                                 std::clamp(area.h * 40 / 100, uiScaled(150), uiScaled(520)), uiScaled(110), uiScaled(160), area.x, area.w);
     const int btnW = std::clamp(area.w * 8 / 100, uiScaled(90), uiScaled(150));
     const int mvW = std::clamp(area.w * 26 / 100, uiScaled(200), uiScaled(640));
     const int pairW = std::max(0, area.w - btnW - mvW - gap * 3);
@@ -1357,7 +1460,8 @@
     TTF_Font* big = fontLarge_ ? fontLarge_ : fontBase_;
     TTF_Font* head = fontPixelTitle_ ? fontPixelTitle_ : big;
 
-    const int topH = std::clamp(area.h * 50 / 100, uiScaled(260), uiScaled(640));
+    const int topH = layoutSplit("decks", false, false, area.y, area.h, gap,
+                                 std::clamp(area.h * 50 / 100, uiScaled(260), uiScaled(640)), uiScaled(220), uiScaled(120), area.x, area.w);
     SDL_Rect top {area.x, area.y, area.w, topH};
     SDL_Rect browser {area.x, area.y + topH + gap, area.w, std::max(0, area.h - topH - gap)};
     const int mixW = std::clamp(area.w * 30 / 100, uiScaled(300), uiScaled(700));
@@ -1671,7 +1775,8 @@
     const Deck& deck = project_.decks[static_cast<std::size_t>(deckIndex)];
     const int gap = uiScaled(12);
     const SDL_Color red {220, 50, 45, 255}, green {60, 200, 90, 255};
-    const int sideW = std::clamp(area.w * 26 / 100, uiScaled(300), uiScaled(520));
+    const int sideW = layoutSplit("side", true, true, area.x, area.w, gap,
+                                  std::clamp(area.w * 26 / 100, uiScaled(300), uiScaled(520)), uiScaled(220), uiScaled(400), area.y, area.h);
     SDL_Rect side {area.x + area.w - sideW, area.y, sideW, area.h};
     SDL_Rect main {area.x, area.y, std::max(0, area.w - sideW - gap), area.h};
     int nextIndex = -1;
@@ -2004,7 +2109,8 @@
     const int labelH = std::max(uiScaled(14), textLineHeight(fontSmall_));
 
     // ── the monitor row: the playlists, then PVW and PGM, wider ──
-    const int monH = std::clamp(area.h * 34 / 100, uiScaled(130), uiScaled(420));
+    const int monH = layoutSplit("monitors", false, false, area.y, area.h, gap,
+                                 std::clamp(area.h * 34 / 100, uiScaled(130), uiScaled(420)), uiScaled(90), uiScaled(220), area.x, area.w);
     {
       std::vector<MultiviewTile> tiles;
       for (int d = 0; d < static_cast<int>(project_.decks.size()) && tiles.size() < 4; ++d) {
@@ -2170,7 +2276,8 @@
     }
 
     SDL_Rect body {area.x, area.y, area.w, std::max(0, area.h - barH - gap)};
-    const int listW = std::clamp(body.w * 30 / 100, uiScaled(240), uiScaled(440));
+    const int listW = layoutSplit("list", true, false, body.x, body.w, gap,
+                                  std::clamp(body.w * 30 / 100, uiScaled(240), uiScaled(440)), uiScaled(180), uiScaled(320), body.y, body.h);
     SDL_Rect list {body.x, body.y, listW, body.h};
     SDL_Rect right {body.x + listW + gap, body.y, std::max(0, body.w - listW - gap), body.h};
 
@@ -2221,7 +2328,8 @@
 
     // ── the live monitor ──
     // the monitor takes a third: the tray below carries the inspector
-    const int monH = std::min(right.h * 34 / 100, right.w * 9 / 16 + labelH + uiScaled(8));
+    const int monH = layoutSplit("monitor", false, false, right.y, right.h, gap,
+                                 std::min(right.h * 34 / 100, right.w * 9 / 16 + labelH + uiScaled(8)), uiScaled(90), uiScaled(140), right.x, right.w);
     MultiviewTile feed;
     feed.source = "programme";
     SDL_Rect mon {right.x, right.y, right.w, monH};

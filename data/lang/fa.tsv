@@ -4922,3 +4922,4 @@ RENAME	تغییر نام
 Rename output	تغییر نام خروجی
 Rename playlist	تغییر نام فهرست پخش
 Playlist name (blank: the default)	نام فهرست پخش (خالی: پیش‌فرض)
+LAYOUT SPLIT: expected a divider and a share between 0 and 1, or RESET	LAYOUT SPLIT: یک جداکننده و سهمی بین 0 و 1، یا RESET لازم است
