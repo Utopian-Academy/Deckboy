@@ -4826,3 +4826,6 @@ TAKE selects the next cue	TAKE vælger næste cue
 TAKE leaves the selection where it is	TAKE lader valget blive, hvor det er
 lowest {1}%	laveste {1}%
 highest {1}%	højeste {1}%
+Operator	Operatør
+{1} followers	{1} følgere
+' (CLASSIC or OPERATOR)	' (KLASSISK eller OPERATØR)

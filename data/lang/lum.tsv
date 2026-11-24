@@ -4888,3 +4888,7 @@ TAKE selects the next cue	TAKE piki novtok pona
 TAKE leaves the selection where it is	TAKE guri pika kaeo
 lowest {1}%	{1}% kiso
 highest {1}%	{1}% tamo
+HOT CUES	ZARVEKAKU
+Operator	Setawia
+{1} followers	{1} mirawiaku
+' (CLASSIC or OPERATOR)	' (CLASSIC nu OPERATOR)

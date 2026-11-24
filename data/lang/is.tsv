@@ -4867,3 +4867,7 @@ TAKE selects the next cue	TAKE velur næsta atriði
 TAKE leaves the selection where it is	TAKE skilur valið eftir þar sem það er
 lowest {1}%	lægstu {1}%
 highest {1}%	hæstu {1}%
+HOT CUES	FLÝTI-CUE
+Operator	Stjórnandi
+{1} followers	{1} fylgjendur
+' (CLASSIC or OPERATOR)	' (CLASSIC eða OPERATOR)

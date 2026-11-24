@@ -4861,3 +4861,7 @@ TAKE selects the next cue	TAKE ad yefren aferdis i d-iteddun
 TAKE leaves the selection where it is	TAKE ad yeǧǧ afran deg wadeg-is
 lowest {1}%	{1}% n wadda
 highest {1}%	{1}% n ufella
+HOT CUES	CUE YEḤMAN
+Operator	Amsefrek
+{1} followers	{1} n yimeḍfaren
+' (CLASSIC or OPERATOR)	' (CLASSIC neɣ OPERATOR)

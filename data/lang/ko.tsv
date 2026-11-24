@@ -4873,3 +4873,7 @@ TAKE selects the next cue	TAKE 시 다음 큐 선택
 TAKE leaves the selection where it is	TAKE 시 선택 위치 유지
 lowest {1}%	하위 {1}%
 highest {1}%	상위 {1}%
+HOT CUES	핫 큐
+Operator	오퍼레이터
+{1} followers	팔로워 {1}명
+' (CLASSIC or OPERATOR)	' (CLASSIC 또는 OPERATOR)

@@ -4876,3 +4876,7 @@ TAKE selects the next cue	TAKE избира следващата реплика
 TAKE leaves the selection where it is	TAKE оставя избора на място
 lowest {1}%	най-ниските {1}%
 highest {1}%	най-високите {1}%
+HOT CUES	БЪРЗИ CUE
+Operator	Оператор
+{1} followers	{1} последователи
+' (CLASSIC or OPERATOR)	' (КЛАСИЧЕСКО или ОПЕРАТОР)

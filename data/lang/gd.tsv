@@ -4872,3 +4872,7 @@ TAKE selects the next cue	Taghaidh TAKE an ath chomharra
 TAKE leaves the selection where it is	Fàgaidh TAKE an taghadh far a bheil e
 lowest {1}%	{1}% as ìsle
 highest {1}%	{1}% as motha
+HOT CUES	CUES LUATHA
+Operator	Obraiche
+{1} followers	{1} luchd-leantainn
+' (CLASSIC or OPERATOR)	' (CLASAIGEACH no OBRAICHE)

@@ -4815,3 +4815,6 @@ TAKE selects the next cue	TAKE kiest de volgende cue
 TAKE leaves the selection where it is	TAKE laat de selectie staan
 lowest {1}%	laagste {1}%
 highest {1}%	hoogste {1}%
+Operator	Technicus
+{1} followers	{1} volgers
+' (CLASSIC or OPERATOR)	' (CLASSIC of OPERATOR)

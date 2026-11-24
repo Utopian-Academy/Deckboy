@@ -4840,3 +4840,7 @@ TAKE selects the next cue	Koho ʻo TAKE i ka hōʻailona aʻe
 TAKE leaves the selection where it is	Waiho ʻo TAKE i ke koho ma kona wahi
 lowest {1}%	haʻahaʻa loa {1}%
 highest {1}%	kiʻekiʻe loa {1}%
+HOT CUES	NĀ CUE WELA
+Operator	Mea hoʻohana
+{1} followers	{1} mea hahai
+' (CLASSIC or OPERATOR)	' (CLASSIC a i ʻole OPERATOR)

@@ -4855,3 +4855,7 @@ TAKE selects the next cue	TAKE ta scogi e siguiente cue
 TAKE leaves the selection where it is	TAKE ta laga e seleccion unda e ta
 lowest {1}%	{1}% mas abou
 highest {1}%	{1}% mas haltu
+HOT CUES	CUES RAPIDO
+Operator	Operado
+{1} followers	{1} seguidornan
+' (CLASSIC or OPERATOR)	' (CLASICO of OPERADO)

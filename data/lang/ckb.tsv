@@ -4877,3 +4877,7 @@ TAKE selects the next cue	TAKE نیشانەی دواتر هەڵدەبژێرێت
 TAKE leaves the selection where it is	TAKE هەڵبژاردن لە شوێنی خۆی دەهێڵێتەوە
 lowest {1}%	نزمترین {1}%
 highest {1}%	بەرزترین {1}%
+HOT CUES	cue ی خێرا
+Operator	کارمەند
+{1} followers	{1} شوێنکەوتوو
+' (CLASSIC or OPERATOR)	' (کلاسیک یان کارمەند)

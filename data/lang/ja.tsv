@@ -4875,3 +4875,7 @@ TAKE selects the next cue	TAKE で次のキューを選択
 TAKE leaves the selection where it is	TAKE 後も選択はそのまま
 lowest {1}%	下位{1}%
 highest {1}%	上位{1}%
+HOT CUES	ホットキュー
+Operator	オペレーター
+{1} followers	フォロワー {1}人
+' (CLASSIC or OPERATOR)	' (CLASSIC または OPERATOR)

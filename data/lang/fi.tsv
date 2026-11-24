@@ -4874,3 +4874,7 @@ TAKE selects the next cue	TAKE valitsee seuraavan cuen
 TAKE leaves the selection where it is	TAKE jättää valinnan paikalleen
 lowest {1}%	pienin {1}%
 highest {1}%	suurin {1}%
+HOT CUES	PIKACUET
+Operator	Käyttäjä
+{1} followers	{1} seuraajaa
+' (CLASSIC or OPERATOR)	' (KLASSINEN tai KÄYTTÄJÄ)

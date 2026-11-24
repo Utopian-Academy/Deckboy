@@ -4877,3 +4877,7 @@ TAKE selects the next cue	TAKE अगला क्यू चुनता है
 TAKE leaves the selection where it is	TAKE चयन को जहाँ है वहीं छोड़ देता है
 lowest {1}%	सबसे कम {1}%
 highest {1}%	सबसे अधिक {1}%
+HOT CUES	हॉट क्यू
+Operator	ऑपरेटर
+{1} followers	{1} फ़ॉलोअर्स
+' (CLASSIC or OPERATOR)	' (CLASSIC या OPERATOR)

@@ -4889,3 +4889,7 @@ TAKE selects the next cue	TAKE کیو بعدی را انتخاب می‌کند
 TAKE leaves the selection where it is	TAKE انتخاب را همان‌جا که هست نگه می‌دارد
 lowest {1}%	کمترین {1}%
 highest {1}%	بیشترین {1}%
+HOT CUES	کیوهای فوری
+Operator	اپراتور
+{1} followers	{1} دنبال‌کننده
+' (CLASSIC or OPERATOR)	' (کلاسیک یا اپراتور)

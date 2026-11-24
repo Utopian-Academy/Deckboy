@@ -4870,3 +4870,7 @@ TAKE selects the next cue	Το TAKE επιλέγει το επόμενο cue
 TAKE leaves the selection where it is	Το TAKE αφήνει την επιλογή εκεί που είναι
 lowest {1}%	χαμηλότερο {1}%
 highest {1}%	υψηλότερο {1}%
+HOT CUES	ΓΡΗΓΟΡΑ CUE
+Operator	Χειριστής
+{1} followers	{1} ακόλουθοι
+' (CLASSIC or OPERATOR)	' (ΚΛΑΣΙΚΟ ή ΧΕΙΡΙΣΤΗΣ)

@@ -4890,3 +4890,7 @@ TAKE selects the next cue	TAKE يختار الإشارة التالية
 TAKE leaves the selection where it is	TAKE يُبقي الاختيار في مكانه
 lowest {1}%	أدنى {1}%
 highest {1}%	أعلى {1}%
+HOT CUES	كيوهات سريعة
+Operator	المشغّل
+{1} followers	المتابعون: {1}
+' (CLASSIC or OPERATOR)	' (كلاسيكي أو المشغّل)

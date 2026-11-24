@@ -4843,3 +4843,6 @@ TAKE selects the next cue	TAKE wählt den nächsten Cue
 TAKE leaves the selection where it is	TAKE lässt die Auswahl, wo sie ist
 lowest {1}%	niedrigste {1}%
 highest {1}%	höchste {1}%
+Operator	Bediener
+{1} followers	{1} Follower
+' (CLASSIC or OPERATOR)	' (KLASSISCH oder BEDIENER)

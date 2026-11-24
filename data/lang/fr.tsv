@@ -4811,3 +4811,7 @@ TAKE selects the next cue	TAKE choisit le cue suivant
 TAKE leaves the selection where it is	TAKE laisse la sélection où elle est
 lowest {1}%	minimum {1} %
 highest {1}%	maximum {1} %
+HOT CUES	CUES RAPIDES
+Operator	Opérateur
+{1} followers	{1} abonnés
+' (CLASSIC or OPERATOR)	' (CLASSIQUE ou OPÉRATEUR)
