@@ -4858,3 +4858,5 @@ How slowly it breathes: one breath in about twelve seconds at the left, two and 
 TAKE selects next	TAKE ເລືອກຖັດໄປ
 TAKE selects the next cue	TAKE ເລືອກຄິວຖັດໄປ
 TAKE leaves the selection where it is	TAKE ຄົງການເລືອກໄວ້ບ່ອນເດີມ
+lowest {1}%	ຕ່ຳສຸດ {1}%
+highest {1}%	ສູງສຸດ {1}%

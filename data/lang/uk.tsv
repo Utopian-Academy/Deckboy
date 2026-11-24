@@ -4875,3 +4875,5 @@ TAKE selects the next cue	TAKE вибирає наступний кью
 TAKE leaves the selection where it is	TAKE не змінює виділення
 A soft swell that drifts through the picture as it breathes. At the left it only swells and settles.	М'яка хвиля, що дрейфує зображенням, поки воно дихає. Ліворуч вона лише набігає й стихає.
 How slowly it breathes: one breath in about twelve seconds at the left, two and a half at the right.	Як повільно дихає: один цикл дихання приблизно за дванадцять секунд ліворуч, за дві з половиною праворуч.
+lowest {1}%	найменші {1}%
+highest {1}%	найбільші {1}%

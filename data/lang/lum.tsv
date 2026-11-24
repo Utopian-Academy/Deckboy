@@ -4886,3 +4886,5 @@ How slowly it breathes: one breath in about twelve seconds at the left, two and 
 TAKE selects next	TAKE piki novtok
 TAKE selects the next cue	TAKE piki novtok pona
 TAKE leaves the selection where it is	TAKE guri pika kaeo
+lowest {1}%	{1}% kiso
+highest {1}%	{1}% tamo

@@ -4845,3 +4845,5 @@ TAKE selects the next cue	TAKE wybiera następny cue
 TAKE leaves the selection where it is	TAKE nie zmienia zaznaczenia
 A soft swell that drifts through the picture as it breathes. At the left it only swells and settles.	Miękkie falowanie, które dryfuje przez obraz, gdy ten oddycha. Po lewej tylko narasta i opada.
 How slowly it breathes: one breath in about twelve seconds at the left, two and a half at the right.	Jak wolno oddycha: jeden oddech na około dwanaście sekund po lewej, dwa i pół po prawej.
+lowest {1}%	najniższe {1}%
+highest {1}%	najwyższe {1}%

@@ -4835,3 +4835,5 @@ TAKE selects the next cue	TAKE seleciona a próxima deixa
 TAKE leaves the selection where it is	TAKE mantém a seleção onde está
 A soft swell that drifts through the picture as it breathes. At the left it only swells and settles.	Uma ondulação suave que atravessa a imagem enquanto respira. À esquerda ela só cresce e assenta.
 How slowly it breathes: one breath in about twelve seconds at the left, two and a half at the right.	Quão devagar respira: uma respiração a cada uns doze segundos à esquerda, dois e meio à direita.
+lowest {1}%	menor {1}%
+highest {1}%	maior {1}%

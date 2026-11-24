@@ -4872,3 +4872,5 @@ TAKE selects the next cue	TAKE 选择下一个 Cue
 TAKE leaves the selection where it is	TAKE 保持当前选择不变
 A soft swell that drifts through the picture as it breathes. At the left it only swells and settles.	一股柔和的涌动随呼吸在画面中漂移。最左时只涌起再平复。
 How slowly it breathes: one breath in about twelve seconds at the left, two and a half at the right.	呼吸的缓慢程度：最左约十二秒一次气息，最右约两秒半。
+lowest {1}%	最低 {1}%
+highest {1}%	最高 {1}%

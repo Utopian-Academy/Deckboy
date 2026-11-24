@@ -4866,3 +4866,5 @@ TAKE selects the next cue	TAKE sonraki işareti seçer
 TAKE leaves the selection where it is	TAKE seçimi olduğu yerde bırakır
 A soft swell that drifts through the picture as it breathes. At the left it only swells and settles.	Resim nefes alırken içinde süzülen yumuşak bir kabarma. Solda yalnızca kabarır ve yatışır.
 How slowly it breathes: one breath in about twelve seconds at the left, two and a half at the right.	Ne kadar yavaş nefes aldığı: solda yaklaşık on iki saniyede bir nefes, sağda iki buçuk.
+lowest {1}%	en düşük %{1}
+highest {1}%	en yüksek %{1}

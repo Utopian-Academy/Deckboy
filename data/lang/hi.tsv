@@ -4875,3 +4875,5 @@ How slowly it breathes: one breath in about twelve seconds at the left, two and 
 TAKE selects next	TAKE अगला चुनता है
 TAKE selects the next cue	TAKE अगला क्यू चुनता है
 TAKE leaves the selection where it is	TAKE चयन को जहाँ है वहीं छोड़ देता है
+lowest {1}%	सबसे कम {1}%
+highest {1}%	सबसे अधिक {1}%

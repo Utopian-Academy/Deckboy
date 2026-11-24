@@ -4841,3 +4841,5 @@ How slowly it breathes: one breath in about twelve seconds at the left, two and 
 TAKE selects next	TAKE wählt den nächsten
 TAKE selects the next cue	TAKE wählt den nächsten Cue
 TAKE leaves the selection where it is	TAKE lässt die Auswahl, wo sie ist
+lowest {1}%	niedrigste {1}%
+highest {1}%	höchste {1}%

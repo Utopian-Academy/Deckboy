@@ -4873,3 +4873,5 @@ How slowly it breathes: one breath in about twelve seconds at the left, two and 
 TAKE selects next	TAKE で次を選択
 TAKE selects the next cue	TAKE で次のキューを選択
 TAKE leaves the selection where it is	TAKE 後も選択はそのまま
+lowest {1}%	下位{1}%
+highest {1}%	上位{1}%

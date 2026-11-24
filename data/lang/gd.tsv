@@ -4870,3 +4870,5 @@ How slowly it breathes: one breath in about twelve seconds at the left, two and 
 TAKE selects next	Taghaidh TAKE an ath fhear
 TAKE selects the next cue	Taghaidh TAKE an ath chomharra
 TAKE leaves the selection where it is	Fàgaidh TAKE an taghadh far a bheil e
+lowest {1}%	{1}% as ìsle
+highest {1}%	{1}% as motha

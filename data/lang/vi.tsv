@@ -4859,3 +4859,5 @@ TAKE selects the next cue	TAKE chọn cue tiếp theo
 TAKE leaves the selection where it is	TAKE giữ nguyên mục đang chọn
 A soft swell that drifts through the picture as it breathes. At the left it only swells and settles.	Một nhịp phồng nhẹ trôi qua hình ảnh khi nó thở. Ở bên trái nó chỉ phồng lên rồi lắng xuống.
 How slowly it breathes: one breath in about twelve seconds at the left, two and a half at the right.	Nó thở chậm đến đâu: một hơi thở khoảng mười hai giây ở bên trái, hai giây rưỡi ở bên phải.
+lowest {1}%	thấp nhất {1}%
+highest {1}%	cao nhất {1}%
