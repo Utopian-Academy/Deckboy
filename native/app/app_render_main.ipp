@@ -3843,6 +3843,16 @@
       drawTextSafe(controlRenderer_, fontSmall_, noteRect, note, pal.fg);
     }
 
+    renderInspectorBody(inspectorBody);
+  }
+
+  // THE CUE INSPECTOR, on its own (2026-11-24): split out of renderMainPanel so
+  // a desk layout can put it anywhere -- Classic beside the programme, Operator
+  // as an EDIT-only drawer, Compact in a tab.
+  void renderInspectorBody(const SDL_Rect& inspectorBody) {
+    const Deck& deck = focusedDeck();
+    const MediaEngine* engine = focusedMediaEngine();
+    const Cue* selectedCue = selectedCuePtr();
     // --- Cue Inspector panel (with thumbnail at top) ---
     // Kept so the creature colonies can find the empty part of this
     // column, the same way they find the empty part of the playlist.
