@@ -2384,7 +2384,7 @@
         break;
       case SDLK_RETURN:
       case SDLK_KP_ENTER:
-        jumpSelectedCue();
+        operatorTake();
         break;
       case SDLK_SPACE:
         toggleTransport();

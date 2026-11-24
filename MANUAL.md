@@ -688,7 +688,13 @@ Set it with the **standby** row (it reads `THIS CUE` on the cue that has it).
 While a standby is set, **Space is GO**: it takes the standby cue and moves the
 standby down to the next armed cue. At the end of the list the standby clears
 rather than wrapping to the top, so the last GO cannot restart the show. With
-no standby set, Enter and Space work as they always have.
+no standby set, Enter takes the selected cue and Space plays and pauses it.
+
+**TAKE selects next** (*v0.99.430*, Settings > System > SHOW FLOW, on by
+default): after a TAKE from Enter, the TAKE button, Companion or a lighting
+desk's MSC GO, the next armed cue is selected, so the next TAKE plays it. At
+the end of the list the selection stays on the last cue. While a standby is set
+it runs the order instead, and the selection is left where you put it.
 
 ### Pre-wait, post-wait and continue
 

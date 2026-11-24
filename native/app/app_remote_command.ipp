@@ -6454,13 +6454,13 @@
       if (parts.size() > 2 && toUpper(parts[2]) == "AUTO") {
         takeSelected(true);
       } else {
-        jumpSelectedCue();
+        operatorTake();
       }
       return;
     }
     if (command == "TAKEID") {
       if (selectCueById(joinParts(parts, 1))) {
-        jumpSelectedCue();
+        operatorTake();
       }
       return;
     }
@@ -6533,7 +6533,7 @@
         return;
       }
       selectCueInDeck(project_.focusedDeckIndex, *index, false, false);
-      jumpSelectedCue();
+      operatorTake();
       return;
     }
     if (command == "VOLUME") {

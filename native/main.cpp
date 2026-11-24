@@ -8809,6 +8809,7 @@ class App {
   static constexpr int kSettingsActionPhoneHaptics = 796;
   static constexpr int kSettingsActionPhoneForget = 797;
   static constexpr int kSettingsActionGoGuardCycle = 798;
+  static constexpr int kSettingsActionTakeSelectsNext = 60300;
   // ST 2110-20 output (Devices sub-tab).
   static constexpr int kSettingsActionSt2110Toggle = 658;
   static constexpr int kSettingsActionSt2110AddressPrompt = 659;
@@ -9625,6 +9626,8 @@ class App {
   double vjBarRevealAt_ = 0.0;
   int vjTakeDeck_ = -1;        // which deck asked for the held take
   bool vjTakeFiring_ = false;  // guards the deferred take against re-queueing
+  bool vjTakeAdvances_ = false;     // a held operator TAKE moves the selection on when it fires
+  bool operatorTakeAdvances_ = false;   // inside operatorTake (jumpSelectedCue then select the next)
 
   // ATEM switcher client (read-only program-bus watcher)
   // -1 means "has not been told yet", which is deliberately distinct from any

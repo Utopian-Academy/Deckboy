@@ -5275,7 +5275,7 @@ html,body{width:100%;height:100%;overflow:hidden}
           triggerToast("MSC: no cue " + message.cue);
           return;
         }
-        jumpSelectedCue();
+        operatorTake();
         break;
       case Action::Load:
         // Preselect without firing: the desk is arming the next one.

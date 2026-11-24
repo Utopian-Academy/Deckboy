@@ -16,6 +16,9 @@
 - New: a desk can **lead** (Settings > Network > Lead other machines). Deckboy Mini (`--follow`, or `SYNC FOLLOW <address>`) and Deckboy Pocket (MENU > SYNC) follow it on the same network: they take, pause, seek and black out with the desk, on the desk's clock. Use one as a backup screen, or to run a second room from one desk.
 - Companion: `FOLLOW`, `TIME`, `SYNC LEAD ON|OFF` and `SYNC STATUS` on the desk; `SYNC FOLLOW`, `SYNC STOP` and `SYNC STATUS` on Mini.
 
+### Running the show
+- New: after a TAKE, the next cue is selected, so the next TAKE plays it (asked for on r/VIDEOENGINEERING). This is the operator's TAKE: Enter, the TAKE button, Companion's `TAKE`, and GO from a lighting desk over MSC. Disarmed cues are stepped over; at the end of the list the selection stays on the last cue; a standby, where one is set, is left to run the order. Settings > System > SHOW FLOW > **TAKE selects next** (on) turns it off.
+
 ### Effects
 - New: **Breath**. The picture swells and settles on a slow, uneven breath, with a soft swell drifting through it, sometimes barely there. PACE (a breath every 12 seconds to 2.5) and FLOW. It arrives at 35%, about two pixels at the edges of a 1080p picture.
 - Fixed: dragging an effect's amount or a setting moved it in steps of 5%. A drag now moves it 1% a step (hold Shift for finer). The - and + buttons still move 5%.

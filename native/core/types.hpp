@@ -3365,6 +3365,11 @@ struct Project {
   // -- Transport behavior ------------------------------------------------------
   std::string jumpMode = "trigger";   // "trigger" (play immediately) | "load" (load paused)
   bool jumpTransitionEnabled = true;  // use transitions when jumping between cues
+  // After the operator's TAKE (Enter, the TAKE button, Companion's TAKE, MSC
+  // GO), the selection moves on to the next armed cue, so the next TAKE plays
+  // it (2026-11-23, an operator on r/VIDEOENGINEERING: "the playhead doesn't
+  // move to the next cue ... when you start a clip"). Off: the selection stays.
+  bool takeSelectsNext = true;
   // Panic button behavior (emergency stop):
   std::string panicProfile = "outputs_off"; // "outputs_off"|"fade_pause"|"fade_rewind"|"fade_load_next"
   double panicFadeSeconds = 0.9;            // panic fade-out duration

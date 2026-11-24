@@ -1006,9 +1006,9 @@
       int appearanceH = stackH({sRowH, sRowH, sRowH, sRowH, sRowH, sRowH,
                                 sRowH, sRowH, sRowH, sRowH, sRowH, sRowH});
       int safetyH = stackH({sRowH, sRowH, sRowH, sRowH});
-      // SHOW FLOW: vj mode, jump mode + global crossfade, panic profile label
-      // and its row. Grew by a row when VJ mode got a switch.
-      int flowH = stackH({sRowH, sRowH, sRowH, sRowH, sRowH, sRowH});
+      // SHOW FLOW: vj mode, jump mode, global crossfade, TAKE selects next,
+      // double-GO guard, panic profile, panic now. Seven rows, one each.
+      int flowH = stackH({sRowH, sRowH, sRowH, sRowH, sRowH, sRowH, sRowH});
       int cueToolsH = sCardHeaderH + sLineH * 2 + sGap + sRowH + sPad;
       int prefsH = stackH({sRowH, sLineH, sRowH, sRowH, sRowH, sRowH, sRowH, sRowH, sRowH});
       // One toggle, one row of two buttons, one status line. Counted rather
@@ -1302,6 +1302,12 @@
         settingsRow(flowX, flowW, flowY, sRowH, "Global crossfade", sGap);
       drawPillToggle(jumpTransBtn, project_.jumpTransitionEnabled, "ON", "OFF");
       settingsBtns_.push_back({jumpTransBtn, 204, "jump_transition"});
+
+      SDL_Rect takeNextBtn =
+        settingsRow(flowX, flowW, flowY, sRowH, "TAKE selects next", sGap);
+      drawPillToggle(takeNextBtn, project_.takeSelectsNext, "ON", "OFF");
+      settingsBtns_.push_back({takeNextBtn, kSettingsActionTakeSelectsNext,
+                               "After a TAKE the next cue is selected, so the next TAKE plays it"});
 
       SDL_Rect goGuardBtn =
         settingsRow(flowX, flowW, flowY, sRowH, "Double-GO guard", sGap);
@@ -5576,6 +5582,10 @@
         setWebMonitorLowLatency(!project_.webMonitorLowLatency);
       } else if (sb.action == kSettingsActionWebMonitorQr) {
         openWebMonitorQr();
+      } else if (sb.action == kSettingsActionTakeSelectsNext) {
+        project_.takeSelectsNext = !project_.takeSelectsNext;
+        triggerToast(project_.takeSelectsNext ? "TAKE selects the next cue" : "TAKE leaves the selection where it is");
+        markProjectDirty();
       } else if (sb.action == kSettingsActionGoGuardCycle) {
         static constexpr int kSteps[] = {0, 250, 500, 1000};
         int next = 0;

@@ -37,7 +37,7 @@
     } else if (label == "PATTERN") {
       addKawaiiPatternCue();
     } else if (label == "TAKE") {
-      jumpSelectedCue();
+      operatorTake();
     } else if (label == "TAKE ALL") {
       takeAllDecks(true);
     } else if (label == "RERACK") {
@@ -5668,10 +5668,40 @@
         vjTakePending_ = true;
         vjTakeDueAt_ = static_cast<double>(SDL_GetTicks()) / 1000.0 + wait;
         vjTakeDeck_ = project_.focusedDeckIndex;
+        vjTakeAdvances_ = operatorTakeAdvances_;   // moves on when it fires, not now
         return;
       }
     }
     takeSelected(jumpTriggersPlayback(), project_.jumpTransitionEnabled);
+    if (operatorTakeAdvances_ || (vjTakeFiring_ && vjTakeAdvances_)) selectNextAfterTake();
+  }
+
+  // THE OPERATOR'S TAKE: Enter, the TAKE button, Companion's TAKE, MSC GO.
+  // As jumpSelectedCue, then (Project::takeSelectsNext) the selection moves
+  // to the next armed cue, so the next TAKE plays it. The lessons and the
+  // tutorial take with jumpSelectedCue itself and leave the selection alone.
+  void operatorTake() {
+    operatorTakeAdvances_ = true;
+    jumpSelectedCue();
+    operatorTakeAdvances_ = false;
+  }
+
+  // The next armed cue below the one just taken. A standby, where one is set,
+  // is the running order already, so the selection stays out of its way; and
+  // at the end of the list the selection stays on the last cue.
+  void selectNextAfterTake() {
+    if (!project_.takeSelectsNext) return;
+    const int di = project_.focusedDeckIndex;
+    if (di < 0 || di >= static_cast<int>(project_.decks.size())) return;
+    Deck& deck = project_.decks[static_cast<std::size_t>(di)];
+    if (deck.standbyIndex >= 0) return;
+    const int from = deck.activeIndex >= 0 ? deck.activeIndex : deck.selectedIndex;
+    for (int k = from + 1; k < static_cast<int>(deck.cues.size()); ++k) {
+      if (!deck.cues[static_cast<std::size_t>(k)].armed) continue;
+      selectOnlyCue(deck, k);
+      onSelectionChanged();
+      return;
+    }
   }
 
   // Called every update: fire a held take when its beat arrives.
@@ -7874,7 +7904,7 @@
     triggerToast("find " + std::to_string(lastCueFindCursor_ + 1) + "/" +
       std::to_string(lastCueFindMatches_.size()) + " -> " + cueNum + " " + deck.cues[cueIndex].name);
     if (triggerJump) {
-      jumpSelectedCue();
+      operatorTake();
     }
     return true;
   }
