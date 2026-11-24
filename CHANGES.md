@@ -18,7 +18,7 @@
 - Companion: `FOLLOW`, `TIME`, `SYNC LEAD ON|OFF` and `SYNC STATUS` on the desk; `SYNC FOLLOW`, `SYNC STOP` and `SYNC STATUS` on Mini.
 
 ### Running the show
-- New: after a TAKE, the next cue is selected, so the next TAKE plays it (asked for on r/VIDEOENGINEERING). This is the operator's TAKE: Enter, the TAKE button, Companion's `TAKE`, and GO from a lighting desk over MSC. Disarmed cues are stepped over; at the end of the list the selection stays on the last cue; a standby, where one is set, is left to run the order. Settings > System > SHOW FLOW > **TAKE selects next** (on) turns it off.
+- New: after a TAKE, the next cue is selected, so the next TAKE plays it (asked for on r/VIDEOENGINEERING). This is the operator's TAKE: Enter, the TAKE button, and GO from a lighting desk over MSC (a GO with no cue number now plays the next cue). Companion's `TAKE` is unchanged: the selection stays on the cue it took, so the commands after it still act on that cue. Disarmed cues are stepped over; at the end of the list the selection stays on the last cue; a standby, where one is set, is left to run the order. Settings > System > SHOW FLOW > **TAKE selects next** (on) turns it off.
 
 ### Effects
 - New: **Breath**. The picture swells and settles on a slow, uneven breath, with a soft swell drifting through it, sometimes barely there. PACE (a breath every 12 seconds to 2.5) and FLOW. It arrives at 35%, about two pixels at the edges of a 1080p picture.

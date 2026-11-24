@@ -223,8 +223,21 @@
     }
 
     std::string command = toUpper(parts[0]);
-    // The sync conductor's verbs (app_network.ipp, SYNC_DESIGN.md).
-    if (command == "FOLLOW" || command == "UNFOLLOW" || command == "TIME" || command == "SYNC") {
+    // The sync conductor's verbs (app_network.ipp, SYNC_DESIGN.md). Four
+    // different verbs, one branch each; handleSyncCommand tells them apart.
+    if (command == "FOLLOW") {
+      handleSyncCommand(parts);
+      return;
+    }
+    if (command == "UNFOLLOW") {
+      handleSyncCommand(parts);
+      return;
+    }
+    if (command == "TIME") {
+      handleSyncCommand(parts);
+      return;
+    }
+    if (command == "SYNC") {
       handleSyncCommand(parts);
       return;
     }
@@ -6451,16 +6464,19 @@
       if (index) {
         selectCueInDeck(project_.focusedDeckIndex, *index, false, false);
       }
+      // A controller's TAKE keeps its meaning: the selection stays on the cue
+      // it took, so the commands after it (FX, AUDIOFX, ...) act on that cue.
+      // TAKE selects next is the desk operator's TAKE (and MSC GO).
       if (parts.size() > 2 && toUpper(parts[2]) == "AUTO") {
         takeSelected(true);
       } else {
-        operatorTake();
+        jumpSelectedCue();
       }
       return;
     }
     if (command == "TAKEID") {
       if (selectCueById(joinParts(parts, 1))) {
-        operatorTake();
+        jumpSelectedCue();
       }
       return;
     }
@@ -6533,7 +6549,7 @@
         return;
       }
       selectCueInDeck(project_.focusedDeckIndex, *index, false, false);
-      operatorTake();
+      jumpSelectedCue();
       return;
     }
     if (command == "VOLUME") {

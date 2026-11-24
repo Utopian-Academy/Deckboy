@@ -691,8 +691,9 @@ rather than wrapping to the top, so the last GO cannot restart the show. With
 no standby set, Enter takes the selected cue and Space plays and pauses it.
 
 **TAKE selects next** (*v0.99.430*, Settings > System > SHOW FLOW, on by
-default): after a TAKE from Enter, the TAKE button, Companion or a lighting
-desk's MSC GO, the next armed cue is selected, so the next TAKE plays it. At
+default): after a TAKE from Enter, the TAKE button or a lighting desk's MSC
+GO, the next armed cue is selected, so the next TAKE plays it. Companion's
+`TAKE` leaves the selection on the cue it took, as before. At
 the end of the list the selection stays on the last cue. While a standby is set
 it runs the order instead, and the selection is left where you put it.
 
