@@ -17,7 +17,7 @@
 
   // One clickable piece of a layout. Layouts draw immediate-mode like the rest
   // of the desk; the press handler walks this list (handleLayoutClick).
-  enum class LayoutHitKind { Go, Back, Hold, Skip, Transition, HotCue, Black, Row, ModeShow, ModeEdit, Fader, Cut, Clip, StopDeck, Quick, Crossfade, VjOn, PauseAll, Panic };
+  enum class LayoutHitKind { Go, Back, Hold, Skip, Transition, HotCue, Black, Row, ModeShow, ModeEdit, Fader, Cut, Clip, StopDeck, Quick, Crossfade, VjOn, PauseAll, Panic, HotCut, Style, Duration, Ftb };
   struct LayoutHit {
     SDL_Rect rect {};
     LayoutHitKind kind = LayoutHitKind::Go;
@@ -45,6 +45,7 @@
       {"rundown", "Rundown"},
       {"clipgrid", "Clip Grid"},
       {"cuestack", "Cue Stack"},
+      {"console", "Console"},
     };
     return choices;
   }
@@ -76,6 +77,7 @@
     else if (deskLayoutIs("rundown")) renderRundownLayout(area);
     else if (deskLayoutIs("clipgrid")) renderClipGridLayout(area);
     else if (deskLayoutIs("cuestack")) renderCueStackLayout(area);
+    else if (deskLayoutIs("console")) renderConsoleLayout(area);
     else renderOperatorLayout(area);
   }
 
@@ -456,6 +458,26 @@
           break;
         }
         case LayoutHitKind::Panic: triggerPanicProfile(); break;
+        case LayoutHitKind::HotCut: layoutHotCut(hit.a, hit.b); break;
+        case LayoutHitKind::Style: {
+          const auto& styles = consoleStyles();
+          const int d = project_.focusedDeckIndex;
+          if (hit.a >= 0 && hit.a < static_cast<int>(styles.size()) && d >= 0 && d < static_cast<int>(project_.decks.size())) {
+            project_.decks[static_cast<std::size_t>(d)].transitionStyle = transitionStyleToken(styles[static_cast<std::size_t>(hit.a)]);
+            markProjectDirty();
+          }
+          break;
+        }
+        case LayoutHitKind::Duration: {
+          const int d = project_.focusedDeckIndex;
+          if (d >= 0 && d < static_cast<int>(project_.decks.size())) {
+            double& s = project_.decks[static_cast<std::size_t>(d)].transitionSeconds;
+            s = std::clamp(std::round((s + hit.a * 0.25) * 4.0) / 4.0, 0.0, 30.0);
+            markProjectDirty();
+          }
+          break;
+        }
+        case LayoutHitKind::Ftb: triggerButton("BLACK"); break;
         case LayoutHitKind::Back: layoutMoveNext(-1); break;
         case LayoutHitKind::Skip: layoutMoveNext(+1); break;
         case LayoutHitKind::Hold: toggleTransport(); break;
@@ -1544,5 +1566,149 @@
       layoutHit(back, LayoutHitKind::Back);
       layoutHit(pause, LayoutHitKind::PauseAll);
       layoutHit(panic, LayoutHitKind::Panic);
+    }
+  }
+
+  // ── CONSOLE ───────────────────────────────────────────────────────────────
+  //
+  // A vision mixer (the board's "Console"): a row of monitors, a PROGRAM bus
+  // that hot-cuts and a PRESET bus that picks what AUTO takes, the transition
+  // row, and CUT / AUTO / FTB. The layout the rendered 3D skins are for.
+
+  static const std::vector<TransitionStyle>& consoleStyles() {
+    static const std::vector<TransitionStyle> styles = {
+      TransitionStyle::Crossfade, TransitionStyle::DipBlack, TransitionStyle::WipeLeft,
+      TransitionStyle::Iris, TransitionStyle::Portal, TransitionStyle::Shatter};
+    return styles;
+  }
+
+  // PROGRAM bus: this cue on air now, no transition (a switcher's hot cut).
+  void layoutHotCut(int deckIndex, int cueIndex) {
+    if (!setFocusedDeckIndex(deckIndex)) return;
+    selectCueInDeck(deckIndex, cueIndex, false, false);
+    takeSelected(jumpTriggersPlayback(), false);
+  }
+
+  void renderConsoleLayout(const SDL_Rect& area) {
+    layoutHits_.clear();
+    layoutBlackRect_ = {};
+    const int deckIndex = project_.focusedDeckIndex;
+    if (deckIndex < 0 || deckIndex >= static_cast<int>(project_.decks.size())) return;
+    const Deck& deck = project_.decks[static_cast<std::size_t>(deckIndex)];
+    const int gap = uiScaled(10);
+    const SDL_Color red {220, 50, 45, 255}, green {60, 200, 90, 255};
+    const int labelH = std::max(uiScaled(14), textLineHeight(fontSmall_));
+
+    // ── the monitor row: the playlists, then PVW and PGM, wider ──
+    const int monH = std::clamp(area.h * 34 / 100, uiScaled(130), uiScaled(420));
+    {
+      std::vector<MultiviewTile> tiles;
+      for (int d = 0; d < static_cast<int>(project_.decks.size()) && tiles.size() < 4; ++d) {
+        MultiviewTile t;
+        t.source = "deck:" + std::to_string(d);
+        tiles.push_back(t);
+      }
+      const int smallCount = static_cast<int>(tiles.size());
+      // two big windows count as 1.6 each
+      const double units = smallCount + 3.2;
+      const int unitW = static_cast<int>((area.w - gap * (smallCount + 1)) / units);
+      int x = area.x;
+      for (const auto& t : tiles) {
+        drawMonitorTile(SDL_Rect {x, area.y, unitW, monH}, t, multiviewTileDeck(t), false, labelH, uiScaled(7));
+        x += unitW + gap;
+      }
+      const int bigW = (area.x + area.w - x - gap) / 2;
+      MultiviewTile pvw;
+      pvw.source = "next";
+      drawMonitorTile(SDL_Rect {x, area.y, bigW, monH}, pvw, -2, false, labelH, uiScaled(7));
+      MultiviewTile pgm;
+      pgm.source = "programme";
+      drawMonitorTile(SDL_Rect {x + bigW + gap, area.y, area.x + area.w - x - bigW - gap, monH}, pgm, -1, false, labelH, uiScaled(7));
+    }
+
+    // ── the panel ──
+    SDL_Rect panel {area.x, area.y + monH + gap, area.w, std::max(0, area.h - monH - gap)};
+    drawUIPanel(panel, pal.shellInner, pal.deep, pal.mid);
+    const int pad = uiScaled(14);
+    const int pillH = std::max(uiScaled(26), textLineHeight(fontSmall_) + uiScaled(10));
+    drawLayoutModePair(SDL_Rect {panel.x + pad, panel.y + pad / 2, panel.w - pad * 2, pillH});
+    if (operatorEditMode_) {
+      renderInspectorBody(SDL_Rect {panel.x + pad, panel.y + pillH + pad, panel.w - pad * 2, panel.h - pillH - pad * 2});
+      return;
+    }
+    const int bigW = std::clamp(panel.w * 15 / 100, uiScaled(150), uiScaled(300));
+    SDL_Rect right {panel.x + panel.w - pad - bigW, panel.y + pillH + pad, bigW, panel.h - pillH - pad * 2};
+    SDL_Rect left {panel.x + pad, panel.y + pillH + pad, std::max(0, right.x - panel.x - pad * 2), panel.h - pillH - pad * 2};
+    const int busLabelW = std::max(uiScaled(90), measuredTextWidth(fontSmall_, "PROGRAM") + uiScaled(16));
+    const int rowH = std::max(uiScaled(50), (left.h - gap * 3) / 3);
+    const int count = static_cast<int>(deck.cues.size());
+    const int keys = std::clamp((left.w - busLabelW) / std::max(1, uiScaled(110)), 4, 10);
+    const int keyW = (left.w - busLabelW - gap * (keys - 1)) / keys;
+    int nextIndex = -1;
+    previewCuePtr(deckIndex, &nextIndex);
+    const int anchor = std::max(0, deck.activeIndex);
+    const int first = std::clamp(anchor - keys / 3, 0, std::max(0, count - keys));
+    // the two buses
+    for (int bus = 0; bus < 2; ++bus) {
+      const int y = left.y + bus * (rowH + gap);
+      drawTextSafe(controlRenderer_, fontSmall_, SDL_Rect {left.x, y, busLabelW, rowH}, bus == 0 ? "PROGRAM" : "PRESET", pal.fgSoft);
+      for (int k = 0; k < keys; ++k) {
+        const int i = first + k;
+        SDL_Rect key {left.x + busLabelW + k * (keyW + gap), y, keyW, rowH};
+        if (i >= count) {
+          drawUIPanel(key, paletteMix(pal.tile, pal.deep, 0.5), pal.deep, pal.mid);
+          continue;
+        }
+        const Cue& cue = deck.cues[static_cast<std::size_t>(i)];
+        const bool lit = bus == 0 ? i == deck.activeIndex : (i == nextIndex && i != deck.activeIndex);
+        const SDL_Color litColour = bus == 0 ? red : green;
+        const SDL_Color fill = lit ? litColour : pal.tile;
+        if (lit) drawGlowAround(key, litColour, 4, 2);
+        drawUIPanel(key, fill, pal.deep, pal.mid);
+        drawCenteredTextSafe(controlRenderer_, fontSmall_, SDL_Rect {key.x + uiScaled(4), key.y, key.w - uiScaled(8), key.h},
+                             ellipsizeToPixelWidth(fontSmall_, cue.name, key.w - uiScaled(8)), paletteInkOnFill(fill));
+        layoutHit(key, bus == 0 ? LayoutHitKind::HotCut : LayoutHitKind::Row, deckIndex, i);
+      }
+    }
+    // the transition row: the style, then how long
+    {
+      const int y = left.y + 2 * (rowH + gap) + gap;
+      drawTextSafe(controlRenderer_, fontSmall_, SDL_Rect {left.x, y, busLabelW, rowH}, "NEXT TRANS", pal.fgSoft);
+      const auto& styles = consoleStyles();
+      const int n = static_cast<int>(styles.size());
+      const int durW = std::max(uiScaled(200), keyW * 2);
+      const int sw = (left.w - busLabelW - durW - gap * n) / n;
+      const ::TransitionStyle current = parseTransitionStyleToken(deck.transitionStyle);
+      for (int k = 0; k < n; ++k) {
+        SDL_Rect b {left.x + busLabelW + k * (sw + gap), y, sw, rowH};
+        const bool on = styles[static_cast<std::size_t>(k)] == current;
+        drawLayoutButton(b, toUpper(transitionStyleLabel(transitionStyleToken(styles[static_cast<std::size_t>(k)]))), "", on ? pal.light : pal.tile, pal.deep, fontSmall_);
+        layoutHit(b, LayoutHitKind::Style, k);
+      }
+      SDL_Rect dur {left.x + left.w - durW, y, durW, rowH};
+      const int stepW = uiScaled(44);
+      SDL_Rect minus {dur.x, y, stepW, rowH}, plus {dur.x + dur.w - stepW, y, stepW, rowH};
+      drawLayoutButton(minus, "-", "", pal.tile, pal.deep, fontBase_);
+      drawLayoutButton(plus, "+", "", pal.tile, pal.deep, fontBase_);
+      layoutHit(minus, LayoutHitKind::Duration, -1);
+      layoutHit(plus, LayoutHitKind::Duration, 1);
+      TTF_Font* mono = fontLarge_ ? fontLarge_ : fontBase_;
+      drawCenteredTextSafe(controlRenderer_, mono, SDL_Rect {minus.x + stepW, y, dur.w - stepW * 2, rowH},
+                           deck.transitionSeconds > 0.01 ? formatSeconds(deck.transitionSeconds) : std::string("CUT"), pal.light);
+    }
+    // CUT / AUTO / FTB
+    {
+      TTF_Font* big = fontPixelTitle_ ? fontPixelTitle_ : (fontLarge_ ? fontLarge_ : fontBase_);
+      const int h = (right.h - gap * 2) / 3;
+      SDL_Rect cut {right.x, right.y, right.w, h};
+      SDL_Rect autoB {right.x, right.y + h + gap, right.w, h};
+      SDL_Rect ftb {right.x, right.y + (h + gap) * 2, right.w, right.h - (h + gap) * 2};
+      drawLayoutButton(cut, "CUT", "", red, pal.deep, big);
+      drawLayoutButton(autoB, "AUTO", "", pal.light, pal.deep, big);
+      const bool dark = masterDimmerTarget_ < 0.5;
+      drawLayoutButton(ftb, "FTB", dark ? "black: press for picture" : "", paletteMix(pal.tile, pal.deleteBezel, dark ? 0.7 : 0.35), pal.deleteBezel, big);
+      layoutHit(cut, LayoutHitKind::Cut);
+      layoutHit(autoB, LayoutHitKind::Go);
+      layoutHit(ftb, LayoutHitKind::Ftb);
     }
   }
