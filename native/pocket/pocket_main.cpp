@@ -1308,9 +1308,18 @@ class Pocket {
         const float listH = 3 * 5.2f + 5;   // three cues at least
         const float chrome = 5 + 1 + 1.2f + 6 + 2.5f;   // title, gaps, the row, margin
         const float picH = std::max(12.0f, std::min((cw - 7) * 9.0f / 16.0f, H - 3 - 1.5f - listH - chrome));
-        const float picW = picH * 16.0f / 9.0f;
         program_ = {x0 + side * u, y0 + 1.5f * u, cw * u, (chrome + picH) * u};
-        picRect_ = {program_.x + (program_.w - picW * u) / 2, program_.y + 6 * u, picW * u, picH * u};
+        // James 11-23: "the preview window seems slightly small in landscape".
+        // The frame stays where the shells have it; inside it the picture
+        // takes the frame's whole height, the transport stands in a column to
+        // its right, and the cue's name and time go up into the title strip.
+        {
+          float bigH = chrome + picH - 6 - 2.5f;
+          float bigW = bigH * 16.0f / 9.0f;
+          const float roomW = cw - 5 - 2 - 1 - 16;   // the LCD, its margins, a gap, the button column
+          if (bigW > roomW) { bigW = roomW; bigH = bigW * 9.0f / 16.0f; }
+          picRect_ = {program_.x + 3.5f * u, program_.y + 6 * u + (chrome + picH - 8.5f - bigH) / 2 * u, bigW * u, bigH * u};
+        }
         list_ = {x0 + side * u, program_.y + program_.h + 1.5f * u, cw * u, 0};
         list_.h = y0 + safe_.h - 1.5f * u - list_.y;
         strip_ = {};
@@ -1350,6 +1359,17 @@ class Pocket {
       text_.draw(pixelSmall_, notice_, Ink {235, 225, 160}, title);
     } else if (follow_ != Follow::Off) {
       text_.draw(pixelSmall_, followHeadline(), follow_ == Follow::Following ? Ink {170, 170, 180} : Ink {230, 80, 70}, title);
+    } else if (landscape_ && !editing_ && active_ >= 0) {
+      // landscape: the name and time live up here (the picture has the room below)
+      const Cue& onAirCue = cues_[static_cast<std::size_t>(active_)];
+      std::string clock = "holds until GO";
+      if (cueHasTimeline(onAirCue)) {
+        const double at = engine_->position();
+        clock = timecode(std::max(0.0, at - cueIn(onAirCue)), onAirCue.fps) + " -" + timecode(std::max(0.0, cueOut(onAirCue) - at), onAirCue.fps);
+      }
+      text_.draw(pixelSmall_, std::string(live ? "LIVE  " : (black_ ? "BLACK  " : "READY  ")) + onAirCue.name + "   " + clock +
+                                  (outputLabel_.empty() ? std::string() : "   " + outputLabel_),
+                 Ink {170, 170, 180}, title);
     } else {
       text_.draw(pixelSmall_, std::string(live ? "LIVE" : (black_ ? "BLACK" : "READY")) + "   " +
                                   (outputLabel_.empty() ? std::string("NO OUTPUT") : outputLabel_),
@@ -1384,15 +1404,29 @@ class Pocket {
     }
     int cw = 0, ch = 0;
     if (mono_ && !clockText.empty()) TTF_GetStringSize(mono_, clockText.c_str(), 0, &cw, &ch);
-    // landscape: the name and time take the row's left part, the buttons the rest
-    const float textW = landscape_ ? lcd.w * 0.42f : lcd.w;
-    const float textY = landscape_ ? y + 0.5f * u : y;
+    if (landscape_) {
+      // the transport as a column beside the picture (name and time are in the title)
+      scrub_ = {};
+      const bool pausedNow = onAir && engine_->state() == TransportState::Paused;
+      const bool trim = onAir && cueHasTimeline(*onAir);
+      const float colX = pic.x + pic.w + u, colW = lcd.x + lcd.w - u - colX;
+      const float gapY = 0.8f * u, bh = (pic.h - 4 * gapY) / 5;
+      float by = pic.y;
+      button({colX, by, colW, bh}, pausedNow ? "PLAY" : "PAUSE", [this, pausedNow] { pausedNow ? engine_->play() : engine_->pause(); }, onAir != nullptr); by += bh + gapY;
+      button({colX, by, colW, bh}, "-10", [this] { skipBy(-10); }, trim); by += bh + gapY;
+      button({colX, by, colW, bh}, "+10", [this] { skipBy(10); }, trim); by += bh + gapY;
+      button({colX, by, colW, bh}, "IN", [this] { setInOut(true); }, trim); by += bh + gapY;
+      button({colX, by, colW, bh}, "OUT", [this] { setInOut(false); }, trim);
+      return;
+    }
+    const float textW = lcd.w;
+    const float textY = y;
     text_.draw(mono_, onAir ? onAir->name : "Nothing on air", kDeep, {lcd.x + u, textY, textW - 3 * u - static_cast<float>(cw), 4 * u});
     if (!clockText.empty()) {
       text_.draw(mono_, clockText, kDeep, {lcd.x + textW - u - static_cast<float>(cw), textY, static_cast<float>(cw) + 1, 4 * u});
     }
-    if (!landscape_) y += 4.5f * u;
-    if (!landscape_) {
+    y += 4.5f * u;
+    {
       scrub_ = {lcd.x + u, y, lcd.w - 2 * u, 3.4f * u};
       fillRect(r, kMid, {scrub_.x, scrub_.y + 1.2f * u, scrub_.w, 1.0f * u});
       if (onAir && cueHasTimeline(*onAir)) {
@@ -1405,14 +1439,12 @@ class Pocket {
         fillRect(r, kDeep, {xp - 0.4f * u, scrub_.y - 0.3f * u, 0.8f * u, scrub_.h + 0.6f * u});
       }
       y += 4 * u;
-    } else {
-      scrub_ = {};
     }
     const bool paused = onAir && engine_->state() == TransportState::Paused;
     const bool canTrim = onAir && cueHasTimeline(*onAir);
     const float gap = 0.8f * u;
-    const float rowX = landscape_ ? lcd.x + textW : lcd.x + u;
-    const float rowW = landscape_ ? lcd.w - textW - u : lcd.w - 2 * u;
+    const float rowX = lcd.x + u;
+    const float rowW = lcd.w - 2 * u;
     const float small = (rowW - 4 * gap) * 0.17f;
     const float wide = (rowW - 4 * gap - 4 * small);
     float bx = rowX;
