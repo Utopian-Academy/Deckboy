@@ -1439,8 +1439,7 @@ repeated. `STATUS` reports it for every output: `paced_hz=` is the rate the
 output's frames are actually shown at, `target_hz=` is its screen's own rate,
 and `compositor_hz=` is the rate Windows draws the desktop at.
 
-Until Deckboy can drive such a screen at its own rate (it is on the roadmap),
-put the screens on the same refresh rate:
+For now, put the screens on the same refresh rate:
 
 - **Change the main screen's rate.** In Windows, Settings > System > Display,
   choose the main screen, then Advanced display > Choose a refresh rate, and

@@ -70,7 +70,7 @@ It carries everything new in [0.99.428](https://github.com/Utopian-Academy/Deckb
 - **Known issue (Windows):** when two screens run at different refresh rates, for example 59.94 Hz and
   60 Hz, an output drops or repeats a frame about every 15 seconds. Deckboy warns you when this
   happens. For now, set the screens to the same rate
-  ([how](MANUAL.md#screens-at-different-refresh-rates)). A fix is on the [roadmap](#roadmap).
+  ([how](MANUAL.md#screens-at-different-refresh-rates)).
 
 ### A closer look
 
@@ -433,11 +433,6 @@ importantly, what each feature deliberately does not do.
 ---
 
 ## Roadmap
-
-**Outputs:**
-
-- Screens at different refresh rates on Windows: every output keeps its own screen's clock, so a
-  59.94 Hz projector beside a 60 Hz desk never drops or repeats a frame (today's known issue)
 
 **Audio, next:**
 
