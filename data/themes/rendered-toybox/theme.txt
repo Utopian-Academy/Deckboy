@@ -1,4 +1,4 @@
-# Deckboy Theme: desk 3D: Pocket's desk shell, rendered as a desk.
+# Deckboy Theme: Toybox 3D: Pocket's Toybox shell, rendered as a desk.
 # A RENDERED skin: style_kit names the pieces in data/desk-kits (pocket-skins/desk_kit.py);
 # the colours below are read off those renders. All colour values are RRGGBBAA hex.
 

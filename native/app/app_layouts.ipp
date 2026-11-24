@@ -17,7 +17,7 @@
 
   // One clickable piece of a layout. Layouts draw immediate-mode like the rest
   // of the desk; the press handler walks this list (handleLayoutClick).
-  enum class LayoutHitKind { Go, Back, Hold, Skip, Transition, HotCue, Black, Row, ModeShow, ModeEdit, Fader, Cut, Clip, StopDeck, Quick, Crossfade, VjOn, PauseAll, Panic, HotCut, Style, Duration, Ftb, Tab, DeckPlay, DeckSkip, Column, Page };
+  enum class LayoutHitKind { Go, Back, Hold, Skip, Transition, HotCue, Black, Row, ModeShow, ModeEdit, Fader, Cut, Clip, StopDeck, Quick, Crossfade, VjOn, PauseAll, Panic, HotCut, Style, Duration, Ftb, Tab, DeckPlay, DeckSkip, Column, Page, BankCut, BankAuto, BankShow };
   struct LayoutHit {
     SDL_Rect rect {};
     LayoutHitKind kind = LayoutHitKind::Go;
@@ -533,7 +533,7 @@
         case LayoutHitKind::Page: clipGridPage_ = std::max(0, clipGridPage_ + hit.a * 4); break;
         case LayoutHitKind::Style: {
           const auto& styles = consoleStyles();
-          const int d = project_.focusedDeckIndex;
+          const int d = hit.b > 0 ? hit.b - 1 : project_.focusedDeckIndex;
           if (hit.a >= 0 && hit.a < static_cast<int>(styles.size()) && d >= 0 && d < static_cast<int>(project_.decks.size())) {
             project_.decks[static_cast<std::size_t>(d)].transitionStyle = transitionStyleToken(styles[static_cast<std::size_t>(hit.a)]);
             markProjectDirty();
@@ -541,7 +541,7 @@
           break;
         }
         case LayoutHitKind::Duration: {
-          const int d = project_.focusedDeckIndex;
+          const int d = hit.b > 0 ? hit.b - 1 : project_.focusedDeckIndex;
           if (d >= 0 && d < static_cast<int>(project_.decks.size())) {
             double& s = project_.decks[static_cast<std::size_t>(d)].transitionSeconds;
             s = std::clamp(std::round((s + hit.a * 0.25) * 4.0) / 4.0, 0.0, 30.0);
@@ -550,6 +550,13 @@
           break;
         }
         case LayoutHitKind::Ftb: triggerButton("BLACK"); break;
+        case LayoutHitKind::BankCut:
+          if (setFocusedDeckIndex(hit.a)) layoutCut();
+          break;
+        case LayoutHitKind::BankAuto:
+          if (setFocusedDeckIndex(hit.a)) layoutGo();
+          break;
+        case LayoutHitKind::BankShow: consoleToggleBank(hit.a); break;
         case LayoutHitKind::Tab: compactTab_ = hit.a; break;
         case LayoutHitKind::Back: layoutMoveNext(-1); break;
         case LayoutHitKind::Skip: layoutMoveNext(+1); break;
@@ -1839,6 +1846,153 @@
     takeSelected(jumpTriggersPlayback(), false);
   }
 
+  // ── CONSOLE IN SUPER DECKBOY: AN M/E PER PLAYLIST ──
+  //
+  // A real switcher's mix/effects banks (James: "console should add an m/e
+  // like a real console in super deckboy"): with two or more playlists, each
+  // gets its own bank, M/E 1, M/E 2... its PROGRAM and PRESET buses, its next
+  // transition and its own CUT and AUTO, acting on that playlist alone. FTB
+  // stays one, for the whole desk. When the banks do not all fit, the M/E
+  // select chips beside SHOW / EDIT say which are on the panel.
+  std::vector<bool> consoleBankShown_;
+
+  void consoleToggleBank(int d) {
+    const int n = static_cast<int>(project_.decks.size());
+    if (d < 0 || d >= n) return;
+    consoleBankShown_.resize(static_cast<std::size_t>(n), false);
+    consoleBankShown_[static_cast<std::size_t>(d)] = !consoleBankShown_[static_cast<std::size_t>(d)];
+  }
+
+  // Which banks are on the panel: the operator's choice, at most `fit`; with
+  // no choice made (or one that no longer fits), the first `fit`.
+  std::vector<int> consoleBanksShown(int fit) {
+    const int n = static_cast<int>(project_.decks.size());
+    consoleBankShown_.resize(static_cast<std::size_t>(n), false);
+    std::vector<int> out;
+    for (int d = 0; d < n; ++d) if (consoleBankShown_[static_cast<std::size_t>(d)]) out.push_back(d);
+    if (out.empty()) {
+      for (int d = 0; d < n && static_cast<int>(out.size()) < fit; ++d) out.push_back(d);
+    }
+    if (static_cast<int>(out.size()) > fit) out.resize(static_cast<std::size_t>(fit));
+    return out;
+  }
+
+  // One bank: its label, PROGRAM / PRESET / transition rows, CUT and AUTO.
+  void renderConsoleBank(const SDL_Rect& bank, int d, int sideW) {
+    const Deck& deck = project_.decks[static_cast<std::size_t>(d)];
+    const int gap = uiScaled(8);
+    const SDL_Color red {220, 50, 45, 255}, green {60, 200, 90, 255};
+    const int labelH = std::max(uiScaled(14), textLineHeight(fontSmall_));
+    drawUIPanel(bank, pal.tile, pal.deep, pal.mid);
+    const int pad = uiScaled(8);
+    SDL_Rect inner {bank.x + pad, bank.y + pad, bank.w - pad * 2, bank.h - pad * 2};
+    const bool focused = d == project_.focusedDeckIndex;
+    const std::string title = deckboy::core::i18n::format("M/E {1}", {std::to_string(d + 1)}) + "  " + deck.name;
+    drawTextSafe(controlRenderer_, fontSmall_, SDL_Rect {inner.x, inner.y, inner.w - sideW, labelH},
+                 ellipsizeToPixelWidth(fontSmall_, title, inner.w - sideW), focused ? pal.light : pal.fgSoft);
+    SDL_Rect right {inner.x + inner.w - sideW, inner.y, sideW, inner.h};
+    SDL_Rect left {inner.x, inner.y + labelH + uiScaled(4), std::max(0, right.x - inner.x - gap), inner.h - labelH - uiScaled(4)};
+    const int busLabelW = std::max(uiScaled(80), measuredTextWidth(fontSmall_, "PROGRAM") + uiScaled(12));
+    const int rowH = std::max(uiScaled(26), (left.h - gap * 2) / 3);
+    const int count = static_cast<int>(deck.cues.size());
+    const int keys = std::clamp((left.w - busLabelW) / std::max(1, uiScaled(100)), 4, 12);
+    const int keyW = (left.w - busLabelW - gap * (keys - 1)) / keys;
+    int nextIndex = -1;
+    previewCuePtr(d, &nextIndex);
+    const int first = std::clamp(std::max(0, deck.activeIndex) - keys / 3, 0, std::max(0, count - keys));
+    for (int bus = 0; bus < 2; ++bus) {
+      const int y = left.y + bus * (rowH + gap);
+      drawTextSafe(controlRenderer_, fontSmall_, SDL_Rect {left.x, y, busLabelW, rowH}, bus == 0 ? "PROGRAM" : "PRESET", pal.fgSoft);
+      for (int k = 0; k < keys; ++k) {
+        const int i = first + k;
+        SDL_Rect key {left.x + busLabelW + k * (keyW + gap), y, keyW, rowH};
+        if (i >= count) {
+          drawUIPanel(key, paletteMix(pal.tile, pal.deep, 0.5), pal.deep, pal.mid);
+          continue;
+        }
+        const Cue& cue = deck.cues[static_cast<std::size_t>(i)];
+        const bool lit = bus == 0 ? i == deck.activeIndex : (i == nextIndex && i != deck.activeIndex);
+        const SDL_Color fill = lit ? (bus == 0 ? red : green) : pal.shellInner;
+        if (lit) drawGlowAround(key, bus == 0 ? red : green, 3, 2);
+        drawUIPanel(key, fill, pal.deep, pal.mid);
+        drawCenteredTextSafe(controlRenderer_, fontSmall_, SDL_Rect {key.x + uiScaled(4), key.y, key.w - uiScaled(8), key.h},
+                             ellipsizeToPixelWidth(fontSmall_, cue.name, key.w - uiScaled(8)), paletteInkOnFill(fill));
+        layoutHit(key, bus == 0 ? LayoutHitKind::HotCut : LayoutHitKind::Row, d, i);
+      }
+    }
+    {
+      const int y = left.y + 2 * (rowH + gap);
+      drawTextSafe(controlRenderer_, fontSmall_, SDL_Rect {left.x, y, busLabelW, rowH}, "NEXT TRANS", pal.fgSoft);
+      const auto& styles = consoleStyles();
+      const int n = static_cast<int>(styles.size());
+      const int durW = std::max(uiScaled(170), keyW * 2);
+      const int sw = (left.w - busLabelW - durW - gap * n) / n;
+      const ::TransitionStyle current = parseTransitionStyleToken(deck.transitionStyle);
+      for (int k = 0; k < n; ++k) {
+        SDL_Rect b {left.x + busLabelW + k * (sw + gap), y, sw, rowH};
+        const bool on = styles[static_cast<std::size_t>(k)] == current;
+        const std::string label = toUpper(transitionStyleLabel(transitionStyleToken(styles[static_cast<std::size_t>(k)])));
+        drawLayoutButton(b, label, "", on ? pal.light : pal.shellInner, pal.deep, layoutFitFont(fontSmall_, label, sw - uiScaled(6)));
+        layoutHit(b, LayoutHitKind::Style, k, d + 1);
+      }
+      SDL_Rect dur {left.x + left.w - durW, y, durW, rowH};
+      const int stepW = uiScaled(38);
+      SDL_Rect minus {dur.x, y, stepW, rowH}, plus {dur.x + dur.w - stepW, y, stepW, rowH};
+      drawLayoutButton(minus, "-", "", pal.shellInner, pal.deep, fontBase_);
+      drawLayoutButton(plus, "+", "", pal.shellInner, pal.deep, fontBase_);
+      layoutHit(minus, LayoutHitKind::Duration, -1, d + 1);
+      layoutHit(plus, LayoutHitKind::Duration, 1, d + 1);
+      drawCenteredTextSafe(controlRenderer_, fontBase_, SDL_Rect {minus.x + stepW, y, dur.w - stepW * 2, rowH},
+                           deck.transitionSeconds > 0.01 ? formatSeconds(deck.transitionSeconds) : std::string("CUT"), pal.light);
+    }
+    // this bank's CUT and AUTO
+    TTF_Font* big = fontPixelTitle_ ? fontPixelTitle_ : (fontLarge_ ? fontLarge_ : fontBase_);
+    const int h = (right.h - gap) / 2;
+    SDL_Rect cut {right.x, right.y, right.w, h};
+    SDL_Rect autoB {right.x, right.y + h + gap, right.w, right.h - h - gap};
+    drawLayoutButton(cut, "CUT", "", red, pal.deep, layoutFitFont(big, "CUT", cut.w - uiScaled(10)));
+    drawLayoutButton(autoB, "AUTO", "", pal.light, pal.deep, layoutFitFont(big, "AUTO", autoB.w - uiScaled(10)));
+    layoutHit(cut, LayoutHitKind::BankCut, d);
+    layoutHit(autoB, LayoutHitKind::BankAuto, d);
+  }
+
+  // The panel with an M/E per playlist (two or more playlists).
+  void renderConsoleBanks(const SDL_Rect& panel, int pad, int pillH) {
+    const int gap = uiScaled(10);
+    const int n = static_cast<int>(project_.decks.size());
+    const int ftbH = std::max(uiScaled(48), textLineHeight(fontLarge_ ? fontLarge_ : fontBase_) + uiScaled(16));
+    SDL_Rect area {panel.x + pad, panel.y + pillH + pad, panel.w - pad * 2, panel.h - pillH - pad * 2 - ftbH - gap};
+    const int minBankH = std::max(uiScaled(150), textLineHeight(fontSmall_) * 2 + uiScaled(26) * 3 + uiScaled(40));
+    const int fit = std::max(1, (area.h + gap) / (minBankH + gap));
+    const std::vector<int> shown = consoleBanksShown(fit);
+    const int sideW = std::clamp(panel.w * 12 / 100, uiScaled(120), uiScaled(240));
+    const int bankH = (area.h - gap * (static_cast<int>(shown.size()) - 1)) / std::max(1, static_cast<int>(shown.size()));
+    for (std::size_t k = 0; k < shown.size(); ++k) {
+      renderConsoleBank(SDL_Rect {area.x, area.y + static_cast<int>(k) * (bankH + gap), area.w, bankH}, shown[k], sideW);
+    }
+    // the M/E select, when some banks are off the panel
+    if (n > fit) {
+      const int chipW = std::max(uiScaled(64), measuredTextWidth(fontSmall_, "M/E 88") + uiScaled(16));
+      const int segW = std::max(uiScaled(66), measuredTextWidth(fontSmall_, "SHOW") + uiScaled(24));
+      int x = panel.x + panel.w - pad - segW * 2 - uiScaled(16) - n * (chipW + uiScaled(4));
+      for (int d = 0; d < n; ++d) {
+        const bool on = std::find(shown.begin(), shown.end(), d) != shown.end();
+        SDL_Rect chip {x, panel.y + pad / 2, chipW, pillH};
+        drawLayoutButton(chip, deckboy::core::i18n::format("M/E {1}", {std::to_string(d + 1)}), "",
+                         on ? pal.light : pal.tile, pal.deep, fontSmall_);
+        layoutHit(chip, LayoutHitKind::BankShow, d);
+        x += chipW + uiScaled(4);
+      }
+    }
+    // FTB: one, for the whole desk
+    TTF_Font* big = fontPixelTitle_ ? fontPixelTitle_ : (fontLarge_ ? fontLarge_ : fontBase_);
+    SDL_Rect ftb {panel.x + panel.w - pad - sideW - uiScaled(8), area.y + area.h + gap, sideW + uiScaled(8), ftbH};
+    const bool dark = masterDimmerTarget_ < 0.5;
+    drawLayoutButton(ftb, "FTB", dark ? "black: press for picture" : "", paletteMix(pal.tile, pal.deleteBezel, dark ? 0.7 : 0.35),
+                     pal.deleteBezel, layoutFitFont(big, "FTB", ftb.w - uiScaled(10)));
+    layoutHit(ftb, LayoutHitKind::Ftb);
+  }
+
   void renderConsoleLayout(const SDL_Rect& area) {
     layoutHits_.clear();
     layoutBlackRect_ = {};
@@ -1884,6 +2038,10 @@
     drawLayoutModePair(SDL_Rect {panel.x + pad, panel.y + pad / 2, panel.w - pad * 2, pillH});
     if (operatorEditMode_) {
       renderInspectorBody(SDL_Rect {panel.x + pad, panel.y + pillH + pad, panel.w - pad * 2, panel.h - pillH - pad * 2});
+      return;
+    }
+    if (project_.decks.size() > 1) {   // Super Deckboy: an M/E per playlist
+      renderConsoleBanks(panel, pad, pillH);
       return;
     }
     const int bigW = std::clamp(panel.w * 15 / 100, uiScaled(150), uiScaled(300));
