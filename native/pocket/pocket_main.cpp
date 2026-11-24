@@ -37,6 +37,8 @@
 #include "core/types.hpp"
 #include "core/utils.hpp"
 #include "engine/media_engine.hpp"
+#include "render/text_shaper.hpp"     // every label: bidi and fallback faces, as on the desk
+#include "render/font_fallbacks.hpp"
 #if defined(DECKBOY_INPROC_DECODE)
 #include "engine/libav_decoder.hpp"   // the rendered shells' JPEGs
 #endif
@@ -521,13 +523,13 @@ class Text {
 
   std::string fit(TTF_Font* font, const std::string& s, float maxW) {
     int w = 0, h = 0;
-    TTF_GetStringSize(font, s.c_str(), 0, &w, &h);
+    deckboy::render::shaping::textSize(font, s.c_str(), 0, &w, &h);
     if (static_cast<float>(w) <= maxW) return s;
     std::string cut = s;
     while (!cut.empty()) {
       cut.pop_back();
       const std::string withDots = cut + "...";
-      TTF_GetStringSize(font, withDots.c_str(), 0, &w, &h);
+      deckboy::render::shaping::textSize(font, withDots.c_str(), 0, &w, &h);
       if (static_cast<float>(w) <= maxW) return withDots;
     }
     return "";
@@ -542,7 +544,7 @@ class Text {
         clear();
         it = cache_.try_emplace(key + s).first;
       }
-      SDL_Surface* surf = TTF_RenderText_Blended(font, s.c_str(), 0, SDL_Color {c.r, c.g, c.b, 255});
+      SDL_Surface* surf = deckboy::render::shaping::renderText(font, s.c_str(), 0, SDL_Color {c.r, c.g, c.b, 255});
       if (surf) {
         it->second.tex = SDL_CreateTextureFromSurface(renderer_, surf);
         it->second.w = static_cast<float>(surf->w);
@@ -642,6 +644,9 @@ class Pocket {
       return false;
     }
     if (!TTF_Init()) SDL_Log("pocket: TTF_Init failed: %s", SDL_GetError());
+    // A cue name in Arabic, Hebrew or Japanese draws joined, in order and
+    // with its glyphs: the shaper falls back to the system's faces, as Mini does.
+    deckboy::render::shaping::setFallbackChain(deckboy::render::scriptFallbacks("en"));
 #if defined(SDL_PLATFORM_ANDROID) || defined(SDL_PLATFORM_IOS)
     // RESIZABLE is what lets it turn: for a fixed window SDL locks the
     // orientation to the window's first shape (portrait), whatever the hint
@@ -912,7 +917,7 @@ class Pocket {
     if (listen_ != kInvalidSocket) closeSocket(listen_);
     engine_.reset();
     text_.clear();
-    for (TTF_Font* f : {pixel_, pixelSmall_, sans_, mono_, printFont_}) if (f) TTF_CloseFont(f);
+    for (TTF_Font* f : {pixel_, pixelSmall_, sans_, mono_, printFont_}) if (f) { deckboy::render::shaping::forgetFace(f); TTF_CloseFont(f); }
     if (audio_) SDL_DestroyAudioStream(audio_);
     if (renderer_) SDL_DestroyRenderer(renderer_);
     if (window_) SDL_DestroyWindow(window_);
@@ -1225,13 +1230,21 @@ class Pocket {
     const float u = unit_;
     const std::string data = std::string(SDL_getenv("DECKBOY_ROOT") ? SDL_getenv("DECKBOY_ROOT") : ".") + "/data/";
     text_.clear();
-    for (TTF_Font* f : {pixel_, pixelSmall_, sans_, mono_, printFont_}) if (f) TTF_CloseFont(f);
+    for (TTF_Font* f : {pixel_, pixelSmall_, sans_, mono_, printFont_}) if (f) { deckboy::render::shaping::forgetFace(f); TTF_CloseFont(f); }
     pixel_ = TTF_OpenFont((data + "PressStart2P.ttf").c_str(), 2.6f * u);
     pixelSmall_ = TTF_OpenFont((data + "PressStart2P.ttf").c_str(), 1.6f * u);
     sans_ = TTF_OpenFont((data + "fonts/LiberationSans-Regular.ttf").c_str(), 3.0f * u);
     mono_ = TTF_OpenFont((data + "fonts/LiberationMono-Regular.ttf").c_str(), 2.9f * u);
     // the faces' own print: Liberation Mono at 2 mm (pocket-skins text size 2.0)
     printFont_ = TTF_OpenFont((data + "fonts/LiberationMono-Regular.ttf").c_str(), 2.0f * u);
+    {
+      using deckboy::render::shaping::registerFace;
+      if (pixel_) registerFace(pixel_, data + "PressStart2P.ttf", 2.6f * u);
+      if (pixelSmall_) registerFace(pixelSmall_, data + "PressStart2P.ttf", 1.6f * u);
+      if (sans_) registerFace(sans_, data + "fonts/LiberationSans-Regular.ttf", 3.0f * u);
+      if (mono_) registerFace(mono_, data + "fonts/LiberationMono-Regular.ttf", 2.9f * u);
+      if (printFont_) registerFace(printFont_, data + "fonts/LiberationMono-Regular.ttf", 2.0f * u);
+    }
     if (!pixel_ || !mono_) SDL_Log("pocket: fonts missing under %s (%s)", data.c_str(), SDL_GetError());
   }
 
@@ -1344,7 +1357,7 @@ class Pocket {
     fillCircle(r, live ? Ink {255, 50, 30} : Ink {70, 20, 20}, {program_.x + 3 * u, program_.y + 2.8f * u}, 0.9f * u);
     const std::string health = healthLabel();
     int hw = 0, hh = 0;
-    if (pixelSmall_ && !health.empty()) TTF_GetStringSize(pixelSmall_, health.c_str(), 0, &hw, &hh);
+    if (pixelSmall_ && !health.empty()) deckboy::render::shaping::textSize(pixelSmall_, health.c_str(), 0, &hw, &hh);
     const float right = program_.x + program_.w - 2.5f * u;
     if (!health.empty()) {
       text_.draw(pixelSmall_, health, thermal_ >= 3 ? Ink {230, 80, 70} : Ink {170, 170, 180},
@@ -1404,7 +1417,7 @@ class Pocket {
                   timecode(std::max(0.0, cueOut(*onAir) - pos), onAir->fps);
     }
     int cw = 0, ch = 0;
-    if (mono_ && !clockText.empty()) TTF_GetStringSize(mono_, clockText.c_str(), 0, &cw, &ch);
+    if (mono_ && !clockText.empty()) deckboy::render::shaping::textSize(mono_, clockText.c_str(), 0, &cw, &ch);
     if (landscape_) {
       // the transport as a column beside the picture (name and time are in the title)
       scrub_ = {};
@@ -3793,13 +3806,13 @@ class Pocket {
       char id[160];
       std::snprintf(id, sizeof id, "DECKBOY POCKET  OUTPUT 1  %dx%d", ow, oh);
       if (!identifyFont_ || identifyFontH_ != bh) {
-        if (identifyFont_) TTF_CloseFont(identifyFont_);
+        if (identifyFont_) { deckboy::render::shaping::forgetFace(identifyFont_); TTF_CloseFont(identifyFont_); }
         const char* root = SDL_getenv("DECKBOY_ROOT");
         identifyFont_ = TTF_OpenFont((std::string(root ? root : ".") + "/data/PressStart2P.ttf").c_str(), static_cast<float>(bh) / 24.0f);
         identifyFontH_ = bh;
       }
       if (identifyFont_) {
-        SDL_Surface* t = TTF_RenderText_Blended(identifyFont_, id, 0, SDL_Color {255, 255, 255, 255});
+        SDL_Surface* t = deckboy::render::shaping::renderText(identifyFont_, id, 0, SDL_Color {255, 255, 255, 255});
         if (t) {
           SDL_Texture* tt = SDL_CreateTextureFromSurface(renderer_, t);
           const SDL_FRect box {(static_cast<float>(bw) - static_cast<float>(t->w)) / 2 - 20, static_cast<float>(bh) * 0.82f - 16,
@@ -5744,13 +5757,15 @@ class Pocket {
     TTF_Font* big = TTF_OpenFont(font.c_str(), 64.0f);
     TTF_Font* small = TTF_OpenFont(font.c_str(), 22.0f);
     if (!big || !small) {
-      if (big) TTF_CloseFont(big);
-      if (small) TTF_CloseFont(small);
+      if (big) { deckboy::render::shaping::forgetFace(big); TTF_CloseFont(big); }
+      if (small) { deckboy::render::shaping::forgetFace(small); TTF_CloseFont(small); }
       return nullptr;
     }
     const SDL_Color ink {214, 226, 170, 255};
-    SDL_Surface* word = TTF_RenderText_Blended(big, "DECKBOY", 0, ink);
-    SDL_Surface* sub = TTF_RenderText_Blended(small, "POCKET", 0, ink);
+    SDL_Surface* word = deckboy::render::shaping::renderText(big, "DECKBOY", 0, ink);
+    SDL_Surface* sub = deckboy::render::shaping::renderText(small, "POCKET", 0, ink);
+    deckboy::render::shaping::forgetFace(big);   // the shaper caches layouts by the face's address
+    deckboy::render::shaping::forgetFace(small);
     TTF_CloseFont(big);
     TTF_CloseFont(small);
     SDL_Texture* out = nullptr;
@@ -6082,7 +6097,7 @@ class Pocket {
     std::string row;
     auto fits = [&](const std::string& t) {
       int w = 0;
-      if (!font || !TTF_GetStringSize(font, t.c_str(), 0, &w, nullptr)) return t.size() < 40;
+      if (!font || !deckboy::render::shaping::textSize(font, t.c_str(), 0, &w, nullptr)) return t.size() < 40;
       return static_cast<float>(w) <= maxW;
     };
     std::size_t i = 0;
@@ -6620,7 +6635,7 @@ class Pocket {
   void helperChip(float x, float y, const std::string& text, TTF_Font* font, Ink ink, bool alignRight) {
     const float u = unit_;
     int tw = 0, th = 0;
-    TTF_GetStringSize(font, text.c_str(), 0, &tw, &th);
+    deckboy::render::shaping::textSize(font, text.c_str(), 0, &tw, &th);
     const float w = static_cast<float>(tw) + 2 * u, h = static_cast<float>(th) + 0.8f * u;
     const SDL_FRect box {alignRight ? x - w : x, y, w, h};
     fillRoundAlpha(renderer_, kBlack, 0.55f, box, 1.2f * u);
@@ -6663,7 +6678,7 @@ class Pocket {
         char t[24];
         std::snprintf(t, sizeof t, "-%d:%02d", whole / 60, whole % 60);
         int tw = 0, th = 0;
-        TTF_GetStringSize(pixel_, t, 0, &tw, &th);
+        deckboy::render::shaping::textSize(pixel_, t, 0, &tw, &th);
         helperChip(pic.x + pic.w - pad, pic.y + pic.h - pad - static_cast<float>(th) - 0.8f * u, t, pixel_,
                    left < 10.0 ? Ink {255, 90, 80} : Ink {240, 240, 240}, true);
       }
