@@ -439,6 +439,218 @@
   //
   // Returns false when there is nothing to multi-view, so the caller draws
   // the ordinary monitor.
+  // ONE MONITOR WINDOW: a picture (programme, a playlist, the next cue, an
+  // output, the clock or scopes) with its label, fader, tally and, in the
+  // multiview, its menu chip and hit regions. Split out of renderMultiview
+  // (2026-11-24) so a desk layout can put a monitor anywhere; inMultiview
+  // false draws the same window without the multiview's clickable parts.
+  void drawMonitorTile(const SDL_Rect& tile, const MultiviewTile& tile0, int deckIndex,
+                       bool inMultiview, int labelH, int faderH) {
+    const bool isProgramme = deckIndex == -1;
+    const MultiviewFeed feed = multiviewTileFeed(tile0);
+    const bool isEmptyTile = feed == MultiviewFeed::None || feed == MultiviewFeed::Missing;
+    const bool focused = deckIndex >= 0 && deckIndex == project_.focusedDeckIndex;
+
+    drawUIPanel(tile, pal.deep, pal.deep, focused ? pal.light : pal.mid);
+
+    // The picture, letterboxed into what is left above the label.
+    const bool hasFader = deckIndex >= 0;
+    SDL_Rect pic {tile.x + uiScaled(2), tile.y + uiScaled(2),
+                  tile.w - uiScaled(4),
+                  tile.h - (tile0.label ? labelH : 0) -
+                    (hasFader ? faderH : 0) - uiScaled(5)};
+    SDL_Texture* tex = nullptr;
+    int texW = 0;
+    int texH = 0;
+    if (isProgramme) {
+      tex = controlPreviewTex_;
+      texW = controlPreviewTexW_;
+      texH = controlPreviewTexH_;
+    } else if (deckIndex >= 0 &&
+               deckIndex < static_cast<int>(deckPreviewTex_.size())) {
+      tex = deckPreviewTex_[deckIndex].tex;
+      texW = deckPreviewTex_[deckIndex].w;
+      texH = deckPreviewTex_[deckIndex].h;
+    }
+    if (feed == MultiviewFeed::Next && pic.w > 0 && pic.h > 0) {
+      // The still from the playlist row when there is one, then what it is.
+      int nextDeck = -1, nextCueIndex = -1;
+      const Cue* next = multiviewNextCue(&nextDeck, &nextCueIndex);
+      if (next) {
+        tex = cueRowStillTexture(*next);
+        if (!tex && (next->kind == CueKind::Video || next->kind == CueKind::Image)) {
+          wantCueStill(cueVisualCacheKey(*next), nextDeck, nextCueIndex);
+        }
+        if (tex) {
+          float tw = 0.0f, th = 0.0f;
+          SDL_GetTextureSize(tex, &tw, &th);
+          texW = static_cast<int>(tw);
+          texH = static_cast<int>(th);
+        }
+      }
+      if (!tex) {
+        drawCenteredTextSafe(controlRenderer_, fontBase_, pic,
+                             next ? next->name : std::string("nothing follows"), pal.fgSoft);
+      }
+    }
+    if (multiviewTileIsScopes(tile0) && pic.w > 0 && pic.h > 0) {
+      // The scopes themselves, small: every panel, no buttons.
+      drawScopesDisplay(pic);
+    } else if (feed == MultiviewFeed::Output && pic.w > 0 && pic.h > 0) {
+      drawMultiviewOutputStack(multiviewTileOutput(tile0), pic);
+    } else if (feed == MultiviewFeed::Clock && pic.w > 0 && pic.h > 0) {
+      Primitives::fillRect(controlRenderer_, pic, SDL_Color {0, 0, 0, 255});
+      drawCenteredTextSafe(controlRenderer_, fontLarge_ ? fontLarge_ : fontBase_, pic,
+                           multiviewClockText(), pal.light);
+    } else if (feed == MultiviewFeed::Next && !tex) {
+      // Drawn above: its name.
+    } else if (tex && texW > 0 && texH > 0 && pic.w > 0 && pic.h > 0) {
+      const double scale = std::min(static_cast<double>(pic.w) / texW,
+                                    static_cast<double>(pic.h) / texH);
+      const int dw = std::max(1, static_cast<int>(std::lround(texW * scale)));
+      const int dh = std::max(1, static_cast<int>(std::lround(texH * scale)));
+      SDL_FRect dst {static_cast<float>(pic.x + (pic.w - dw) / 2),
+                     static_cast<float>(pic.y + (pic.h - dh) / 2),
+                     static_cast<float>(dw), static_cast<float>(dh)};
+      SDL_RenderTexture(controlRenderer_, tex, nullptr, &dst);
+    } else if (deckIndex >= 0 && pic.w > 0 && pic.h > 0 &&
+               activeCuePtr(deckIndex) &&
+               activeCuePtr(deckIndex)->kind == CueKind::Text) {
+      // THE SAME GAP AS THE MONITOR, in the second place that draws a
+      // deck's picture. A text cue has no decoded frame, so a tile
+      // showing a lower third said "no picture" -- which is where an
+      // operator looks FIRST when several playlists are up.
+      const MediaEngine* tileEngine = mediaEngineForDeck(deckIndex);
+      renderTextCueIntoOutput(controlRenderer_, *activeCuePtr(deckIndex),
+                              pic,
+                              tileEngine ? tileEngine->position() : 0.0);
+    } else if (isEmptyTile && pic.w > 0 && pic.h > 0) {
+      // SAY WHAT TO DO WITH IT. An empty window used to read "empty", and
+      // nothing on it said it could be clicked (James, 2026-11-04: "you can
+      // add windows but not assign them to anything?").
+      const int lineH = textLineHeight(fontSmall_);
+      SDL_Rect top {pic.x, pic.y + pic.h / 2 - lineH, pic.w, lineH};
+      SDL_Rect under {pic.x, pic.y + pic.h / 2, pic.w, lineH};
+      // The short form where the long one would be cut off.
+      std::string ask = "+ CHOOSE WHAT IT SHOWS";
+      if (measuredTextWidth(fontSmall_, ask) > pic.w - uiScaled(8)) ask = "+ CHOOSE";
+      drawCenteredTextSafe(controlRenderer_, fontSmall_, top,
+                           feed == MultiviewFeed::Missing ? multiviewTileSourceLabel(tile0) : ask,
+                           pal.light);
+      drawCenteredTextSafe(controlRenderer_, fontSmall_, under, "click this window", pal.fgSoft);
+    } else if (pic.w > 0 && pic.h > 0) {
+      drawCenteredTextSafe(controlRenderer_, fontSmall_, pic,
+                           isProgramme ? "NO PROGRAMME" : "no picture", pal.dark);
+    }
+
+    // -- SAFE AREAS, PER WINDOW ------------------------------------
+    //
+    // Drawn on the PICTURE rect, which is the letterboxed frame rather
+    // than the tile, or the marks would describe the furniture instead of
+    // the image. 90% action safe and 80% title safe, the sizes every
+    // other multiview draws, so what a director sees here matches what
+    // they are used to seeing.
+    if (tile0.safeAreas && pic.w > uiScaled(24) && pic.h > uiScaled(18)) {
+      SDL_SetRenderDrawBlendMode(controlRenderer_, SDL_BLENDMODE_BLEND);
+      const int actionX = pic.w / 20;
+      const int actionY = pic.h / 20;
+      const int titleX = pic.w / 10;
+      const int titleY = pic.h / 10;
+      SDL_SetRenderDrawColor(controlRenderer_, 255, 255, 255, 90);
+      SDL_Rect action {pic.x + actionX, pic.y + actionY,
+                       pic.w - actionX * 2, pic.h - actionY * 2};
+      SDL_RenderRect(controlRenderer_, &action);
+      SDL_SetRenderDrawColor(controlRenderer_, 255, 220, 120, 110);
+      SDL_Rect title {pic.x + titleX, pic.y + titleY,
+                      pic.w - titleX * 2, pic.h - titleY * 2};
+      SDL_RenderRect(controlRenderer_, &title);
+      SDL_SetRenderDrawBlendMode(controlRenderer_, SDL_BLENDMODE_NONE);
+    }
+
+    // -- AND A METER, PER WINDOW -----------------------------------
+    //
+    // Down the right edge INSIDE the picture, so it costs no layout and
+    // cannot push the image around when it is switched on mid-show.
+    if (tile0.vuMeter && pic.w > uiScaled(20) && pic.h > uiScaled(20)) {
+      const int meterW = std::max(2, uiScaled(4));
+      SDL_Rect meter {pic.x + pic.w - meterW - 1, pic.y + 1,
+                      meterW, pic.h - 2};
+      Primitives::fillRect(controlRenderer_, meter, pal.deep);
+      const double level = std::clamp(multiviewTileLevel01(tile0), 0.0, 1.0);
+      const int litH = static_cast<int>(std::lround(meter.h * level));
+      if (litH > 0) {
+        SDL_Rect lit {meter.x, meter.y + meter.h - litH, meter.w, litH};
+        // Green until it is loud, amber, then red -- the reading a
+        // glance has to make is 'is that one too hot', and a single
+        // colour cannot answer it.
+        Primitives::fillRect(controlRenderer_, lit,
+          level > 0.92 ? SDL_Color {220, 60, 50, 255}
+          : level > 0.75 ? SDL_Color {230, 180, 60, 255}
+                         : SDL_Color {70, 200, 110, 255});
+      }
+    }
+
+    // The name, and for a playlist whether it is reaching anything.
+    if (tile0.label) {
+      SDL_Rect label {tile.x + uiScaled(3),
+                      tile.y + tile.h - labelH - uiScaled(2),
+                      tile.w - uiScaled(6), labelH};
+      if (hasFader) {
+        label.y -= faderH + uiScaled(1);
+      }
+      std::string name = multiviewTileSourceLabel(tile0);
+      if (deckIndex >= 0) {
+        name += "  " + playlistRoutingChipLabel(deckIndex);
+      }
+      drawTextSafe(controlRenderer_, fontSmall_, label,
+                   ellipsizeToPixelWidth(fontSmall_, name, label.w),
+                   focused ? pal.light : pal.fgSoft);
+    }
+
+    // ── THE LAYER FADER ─────────────────────────────────────────────
+    if (hasFader) {
+      SDL_Rect rail {tile.x + uiScaled(3), tile.y + tile.h - faderH - uiScaled(2),
+                     tile.w - uiScaled(6), faderH};
+      const float value = std::clamp(project_.decks[deckIndex].playlistOpacity,
+                                     0.0f, 1.0f);
+      drawUIPanel(rail, pal.tile, pal.deep, pal.mid);
+      SDL_Rect filled {rail.x + 1, rail.y + 1,
+                       std::max(0, static_cast<int>((rail.w - 2) * value)),
+                       rail.h - 2};
+      Primitives::fillRect(controlRenderer_, filled,
+                           value > 0.98f ? pal.light : pal.mid);
+      if (inMultiview) multiviewFaderRects_.push_back(rail);
+    } else if (inMultiview) {
+      multiviewFaderRects_.push_back(SDL_Rect {});
+    }
+
+    // TALLY: red round a window that is on air, green round the next cue,
+    // the colours every switcher's multiview uses.
+    const bool onAir = multiviewTileOnAir(tile0);
+    if (onAir || feed == MultiviewFeed::Next) {
+      const SDL_Color ink = onAir ? SDL_Color {220, 50, 45, 255} : SDL_Color {60, 200, 90, 255};
+      const int t = std::max(2, uiScaled(2));
+      Primitives::fillRect(controlRenderer_, SDL_Rect {tile.x, tile.y, tile.w, t}, ink);
+      Primitives::fillRect(controlRenderer_, SDL_Rect {tile.x, tile.y + tile.h - t, tile.w, t}, ink);
+      Primitives::fillRect(controlRenderer_, SDL_Rect {tile.x, tile.y, t, tile.h}, ink);
+      Primitives::fillRect(controlRenderer_, SDL_Rect {tile.x + tile.w - t, tile.y, t, tile.h}, ink);
+    }
+
+    // THE WINDOW'S MENU, in its corner, so choosing what a window shows is
+    // never only a right-click. A playlist window's click focuses that
+    // playlist, so it needs a way in that is not the click.
+    if (!inMultiview) return;   // a layout's monitor: no menu, no hit regions
+    const int chipH = std::max(uiScaled(16), textLineHeight(fontSmall_) + uiScaled(2));
+    const int chipW = std::max(uiScaled(26), measuredTextWidth(fontSmall_, "...") + uiScaled(10));
+    SDL_Rect chip {tile.x + tile.w - chipW - uiScaled(4), tile.y + uiScaled(4), chipW, chipH};
+    drawUIPanel(chip, pal.tile, pal.deep, pal.mid);
+    drawCenteredTextSafe(controlRenderer_, fontSmall_, chip, "...", pal.fg);
+    multiviewChipRects_.push_back(chip);
+
+    multiviewTileRects_.push_back(tile);
+    multiviewTileDecks_.push_back(deckIndex);
+  }
+
   bool renderMultiview(const SDL_Rect& area) {
     multiviewTileRects_.clear();
     multiviewTileDecks_.clear();
@@ -499,208 +711,7 @@
         multiviewFaderRects_.push_back(SDL_Rect {});
         continue;
       }
-      const bool isProgramme = deckIndex == -1;
-      const MultiviewFeed feed = multiviewTileFeed(tile0);
-      const bool isEmptyTile = feed == MultiviewFeed::None || feed == MultiviewFeed::Missing;
-      const bool focused = deckIndex >= 0 && deckIndex == project_.focusedDeckIndex;
-
-      drawUIPanel(tile, pal.deep, pal.deep, focused ? pal.light : pal.mid);
-
-      // The picture, letterboxed into what is left above the label.
-      const bool hasFader = deckIndex >= 0;
-      SDL_Rect pic {tile.x + uiScaled(2), tile.y + uiScaled(2),
-                    tile.w - uiScaled(4),
-                    tile.h - (tile0.label ? labelH : 0) -
-                      (hasFader ? faderH : 0) - uiScaled(5)};
-      SDL_Texture* tex = nullptr;
-      int texW = 0;
-      int texH = 0;
-      if (isProgramme) {
-        tex = controlPreviewTex_;
-        texW = controlPreviewTexW_;
-        texH = controlPreviewTexH_;
-      } else if (deckIndex >= 0 &&
-                 deckIndex < static_cast<int>(deckPreviewTex_.size())) {
-        tex = deckPreviewTex_[deckIndex].tex;
-        texW = deckPreviewTex_[deckIndex].w;
-        texH = deckPreviewTex_[deckIndex].h;
-      }
-      if (feed == MultiviewFeed::Next && pic.w > 0 && pic.h > 0) {
-        // The still from the playlist row when there is one, then what it is.
-        int nextDeck = -1, nextCueIndex = -1;
-        const Cue* next = multiviewNextCue(&nextDeck, &nextCueIndex);
-        if (next) {
-          tex = cueRowStillTexture(*next);
-          if (!tex && (next->kind == CueKind::Video || next->kind == CueKind::Image)) {
-            wantCueStill(cueVisualCacheKey(*next), nextDeck, nextCueIndex);
-          }
-          if (tex) {
-            float tw = 0.0f, th = 0.0f;
-            SDL_GetTextureSize(tex, &tw, &th);
-            texW = static_cast<int>(tw);
-            texH = static_cast<int>(th);
-          }
-        }
-        if (!tex) {
-          drawCenteredTextSafe(controlRenderer_, fontBase_, pic,
-                               next ? next->name : std::string("nothing follows"), pal.fgSoft);
-        }
-      }
-      if (multiviewTileIsScopes(tile0) && pic.w > 0 && pic.h > 0) {
-        // The scopes themselves, small: every panel, no buttons.
-        drawScopesDisplay(pic);
-      } else if (feed == MultiviewFeed::Output && pic.w > 0 && pic.h > 0) {
-        drawMultiviewOutputStack(multiviewTileOutput(tile0), pic);
-      } else if (feed == MultiviewFeed::Clock && pic.w > 0 && pic.h > 0) {
-        Primitives::fillRect(controlRenderer_, pic, SDL_Color {0, 0, 0, 255});
-        drawCenteredTextSafe(controlRenderer_, fontLarge_ ? fontLarge_ : fontBase_, pic,
-                             multiviewClockText(), pal.light);
-      } else if (feed == MultiviewFeed::Next && !tex) {
-        // Drawn above: its name.
-      } else if (tex && texW > 0 && texH > 0 && pic.w > 0 && pic.h > 0) {
-        const double scale = std::min(static_cast<double>(pic.w) / texW,
-                                      static_cast<double>(pic.h) / texH);
-        const int dw = std::max(1, static_cast<int>(std::lround(texW * scale)));
-        const int dh = std::max(1, static_cast<int>(std::lround(texH * scale)));
-        SDL_FRect dst {static_cast<float>(pic.x + (pic.w - dw) / 2),
-                       static_cast<float>(pic.y + (pic.h - dh) / 2),
-                       static_cast<float>(dw), static_cast<float>(dh)};
-        SDL_RenderTexture(controlRenderer_, tex, nullptr, &dst);
-      } else if (deckIndex >= 0 && pic.w > 0 && pic.h > 0 &&
-                 activeCuePtr(deckIndex) &&
-                 activeCuePtr(deckIndex)->kind == CueKind::Text) {
-        // THE SAME GAP AS THE MONITOR, in the second place that draws a
-        // deck's picture. A text cue has no decoded frame, so a tile
-        // showing a lower third said "no picture" -- which is where an
-        // operator looks FIRST when several playlists are up.
-        const MediaEngine* tileEngine = mediaEngineForDeck(deckIndex);
-        renderTextCueIntoOutput(controlRenderer_, *activeCuePtr(deckIndex),
-                                pic,
-                                tileEngine ? tileEngine->position() : 0.0);
-      } else if (isEmptyTile && pic.w > 0 && pic.h > 0) {
-        // SAY WHAT TO DO WITH IT. An empty window used to read "empty", and
-        // nothing on it said it could be clicked (James, 2026-11-04: "you can
-        // add windows but not assign them to anything?").
-        const int lineH = textLineHeight(fontSmall_);
-        SDL_Rect top {pic.x, pic.y + pic.h / 2 - lineH, pic.w, lineH};
-        SDL_Rect under {pic.x, pic.y + pic.h / 2, pic.w, lineH};
-        // The short form where the long one would be cut off.
-        std::string ask = "+ CHOOSE WHAT IT SHOWS";
-        if (measuredTextWidth(fontSmall_, ask) > pic.w - uiScaled(8)) ask = "+ CHOOSE";
-        drawCenteredTextSafe(controlRenderer_, fontSmall_, top,
-                             feed == MultiviewFeed::Missing ? multiviewTileSourceLabel(tile0) : ask,
-                             pal.light);
-        drawCenteredTextSafe(controlRenderer_, fontSmall_, under, "click this window", pal.fgSoft);
-      } else if (pic.w > 0 && pic.h > 0) {
-        drawCenteredTextSafe(controlRenderer_, fontSmall_, pic,
-                             isProgramme ? "NO PROGRAMME" : "no picture", pal.dark);
-      }
-
-      // -- SAFE AREAS, PER WINDOW ------------------------------------
-      //
-      // Drawn on the PICTURE rect, which is the letterboxed frame rather
-      // than the tile, or the marks would describe the furniture instead of
-      // the image. 90% action safe and 80% title safe, the sizes every
-      // other multiview draws, so what a director sees here matches what
-      // they are used to seeing.
-      if (tile0.safeAreas && pic.w > uiScaled(24) && pic.h > uiScaled(18)) {
-        SDL_SetRenderDrawBlendMode(controlRenderer_, SDL_BLENDMODE_BLEND);
-        const int actionX = pic.w / 20;
-        const int actionY = pic.h / 20;
-        const int titleX = pic.w / 10;
-        const int titleY = pic.h / 10;
-        SDL_SetRenderDrawColor(controlRenderer_, 255, 255, 255, 90);
-        SDL_Rect action {pic.x + actionX, pic.y + actionY,
-                         pic.w - actionX * 2, pic.h - actionY * 2};
-        SDL_RenderRect(controlRenderer_, &action);
-        SDL_SetRenderDrawColor(controlRenderer_, 255, 220, 120, 110);
-        SDL_Rect title {pic.x + titleX, pic.y + titleY,
-                        pic.w - titleX * 2, pic.h - titleY * 2};
-        SDL_RenderRect(controlRenderer_, &title);
-        SDL_SetRenderDrawBlendMode(controlRenderer_, SDL_BLENDMODE_NONE);
-      }
-
-      // -- AND A METER, PER WINDOW -----------------------------------
-      //
-      // Down the right edge INSIDE the picture, so it costs no layout and
-      // cannot push the image around when it is switched on mid-show.
-      if (tile0.vuMeter && pic.w > uiScaled(20) && pic.h > uiScaled(20)) {
-        const int meterW = std::max(2, uiScaled(4));
-        SDL_Rect meter {pic.x + pic.w - meterW - 1, pic.y + 1,
-                        meterW, pic.h - 2};
-        Primitives::fillRect(controlRenderer_, meter, pal.deep);
-        const double level = std::clamp(multiviewTileLevel01(tile0), 0.0, 1.0);
-        const int litH = static_cast<int>(std::lround(meter.h * level));
-        if (litH > 0) {
-          SDL_Rect lit {meter.x, meter.y + meter.h - litH, meter.w, litH};
-          // Green until it is loud, amber, then red -- the reading a
-          // glance has to make is 'is that one too hot', and a single
-          // colour cannot answer it.
-          Primitives::fillRect(controlRenderer_, lit,
-            level > 0.92 ? SDL_Color {220, 60, 50, 255}
-            : level > 0.75 ? SDL_Color {230, 180, 60, 255}
-                           : SDL_Color {70, 200, 110, 255});
-        }
-      }
-
-      // The name, and for a playlist whether it is reaching anything.
-      if (tile0.label) {
-        SDL_Rect label {tile.x + uiScaled(3),
-                        tile.y + tile.h - labelH - uiScaled(2),
-                        tile.w - uiScaled(6), labelH};
-        if (hasFader) {
-          label.y -= faderH + uiScaled(1);
-        }
-        std::string name = multiviewTileSourceLabel(tile0);
-        if (deckIndex >= 0) {
-          name += "  " + playlistRoutingChipLabel(deckIndex);
-        }
-        drawTextSafe(controlRenderer_, fontSmall_, label,
-                     ellipsizeToPixelWidth(fontSmall_, name, label.w),
-                     focused ? pal.light : pal.fgSoft);
-      }
-
-      // ── THE LAYER FADER ─────────────────────────────────────────────
-      if (hasFader) {
-        SDL_Rect rail {tile.x + uiScaled(3), tile.y + tile.h - faderH - uiScaled(2),
-                       tile.w - uiScaled(6), faderH};
-        const float value = std::clamp(project_.decks[deckIndex].playlistOpacity,
-                                       0.0f, 1.0f);
-        drawUIPanel(rail, pal.tile, pal.deep, pal.mid);
-        SDL_Rect filled {rail.x + 1, rail.y + 1,
-                         std::max(0, static_cast<int>((rail.w - 2) * value)),
-                         rail.h - 2};
-        Primitives::fillRect(controlRenderer_, filled,
-                             value > 0.98f ? pal.light : pal.mid);
-        multiviewFaderRects_.push_back(rail);
-      } else {
-        multiviewFaderRects_.push_back(SDL_Rect {});
-      }
-
-      // TALLY: red round a window that is on air, green round the next cue,
-      // the colours every switcher's multiview uses.
-      const bool onAir = multiviewTileOnAir(tile0);
-      if (onAir || feed == MultiviewFeed::Next) {
-        const SDL_Color ink = onAir ? SDL_Color {220, 50, 45, 255} : SDL_Color {60, 200, 90, 255};
-        const int t = std::max(2, uiScaled(2));
-        Primitives::fillRect(controlRenderer_, SDL_Rect {tile.x, tile.y, tile.w, t}, ink);
-        Primitives::fillRect(controlRenderer_, SDL_Rect {tile.x, tile.y + tile.h - t, tile.w, t}, ink);
-        Primitives::fillRect(controlRenderer_, SDL_Rect {tile.x, tile.y, t, tile.h}, ink);
-        Primitives::fillRect(controlRenderer_, SDL_Rect {tile.x + tile.w - t, tile.y, t, tile.h}, ink);
-      }
-
-      // THE WINDOW'S MENU, in its corner, so choosing what a window shows is
-      // never only a right-click. A playlist window's click focuses that
-      // playlist, so it needs a way in that is not the click.
-      const int chipH = std::max(uiScaled(16), textLineHeight(fontSmall_) + uiScaled(2));
-      const int chipW = std::max(uiScaled(26), measuredTextWidth(fontSmall_, "...") + uiScaled(10));
-      SDL_Rect chip {tile.x + tile.w - chipW - uiScaled(4), tile.y + uiScaled(4), chipW, chipH};
-      drawUIPanel(chip, pal.tile, pal.deep, pal.mid);
-      drawCenteredTextSafe(controlRenderer_, fontSmall_, chip, "...", pal.fg);
-      multiviewChipRects_.push_back(chip);
-
-      multiviewTileRects_.push_back(tile);
-      multiviewTileDecks_.push_back(deckIndex);
+      drawMonitorTile(tile, tile0, deckIndex, true, labelH, faderH);
     }
     return true;
   }
