@@ -4911,3 +4911,7 @@ Rename output	Переименовать выход
 Rename playlist	Переименовать плейлист
 Playlist name (blank: the default)	Имя плейлиста (пусто — по умолчанию)
 LAYOUT SPLIT: expected a divider and a share between 0 and 1, or RESET	LAYOUT SPLIT: ожидается разделитель и доля от 0 до 1 или RESET
+ACTIVE	АКТИВНО
+nothing running	ничего не работает
+pre-wait {1}   action {2}   post-wait {3}   then {4}	предожидание {1}   действие {2}   постожидание {3}   затем {4}
+' (CLASSIC, OPERATOR, SHOWPIECE, RUNDOWN, CLIPGRID, CUESTACK, CONSOLE, COMPACT or THEATRE)	' (КЛАССИКА, ОПЕРАТОР, ВИТРИНА, СЦЕНАРИЙ, СЕТКА КЛИПОВ, СТЕК CUE, КОНСОЛЬ, КОМПАКТНЫЙ или ТЕАТР)

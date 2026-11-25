@@ -4907,3 +4907,7 @@ Rename output	출력 이름 바꾸기
 Rename playlist	플레이리스트 이름 바꾸기
 Playlist name (blank: the default)	플레이리스트 이름(비워 두면 기본값)
 LAYOUT SPLIT: expected a divider and a share between 0 and 1, or RESET	LAYOUT SPLIT: 구분선과 0에서 1 사이 비율, 또는 RESET 필요
+ACTIVE	활성
+nothing running	실행 중인 것 없음
+pre-wait {1}   action {2}   post-wait {3}   then {4}	사전 대기 {1}   동작 {2}   사후 대기 {3}   이후 {4}
+' (CLASSIC, OPERATOR, SHOWPIECE, RUNDOWN, CLIPGRID, CUESTACK, CONSOLE, COMPACT or THEATRE)	' (CLASSIC, OPERATOR, SHOWPIECE, RUNDOWN, CLIPGRID, CUESTACK, CONSOLE, COMPACT 또는 THEATRE)

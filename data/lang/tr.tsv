@@ -4902,3 +4902,7 @@ Rename output	Çıkışı yeniden adlandır
 Rename playlist	Çalma listesini yeniden adlandır
 Playlist name (blank: the default)	Çalma listesi adı (boş: varsayılan)
 LAYOUT SPLIT: expected a divider and a share between 0 and 1, or RESET	LAYOUT SPLIT: bölücü ve 0 ile 1 arasında bir pay veya RESET beklenir
+ACTIVE	ETKİN
+nothing running	çalışan hiçbir şey yok
+pre-wait {1}   action {2}   post-wait {3}   then {4}	ön bekleme {1}   eylem {2}   son bekleme {3}   sonra {4}
+' (CLASSIC, OPERATOR, SHOWPIECE, RUNDOWN, CLIPGRID, CUESTACK, CONSOLE, COMPACT or THEATRE)	' (KLASİK, OPERATÖR, VİTRİN, AKIŞ, KLİP IZGARASI, CUE YIĞINI, KONSOL, KOMPAKT veya TİYATRO)

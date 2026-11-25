@@ -4895,3 +4895,7 @@ Rename output	Đổi tên đầu ra
 Rename playlist	Đổi tên playlist
 Playlist name (blank: the default)	Tên playlist (trống: mặc định)
 LAYOUT SPLIT: expected a divider and a share between 0 and 1, or RESET	LAYOUT SPLIT: cần một đường chia và một tỉ lệ từ 0 đến 1, hoặc RESET
+ACTIVE	ĐANG HOẠT ĐỘNG
+nothing running	không gì đang chạy
+pre-wait {1}   action {2}   post-wait {3}   then {4}	chờ trước {1}   hành động {2}   chờ sau {3}   rồi {4}
+' (CLASSIC, OPERATOR, SHOWPIECE, RUNDOWN, CLIPGRID, CUESTACK, CONSOLE, COMPACT or THEATRE)	' (CỔ ĐIỂN, NGƯỜI VẬN HÀNH, TRÌNH DIỄN, TRÌNH TỰ, LƯỚI CLIP, NGĂN XẾP CUE, BÀN ĐIỀU KHIỂN, GỌN hoặc NHÀ HÁT)

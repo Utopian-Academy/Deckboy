@@ -4880,3 +4880,7 @@ Rename output	Zmień nazwę wyjścia
 Rename playlist	Zmień nazwę playlisty
 Playlist name (blank: the default)	Nazwa playlisty (puste: domyślna)
 LAYOUT SPLIT: expected a divider and a share between 0 and 1, or RESET	LAYOUT SPLIT: oczekiwano separatora i udziału między 0 a 1 lub RESET
+ACTIVE	AKTYWNY
+nothing running	nic nie działa
+pre-wait {1}   action {2}   post-wait {3}   then {4}	wstępne czekanie {1}   akcja {2}   czekanie końcowe {3}   potem {4}
+' (CLASSIC, OPERATOR, SHOWPIECE, RUNDOWN, CLIPGRID, CUESTACK, CONSOLE, COMPACT or THEATRE)	' (KLASYCZNY, OPERATOR, POKAZOWY, SCENARIUSZ, SIATKA KLIPÓW, STOS CUE, KONSOLA, KOMPAKTOWY lub TEATR)

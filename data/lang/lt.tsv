@@ -3976,3 +3976,7 @@ Rename output	Pervadinti išvestį
 Rename playlist	Pervadinti grojaraštį
 Playlist name (blank: the default)	Grojaraščio pavadinimas (tuščia: numatytasis)
 LAYOUT SPLIT: expected a divider and a share between 0 and 1, or RESET	LAYOUT SPLIT: tikėtasi skyriklio ir dalies tarp 0 ir 1, arba RESET
+ACTIVE	AKTYVUS
+nothing running	niekas nevykdoma
+pre-wait {1}   action {2}   post-wait {3}   then {4}	laukimas prieš {1}   veiksmas {2}   laukimas po {3}   tada {4}
+' (CLASSIC, OPERATOR, SHOWPIECE, RUNDOWN, CLIPGRID, CUESTACK, CONSOLE, COMPACT or THEATRE)	' (CLASSIC, OPERATOR, SHOWPIECE, RUNDOWN, CLIPGRID, CUESTACK, CONSOLE, COMPACT arba THEATRE)

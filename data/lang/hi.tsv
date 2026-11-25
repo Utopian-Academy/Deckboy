@@ -4911,3 +4911,7 @@ Rename output	आउटपुट का नाम बदलें
 Rename playlist	प्लेलिस्ट का नाम बदलें
 Playlist name (blank: the default)	प्लेलिस्ट नाम (खाली: डिफ़ॉल्ट)
 LAYOUT SPLIT: expected a divider and a share between 0 and 1, or RESET	LAYOUT SPLIT: विभाजक और 0 से 1 के बीच हिस्सा अपेक्षित है, या RESET
+ACTIVE	सक्रिय
+nothing running	कुछ नहीं चल रहा
+pre-wait {1}   action {2}   post-wait {3}   then {4}	पूर्व-प्रतीक्षा {1}   क्रिया {2}   पश्च-प्रतीक्षा {3}   फिर {4}
+' (CLASSIC, OPERATOR, SHOWPIECE, RUNDOWN, CLIPGRID, CUESTACK, CONSOLE, COMPACT or THEATRE)	' (CLASSIC, OPERATOR, SHOWPIECE, RUNDOWN, CLIPGRID, CUESTACK, CONSOLE, COMPACT या THEATRE)

@@ -4909,3 +4909,7 @@ Rename output	出力名を変更
 Rename playlist	プレイリスト名を変更
 Playlist name (blank: the default)	プレイリスト名 (空欄: 既定)
 LAYOUT SPLIT: expected a divider and a share between 0 and 1, or RESET	LAYOUT SPLIT: 区切りと0から1の間の比率、またはRESETを指定
+ACTIVE	アクティブ
+nothing running	実行中なし
+pre-wait {1}   action {2}   post-wait {3}   then {4}	プリウェイト {1}   アクション {2}   ポストウェイト {3}   その後 {4}
+' (CLASSIC, OPERATOR, SHOWPIECE, RUNDOWN, CLIPGRID, CUESTACK, CONSOLE, COMPACT or THEATRE)	' (CLASSIC、OPERATOR、SHOWPIECE、RUNDOWN、CLIPGRID、CUESTACK、CONSOLE、COMPACT または THEATRE)

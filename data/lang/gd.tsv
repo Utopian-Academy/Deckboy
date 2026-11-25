@@ -4905,3 +4905,7 @@ Rename output	Ath-ainmich an t-às-chur
 Rename playlist	Ath-ainmich an liosta
 Playlist name (blank: the default)	Ainm na liosta (falamh: am bun-roghainn)
 LAYOUT SPLIT: expected a divider and a share between 0 and 1, or RESET	LAYOUT SPLIT: bha dùil ri roinneadair is cuibhreann eadar 0 is 1, no RESET
+ACTIVE	GNÌOMHACH
+nothing running	chan eil dad a' ruith
+pre-wait {1}   action {2}   post-wait {3}   then {4}	ro-fheitheamh {1}   gnìomh {2}   iar-fheitheamh {3}   an uairsin {4}
+' (CLASSIC, OPERATOR, SHOWPIECE, RUNDOWN, CLIPGRID, CUESTACK, CONSOLE, COMPACT or THEATRE)	' (CLASAIGEACH, OBRAICHE, TAISBEANADH, CLÀR-RUITH, GRIOD CHLIOPAICHEAN, CRUACH CHUES, CONSAIL, DLÙTH no TAIGH-CLUICHE)

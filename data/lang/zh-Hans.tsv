@@ -4908,3 +4908,7 @@ Rename output	重命名输出
 Rename playlist	重命名播放列表
 Playlist name (blank: the default)	播放列表名称（留空：默认）
 LAYOUT SPLIT: expected a divider and a share between 0 and 1, or RESET	LAYOUT SPLIT：应为分隔线及 0 到 1 之间的比例，或 RESET
+ACTIVE	活动
+nothing running	无运行内容
+pre-wait {1}   action {2}   post-wait {3}   then {4}	预等待 {1}   动作 {2}   后等待 {3}   然后 {4}
+' (CLASSIC, OPERATOR, SHOWPIECE, RUNDOWN, CLIPGRID, CUESTACK, CONSOLE, COMPACT or THEATRE)	' (经典、操作员、展示、串联单、片段网格、CUE 堆栈、控制台、紧凑或剧场)

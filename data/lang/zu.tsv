@@ -4896,3 +4896,7 @@ Rename output	Shintsha igama lokuphumayo
 Rename playlist	Shintsha igama lohlu
 Playlist name (blank: the default)	Igama lohlu (akunalutho: okujwayelekile)
 LAYOUT SPLIT: expected a divider and a share between 0 and 1, or RESET	LAYOUT SPLIT: kulindelwe isihlukanisi nesabelo esiphakathi kuka-0 no-1, noma RESET
+ACTIVE	OKUSEBENZAYO
+nothing running	akukho okusebenzayo
+pre-wait {1}   action {2}   post-wait {3}   then {4}	ukulinda kuqala {1}   isenzo {2}   ukulinda kamuva {3}   bese {4}
+' (CLASSIC, OPERATOR, SHOWPIECE, RUNDOWN, CLIPGRID, CUESTACK, CONSOLE, COMPACT or THEATRE)	' (OKWAKUDALA, UMSEBENZISI, OKOKUBUKISA, UHLU LOHLELO, IGRIDI YAMAKLIPHU, ISITAKI SAMA-CUE, IKHONSOLI, OKUNCANE noma ITHIYETHA)

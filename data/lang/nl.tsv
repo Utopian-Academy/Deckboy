@@ -4845,3 +4845,7 @@ Rename output	Uitgang hernoemen
 Rename playlist	Afspeellijst hernoemen
 Playlist name (blank: the default)	Afspeellijstnaam (leeg: standaard)
 LAYOUT SPLIT: expected a divider and a share between 0 and 1, or RESET	LAYOUT SPLIT: verwacht een scheiding en een aandeel tussen 0 en 1, of RESET
+ACTIVE	ACTIEF
+nothing running	er loopt niets
+pre-wait {1}   action {2}   post-wait {3}   then {4}	vooraf wachten {1}   actie {2}   achteraf wachten {3}   dan {4}
+' (CLASSIC, OPERATOR, SHOWPIECE, RUNDOWN, CLIPGRID, CUESTACK, CONSOLE, COMPACT or THEATRE)	' (CLASSIC, OPERATOR, SHOWPIECE, RUNDOWN, CLIPGRID, CUESTACK, CONSOLE, COMPACT of THEATRE)

@@ -4904,3 +4904,7 @@ Rename output	Μετονομασία εξόδου
 Rename playlist	Μετονομασία λίστας
 Playlist name (blank: the default)	Όνομα λίστας (κενό: προεπιλογή)
 LAYOUT SPLIT: expected a divider and a share between 0 and 1, or RESET	LAYOUT SPLIT: αναμένονται διαχωριστικό και μερίδιο μεταξύ 0 και 1, ή RESET
+ACTIVE	ΕΝΕΡΓΟ
+nothing running	δεν τρέχει τίποτα
+pre-wait {1}   action {2}   post-wait {3}   then {4}	προαναμονή {1}   ενέργεια {2}   μεταναμονή {3}   μετά {4}
+' (CLASSIC, OPERATOR, SHOWPIECE, RUNDOWN, CLIPGRID, CUESTACK, CONSOLE, COMPACT or THEATRE)	' (ΚΛΑΣΙΚΟ, ΧΕΙΡΙΣΤΗΣ, ΒΙΤΡΙΝΑ, ΡΟΗ ΕΚΠΟΜΠΗΣ, ΠΛΕΓΜΑ ΚΛΙΠ, ΣΤΟΙΒΑ CUE, ΚΟΝΣΟΛΑ, ΣΥΜΠΑΓΕΣ ή ΘΕΑΤΡΟ)

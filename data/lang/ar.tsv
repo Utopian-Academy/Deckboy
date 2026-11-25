@@ -4924,3 +4924,7 @@ Rename output	إعادة تسمية الخرج
 Rename playlist	إعادة تسمية قائمة التشغيل
 Playlist name (blank: the default)	اسم قائمة التشغيل (فارغ: الافتراضي)
 LAYOUT SPLIT: expected a divider and a share between 0 and 1, or RESET	LAYOUT SPLIT: المتوقع فاصل وحصة بين 0 و1، أو RESET
+ACTIVE	نشط
+nothing running	لا شيء يعمل
+pre-wait {1}   action {2}   post-wait {3}   then {4}	انتظار مسبق {1}   إجراء {2}   انتظار لاحق {3}   ثم {4}
+' (CLASSIC, OPERATOR, SHOWPIECE, RUNDOWN, CLIPGRID, CUESTACK, CONSOLE, COMPACT or THEATRE)	' (كلاسيكي، المشغّل، واجهة العرض، جدول الفقرات، شبكة المقاطع، مكدس الكيوهات، وحدة التحكم، مضغوط أو مسرح)

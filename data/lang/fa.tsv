@@ -4923,3 +4923,7 @@ Rename output	تغییر نام خروجی
 Rename playlist	تغییر نام فهرست پخش
 Playlist name (blank: the default)	نام فهرست پخش (خالی: پیش‌فرض)
 LAYOUT SPLIT: expected a divider and a share between 0 and 1, or RESET	LAYOUT SPLIT: یک جداکننده و سهمی بین 0 و 1، یا RESET لازم است
+ACTIVE	فعال
+nothing running	چیزی در حال اجرا نیست
+pre-wait {1}   action {2}   post-wait {3}   then {4}	پیش‌انتظار {1}   کنش {2}   پس‌انتظار {3}   سپس {4}
+' (CLASSIC, OPERATOR, SHOWPIECE, RUNDOWN, CLIPGRID, CUESTACK, CONSOLE, COMPACT or THEATRE)	' (کلاسیک، اپراتور، ویترین، ترتیب اجرا، شبکه کلیپ، پشته کیو، کنسول، فشرده یا تئاتر)

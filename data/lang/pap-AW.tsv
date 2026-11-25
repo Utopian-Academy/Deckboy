@@ -4889,3 +4889,7 @@ Rename output	Renombra salida
 Rename playlist	Renombra playlist
 Playlist name (blank: the default)	Nomber di playlist (bashi: e standard)
 LAYOUT SPLIT: expected a divider and a share between 0 and 1, or RESET	LAYOUT SPLIT: ta spera un divisor y un proporcion entre 0 y 1, of RESET
+ACTIVE	ACTIVO
+nothing running	nada no ta corre
+pre-wait {1}   action {2}   post-wait {3}   then {4}	pre-warda {1}   accion {2}   post-warda {3}   despues {4}
+' (CLASSIC, OPERATOR, SHOWPIECE, RUNDOWN, CLIPGRID, CUESTACK, CONSOLE, COMPACT or THEATRE)	' (CLASICO, OPERADO, VITRINA, ORDEN DI SHOW, MALLA DI CLIP, PILA DI CUE, CONSOLA, COMPACTO of TEATRO)

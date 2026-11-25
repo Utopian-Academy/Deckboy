@@ -1,0 +1,28 @@
+# Deckboy Theme: Walnut 3D: walnut veneer under a satin varnish, rendered as a desk.
+# A RENDERED skin: style_kit names the pieces in data/desk-kits (pocket-skins/desk_kit.py);
+# the colours below are read off those renders. All colour values are RRGGBBAA hex.
+
+shell_outer	57463BFF
+shell_inner	675040FF
+shell_shadow	29201AFF
+screen_light	EAE5D8FF
+screen_mid	CED0D1FF
+screen_dark	908B86FF
+screen_deep	2E241DFF
+screen_ink_soft	B4A695FF
+screen_fg	F3ECDAFF
+screen_fg_soft	C9BDACFF
+screen_tile	675040FF
+button_bezel	CED0D1FF
+delete_bezel	AA2820FF
+scanline_alpha	0
+
+style_kit	walnut
+style_panel	round 12
+style_control	round 9
+style_outline	0
+style_sticker	star	holo	FFFFFF	transport	-8	0.95
+style_sticker	dot	holo	FFFFFF	desk	10	0.9
+
+creature	owl	1
+creature	moth	1

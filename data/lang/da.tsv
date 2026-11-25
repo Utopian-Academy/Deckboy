@@ -4858,3 +4858,7 @@ Rename output	Omdøb udgang
 Rename playlist	Omdøb playliste
 Playlist name (blank: the default)	Playlistenavn (tomt: standard)
 LAYOUT SPLIT: expected a divider and a share between 0 and 1, or RESET	LAYOUT SPLIT: forventede en skillelinje og en andel mellem 0 og 1, eller RESET
+ACTIVE	AKTIV
+nothing running	intet kører
+pre-wait {1}   action {2}   post-wait {3}   then {4}	ventetid før {1}   handling {2}   ventetid efter {3}   derefter {4}
+' (CLASSIC, OPERATOR, SHOWPIECE, RUNDOWN, CLIPGRID, CUESTACK, CONSOLE, COMPACT or THEATRE)	' (KLASSISK, OPERATØR, FREMVISNING, KØREPLAN, KLIPGITTER, CUESTAK, KONSOL, KOMPAKT eller TEATER)

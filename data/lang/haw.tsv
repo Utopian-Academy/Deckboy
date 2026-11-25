@@ -4874,3 +4874,7 @@ Rename output	Hoʻololi inoa puka
 Rename playlist	Hoʻololi inoa papa helu
 Playlist name (blank: the default)	Inoa papa helu (hakahaka: ka maʻamau)
 LAYOUT SPLIT: expected a divider and a share between 0 and 1, or RESET	LAYOUT SPLIT: e hoʻokomo i ka mea hoʻokaʻawale a me ka hapa ma waena o 0 a me 1, a i ʻole RESET
+ACTIVE	ʻELEU
+nothing running	ʻaʻohe mea e holo ana
+pre-wait {1}   action {2}   post-wait {3}   then {4}	kali mua {1}   hana {2}   kali hope {3}   a laila {4}
+' (CLASSIC, OPERATOR, SHOWPIECE, RUNDOWN, CLIPGRID, CUESTACK, CONSOLE, COMPACT or THEATRE)	' (CLASSIC, OPERATOR, SHOWPIECE, RUNDOWN, CLIPGRID, CUESTACK, CONSOLE, COMPACT a i ʻole THEATRE)

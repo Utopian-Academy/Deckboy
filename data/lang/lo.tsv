@@ -4894,3 +4894,7 @@ Rename output	ປ່ຽນຊື່ຂາອອກ
 Rename playlist	ປ່ຽນຊື່ playlist
 Playlist name (blank: the default)	ຊື່ playlist (ຫວ່າງ: ຄ່າເລີ່ມຕົ້ນ)
 LAYOUT SPLIT: expected a divider and a share between 0 and 1, or RESET	LAYOUT SPLIT: ຕ້ອງໃສ່ຕົວແບ່ງ ແລະ ສັດສ່ວນລະຫວ່າງ 0 ແລະ 1, ຫຼື RESET
+ACTIVE	ໃຊ້ງານຢູ່
+nothing running	ບໍ່ມີຫຍັງກຳລັງແລ່ນ
+pre-wait {1}   action {2}   post-wait {3}   then {4}	ລໍຖ້າກ່ອນ {1}   ການກະທຳ {2}   ລໍຖ້າຫຼັງ {3}   ແລ້ວ {4}
+' (CLASSIC, OPERATOR, SHOWPIECE, RUNDOWN, CLIPGRID, CUESTACK, CONSOLE, COMPACT or THEATRE)	' (CLASSIC, OPERATOR, SHOWPIECE, RUNDOWN, CLIPGRID, CUESTACK, CONSOLE, COMPACT ຫຼື THEATRE)

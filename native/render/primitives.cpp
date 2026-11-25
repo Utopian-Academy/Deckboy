@@ -814,10 +814,14 @@ SDL_Texture* glowTexture(SDL_Renderer* renderer) {
 }
 
 void drawKitBoardLife(SDL_Renderer* renderer, const SDL_FRect& area, float s) {
+  // SELDOM, AND SMALL (James 11-24: the first version, LEDs everywhere and
+  // pulses running down every trace, was "far too crazy and bad"; then
+  // "seldom have a flashing led"). About one LED to a big panel, a small
+  // point of light seen through the plastic: mostly a steady glow, now and
+  // then a quick double flash, each at its own unhurried pace. No pulses.
   if (!gChrome.kit.board || area.w < 8.0f || area.h < 8.0f) return;
   SDL_Texture* glow = glowTexture(renderer);
   if (!glow) return;
-  // clip to the area, inside whatever clip is already set
   SDL_Rect want {static_cast<int>(area.x), static_cast<int>(area.y), static_cast<int>(area.w), static_cast<int>(area.h)};
   const bool clipped = SDL_RenderClipEnabled(renderer);
   SDL_Rect previous {};
@@ -826,86 +830,33 @@ void drawKitBoardLife(SDL_Renderer* renderer, const SDL_FRect& area, float s) {
   SDL_SetRenderClipRect(renderer, &want);
   const double t = gChrome.time;
   const bool live = gChrome.lively;
-  // The plastic tints what shines through it.
   const SDL_Color tint = gChrome.kit.surfacePanel;
   const float tl = std::max(1.0f, static_cast<float>(std::max({tint.r, tint.g, tint.b})));
   auto through = [&](SDL_Color c) {
-    auto ch = [&](Uint8 v, Uint8 k) { return static_cast<Uint8>(std::clamp(v * (0.55f + 0.45f * k / tl), 0.0f, 255.0f)); };
+    auto ch = [&](Uint8 v, Uint8 k) { return static_cast<Uint8>(std::clamp(v * (0.6f + 0.4f * k / tl), 0.0f, 255.0f)); };
     return SDL_Color {ch(c.r, tint.r), ch(c.g, tint.g), ch(c.b, tint.b), 255};
   };
-  const float cell = 84.0f * s;
+  static const SDL_Color kLed[] = {{255, 50, 35, 255}, {70, 255, 100, 255}, {255, 175, 30, 255}, {80, 150, 255, 255}};
+  const float cell = 320.0f * s;   // one chance in a cell this big
   const int cx0 = static_cast<int>(std::floor(area.x / cell)), cx1 = static_cast<int>(std::floor((area.x + area.w) / cell));
   const int cy0 = static_cast<int>(std::floor(area.y / cell)), cy1 = static_cast<int>(std::floor((area.y + area.h) / cell));
-  // PROCESSES: a pulse of light running along a trace, one trace per row
-  // and per column of the grid, each at its own speed and its own gaps.
-  for (int row = cy0; row <= cy1; ++row) {
-    if (lifeRand(row, 7, 1) > 0.55f) continue;
-    const float y = (row + 0.2f + 0.6f * lifeRand(row, 7, 2)) * cell;
-    if (y < area.y || y > area.y + area.h) continue;
-    const float speed = (90.0f + 160.0f * lifeRand(row, 7, 3)) * s;
-    const float spanW = 1600.0f * s + 900.0f * s * lifeRand(row, 7, 4);
-    const float dir = lifeRand(row, 7, 5) < 0.5f ? 1.0f : -1.0f;
-    const float head = live ? static_cast<float>(std::fmod(t * speed + lifeRand(row, 7, 6) * spanW, spanW)) : -1.0f;
-    if (head < 0.0f) continue;
-    const float x = dir > 0 ? head - 200.0f * s : spanW - head - 200.0f * s;
-    const float len = 46.0f * s;
-    const SDL_Color c = through(SDL_Color {120, 220, 255, 255});
-    SDL_SetTextureColorMod(glow, c.r, c.g, c.b);
-    for (int k = 0; k < 8; ++k) {
-      const float f = static_cast<float>(k) / 8.0f;
-      const float px = x + (dir > 0 ? -f : f) * len;
-      const float sz = (7.0f - 4.0f * f) * s;
-      SDL_SetTextureAlphaMod(glow, static_cast<Uint8>(150 * (1.0f - f)));
-      const SDL_FRect d {px - sz, y - sz, sz * 2, sz * 2};
-      SDL_RenderTexture(renderer, glow, nullptr, &d);
-    }
-  }
-  for (int col = cx0; col <= cx1; ++col) {
-    if (lifeRand(col, 11, 1) > 0.35f) continue;
-    const float x = (col + 0.2f + 0.6f * lifeRand(col, 11, 2)) * cell;
-    if (x < area.x || x > area.x + area.w) continue;
-    const float speed = (70.0f + 120.0f * lifeRand(col, 11, 3)) * s;
-    const float spanH = 1100.0f * s + 700.0f * s * lifeRand(col, 11, 4);
-    if (!live) continue;
-    const float head = static_cast<float>(std::fmod(t * speed + lifeRand(col, 11, 6) * spanH, spanH)) - 150.0f * s;
-    const float len = 36.0f * s;
-    const SDL_Color c = through(SDL_Color {255, 210, 120, 255});
-    SDL_SetTextureColorMod(glow, c.r, c.g, c.b);
-    for (int k = 0; k < 7; ++k) {
-      const float f = static_cast<float>(k) / 7.0f;
-      const float sz = (6.0f - 3.5f * f) * s;
-      SDL_SetTextureAlphaMod(glow, static_cast<Uint8>(130 * (1.0f - f)));
-      const SDL_FRect d {x - sz, head - f * len - sz, sz * 2, sz * 2};
-      SDL_RenderTexture(renderer, glow, nullptr, &d);
-    }
-  }
-  // LEDS: about one cell in three has one. Most blink at their own slow
-  // rate, some flicker like a disk working, some breathe.
-  static const SDL_Color kLed[] = {{255, 40, 30, 255}, {60, 255, 90, 255}, {255, 170, 20, 255}, {60, 140, 255, 255}};
   for (int cy = cy0; cy <= cy1; ++cy) {
     for (int cx = cx0; cx <= cx1; ++cx) {
-      if (lifeRand(cx, cy, 1) > 0.34f) continue;
-      const float x = (cx + 0.15f + 0.7f * lifeRand(cx, cy, 2)) * cell;
-      const float y = (cy + 0.15f + 0.7f * lifeRand(cx, cy, 3)) * cell;
+      if (lifeRand(cx, cy, 1) > 0.32f) continue;
+      const float x = (cx + 0.2f + 0.6f * lifeRand(cx, cy, 2)) * cell;
+      const float y = (cy + 0.2f + 0.6f * lifeRand(cx, cy, 3)) * cell;
       const SDL_Color c = through(kLed[lifeHash(cx, cy, 4) % 4]);
-      const float kind = lifeRand(cx, cy, 5);
-      const float phase = lifeRand(cx, cy, 6) * 10.0f;
-      float level = 0.8f;
+      float level = 0.55f;   // the steady glow
       if (live) {
-        if (kind < 0.55f) {          // blinks
-          const double period = 0.8 + 2.4 * lifeRand(cx, cy, 7);
-          level = std::fmod(t / period + phase, 1.0) < 0.5 ? 1.0f : 0.12f;
-        } else if (kind < 0.8f) {    // activity: flickers in bursts
-          const int slot = static_cast<int>(std::floor(t * 14.0 + phase));
-          const bool burst = lifeRand(cx, static_cast<int>(std::floor(t * 0.7 + phase)), 8) < 0.5f;
-          level = burst && lifeRand(cx * 31 + cy, slot, 9) < 0.6f ? 1.0f : 0.1f;
-        } else {                     // breathes
-          level = 0.3f + 0.7f * static_cast<float>(0.5 + 0.5 * std::sin(t * 1.6 + phase));
-        }
+        // a quick double flash every few seconds, each LED its own period
+        const double period = 3.0 + 6.0 * lifeRand(cx, cy, 7);
+        const double ph = std::fmod(t / period + lifeRand(cx, cy, 6), 1.0) * period;   // seconds into this cycle
+        if (ph < 0.09 || (ph > 0.20 && ph < 0.29)) level = 1.0f;
+        else if (ph < 0.20) level = 0.15f;
       }
-      const float sz = 10.0f * s;
+      const float sz = 6.0f * s;
       SDL_SetTextureColorMod(glow, c.r, c.g, c.b);
-      SDL_SetTextureAlphaMod(glow, static_cast<Uint8>(std::clamp(level, 0.0f, 1.0f) * 235.0f));
+      SDL_SetTextureAlphaMod(glow, static_cast<Uint8>(level * 220.0f));
       const SDL_FRect d {x - sz, y - sz, sz * 2, sz * 2};
       SDL_RenderTexture(renderer, glow, nullptr, &d);
     }
@@ -921,10 +872,12 @@ bool drawKitChrome(SDL_Renderer* renderer, const SDL_Rect& rect, SDL_Color fill,
   chromeGeomFor(rect, &control, role);
   const float s = std::max(0.25f, gChrome.scale);
   SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
-  // The desk's own body: a panel covering most of the window.
+  // The desk's own body: a panel covering practically the whole window. At
+  // 60% a big layout panel (Theatre's cue list, Console's mixer) was taken
+  // for the desk and drawn in its body material.
   int outW = 0, outH = 0;
   if (!control && SDL_GetCurrentRenderOutputSize(renderer, &outW, &outH) && outW > 0 && outH > 0 &&
-      static_cast<double>(rect.w) * rect.h > 0.6 * static_cast<double>(outW) * outH) {
+      static_cast<double>(rect.w) * rect.h > 0.85 * static_cast<double>(outW) * outH) {
     const SDL_FRect area {static_cast<float>(rect.x), static_cast<float>(rect.y), static_cast<float>(rect.w), static_cast<float>(rect.h)};
     if (!drawKitTile(renderer, kit.tileDesk, area, s)) return false;
     drawKitBoardLife(renderer, area, s);

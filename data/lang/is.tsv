@@ -4901,3 +4901,7 @@ Rename output	Endurnefna úttak
 Rename playlist	Endurnefna spilunarlista
 Playlist name (blank: the default)	Heiti spilunarlista (tómt: sjálfgefið)
 LAYOUT SPLIT: expected a divider and a share between 0 and 1, or RESET	LAYOUT SPLIT: vænst er skilrúms og hlutfalls milli 0 og 1, eða RESET
+ACTIVE	VIRKT
+nothing running	ekkert í gangi
+pre-wait {1}   action {2}   post-wait {3}   then {4}	forbið {1}   aðgerð {2}   eftirbið {3}   svo {4}
+' (CLASSIC, OPERATOR, SHOWPIECE, RUNDOWN, CLIPGRID, CUESTACK, CONSOLE, COMPACT or THEATRE)	' (CLASSIC, OPERATOR, SHOWPIECE, RUNDOWN, CLIPGRID, CUESTACK, CONSOLE, COMPACT eða THEATRE)

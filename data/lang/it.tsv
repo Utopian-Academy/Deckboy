@@ -4876,3 +4876,7 @@ Rename output	Rinomina uscita
 Rename playlist	Rinomina scaletta
 Playlist name (blank: the default)	Nome scaletta (vuoto: predefinito)
 LAYOUT SPLIT: expected a divider and a share between 0 and 1, or RESET	LAYOUT SPLIT: previsti un divisore e una quota tra 0 e 1, o RESET
+ACTIVE	ATTIVO
+nothing running	niente in corso
+pre-wait {1}   action {2}   post-wait {3}   then {4}	pre-attesa {1}   azione {2}   post-attesa {3}   poi {4}
+' (CLASSIC, OPERATOR, SHOWPIECE, RUNDOWN, CLIPGRID, CUESTACK, CONSOLE, COMPACT or THEATRE)	' (CLASSIC, OPERATOR, SHOWPIECE, RUNDOWN, CLIPGRID, CUESTACK, CONSOLE, COMPACT o THEATRE)
