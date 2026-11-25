@@ -1733,6 +1733,23 @@ underneath, and a row for changing the effect, moving it up or down, and
 removing it. **copy chain** / **paste chain** move a whole look between cues
 without dragging geometry, fades or crop along with it.
 
+**Saved chains.** **save chain...** keeps the selected cue's chain under a
+name: every effect in order, its settings, its LFOs, and the motion driver if
+the chain has a puppet. Saved chains belong to you, not to the show, so they
+load into any show. **load chain** opens the list under the row. Click a chain
+to replace the chain on every selected cue, or press its **+ add** (or
+shift-click) to add it to the end of each cue's chain. Either way it is one
+undo. The **...** on each chain renames, duplicates, deletes or shows it in its
+folder. If you save under a name you already used, Deckboy asks whether to
+replace that chain or keep both.
+
+Each chain is one small text file in the `effect-chains` folder of Deckboy's
+settings folder, so you can back them up or copy them to another machine. A
+chain saved by a newer Deckboy loads every effect this one knows, and the list
+says how many it had to leave out. Remote: `FX SAVE <name>`,
+`FX LOAD <name> [ADD]` and `FX PRESETS`. `FX SAVE` over the network replaces a
+chain of the same name without asking.
+
 Effects work on **every kind of cue** — video, stills, patterns, cameras, NDI,
 streams and the code source. Everything costs nothing at amount zero, and
 **bypass** is not the same as amount zero: turning an effect down loses the

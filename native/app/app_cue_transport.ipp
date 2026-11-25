@@ -6029,6 +6029,431 @@
     markProjectDirty();
   }
 
+  // ── EFFECT CHAIN PRESETS ─────────────────────────────────────────────────
+  //
+  // Copy chain / paste chain move a look between cues, but the clipboard is
+  // gone when the desk closes and never reaches another show. A preset is the
+  // same thing with a name and a file: the chain exactly as copy chain takes it
+  // (every effect in order, its settings, its LFOs, and the motion driver when
+  // there is one), never geometry, fades or colour.
+  //
+  // One small text file per preset. The operator's own live in
+  // stateDir()/effect-chains, beside the rest of what the desk keeps for them,
+  // so they survive an update and can be backed up or handed to another
+  // machine. Starters ship read-only in dataDir()/effect-chains and can only
+  // be duplicated.
+  //
+  //   deckboy-effect-chain 1
+  //   name<TAB>VHS wobble
+  //   driver<TAB>C:/clips/puppet.mp4        (only when the chain has one)
+  //   effects<TAB>breath:0.35:...|posterise:1:...   (serializeCueEffects)
+  // ─────────────────────────────────────────────────────────────────────────
+
+  struct EffectChainPreset {
+    std::string name;
+    std::string driver;
+    std::string effects;     // serializeCueEffects form
+    dbfs::path file;
+    bool starter = false;
+    int count = 0;           // effects this build can load
+    int unknown = 0;         // entries written by a newer build, skipped on load
+    std::string summary;     // "breath > posterise > scanlines"
+  };
+
+  std::vector<EffectChainPreset> effectPresets_;
+  bool effectPresetsRead_ = false;
+  bool effectPresetsOpen_ = false;
+  SDL_Rect effectPresetSaveAnchor_ {};
+
+  static dbfs::path effectPresetsUserDir() {
+    return deckboy::core::Paths::stateDir() / "effect-chains";
+  }
+  static dbfs::path effectPresetsStarterDir() {
+    return deckboy::core::Paths::dataDir() / "effect-chains";
+  }
+
+  static std::string effectPresetKey(const std::string& name) {
+    std::string out;
+    for (unsigned char c : trim(name)) out += static_cast<char>(std::tolower(c));
+    return out;
+  }
+
+  // A file name from a preset name: letters and digits, the rest folded to
+  // single dashes. The name itself lives inside the file, so nothing is lost.
+  static std::string effectPresetSlug(const std::string& name) {
+    std::string out;
+    bool dash = false;
+    for (unsigned char c : name) {
+      if (std::isalnum(c)) {
+        out += static_cast<char>(std::tolower(c));
+        dash = false;
+      } else if (!out.empty() && !dash) {
+        out += '-';
+        dash = true;
+      }
+    }
+    while (!out.empty() && out.back() == '-') out.pop_back();
+    if (out.size() > 48) out.resize(48);
+    return out.empty() ? std::string("chain") : out;
+  }
+
+  static int effectPresetEntryCount(const std::string& serialized) {
+    int n = 0;
+    std::size_t start = 0;
+    for (;;) {
+      const std::size_t bar = serialized.find('|', start);
+      if ((bar == std::string::npos ? serialized.size() : bar) > start) ++n;
+      if (bar == std::string::npos) break;
+      start = bar + 1;
+    }
+    return n;
+  }
+
+  static std::string effectChainSummary(const std::vector<deckboy::effects::CueEffect>& stack) {
+    std::string out;
+    for (const auto& fx : stack) {
+      if (!out.empty()) out += " > ";
+      out += deckboy::core::i18n::translate(deckboy::effects::cueEffectLabel(fx.kind));
+    }
+    return out;
+  }
+
+  static bool readEffectPresetFile(const dbfs::path& file, EffectChainPreset& out) {
+    std::ifstream in(file, std::ios::binary);
+    if (!in) return false;
+    std::string line;
+    if (!std::getline(in, line) || line.rfind("deckboy-effect-chain", 0) != 0) return false;
+    while (std::getline(in, line)) {
+      if (!line.empty() && line.back() == '\r') line.pop_back();
+      const std::size_t tab = line.find('\t');
+      if (tab == std::string::npos) continue;
+      const std::string key = line.substr(0, tab);
+      const std::string value = line.substr(tab + 1);
+      if (key == "name") out.name = trim(value);
+      else if (key == "driver") out.driver = value;
+      else if (key == "effects") out.effects = value;
+    }
+    if (out.name.empty()) out.name = file.stem().string();
+    const auto stack = parseCueEffects(out.effects);
+    out.count = static_cast<int>(stack.size());
+    out.unknown = std::max(0, effectPresetEntryCount(out.effects) - out.count);
+    out.summary = effectChainSummary(stack);
+    out.file = file;
+    return true;
+  }
+
+  static bool writeEffectPresetFile(const dbfs::path& file, const std::string& name,
+                                    const std::string& driver, const std::string& effects) {
+    std::error_code ec;
+    dbfs::create_directories(file.parent_path(), ec);
+    const dbfs::path tmp = file.string() + ".tmp";
+    {
+      std::ofstream out(tmp, std::ios::binary | std::ios::trunc);
+      if (!out) return false;
+      out << "deckboy-effect-chain 1\n"
+          << "name\t" << name << '\n';
+      if (!driver.empty()) out << "driver\t" << driver << '\n';
+      out << "effects\t" << effects << '\n';
+      if (!out) return false;
+    }
+    dbfs::rename(tmp, file, ec);
+    if (ec) {
+      dbfs::remove(tmp, ec);
+      return false;
+    }
+    return true;
+  }
+
+  void readEffectPresets() {
+    effectPresets_.clear();
+    std::vector<EffectChainPreset> mine;
+    std::vector<EffectChainPreset> starters;
+    for (int pass = 0; pass < 2; ++pass) {
+      const dbfs::path dir = pass == 0 ? effectPresetsUserDir() : effectPresetsStarterDir();
+      std::error_code ec;
+      if (!dbfs::is_directory(dir, ec)) continue;
+      for (dbfs::directory_iterator it(dir, ec), end; !ec && it != end; it.increment(ec)) {
+        if (!it->is_regular_file(ec) || it->path().extension() != ".chain") continue;
+        EffectChainPreset p;
+        if (!readEffectPresetFile(it->path(), p)) continue;
+        p.starter = pass == 1;
+        (pass == 0 ? mine : starters).push_back(std::move(p));
+      }
+    }
+    auto byName = [](const EffectChainPreset& a, const EffectChainPreset& b) {
+      return effectPresetKey(a.name) < effectPresetKey(b.name);
+    };
+    std::sort(mine.begin(), mine.end(), byName);
+    std::sort(starters.begin(), starters.end(), byName);
+    effectPresets_ = std::move(mine);
+    effectPresets_.insert(effectPresets_.end(), starters.begin(), starters.end());
+    effectPresetsRead_ = true;
+  }
+
+  void ensureEffectPresetsRead() {
+    if (!effectPresetsRead_) readEffectPresets();
+  }
+
+  const EffectChainPreset* findUserEffectPreset(const std::string& name) const {
+    const std::string key = effectPresetKey(name);
+    for (const auto& p : effectPresets_) {
+      if (!p.starter && effectPresetKey(p.name) == key) return &p;
+    }
+    return nullptr;
+  }
+
+  // A file name nobody is using yet in the operator's folder.
+  static dbfs::path freshEffectPresetFile(const std::string& name) {
+    const dbfs::path dir = effectPresetsUserDir();
+    const std::string slug = effectPresetSlug(name);
+    std::error_code ec;
+    dbfs::path file = dir / (slug + ".chain");
+    for (int n = 2; dbfs::exists(file, ec) && n < 1000; ++n) {
+      file = dir / (slug + "-" + std::to_string(n) + ".chain");
+    }
+    return file;
+  }
+
+  // A name nobody is using yet: "VHS wobble 2", "VHS wobble 3" ...
+  std::string freshEffectPresetName(const std::string& name) const {
+    std::string candidate = name;
+    for (int n = 2; findUserEffectPreset(candidate) && n < 1000; ++n) {
+      candidate = name + " " + std::to_string(n);
+    }
+    return candidate;
+  }
+
+  // ── Saving ──────────────────────────────────────────────────────────────
+
+  // The button: a name field where the button was. The default name is what
+  // the chain is, which is usually a fair first guess and is selected, so
+  // typing replaces it.
+  void beginSaveEffectChainPreset() {
+    const Cue* cue = selectedCueMutable();
+    if (!cue) {
+      triggerToast("save chain: select a cue");
+      return;
+    }
+    if (cue->effects.empty()) {
+      triggerToast("save chain: this cue has no effects");
+      return;
+    }
+    ensureEffectPresetsRead();
+    effectPresetSaveAnchor_ = lastInlineEditorAnchorRect_;
+    std::string guess = effectChainSummary(cue->effects);
+    if (guess.size() > 40) guess = guess.substr(0, 40);
+    openInlineTextEditor("effects.chain.save", "Save Effect Chain",
+                         "Name for this chain:", guess,
+                         [this](const std::string& value) {
+      const std::string name = trim(value);
+      if (name.empty()) {
+        triggerToast("save chain: a name is needed");
+        return;
+      }
+      if (findUserEffectPreset(name)) {
+        askEffectPresetClash(name);
+        return;
+      }
+      saveEffectChainPreset(name, false);
+    });
+  }
+
+  // The same name as one already saved: ask, because silently replacing a
+  // look someone spent twenty minutes on is the one thing this must not do.
+  void askEffectPresetClash(const std::string& name) {
+    const std::vector<std::pair<std::string, std::string>> choices {
+      {"replace", "replace \"" + name + "\""},
+      {"keep", "keep both"},
+      {"cancel", "cancel"}};
+    openDropdown("effects.chain.clash", effectPresetSaveAnchor_, choices, "keep",
+                 [this, name](const std::string& token) {
+      if (token == "replace") saveEffectChainPreset(name, true);
+      else if (token == "keep") saveEffectChainPreset(freshEffectPresetName(name), false);
+    });
+  }
+
+  // replace: write over the operator's preset of that name rather than
+  // adding a second one. Returns false (and says why) when nothing was saved.
+  bool saveEffectChainPreset(const std::string& name, bool replace) {
+    const Cue* cue = selectedCueMutable();
+    if (!cue || cue->effects.empty()) {
+      triggerToast("save chain: select a cue with effects");
+      return false;
+    }
+    ensureEffectPresetsRead();
+    dbfs::path file;
+    if (const EffectChainPreset* existing = findUserEffectPreset(name); existing && replace) {
+      file = existing->file;
+    } else {
+      file = freshEffectPresetFile(name);
+    }
+    const std::string driver =
+      deckboy::effects::cueEffectStackNeedsDriver(cue->effects) ? cue->motionDriverPath : std::string();
+    if (!writeEffectPresetFile(file, name, driver, serializeCueEffects(cue->effects))) {
+      triggerToast("save chain: could not write " + file.parent_path().string(), ToastKind::Warning);
+      return false;
+    }
+    readEffectPresets();
+    triggerToastTranslated(deckboy::core::i18n::format("saved \"{1}\"", {name}));
+    playUiSound(UiSoundEffect::Toggle);
+    return true;
+  }
+
+  // ── Loading ─────────────────────────────────────────────────────────────
+
+  // Onto every selected cue, as paste chain does. append: add the preset to
+  // the end of each cue's chain instead of replacing it.
+  bool applyEffectChainPreset(const EffectChainPreset& preset, bool append) {
+    Deck& deck = focusedDeckMutable();
+    auto indices = selectedCueIndices(deck);
+    if (indices.empty()) {
+      triggerToast("load chain: select a cue");
+      return false;
+    }
+    const auto chain = parseCueEffects(preset.effects);
+    if (chain.empty()) {
+      triggerToast(preset.unknown > 0
+                     ? "load chain: this preset needs a newer Deckboy"
+                     : "load chain: this preset is empty");
+      return false;
+    }
+    pushUndoSnapshot();
+    int applied = 0;
+    bool trimmed = false;
+    for (int index : indices) {
+      if (index < 0 || index >= static_cast<int>(deck.cues.size())) continue;
+      Cue& target = deck.cues[index];
+      if (append) {
+        for (const auto& fx : chain) {
+          if (target.effects.size() >= 12) {   // the stack's own cap
+            trimmed = true;
+            break;
+          }
+          target.effects.push_back(fx);
+        }
+      } else {
+        target.effects = chain;
+      }
+      if (!preset.driver.empty()) target.motionDriverPath = preset.driver;
+      if (!deckboy::effects::cueEffectStackNeedsDriver(target.effects)) {
+        target.motionDriverPath.clear();
+      }
+      ++applied;
+    }
+    if (applied <= 0) {
+      triggerToast("load chain: no targets");
+      return false;
+    }
+    syncDatamoshFromStack();
+    refreshFocusedLiveCueRuntimeIfSelected();
+    std::string msg = deckboy::core::i18n::format(append ? "added \"{1}\"" : "loaded \"{1}\"", {preset.name});
+    if (applied > 1) msg += " x" + std::to_string(applied);
+    if (trimmed) msg += " " + deckboy::core::i18n::translate("(stack full at 12)");
+    if (preset.unknown > 0) {
+      msg += " " + deckboy::core::i18n::format("({1} skipped: newer Deckboy)", {std::to_string(preset.unknown)});
+    }
+    triggerToastTranslated(msg);
+    playUiSound(UiSoundEffect::Toggle);
+    markProjectDirty();
+    return true;
+  }
+
+  // ── The "..." menu ──────────────────────────────────────────────────────
+
+  void openEffectPresetMenu(int index) {
+    ensureEffectPresetsRead();
+    if (index < 0 || index >= static_cast<int>(effectPresets_.size())) return;
+    const EffectChainPreset& p = effectPresets_[index];
+    std::vector<std::pair<std::string, std::string>> choices;
+    if (!p.starter) choices.push_back({"rename", "rename"});
+    choices.push_back({"duplicate", "duplicate"});
+    if (!p.starter) choices.push_back({"delete", "delete"});
+    choices.push_back({"folder", "show in folder"});
+    const SDL_Rect anchor = lastInlineEditorAnchorRect_;
+    const dbfs::path file = p.file;
+    openDropdown("effects.chain.menu", anchor, choices, choices.front().first,
+                 [this, file, anchor](const std::string& token) {
+      const EffectChainPreset* live = nullptr;
+      for (const auto& q : effectPresets_) {
+        if (q.file == file) live = &q;
+      }
+      if (!live) return;
+      const EffectChainPreset preset = *live;   // the list is re-read below
+      if (token == "folder") {
+        // file:///C:/... on Windows, file:///home/... elsewhere (the path
+        // already starts with the third slash there).
+        const std::string dir = preset.file.parent_path().generic_string();
+        const std::string url = (dir.rfind('/', 0) == 0 ? "file://" : "file:///") + dir;
+        SDL_OpenURL(url.c_str());
+      } else if (token == "duplicate") {
+        const std::string name = freshEffectPresetName(preset.name + " copy");
+        if (writeEffectPresetFile(freshEffectPresetFile(name), name, preset.driver, preset.effects)) {
+          readEffectPresets();
+          triggerToastTranslated(deckboy::core::i18n::format("saved \"{1}\"", {name}));
+        } else {
+          triggerToast("duplicate: could not write the file", ToastKind::Warning);
+        }
+      } else if (token == "rename" && !preset.starter) {
+        lastInlineEditorAnchorRect_ = anchor;
+        openInlineTextEditor("effects.chain.rename", "Rename Effect Chain", "New name:", preset.name,
+                             [this, preset](const std::string& value) {
+          const std::string name = trim(value);
+          if (name.empty() || name == preset.name) return;
+          const EffectChainPreset* clash = findUserEffectPreset(name);
+          if (clash && clash->file != preset.file) {
+            triggerToast("rename: that name is taken");
+            return;
+          }
+          if (writeEffectPresetFile(preset.file, name, preset.driver, preset.effects)) {
+            readEffectPresets();
+            triggerToastTranslated(deckboy::core::i18n::format("renamed to \"{1}\"", {name}));
+          }
+        });
+      } else if (token == "delete" && !preset.starter) {
+        // Asked once more, because there is no undo for a file.
+        const std::vector<std::pair<std::string, std::string>> sure {
+          {"delete", "delete \"" + preset.name + "\""}, {"cancel", "cancel"}};
+        openDropdown("effects.chain.delete", anchor, sure, "cancel",
+                     [this, preset](const std::string& answer) {
+          if (answer != "delete") return;
+          std::error_code ec;
+          dbfs::remove(preset.file, ec);
+          readEffectPresets();
+          triggerToastTranslated(deckboy::core::i18n::format("deleted \"{1}\"", {preset.name}));
+        });
+      }
+    });
+  }
+
+  // ── Quick actions ───────────────────────────────────────────────────────
+
+  bool handleEffectPresetQuickAction(QuickAction action, int param) {
+    switch (action) {
+      case QuickAction::EffectChainSave:
+        beginSaveEffectChainPreset();
+        return true;
+      case QuickAction::EffectChainPresetsToggle:
+        effectPresetsOpen_ = !effectPresetsOpen_;
+        if (effectPresetsOpen_) readEffectPresets();   // pick up files dropped in by hand
+        return true;
+      case QuickAction::EffectChainPresetLoad:
+      case QuickAction::EffectChainPresetAdd: {
+        ensureEffectPresetsRead();
+        if (param < 0 || param >= static_cast<int>(effectPresets_.size())) return true;
+        const bool shift = (SDL_GetModState() & SDL_KMOD_SHIFT) != 0;
+        const bool append = action == QuickAction::EffectChainPresetAdd || shift;
+        const EffectChainPreset preset = effectPresets_[param];
+        applyEffectChainPreset(preset, append);
+        return true;
+      }
+      case QuickAction::EffectChainPresetMenu:
+        openEffectPresetMenu(param);
+        return true;
+      default:
+        return false;
+    }
+  }
+
   // ── VJ mixer + tempo ─────────────────────────────────────────────────────
 
   // ── WHAT IS WRONG WITH THIS SHOW ──────────────────────────────────────

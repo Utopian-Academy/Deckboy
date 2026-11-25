@@ -28,6 +28,9 @@
     if (handleDrawQuickAction(action, param)) {
       return;
     }
+    if (handleEffectPresetQuickAction(action, param)) {
+      return;
+    }
     if (handleIsfQuickAction(action, param)) {
       return;
     }

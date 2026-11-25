@@ -5961,6 +5961,75 @@
       // be driven by clicking, which meant the RUNTIME path -- adding an effect
       // to a cue that is already playing -- could not be tested at all, and
       // that is exactly where it was reported broken.
+      //
+      // Saved chains by name: FX SAVE <name>, FX LOAD <name> [ADD], FX PRESETS.
+      // Before the cue check, because listing them needs no cue. A socket
+      // cannot answer "replace or keep both?", so SAVE writes over the
+      // operator's own chain of that name and the reply says it did.
+      {
+        const std::string presetSub = parts.size() < 2 ? std::string() : toUpper(parts[1]);
+        if (presetSub == "PRESETS") {
+          readEffectPresets();
+          std::string reply;
+          for (const auto& p : effectPresets_) {
+            if (!reply.empty()) reply += "; ";
+            reply += p.name + (p.starter ? " (starter)" : "");
+          }
+          remoteCommandDetail_ = reply.empty() ? "none" : reply;
+          return;
+        }
+        if (presetSub == "SAVE" || presetSub == "LOAD") {
+          std::size_t end = parts.size();
+          bool add = false;
+          if (presetSub == "LOAD" && end > 3 && toUpper(parts[end - 1]) == "ADD") {
+            add = true;
+            --end;
+          }
+          std::string name;
+          for (std::size_t i = 2; i < end; ++i) {
+            if (!name.empty()) name += ' ';
+            name += parts[i];
+          }
+          name = trim(name);
+          if (name.empty()) {
+            failRemoteCommand("FX " + presetSub + ": expected a name");
+            return;
+          }
+          readEffectPresets();
+          if (presetSub == "SAVE") {
+            const bool existed = findUserEffectPreset(name) != nullptr;
+            const Cue* sel = selectedCueMutable();
+            if (!sel || sel->effects.empty()) {
+              failRemoteCommand("FX SAVE: select a cue that has effects");
+              return;
+            }
+            if (!saveEffectChainPreset(name, true)) {
+              failRemoteCommand("FX SAVE: could not write the file");
+              return;
+            }
+            remoteCommandDetail_ = (existed ? "replaced " : "saved ") + name;
+            return;
+          }
+          const EffectChainPreset* hit = nullptr;
+          for (const auto& p : effectPresets_) {     // the operator's own come first
+            if (effectPresetKey(p.name) == effectPresetKey(name)) {
+              hit = &p;
+              break;
+            }
+          }
+          if (!hit) {
+            failRemoteCommand("FX LOAD: no saved chain called \"" + name + "\"");
+            return;
+          }
+          const EffectChainPreset preset = *hit;
+          if (!applyEffectChainPreset(preset, add)) {
+            failRemoteCommand("FX LOAD: nothing loaded (select a cue)");
+            return;
+          }
+          remoteCommandDetail_ = (add ? "added " : "loaded ") + preset.name;
+          return;
+        }
+      }
       auto* cue = selectedCueMutable();
       if (!cue) {
         failRemoteCommand("FX: no cue selected");

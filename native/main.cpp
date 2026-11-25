@@ -4732,6 +4732,126 @@ class App {
     return rowY + step;
   }
 
+  // ── EFFECT CHAIN PRESETS: the second row and, when open, the list ──────
+  // (the files, saving and loading are in app_cue_transport.ipp)
+
+  int drawEffectPresetRows(const InspectorCtx& ix, int rowY, bool stackEmpty) {
+    ensureEffectPresetsRead();
+    const int gap = 4;
+    const int cellW = (ix.ctrlW - ix.inset * 2 - gap) / 2;
+    SDL_Rect saveRect {ix.ctrl.x + ix.inset, rowY, cellW, ix.rowH};
+    SDL_Rect loadRect {saveRect.x + cellW + gap, rowY, cellW, ix.rowH};
+    drawUIPanel(saveRect, pal.tile, pal.deep, pal.mid);
+    drawCenteredTextSafe(controlRenderer_, fontSmall_, saveRect, "save chain...",
+                         stackEmpty ? pal.inkSoft : pal.fg);
+    quickButtons_.push_back({saveRect, QuickAction::EffectChainSave,
+                             "Save this cue's effect chain under a name. "
+                             "Saved chains load into any show.", 0});
+    const int n = static_cast<int>(effectPresets_.size());
+    const std::string loadLabel = n > 0
+      ? deckboy::core::i18n::format("load chain ({1})", {std::to_string(n)})
+      : deckboy::core::i18n::translate("load chain");
+    drawUIPanel(loadRect, effectPresetsOpen_ ? pal.dark : pal.tile, pal.deep, pal.mid);
+    drawCenteredTextSafe(controlRenderer_, fontSmall_, loadRect, loadLabel,
+                         effectPresetsOpen_ ? pal.light : (n > 0 ? pal.fg : pal.inkSoft), false);
+    quickButtons_.push_back({loadRect, QuickAction::EffectChainPresetsToggle,
+                             "Show the saved effect chains", 0});
+    rowY += ix.rowStep;
+    if (effectPresetsOpen_) rowY = drawEffectPresetList(ix, rowY);
+    return rowY;
+  }
+
+  // A dark well under the row: who it loads onto, your presets, the starters.
+  // Each preset is one button (replace), "+ add" (append) and "..." (menu).
+  int drawEffectPresetList(const InspectorCtx& ix, int rowY) {
+    const int x = ix.ctrl.x + ix.inset;
+    const int w = ix.ctrlW - ix.inset * 2;
+    const int lineH = TTF_GetFontHeight(fontSmall_) + 2;
+    const int pad = std::max(4, ix.inset / 2);
+    const int rowGap = 4;
+    const int itemH = ix.rowH + lineH;
+    const int count = static_cast<int>(effectPresets_.size());
+    bool anyMine = false;
+    bool anyStarter = false;
+    for (const auto& p : effectPresets_) (p.starter ? anyStarter : anyMine) = true;
+
+    // Measured first, so the well is painted once behind everything.
+    int h = pad + lineH * 2 + pad;
+    if (count == 0) h += lineH * 2;
+    if (anyMine) h += lineH;
+    if (anyStarter) h += lineH;
+    h += count * (itemH + rowGap) + pad;
+    drawUIPanel(SDL_Rect {x, rowY, w, h}, pal.dark, pal.deep, pal.mid);
+
+    const int selected = static_cast<int>(selectedCueIndices(focusedDeckMutable()).size());
+    const int tx = x + pad * 2;
+    const int tw = w - pad * 4;
+    int y = rowY + pad;
+    drawTextSafe(controlRenderer_, fontSmall_, {tx, y, tw, lineH},
+                 deckboy::core::i18n::format(selected == 1 ? "LOAD CHAIN onto {1} selected cue"
+                                                           : "LOAD CHAIN onto {1} selected cues",
+                                             {std::to_string(selected)}),
+                 pal.light, false);
+    y += lineH;
+    drawTextSafe(controlRenderer_, fontSmall_, {tx, y, tw, lineH},
+                 "click: replace the chain    + add: add to the end", pal.fgSoft);
+    y += lineH + pad;
+    if (count == 0) {
+      drawTextSafe(controlRenderer_, fontSmall_, {tx, y, tw, lineH}, "No saved chains yet.", pal.light);
+      y += lineH;
+      drawTextSafe(controlRenderer_, fontSmall_, {tx, y, tw, lineH},
+                   "save chain... keeps this cue's chain for any show.", pal.fgSoft);
+      y += lineH;
+    }
+    const int addW = std::max(ix.rowH * 2, w / 6);
+    const int menuW = ix.rowH;
+    bool headedMine = false;
+    bool headedStarter = false;
+    for (int i = 0; i < count; ++i) {
+      const EffectChainPreset& p = effectPresets_[i];
+      if (!p.starter && !headedMine) {
+        drawTextSafe(controlRenderer_, fontSmall_, {tx, y, tw, lineH}, "YOURS", pal.fgSoft);
+        y += lineH;
+        headedMine = true;
+      }
+      if (p.starter && !headedStarter) {
+        drawTextSafe(controlRenderer_, fontSmall_, {tx, y, tw, lineH}, "STARTERS", pal.fgSoft);
+        y += lineH;
+        headedStarter = true;
+      }
+      SDL_Rect rowRect {x + pad, y, w - pad * 2 - addW - menuW - rowGap * 2, itemH};
+      SDL_Rect addRect {rowRect.x + rowRect.w + rowGap, y, addW, itemH};
+      SDL_Rect menuRect {addRect.x + addW + rowGap, y, menuW, itemH};
+      drawUIPanel(rowRect, pal.tile, pal.deep, pal.mid);
+      drawTextSafe(controlRenderer_, ix.valueFont,
+                   {rowRect.x + pad * 2, rowRect.y + 2, rowRect.w - pad * 4, ix.rowH - 4},
+                   p.name, pal.fg, false);
+      std::string summary = p.summary;
+      if (p.unknown > 0) {
+        summary += "  " + deckboy::core::i18n::format("(+{1} need a newer Deckboy)",
+                                                      {std::to_string(p.unknown)});
+      }
+      drawTextSafe(controlRenderer_, fontSmall_,
+                   {rowRect.x + pad * 2, rowRect.y + ix.rowH - 4, rowRect.w - pad * 4, lineH},
+                   summary, pal.fgSoft, false);
+      quickButtons_.push_back({rowRect, QuickAction::EffectChainPresetLoad,
+                               "Replace the effect chain on every selected cue with this one "
+                               "(shift-click adds it to the end). One undo.", i});
+      drawUIPanel(addRect, pal.tile, pal.deep, pal.mid);
+      drawCenteredTextSafe(controlRenderer_, fontSmall_, addRect, "+ add", pal.fg);
+      quickButtons_.push_back({addRect, QuickAction::EffectChainPresetAdd,
+                               "Add this chain to the end of each selected cue's chain", i});
+      drawUIPanel(menuRect, pal.tile, pal.deep, pal.mid);
+      drawCenteredTextSafe(controlRenderer_, fontSmall_, menuRect, "...", pal.fg, false);
+      quickButtons_.push_back({menuRect, QuickAction::EffectChainPresetMenu,
+                               p.starter ? "Duplicate, show in folder"
+                                         : "Rename, duplicate, delete, show in folder", i});
+      y += itemH + rowGap;
+    }
+    return rowY + h + (ix.rowStep - ix.rowH);
+  }
+
+
   // ── A ROW THAT IS ONE CONTROL, WITH THE ANSWER ON IT ──────────────────
   //
   // Label on the left, and the value itself IS the button. This exists
@@ -6235,6 +6355,8 @@ class App {
                                "are left alone.", 0});
       rowY += ix.rowStep;
     }
+    // Saved chains: the same look under a name, for any show.
+    rowY = drawEffectPresetRows(ix, rowY, stack.empty());
     return rowY;
   }
 

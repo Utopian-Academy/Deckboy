@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+### Saved effect chains
+- New: **save chain...** and **load chain** in the cue's EFFECTS section. Save a cue's effect chain (effects, settings, LFOs and motion driver) under a name, and load it onto the selected cues in any show. Click replaces the chain, **+ add** (or shift-click) adds it to the end, and either is one undo. Each chain's **...** menu renames, duplicates, deletes or shows it in its folder. Saving under a name already used asks whether to replace it or keep both.
+- Chains are small text files in Deckboy's settings folder (`effect-chains`), so they survive updates and can be copied to another machine. A chain from a newer Deckboy loads what this one knows and says how many effects it left out.
+- Remote: `FX SAVE <name>`, `FX LOAD <name> [ADD]`, `FX PRESETS`.
+
 ### Deckboy Pocket (Android)
 - New: **Deckboy Pocket**, Deckboy on an Android phone (Android 10 or newer, 64-bit). The same engine as the desk: a cue list with GO and BACK, transitions, effects on the phone's graphics card, and the desk's show files, opened and saved.
 - Sources: video, pictures and sound from the phone; PATTERN (the desk's test signals) and SYNTH (Swirl, Lumia, Illusion, Fireside, Portal, Moire, the Video Synth) with every setting on the cue's SET page; the phone's cameras, with zoom across the lenses, tap-to-focus, focus by hand, exposure, LOCK and the flashlight, and the microphone as the camera's sound.
