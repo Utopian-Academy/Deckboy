@@ -4911,3 +4911,32 @@ ACTIVE	활성
 nothing running	실행 중인 것 없음
 pre-wait {1}   action {2}   post-wait {3}   then {4}	사전 대기 {1}   동작 {2}   사후 대기 {3}   이후 {4}
 ' (CLASSIC, OPERATOR, SHOWPIECE, RUNDOWN, CLIPGRID, CUESTACK, CONSOLE, COMPACT or THEATRE)	' (CLASSIC, OPERATOR, SHOWPIECE, RUNDOWN, CLIPGRID, CUESTACK, CONSOLE, COMPACT 또는 THEATRE)
+DRILL	훈련
+FLEET	그룹
+BACKUP	백업
+Backup	백업
+RE-ARM	재준비
+no cut	컷 없음
+Follow as	따르기 역할
+input {1}	입력 {1}
+of silence	무음 후
+not a backup	백업 아님
+Follow a desk	콘솔 따르기
+Following {1} as a {2}	{1}을(를) {2}(으)로 따르는 중
+Backup cuts the ATEM to	백업 시 ATEM 컷 대상:
+Backup takes over after	백업이 넘겨받는 시점:
+this backup is not live	이 백업은 라이브가 아님
+Not following another desk	다른 콘솔을 따르지 않음
+Not following another desk.	다른 콘솔을 따르지 않음.
+the role is BACKUP or FLEET	역할은 BACKUP 또는 FLEET
+the primary was silent for {1}	주 콘솔이 {1} 동안 무음이었음
+BACKUP LIVE: {1}. This desk has the show.	백업 라이브: {1}. 이 콘솔이 쇼를 맡습니다.
+this backup is already live (SYNC REARM first)	이 백업은 이미 라이브 상태 (먼저 SYNC REARM)
+this desk is not a backup (SYNC FOLLOW <ip> BACKUP)	이 콘솔은 백업이 아님 (SYNC FOLLOW <ip> BACKUP)
+Backup re-armed: outputs dark, following the primary	백업 재준비됨: 출력 어두움, 주 콘솔을 따르는 중
+DRILL: this backup is live ({1}). RE-ARM to go back.	훈련: 이 백업이 라이브 ({1}). 돌아가려면 재준비.
+Backup {1} stopped following: this desk has no backup	백업 {1}이(가) 따르기를 멈춤: 이 콘솔에 백업 없음
+Backup: {1}. It will not take over until the primary leads again.	백업: {1}. 주 콘솔이 다시 리드할 때까지 넘겨받지 않습니다.
+SYNC LEAD ON|OFF, STATUS, FOLLOW <ip> [BACKUP|FLEET], STOP, DRILL, REARM or TAKEOVER <ms>	SYNC LEAD ON|OFF, STATUS, FOLLOW <ip> [BACKUP|FLEET], STOP, DRILL, REARM 또는 TAKEOVER <ms>
+The leading desk's IP address, like 192.168.1.20 (or 192.168.1.20:5510). Empty = do not follow	리드하는 콘솔의 IP 주소, 예: 192.168.1.20 (또는 192.168.1.20:5510). 비어 있음 = 따르지 않음
+The switcher input this desk is on. At a takeover the backup cuts the programme to it. 0 = no cut	이 콘솔이 연결된 스위처 입력. 인계 시 백업이 프로그램을 이 입력으로 컷합니다. 0 = 컷 없음

@@ -4912,3 +4912,32 @@ ACTIVE	活动
 nothing running	无运行内容
 pre-wait {1}   action {2}   post-wait {3}   then {4}	预等待 {1}   动作 {2}   后等待 {3}   然后 {4}
 ' (CLASSIC, OPERATOR, SHOWPIECE, RUNDOWN, CLIPGRID, CUESTACK, CONSOLE, COMPACT or THEATRE)	' (经典、操作员、展示、串联单、片段网格、CUE 堆栈、控制台、紧凑或剧场)
+DRILL	演练
+FLEET	机群
+BACKUP	备机
+Backup	备机
+RE-ARM	重新待命
+no cut	不切换
+Follow as	跟随角色
+input {1}	输入 {1}
+of silence	的静默
+not a backup	不是备机
+Follow a desk	跟随控制台
+Following {1} as a {2}	正在以 {2} 角色跟随 {1}
+Backup cuts the ATEM to	备机将 ATEM 切换到
+Backup takes over after	备机接管前等待
+this backup is not live	此备机未在直播
+Not following another desk	未跟随其他控制台
+Not following another desk.	未跟随其他控制台。
+the role is BACKUP or FLEET	角色为 BACKUP 或 FLEET
+the primary was silent for {1}	主机已静默 {1}
+BACKUP LIVE: {1}. This desk has the show.	备机直播：{1}。演出由此控制台掌控。
+this backup is already live (SYNC REARM first)	此备机已在直播（请先 SYNC REARM）
+this desk is not a backup (SYNC FOLLOW <ip> BACKUP)	此控制台不是备机（SYNC FOLLOW <ip> BACKUP）
+Backup re-armed: outputs dark, following the primary	备机已重新待命：输出已暗，正在跟随主机
+DRILL: this backup is live ({1}). RE-ARM to go back.	演练：此备机正在直播（{1}）。按重新待命返回。
+Backup {1} stopped following: this desk has no backup	备机 {1} 已停止跟随：此控制台没有备机
+Backup: {1}. It will not take over until the primary leads again.	备机：{1}。主机重新主导之前，它不会接管。
+SYNC LEAD ON|OFF, STATUS, FOLLOW <ip> [BACKUP|FLEET], STOP, DRILL, REARM or TAKEOVER <ms>	SYNC LEAD ON|OFF, STATUS, FOLLOW <ip> [BACKUP|FLEET], STOP, DRILL, REARM 或 TAKEOVER <ms>
+The leading desk's IP address, like 192.168.1.20 (or 192.168.1.20:5510). Empty = do not follow	主导控制台的 IP 地址，如 192.168.1.20（或 192.168.1.20:5510）。空 = 不跟随
+The switcher input this desk is on. At a takeover the backup cuts the programme to it. 0 = no cut	此控制台所在的切换台输入。接管时，备机会将节目切换到该输入。0 = 不切换

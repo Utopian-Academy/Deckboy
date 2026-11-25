@@ -16,6 +16,9 @@
 ### Following a desk (second screens and rooms)
 - New: a desk can **lead** (Settings > Network > Lead other machines). Deckboy Mini (`--follow`, or `SYNC FOLLOW <address>`) and Deckboy Pocket (MENU > SYNC) follow it on the same network: they take, pause, seek and black out with the desk, on the desk's clock. Use one as a backup screen, or to run a second room from one desk.
 - Companion: `FOLLOW`, `TIME`, `SYNC LEAD ON|OFF` and `SYNC STATUS` on the desk; `SYNC FOLLOW`, `SYNC STOP` and `SYNC STATUS` on Mini.
+- New: **a backup desk**. A second desk follows the first on every playlist (Settings > Network > Follow a desk, as BACKUP). It plays the show in step with every output black and its sound silent, and a frame round its window says so. If the primary goes quiet for 1 second (0.5, 2 or 4 to choose), the backup takes over where it is, already in step, and stays live until you press RE-ARM. It can cut an ATEM to its own input as it takes over. DRILL rehearses a takeover on purpose. When the primary stops leading or closes on purpose, the backup is told and does not take over. On one PC, killing the primary put the backup live in 0.35 to 1.1 seconds, within 1.5 frames of where the primary was.
+- A desk can also follow as FLEET: it plays along, live, and follows the primary's blackout.
+- Companion: `SYNC FOLLOW <address> [BACKUP|FLEET]`, `SYNC STOP`, `SYNC DRILL`, `SYNC REARM`, `SYNC TAKEOVER <ms>` on the desk.
 
 ### Running the show
 - New: after a TAKE, the next cue is selected, so the next TAKE plays it (asked for on r/VIDEOENGINEERING). This is the operator's TAKE: Enter, the TAKE button, and GO from a lighting desk over MSC (a GO with no cue number now plays the next cue). Companion's `TAKE` is unchanged: the selection stays on the cue it took, so the commands after it still act on that cue. Disarmed cues are stepped over; at the end of the list the selection stays on the last cue; a standby, where one is set, is left to run the order. Settings > System > SHOW FLOW > **TAKE selects next** (on) turns it off.
@@ -68,11 +71,12 @@
 - For theme authors: `style_` lines in theme.txt set the shape and finish. See the manual, section 21.
 - New: **rendered skins** (3D), listed first in the Theme list: 24 of them, the materials of Pocket's shells. Their panels, recesses, key caps, the desk behind them and their holographic stickers are rendered in Blender with real light and shadow, then built to fit at whatever size each piece is, so they work in every layout, at every UI scale and in any window. A key keeps its own colour: a lit tally is a lit cap.
   - Fourteen solid ones: Broadcast, Bakelite, Hi-Fi, Synth, Space Age, Field Kit, Arcade Cab, Swiss, Neon Night, Ceramic, Carbon, Toybox, Brass, Concrete.
-  - Ten in clear plastic, built as Pocket's see-through shells are: a 3 mm face plate over a hollow shell, the circuit board deep inside with its chips, parts and screw posts showing through, lit as Pocket's are. Grape Soda, Lime Jelly, Orange Soda, Cherry Jelly, Ocean Jelly, Ice, Smoke, Glow, Crystal Pink, Teal Insides. Big panels show their corner screws; small ones do not.
+  - Ten in frosted clear plastic, built as Pocket's see-through shells are: Grape Soda, Lime Jelly, Orange Soda, Cherry Jelly, Ocean Jelly, Ice, Smoke, Glow, Crystal Pink, Teal Insides. One circuit board lies under the whole desk, unbroken from panel to panel, and each panel is a frosted plate over it, so a few of its parts show through softly. Now and then a small LED on the board flashes twice; they hold still while an output is live.
   - Walnut: real walnut veneer under a satin varnish, a deeper walnut body behind it.
   - Each has its own creatures and stickers.
 - Stickers on the new layouts, next to SHOW and EDIT (not on Rundown, whose strip holds the clock).
 - For theme authors: `style_kit <folder>` names a kit in data/desk-kits.
+- Fixed in the rendered skins: a dark dash beside every small key (COPY, PASTE, RESET, a cue's play marker), and the hard-edged shadow behind keys.
 
 ### Clickers
 - Fixed: a presenter clicker that sends the arrow keys did nothing. A D'San Perfect Cue sends Right arrow, Left arrow and B unless it is reprogrammed, and so do many other clickers. Right and Left now take the next and previous cue with the transition, the same as Page Down and Page Up, also when a full-screen output has the keyboard and while the shortcuts sheet is open. With the tracker open, they are GO and BACK.

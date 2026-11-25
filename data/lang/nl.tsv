@@ -4849,3 +4849,32 @@ ACTIVE	ACTIEF
 nothing running	er loopt niets
 pre-wait {1}   action {2}   post-wait {3}   then {4}	vooraf wachten {1}   actie {2}   achteraf wachten {3}   dan {4}
 ' (CLASSIC, OPERATOR, SHOWPIECE, RUNDOWN, CLIPGRID, CUESTACK, CONSOLE, COMPACT or THEATRE)	' (CLASSIC, OPERATOR, SHOWPIECE, RUNDOWN, CLIPGRID, CUESTACK, CONSOLE, COMPACT of THEATRE)
+DRILL	OEFENING
+FLEET	VLOOT
+BACKUP	BACK-UP
+Backup	Back-up
+RE-ARM	OPNIEUW GEREED
+no cut	geen snede
+Follow as	Volgen als
+input {1}	ingang {1}
+of silence	stilte
+not a backup	geen back-up
+Follow a desk	Een regietafel volgen
+Following {1} as a {2}	Volgt {1} als {2}
+Backup cuts the ATEM to	Back-up snijdt de ATEM naar
+Backup takes over after	Back-up neemt over na
+this backup is not live	deze back-up is niet live
+Not following another desk	Volgt geen andere regietafel
+Not following another desk.	Volgt geen andere regietafel.
+the role is BACKUP or FLEET	de rol is BACKUP of FLEET
+the primary was silent for {1}	de primaire regietafel was {1} stil
+BACKUP LIVE: {1}. This desk has the show.	BACK-UP LIVE: {1}. Deze regietafel heeft de show.
+this backup is already live (SYNC REARM first)	deze back-up is al live (eerst SYNC REARM)
+this desk is not a backup (SYNC FOLLOW <ip> BACKUP)	deze regietafel is geen back-up (SYNC FOLLOW <ip> BACKUP)
+Backup re-armed: outputs dark, following the primary	Back-up opnieuw gereed: uitgangen donker, volgt de primaire regietafel
+DRILL: this backup is live ({1}). RE-ARM to go back.	OEFENING: deze back-up is live ({1}). OPNIEUW GEREED om terug te gaan.
+Backup {1} stopped following: this desk has no backup	Back-up {1} volgt niet meer: deze regietafel heeft geen back-up
+Backup: {1}. It will not take over until the primary leads again.	Back-up: {1}. Neemt pas over als de primaire regietafel weer leidt.
+SYNC LEAD ON|OFF, STATUS, FOLLOW <ip> [BACKUP|FLEET], STOP, DRILL, REARM or TAKEOVER <ms>	SYNC LEAD ON|OFF, STATUS, FOLLOW <ip> [BACKUP|FLEET], STOP, DRILL, REARM of TAKEOVER <ms>
+The leading desk's IP address, like 192.168.1.20 (or 192.168.1.20:5510). Empty = do not follow	Het IP-adres van de leidende regietafel, zoals 192.168.1.20 (of 192.168.1.20:5510). Leeg = niet volgen
+The switcher input this desk is on. At a takeover the backup cuts the programme to it. 0 = no cut	De switcheringang waarop deze regietafel zit. Bij een overname snijdt de back-up het programma daarheen. 0 = geen snede

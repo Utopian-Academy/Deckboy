@@ -4915,3 +4915,32 @@ ACTIVE	АКТИВНО
 nothing running	нічого не працює
 pre-wait {1}   action {2}   post-wait {3}   then {4}	попереднє очікування {1}   дія {2}   очікування після {3}   потім {4}
 ' (CLASSIC, OPERATOR, SHOWPIECE, RUNDOWN, CLIPGRID, CUESTACK, CONSOLE, COMPACT or THEATRE)	' (КЛАСИКА, ОПЕРАТОР, ВІТРИНА, СЦЕНАРІЙ, СІТКА КЛІПІВ, СТЕК CUE, КОНСОЛЬ, КОМПАКТНИЙ або ТЕАТР)
+DRILL	НАВЧАННЯ
+FLEET	ПАРК
+BACKUP	РЕЗЕРВ
+Backup	Резерв
+RE-ARM	ЗВЕСТИ ЗНОВУ
+no cut	без зрізу
+Follow as	Слідувати як
+input {1}	вхід {1}
+of silence	тиші
+not a backup	не резерв
+Follow a desk	Слідувати за оператором
+Following {1} as a {2}	Слідує за {1} як {2}
+Backup cuts the ATEM to	Резерв перемикає ATEM на
+Backup takes over after	Резерв перехоплює після
+this backup is not live	цей резерв не в ефірі
+Not following another desk	Не слідує за іншим оператором
+Not following another desk.	Не слідує за іншим оператором.
+the role is BACKUP or FLEET	роль: BACKUP або FLEET
+the primary was silent for {1}	основний мовчав {1}
+BACKUP LIVE: {1}. This desk has the show.	РЕЗЕРВ В ЕФІРІ: {1}. Шоу веде цей оператор.
+this backup is already live (SYNC REARM first)	цей резерв уже в ефірі (спершу SYNC REARM)
+this desk is not a backup (SYNC FOLLOW <ip> BACKUP)	цей оператор не резерв (SYNC FOLLOW <ip> BACKUP)
+Backup re-armed: outputs dark, following the primary	Резерв знову зведено: виходи темні, слідує за основним
+DRILL: this backup is live ({1}). RE-ARM to go back.	НАВЧАННЯ: цей резерв в ефірі ({1}). Натисніть ЗВЕСТИ ЗНОВУ, щоб повернутися.
+Backup {1} stopped following: this desk has no backup	Резерв {1} перестав слідувати: цей оператор не має резерву
+Backup: {1}. It will not take over until the primary leads again.	Резерв: {1}. Він не перехопить, доки основний знову не стане ведучим.
+SYNC LEAD ON|OFF, STATUS, FOLLOW <ip> [BACKUP|FLEET], STOP, DRILL, REARM or TAKEOVER <ms>	SYNC LEAD ON|OFF, STATUS, FOLLOW <ip> [BACKUP|FLEET], STOP, DRILL, REARM або TAKEOVER <ms>
+The leading desk's IP address, like 192.168.1.20 (or 192.168.1.20:5510). Empty = do not follow	IP-адреса ведучого оператора, наприклад 192.168.1.20 (або 192.168.1.20:5510). Порожньо = не слідувати
+The switcher input this desk is on. At a takeover the backup cuts the programme to it. 0 = no cut	Вхід мікшера, на якому цей оператор. Під час перехоплення резерв перемикає програму на нього. 0 = без зрізу

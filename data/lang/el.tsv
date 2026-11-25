@@ -4908,3 +4908,32 @@ ACTIVE	ΕΝΕΡΓΟ
 nothing running	δεν τρέχει τίποτα
 pre-wait {1}   action {2}   post-wait {3}   then {4}	προαναμονή {1}   ενέργεια {2}   μεταναμονή {3}   μετά {4}
 ' (CLASSIC, OPERATOR, SHOWPIECE, RUNDOWN, CLIPGRID, CUESTACK, CONSOLE, COMPACT or THEATRE)	' (ΚΛΑΣΙΚΟ, ΧΕΙΡΙΣΤΗΣ, ΒΙΤΡΙΝΑ, ΡΟΗ ΕΚΠΟΜΠΗΣ, ΠΛΕΓΜΑ ΚΛΙΠ, ΣΤΟΙΒΑ CUE, ΚΟΝΣΟΛΑ, ΣΥΜΠΑΓΕΣ ή ΘΕΑΤΡΟ)
+DRILL	ΑΣΚΗΣΗ
+FLEET	ΣΤΟΛΟΣ
+BACKUP	ΕΦΕΔΡΙΚΟ
+Backup	Εφεδρικό
+RE-ARM	ΕΠΑΝΟΠΛΙΣΗ
+no cut	χωρίς κόψιμο
+Follow as	Ακολούθηση ως
+input {1}	είσοδος {1}
+of silence	σιγής
+not a backup	δεν είναι εφεδρικό
+Follow a desk	Ακολούθηση κονσόλας
+Following {1} as a {2}	Ακολουθεί {1} ως {2}
+Backup cuts the ATEM to	Το εφεδρικό κόβει το ATEM στην
+Backup takes over after	Το εφεδρικό αναλαμβάνει μετά από
+this backup is not live	αυτό το εφεδρικό δεν βγαίνει ζωντανά
+Not following another desk	Δεν ακολουθεί άλλη κονσόλα
+Not following another desk.	Δεν ακολουθεί άλλη κονσόλα.
+the role is BACKUP or FLEET	ο ρόλος είναι BACKUP ή FLEET
+the primary was silent for {1}	το κύριο ήταν σιωπηλό για {1}
+BACKUP LIVE: {1}. This desk has the show.	ΕΦΕΔΡΙΚΟ ΖΩΝΤΑΝΑ: {1}. Αυτή η κονσόλα έχει την παράσταση.
+this backup is already live (SYNC REARM first)	αυτό το εφεδρικό βγαίνει ήδη ζωντανά (πρώτα SYNC REARM)
+this desk is not a backup (SYNC FOLLOW <ip> BACKUP)	αυτή η κονσόλα δεν είναι εφεδρική (SYNC FOLLOW <ip> BACKUP)
+Backup re-armed: outputs dark, following the primary	Το εφεδρικό οπλίστηκε ξανά: έξοδοι σκοτεινές, ακολουθεί το κύριο
+DRILL: this backup is live ({1}). RE-ARM to go back.	ΑΣΚΗΣΗ: αυτό το εφεδρικό βγαίνει ζωντανά ({1}). ΕΠΑΝΟΠΛΙΣΗ για επιστροφή.
+Backup {1} stopped following: this desk has no backup	Το εφεδρικό {1} σταμάτησε να ακολουθεί: αυτή η κονσόλα δεν έχει εφεδρικό
+Backup: {1}. It will not take over until the primary leads again.	Εφεδρικό: {1}. Δεν θα αναλάβει μέχρι να οδηγήσει ξανά το κύριο.
+SYNC LEAD ON|OFF, STATUS, FOLLOW <ip> [BACKUP|FLEET], STOP, DRILL, REARM or TAKEOVER <ms>	SYNC LEAD ON|OFF, STATUS, FOLLOW <ip> [BACKUP|FLEET], STOP, DRILL, REARM ή TAKEOVER <ms>
+The leading desk's IP address, like 192.168.1.20 (or 192.168.1.20:5510). Empty = do not follow	Η διεύθυνση IP της κονσόλας που οδηγεί, π.χ. 192.168.1.20 (ή 192.168.1.20:5510). Κενό = χωρίς ακολούθηση
+The switcher input this desk is on. At a takeover the backup cuts the programme to it. 0 = no cut	Η είσοδος του switcher όπου βρίσκεται αυτή η κονσόλα. Σε ανάληψη το εφεδρικό κόβει το πρόγραμμα σε αυτήν. 0 = χωρίς κόψιμο

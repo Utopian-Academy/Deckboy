@@ -4926,3 +4926,32 @@ ACTIVE	ⵓⵔⵎⵉⴷ
 nothing running	ⵓⵔ ⵉⵍⵍⵉ ⵎⴰ ⵉⵜⴷⴷⵓⵏ
 pre-wait {1}   action {2}   post-wait {3}   then {4}	ⴰⵔⴰⵊⵓ ⴰⵎⵣⵡⴰⵔⵓ {1}   ⴰⵙⴽⴰⵔ {2}   ⴰⵔⴰⵊⵓ ⴰⵎⴳⴳⴰⵔⵓ {3}   ⴷⴼⴼⵉⵔⵙ {4}
 ' (CLASSIC, OPERATOR, SHOWPIECE, RUNDOWN, CLIPGRID, CUESTACK, CONSOLE, COMPACT or THEATRE)	' (ⴰⵎⵏⵙⴰⵢ, ⴰⵎⵏⴱⴱⴰⴹ, ⴰⵙⴽⴰⵏ, ⴰⵙⵍⵙⵍ, ⵜⴰⵥⵟⵟⴰ ⵏ ⵉⴳⵣⵓⵎⵏ, ⴰⵙⵎⵓⵏ ⵏ CUE, ⴰⵏⴱⴹ, ⴰⵎⵥⵢⴰⵏ ⵏⵖ ⴰⵎⵣⴳⵓⵏ)
+DRILL	ⴰⵙⵉⵔⵎ
+FLEET	ⴰⴳⵔⴰⵡ
+BACKUP	ⴰⵃⵔⴰⵣ
+Backup	ⴰⵃⵔⴰⵣ
+RE-ARM	ⵀⴳⴳ ⴷⴰⵖ
+no cut	ⵓⵔ ⵉⵍⵍⵉ ⵓⴳⵣⴰⵎ
+Follow as	ⴹⴼⵔ ⵣⵓⵏⴷ
+input {1}	ⴰⵏⴽⵛⵓⵎ {1}
+of silence	ⵏ ⵓⵙⵓⵙⵎ
+not a backup	ⵓⵔ ⵉⴳⵉ ⴰⵃⵔⴰⵣ
+Follow a desk	ⴹⴼⵔ ⵜⴰⴼⵉⵍⵓⵜ
+Following {1} as a {2}	ⵉⵜⵜⴹⴼⴰⵔ {1} ⵣⵓⵏⴷ {2}
+Backup cuts the ATEM to	ⴰⵃⵔⴰⵣ ⴰⵔ ⵉⴳⵣⵣⵎ ATEM ⵙ
+Backup takes over after	ⴰⵃⵔⴰⵣ ⴰⵔ ⵉⵟⵟⴰⴼ ⴷⴼⴼⵉⵔ
+this backup is not live	ⴰⵃⵔⴰⵣ ⴰⴷ ⵓⵔ ⵉⵍⵍⵉ ⵙ ⵜⵓⴷⵔⵜ
+Not following another desk	ⵓⵔ ⵉⵜⵜⴹⴼⴰⵔ ⵜⴰⴼⵉⵍⵓⵜ ⵢⴰⴹⵏ
+Not following another desk.	ⵓⵔ ⵉⵜⵜⴹⴼⴰⵔ ⵜⴰⴼⵉⵍⵓⵜ ⵢⴰⴹⵏ.
+the role is BACKUP or FLEET	ⵜⴰⵎⵍⵉⵍⵜ ⵜⴳⴰ BACKUP ⵏⵖ FLEET
+the primary was silent for {1}	ⵜⴰⴼⵉⵍⵓⵜ ⵜⴰⴷⵙⵍⴰⵏⵜ ⵜⵙⵓⵙⵎ {1}
+BACKUP LIVE: {1}. This desk has the show.	ⴰⵃⵔⴰⵣ ⵙ ⵜⵓⴷⵔⵜ: {1}. ⵜⴰⴼⵉⵍⵓⵜ ⴰⴷ ⴰⵔ ⵜⵟⵟⴰⴼ ⴰⵙⵙⴽⴰⵏ.
+this backup is already live (SYNC REARM first)	ⴰⵃⵔⴰⵣ ⴰⴷ ⵉⵍⵍⴰ ⵙⵖⵉⵍ ⵙ ⵜⵓⴷⵔⵜ (SYNC REARM ⴷ ⴰⵎⵣⵡⴰⵔⵓ)
+this desk is not a backup (SYNC FOLLOW <ip> BACKUP)	ⵜⴰⴼⵉⵍⵓⵜ ⴰⴷ ⵓⵔ ⵜⴳⵉ ⴰⵃⵔⴰⵣ (SYNC FOLLOW <ip> BACKUP)
+Backup re-armed: outputs dark, following the primary	ⴰⵃⵔⴰⵣ ⵉⵀⴳⴳⴰ ⴷⴰⵖ: ⵜⵓⴼⴼⵖⴰⵜⵉⵏ ⴰⴱⵔⵓⴽ, ⵉⵜⵜⴹⴼⴰⵔ ⵜⴰⴼⵉⵍⵓⵜ ⵜⴰⴷⵙⵍⴰⵏⵜ
+DRILL: this backup is live ({1}). RE-ARM to go back.	ⴰⵙⵉⵔⵎ: ⴰⵃⵔⴰⵣ ⴰⴷ ⵉⵍⵍⴰ ⵙ ⵜⵓⴷⵔⵜ ({1}). ⵀⴳⴳ ⴷⴰⵖ ⵃⵎⴰ ⴰⴷ ⵜⵓⵖⵓⵍⴷ.
+Backup {1} stopped following: this desk has no backup	ⴰⵃⵔⴰⵣ {1} ⵉⴱⴷⴷ ⴰⴹⴼⴰⵔ: ⵜⴰⴼⵉⵍⵓⵜ ⴰⴷ ⵓⵔ ⵖⵓⵔⵙ ⴰⵃⵔⴰⵣ
+Backup: {1}. It will not take over until the primary leads again.	ⴰⵃⵔⴰⵣ: {1}. ⵓⵔ ⵔⴰⴷ ⵉⵟⵟⴼ ⴰⵔ ⴷ ⵜⵣⵡⵉⵔ ⵜⴰⴼⵉⵍⵓⵜ ⵜⴰⴷⵙⵍⴰⵏⵜ ⴷⴰⵖ.
+SYNC LEAD ON|OFF, STATUS, FOLLOW <ip> [BACKUP|FLEET], STOP, DRILL, REARM or TAKEOVER <ms>	SYNC LEAD ON|OFF, STATUS, FOLLOW <ip> [BACKUP|FLEET], STOP, DRILL, REARM ⵏⵖ TAKEOVER <ms>
+The leading desk's IP address, like 192.168.1.20 (or 192.168.1.20:5510). Empty = do not follow	ⵜⴰⵏⵙⴰ IP ⵏ ⵜⴼⵉⵍⵓⵜ ⵉⵜⵜⵣⵡⵉⵔⵏ, ⵣⵓⵏⴷ 192.168.1.20 (ⵏⵖ 192.168.1.20:5510). ⵉⵍⵎ = ⵓⵔ ⵜⵜⴹⴼⴰⵔ
+The switcher input this desk is on. At a takeover the backup cuts the programme to it. 0 = no cut	ⴰⵏⴽⵛⵓⵎ ⵏ switcher ⴳ ⵜⵍⵍⴰ ⵜⴰⴼⵉⵍⵓⵜ ⴰⴷ. ⴳ ⵓⵟⵟⴰⴼ, ⴰⵃⵔⴰⵣ ⴰⵔ ⵉⴳⵣⵣⵎ ⴰⵀⵉⵍ ⵙⵔⵙ. 0 = ⵓⵔ ⵉⵍⵍⵉ ⵓⴳⵣⴰⵎ

@@ -4862,3 +4862,30 @@ ACTIVE	AKTIV
 nothing running	intet kører
 pre-wait {1}   action {2}   post-wait {3}   then {4}	ventetid før {1}   handling {2}   ventetid efter {3}   derefter {4}
 ' (CLASSIC, OPERATOR, SHOWPIECE, RUNDOWN, CLIPGRID, CUESTACK, CONSOLE, COMPACT or THEATRE)	' (KLASSISK, OPERATØR, FREMVISNING, KØREPLAN, KLIPGITTER, CUESTAK, KONSOL, KOMPAKT eller TEATER)
+DRILL	ØVELSE
+FLEET	FLÅDE
+RE-ARM	KLARGØR IGEN
+no cut	intet klip
+Follow as	Følg som
+input {1}	indgang {1}
+of silence	stilhed
+not a backup	ikke en backup
+Follow a desk	Følg en pult
+Following {1} as a {2}	Følger {1} som {2}
+Backup cuts the ATEM to	Backup klipper ATEM til
+Backup takes over after	Backup overtager efter
+this backup is not live	denne backup er ikke live
+Not following another desk	Følger ikke en anden pult
+Not following another desk.	Følger ikke en anden pult.
+the role is BACKUP or FLEET	rollen er BACKUP eller FLEET
+the primary was silent for {1}	den primære var tavs i {1}
+BACKUP LIVE: {1}. This desk has the show.	BACKUP DIREKTE: {1}. Denne pult har showet.
+this backup is already live (SYNC REARM first)	denne backup er allerede live (SYNC REARM først)
+this desk is not a backup (SYNC FOLLOW <ip> BACKUP)	denne pult er ikke en backup (SYNC FOLLOW <ip> BACKUP)
+Backup re-armed: outputs dark, following the primary	Backup klargjort igen: udgange mørke, følger den primære
+DRILL: this backup is live ({1}). RE-ARM to go back.	ØVELSE: denne backup er live ({1}). KLARGØR IGEN for at gå tilbage.
+Backup {1} stopped following: this desk has no backup	Backup {1} følger ikke længere: denne pult har ingen backup
+Backup: {1}. It will not take over until the primary leads again.	Backup: {1}. Den overtager ikke, før den primære fører igen.
+SYNC LEAD ON|OFF, STATUS, FOLLOW <ip> [BACKUP|FLEET], STOP, DRILL, REARM or TAKEOVER <ms>	SYNC LEAD ON|OFF, STATUS, FOLLOW <ip> [BACKUP|FLEET], STOP, DRILL, REARM eller TAKEOVER <ms>
+The leading desk's IP address, like 192.168.1.20 (or 192.168.1.20:5510). Empty = do not follow	Den førende pults IP-adresse, fx 192.168.1.20 (eller 192.168.1.20:5510). Tom = følg ikke
+The switcher input this desk is on. At a takeover the backup cuts the programme to it. 0 = no cut	Switcherens indgang, som denne pult er på. Ved overtagelse klipper backuppen programmet til den. 0 = intet klip

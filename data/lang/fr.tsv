@@ -4847,3 +4847,32 @@ ACTIVE	ACTIF
 nothing running	rien en cours
 pre-wait {1}   action {2}   post-wait {3}   then {4}	pré-attente {1}   action {2}   post-attente {3}   puis {4}
 ' (CLASSIC, OPERATOR, SHOWPIECE, RUNDOWN, CLIPGRID, CUESTACK, CONSOLE, COMPACT or THEATRE)	' (CLASSIQUE, OPÉRATEUR, VITRINE, CONDUCTEUR, GRILLE DE CLIPS, PILE DE CUES, CONSOLE, COMPACT ou THÉÂTRE)
+DRILL	EXERCICE
+FLEET	FLOTTE
+BACKUP	SECOURS
+Backup	Secours
+RE-ARM	RÉARMER
+no cut	pas de coupe
+Follow as	Suivre en tant que
+input {1}	entrée {1}
+of silence	de silence
+not a backup	pas un secours
+Follow a desk	Suivre un pupitre
+Following {1} as a {2}	Suit {1} en tant que {2}
+Backup cuts the ATEM to	Le secours coupe l'ATEM sur
+Backup takes over after	Le secours prend la main après
+this backup is not live	ce secours n'est pas en direct
+Not following another desk	Ne suit aucun autre pupitre
+Not following another desk.	Ne suit aucun autre pupitre.
+the role is BACKUP or FLEET	le rôle est BACKUP ou FLEET
+the primary was silent for {1}	le principal s'est tu pendant {1}
+BACKUP LIVE: {1}. This desk has the show.	SECOURS DIRECT : {1}. Ce pupitre tient le spectacle.
+this backup is already live (SYNC REARM first)	ce secours est déjà en direct (SYNC REARM d'abord)
+this desk is not a backup (SYNC FOLLOW <ip> BACKUP)	ce pupitre n'est pas un secours (SYNC FOLLOW <ip> BACKUP)
+Backup re-armed: outputs dark, following the primary	Secours réarmé : sorties sombres, suit le principal
+DRILL: this backup is live ({1}). RE-ARM to go back.	EXERCICE : ce secours est en direct ({1}). RÉARMER pour revenir.
+Backup {1} stopped following: this desk has no backup	Le secours {1} a cessé de suivre : ce pupitre n'a pas de secours
+Backup: {1}. It will not take over until the primary leads again.	Secours : {1}. Il ne prendra pas la main tant que le principal ne mène pas de nouveau.
+SYNC LEAD ON|OFF, STATUS, FOLLOW <ip> [BACKUP|FLEET], STOP, DRILL, REARM or TAKEOVER <ms>	SYNC LEAD ON|OFF, STATUS, FOLLOW <ip> [BACKUP|FLEET], STOP, DRILL, REARM ou TAKEOVER <ms>
+The leading desk's IP address, like 192.168.1.20 (or 192.168.1.20:5510). Empty = do not follow	L'adresse IP du pupitre meneur, par ex. 192.168.1.20 (ou 192.168.1.20:5510). Vide = ne pas suivre
+The switcher input this desk is on. At a takeover the backup cuts the programme to it. 0 = no cut	L'entrée du switcher où se trouve ce pupitre. Lors d'une reprise, le secours y coupe le programme. 0 = pas de coupe

@@ -393,6 +393,7 @@
     serviceWindowFitScale();
     serviceThemeHue();
     serviceSyncLead();
+    serviceDeskFollow();
     serviceTestCardExport();
     serviceMicMeters(SDL_GetTicks());
     serviceHdrAuto(SDL_GetTicks());
@@ -445,7 +446,7 @@
     // remote MASTERVOL, project load, undo — can miss it.
     for (int deckIndex = 0; deckIndex < static_cast<int>(project_.decks.size()); ++deckIndex) {
       if (MediaEngine* engine = mediaEngineForDeck(deckIndex)) {
-        engine->setMasterGain(static_cast<float>(project_.masterVolume));
+        engine->setMasterGain(syncHoldsOutputsDark() ? 0.0f : static_cast<float>(project_.masterVolume));
         engine->setAudioDelayMs(project_.audioDelayMs);
         // The rate, published the same way and for the same reason: it is a
         // project setting the engine has to act on, and this is the one tick

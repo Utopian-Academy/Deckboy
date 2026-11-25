@@ -4906,3 +4906,32 @@ ACTIVE	ETKİN
 nothing running	çalışan hiçbir şey yok
 pre-wait {1}   action {2}   post-wait {3}   then {4}	ön bekleme {1}   eylem {2}   son bekleme {3}   sonra {4}
 ' (CLASSIC, OPERATOR, SHOWPIECE, RUNDOWN, CLIPGRID, CUESTACK, CONSOLE, COMPACT or THEATRE)	' (KLASİK, OPERATÖR, VİTRİN, AKIŞ, KLİP IZGARASI, CUE YIĞINI, KONSOL, KOMPAKT veya TİYATRO)
+DRILL	TATBİKAT
+FLEET	FİLO
+BACKUP	YEDEK
+Backup	Yedek
+RE-ARM	TEKRAR HAZIRLA
+no cut	kesme yok
+Follow as	Şu olarak izle
+input {1}	giriş {1}
+of silence	sessizlik
+not a backup	yedek değil
+Follow a desk	Bir operatörü izle
+Following {1} as a {2}	{1}, {2} olarak izleniyor
+Backup cuts the ATEM to	Yedek ATEM'i şuna keser:
+Backup takes over after	Yedeğin devralması için
+this backup is not live	bu yedek canlı değil
+Not following another desk	Başka bir operatörü izlemiyor
+Not following another desk.	Başka bir operatörü izlemiyor.
+the role is BACKUP or FLEET	rol: BACKUP veya FLEET
+the primary was silent for {1}	birincil {1} boyunca sessizdi
+BACKUP LIVE: {1}. This desk has the show.	YEDEK CANLI: {1}. Gösteri bu operatörde.
+this backup is already live (SYNC REARM first)	bu yedek zaten canlı (önce SYNC REARM)
+this desk is not a backup (SYNC FOLLOW <ip> BACKUP)	bu operatör yedek değil (SYNC FOLLOW <ip> BACKUP)
+Backup re-armed: outputs dark, following the primary	Yedek yeniden hazır: çıkışlar koyu, birincili izliyor
+DRILL: this backup is live ({1}). RE-ARM to go back.	TATBİKAT: bu yedek canlı ({1}). Geri dönmek için TEKRAR HAZIRLA.
+Backup {1} stopped following: this desk has no backup	Yedek {1} izlemeyi bıraktı: bu operatörün yedeği yok
+Backup: {1}. It will not take over until the primary leads again.	Yedek: {1}. Birincil yeniden lider olana kadar devralmaz.
+SYNC LEAD ON|OFF, STATUS, FOLLOW <ip> [BACKUP|FLEET], STOP, DRILL, REARM or TAKEOVER <ms>	SYNC LEAD ON|OFF, STATUS, FOLLOW <ip> [BACKUP|FLEET], STOP, DRILL, REARM veya TAKEOVER <ms>
+The leading desk's IP address, like 192.168.1.20 (or 192.168.1.20:5510). Empty = do not follow	Lider operatörün IP adresi, örneğin 192.168.1.20 (veya 192.168.1.20:5510). Boş = izleme
+The switcher input this desk is on. At a takeover the backup cuts the programme to it. 0 = no cut	Bu operatörün bulunduğu switcher girişi. Devralmada yedek programı buna keser. 0 = kesme yok

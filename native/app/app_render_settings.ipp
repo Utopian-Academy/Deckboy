@@ -2321,7 +2321,8 @@
       // Heights, computed before any rect so the scroll range below can see
       // all of them. Same shape and same comments as they had inline.
       // Three rows and two status lines, in the order they are drawn.
-      int remoteH = stackH({sRowH, sRowH, sRowH, sRowH, sRowH, sRowH, sRowH, sRowH, sLineH, sLineH, sLineH});
+      int remoteH = stackH({sRowH, sRowH, sRowH, sRowH, sRowH, sRowH, sRowH, sRowH, sRowH, sRowH, sRowH, sRowH, sRowH,
+                            sLineH, sLineH, sLineH, sLineH});
       int oscH = stackH({sLineH, sRowH, sRowH, sRowH, sRowH});
       // NMC IN & OUT. Four rows and one line saying what the chosen
       // direction actually does.
@@ -2456,6 +2457,28 @@
         settingsRow(remoteX, remoteW, remoteY, sRowH, "Lead other machines", sGap);
       drawPill(leadToggle, project_.syncLead, "LEADING", "OFF", kSettingsActionSyncLeadToggle);
 
+      // ...or follow one: a BACKUP (dark until the primary fails) or FLEET.
+      SDL_Rect followBtn = settingsRow(remoteX, remoteW, remoteY, sRowH, "Follow a desk", sGap);
+      drawUIValueControl(followBtn, project_.syncFollowHost.empty() ? std::string("off") : project_.syncFollowHost);
+      settingsBtns_.push_back({followBtn, kSettingsActionSyncFollowHost, "sync_follow_host"});
+      SDL_Rect roleBtn = settingsRow(remoteX, remoteW, remoteY, sRowH, "Follow as", sGap);
+      drawPill(roleBtn, project_.syncFollowRole != "fleet", "BACKUP", "FLEET", kSettingsActionSyncFollowRole);
+      SDL_Rect takeoverBtn = settingsRow(remoteX, remoteW, remoteY, sRowH, "Backup takes over after", sGap);
+      drawUIValueControl(takeoverBtn, formatSeconds(project_.syncTakeoverMs / 1000.0) + " " +
+                                        deckboy::core::i18n::translate("of silence"));
+      settingsBtns_.push_back({takeoverBtn, kSettingsActionSyncTakeoverMs, "sync_takeover"});
+      SDL_Rect atemCutBtn = settingsRow(remoteX, remoteW, remoteY, sRowH, "Backup cuts the ATEM to", sGap);
+      drawUIValueControl(atemCutBtn, project_.syncBackupAtemInput > 0
+                                       ? deckboy::core::i18n::format("input {1}", {std::to_string(project_.syncBackupAtemInput)})
+                                       : std::string("no cut"));
+      settingsBtns_.push_back({atemCutBtn, kSettingsActionSyncBackupAtem, "sync_backup_atem"});
+      SDL_Rect drillBtn = settingsRow(remoteX, remoteW, remoteY, sRowH, "Backup", sGap);
+      if (!followingAsBackup()) {
+        drawUIValueControl(drillBtn, "not a backup");
+      } else {
+        drawPill(drillBtn, backupLive_, "RE-ARM", "DRILL", kSettingsActionSyncBackupDrill);
+      }
+
       // Every message from a controller, and what Deckboy did with it.
       SDL_Rect monitorBtn =
         settingsRow(remoteX, remoteW, remoteY, sRowH, "MIDI and OSC monitor", sGap);
@@ -2485,6 +2508,11 @@
                      !project_.syncLead ? std::string("Not leading: no other machine can follow this desk.")
                      : syncFollowers_.empty() ? std::string("Leading. Nobody is following yet.")
                      : deckboy::core::i18n::format("Following this desk: {1}", {followers}), soft);
+        remoteY += sLineH;
+        SDL_Color bannerColour {};
+        drawTextSafe(controlRenderer_, fontSmall_, SDL_Rect{remoteX, remoteY, remoteW, sLineH},
+                     project_.syncFollowHost.empty() ? std::string("Not following another desk.")
+                                                     : deskFollowBanner(&bannerColour), soft);
       }
 
       drawCard(oscRect, "OSC QUERY / FEEDBACK", "Discovery and mirrored state");
@@ -5126,6 +5154,57 @@
     }
   }
 
+  // SYNC's rows in Settings > Network (leading, following, the backup).
+  // Their own function: one more branch in the click chain is past MSVC's
+  // nesting limit (C1061).
+  void handleSyncSettingsAction(int action) {
+    if (action == kSettingsActionSyncFollowHost) {
+      settingsOpen_ = false;
+      openInlineTextEditor("settings.sync_follow_host", "Follow a desk",
+                           "The leading desk's IP address, like 192.168.1.20 (or 192.168.1.20:5510). Empty = do not follow",
+                           project_.syncFollowHost,
+                           [this](const std::string& value) {
+                             project_.syncFollowHost = trim(value);
+                             markProjectDirty();
+                             startDeskFollow();
+                             triggerToast(project_.syncFollowHost.empty()
+                                            ? std::string("Not following another desk")
+                                            : deckboy::core::i18n::format("Following {1} as a {2}",
+                                                {project_.syncFollowHost, deckboy::core::i18n::translate(project_.syncFollowRole)}));
+                           });
+    } else if (action == kSettingsActionSyncFollowRole) {
+      project_.syncFollowRole = project_.syncFollowRole == "fleet" ? "backup" : "fleet";
+      markProjectDirty();
+      if (!project_.syncFollowHost.empty()) startDeskFollow();
+    } else if (action == kSettingsActionSyncTakeoverMs) {
+      static const int steps[] = {500, 1000, 2000, 4000};
+      int next = steps[0];
+      for (int i = 0; i < 4; ++i) {
+        if (steps[i] == project_.syncTakeoverMs) { next = steps[(i + 1) % 4]; break; }
+      }
+      project_.syncTakeoverMs = next;
+      markProjectDirty();
+    } else if (action == kSettingsActionSyncBackupAtem) {
+      settingsOpen_ = false;
+      openInlineTextEditor("settings.sync_backup_atem", "Backup cuts the ATEM to",
+                           "The switcher input this desk is on. At a takeover the backup cuts the programme to it. 0 = no cut",
+                           std::to_string(project_.syncBackupAtemInput),
+                           [this](const std::string& value) {
+                             project_.syncBackupAtemInput = std::clamp(std::atoi(trim(value).c_str()), 0, 9999);
+                             markProjectDirty();
+                           });
+    } else if (action == kSettingsActionSyncBackupDrill) {
+      if (backupLive_) backupRearm();
+      else backupTakeOver("drill", true);
+    } else if (action == kSettingsActionSyncLeadToggle) {
+      if (project_.syncLead) endSyncLead("the leading desk stopped leading");
+      project_.syncLead = !project_.syncLead;
+      if (!project_.syncLead) syncFollowers_.clear();
+      triggerToast(project_.syncLead ? "Leading: other machines may follow this desk" : "No longer leading");
+      markProjectDirty();
+    }
+  }
+
   void handleSettingsClick(int mx, int my) {
     // Check close button
     if (pointInRect(mx, my, settingsCloseBtn_)) {
@@ -5507,11 +5586,8 @@
                                triggerToast(cleaned.empty() ? "companion passphrase: off"
                                                             : "companion passphrase: set");
                              });
-      } else if (sb.action == kSettingsActionSyncLeadToggle) {
-        project_.syncLead = !project_.syncLead;
-        if (!project_.syncLead) syncFollowers_.clear();
-        triggerToast(project_.syncLead ? "Leading: other machines may follow this desk" : "No longer leading");
-        markProjectDirty();
+      } else if (sb.action >= kSettingsActionSyncLeadToggle && sb.action <= kSettingsActionSyncBackupAtem) {
+        handleSyncSettingsAction(sb.action);
       } else if (sb.action == kSettingsActionTrustLastRefused) {
         if (!controlLastRefused_.empty()) trustController(controlLastRefused_);
       } else if (sb.action == kSettingsActionOutputHdrToggle) {

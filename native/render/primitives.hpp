@@ -78,6 +78,13 @@ struct ChromeKit {
   SDL_Color surfacePanel {0, 0, 0, 255}, surfaceWell {0, 0, 0, 255}, surfaceDesk {0, 0, 0, 255};
   // A clear skin: a circuit board under the plastic, alive (drawKitBoardLife).
   bool board = false;
+  // A LAYERED clear skin: the board's detail is tileDesk, laid in WINDOW
+  // space under every panel and well, so it runs on unbroken across the desk;
+  // a panel is its rendered edge over its translucent tile. Nothing in a
+  // panel can stretch or repeat panel to panel.
+  bool layered = false;
+  std::string screw;              // a screw for a big panel's corners
+  float screwSize = 24.0f, screwIn = 22.0f;
 };
 // Reads <dir>/kit.txt. False (and `kit` untouched) when it is missing or short.
 bool loadChromeKit(const std::string& dir, ChromeKit& kit);

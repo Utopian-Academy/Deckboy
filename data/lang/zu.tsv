@@ -4900,3 +4900,32 @@ ACTIVE	OKUSEBENZAYO
 nothing running	akukho okusebenzayo
 pre-wait {1}   action {2}   post-wait {3}   then {4}	ukulinda kuqala {1}   isenzo {2}   ukulinda kamuva {3}   bese {4}
 ' (CLASSIC, OPERATOR, SHOWPIECE, RUNDOWN, CLIPGRID, CUESTACK, CONSOLE, COMPACT or THEATRE)	' (OKWAKUDALA, UMSEBENZISI, OKOKUBUKISA, UHLU LOHLELO, IGRIDI YAMAKLIPHU, ISITAKI SAMA-CUE, IKHONSOLI, OKUNCANE noma ITHIYETHA)
+DRILL	UKUZILOLONGA
+FLEET	IQEMBU
+BACKUP	ISIPELE
+Backup	Isipele
+RE-ARM	LUNGISELELA FUTHI
+no cut	akukho kusika
+Follow as	Landela njenge
+input {1}	okokufaka {1}
+of silence	yokuthula
+not a backup	akusona isipele
+Follow a desk	Landela ideski
+Following {1} as a {2}	Ilandela {1} njenge-{2}
+Backup cuts the ATEM to	Isipele sisika i-ATEM kuya ku-
+Backup takes over after	Isipele sithatha indawo ngemuva kwe-
+this backup is not live	lesi sipele asikho bukhoma
+Not following another desk	Ayilandeli elinye ideski
+Not following another desk.	Ayilandeli elinye ideski.
+the role is BACKUP or FLEET	indima ngu-BACKUP noma FLEET
+the primary was silent for {1}	ideski eliyinhloko belithule {1}
+BACKUP LIVE: {1}. This desk has the show.	ISIPELE SIBUKHOMA: {1}. Leli deski liphethe umbukiso.
+this backup is already live (SYNC REARM first)	lesi sipele sesibukhoma kakade (SYNC REARM kuqala)
+this desk is not a backup (SYNC FOLLOW <ip> BACKUP)	leli deski akusona isipele (SYNC FOLLOW <ip> BACKUP)
+Backup re-armed: outputs dark, following the primary	Isipele silungiselelwe futhi: okuphumayo kumnyama, silandela ideski eliyinhloko
+DRILL: this backup is live ({1}). RE-ARM to go back.	UKUZILOLONGA: lesi sipele sibukhoma ({1}). LUNGISELELA FUTHI ukuze ubuyele emuva.
+Backup {1} stopped following: this desk has no backup	Isipele {1} siyekile ukulandela: leli deski alinaso isipele
+Backup: {1}. It will not take over until the primary leads again.	Isipele: {1}. Ngeke sithathe indawo kuze ideski eliyinhloko liphinde lihole.
+SYNC LEAD ON|OFF, STATUS, FOLLOW <ip> [BACKUP|FLEET], STOP, DRILL, REARM or TAKEOVER <ms>	SYNC LEAD ON|OFF, STATUS, FOLLOW <ip> [BACKUP|FLEET], STOP, DRILL, REARM noma TAKEOVER <ms>
+The leading desk's IP address, like 192.168.1.20 (or 192.168.1.20:5510). Empty = do not follow	Ikheli le-IP ledeski elihola, njenge-192.168.1.20 (noma 192.168.1.20:5510). Akunalutho = ungalandeli
+The switcher input this desk is on. At a takeover the backup cuts the programme to it. 0 = no cut	Okokufaka kwe-switcher okukulo leli deski. Uma kuthathwa indawo, isipele sisika uhlelo siye kukho. 0 = akukho kusika

@@ -4905,3 +4905,32 @@ ACTIVE	VIRKT
 nothing running	ekkert í gangi
 pre-wait {1}   action {2}   post-wait {3}   then {4}	forbið {1}   aðgerð {2}   eftirbið {3}   svo {4}
 ' (CLASSIC, OPERATOR, SHOWPIECE, RUNDOWN, CLIPGRID, CUESTACK, CONSOLE, COMPACT or THEATRE)	' (CLASSIC, OPERATOR, SHOWPIECE, RUNDOWN, CLIPGRID, CUESTACK, CONSOLE, COMPACT eða THEATRE)
+DRILL	ÆFING
+FLEET	FLOTI
+BACKUP	VARAVÉL
+Backup	Varavél
+RE-ARM	ENDURVIRKJA
+no cut	engin klipping
+Follow as	Fylgja sem
+input {1}	inntak {1}
+of silence	af þögn
+not a backup	ekki varavél
+Follow a desk	Fylgja stjórnborði
+Following {1} as a {2}	Fylgir {1} sem {2}
+Backup cuts the ATEM to	Varavélin klippir ATEM á
+Backup takes over after	Varavélin tekur við eftir
+this backup is not live	þessi varavél er ekki í beinni
+Not following another desk	Fylgir ekki öðru stjórnborði
+Not following another desk.	Fylgir ekki öðru stjórnborði.
+the role is BACKUP or FLEET	hlutverkið er BACKUP eða FLEET
+the primary was silent for {1}	aðalborðið þagði í {1}
+BACKUP LIVE: {1}. This desk has the show.	VARAVÉL Í BEINNI: {1}. Þetta stjórnborð er með sýninguna.
+this backup is already live (SYNC REARM first)	þessi varavél er þegar í beinni (SYNC REARM fyrst)
+this desk is not a backup (SYNC FOLLOW <ip> BACKUP)	þetta stjórnborð er ekki varavél (SYNC FOLLOW <ip> BACKUP)
+Backup re-armed: outputs dark, following the primary	Varavél endurvirkjuð: úttök dökk, fylgir aðalborðinu
+DRILL: this backup is live ({1}). RE-ARM to go back.	ÆFING: þessi varavél er í beinni ({1}). ENDURVIRKJA til að fara til baka.
+Backup {1} stopped following: this desk has no backup	Varavél {1} hætti að fylgja: þetta stjórnborð er án varavélar
+Backup: {1}. It will not take over until the primary leads again.	Varavél: {1}. Hún tekur ekki við fyrr en aðalborðið leiðir aftur.
+SYNC LEAD ON|OFF, STATUS, FOLLOW <ip> [BACKUP|FLEET], STOP, DRILL, REARM or TAKEOVER <ms>	SYNC LEAD ON|OFF, STATUS, FOLLOW <ip> [BACKUP|FLEET], STOP, DRILL, REARM eða TAKEOVER <ms>
+The leading desk's IP address, like 192.168.1.20 (or 192.168.1.20:5510). Empty = do not follow	IP-vistfang stjórnborðsins í forystu, t.d. 192.168.1.20 (eða 192.168.1.20:5510). Tómt = ekki fylgja
+The switcher input this desk is on. At a takeover the backup cuts the programme to it. 0 = no cut	Inntak skiptarans sem þetta stjórnborð er á. Við yfirtöku klippir varavélin dagskrána á það. 0 = engin klipping

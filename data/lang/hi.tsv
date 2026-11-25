@@ -4915,3 +4915,32 @@ ACTIVE	सक्रिय
 nothing running	कुछ नहीं चल रहा
 pre-wait {1}   action {2}   post-wait {3}   then {4}	पूर्व-प्रतीक्षा {1}   क्रिया {2}   पश्च-प्रतीक्षा {3}   फिर {4}
 ' (CLASSIC, OPERATOR, SHOWPIECE, RUNDOWN, CLIPGRID, CUESTACK, CONSOLE, COMPACT or THEATRE)	' (CLASSIC, OPERATOR, SHOWPIECE, RUNDOWN, CLIPGRID, CUESTACK, CONSOLE, COMPACT या THEATRE)
+DRILL	अभ्यास
+FLEET	बेड़ा
+BACKUP	बैकअप
+Backup	बैकअप
+RE-ARM	फिर तैयार करें
+no cut	कोई कट नहीं
+Follow as	इस रूप में अनुसरण
+input {1}	इनपुट {1}
+of silence	की चुप्पी के बाद
+not a backup	बैकअप नहीं
+Follow a desk	किसी डेस्क का अनुसरण करें
+Following {1} as a {2}	{1} का {2} के रूप में अनुसरण कर रहे हैं
+Backup cuts the ATEM to	बैकअप ATEM को कट करता है:
+Backup takes over after	बैकअप कमान संभालता है
+this backup is not live	यह बैकअप लाइव नहीं है
+Not following another desk	किसी दूसरे डेस्क का अनुसरण नहीं
+Not following another desk.	किसी दूसरे डेस्क का अनुसरण नहीं।
+the role is BACKUP or FLEET	भूमिका BACKUP या FLEET है
+the primary was silent for {1}	मुख्य डेस्क {1} तक चुप रहा
+BACKUP LIVE: {1}. This desk has the show.	बैकअप लाइव: {1}। शो अब इस डेस्क के पास है।
+this backup is already live (SYNC REARM first)	यह बैकअप पहले से लाइव है (पहले SYNC REARM)
+this desk is not a backup (SYNC FOLLOW <ip> BACKUP)	यह डेस्क बैकअप नहीं है (SYNC FOLLOW <ip> BACKUP)
+Backup re-armed: outputs dark, following the primary	बैकअप फिर तैयार: आउटपुट अँधेरे, मुख्य डेस्क का अनुसरण
+DRILL: this backup is live ({1}). RE-ARM to go back.	अभ्यास: यह बैकअप लाइव है ({1})। वापस जाने के लिए फिर तैयार करें।
+Backup {1} stopped following: this desk has no backup	बैकअप {1} ने अनुसरण रोका: इस डेस्क का कोई बैकअप नहीं
+Backup: {1}. It will not take over until the primary leads again.	बैकअप: {1}। मुख्य डेस्क के फिर अग्रणी होने तक यह कमान नहीं संभालेगा।
+SYNC LEAD ON|OFF, STATUS, FOLLOW <ip> [BACKUP|FLEET], STOP, DRILL, REARM or TAKEOVER <ms>	SYNC LEAD ON|OFF, STATUS, FOLLOW <ip> [BACKUP|FLEET], STOP, DRILL, REARM या TAKEOVER <ms>
+The leading desk's IP address, like 192.168.1.20 (or 192.168.1.20:5510). Empty = do not follow	अग्रणी डेस्क का IP पता, जैसे 192.168.1.20 (या 192.168.1.20:5510)। खाली = अनुसरण नहीं
+The switcher input this desk is on. At a takeover the backup cuts the programme to it. 0 = no cut	इस डेस्क का स्विचर इनपुट। कमान संभालने पर बैकअप प्रोग्राम को इस पर कट करता है। 0 = कोई कट नहीं

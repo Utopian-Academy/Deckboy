@@ -4913,3 +4913,32 @@ ACTIVE	アクティブ
 nothing running	実行中なし
 pre-wait {1}   action {2}   post-wait {3}   then {4}	プリウェイト {1}   アクション {2}   ポストウェイト {3}   その後 {4}
 ' (CLASSIC, OPERATOR, SHOWPIECE, RUNDOWN, CLIPGRID, CUESTACK, CONSOLE, COMPACT or THEATRE)	' (CLASSIC、OPERATOR、SHOWPIECE、RUNDOWN、CLIPGRID、CUESTACK、CONSOLE、COMPACT または THEATRE)
+DRILL	訓練
+FLEET	フリート
+BACKUP	バックアップ
+Backup	バックアップ
+RE-ARM	再アーム
+no cut	カットなし
+Follow as	連動時の役割
+input {1}	入力 {1}
+of silence	の無音後
+not a backup	バックアップではありません
+Follow a desk	操作卓に連動
+Following {1} as a {2}	{1} に {2} として連動中
+Backup cuts the ATEM to	バックアップがATEMを切り替える先
+Backup takes over after	バックアップの引き継ぎ
+this backup is not live	このバックアップはライブではありません
+Not following another desk	他の操作卓に連動していません
+Not following another desk.	他の操作卓に連動していません。
+the role is BACKUP or FLEET	役割は BACKUP または FLEET です
+the primary was silent for {1}	主操作卓が {1} 無音でした
+BACKUP LIVE: {1}. This desk has the show.	バックアップ ライブ: {1}。この操作卓がショーを担当します。
+this backup is already live (SYNC REARM first)	このバックアップはすでにライブです (先に SYNC REARM)
+this desk is not a backup (SYNC FOLLOW <ip> BACKUP)	この操作卓はバックアップではありません (SYNC FOLLOW <ip> BACKUP)
+Backup re-armed: outputs dark, following the primary	バックアップを再アーム: 出力は暗転、主操作卓に連動中
+DRILL: this backup is live ({1}). RE-ARM to go back.	訓練: このバックアップはライブです ({1})。戻るには 再アーム。
+Backup {1} stopped following: this desk has no backup	バックアップ {1} が連動を停止: この操作卓にバックアップはありません
+Backup: {1}. It will not take over until the primary leads again.	バックアップ: {1}。主操作卓が再び主導するまで引き継ぎません。
+SYNC LEAD ON|OFF, STATUS, FOLLOW <ip> [BACKUP|FLEET], STOP, DRILL, REARM or TAKEOVER <ms>	SYNC LEAD ON|OFF, STATUS, FOLLOW <ip> [BACKUP|FLEET], STOP, DRILL, REARM または TAKEOVER <ms>
+The leading desk's IP address, like 192.168.1.20 (or 192.168.1.20:5510). Empty = do not follow	主導中の操作卓のIPアドレス。例: 192.168.1.20 (または 192.168.1.20:5510)。空 = 連動しない
+The switcher input this desk is on. At a takeover the backup cuts the programme to it. 0 = no cut	この操作卓のスイッチャー入力。引き継ぎ時、バックアップはプログラムをこの入力にカットします。0 = カットなし

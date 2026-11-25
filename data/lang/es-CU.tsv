@@ -4882,3 +4882,32 @@ ACTIVE	ACTIVO
 nothing running	nada en marcha
 pre-wait {1}   action {2}   post-wait {3}   then {4}	espera previa {1}   acción {2}   espera posterior {3}   luego {4}
 ' (CLASSIC, OPERATOR, SHOWPIECE, RUNDOWN, CLIPGRID, CUESTACK, CONSOLE, COMPACT or THEATRE)	' (CLÁSICO, OPERADOR, VIDRIERA, ESCALETA, REJILLA DE CLIPS, PILA DE CUES, CONSOLA, COMPACTO o TEATRO)
+DRILL	SIMULACRO
+FLEET	FLOTA
+BACKUP	RESPALDO
+Backup	Respaldo
+RE-ARM	REARMAR
+no cut	sin corte
+Follow as	Seguir como
+input {1}	entrada {1}
+of silence	de silencio
+not a backup	no es respaldo
+Follow a desk	Seguir una mesa
+Following {1} as a {2}	Siguiendo a {1} como {2}
+Backup cuts the ATEM to	El respaldo corta el ATEM a
+Backup takes over after	El respaldo toma el mando tras
+this backup is not live	este respaldo no está en vivo
+Not following another desk	No sigue a otra mesa
+Not following another desk.	No sigue a otra mesa.
+the role is BACKUP or FLEET	el cargo es BACKUP o FLEET
+the primary was silent for {1}	la mesa principal estuvo en silencio {1}
+BACKUP LIVE: {1}. This desk has the show.	RESPALDO EN CANDELA: {1}. Esta mesa tiene el show.
+this backup is already live (SYNC REARM first)	este respaldo ya está en vivo (primero SYNC REARM)
+this desk is not a backup (SYNC FOLLOW <ip> BACKUP)	esta mesa no es respaldo (SYNC FOLLOW <ip> BACKUP)
+Backup re-armed: outputs dark, following the primary	Respaldo rearmado: salidas a oscuro, siguiendo a la principal
+DRILL: this backup is live ({1}). RE-ARM to go back.	SIMULACRO: este respaldo está en vivo ({1}). REARMAR para volver.
+Backup {1} stopped following: this desk has no backup	El respaldo {1} dejó de seguir: esta mesa no tiene respaldo
+Backup: {1}. It will not take over until the primary leads again.	Respaldo: {1}. No tomará el mando hasta que la principal vuelva a liderar.
+SYNC LEAD ON|OFF, STATUS, FOLLOW <ip> [BACKUP|FLEET], STOP, DRILL, REARM or TAKEOVER <ms>	SYNC LEAD ON|OFF, STATUS, FOLLOW <ip> [BACKUP|FLEET], STOP, DRILL, REARM o TAKEOVER <ms>
+The leading desk's IP address, like 192.168.1.20 (or 192.168.1.20:5510). Empty = do not follow	La dirección IP de la mesa que lidera, como 192.168.1.20 (o 192.168.1.20:5510). Vacío = no seguir
+The switcher input this desk is on. At a takeover the backup cuts the programme to it. 0 = no cut	La entrada del switcher de esta mesa. Al tomar el mando, el respaldo corta el programa a ella. 0 = sin corte

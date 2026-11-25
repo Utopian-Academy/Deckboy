@@ -4915,3 +4915,32 @@ ACTIVE	АКТИВНО
 nothing running	ничего не работает
 pre-wait {1}   action {2}   post-wait {3}   then {4}	предожидание {1}   действие {2}   постожидание {3}   затем {4}
 ' (CLASSIC, OPERATOR, SHOWPIECE, RUNDOWN, CLIPGRID, CUESTACK, CONSOLE, COMPACT or THEATRE)	' (КЛАССИКА, ОПЕРАТОР, ВИТРИНА, СЦЕНАРИЙ, СЕТКА КЛИПОВ, СТЕК CUE, КОНСОЛЬ, КОМПАКТНЫЙ или ТЕАТР)
+DRILL	УЧЕНИЯ
+FLEET	ПАРК
+BACKUP	РЕЗЕРВ
+Backup	Резерв
+RE-ARM	ПЕРЕВЗВЕСТИ
+no cut	без среза
+Follow as	Следовать как
+input {1}	вход {1}
+of silence	тишины
+not a backup	не резерв
+Follow a desk	Следовать за оператором
+Following {1} as a {2}	Следует за {1} как {2}
+Backup cuts the ATEM to	Резерв переключает ATEM на
+Backup takes over after	Резерв перехватывает после
+this backup is not live	этот резерв не в эфире
+Not following another desk	Не следует за другим оператором
+Not following another desk.	Не следует за другим оператором.
+the role is BACKUP or FLEET	должность: BACKUP или FLEET
+the primary was silent for {1}	основной молчал {1}
+BACKUP LIVE: {1}. This desk has the show.	РЕЗЕРВ В ЭФИРЕ: {1}. Шоу ведёт этот оператор.
+this backup is already live (SYNC REARM first)	этот резерв уже в эфире (сначала SYNC REARM)
+this desk is not a backup (SYNC FOLLOW <ip> BACKUP)	этот оператор не резерв (SYNC FOLLOW <ip> BACKUP)
+Backup re-armed: outputs dark, following the primary	Резерв перевзведён: выходы тёмные, следует за основным
+DRILL: this backup is live ({1}). RE-ARM to go back.	УЧЕНИЯ: этот резерв в эфире ({1}). Нажмите ПЕРЕВЗВЕСТИ, чтобы вернуться.
+Backup {1} stopped following: this desk has no backup	Резерв {1} перестал следовать: у этого оператора нет резерва
+Backup: {1}. It will not take over until the primary leads again.	Резерв: {1}. Он не перехватит, пока основной снова не станет ведущим.
+SYNC LEAD ON|OFF, STATUS, FOLLOW <ip> [BACKUP|FLEET], STOP, DRILL, REARM or TAKEOVER <ms>	SYNC LEAD ON|OFF, STATUS, FOLLOW <ip> [BACKUP|FLEET], STOP, DRILL, REARM или TAKEOVER <ms>
+The leading desk's IP address, like 192.168.1.20 (or 192.168.1.20:5510). Empty = do not follow	IP-адрес ведущего оператора, например 192.168.1.20 (или 192.168.1.20:5510). Пусто = не следовать
+The switcher input this desk is on. At a takeover the backup cuts the programme to it. 0 = no cut	Вход микшера, на котором этот оператор. При перехвате резерв переключает программу на него. 0 = без среза

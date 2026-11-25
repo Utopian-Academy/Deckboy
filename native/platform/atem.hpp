@@ -161,6 +161,13 @@ class AtemSwitcherClient {
   // does not need a reconnect to take effect.
   void setOurInput(int input) { ourInput_.store(input); }
 
+  // THE ONE COMMAND (James 11-24, for the backup desk: "do it"). Everything
+  // else here only listens, for the reason given below. A backup desk that
+  // has taken over may cut the switcher's programme to its own input, and
+  // only to the input the operator set for exactly that. Sent once, on the
+  // session thread, with the switcher's own acknowledged-packet flag.
+  void requestProgramCut(int input) { if (input > 0) pendingCut_.store(input); }
+
   // ── Talking to an actual ATEM ───────────────────────────────────────────
   //
   // Everything above named "ATEM" is a command bridge: a UDP port that accepts
@@ -171,9 +178,11 @@ class AtemSwitcherClient {
   //
   // So this speaks the switcher's own protocol. It is a READ-ONLY client: it
   // connects, it is told the state of the world, and it watches one number --
-  // which input is on the program bus. Deckboy never sends the switcher a
-  // command, because a playout machine that can cut the show is a playout
-  // machine that will eventually cut the show by accident.
+  // which input is on the program bus. Deckboy sends the switcher ONE command,
+  // and only from a backup desk taking over, to the input the operator set
+  // for exactly that (requestProgramCut). Nothing else: a playout machine
+  // that can cut the show is a playout machine that will eventually cut the
+  // show by accident.
   //
   // The protocol, only as much of it as this needs:
   //
@@ -309,6 +318,7 @@ class AtemSwitcherClient {
         if (std::chrono::steady_clock::now() - lastHeard > std::chrono::seconds(5)) {
           break;
         }
+        sendPendingCut(sock, dest, session, greeted);
         continue;
       }
       sockaddr_in from {};
@@ -362,6 +372,7 @@ class AtemSwitcherClient {
       const unsigned usable =
         std::min<unsigned>(length, static_cast<unsigned>(bytes));
       parseCommands(buffer.data(), usable);
+      sendPendingCut(sock, dest, session, greeted);
     }
 
     closeSocket(sock);
@@ -380,6 +391,25 @@ class AtemSwitcherClient {
   // Sources above 1000 are internal -- colour bars, media players, supersources,
   // the black and the aux buses. They cannot be a Deckboy, so they are not
   // offered as one.
+  // CPgI: change the programme input, as [ME, pad, source hi, lo].
+  void sendPendingCut(SocketHandle sock, const sockaddr_in& dest, unsigned session, bool greeted) {
+    if (!greeted) return;
+    const int input = pendingCut_.exchange(0);
+    if (input <= 0) return;
+    unsigned char pkt[24] {};
+    const unsigned id = ++ourPacketId_ & 0x7FFFu;
+    atemWriteHeader(pkt, 0x01, 24, session, 0, id);
+    pkt[12] = 0;
+    pkt[13] = 12;
+    std::memcpy(pkt + 16, "CPgI", 4);
+    pkt[20] = 0;
+    pkt[21] = 0;
+    pkt[22] = static_cast<unsigned char>((input >> 8) & 0xFF);
+    pkt[23] = static_cast<unsigned char>(input & 0xFF);
+    sendto(sock, reinterpret_cast<const char*>(pkt), 24, 0, reinterpret_cast<const sockaddr*>(&dest), sizeof(dest));
+    emit("ATEM cut programme to input " + std::to_string(input) + " (backup takeover)");
+  }
+
   static void atemInputNamesFromPacket(const unsigned char* packet, unsigned length,
                                        std::map<int, std::string>& into) {
     unsigned offset = 12;
@@ -494,6 +524,8 @@ class AtemSwitcherClient {
   std::thread thread_;
   std::atomic<bool> stopFlag_ {true};
   std::atomic<bool> connected_ {false};
+  std::atomic<int> pendingCut_ {0};
+  unsigned ourPacketId_ = 0;
   std::atomic<int> programInput_ {-1};
   std::atomic<int> ourInput_ {0};
   std::string host_;

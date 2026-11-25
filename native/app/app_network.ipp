@@ -6191,7 +6191,7 @@ bool looksLikeHttpRequestLine(const std::string& line) {
     if (sub == "LEAD") {
       const std::string v = parts.size() > 2 ? toUpper(parts[2]) : std::string();
       if (v == "ON") project_.syncLead = true;
-      else if (v == "OFF") { project_.syncLead = false; syncFollowers_.clear(); }
+      else if (v == "OFF") { endSyncLead("the leading desk stopped leading"); project_.syncLead = false; syncFollowers_.clear(); }
       else { failRemoteCommand("SYNC LEAD ON or OFF"); return; }
       return;
     }
@@ -6199,15 +6199,55 @@ bool looksLikeHttpRequestLine(const std::string& line) {
       std::ostringstream o;
       o << "lead=" << (project_.syncLead ? "on" : "off") << " followers=" << syncFollowers_.size();
       for (const auto& f : syncFollowers_) o << " [" << f.name << " " << f.kind << " " << f.role << "]";
+      o << deskFollowStatusFields();
       remoteCommandDetail_ = o.str();
       return;
     }
-    failRemoteCommand("SYNC LEAD ON|OFF or SYNC STATUS");
+    // This desk as a follower: SYNC FOLLOW <ip[:port]> [BACKUP|FLEET], SYNC STOP,
+    // SYNC DRILL, SYNC REARM, SYNC TAKEOVER <ms>.
+    if (sub == "FOLLOW") {
+      if (parts.size() < 3) { failRemoteCommand("SYNC FOLLOW <ip[:port]> [BACKUP|FLEET]"); return; }
+      const std::string role = parts.size() > 3 ? toUpper(parts[3]) : std::string("BACKUP");
+      if (role != "BACKUP" && role != "FLEET") { failRemoteCommand("the role is BACKUP or FLEET"); return; }
+      project_.syncFollowHost = parts[2];
+      project_.syncFollowRole = role == "FLEET" ? "fleet" : "backup";
+      markProjectDirty();
+      startDeskFollow();
+      if (deskFollowAddr_.sin_port == 0 || (deskFollow_ == DeskFollow::Lost && !deskFollowError_.empty() && deskFollowSock_ == kInvalidSocket && deskFollowError_.rfind("Type", 0) == 0)) {
+        failRemoteCommand(deskFollowError_);
+      }
+      return;
+    }
+    if (sub == "STOP" || sub == "UNFOLLOW") {
+      project_.syncFollowHost.clear();
+      markProjectDirty();
+      stopDeskFollow();
+      return;
+    }
+    if (sub == "DRILL") {
+      if (!followingAsBackup()) { failRemoteCommand("this desk is not a backup (SYNC FOLLOW <ip> BACKUP)"); return; }
+      if (backupLive_) { failRemoteCommand("this backup is already live (SYNC REARM first)"); return; }
+      backupTakeOver("drill", true);
+      return;
+    }
+    if (sub == "REARM") {
+      if (!backupLive_) { failRemoteCommand("this backup is not live"); return; }
+      backupRearm();
+      return;
+    }
+    if (sub == "TAKEOVER") {
+      const int ms = parts.size() > 2 ? std::atoi(parts[2].c_str()) : 0;
+      if (ms < 250 || ms > 10000) { failRemoteCommand("SYNC TAKEOVER <250-10000 ms>"); return; }
+      project_.syncTakeoverMs = ms;
+      markProjectDirty();
+      return;
+    }
+    failRemoteCommand("SYNC LEAD ON|OFF, STATUS, FOLLOW <ip> [BACKUP|FLEET], STOP, DRILL, REARM or TAKEOVER <ms>");
   }
 
   // The focused deck's transport, as one line every follower reads.
-  std::string syncStateLine() {
-    const int deckIndex = project_.focusedDeckIndex;
+  std::string syncStateLine(int deckIndex = -1) {
+    if (deckIndex < 0) deckIndex = project_.focusedDeckIndex;
     const Cue* cue = activeCuePtr(deckIndex);
     const MediaEngine* engine = mediaEngineForDeck(deckIndex);
     std::string state = "stopped";
@@ -6259,24 +6299,554 @@ bool looksLikeHttpRequestLine(const std::string& line) {
                                         [&](const SyncFollower& f) {
                                           const bool gone = !companionClientAlive(f.socket, f.generation);
                                           if (gone) showLog("SYNC", "follower " + f.name + " left");
+                                          if (gone && f.role == "backup") {
+                                            triggerToast(deckboy::core::i18n::format("Backup {1} stopped following: this desk has no backup", {f.name}),
+                                                         ToastKind::Warning, kToastReadableMs);
+                                          }
                                           return gone;
                                         }),
                          syncFollowers_.end());
     if (syncFollowers_.empty()) return;
     std::string line = syncStateLine();
-    // The change test leaves out pos= and at=, which move every tick.
-    std::string key = line;
-    for (const char* field : {" pos=", " at="}) {
-      const auto a = key.find(field);
-      if (a == std::string::npos) continue;
-      const auto b = key.find(' ', a + 1);
-      key.erase(a, b == std::string::npos ? std::string::npos : b - a);
+    // A desk follows EVERY playlist; Mini and Pocket the focused one.
+    bool anyDesk = false;
+    for (const auto& f : syncFollowers_) anyDesk = anyDesk || f.kind == "desk";
+    std::vector<std::string> deckLines;
+    if (anyDesk) {
+      for (int d = 0; d < static_cast<int>(project_.decks.size()); ++d) deckLines.push_back(syncStateLine(d));
     }
+    // The change test leaves out pos= and at=, which move every tick.
+    auto keyOf = [](std::string key) {
+      for (const char* field : {" pos=", " at="}) {
+        const auto a = key.find(field);
+        if (a == std::string::npos) continue;
+        const auto b = key.find(' ', a + 1);
+        key.erase(a, b == std::string::npos ? std::string::npos : b - a);
+      }
+      return key;
+    };
+    std::string key = keyOf(line);
+    for (const auto& l : deckLines) key += "|" + keyOf(l);
     const std::uint64_t now = SDL_GetTicksNS();
     if (key == syncLastKey_ && now - syncLastSentNs_ < 250000000ull) return;
     syncLastKey_ = key;
     syncLastSentNs_ = now;
-    for (const auto& f : syncFollowers_) sendCompanionLine(f.socket, line, f.generation);
+    for (const auto& f : syncFollowers_) {
+      if (f.kind == "desk") {
+        for (const auto& l : deckLines) sendCompanionLine(f.socket, l, f.generation);
+      } else {
+        sendCompanionLine(f.socket, line, f.generation);
+      }
+    }
+  }
+
+  // Tell every follower this desk has stopped leading on purpose, so a backup
+  // does not take a deliberate stop (LEAD OFF, the desk closing) for a
+  // failure. Mini and Pocket ignore the line.
+  void endSyncLead(const std::string& why) {
+    for (const auto& f : syncFollowers_) sendCompanionLine(f.socket, "SYNC END " + why, f.generation);
+  }
+
+  // ── SYNC: this desk as a FOLLOWER of another desk ──
+  //
+  // Settings > Network "Follow a desk", or SYNC FOLLOW <ip[:port]> [BACKUP|
+  // FLEET]. The protocol Mini and Pocket follow with (FOLLOW, TIME, SYNC), on
+  // every playlist: a leader sends a desk one SYNC line per playlist. As a
+  // BACKUP this desk plays the show in step with every output black and its
+  // sound silent (syncHoldsOutputsDark); when the leader is silent for
+  // syncTakeoverMs it TAKES OVER where it is, already in step, and stays live
+  // until RE-ARM -- it never hands back on its own, so a flapping network
+  // cannot flip the show between two desks. FLEET plays along, live.
+  bool followingAsBackup() const {
+    return !project_.syncFollowHost.empty() && project_.syncFollowRole != "fleet";
+  }
+  bool syncHoldsOutputsDark() const { return followingAsBackup() && !backupLive_; }
+
+  static void deskFollowNonBlocking(SocketHandle sock) {
+#ifdef _WIN32
+    u_long on = 1;
+    ioctlsocket(static_cast<SOCKET>(sock), FIONBIO, &on);
+#else
+    fcntl(sock, F_SETFL, fcntl(sock, F_GETFL, 0) | O_NONBLOCK);
+#endif
+  }
+
+  static bool deskFollowWouldBlock() {
+#ifdef _WIN32
+    const int e = WSAGetLastError();
+    return e == WSAEWOULDBLOCK || e == WSAEINPROGRESS;
+#else
+    return errno == EAGAIN || errno == EWOULDBLOCK || errno == EINPROGRESS;
+#endif
+  }
+
+  // (Re)start following project_.syncFollowHost; an empty host stops.
+  void startDeskFollow() {
+    dropDeskFollowSocket();
+    deskFollowError_.clear();
+    deskFollowDecks_.clear();
+    deskFollowArmed_ = false;
+    deskFollowSeeks_ = 0;
+    backupLive_ = false;
+    backupDrill_ = false;
+    backupLiveWhy_.clear();
+    std::string host = trim(project_.syncFollowHost);
+    if (host.empty()) { deskFollow_ = DeskFollow::Off; return; }
+    int port = 5510;
+    const std::size_t colon = host.find(':');
+    if (colon != std::string::npos) {
+      const std::string digits = host.substr(colon + 1);
+      port = digits.empty() || digits.size() > 5 || digits.find_first_not_of("0123456789") != std::string::npos
+               ? 0 : std::atoi(digits.c_str());
+      host.erase(colon);
+    }
+    sockaddr_in addr {};
+    addr.sin_family = AF_INET;
+    addr.sin_port = htons(static_cast<uint16_t>(port));
+    if (host.empty() || port <= 0 || port > 65535 || inet_pton(AF_INET, host.c_str(), &addr.sin_addr) != 1) {
+      deskFollowError_ = "Type the leading desk's IP address, like 192.168.1.20";
+      deskFollow_ = DeskFollow::Lost;
+      return;
+    }
+    deskFollowAddr_ = addr;
+    showLog("SYNC", "following " + project_.syncFollowHost + " as " + project_.syncFollowRole);
+    connectDeskFollow();
+  }
+
+  void stopDeskFollow() {
+    dropDeskFollowSocket();
+    deskFollow_ = DeskFollow::Off;
+    deskFollowArmed_ = false;
+    backupLive_ = false;
+  }
+
+  void connectDeskFollow() {
+    dropDeskFollowSocket();
+    const SocketHandle sock = static_cast<SocketHandle>(socket(AF_INET, SOCK_STREAM, 0));
+    if (sock == kInvalidSocket) {
+      deskFollowError_ = "No network socket";
+      deskFollow_ = DeskFollow::Lost;
+      deskFollowRetryAt_ = SDL_GetTicks() + 2000;
+      return;
+    }
+    setCloseOnExec(sock);
+#ifdef SO_NOSIGPIPE
+    int noSigpipe = 1;
+    setsockopt(sock, SOL_SOCKET, SO_NOSIGPIPE, &noSigpipe, sizeof(noSigpipe));
+#endif
+    deskFollowNonBlocking(sock);
+    const int rc = connect(sock, reinterpret_cast<const sockaddr*>(&deskFollowAddr_), sizeof(deskFollowAddr_));
+    if (rc != 0 && !deskFollowWouldBlock()) {
+      closeSocket(sock);
+      deskFollowError_ = "Cannot reach the leading desk";
+      deskFollow_ = DeskFollow::Lost;
+      deskFollowRetryAt_ = SDL_GetTicks() + 2000;
+      return;
+    }
+    deskFollowSock_ = sock;
+    deskFollow_ = DeskFollow::Connecting;
+    deskFollowSince_ = SDL_GetTicks();
+  }
+
+  void dropDeskFollowSocket() {
+    if (deskFollowSock_ != kInvalidSocket) {
+      const char bye[] = "UNFOLLOW\n";
+      send(deskFollowSock_, bye, static_cast<int>(sizeof(bye) - 1), kSocketSendFlags);
+      closeSocket(deskFollowSock_);
+    }
+    deskFollowSock_ = kInvalidSocket;
+    deskFollowIn_.clear();
+    deskFollowOut_.clear();
+    deskFollowClock_.clear();
+    deskFollowClockReady_ = false;
+    deskFollowNextProbe_ = 0;
+  }
+
+  // The leader went: say why, and as an armed backup, take over.
+  void loseLeader(const std::string& why) {
+    if (deskFollowSock_ != kInvalidSocket) closeSocket(deskFollowSock_);
+    deskFollowSock_ = kInvalidSocket;
+    deskFollowIn_.clear();
+    deskFollowOut_.clear();
+    deskFollowClock_.clear();
+    deskFollowClockReady_ = false;
+    deskFollowError_ = why;
+    deskFollow_ = DeskFollow::Lost;
+    deskFollowRetryAt_ = SDL_GetTicks() + 2000;
+    if (deskFollowArmed_ && followingAsBackup()) backupTakeOver(why, false);
+    deskFollowArmed_ = false;
+  }
+
+  bool flushDeskFollow() {
+    while (!deskFollowOut_.empty()) {
+      const int n = static_cast<int>(send(deskFollowSock_, deskFollowOut_.data(),
+                                          static_cast<int>(deskFollowOut_.size()), kSocketSendFlags));
+      if (n > 0) deskFollowOut_.erase(0, static_cast<std::size_t>(n));
+      else if (n < 0 && deskFollowWouldBlock()) return true;
+      else { loseLeader("Cannot send to the leading desk"); return false; }
+    }
+    return true;
+  }
+
+  bool deskFollowSend(const std::string& line) {
+    if (deskFollowSock_ == kInvalidSocket) return false;
+    if (deskFollowOut_.size() + line.size() > 65536) { loseLeader("The leading desk is not reading"); return false; }
+    deskFollowOut_ += line;
+    return flushDeskFollow();
+  }
+
+  void serviceDeskFollow() {
+    if (deskFollow_ == DeskFollow::Off) return;
+    const Uint64 now = SDL_GetTicks();
+    if (deskFollowSock_ == kInvalidSocket) {
+      if (!project_.syncFollowHost.empty() && deskFollowAddr_.sin_port != 0 && now >= deskFollowRetryAt_) connectDeskFollow();
+      return;
+    }
+    if (deskFollow_ == DeskFollow::Connecting) {
+      fd_set writable, failed;
+      FD_ZERO(&writable);
+      FD_ZERO(&failed);
+      SocketHandle maxFd = deskFollowSock_;
+      watchFd(deskFollowSock_, &writable, maxFd);
+      watchFd(deskFollowSock_, &failed, maxFd);
+      timeval none {0, 0};
+      if (::select(selectNfds(maxFd), nullptr, &writable, &failed, &none) > 0 &&
+          (readyFd(deskFollowSock_, &writable) || readyFd(deskFollowSock_, &failed))) {
+        int soError = 0;
+        socklen_t len = sizeof(soError);
+        const int checked = getsockopt(deskFollowSock_, SOL_SOCKET, SO_ERROR, reinterpret_cast<char*>(&soError), &len);
+        if (checked != 0 || soError != 0) {
+          loseLeader("The leading desk did not answer on port " + std::to_string(ntohs(deskFollowAddr_.sin_port)));
+          return;
+        }
+        deskFollow_ = DeskFollow::Joining;
+        char host[256] {};
+        std::string name = gethostname(host, sizeof(host) - 1) == 0 ? std::string(host) : std::string("desk");
+        for (char& c : name) if (std::isspace(static_cast<unsigned char>(c))) c = '-';
+        deskFollowSend("FOLLOW " + name + " desk " + project_.syncFollowRole + "\n");
+        deskFollowNextProbe_ = 0;
+      } else if (now - deskFollowSince_ > 4000) {
+        loseLeader("No desk at that address (is network control on there?)");
+      }
+      return;
+    }
+    if (!flushDeskFollow()) return;
+    if (now >= deskFollowNextProbe_) {
+      if (!deskFollowSend("TIME " + std::to_string(SDL_GetTicksNS()) + "\n")) return;
+      deskFollowNextProbe_ = now + (deskFollowClock_.size() < 8 ? 150 : 2000);
+    }
+    char buf[8192];
+    for (;;) {
+      const int n = static_cast<int>(recv(deskFollowSock_, buf, sizeof(buf), 0));
+      if (n > 0) {
+        deskFollowIn_.append(buf, static_cast<std::size_t>(n));
+        if (deskFollowIn_.size() > 262144) { loseLeader("The leading desk sent too much"); return; }
+        continue;
+      }
+      if (n == 0) { loseLeader("The leading desk closed the connection"); return; }
+      if (!deskFollowWouldBlock()) { loseLeader("Lost the connection to the leading desk"); return; }
+      break;
+    }
+    std::size_t eol;
+    while ((eol = deskFollowIn_.find('\n')) != std::string::npos) {
+      std::string line = deskFollowIn_.substr(0, eol);
+      deskFollowIn_.erase(0, eol + 1);
+      if (!line.empty() && line.back() == '\r') line.pop_back();
+      takeDeskFollowLine(line);
+      if (deskFollowSock_ == kInvalidSocket) return;
+    }
+    // THE HEARTBEAT: the leader writes four times a second. Read the clock
+    // again: a line just taken set the heard time after `now`.
+    const Uint64 after = SDL_GetTicks();
+    const Uint64 heard = std::max(deskFollowHeardAt_, deskFollowSince_);
+    const Uint64 quiet = after > heard ? after - heard : 0;
+    if (deskFollowArmed_ && quiet > static_cast<Uint64>(std::max(250, project_.syncTakeoverMs))) {
+      if (followingAsBackup() && !backupLive_) {
+        backupTakeOver(deckboy::core::i18n::format("the primary was silent for {1}",
+                                                   {formatSeconds(static_cast<double>(quiet) / 1000.0)}), false);
+      }
+      deskFollow_ = DeskFollow::Lost;
+      deskFollowArmed_ = false;
+    }
+    if ((deskFollow_ == DeskFollow::Lost || deskFollow_ == DeskFollow::Joining) && quiet > 6000) {
+      loseLeader(deskFollow_ == DeskFollow::Joining ? "The leading desk did not take FOLLOW" : "The leading desk went quiet");
+    }
+  }
+
+  struct DeskSyncLine {
+    int deck = 1, num = 0;
+    std::string cue = "-", file, name, state = "stopped";
+    double pos = 0.0, speed = 1.0;
+    Uint64 at = 0;
+  };
+
+  static bool parseDeskSyncLine(const std::string& line, DeskSyncLine& out) {
+    if (line.rfind("SYNC ", 0) != 0) return false;
+    const std::string body = line.substr(5);
+    std::size_t at = 0;
+    while (at < body.size()) {
+      while (at < body.size() && body[at] == ' ') ++at;
+      const std::size_t eq = body.find('=', at);
+      if (eq == std::string::npos) break;
+      const std::string k = body.substr(at, eq - at);
+      std::string v;
+      if (eq + 1 < body.size() && body[eq + 1] == '"') {
+        const std::size_t close = body.find('"', eq + 2);
+        v = body.substr(eq + 2, (close == std::string::npos ? body.size() : close) - eq - 2);
+        at = close == std::string::npos ? body.size() : close + 1;
+      } else {
+        const std::size_t sp = body.find(' ', eq + 1);
+        v = body.substr(eq + 1, (sp == std::string::npos ? body.size() : sp) - eq - 1);
+        at = sp == std::string::npos ? body.size() : sp + 1;
+      }
+      if (k == "deck") out.deck = std::atoi(v.c_str());
+      else if (k == "cue") out.cue = v;
+      else if (k == "num") out.num = std::atoi(v.c_str());
+      else if (k == "file") out.file = v;
+      else if (k == "name") out.name = v;
+      else if (k == "state") out.state = v;
+      else if (k == "pos") out.pos = std::atof(v.c_str());
+      else if (k == "at") out.at = std::strtoull(v.c_str(), nullptr, 10);
+      else if (k == "speed") out.speed = std::atof(v.c_str());
+    }
+    return out.at != 0 && std::isfinite(out.pos) && std::isfinite(out.speed);
+  }
+
+  void takeDeskFollowLine(const std::string& line) {
+    const Uint64 now = SDL_GetTicks();
+    if (line.rfind("OK FOLLOW", 0) == 0) {
+      deskFollow_ = DeskFollow::Following;
+      deskFollowError_.clear();
+      deskFollowHeardAt_ = now;
+      return;
+    }
+    if (line.rfind("ERR FOLLOW", 0) == 0) {
+      const std::size_t colon = line.find(": ");
+      deskFollowArmed_ = false;   // refused, not failed: never a takeover
+      loseLeader(colon == std::string::npos ? line : "Leading desk: " + line.substr(colon + 2));
+      return;
+    }
+    if (line.rfind("OK TIME: ", 0) == 0) {
+      std::istringstream in(line.substr(9));
+      Uint64 sent = 0, desk = 0;
+      if (in >> sent >> desk && sent) {
+        const Uint64 back = SDL_GetTicksNS();
+        if (back >= sent) {
+          FollowClockSample c;
+          c.rtt = back - sent;
+          c.offset = static_cast<Sint64>(desk) - static_cast<Sint64>(sent + c.rtt / 2);
+          deskFollowClock_.push_back(c);
+          if (deskFollowClock_.size() > 8) deskFollowClock_.erase(deskFollowClock_.begin());
+          const FollowClockSample* best = &deskFollowClock_.front();
+          for (const FollowClockSample& k : deskFollowClock_) if (k.rtt < best->rtt) best = &k;
+          deskFollowOffset_ = best->offset;
+          deskFollowRtt_ = best->rtt;
+          deskFollowClockReady_ = deskFollowClock_.size() >= 3;
+        }
+      }
+      return;
+    }
+    if (line.rfind("SYNC END", 0) == 0) {
+      // A deliberate stop on the leader: not a failure, so no takeover.
+      deskFollowArmed_ = false;
+      deskFollowHeardAt_ = now;
+      deskFollow_ = DeskFollow::Lost;
+      deskFollowError_ = line.size() > 9 ? line.substr(9) : std::string("the leading desk stopped leading");
+      if (followingAsBackup() && !backupLive_) {
+        triggerToast(deckboy::core::i18n::format("Backup: {1}. It will not take over until the primary leads again.",
+                                                 {deskFollowError_}), ToastKind::Warning, kToastReadableMs);
+      }
+      return;
+    }
+    DeskSyncLine sync;
+    if (parseDeskSyncLine(line, sync)) {
+      deskFollowHeardAt_ = now;
+      if (deskFollow_ != DeskFollow::Following) deskFollow_ = DeskFollow::Following;
+      if (deskFollowClockReady_) {
+        deskFollowArmed_ = true;
+        applyDeskSync(sync);
+      }
+    }
+  }
+
+  // This desk's copy of the leader's cue: the same id (the same show on both),
+  // else the same media, else the same name.
+  static int deskLocalCueFor(const Deck& deck, const DeskSyncLine& sync) {
+    auto lower = [](std::string t) {
+      for (char& c : t) c = static_cast<char>(std::tolower(static_cast<unsigned char>(c)));
+      return t;
+    };
+    for (std::size_t i = 0; i < deck.cues.size(); ++i) if (deck.cues[i].id == sync.cue) return static_cast<int>(i);
+    if (!sync.file.empty()) {
+      const bool pattern = sync.file.rfind("pattern://", 0) == 0;
+      const std::string want = lower(sync.file);
+      for (std::size_t i = 0; i < deck.cues.size(); ++i) {
+        const std::string& path = deck.cues[i].path;
+        if (path.empty()) continue;
+        if (lower(pattern ? path : dbfs::path(path).filename().string()) == want) return static_cast<int>(i);
+      }
+    }
+    if (!sync.name.empty()) {
+      const std::string want = lower(sync.name);
+      for (std::size_t i = 0; i < deck.cues.size(); ++i) if (lower(deck.cues[i].name) == want) return static_cast<int>(i);
+    }
+    return -1;
+  }
+
+  void applyDeskSync(const DeskSyncLine& sync) {
+    const bool black = sync.state == "black";
+    if (black != deskFollowLeaderBlack_) {
+      deskFollowLeaderBlack_ = black;
+      // A fleet desk follows the leader's blackout; a backup remembers it for takeover.
+      if (!followingAsBackup()) masterDimmerTarget_ = black ? 0.0 : 1.0;
+    }
+    if (backupLive_) return;   // taken over: this desk runs the show now
+    const int d = sync.deck - 1;
+    if (d < 0 || d >= static_cast<int>(project_.decks.size())) return;
+    if (deskFollowDecks_.size() < project_.decks.size()) deskFollowDecks_.resize(project_.decks.size());
+    FollowDeckState& fd = deskFollowDecks_[static_cast<std::size_t>(d)];
+    const Uint64 now = SDL_GetTicks();
+    auto onDeck = [&](auto&& fn) {
+      const int saved = project_.focusedDeckIndex;
+      project_.focusedDeckIndex = d;
+      fn();
+      project_.focusedDeckIndex = std::clamp(saved, 0, static_cast<int>(project_.decks.size()) - 1);
+    };
+    if (sync.cue == "-") {
+      if (fd.cue != "-") {
+        fd.cue = "-";
+        fd.missing.clear();
+        if (activeCuePtr(d)) onDeck([&] { stopTransport(); });
+      }
+      return;
+    }
+    const bool playing = sync.state == "playing" || black;
+    const Cue* live = activeCuePtr(d);
+    if (sync.cue != fd.cue || !fd.missing.empty() || !live) {
+      fd.cue = sync.cue;
+      Deck& deck = project_.decks[static_cast<std::size_t>(d)];
+      const int local = deskLocalCueFor(deck, sync);
+      if (local < 0) {
+        // Never the wrong picture: this playlist goes dark and says which cue it lacks.
+        const std::string missing = !sync.name.empty() ? sync.name : !sync.file.empty() ? sync.file : "cue " + std::to_string(sync.num);
+        if (fd.missing != missing) showLog("SYNC", "playlist " + std::to_string(d + 1) + " has no copy of " + missing);
+        fd.missing = missing;
+        if (live) onDeck([&] { stopTransport(); });
+        return;
+      }
+      fd.missing.clear();
+      if (!live || live->id != deck.cues[static_cast<std::size_t>(local)].id) {
+        onDeck([&] {
+          selectCueInDeck(d, local, false, false);
+          takeSelected(playing, true, false, false);
+        });
+        fd.seekHoldUntil = now + 300;
+      }
+      live = activeCuePtr(d);
+      if (!live) return;
+    }
+    MediaEngine* engine = mediaEngineForDeck(d);
+    if (!engine) return;
+    if (!playing && engine->state() == TransportState::Playing) engine->pause();
+    if (playing && engine->state() != TransportState::Playing) engine->play();
+    if (live->kind != CueKind::Video && live->kind != CueKind::Audio && live->kind != CueKind::Pattern) return;
+    double expected = sync.pos;
+    if (playing) {
+      const Uint64 leaderNow = static_cast<Uint64>(static_cast<Sint64>(SDL_GetTicksNS()) + deskFollowOffset_);
+      const double since = static_cast<double>(static_cast<Sint64>(leaderNow - sync.at)) / 1e9;
+      expected += std::max(0.0, since) * (sync.speed > 0 ? sync.speed : 1.0);
+    }
+    const double out = engine->duration();
+    if (out > 0.0) {
+      if (expected > out && live->loop) expected = std::fmod(expected, out);
+      expected = std::clamp(expected, 0.0, out);
+    }
+    const double frame = live->fps > 0.0 ? 1.0 / live->fps : 1.0 / 30.0;
+    const double drift = engine->position() - expected;
+    fd.driftFrames = drift / frame;
+    if (now < fd.seekHoldUntil) return;
+    if (fd.seekLanding && playing && std::fabs(drift) < 0.5) fd.seekLead = std::clamp(fd.seekLead - 0.7 * drift, 0.0, 0.5);
+    fd.seekLanding = false;
+    if (std::fabs(drift) > 2.0 * frame) {
+      engine->seek(expected + (playing ? fd.seekLead : 0.0));
+      fd.seekHoldUntil = now + 600;
+      fd.seekLanding = playing;
+      ++deskFollowSeeks_;
+    }
+  }
+
+  // THE TAKEOVER: this desk is already playing the show in step, so taking
+  // over is only lifting the black and the silence (and, if set, cutting the
+  // ATEM to this desk's input). Latched until RE-ARM.
+  void backupTakeOver(const std::string& why, bool drill) {
+    if (backupLive_ || !followingAsBackup()) return;
+    backupLive_ = true;
+    backupDrill_ = drill;
+    backupLiveWhy_ = why;
+    backupLiveAt_ = SDL_GetTicks();
+    masterDimmerTarget_ = deskFollowLeaderBlack_ ? 0.0 : 1.0;
+    project_.masterDimmer = masterDimmerTarget_;   // at once: a fade up would be a dip on air
+    if (project_.syncBackupAtemInput > 0 && atemSwitcher_.connected()) {
+      atemSwitcher_.requestProgramCut(project_.syncBackupAtemInput);
+    }
+    showLog("SYNC", std::string(drill ? "DRILL: " : "") + "BACKUP TOOK OVER: " + why);
+    triggerToast(drill ? deckboy::core::i18n::format("DRILL: this backup is live ({1}). RE-ARM to go back.", {why})
+                       : deckboy::core::i18n::format("BACKUP LIVE: {1}. This desk has the show.", {why}),
+                 ToastKind::Warning, kToastReadableMs);
+  }
+
+  void backupRearm() {
+    if (!backupLive_) return;
+    backupLive_ = false;
+    backupDrill_ = false;
+    backupLiveWhy_.clear();
+    showLog("SYNC", "backup re-armed: outputs dark, following again");
+    triggerToast("Backup re-armed: outputs dark, following the primary");
+  }
+
+  std::string deskFollowStatusFields() const {
+    const char* names[] = {"off", "connecting", "joining", "following", "lost"};
+    double worst = 0.0;
+    std::string missing;
+    for (const auto& fd : deskFollowDecks_) {
+      worst = std::max(worst, std::fabs(fd.driftFrames));
+      if (missing.empty() && !fd.missing.empty()) missing = fd.missing;
+    }
+    std::ostringstream o;
+    o << std::fixed << std::setprecision(2);
+    o << " follow=" << names[static_cast<int>(deskFollow_)]
+      << " leader=" << (project_.syncFollowHost.empty() ? "-" : project_.syncFollowHost)
+      << " role=" << project_.syncFollowRole
+      << " armed=" << (deskFollowArmed_ ? 1 : 0)
+      << " backup=" << (!followingAsBackup() ? "-" : backupLive_ ? (backupDrill_ ? "drill" : "live") : "dark")
+      << " offset_ms=" << static_cast<double>(deskFollowOffset_) / 1e6
+      << " rtt_ms=" << static_cast<double>(deskFollowRtt_) / 1e6
+      << " drift_frames=" << worst << " seeks=" << deskFollowSeeks_
+      << " takeover_ms=" << project_.syncTakeoverMs
+      << " missing=\"" << missing << "\" error=\"" << deskFollowError_ << "\"";
+    return o.str();
+  }
+
+  // What the window shows while following: one line, and its colour.
+  std::string deskFollowBanner(SDL_Color* colour) const {
+    const SDL_Color amber {235, 160, 40, 255}, red {225, 50, 45, 255}, green {60, 190, 90, 255};
+    if (!followingAsBackup()) {
+      *colour = deskFollow_ == DeskFollow::Following ? green : amber;
+      return deskFollow_ == DeskFollow::Following ? std::string("FOLLOWING ") + project_.syncFollowHost
+                                                  : std::string("FOLLOW LOST: ") + deskFollowError_;
+    }
+    if (backupLive_) {
+      *colour = red;
+      return (backupDrill_ ? std::string("DRILL - BACKUP LIVE: ") : std::string("BACKUP LIVE: ")) + backupLiveWhy_;
+    }
+    *colour = amber;
+    if (deskFollow_ == DeskFollow::Following && deskFollowArmed_) {
+      for (const auto& fd : deskFollowDecks_) {
+        if (!fd.missing.empty()) return "BACKUP - DARK - MISSING " + fd.missing;
+      }
+      return "BACKUP - DARK - IN STEP WITH " + project_.syncFollowHost;
+    }
+    return "BACKUP - DARK - NOT FOLLOWING: " + (deskFollowError_.empty() ? std::string("connecting") : deskFollowError_);
   }
 
   void sendCompanionLine(SocketHandle client, const std::string& line, std::uint64_t generation = 0) {

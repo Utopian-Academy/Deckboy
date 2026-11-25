@@ -4926,3 +4926,32 @@ ACTIVE	ZARO
 nothing running	vaala zaro
 pre-wait {1}   action {2}   post-wait {3}   then {4}	munpena {1}   patakora {2}   novtokpena {3}   novtok {4}
 ' (CLASSIC, OPERATOR, SHOWPIECE, RUNDOWN, CLIPGRID, CUESTACK, CONSOLE, COMPACT or THEATRE)	' (CLASSIC, OPERATOR, SHOWPIECE, RUNDOWN, CLIPGRID, CUESTACK, CONSOLE, COMPACT nu THEATRE)
+DRILL	PENNASA
+FLEET	DEKAPATA
+BACKUP	GURWIA
+Backup	Gurwia
+RE-ARM	NOVPONI
+no cut	vaklura
+Follow as	Novtoki so kaewia
+input {1}	tira {1}
+of silence	vasona
+not a backup	vagurwia
+Follow a desk	Novtoki so dekadora
+Following {1} as a {2}	Novtoki so {1}, kaewia {2}
+Backup cuts the ATEM to	Gurwia rani ATEM go
+Backup takes over after	Gurwia tamseni novtok
+this backup is not live	gurwia nakae valumo
+Not following another desk	Vanovtoki so seto dekadora
+Not following another desk.	Vanovtoki so seto dekadora.
+the role is BACKUP or FLEET	kaewia: BACKUP o FLEET
+the primary was silent for {1}	munwia vasoni {1}
+BACKUP LIVE: {1}. This desk has the show.	GURWIA LUMO: {1}. Dekadora nakae guri vekarana.
+this backup is already live (SYNC REARM first)	gurwia nakae muna lumo (SYNC REARM una)
+this desk is not a backup (SYNC FOLLOW <ip> BACKUP)	dekadora nakae vagurwia (SYNC FOLLOW <ip> BACKUP)
+Backup re-armed: outputs dark, following the primary	Gurwia novpono: senadoraku niro, novtoki so munwia
+DRILL: this backup is live ({1}). RE-ARM to go back.	PENNASA: gurwia nakae lumo ({1}). NOVPONI: dopi.
+Backup {1} stopped following: this desk has no backup	Gurwia {1} halo novtoki so: dekadora nakae guri vagurwia
+Backup: {1}. It will not take over until the primary leads again.	Gurwia: {1}. Na vatamseni; peni munwia novtok muni.
+SYNC LEAD ON|OFF, STATUS, FOLLOW <ip> [BACKUP|FLEET], STOP, DRILL, REARM or TAKEOVER <ms>	SYNC LEAD ON|OFF, STATUS, FOLLOW <ip> [BACKUP|FLEET], STOP, DRILL, REARM o TAKEOVER <ms>
+The leading desk's IP address, like 192.168.1.20 (or 192.168.1.20:5510). Empty = do not follow	IP kaea sov dekadora muno: 192.168.1.20 (o 192.168.1.20:5510). Vano = vanovtoki so
+The switcher input this desk is on. At a takeover the backup cuts the programme to it. 0 = no cut	Setiwia tira sov dekadora nakae. Tok tamsena, gurwia rani koraveka go na. 0 = vaklura

@@ -4912,3 +4912,32 @@ ACTIVE	AKTIIVINEN
 nothing running	ei mitään käynnissä
 pre-wait {1}   action {2}   post-wait {3}   then {4}	esiodotus {1}   toiminto {2}   jälkiodotus {3}   sitten {4}
 ' (CLASSIC, OPERATOR, SHOWPIECE, RUNDOWN, CLIPGRID, CUESTACK, CONSOLE, COMPACT or THEATRE)	' (KLASSINEN, KÄYTTÄJÄ, ESITTELY, AJOJÄRJESTYS, LEIKERUUDUKKO, CUE-PINO, KONSOLI, TIIVIS tai TEATTERI)
+DRILL	HARJOITUS
+FLEET	LAIVASTO
+BACKUP	VARAPÖYTÄ
+Backup	Varapöytä
+RE-ARM	VIRITÄ TAAS
+no cut	ei leikkausta
+Follow as	Seuraa roolissa
+input {1}	tulo {1}
+of silence	hiljaisuuden jälkeen
+not a backup	ei varapöytä
+Follow a desk	Seuraa pöytää
+Following {1} as a {2}	Seurataan pöytää {1} roolissa {2}
+Backup cuts the ATEM to	Varapöydän ATEM-leikkaus:
+Backup takes over after	Varapöytä ottaa ohjat
+this backup is not live	tämä varapöytä ei ole suorana
+Not following another desk	Ei seuraa toista pöytää
+Not following another desk.	Ei seuraa toista pöytää.
+the role is BACKUP or FLEET	rooli on BACKUP tai FLEET
+the primary was silent for {1}	pääpöytä oli hiljaa {1}
+BACKUP LIVE: {1}. This desk has the show.	VARAPÖYTÄ SUORANA: {1}. Tällä pöydällä on esitys.
+this backup is already live (SYNC REARM first)	tämä varapöytä on jo suorana (ensin SYNC REARM)
+this desk is not a backup (SYNC FOLLOW <ip> BACKUP)	tämä pöytä ei ole varapöytä (SYNC FOLLOW <ip> BACKUP)
+Backup re-armed: outputs dark, following the primary	Varapöytä viritetty uudelleen: ulostulot tummina, seuraa pääpöytää
+DRILL: this backup is live ({1}). RE-ARM to go back.	HARJOITUS: tämä varapöytä on suorana ({1}). Paina VIRITÄ TAAS palataksesi.
+Backup {1} stopped following: this desk has no backup	Varapöytä {1} lopetti seuraamisen: tällä pöydällä ei ole varapöytää
+Backup: {1}. It will not take over until the primary leads again.	Varapöytä: {1}. Se ei ota ohjia ennen kuin pääpöytä johtaa taas.
+SYNC LEAD ON|OFF, STATUS, FOLLOW <ip> [BACKUP|FLEET], STOP, DRILL, REARM or TAKEOVER <ms>	SYNC LEAD ON|OFF, STATUS, FOLLOW <ip> [BACKUP|FLEET], STOP, DRILL, REARM tai TAKEOVER <ms>
+The leading desk's IP address, like 192.168.1.20 (or 192.168.1.20:5510). Empty = do not follow	Johtavan pöydän IP-osoite, esim. 192.168.1.20 (tai 192.168.1.20:5510). Tyhjä = älä seuraa
+The switcher input this desk is on. At a takeover the backup cuts the programme to it. 0 = no cut	Switcherin tulo, jossa tämä pöytä on. Ohjien vaihdossa varapöytä leikkaa ohjelman siihen. 0 = ei leikkausta

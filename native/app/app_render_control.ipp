@@ -1491,6 +1491,7 @@
     //
     // A toast is a reply to something the operator just did. It has to be
     // legible from wherever they did it.
+    renderSyncBanner(width, height);
     renderToast(width);
     // One decode per frame, after the list has said what it is missing.
     servicePendingRowThumbnail();
@@ -3586,6 +3587,24 @@
                            line, pal.fgSoft);
       y += lineH;
     }
+  }
+
+  // A desk following another says so on every screen: amber while a backup
+  // waits dark, red once it has the show. No operator should have to open
+  // Settings to learn that this desk's outputs are black on purpose.
+  void renderSyncBanner(int windowWidth, int windowHeight) {
+    if (project_.syncFollowHost.empty() || deskFollow_ == DeskFollow::Off) return;
+    SDL_Color colour {};
+    const std::string text = deskFollowBanner(&colour);
+    const int t = uiScaled(backupLive_ ? 4 : 3);
+    for (const SDL_Rect& r : {SDL_Rect {0, 0, windowWidth, t}, SDL_Rect {0, windowHeight - t, windowWidth, t},
+                              SDL_Rect {0, 0, t, windowHeight}, SDL_Rect {windowWidth - t, 0, t, windowHeight}}) {
+      Primitives::fillRect(controlRenderer_, r, colour);
+    }
+    const int w = std::min(windowWidth - uiScaled(40), measuredTextWidth(fontSmall_, text) + uiScaled(28));
+    SDL_Rect pill {(windowWidth - w) / 2, t, w, textLineHeight(fontSmall_) + uiScaled(8)};
+    Primitives::fillRect(controlRenderer_, pill, colour);
+    drawCenteredTextSafe(controlRenderer_, fontSmall_, pill, text, paletteInkOnFill(colour));
   }
 
   void renderToast(int windowWidth) {

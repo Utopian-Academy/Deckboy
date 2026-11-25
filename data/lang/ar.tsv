@@ -4928,3 +4928,32 @@ ACTIVE	نشط
 nothing running	لا شيء يعمل
 pre-wait {1}   action {2}   post-wait {3}   then {4}	انتظار مسبق {1}   إجراء {2}   انتظار لاحق {3}   ثم {4}
 ' (CLASSIC, OPERATOR, SHOWPIECE, RUNDOWN, CLIPGRID, CUESTACK, CONSOLE, COMPACT or THEATRE)	' (كلاسيكي، المشغّل، واجهة العرض، جدول الفقرات، شبكة المقاطع، مكدس الكيوهات، وحدة التحكم، مضغوط أو مسرح)
+DRILL	تمرين
+FLEET	أسطول
+BACKUP	احتياطي
+Backup	احتياطي
+RE-ARM	إعادة التجهيز
+no cut	بلا قطع
+Follow as	اتبع بصفة
+input {1}	الدخل {1}
+of silence	من الصمت
+not a backup	ليس احتياطيًا
+Follow a desk	اتبع طاولة تحكم
+Following {1} as a {2}	يتبع {1} بصفة {2}
+Backup cuts the ATEM to	الاحتياطي يقطع ATEM إلى
+Backup takes over after	الاحتياطي يتولى بعد
+this backup is not live	هذا الاحتياطي ليس مباشرًا
+Not following another desk	لا يتبع طاولة تحكم أخرى
+Not following another desk.	لا يتبع طاولة تحكم أخرى.
+the role is BACKUP or FLEET	الدور هو BACKUP أو FLEET
+the primary was silent for {1}	كان الأساسي صامتًا لمدة {1}
+BACKUP LIVE: {1}. This desk has the show.	الاحتياطي مباشر: {1}. طاولة التحكم هذه تملك العرض.
+this backup is already live (SYNC REARM first)	هذا الاحتياطي مباشر بالفعل (SYNC REARM أولًا)
+this desk is not a backup (SYNC FOLLOW <ip> BACKUP)	طاولة التحكم هذه ليست احتياطية (SYNC FOLLOW <ip> BACKUP)
+Backup re-armed: outputs dark, following the primary	أُعيد تجهيز الاحتياطي: المخارج داكنة، يتبع الأساسي
+DRILL: this backup is live ({1}). RE-ARM to go back.	تمرين: هذا الاحتياطي مباشر ({1}). إعادة التجهيز للرجوع.
+Backup {1} stopped following: this desk has no backup	توقف الاحتياطي {1} عن المتابعة: طاولة التحكم هذه بلا احتياطي
+Backup: {1}. It will not take over until the primary leads again.	الاحتياطي: {1}. لن يتولى حتى يقود الأساسي مجددًا.
+SYNC LEAD ON|OFF, STATUS, FOLLOW <ip> [BACKUP|FLEET], STOP, DRILL, REARM or TAKEOVER <ms>	SYNC LEAD ON|OFF, STATUS, FOLLOW <ip> [BACKUP|FLEET], STOP, DRILL, REARM أو TAKEOVER <ms>
+The leading desk's IP address, like 192.168.1.20 (or 192.168.1.20:5510). Empty = do not follow	عنوان IP لطاولة التحكم القائدة، مثل 192.168.1.20 (أو 192.168.1.20:5510). فارغ = لا تتبع
+The switcher input this desk is on. At a takeover the backup cuts the programme to it. 0 = no cut	دخل المبدّل الذي عليه طاولة التحكم هذه. عند التولي يقطع الاحتياطي البرنامج إليه. 0 = بلا قطع

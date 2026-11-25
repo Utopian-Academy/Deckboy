@@ -4884,3 +4884,32 @@ ACTIVE	AKTYWNY
 nothing running	nic nie działa
 pre-wait {1}   action {2}   post-wait {3}   then {4}	wstępne czekanie {1}   akcja {2}   czekanie końcowe {3}   potem {4}
 ' (CLASSIC, OPERATOR, SHOWPIECE, RUNDOWN, CLIPGRID, CUESTACK, CONSOLE, COMPACT or THEATRE)	' (KLASYCZNY, OPERATOR, POKAZOWY, SCENARIUSZ, SIATKA KLIPÓW, STOS CUE, KONSOLA, KOMPAKTOWY lub TEATR)
+DRILL	ĆWICZENIE
+FLEET	FLOTA
+BACKUP	REZERWA
+Backup	Rezerwa
+RE-ARM	UZBRÓJ ZNÓW
+no cut	bez cięcia
+Follow as	Śledź jako
+input {1}	wejście {1}
+of silence	ciszy
+not a backup	nie jest rezerwą
+Follow a desk	Śledź pulpit
+Following {1} as a {2}	Śledzi {1} jako {2}
+Backup cuts the ATEM to	Rezerwa przełącza ATEM na
+Backup takes over after	Rezerwa przejmuje po
+this backup is not live	ta rezerwa nie jest na żywo
+Not following another desk	Nie śledzi innego pulpitu
+Not following another desk.	Nie śledzi innego pulpitu.
+the role is BACKUP or FLEET	rola to BACKUP lub FLEET
+the primary was silent for {1}	główny milczał przez {1}
+BACKUP LIVE: {1}. This desk has the show.	REZERWA NA ŻYWO: {1}. Ten pulpit prowadzi spektakl.
+this backup is already live (SYNC REARM first)	ta rezerwa jest już na żywo (najpierw SYNC REARM)
+this desk is not a backup (SYNC FOLLOW <ip> BACKUP)	ten pulpit nie jest rezerwą (SYNC FOLLOW <ip> BACKUP)
+Backup re-armed: outputs dark, following the primary	Rezerwa uzbrojona ponownie: wyjścia ciemne, śledzi główny
+DRILL: this backup is live ({1}). RE-ARM to go back.	ĆWICZENIE: ta rezerwa jest na żywo ({1}). Naciśnij UZBRÓJ ZNÓW, aby wrócić.
+Backup {1} stopped following: this desk has no backup	Rezerwa {1} przestała śledzić: ten pulpit nie ma rezerwy
+Backup: {1}. It will not take over until the primary leads again.	Rezerwa: {1}. Nie przejmie, dopóki główny znów nie zacznie prowadzić.
+SYNC LEAD ON|OFF, STATUS, FOLLOW <ip> [BACKUP|FLEET], STOP, DRILL, REARM or TAKEOVER <ms>	SYNC LEAD ON|OFF, STATUS, FOLLOW <ip> [BACKUP|FLEET], STOP, DRILL, REARM lub TAKEOVER <ms>
+The leading desk's IP address, like 192.168.1.20 (or 192.168.1.20:5510). Empty = do not follow	Adres IP pulpitu prowadzącego, np. 192.168.1.20 (lub 192.168.1.20:5510). Puste = nie śledź
+The switcher input this desk is on. At a takeover the backup cuts the programme to it. 0 = no cut	Wejście switchera, na którym jest ten pulpit. Przy przejęciu rezerwa przełącza program na nie. 0 = bez cięcia

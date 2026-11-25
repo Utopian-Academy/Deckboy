@@ -3980,3 +3980,32 @@ ACTIVE	AKTYVUS
 nothing running	niekas nevykdoma
 pre-wait {1}   action {2}   post-wait {3}   then {4}	laukimas prieš {1}   veiksmas {2}   laukimas po {3}   tada {4}
 ' (CLASSIC, OPERATOR, SHOWPIECE, RUNDOWN, CLIPGRID, CUESTACK, CONSOLE, COMPACT or THEATRE)	' (CLASSIC, OPERATOR, SHOWPIECE, RUNDOWN, CLIPGRID, CUESTACK, CONSOLE, COMPACT arba THEATRE)
+DRILL	PRATYBOS
+FLEET	GRUPĖ
+BACKUP	ATSARGINIS
+Backup	Atsarginis
+RE-ARM	VĖL PARUOŠTI
+no cut	be kirpimo
+Follow as	Sekti kaip
+input {1}	įėjimas {1}
+of silence	tylos
+not a backup	ne atsarginis
+Follow a desk	Sekti pultą
+Following {1} as a {2}	Seka {1} kaip {2}
+Backup cuts the ATEM to	Atsarginis perjungia ATEM į
+Backup takes over after	Atsarginis perima po
+this backup is not live	šis atsarginis nėra tiesioginis
+Not following another desk	Neseka kito pulto
+Not following another desk.	Neseka kito pulto.
+the role is BACKUP or FLEET	vaidmuo yra BACKUP arba FLEET
+the primary was silent for {1}	pagrindinis pultas tylėjo {1}
+BACKUP LIVE: {1}. This desk has the show.	ATSARGINIS TIESIOGIAI: {1}. Šou valdo šis pultas.
+this backup is already live (SYNC REARM first)	šis atsarginis jau tiesiogiai (pirma SYNC REARM)
+this desk is not a backup (SYNC FOLLOW <ip> BACKUP)	šis pultas nėra atsarginis (SYNC FOLLOW <ip> BACKUP)
+Backup re-armed: outputs dark, following the primary	Atsarginis vėl paruoštas: išvestys tamsios, seka pagrindinį pultą
+DRILL: this backup is live ({1}). RE-ARM to go back.	PRATYBOS: šis atsarginis tiesiogiai ({1}). VĖL PARUOŠTI – grįžti atgal.
+Backup {1} stopped following: this desk has no backup	Atsarginis {1} nustojo sekti: šis pultas neturi atsarginio
+Backup: {1}. It will not take over until the primary leads again.	Atsarginis: {1}. Jis neperims, kol pagrindinis pultas vėl nevadovaus.
+SYNC LEAD ON|OFF, STATUS, FOLLOW <ip> [BACKUP|FLEET], STOP, DRILL, REARM or TAKEOVER <ms>	SYNC LEAD ON|OFF, STATUS, FOLLOW <ip> [BACKUP|FLEET], STOP, DRILL, REARM arba TAKEOVER <ms>
+The leading desk's IP address, like 192.168.1.20 (or 192.168.1.20:5510). Empty = do not follow	Vedančiojo pulto IP adresas, pvz., 192.168.1.20 (arba 192.168.1.20:5510). Tuščia = nesekti
+The switcher input this desk is on. At a takeover the backup cuts the programme to it. 0 = no cut	Maišytuvo įėjimas, kuriame yra šis pultas. Perėmimo metu atsarginis perjungia programą į jį. 0 = be kirpimo

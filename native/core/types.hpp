@@ -3040,6 +3040,15 @@ struct Project {
   // SYNC: this desk leads other machines (Pockets, Minis, a backup desk) that
   // connect and FOLLOW it. Saved with the show so a restarted desk leads again.
   bool syncLead = false;
+  // SYNC as a FOLLOWER (app_network.ipp): this desk follows the desk at
+  // syncFollowHost (IPv4[:port]; empty = not following). Role "backup" plays
+  // the show in step with its outputs black and its sound silent, and TAKES
+  // OVER when the leader is silent for syncTakeoverMs; "fleet" plays along.
+  // syncBackupAtemInput > 0: at takeover, cut the ATEM's programme to it.
+  std::string syncFollowHost;
+  std::string syncFollowRole = "backup";
+  int syncTakeoverMs = 1000;
+  int syncBackupAtemInput = 0;
   // MEDIAMTX: the media router a show can share -- phones, cameras and OBS
   // publish into it, and Deckboy's programme goes out through it to any number
   // of viewers. Where it runs; empty means this computer. Its own default

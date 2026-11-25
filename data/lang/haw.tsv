@@ -4878,3 +4878,32 @@ ACTIVE	ʻELEU
 nothing running	ʻaʻohe mea e holo ana
 pre-wait {1}   action {2}   post-wait {3}   then {4}	kali mua {1}   hana {2}   kali hope {3}   a laila {4}
 ' (CLASSIC, OPERATOR, SHOWPIECE, RUNDOWN, CLIPGRID, CUESTACK, CONSOLE, COMPACT or THEATRE)	' (CLASSIC, OPERATOR, SHOWPIECE, RUNDOWN, CLIPGRID, CUESTACK, CONSOLE, COMPACT a i ʻole THEATRE)
+DRILL	HOʻOMAʻAMAʻA
+FLEET	PŪʻULU
+BACKUP	KĀKOʻO
+Backup	Kākoʻo
+RE-ARM	HOʻOMĀKAUKAU HOU
+no cut	ʻaʻohe ʻoki
+Follow as	Hahai ma ke ʻano
+input {1}	hoʻokomo {1}
+of silence	o ka hāmau
+not a backup	ʻaʻole he kākoʻo
+Follow a desk	Hahai i kekahi papa
+Following {1} as a {2}	Ke hahai nei i {1} ma ke ʻano he {2}
+Backup cuts the ATEM to	ʻOki ke kākoʻo i ka ATEM i
+Backup takes over after	Lawe ke kākoʻo ma hope o
+this backup is not live	ʻaʻole ola kēia kākoʻo
+Not following another desk	ʻAʻole e hahai ana i kekahi papa ʻē
+Not following another desk.	ʻAʻole e hahai ana i kekahi papa ʻē.
+the role is BACKUP or FLEET	ʻo BACKUP a i ʻole FLEET ke kūlana
+the primary was silent for {1}	ua hāmau ka papa alakaʻi no {1}
+BACKUP LIVE: {1}. This desk has the show.	KĀKOʻO OLA: {1}. Aia ka hōʻike i kēia papa.
+this backup is already live (SYNC REARM first)	ua ola mua kēia kākoʻo (SYNC REARM mua)
+this desk is not a backup (SYNC FOLLOW <ip> BACKUP)	ʻaʻole he kākoʻo kēia papa (SYNC FOLLOW <ip> BACKUP)
+Backup re-armed: outputs dark, following the primary	Ua hoʻomākaukau hou ʻia ke kākoʻo: pouli nā puka, ke hahai nei i ka papa alakaʻi
+DRILL: this backup is live ({1}). RE-ARM to go back.	HOʻOMAʻAMAʻA: ua ola kēia kākoʻo ({1}). HOʻOMĀKAUKAU HOU e hoʻi.
+Backup {1} stopped following: this desk has no backup	Ua hoʻōki ke kākoʻo {1} i ka hahai: ʻaʻohe kākoʻo o kēia papa
+Backup: {1}. It will not take over until the primary leads again.	Kākoʻo: {1}. ʻAʻole ia e lawe a alakaʻi hou ka papa alakaʻi.
+SYNC LEAD ON|OFF, STATUS, FOLLOW <ip> [BACKUP|FLEET], STOP, DRILL, REARM or TAKEOVER <ms>	SYNC LEAD ON|OFF, STATUS, FOLLOW <ip> [BACKUP|FLEET], STOP, DRILL, REARM a i ʻole TAKEOVER <ms>
+The leading desk's IP address, like 192.168.1.20 (or 192.168.1.20:5510). Empty = do not follow	Ka helu wahi IP o ka papa alakaʻi, e like me 192.168.1.20 (a i ʻole 192.168.1.20:5510). Hakahaka = mai hahai
+The switcher input this desk is on. At a takeover the backup cuts the programme to it. 0 = no cut	Ka hoʻokomo switcher o kēia papa. I ka lawe ʻana, ʻoki ke kākoʻo i ka papahana i laila. 0 = ʻaʻohe ʻoki

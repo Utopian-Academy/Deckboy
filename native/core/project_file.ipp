@@ -237,6 +237,8 @@ void writeProjectScalars(std::ostream& output, const Project& project) {
   output << "midi_device\t" << escapeField(project.midiDeviceName) << '\n';
   output << "update_check\t" << (project.updateCheckEnabled ? 1 : 0) << '\n';
   output << "sync_lead\t" << (project.syncLead ? 1 : 0) << '\n';
+  output << "sync_follow\t" << escapeField(project.syncFollowHost) << '\t' << escapeField(project.syncFollowRole)
+         << '\t' << project.syncTakeoverMs << '\t' << project.syncBackupAtemInput << '\n';
   // The mask library, one line each (core/masks.hpp, serializeMask).
   for (const deckboy::masks::Mask& mask : project.masks) {
     output << "mask\t" << escapeField(deckboy::masks::serializeMask(mask, serializeGeometryLfos(mask.lfo)))
@@ -1542,6 +1544,11 @@ bool applyProjectScalarLine(Project& project, const std::vector<std::string>& fi
     project.updateCheckEnabled = safeBool(fields, 1, false);
   } else if (fields[0] == "sync_lead") {
     project.syncLead = safeBool(fields, 1, false);
+  } else if (fields[0] == "sync_follow") {
+    project.syncFollowHost = safeString(fields, 1);
+    project.syncFollowRole = safeString(fields, 2) == "fleet" ? "fleet" : "backup";
+    project.syncTakeoverMs = std::clamp(safeInt(fields, 3, 1000), 250, 10000);
+    project.syncBackupAtemInput = std::clamp(safeInt(fields, 4, 0), 0, 9999);
   } else if (fields[0] == "mask") {
     deckboy::masks::Mask mask;
     std::string lfoText;

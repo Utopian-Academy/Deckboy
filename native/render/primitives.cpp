@@ -742,7 +742,13 @@ bool drawKitPiece(SDL_Renderer* renderer, const ChromeKitPiece& piece, const std
   const float body = std::max(1.0f, piece.inset - piece.pad);
   const float k = std::min({1.0f, static_cast<float>(rect.w) / (2.0f * body * s),
                             static_cast<float>(rect.h) / (2.0f * body * s)});
-  const float pad = piece.pad * s * k, inset = piece.inset * s * k;
+  // WHOLE PIXELS. On a small key the top and bottom corners meet; at
+  // fractional sizes they overlapped by a sliver and the shadow there was
+  // drawn twice: a dark dash beside every small key (James 11-24, COPY /
+  // PASTE / RESET and the cue's play marker). Corners rounded down, the
+  // rectangle out, so they can only ever leave a gap of the middle.
+  const float pad = std::round(piece.pad * s * k);
+  const float inset = std::max(1.0f, std::floor(std::min(piece.inset * s * k, (static_cast<float>(std::min(rect.w, rect.h)) + 2.0f * pad) / 2.0f)));
   const SDL_FRect dst {rect.x - pad, rect.y - pad, rect.w + 2.0f * pad, rect.h + 2.0f * pad};
   const float srcInset = piece.inset * static_cast<float>(density);
   // What fills the middle goes UNDER the piece, out as far as its edge
@@ -757,6 +763,34 @@ bool drawKitPiece(SDL_Renderer* renderer, const ChromeKitPiece& piece, const std
   SDL_SetTextureColorMod(tex, 255, 255, 255);
   SDL_SetTextureBlendMode(tex, SDL_BLENDMODE_BLEND);
   if (middle) *middle = {dst.x + inset, dst.y + inset, std::max(0.0f, dst.w - 2 * inset), std::max(0.0f, dst.h - 2 * inset)};
+  return true;
+}
+
+// A seamless material over `area`, tiled from the WINDOW's corner, so two
+// panels side by side show one continuous picture.
+bool drawKitTileAnchored(SDL_Renderer* renderer, const std::string& file, const SDL_FRect& area, float s) {
+  if (area.w <= 0.0f || area.h <= 0.0f) return true;
+  int density = 1;
+  SDL_Texture* tex = kitTexture(renderer, file, static_cast<int>(gChrome.kit.tileDensity), s, &density);
+  if (!tex) return false;
+  float tw = 0.0f, th = 0.0f;
+  SDL_GetTextureSize(tex, &tw, &th);
+  const float scale = s / static_cast<float>(density);
+  tw *= scale;
+  th *= scale;
+  if (tw < 1.0f || th < 1.0f) return false;
+  const float x0 = std::floor(area.x / tw) * tw, y0 = std::floor(area.y / th) * th;
+  SDL_Rect want {static_cast<int>(std::floor(area.x)), static_cast<int>(std::floor(area.y)),
+                 static_cast<int>(std::ceil(area.x + area.w) - std::floor(area.x)),
+                 static_cast<int>(std::ceil(area.y + area.h) - std::floor(area.y))};
+  const bool clipped = SDL_RenderClipEnabled(renderer);
+  SDL_Rect previous {};
+  SDL_GetRenderClipRect(renderer, &previous);
+  if (clipped && !SDL_GetRectIntersection(&previous, &want, &want)) return true;
+  SDL_SetRenderClipRect(renderer, &want);
+  const SDL_FRect span {x0, y0, area.x + area.w - x0, area.y + area.h - y0};
+  SDL_RenderTextureTiled(renderer, tex, nullptr, scale, &span);
+  SDL_SetRenderClipRect(renderer, clipped ? &previous : nullptr);
   return true;
 }
 
@@ -837,19 +871,19 @@ void drawKitBoardLife(SDL_Renderer* renderer, const SDL_FRect& area, float s) {
     return SDL_Color {ch(c.r, tint.r), ch(c.g, tint.g), ch(c.b, tint.b), 255};
   };
   static const SDL_Color kLed[] = {{255, 50, 35, 255}, {70, 255, 100, 255}, {255, 175, 30, 255}, {80, 150, 255, 255}};
-  const float cell = 320.0f * s;   // one chance in a cell this big
+  const float cell = 480.0f * s;   // one chance in a cell this big: ever so sparse
   const int cx0 = static_cast<int>(std::floor(area.x / cell)), cx1 = static_cast<int>(std::floor((area.x + area.w) / cell));
   const int cy0 = static_cast<int>(std::floor(area.y / cell)), cy1 = static_cast<int>(std::floor((area.y + area.h) / cell));
   for (int cy = cy0; cy <= cy1; ++cy) {
     for (int cx = cx0; cx <= cx1; ++cx) {
-      if (lifeRand(cx, cy, 1) > 0.32f) continue;
+      if (lifeRand(cx, cy, 1) > 0.26f) continue;
       const float x = (cx + 0.2f + 0.6f * lifeRand(cx, cy, 2)) * cell;
       const float y = (cy + 0.2f + 0.6f * lifeRand(cx, cy, 3)) * cell;
       const SDL_Color c = through(kLed[lifeHash(cx, cy, 4) % 4]);
       float level = 0.55f;   // the steady glow
       if (live) {
         // a quick double flash every few seconds, each LED its own period
-        const double period = 3.0 + 6.0 * lifeRand(cx, cy, 7);
+        const double period = 6.0 + 8.0 * lifeRand(cx, cy, 7);   // seldom: every 6 to 14 seconds
         const double ph = std::fmod(t / period + lifeRand(cx, cy, 6), 1.0) * period;   // seconds into this cycle
         if (ph < 0.09 || (ph > 0.20 && ph < 0.29)) level = 1.0f;
         else if (ph < 0.20) level = 0.15f;
@@ -879,7 +913,7 @@ bool drawKitChrome(SDL_Renderer* renderer, const SDL_Rect& rect, SDL_Color fill,
   if (!control && SDL_GetCurrentRenderOutputSize(renderer, &outW, &outH) && outW > 0 && outH > 0 &&
       static_cast<double>(rect.w) * rect.h > 0.85 * static_cast<double>(outW) * outH) {
     const SDL_FRect area {static_cast<float>(rect.x), static_cast<float>(rect.y), static_cast<float>(rect.w), static_cast<float>(rect.h)};
-    if (!drawKitTile(renderer, kit.tileDesk, area, s)) return false;
+    if (!(kit.layered ? drawKitTileAnchored(renderer, kit.tileDesk, area, s) : drawKitTile(renderer, kit.tileDesk, area, s))) return false;
     drawKitBoardLife(renderer, area, s);
     recordSurface(renderer, rect, kit.surfaceDesk);
     return true;
@@ -889,9 +923,15 @@ bool drawKitChrome(SDL_Renderer* renderer, const SDL_Rect& rect, SDL_Color fill,
   const bool panelColour = colourDistance(fill, kit.surfacePanel) < tol;
   const bool wellColour = colourDistance(fill, kit.surfaceWell) < tol;
   const bool deskColour = colourDistance(fill, kit.surfaceDesk) < tol;
-  const bool surface = panelColour || wellColour || deskColour;
   // A dark fill on a large area is a screen or a monitor's surround.
   const bool screenDark = fill.r + fill.g + fill.b < 3 * 34;
+  // ...even when a dark skin's own plastic is near it (a clear skin's desk
+  // is a deep colour within 60 of a monitor's black): a dark fill is the
+  // skin's surface only when it is that colour almost exactly.
+  const int darkTol = 12;
+  const bool surface = screenDark ? (colourDistance(fill, kit.surfacePanel) < darkTol || colourDistance(fill, kit.surfaceWell) < darkTol ||
+                                     colourDistance(fill, kit.surfaceDesk) < darkTol)
+                                  : (panelColour || wellColour || deskColour);
   SDL_FRect middle {};
   // Controls are always caps. The drawn painter's raised/sunken comes from
   // comparing two colours, and on a lit key that says "sunken": rendered,
@@ -900,7 +940,11 @@ bool drawKitChrome(SDL_Renderer* renderer, const SDL_Rect& rect, SDL_Color fill,
     // A recess: its lip and the shadow under it rendered, the floor tiled,
     // or the colour asked for (a black monitor well stays black).
     auto floor = [&](const SDL_FRect& area) {
-      if (surface) {
+      if (surface && kit.layered) {
+        drawKitTileAnchored(renderer, kit.tileDesk, area, s);
+        drawKitBoardLife(renderer, area, s);
+        drawKitTile(renderer, kit.tileWell, area, s);
+      } else if (surface) {
         drawKitTile(renderer, kit.tileWell, area, s);
       } else {
         SDL_SetRenderDrawColor(renderer, fill.r, fill.g, fill.b, 255);
@@ -919,9 +963,29 @@ bool drawKitChrome(SDL_Renderer* renderer, const SDL_Rect& rect, SDL_Color fill,
     const ChromeKitPiece& panelPiece = smallPanel ? kit.panelPlain : kit.panel;
     if (!drawKitPiece(renderer, panelPiece, panelPiece.file, rect, s, {255, 255, 255, 255}, SDL_BLENDMODE_BLEND, &middle,
                       [&](const SDL_FRect& area) {
-                        drawKitTile(renderer, kit.tilePanel, area, s);
-                        drawKitBoardLife(renderer, area, s);
+                        if (kit.layered) {
+                          // the board under the whole desk, then the frosted middle over it
+                          drawKitTileAnchored(renderer, kit.tileDesk, area, s);
+                          drawKitBoardLife(renderer, area, s);
+                          drawKitTile(renderer, kit.tilePanel, area, s);
+                        } else {
+                          drawKitTile(renderer, kit.tilePanel, area, s);
+                          drawKitBoardLife(renderer, area, s);
+                        }
                       })) return false;
+    // A big plate is screwed down at its corners; a small one is not.
+    if (kit.layered && !kit.screw.empty() && rect.w >= 12.0f * kit.screwIn * s && rect.h >= 10.0f * kit.screwIn * s) {
+      int density = 1;
+      if (SDL_Texture* screw = kitTexture(renderer, kit.screw, static_cast<int>(kit.density), s, &density)) {
+        const float size = kit.screwSize * s, in = kit.screwIn * s;
+        for (int corner = 0; corner < 4; ++corner) {
+          const float cx = corner & 1 ? rect.x + rect.w - in : rect.x + in;
+          const float cy = corner & 2 ? rect.y + rect.h - in : rect.y + in;
+          const SDL_FRect d {cx - size / 2, cy - size / 2, size, size};
+          SDL_RenderTexture(renderer, screw, nullptr, &d);
+        }
+      }
+    }
     recordSurface(renderer, rect, kit.surfacePanel);
     return true;
   }
@@ -994,6 +1058,12 @@ bool loadChromeKit(const std::string& dir, ChromeKit& kit) {
     else if (key == "surface_well") parseKitColour(str(1), &k.surfaceWell);
     else if (key == "surface_desk") parseKitColour(str(1), &k.surfaceDesk);
     else if (key == "board") k.board = str(1) == "1";
+    else if (key == "layered") k.layered = str(1) == "1";
+    else if (key == "screw") {
+      k.screw = str(1);
+      k.screwSize = std::max(1.0f, num(2, 24.0f));
+      k.screwIn = std::max(1.0f, num(3, 22.0f));
+    }
   }
   if (seen < 4) return false;
   kit = k;

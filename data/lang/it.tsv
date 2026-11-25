@@ -4880,3 +4880,30 @@ ACTIVE	ATTIVO
 nothing running	niente in corso
 pre-wait {1}   action {2}   post-wait {3}   then {4}	pre-attesa {1}   azione {2}   post-attesa {3}   poi {4}
 ' (CLASSIC, OPERATOR, SHOWPIECE, RUNDOWN, CLIPGRID, CUESTACK, CONSOLE, COMPACT or THEATRE)	' (CLASSIC, OPERATOR, SHOWPIECE, RUNDOWN, CLIPGRID, CUESTACK, CONSOLE, COMPACT o THEATRE)
+DRILL	PROVA
+FLEET	FLOTTA
+RE-ARM	RIARMA
+no cut	nessun taglio
+Follow as	Segui come
+input {1}	ingresso {1}
+of silence	di silenzio
+not a backup	non è un backup
+Follow a desk	Segui una console
+Following {1} as a {2}	Segue {1} come {2}
+Backup cuts the ATEM to	Il backup taglia l'ATEM su
+Backup takes over after	Il backup subentra dopo
+this backup is not live	questo backup non è in onda
+Not following another desk	Non segue un'altra console
+Not following another desk.	Non segue un'altra console.
+the role is BACKUP or FLEET	il ruolo è BACKUP o FLEET
+the primary was silent for {1}	la principale è rimasta in silenzio per {1}
+BACKUP LIVE: {1}. This desk has the show.	BACKUP IN ONDA: {1}. Questa console ha lo show.
+this backup is already live (SYNC REARM first)	questo backup è già in onda (prima SYNC REARM)
+this desk is not a backup (SYNC FOLLOW <ip> BACKUP)	questa console non è un backup (SYNC FOLLOW <ip> BACKUP)
+Backup re-armed: outputs dark, following the primary	Backup riarmato: uscite scure, segue la principale
+DRILL: this backup is live ({1}). RE-ARM to go back.	PROVA: questo backup è in onda ({1}). RIARMA per tornare indietro.
+Backup {1} stopped following: this desk has no backup	Il backup {1} ha smesso di seguire: questa console non ha backup
+Backup: {1}. It will not take over until the primary leads again.	Backup: {1}. Non subentrerà finché la principale non tornerà a guidare.
+SYNC LEAD ON|OFF, STATUS, FOLLOW <ip> [BACKUP|FLEET], STOP, DRILL, REARM or TAKEOVER <ms>	SYNC LEAD ON|OFF, STATUS, FOLLOW <ip> [BACKUP|FLEET], STOP, DRILL, REARM o TAKEOVER <ms>
+The leading desk's IP address, like 192.168.1.20 (or 192.168.1.20:5510). Empty = do not follow	Indirizzo IP della console guida, es. 192.168.1.20 (o 192.168.1.20:5510). Vuoto = non seguire
+The switcher input this desk is on. At a takeover the backup cuts the programme to it. 0 = no cut	L'ingresso dello switcher di questa console. Al subentro il backup taglia il programma su di esso. 0 = nessun taglio

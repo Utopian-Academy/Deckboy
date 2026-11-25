@@ -4915,3 +4915,32 @@ ACTIVE	چالاک
 nothing running	هیچ لە کاردا نییە
 pre-wait {1}   action {2}   post-wait {3}   then {4}	پێش-چاوەڕوانی {1}   کردار {2}   پاش-چاوەڕوانی {3}   پاشان {4}
 ' (CLASSIC, OPERATOR, SHOWPIECE, RUNDOWN, CLIPGRID, CUESTACK, CONSOLE, COMPACT or THEATRE)	' (کلاسیک، کارمەند، نمایشی، ڕیزبەندی بەرنامە، تۆڕی کلیپ، ستاکی cue، کۆنسۆڵ، چڕ یان شانۆ)
+DRILL	ڕاهێنان
+FLEET	کۆمەڵە
+BACKUP	یەدەگ
+Backup	یەدەگ
+RE-ARM	ئامادەکردنەوە
+no cut	بێ بڕین
+Follow as	شوێنکەوتن وەک
+input {1}	تێدانی {1}
+of silence	بێدەنگی
+not a backup	یەدەگ نییە
+Follow a desk	شوێن مێزی کۆنترۆڵێک بکەوە
+Following {1} as a {2}	شوێن {1} دەکەوێت وەک {2}
+Backup cuts the ATEM to	یەدەگ ATEM دەبڕێت بۆ
+Backup takes over after	یەدەگ دەست بەکار دەبێت دوای
+this backup is not live	ئەم یەدەگە ڕاستەوخۆ نییە
+Not following another desk	شوێن مێزی کۆنترۆڵێکی تر ناکەوێت
+Not following another desk.	شوێن مێزی کۆنترۆڵێکی تر ناکەوێت.
+the role is BACKUP or FLEET	ڕۆڵەکە BACKUP یان FLEET ـە
+the primary was silent for {1}	سەرەکییەکە بۆ ماوەی {1} بێدەنگ بوو
+BACKUP LIVE: {1}. This desk has the show.	یەدەگ ڕاستەوخۆ: {1}. نمایشەکە لای ئەم مێزی کۆنترۆڵەیە.
+this backup is already live (SYNC REARM first)	ئەم یەدەگە پێشتر ڕاستەوخۆیە (سەرەتا SYNC REARM)
+this desk is not a backup (SYNC FOLLOW <ip> BACKUP)	ئەم مێزی کۆنترۆڵە یەدەگ نییە (SYNC FOLLOW <ip> BACKUP)
+Backup re-armed: outputs dark, following the primary	یەدەگ دووبارە ئامادەکرایەوە: دەرچوونەکان تاریکن، شوێن سەرەکی دەکەوێت
+DRILL: this backup is live ({1}). RE-ARM to go back.	ڕاهێنان: ئەم یەدەگە ڕاستەوخۆیە ({1}). بۆ گەڕانەوە ئامادەکردنەوە لێبدە.
+Backup {1} stopped following: this desk has no backup	یەدەگ {1} لە شوێنکەوتن وەستا: ئەم مێزی کۆنترۆڵە یەدەگی نییە
+Backup: {1}. It will not take over until the primary leads again.	یەدەگ: {1}. دەست بەکار نابێت تا سەرەکی دووبارە ڕابەر دەبێتەوە.
+SYNC LEAD ON|OFF, STATUS, FOLLOW <ip> [BACKUP|FLEET], STOP, DRILL, REARM or TAKEOVER <ms>	SYNC LEAD ON|OFF, STATUS, FOLLOW <ip> [BACKUP|FLEET], STOP, DRILL, REARM یان TAKEOVER <ms>
+The leading desk's IP address, like 192.168.1.20 (or 192.168.1.20:5510). Empty = do not follow	ناونیشانی IP ی مێزی کۆنترۆڵی ڕابەر، وەک 192.168.1.20 (یان 192.168.1.20:5510). بەتاڵ = شوێن مەکەوە
+The switcher input this desk is on. At a takeover the backup cuts the programme to it. 0 = no cut	تێدانی سویچەر کە ئەم مێزی کۆنترۆڵەی لەسەرە. لە کاتی دەستبەکاربوون یەدەگ بەرنامە بۆی دەبڕێت. 0 = بێ بڕین

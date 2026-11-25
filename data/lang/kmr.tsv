@@ -4905,3 +4905,32 @@ ACTIVE	ÇALAK
 nothing running	tiştek naxebite
 pre-wait {1}   action {2}   post-wait {3}   then {4}	pêşbendewarî {1}   çalakî {2}   paşbendewarî {3}   paşê {4}
 ' (CLASSIC, OPERATOR, SHOWPIECE, RUNDOWN, CLIPGRID, CUESTACK, CONSOLE, COMPACT or THEATRE)	' (CLASSIC, OPERATOR, SHOWPIECE, RUNDOWN, CLIPGRID, CUESTACK, CONSOLE, COMPACT an THEATRE)
+DRILL	TEMRÎN
+FLEET	KOM
+BACKUP	YEDEK
+Backup	Yedek
+RE-ARM	DÎSA AMADE BIKE
+no cut	birrîn tune
+Follow as	Bişopîne wekî
+input {1}	têketin {1}
+of silence	bêdengiyê
+not a backup	ne yedek e
+Follow a desk	Maseyeke kontrolê bişopîne
+Following {1} as a {2}	{1} wekî {2} dişopîne
+Backup cuts the ATEM to	Yedek ATEM dibire ser
+Backup takes over after	Yedek kontrolê digire piştî
+this backup is not live	ev yedek ne zindî ye
+Not following another desk	Tu maseya kontrolê ya din naşopîne
+Not following another desk.	Tu maseya kontrolê ya din naşopîne.
+the role is BACKUP or FLEET	rol BACKUP an FLEET e
+the primary was silent for {1}	maseya sereke {1} bêdeng ma
+BACKUP LIVE: {1}. This desk has the show.	YEDEK ZINDÎ: {1}. Pêşandan li ser vê maseya kontrolê ye.
+this backup is already live (SYNC REARM first)	ev yedek jixwe zindî ye (pêşî SYNC REARM)
+this desk is not a backup (SYNC FOLLOW <ip> BACKUP)	ev maseya kontrolê ne yedek e (SYNC FOLLOW <ip> BACKUP)
+Backup re-armed: outputs dark, following the primary	Yedek dîsa amade bû: derketin tarî ne, maseya sereke dişopîne
+DRILL: this backup is live ({1}). RE-ARM to go back.	TEMRÎN: ev yedek zindî ye ({1}). Ji bo vegerê DÎSA AMADE BIKE.
+Backup {1} stopped following: this desk has no backup	Yedek {1} şopandin rawestand: vê maseya kontrolê yedek tune
+Backup: {1}. It will not take over until the primary leads again.	Yedek: {1}. Heta ku maseya sereke dîsa pêşengiyê neke, ew kontrolê nagire.
+SYNC LEAD ON|OFF, STATUS, FOLLOW <ip> [BACKUP|FLEET], STOP, DRILL, REARM or TAKEOVER <ms>	SYNC LEAD ON|OFF, STATUS, FOLLOW <ip> [BACKUP|FLEET], STOP, DRILL, REARM an TAKEOVER <ms>
+The leading desk's IP address, like 192.168.1.20 (or 192.168.1.20:5510). Empty = do not follow	Navnîşana IP ya maseya kontrolê ya pêşeng, wekî 192.168.1.20 (an 192.168.1.20:5510). Vala = neşopîne
+The switcher input this desk is on. At a takeover the backup cuts the programme to it. 0 = no cut	Têketina switcherê ya ku ev maseya kontrolê li ser e. Dema girtina kontrolê yedek bername dibire ser wê. 0 = birrîn tune

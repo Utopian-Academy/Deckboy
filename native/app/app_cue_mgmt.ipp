@@ -2037,6 +2037,7 @@
     startAtemSwitcherClient();
     stopHyperDeckServer();
     startHyperDeckServer();
+    startDeskFollow();   // a show saved on a backup desk opens as that backup
   }
 
   // Cues saved before audioChannels/audioSampleRate existed load with 0 in

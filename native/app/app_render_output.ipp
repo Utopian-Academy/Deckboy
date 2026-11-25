@@ -6824,11 +6824,13 @@
       }
     }
 
-    // Master video dimmer overlay
-    if (project_.masterDimmer < 0.999) {
+    // Master video dimmer overlay. A backup desk waiting to take over holds
+    // every output black here (syncHoldsOutputsDark).
+    const double outputDimmer = syncHoldsOutputsDark() ? 0.0 : project_.masterDimmer;
+    if (outputDimmer < 0.999) {
       SDL_SetRenderDrawBlendMode(runtime->outputRenderer, SDL_BLENDMODE_BLEND);
       SDL_SetRenderDrawColor(runtime->outputRenderer, 0, 0, 0,
-        static_cast<Uint8>((1.0 - project_.masterDimmer) * 255.0));
+        static_cast<Uint8>((1.0 - outputDimmer) * 255.0));
       SDL_RenderFillRect(runtime->outputRenderer, nullptr);
       SDL_SetRenderDrawBlendMode(runtime->outputRenderer, SDL_BLENDMODE_NONE);
     }

@@ -2668,6 +2668,7 @@ class App {
     }
     startHyperDeckServer();
     startAtemSwitcherClient();
+    startDeskFollow();
     startIntegrationBridges();
     // Lay out against the actual (possibly display-clamped) window size, not the
     // nominal constant, so the first frame is already correct on small screens.
@@ -2689,6 +2690,8 @@ class App {
     }
     stopIntegrationBridges();
     stopHyperDeckServer();
+    endSyncLead("the leading desk closed");
+    stopDeskFollow();
     stopAtemSwitcherClient();
     stopMidiInput();
     stopOscQueryServer();
@@ -8794,6 +8797,11 @@ class App {
   static constexpr int kSettingsActionLessonVoice = 60200;   // CHIP / EXPERIMENTAL / OFF
   static constexpr int kSettingsActionBeastModeToggle = 885;
   static constexpr int kSettingsActionSyncLeadToggle = 886;
+  static constexpr int kSettingsActionSyncFollowHost = 887;
+  static constexpr int kSettingsActionSyncFollowRole = 888;
+  static constexpr int kSettingsActionSyncTakeoverMs = 889;
+  static constexpr int kSettingsActionSyncBackupDrill = 890;
+  static constexpr int kSettingsActionSyncBackupAtem = 891;
   // The MIDI map page (app_midi_map.ipp). 1100-1179: the page's controls,
   // then one per visible table row from kSettingsActionMidiMapRowBase.
   static constexpr int kSettingsActionMidiMapOpen = 1100;
@@ -11567,6 +11575,32 @@ class App {
   std::vector<SyncFollower> syncFollowers_;
   std::string syncLastKey_;
   std::uint64_t syncLastSentNs_ = 0;
+  // SYNC follower (app_network.ipp): this desk following another desk.
+  enum class DeskFollow { Off, Connecting, Joining, Following, Lost };
+  struct FollowClockSample { Sint64 offset; Uint64 rtt; };
+  struct FollowDeckState {
+    std::string cue, missing;
+    Uint64 seekHoldUntil = 0;
+    bool seekLanding = false;
+    double seekLead = 0.0, driftFrames = 0.0;
+  };
+  DeskFollow deskFollow_ = DeskFollow::Off;
+  SocketHandle deskFollowSock_ = kInvalidSocket;
+  sockaddr_in deskFollowAddr_ {};
+  std::string deskFollowIn_, deskFollowOut_, deskFollowError_;
+  Uint64 deskFollowSince_ = 0, deskFollowRetryAt_ = 0, deskFollowHeardAt_ = 0, deskFollowNextProbe_ = 0;
+  std::vector<FollowClockSample> deskFollowClock_;
+  Sint64 deskFollowOffset_ = 0;
+  Uint64 deskFollowRtt_ = 0;
+  bool deskFollowClockReady_ = false;
+  bool deskFollowArmed_ = false;     // heard the leader: a silence now means it failed
+  bool deskFollowLeaderBlack_ = false;
+  std::vector<FollowDeckState> deskFollowDecks_;
+  int deskFollowSeeks_ = 0;
+  bool backupLive_ = false;          // this backup took over (latched until RE-ARM)
+  bool backupDrill_ = false;
+  std::string backupLiveWhy_;
+  Uint64 backupLiveAt_ = 0;
   SocketHandle remoteReplyTo_ = kInvalidSocket;
   std::uint64_t remoteReplyGeneration_ = 0;
   std::mutex companionClientsMutex_;  // protects companionClients_ + companionClientBuffers_

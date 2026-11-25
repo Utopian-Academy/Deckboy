@@ -5346,7 +5346,7 @@
     // or a deck fade during a long crossfade silenced only the incoming cue,
     // and a monitor/room mute change left the tail on its old routing (Codex
     // audit 2026-10-22, #2). One place covers every control that sets them.
-    tail.engine->setMasterGain(static_cast<float>(project_.masterVolume));
+    tail.engine->setMasterGain(syncHoldsOutputsDark() ? 0.0f : static_cast<float>(project_.masterVolume));
     tail.engine->setVolume(deckEngine->volume());
     tail.engine->setMonitorMuted(deckEngine->monitorMuted());
     tail.engine->setMainDeviceMuted(deckEngine->mainDeviceMuted());

@@ -4899,3 +4899,32 @@ ACTIVE	ĐANG HOẠT ĐỘNG
 nothing running	không gì đang chạy
 pre-wait {1}   action {2}   post-wait {3}   then {4}	chờ trước {1}   hành động {2}   chờ sau {3}   rồi {4}
 ' (CLASSIC, OPERATOR, SHOWPIECE, RUNDOWN, CLIPGRID, CUESTACK, CONSOLE, COMPACT or THEATRE)	' (CỔ ĐIỂN, NGƯỜI VẬN HÀNH, TRÌNH DIỄN, TRÌNH TỰ, LƯỚI CLIP, NGĂN XẾP CUE, BÀN ĐIỀU KHIỂN, GỌN hoặc NHÀ HÁT)
+DRILL	DIỄN TẬP
+FLEET	ĐỘI MÁY
+BACKUP	DỰ PHÒNG
+Backup	Dự phòng
+RE-ARM	SẴN SÀNG LẠI
+no cut	không cắt
+Follow as	Theo với vai trò
+input {1}	đầu vào {1}
+of silence	im lặng
+not a backup	không phải dự phòng
+Follow a desk	Theo một bàn
+Following {1} as a {2}	Đang theo {1} với vai trò {2}
+Backup cuts the ATEM to	Dự phòng cắt ATEM sang
+Backup takes over after	Dự phòng tiếp quản sau
+this backup is not live	máy dự phòng này chưa trực tiếp
+Not following another desk	Không theo bàn nào khác
+Not following another desk.	Không theo bàn nào khác.
+the role is BACKUP or FLEET	vai trò là BACKUP hoặc FLEET
+the primary was silent for {1}	máy chính đã im lặng {1}
+BACKUP LIVE: {1}. This desk has the show.	DỰ PHÒNG TRỰC TIẾP: {1}. Bàn này đang giữ show.
+this backup is already live (SYNC REARM first)	máy dự phòng này đã trực tiếp (SYNC REARM trước)
+this desk is not a backup (SYNC FOLLOW <ip> BACKUP)	bàn này không phải máy dự phòng (SYNC FOLLOW <ip> BACKUP)
+Backup re-armed: outputs dark, following the primary	Dự phòng đã sẵn sàng lại: output tối, đang theo máy chính
+DRILL: this backup is live ({1}). RE-ARM to go back.	DIỄN TẬP: máy dự phòng này đang trực tiếp ({1}). Nhấn SẴN SÀNG LẠI để quay lại.
+Backup {1} stopped following: this desk has no backup	Máy dự phòng {1} đã dừng theo: bàn này không có dự phòng
+Backup: {1}. It will not take over until the primary leads again.	Dự phòng: {1}. Nó sẽ không tiếp quản cho đến khi máy chính dẫn lại.
+SYNC LEAD ON|OFF, STATUS, FOLLOW <ip> [BACKUP|FLEET], STOP, DRILL, REARM or TAKEOVER <ms>	SYNC LEAD ON|OFF, STATUS, FOLLOW <ip> [BACKUP|FLEET], STOP, DRILL, REARM hoặc TAKEOVER <ms>
+The leading desk's IP address, like 192.168.1.20 (or 192.168.1.20:5510). Empty = do not follow	Địa chỉ IP của bàn đang dẫn, ví dụ 192.168.1.20 (hoặc 192.168.1.20:5510). Trống = không theo
+The switcher input this desk is on. At a takeover the backup cuts the programme to it. 0 = no cut	Đầu vào switcher của bàn này. Khi tiếp quản, máy dự phòng cắt chương trình sang đó. 0 = không cắt
