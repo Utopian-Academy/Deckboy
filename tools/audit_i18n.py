@@ -77,6 +77,12 @@ DRAW_HELPERS = [
     r"text_\.draw",
 ]
 
+# Deckboy Pocket's own label helpers, matched in pocket_main.cpp only (the
+# names are too common to match anywhere else). Its MENU pages draw almost
+# every label through these, and until 2026-11-25 none was counted: a phone in
+# German showed German titles over English buttons.
+POCKET_HELPERS = ["button", "heading", "line", "drawTextEditor"]
+
 SOURCE_DIRS = [os.path.join(ROOT, "native")]
 
 # A literal is prose worth translating when it is not one of these.
@@ -129,6 +135,8 @@ def drawn_strings():
     """Every literal passed as text to a drawing helper."""
     call = re.compile(
         r"\b(" + "|".join(DRAW_HELPERS) + r")\s*\(", re.MULTILINE)
+    pocket_call = re.compile(
+        r"\b(" + "|".join(DRAW_HELPERS + POCKET_HELPERS) + r")\s*\(", re.MULTILINE)
     literal = re.compile(r'"((?:[^"\\]|\\.)*)"')
     found = {}
     for root in SOURCE_DIRS:
@@ -143,7 +151,7 @@ def drawn_strings():
                                   # "spare (also spare)" broke the check that it stays as written
                 path = os.path.join(dirpath, name)
                 text = open(path, encoding="utf-8", errors="replace").read()
-                for m in call.finditer(text):
+                for m in (pocket_call if name == "pocket_main.cpp" else call).finditer(text):
                     # Take the call's argument list by matching brackets, so a
                     # nested call's literals are still seen but a following
                     # statement's are not.

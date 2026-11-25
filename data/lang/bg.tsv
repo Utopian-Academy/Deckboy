@@ -4998,3 +4998,49 @@ Phone control is at {1}	Управлението от телефон е на {1}
 web monitor viewers: 1-64	зрители на уеб монитор: 1-64
 Phone control moved to {1}	Управлението от телефон е преместено на {1}
 live pictures sent at once, 1-64 (default 8)	едновременно изпращани картини на живо, 1-64 (по подразбиране 8)
+UNDO	ОТМЕНИ
+SHELL	КОНЗОЛА
+< MENU	< МЕНЮ
+< SHOW	< ШОУ
+MANUAL	РЪКОВОДСТВО
+< PHONE	< ТЕЛЕФОН
+BY HAND	РЪЧНО
+STOP IT	СПРИ ГО
+< OUTPUT	< ИЗХОД
+CUE NAME	ИМЕ НА CUE
+LOOP LIST	ЦИКЪЛ НА СПИСЪКА
+SHOW NAME	ИМЕ НА ШОУТО
+SURE? NEW	СИГУРНО? НОВ
+the phone	телефона
+LEFT BUTTON	ЛЯВ БУТОН
+BETWEEN CUES	МЕЖДУ CUE
+DESK ADDRESS	АДРЕС НА ПУЛТА
+FOLLOW AGAIN	СЛЕДВАЙ ОТНОВО
+FROM THE MIC	ОТ МИКРОФОНА
+LOOP LIST ON	ЦИКЪЛ НА СПИСЪКА ВКЛ
+TEST PATTERN	ТЕСТОВ ШАБЛОН
+ADD AN EFFECT	ДОБАВИ ЕФЕКТ
+not following	не следва
+JUMP TO CUE...	СКОК ДО CUE...
+SCREEN COLOURS	ЦВЕТОВЕ НА ЕКРАНА
+ENTER TO FOLLOW	ENTER ЗА СЛЕДВАНЕ
+TEST PATTERN ON	ТЕСТОВ ШАБЛОН ВКЛ
+This phone: {1}	Този телефон: {1}
+FROM THE NETWORK	ОТ МРЕЖАТА
+PLAYING THE LIST	ВЪЗПРОИЗВЕЖДА СПИСЪКА
+SET A PASSPHRASE	ЗАДАЙ ПАРОЛА
+REMOTE PASSPHRASE	ПАРОЛА ЗА ДИСТАНЦИОННО
+ON THIS PHONE ONLY	САМО НА ТОЗИ ТЕЛЕФОН
+STOP AFTER THIS CUE	СТОП СЛЕД ТОЗИ CUE
+MUTED: TAP FOR SOUND	ЗАГЛУШЕНО: ДОКОСНИ ЗА ЗВУК
+STOPS AFTER THIS CUE	СПИРА СЛЕД ТОЗИ CUE
+Setting the clock...	Настройване на часовника...
+files from the phone	файлове от телефона
+CHANGE THE PASSPHRASE	ПРОМЕНИ ПАРОЛАТА
+FROM THE PHONE'S FILES	ОТ ФАЙЛОВЕТЕ НА ТЕЛЕФОНА
+Put the same media on both.	Сложи една и съща медия на двете.
+ENTER TO KEEP, BACK TO LEAVE IT	ENTER ЗА ПРИЕМАНЕ, НАЗАД ЗА ОТКАЗ
+ENTER TO SAVE, BACK TO LEAVE IT	ENTER ЗА ЗАПАЗВАНЕ, НАЗАД ЗА ОТКАЗ
+ON THE PICTURE (THE PHONE ONLY)	ВЪРХУ КАРТИНАТА (САМО НА ТЕЛЕФОНА)
+8 OR MORE CHARACTERS, ENTER TO KEEP	8 ИЛИ ПОВЕЧЕ ЗНАКА, ENTER ЗА ПРИЕМАНЕ
+Settings > Network: Listen on ALL INTERFACES,	Настройки > Мрежа: Слушай на ВСИЧКИ ИНТЕРФЕЙСИ,

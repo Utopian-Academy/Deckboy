@@ -4982,3 +4982,47 @@ Phone control is at {1}	Điều khiển bằng điện thoại ở {1}
 web monitor viewers: 1-64	người xem màn hình web: 1-64
 Phone control moved to {1}	Điều khiển bằng điện thoại đã chuyển sang {1}
 live pictures sent at once, 1-64 (default 8)	hình ảnh trực tiếp gửi đồng thời, 1-64 (mặc định 8)
+UNDO	HOÀN TÁC
+SHELL	DÒNG LỆNH
+< MENU	< DANH MỤC
+MANUAL	THỦ CÔNG
+< PHONE	< ĐIỆN THOẠI
+BY HAND	BẰNG TAY
+STOP IT	DỪNG LẠI
+CUE NAME	TÊN CUE
+LOOP LIST	LẶP DANH SÁCH
+SHOW NAME	TÊN SHOW
+SURE? NEW	CHẮC CHƯA? MỚI
+the phone	điện thoại
+LEFT BUTTON	NÚT TRÁI
+BETWEEN CUES	GIỮA CÁC CUE
+DESK ADDRESS	ĐỊA CHỈ BÀN
+FOLLOW AGAIN	THEO LẠI
+FROM THE MIC	TỪ MICRÔ
+LOOP LIST ON	LẶP DANH SÁCH BẬT
+TEST PATTERN	MẪU KIỂM TRA
+ADD AN EFFECT	THÊM MỘT HIỆU ỨNG
+not following	không theo
+JUMP TO CUE...	NHẢY ĐẾN CUE...
+SCREEN COLOURS	MÀU MÀN HÌNH
+ENTER TO FOLLOW	ENTER ĐỂ THEO
+TEST PATTERN ON	MẪU KIỂM TRA BẬT
+This phone: {1}	Điện thoại này: {1}
+FROM THE NETWORK	TỪ MẠNG
+PLAYING THE LIST	ĐANG PHÁT DANH SÁCH
+SET A PASSPHRASE	ĐẶT CỤM MẬT KHẨU
+REMOTE PASSPHRASE	CỤM MẬT KHẨU TỪ XA
+ON THIS PHONE ONLY	CHỈ TRÊN ĐIỆN THOẠI NÀY
+STOP AFTER THIS CUE	DỪNG SAU CUE NÀY
+MUTED: TAP FOR SOUND	ĐÃ TẮT TIẾNG: CHẠM ĐỂ CÓ ÂM THANH
+STOPS AFTER THIS CUE	SẼ DỪNG SAU CUE NÀY
+Setting the clock...	Đang đặt đồng hồ...
+files from the phone	tệp từ điện thoại
+CHANGE THE PASSPHRASE	ĐỔI CỤM MẬT KHẨU
+FROM THE PHONE'S FILES	TỪ TỆP TRÊN ĐIỆN THOẠI
+Put the same media on both.	Đặt cùng nội dung trên cả hai.
+ENTER TO KEEP, BACK TO LEAVE IT	ENTER ĐỂ GIỮ, QUAY LẠI ĐỂ BỎ QUA
+ENTER TO SAVE, BACK TO LEAVE IT	ENTER ĐỂ LƯU, QUAY LẠI ĐỂ BỎ QUA
+ON THE PICTURE (THE PHONE ONLY)	TRÊN HÌNH ẢNH (CHỈ ĐIỆN THOẠI)
+8 OR MORE CHARACTERS, ENTER TO KEEP	8 KÝ TỰ TRỞ LÊN, ENTER ĐỂ GIỮ
+Settings > Network: Listen on ALL INTERFACES,	Cài đặt > Mạng: Nghe trên MỌI GIAO DIỆN MẠNG,

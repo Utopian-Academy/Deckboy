@@ -4999,3 +4999,49 @@ Phone control is at {1}	کۆنترۆڵی تەلەفۆن لە {1} دایە
 web monitor viewers: 1-64	بینەرانی چاودێری وێب: 1-64
 Phone control moved to {1}	کۆنترۆڵی تەلەفۆن گوازرایەوە بۆ {1}
 live pictures sent at once, 1-64 (default 8)	وێنەی ڕاستەوخۆی هاوکات نێردراو، 1-64 (بنەڕەتی 8)
+UNDO	گەڕانەوە
+SHELL	هێڵی فەرمان
+< MENU	< مێنیو
+< SHOW	< نمایش
+MANUAL	ڕێنمایی
+< PHONE	< تەلەفۆن
+BY HAND	بە دەست
+STOP IT	بیوەستێنە
+< OUTPUT	< دەرچوون
+CUE NAME	ناوی cue
+LOOP LIST	دووبارەی لیست
+SHOW NAME	ناوی نمایش
+SURE? NEW	دڵنیایت؟ نوێ
+the phone	تەلەفۆنەکە
+LEFT BUTTON	دوگمەی چەپ
+BETWEEN CUES	لە نێوان cue کاندا
+DESK ADDRESS	ناونیشانی مێزی کۆنترۆڵ
+FOLLOW AGAIN	دیسان شوێن بکەوە
+FROM THE MIC	لە مایکەوە
+LOOP LIST ON	دووبارەی لیست هەڵکراو
+TEST PATTERN	نەخشی تاقیکردنەوە
+ADD AN EFFECT	زیادکردنی EFFECT ـێک
+not following	شوێن ناکەوێت
+JUMP TO CUE...	بازدان بۆ cue...
+SCREEN COLOURS	ڕەنگەکانی شاشە
+ENTER TO FOLLOW	ENTER بۆ شوێنکەوتن
+TEST PATTERN ON	نەخشی تاقیکردنەوە هەڵکراو
+This phone: {1}	ئەم تەلەفۆنە: {1}
+FROM THE NETWORK	لە تۆڕەکەوە
+PLAYING THE LIST	لیستەکە لێدەدرێت
+SET A PASSPHRASE	دیاریکردنی دەستەواژەی نهێنی
+REMOTE PASSPHRASE	دەستەواژەی نهێنی لە دوورەوە
+ON THIS PHONE ONLY	تەنها لەسەر ئەم تەلەفۆنە
+STOP AFTER THIS CUE	وەستاندن دوای ئەم cue
+MUTED: TAP FOR SOUND	بێدەنگ: لێدان بۆ دەنگ
+STOPS AFTER THIS CUE	دوای ئەم cue دەوەستێت
+Setting the clock...	کاتژمێر ڕێکدەخرێت...
+files from the phone	فایلەکان لە تەلەفۆنەکەوە
+CHANGE THE PASSPHRASE	گۆڕینی دەستەواژەی نهێنی
+FROM THE PHONE'S FILES	لە فایلەکانی تەلەفۆنەکەوە
+Put the same media on both.	هەمان میدیا لەسەر هەردووکیان دابنێ.
+ENTER TO KEEP, BACK TO LEAVE IT	ENTER بۆ پەسەندکردن، گەڕانەوە بۆ وەک خۆی مانەوە
+ENTER TO SAVE, BACK TO LEAVE IT	ENTER بۆ پاشەکەوتکردن، گەڕانەوە بۆ وەک خۆی مانەوە
+ON THE PICTURE (THE PHONE ONLY)	لەسەر وێنەکە (تەنها لەسەر تەلەفۆنەکە)
+8 OR MORE CHARACTERS, ENTER TO KEEP	8 پیت یان زیاتر، ENTER بۆ پەسەندکردن
+Settings > Network: Listen on ALL INTERFACES,	ڕێکخستنەکان > تۆڕ: گوێگرتن لەسەر هەموو ڕووکارەکان،

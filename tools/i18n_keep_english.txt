@@ -1571,3 +1571,38 @@ de	Playlist {1}
 lo	Playlist {1}
 pap-AW	Playlist {1}
 vi	Playlist {1}
+*	DECKBOY
+*	https://github.com/Utopian-Academy/Deckboy
+*	https://utopian-academy.github.io/Deckboy/
+*	https://utopian-academy.github.io/Deckboy/manual
+da	SHELL
+da	< MENU
+da	< SHOW
+da	MANUAL
+de	SHELL
+de	< SHOW
+es-CU	< SHOW
+es-CU	MANUAL
+es	< SHOW
+es	MANUAL
+fr	< MENU
+haw	SHELL
+it	SHELL
+it	< MENU
+it	< SHOW
+kab	SHELL
+lo	< OUTPUT
+lum	< MENU
+nl	SHELL
+nl	< MENU
+nl	< SHOW
+pap-AW	< MENU
+pap-AW	< SHOW
+pap-AW	MANUAL
+pap-AW	< OUTPUT
+pl	< MENU
+pt-BR	< MENU
+pt-BR	< SHOW
+pt-BR	MANUAL
+vi	< SHOW
+vi	< OUTPUT

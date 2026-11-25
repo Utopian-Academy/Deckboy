@@ -5010,3 +5010,49 @@ Phone control is at {1}	کنترل تلفن در {1} است
 web monitor viewers: 1-64	بینندگان مانیتور وب: 1-64
 Phone control moved to {1}	کنترل تلفن به {1} منتقل شد
 live pictures sent at once, 1-64 (default 8)	تصاویر زندهٔ ارسالی هم‌زمان، 1-64 (پیش‌فرض 8)
+UNDO	واگرد
+SHELL	پوسته
+< MENU	< منو
+< SHOW	< نمایش
+MANUAL	راهنما
+< PHONE	< تلفن
+BY HAND	دستی
+STOP IT	متوقفش کن
+< OUTPUT	< خروجی
+CUE NAME	نام کیو
+LOOP LIST	فهرست حلقه‌ای
+SHOW NAME	نام نمایش
+SURE? NEW	مطمئنی؟ جدید
+the phone	تلفن
+LEFT BUTTON	دکمه چپ
+BETWEEN CUES	بین کیوها
+DESK ADDRESS	نشانی اپراتور
+FOLLOW AGAIN	دوباره دنبال کن
+FROM THE MIC	از میکروفون
+LOOP LIST ON	فهرست حلقه‌ای روشن
+TEST PATTERN	الگوی آزمایشی
+ADD AN EFFECT	افزودن یک افکت
+not following	دنبال نمی‌کند
+JUMP TO CUE...	پرش به کیو...
+SCREEN COLOURS	رنگ‌های صفحه‌نمایش
+ENTER TO FOLLOW	Enter برای دنبال کردن
+TEST PATTERN ON	الگوی آزمایشی روشن
+This phone: {1}	این تلفن: {1}
+FROM THE NETWORK	از شبکه
+PLAYING THE LIST	در حال پخش فهرست
+SET A PASSPHRASE	تنظیم گذرعبارت
+REMOTE PASSPHRASE	گذرعبارت از راه دور
+ON THIS PHONE ONLY	فقط روی همین تلفن
+STOP AFTER THIS CUE	توقف پس از این cue
+MUTED: TAP FOR SOUND	بی‌صدا: برای صدا ضربه بزن
+STOPS AFTER THIS CUE	پس از این cue متوقف می‌شود
+Setting the clock...	در حال تنظیم ساعت...
+files from the phone	فایل‌ها از تلفن
+CHANGE THE PASSPHRASE	تغییر گذرعبارت
+FROM THE PHONE'S FILES	از فایل‌های تلفن
+Put the same media on both.	رسانهٔ یکسان را روی هردو بگذار.
+ENTER TO KEEP, BACK TO LEAVE IT	ENTER: نگه‌داشتن، بازگشت: بدون تغییر
+ENTER TO SAVE, BACK TO LEAVE IT	ENTER: ذخیره، بازگشت: بدون تغییر
+ON THE PICTURE (THE PHONE ONLY)	روی تصویر (فقط تلفن)
+8 OR MORE CHARACTERS, ENTER TO KEEP	8 نویسه یا بیشتر، ENTER: نگه‌داشتن
+Settings > Network: Listen on ALL INTERFACES,	تنظیمات > شبکه: گوش دادن روی همهٔ رابط‌ها،

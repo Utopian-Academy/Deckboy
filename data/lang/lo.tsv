@@ -4981,3 +4981,48 @@ Phone control is at {1}	ການຄວບຄຸມດ້ວຍໂທລະສ�
 web monitor viewers: 1-64	ຜູ້ຊົມຈໍຕິດຕາມເວັບ: 1-64
 Phone control moved to {1}	ການຄວບຄຸມດ້ວຍໂທລະສັບຍ້າຍໄປ {1}
 live pictures sent at once, 1-64 (default 8)	ພາບສົດທີ່ສົ່ງພ້ອມກັນ, 1-64 (ຄ່າເລີ່ມຕົ້ນ 8)
+UNDO	ຍ້ອນກັບ
+SHELL	ເຊລ
+< MENU	< ເມນູ
+< SHOW	< ໂຊ
+MANUAL	ຄູ່ມື
+< PHONE	< ໂທລະສັບ
+BY HAND	ດ້ວຍມື
+STOP IT	ຢຸດມັນ
+CUE NAME	ຊື່ CUE
+LOOP LIST	ວົນລາຍການ
+SHOW NAME	ຊື່ໂຊ
+SURE? NEW	ແນ່ໃຈ? ໃໝ່
+the phone	ໂທລະສັບ
+LEFT BUTTON	ປຸ່ມຊ້າຍ
+BETWEEN CUES	ລະຫວ່າງ CUE
+DESK ADDRESS	ທີ່ຢູ່ໂຕະ
+FOLLOW AGAIN	ຕາມອີກຄັ້ງ
+FROM THE MIC	ຈາກໄມ
+LOOP LIST ON	ວົນລາຍການ ເປີດ
+TEST PATTERN	ຮູບແບບທົດສອບ
+ADD AN EFFECT	ເພີ່ມ EFFECT ໜຶ່ງ
+not following	ບໍ່ໄດ້ຕາມ
+JUMP TO CUE...	ໂດດໄປ CUE...
+SCREEN COLOURS	ສີໜ້າຈໍ
+ENTER TO FOLLOW	ENTER ເພື່ອຕາມ
+TEST PATTERN ON	ຮູບແບບທົດສອບ ເປີດ
+This phone: {1}	ໂທລະສັບນີ້: {1}
+FROM THE NETWORK	ຈາກເຄືອຂ່າຍ
+PLAYING THE LIST	ກຳລັງຫຼິ້ນລາຍການ
+SET A PASSPHRASE	ຕັ້ງວະລີລະຫັດ
+REMOTE PASSPHRASE	ວະລີລະຫັດທາງໄກ
+ON THIS PHONE ONLY	ສະເພາະໂທລະສັບນີ້
+STOP AFTER THIS CUE	ຢຸດຫຼັງຈົບ CUE ນີ້
+MUTED: TAP FOR SOUND	ປິດສຽງ: ແຕະເພື່ອຟັງສຽງ
+STOPS AFTER THIS CUE	ຈະຢຸດຫຼັງຈົບ CUE ນີ້
+Setting the clock...	ກຳລັງຕັ້ງໂມງ...
+files from the phone	ໄຟລ໌ຈາກໂທລະສັບ
+CHANGE THE PASSPHRASE	ປ່ຽນວະລີລະຫັດ
+FROM THE PHONE'S FILES	ຈາກໄຟລ໌ໃນໂທລະສັບ
+Put the same media on both.	ໃສ່ສື່ດຽວກັນໃນທັງສອງ.
+ENTER TO KEEP, BACK TO LEAVE IT	ENTER ເພື່ອເກັບໄວ້, ກັບ ເພື່ອປະໄວ້ຄືເກົ່າ
+ENTER TO SAVE, BACK TO LEAVE IT	ENTER ເພື່ອບັນທຶກ, ກັບ ເພື່ອປະໄວ້ຄືເກົ່າ
+ON THE PICTURE (THE PHONE ONLY)	ເທິງຮູບ (ສະເພາະໂທລະສັບ)
+8 OR MORE CHARACTERS, ENTER TO KEEP	8 ຕົວອັກສອນຂຶ້ນໄປ, ENTER ເພື່ອເກັບໄວ້
+Settings > Network: Listen on ALL INTERFACES,	ຕັ້ງຄ່າ > ເຄືອຂ່າຍ: ຟັງຢູ່ ທຸກເຄືອຂ່າຍ,

@@ -4992,3 +4992,49 @@ Phone control is at {1}	Ο έλεγχος από τηλέφωνο είναι σ�
 web monitor viewers: 1-64	θεατές web monitor: 1-64
 Phone control moved to {1}	Ο έλεγχος από τηλέφωνο μεταφέρθηκε στο {1}
 live pictures sent at once, 1-64 (default 8)	ζωντανές εικόνες που στέλνονται ταυτόχρονα, 1-64 (προεπιλογή 8)
+UNDO	ΑΝΑΙΡΕΣΗ
+SHELL	ΚΕΛΥΦΟΣ
+< MENU	< ΜΕΝΟΥ
+< SHOW	< ΠΑΡΑΣΤΑΣΗ
+MANUAL	ΕΓΧΕΙΡΙΔΙΟ
+< PHONE	< ΤΗΛΕΦΩΝΟ
+BY HAND	ΧΕΙΡΟΚΙΝΗΤΑ
+STOP IT	ΣΤΑΜΑΤΑ ΤΟ
+< OUTPUT	< ΕΞΟΔΟΣ
+CUE NAME	ΟΝΟΜΑ CUE
+LOOP LIST	ΒΡΟΧΟΣ ΛΙΣΤΑΣ
+SHOW NAME	ΟΝΟΜΑ ΠΑΡΑΣΤΑΣΗΣ
+SURE? NEW	ΣΙΓΟΥΡΑ; ΝΕΟ
+the phone	το τηλέφωνο
+LEFT BUTTON	ΑΡΙΣΤΕΡΟ ΚΟΥΜΠΙ
+BETWEEN CUES	ΜΕΤΑΞΥ CUE
+DESK ADDRESS	ΔΙΕΥΘΥΝΣΗ ΚΟΝΣΟΛΑΣ
+FOLLOW AGAIN	ΑΚΟΛΟΥΘΗΣΗ ΞΑΝΑ
+FROM THE MIC	ΑΠΟ ΤΟ ΜΙΚΡΟΦΩΝΟ
+LOOP LIST ON	ΒΡΟΧΟΣ ΛΙΣΤΑΣ ΝΑΙ
+TEST PATTERN	ΜΟΤΙΒΟ ΔΟΚΙΜΗΣ
+ADD AN EFFECT	ΠΡΟΣΘΗΚΗ ΕΦΕ
+not following	δεν ακολουθεί
+JUMP TO CUE...	ΑΛΜΑ ΣΤΟ CUE...
+SCREEN COLOURS	ΧΡΩΜΑΤΑ ΟΘΟΝΗΣ
+ENTER TO FOLLOW	ENTER ΓΙΑ ΑΚΟΛΟΥΘΗΣΗ
+TEST PATTERN ON	ΜΟΤΙΒΟ ΔΟΚΙΜΗΣ ΝΑΙ
+This phone: {1}	Αυτό το τηλέφωνο: {1}
+FROM THE NETWORK	ΑΠΟ ΤΟ ΔΙΚΤΥΟ
+PLAYING THE LIST	ΠΑΙΖΕΙ Η ΛΙΣΤΑ
+SET A PASSPHRASE	ΟΡΙΣΜΟΣ ΦΡΑΣΗΣ ΠΡΟΣΒΑΣΗΣ
+REMOTE PASSPHRASE	ΦΡΑΣΗ ΑΠΟΜΑΚΡΥΣΜΕΝΗΣ ΠΡΟΣΒΑΣΗΣ
+ON THIS PHONE ONLY	ΜΟΝΟ ΣΕ ΑΥΤΟ ΤΟ ΤΗΛΕΦΩΝΟ
+STOP AFTER THIS CUE	ΣΤΟΠ ΜΕΤΑ ΑΠΟ ΑΥΤΟ ΤΟ CUE
+MUTED: TAP FOR SOUND	ΣΙΓΑΣΗ: ΠΑΤΗΣΕ ΓΙΑ ΗΧΟ
+STOPS AFTER THIS CUE	ΣΤΑΜΑΤΑ ΜΕΤΑ ΑΠΟ ΑΥΤΟ ΤΟ CUE
+Setting the clock...	Ρύθμιση ρολογιού...
+files from the phone	αρχεία από το τηλέφωνο
+CHANGE THE PASSPHRASE	ΑΛΛΑΓΗ ΦΡΑΣΗΣ ΠΡΟΣΒΑΣΗΣ
+FROM THE PHONE'S FILES	ΑΠΟ ΤΑ ΑΡΧΕΙΑ ΤΟΥ ΤΗΛΕΦΩΝΟΥ
+Put the same media on both.	Βάλε τα ίδια μέσα και στα δύο.
+ENTER TO KEEP, BACK TO LEAVE IT	ENTER ΓΙΑ ΑΠΟΔΟΧΗ, ΠΙΣΩ ΓΙΑ ΝΑ ΜΕΙΝΕΙ ΩΣ ΕΧΕΙ
+ENTER TO SAVE, BACK TO LEAVE IT	ENTER ΓΙΑ ΑΠΟΘΗΚΕΥΣΗ, ΠΙΣΩ ΓΙΑ ΝΑ ΜΕΙΝΕΙ ΩΣ ΕΧΕΙ
+ON THE PICTURE (THE PHONE ONLY)	ΠΑΝΩ ΣΤΗΝ ΕΙΚΟΝΑ (ΜΟΝΟ ΣΤΟ ΤΗΛΕΦΩΝΟ)
+8 OR MORE CHARACTERS, ENTER TO KEEP	8 Ή ΠΕΡΙΣΣΟΤΕΡΟΙ ΧΑΡΑΚΤΗΡΕΣ, ENTER ΓΙΑ ΑΠΟΔΟΧΗ
+Settings > Network: Listen on ALL INTERFACES,	Ρυθμίσεις > Δίκτυο: Ακρόαση σε «ΟΛΕΣ ΟΙ ΔΙΕΠΑΦΕΣ»,

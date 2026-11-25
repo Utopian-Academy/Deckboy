@@ -4999,3 +4999,49 @@ Phone control is at {1}	फ़ोन नियंत्रण {1} पर है
 web monitor viewers: 1-64	वेब मॉनिटर दर्शक: 1-64
 Phone control moved to {1}	फ़ोन नियंत्रण {1} पर ले जाया गया
 live pictures sent at once, 1-64 (default 8)	एक साथ भेजी गई लाइव तस्वीरें, 1-64 (डिफ़ॉल्ट 8)
+UNDO	पूर्ववत करें
+SHELL	शेल
+< MENU	< मेनू
+< SHOW	< शो
+MANUAL	मैनुअल
+< PHONE	< फ़ोन
+BY HAND	हाथ से
+STOP IT	इसे रोकें
+< OUTPUT	< आउटपुट
+CUE NAME	क्यू का नाम
+LOOP LIST	सूची लूप करें
+SHOW NAME	शो का नाम
+SURE? NEW	पक्का? नया
+the phone	फ़ोन
+LEFT BUTTON	बायाँ बटन
+BETWEEN CUES	क्यू के बीच
+DESK ADDRESS	डेस्क का पता
+FOLLOW AGAIN	फिर से अनुसरण करें
+FROM THE MIC	माइक से
+LOOP LIST ON	सूची लूप चालू
+TEST PATTERN	परीक्षण नमूना
+ADD AN EFFECT	एक इफ़ेक्ट जोड़ें
+not following	अनुसरण नहीं कर रहा
+JUMP TO CUE...	क्यू पर छलाँग...
+SCREEN COLOURS	स्क्रीन के रंग
+ENTER TO FOLLOW	अनुसरण के लिए Enter
+TEST PATTERN ON	परीक्षण नमूना चालू
+This phone: {1}	यह फ़ोन: {1}
+FROM THE NETWORK	नेटवर्क से
+PLAYING THE LIST	सूची चल रही
+SET A PASSPHRASE	पासफ़्रेज़ तय करें
+REMOTE PASSPHRASE	रिमोट पासफ़्रेज़
+ON THIS PHONE ONLY	केवल इस फ़ोन पर
+STOP AFTER THIS CUE	इस cue के बाद रोकें
+MUTED: TAP FOR SOUND	म्यूट: ध्वनि के लिए टैप करें
+STOPS AFTER THIS CUE	इस cue के बाद रुकेगा
+Setting the clock...	घड़ी सेट हो रही है...
+files from the phone	फ़ोन से फ़ाइलें
+CHANGE THE PASSPHRASE	पासफ़्रेज़ बदलें
+FROM THE PHONE'S FILES	फ़ोन की फ़ाइलों से
+Put the same media on both.	दोनों पर एक ही मीडिया रखें।
+ENTER TO KEEP, BACK TO LEAVE IT	ENTER से रखें, वापस से रहने दें
+ENTER TO SAVE, BACK TO LEAVE IT	ENTER से सहेजें, वापस से रहने दें
+ON THE PICTURE (THE PHONE ONLY)	चित्र पर (केवल फ़ोन)
+8 OR MORE CHARACTERS, ENTER TO KEEP	8 या अधिक अक्षर, ENTER से रखें
+Settings > Network: Listen on ALL INTERFACES,	सेटिंग्स > नेटवर्क: यहाँ सुनें सभी इंटरफ़ेस पर,

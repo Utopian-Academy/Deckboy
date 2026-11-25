@@ -4997,3 +4997,49 @@ Phone control is at {1}	電話操作は{1}にあります
 web monitor viewers: 1-64	ウェブモニター視聴者数: 1-64
 Phone control moved to {1}	電話操作を{1}に移動しました
 live pictures sent at once, 1-64 (default 8)	同時送信するライブ映像数、1-64 (既定8)
+UNDO	元に戻す
+SHELL	シェル
+< MENU	< メニュー
+< SHOW	< ショー
+MANUAL	手動
+< PHONE	< 電話
+BY HAND	手作業で
+STOP IT	これを停止
+< OUTPUT	< 出力
+CUE NAME	キュー名
+LOOP LIST	リストをループ
+SHOW NAME	ショー名
+SURE? NEW	本当に? 新規
+the phone	電話
+LEFT BUTTON	左ボタン
+BETWEEN CUES	キューの間
+DESK ADDRESS	操作卓のアドレス
+FOLLOW AGAIN	再び連動
+FROM THE MIC	マイクから
+LOOP LIST ON	リストループ オン
+TEST PATTERN	テストパターン
+ADD AN EFFECT	エフェクトを追加
+not following	連動していません
+JUMP TO CUE...	キューへジャンプ...
+SCREEN COLOURS	画面の色
+ENTER TO FOLLOW	Enterで連動
+TEST PATTERN ON	テストパターン オン
+This phone: {1}	この電話: {1}
+FROM THE NETWORK	ネットワークから
+PLAYING THE LIST	リストを再生中
+SET A PASSPHRASE	パスフレーズを設定
+REMOTE PASSPHRASE	リモート パスフレーズ
+ON THIS PHONE ONLY	この電話のみ
+STOP AFTER THIS CUE	このキュー終了後に停止
+MUTED: TAP FOR SOUND	ミュート中: タップでサウンド
+STOPS AFTER THIS CUE	このキュー終了後に停止します
+Setting the clock...	クロックを設定中...
+files from the phone	電話のファイル
+CHANGE THE PASSPHRASE	パスフレーズを変更
+FROM THE PHONE'S FILES	電話のファイルから
+Put the same media on both.	両方に同じメディアを入れてください。
+ENTER TO KEEP, BACK TO LEAVE IT	ENTERで確定、戻るでそのまま
+ENTER TO SAVE, BACK TO LEAVE IT	ENTERで保存、戻るでそのまま
+ON THE PICTURE (THE PHONE ONLY)	映像上 (電話のみ)
+8 OR MORE CHARACTERS, ENTER TO KEEP	8文字以上、ENTERで確定
+Settings > Network: Listen on ALL INTERFACES,	設定 > ネットワーク: 待ち受けをすべてのインターフェースにして、

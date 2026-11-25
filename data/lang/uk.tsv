@@ -4998,3 +4998,49 @@ Phone control is at {1}	Керування з телефона за адресо
 web monitor viewers: 1-64	глядачі вебмонітора: 1-64
 Phone control moved to {1}	Керування з телефона перенесено на {1}
 live pictures sent at once, 1-64 (default 8)	живих зображень, що надсилаються одночасно, 1-64 (типово 8)
+UNDO	СКАСУВАТИ
+SHELL	КОНСОЛЬ
+< MENU	< МЕНЮ
+< SHOW	< ШОУ
+MANUAL	ПОСІБНИК
+< PHONE	< ТЕЛЕФОН
+BY HAND	ВРУЧНУ
+STOP IT	СТОП
+< OUTPUT	< ВИХІД
+CUE NAME	НАЗВА CUE
+LOOP LIST	ЦИКЛ СПИСКУ
+SHOW NAME	НАЗВА ШОУ
+SURE? NEW	ТОЧНО? НОВИЙ
+the phone	телефон
+LEFT BUTTON	ЛІВА КНОПКА
+BETWEEN CUES	МІЖ CUE
+DESK ADDRESS	АДРЕСА ОПЕРАТОРА
+FOLLOW AGAIN	СЛІДУВАТИ ЗНОВУ
+FROM THE MIC	З МІКРОФОНА
+LOOP LIST ON	ЦИКЛ СПИСКУ УВІМ
+TEST PATTERN	ТЕСТОВА ТАБЛИЦЯ
+ADD AN EFFECT	ДОДАТИ ЕФЕКТ
+not following	не слідує
+JUMP TO CUE...	ПЕРЕЙТИ ДО CUE...
+SCREEN COLOURS	КОЛЬОРИ ЕКРАНА
+ENTER TO FOLLOW	ENTER — СЛІДУВАТИ
+TEST PATTERN ON	ТЕСТОВА ТАБЛИЦЯ УВІМ
+This phone: {1}	Цей телефон: {1}
+FROM THE NETWORK	З МЕРЕЖІ
+PLAYING THE LIST	ГРАЄ СПИСОК
+SET A PASSPHRASE	ЗАДАТИ ПАРОЛЬНУ ФРАЗУ
+REMOTE PASSPHRASE	ВІДДАЛЕНА ПАРОЛЬНА ФРАЗА
+ON THIS PHONE ONLY	ЛИШЕ НА ЦЬОМУ ТЕЛЕФОНІ
+STOP AFTER THIS CUE	СТОП ПІСЛЯ ЦЬОГО CUE
+MUTED: TAP FOR SOUND	БЕЗ ЗВУКУ: ТОРКНІТЬСЯ, ЩОБ УВІМКНУТИ
+STOPS AFTER THIS CUE	ЗУПИНИТЬСЯ ПІСЛЯ ЦЬОГО CUE
+Setting the clock...	Налаштування годинника...
+files from the phone	файли з телефона
+CHANGE THE PASSPHRASE	ЗМІНИТИ ПАРОЛЬНУ ФРАЗУ
+FROM THE PHONE'S FILES	З ФАЙЛІВ ТЕЛЕФОНА
+Put the same media on both.	Покладіть однакові медіа на обидва.
+ENTER TO KEEP, BACK TO LEAVE IT	ENTER — ПРИЙНЯТИ, НАЗАД — НЕ ЗМІНЮВАТИ
+ENTER TO SAVE, BACK TO LEAVE IT	ENTER — ЗБЕРЕГ., НАЗАД — НЕ ЗМІНЮВАТИ
+ON THE PICTURE (THE PHONE ONLY)	НА ЗОБРАЖЕННІ (ЛИШЕ ТЕЛЕФОН)
+8 OR MORE CHARACTERS, ENTER TO KEEP	8 АБО БІЛЬШЕ СИМВОЛІВ, ENTER — ПРИЙНЯТИ
+Settings > Network: Listen on ALL INTERFACES,	Налаштування > Мережа: Слухати на ВСІ ІНТЕРФЕЙСИ,

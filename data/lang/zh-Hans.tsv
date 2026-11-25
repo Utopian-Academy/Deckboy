@@ -4996,3 +4996,49 @@ Phone control is at {1}	手机控制在 {1}
 web monitor viewers: 1-64	网页监看观看者：1-64
 Phone control moved to {1}	手机控制已移至 {1}
 live pictures sent at once, 1-64 (default 8)	同时发送的实时画面，1-64（默认8）
+UNDO	撤销
+SHELL	命令行
+< MENU	< 菜单
+< SHOW	< 演出
+MANUAL	手动
+< PHONE	< 电话
+BY HAND	手工
+STOP IT	停止
+< OUTPUT	< 输出
+CUE NAME	CUE 名称
+LOOP LIST	循环列表
+SHOW NAME	演出名称
+SURE? NEW	确定？新建
+the phone	电话
+LEFT BUTTON	左键
+BETWEEN CUES	CUE 之间
+DESK ADDRESS	控制台地址
+FOLLOW AGAIN	重新跟随
+FROM THE MIC	从麦克风
+LOOP LIST ON	循环列表开
+TEST PATTERN	测试图
+ADD AN EFFECT	添加一个特效
+not following	未跟随
+JUMP TO CUE...	跳到 CUE...
+SCREEN COLOURS	屏幕颜色
+ENTER TO FOLLOW	按 ENTER 跟随
+TEST PATTERN ON	测试图开
+This phone: {1}	此电话：{1}
+FROM THE NETWORK	从网络
+PLAYING THE LIST	正在播放列表
+SET A PASSPHRASE	设置口令
+REMOTE PASSPHRASE	远程口令
+ON THIS PHONE ONLY	仅在此电话上
+STOP AFTER THIS CUE	此Cue之后停止
+MUTED: TAP FOR SOUND	已静音：点按开启声音
+STOPS AFTER THIS CUE	将在此Cue之后停止
+Setting the clock...	正在设置时钟...
+files from the phone	来自电话的文件
+CHANGE THE PASSPHRASE	更改口令
+FROM THE PHONE'S FILES	从电话的文件中
+Put the same media on both.	在两者上放相同的媒体。
+ENTER TO KEEP, BACK TO LEAVE IT	ENTER 保留，返回 不更改
+ENTER TO SAVE, BACK TO LEAVE IT	ENTER 保存，返回 不更改
+ON THE PICTURE (THE PHONE ONLY)	在画面上（仅限电话）
+8 OR MORE CHARACTERS, ENTER TO KEEP	至少 8 个字符，ENTER 保留
+Settings > Network: Listen on ALL INTERFACES,	设置 > 网络：监听于所有网络接口，

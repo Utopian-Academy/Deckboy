@@ -5010,3 +5010,49 @@ Phone control is at {1}	ⴰⵟⵉⵍⵉⴼⵓⵏ ⴰⵏⴱⴱⴰⴹ ⵖ {1}
 web monitor viewers: 1-64	ⵉⵎⵥⵕⴰⵢⵏ ⵏ ⵓⴳⴷⵉⵍ ⵏ ⵡⵉⴱ: 1-64
 Phone control moved to {1}	ⴰⵟⵉⵍⵉⴼⵓⵏ ⴰⵏⴱⴱⴰⴹ ⵉⵎⵓⵜⵜⵉ ⵙ {1}
 live pictures sent at once, 1-64 (default 8)	ⵜⵓⵡⵍⴰⴼⵉⵏ ⵙ ⵜⵓⴷⵔⵜ ⵉⵜⵜⵓⵣⵏⵏⴰⵏ ⴳ ⵢⴰⵜ ⵜⵉⴽⴽⵍⵜ, 1-64 (ⴰⵎⵣⵡⴰⵔ 8)
+UNDO	ⵙⴼⵙⵅ
+SHELL	ⴰⵣⵔⵉⴳ ⵏ ⵜⵏⴹⴰⵡⵉⵏ
+< MENU	< ⵓⵎⵓⵖ
+< SHOW	< ⴰⵙⵙⴽⴰⵏ
+MANUAL	ⴰⴼⵓⵙⴰⵏ
+< PHONE	< ⵜⵉⵍⵉⵖⵔⵉ
+BY HAND	ⵙ ⵓⴼⵓⵙ
+STOP IT	ⵃⴱⵙ ⵜ
+< OUTPUT	< ⵜⵓⴼⴼⵖⴰ
+CUE NAME	ⵉⵙⵎ ⵏ CUE
+LOOP LIST	ⴰⵙⵙⵓⵖⵍ ⵏ ⵜⵍⴳⴰⵎⵜ
+SHOW NAME	ⵉⵙⵎ ⵏ ⵓⵙⵙⴽⴰⵏ
+SURE? NEW	ⵙ ⵜⵉⴷⵜ? ⴰⵎⴰⵢⵏⵓ
+the phone	ⵜⵉⵍⵉⵖⵔⵉ
+LEFT BUTTON	ⴰⵙⵉⵍ ⴰⵥⵍⵎⴰⴹ
+BETWEEN CUES	ⴳⵔ CUE
+DESK ADDRESS	ⵜⴰⵏⵙⴰ ⵏ ⵜⴼⵉⵍⵓⵜ
+FOLLOW AGAIN	ⴹⴼⵔ ⴷⴰⵖ
+FROM THE MIC	ⵣⵖ ⵓⵙⵎⵖⵔ ⵏ ⵉⵎⵙⵍⵉ
+LOOP LIST ON	ⴰⵙⵙⵓⵖⵍ ⵏ ⵜⵍⴳⴰⵎⵜ ⵉⵔⵎⴷ
+TEST PATTERN	ⴰⵍⴳⵓⵖ ⵏ ⵓⵔⵎⵎⵓⵙ
+ADD AN EFFECT	ⵔⵏⵓ ⴰⵙⵏⴼⵍ
+not following	ⵓⵔ ⵉⵜⵜⴹⴼⴰⵔ
+JUMP TO CUE...	ⵏⴳⴳⵣ ⵙ CUE...
+SCREEN COLOURS	ⵉⵏⵉⵜⵏ ⵏ ⵓⴳⴷⵉⵍ
+ENTER TO FOLLOW	ENTER ⵉ ⵓⴹⴼⴰⵔ
+TEST PATTERN ON	ⴰⵍⴳⵓⵖ ⵏ ⵓⵔⵎⵎⵓⵙ ⵉⵔⵎⴷ
+This phone: {1}	ⵜⵉⵍⵉⵖⵔⵉ ⴰⴷ: {1}
+FROM THE NETWORK	ⵣⵖ ⵓⵥⵟⵟⴰ
+PLAYING THE LIST	ⵉⵜⵜⵓⵔⴰⵔ ⵜⴰⵍⴳⴰⵎⵜ
+SET A PASSPHRASE	ⵙⴱⴷⴷ ⵜⴰⵡⴰⵍⵜ ⵏ ⵓⵣⵔⵉ
+REMOTE PASSPHRASE	ⵜⴰⵡⴰⵍⵜ ⵏ ⵓⵣⵔⵉ ⵙⴳ ⵜⴰⴳⴳⵓⴳⵜ
+ON THIS PHONE ONLY	ⵖ ⵜⵉⵍⵉⵖⵔⵉ ⴰⴷ ⵖⴰⵙ
+STOP AFTER THIS CUE	ⵃⴱⵙ ⴷⴼⴼⵉⵔ cue ⴰⴷ
+MUTED: TAP FOR SOUND	ⵉⵙⵙⵓⵙⵎ: ⵙⵉⵜ ⵉ ⵉⵎⵙⵍⵉ
+STOPS AFTER THIS CUE	ⴰⴷ ⵉⵃⴱⵙ ⴷⴼⴼⵉⵔ cue ⴰⴷ
+Setting the clock...	ⴰⵙⴱⴷⴷ ⵏ ⵓⵙⵔⴰⴳ...
+files from the phone	ⵉⴼⴰⵢⵍⵓⵜⵏ ⵣⵖ ⵜⵉⵍⵉⵖⵔⵉ
+CHANGE THE PASSPHRASE	ⵙⵏⴼⵍ ⵜⴰⵡⴰⵍⵜ ⵏ ⵓⵣⵔⵉ
+FROM THE PHONE'S FILES	ⵣⵖ ⵉⴼⴰⵢⵍⵓⵜⵏ ⵏ ⵜⵉⵍⵉⵖⵔⵉ
+Put the same media on both.	ⵙⵔⵙ ⵢⴰⵏ ⴰⵍⵍⴰⵍⵏ ⵖ ⵉ ⵙⵉⵏ.
+ENTER TO KEEP, BACK TO LEAVE IT	ENTER ⴰⴷ ⵜⵟⵟⴼⴷ, ⵜⵓⵖⴰⵍⵉⵏ ⴰⴷ ⵜⴰⴵⴷ
+ENTER TO SAVE, BACK TO LEAVE IT	ENTER ⴰⴷ ⵜⵃⴹⵓⴷ, ⵜⵓⵖⴰⵍⵉⵏ ⴰⴷ ⵜⴰⴵⴷ
+ON THE PICTURE (THE PHONE ONLY)	ⵖ ⵜⵡⵍⴰⴼⵜ (ⵜⵉⵍⵉⵖⵔⵉ ⵖⴰⵙ)
+8 OR MORE CHARACTERS, ENTER TO KEEP	8 ⵉⵙⴽⴽⵉⵍⵏ ⵏⵖ ⵓⴳⴳⴰⵔ, ENTER ⴰⴷ ⵜⵟⵟⴼⴷ
+Settings > Network: Listen on ALL INTERFACES,	ⵜⵉⵙⵖⴰⵍ > ⴰⵥⵟⵟⴰ: ⵙⴼⵍⴷ ⵖ ⵉⵎⴰⵡⴰⵍⵏ ⴰⴽⴽ,

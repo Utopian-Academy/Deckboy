@@ -5012,3 +5012,49 @@ Phone control is at {1}	التحكم بالهاتف على {1}
 web monitor viewers: 1-64	مشاهدو مراقب ويب: 1-64
 Phone control moved to {1}	نُقل التحكم بالهاتف إلى {1}
 live pictures sent at once, 1-64 (default 8)	صور مباشرة تُرسل في آن واحد، 1-64 (الافتراضي 8)
+UNDO	تراجع
+SHELL	سطر الأوامر
+< MENU	< القائمة
+< SHOW	< العرض
+MANUAL	الدليل
+< PHONE	< الهاتف
+BY HAND	يدويًا
+STOP IT	إيقافه
+< OUTPUT	< الخرج
+CUE NAME	اسم الكيو
+LOOP LIST	تكرار القائمة
+SHOW NAME	اسم العرض
+SURE? NEW	متأكد؟ جديد
+the phone	الهاتف
+LEFT BUTTON	الزر الأيسر
+BETWEEN CUES	بين كيو وآخر
+DESK ADDRESS	عنوان طاولة التحكم
+FOLLOW AGAIN	اتبع مجددًا
+FROM THE MIC	من الميكروفون
+LOOP LIST ON	تكرار القائمة: تشغيل
+TEST PATTERN	نمط اختبار
+ADD AN EFFECT	إضافة مؤثر
+not following	لا يتبع
+JUMP TO CUE...	قفزة إلى كيو...
+SCREEN COLOURS	ألوان الشاشة
+ENTER TO FOLLOW	ENTER للاتباع
+TEST PATTERN ON	نمط اختبار: تشغيل
+This phone: {1}	هذا الهاتف: {1}
+FROM THE NETWORK	من الشبكة
+PLAYING THE LIST	القائمة قيد التشغيل
+SET A PASSPHRASE	تعيين عبارة مرور
+REMOTE PASSPHRASE	عبارة مرور التحكم عن بُعد
+ON THIS PHONE ONLY	على هذا الهاتف فقط
+STOP AFTER THIS CUE	إيقاف بعد هذا cue
+MUTED: TAP FOR SOUND	مكتوم: المس للصوت
+STOPS AFTER THIS CUE	يتوقف بعد هذا cue
+Setting the clock...	جارٍ ضبط الساعة...
+files from the phone	ملفات من الهاتف
+CHANGE THE PASSPHRASE	تغيير عبارة المرور
+FROM THE PHONE'S FILES	من ملفات الهاتف
+Put the same media on both.	ضع الوسائط نفسها على كليهما.
+ENTER TO KEEP, BACK TO LEAVE IT	ENTER للاعتماد، رجوع لتركه كما هو
+ENTER TO SAVE, BACK TO LEAVE IT	ENTER للحفظ، رجوع لتركه كما هو
+ON THE PICTURE (THE PHONE ONLY)	على الصورة (على الهاتف فقط)
+8 OR MORE CHARACTERS, ENTER TO KEEP	8 أحرف أو أكثر، ENTER للاعتماد
+Settings > Network: Listen on ALL INTERFACES,	الإعدادات > الشبكة: الاستماع على كل الواجهات،

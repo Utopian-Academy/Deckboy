@@ -4995,3 +4995,49 @@ Phone control is at {1}	휴대폰 제어는 {1}에 있음
 web monitor viewers: 1-64	웹 모니터 시청자 수: 1-64
 Phone control moved to {1}	휴대폰 제어가 {1}(으)로 이동됨
 live pictures sent at once, 1-64 (default 8)	동시 전송 라이브 화면 수, 1-64(기본 8)
+UNDO	실행 취소
+SHELL	셸
+< MENU	< 메뉴
+< SHOW	< 쇼
+MANUAL	설명서
+< PHONE	< 전화
+BY HAND	수동
+STOP IT	정지
+< OUTPUT	< 출력
+CUE NAME	큐 이름
+LOOP LIST	목록 반복
+SHOW NAME	쇼 이름
+SURE? NEW	정말? 새로 만들기
+the phone	전화
+LEFT BUTTON	왼쪽 버튼
+BETWEEN CUES	큐 사이
+DESK ADDRESS	콘솔 주소
+FOLLOW AGAIN	다시 따르기
+FROM THE MIC	마이크에서
+LOOP LIST ON	목록 반복 켜짐
+TEST PATTERN	테스트 패턴
+ADD AN EFFECT	이펙트 추가
+not following	따르지 않음
+JUMP TO CUE...	큐로 점프...
+SCREEN COLOURS	화면 색상
+ENTER TO FOLLOW	ENTER로 따르기
+TEST PATTERN ON	테스트 패턴 켜짐
+This phone: {1}	이 전화: {1}
+FROM THE NETWORK	네트워크에서
+PLAYING THE LIST	목록 재생 중
+SET A PASSPHRASE	암호문 설정
+REMOTE PASSPHRASE	원격 암호문
+ON THIS PHONE ONLY	이 전화에서만
+STOP AFTER THIS CUE	이 큐 이후 정지
+MUTED: TAP FOR SOUND	음소거됨: 탭하여 사운드 듣기
+STOPS AFTER THIS CUE	이 큐 이후 정지됨
+Setting the clock...	클록 설정 중...
+files from the phone	전화에서 가져온 파일
+CHANGE THE PASSPHRASE	암호문 변경
+FROM THE PHONE'S FILES	전화의 파일에서
+Put the same media on both.	둘 다 같은 미디어를 넣으세요.
+ENTER TO KEEP, BACK TO LEAVE IT	ENTER는 유지, 뒤로는 그대로 두기
+ENTER TO SAVE, BACK TO LEAVE IT	ENTER는 저장, 뒤로는 그대로 두기
+ON THE PICTURE (THE PHONE ONLY)	영상 위에 (전화만)
+8 OR MORE CHARACTERS, ENTER TO KEEP	8자 이상, ENTER는 유지
+Settings > Network: Listen on ALL INTERFACES,	설정 > 네트워크: 수신 주소를 모든 인터페이스로,

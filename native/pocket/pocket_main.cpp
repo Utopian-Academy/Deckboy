@@ -781,8 +781,8 @@ class Pocket {
     // passphrase: anyone on a venue's Wi-Fi could GO, BLACK, delete cues or
     // write a file with SNAP (security check 2026-11-25). Following a desk is
     // a connection Pocket makes, so it is unaffected.
-    listen_ = createBoundSocket(SOCK_STREAM, kRemotePort, true, true);
-    if (listen_ == kInvalidSocket) SDL_Log("pocket: remote port %d is taken; remote control is off", kRemotePort);
+    loadRemoteSettings();
+    openRemotePort();
     loadMediaFolder();
     // The list starts with what is in the media folder and nothing else
     // (James, 11-20: it need not open with a row of patterns). Tests ask for
@@ -1015,7 +1015,7 @@ class Pocket {
     if (splashing() || splashEnding()) return false;
     if (faceShown() && !faceAsleep()) return false;   // she moves; asleep she barely does
     if (now < addedFlashUntil_) return false;
-    if (follow_ != Follow::Off || hostEditing_ || renameIndex_ != -1 || calcOpen_ || pickerOpen_) return false;
+    if (follow_ != Follow::Off || hostEditing_ || passEditing_ || renameIndex_ != -1 || calcOpen_ || pickerOpen_) return false;
     if (now < noticeUntil_ || now < ghostUntil_ || (undoCue_ && now < undoUntil_)) return false;
     if (!fingers_.empty() || drag_ != Drag::None) return false;
     return true;
@@ -1043,7 +1043,11 @@ class Pocket {
         autosaveList();   // Android may end Pocket from here without asking
         break;
       case SDL_EVENT_TEXT_INPUT:
-        if (hostEditing_) {
+        if (passEditing_) {
+          for (const char* c = e.text.text; *c; ++c) {
+            if (static_cast<unsigned char>(*c) > ' ' && static_cast<unsigned char>(*c) < 127 && passDraft_.size() < 64) passDraft_ += *c;
+          }
+        } else if (hostEditing_) {
           for (const char* c = e.text.text; *c; ++c) {
             if ((std::isalnum(static_cast<unsigned char>(*c)) || *c == '.' || *c == ':' || *c == '-') && followHost_.size() < 64) {
               followHost_ += *c;
@@ -1054,6 +1058,12 @@ class Pocket {
         }
         break;
       case SDL_EVENT_KEY_DOWN:
+        if (passEditing_) {
+          if (e.key.key == SDLK_BACKSPACE && !passDraft_.empty()) passDraft_.pop_back();
+          else if (e.key.key == SDLK_RETURN || e.key.key == SDLK_KP_ENTER) endPassEdit(true);
+          else if (e.key.key == SDLK_AC_BACK || e.key.key == SDLK_ESCAPE) { wantNetworkAfterPass_ = false; endPassEdit(false); }
+          return true;
+        }
         if (hostEditing_) {
           if (e.key.key == SDLK_BACKSPACE && !followHost_.empty()) followHost_.pop_back();
           else if (e.key.key == SDLK_RETURN || e.key.key == SDLK_KP_ENTER) { endHostEdit(); startFollowing(); }
@@ -1269,6 +1279,7 @@ class Pocket {
     else fillRect(r, kShell, {0, 0, pxW_, pxH_});
     drawProgram();
     if (hostEditing_) drawTextEditor("DESK ADDRESS", followHost_, "ENTER TO FOLLOW");
+    if (passEditing_) drawTextEditor("REMOTE PASSPHRASE", passDraft_, "8 OR MORE CHARACTERS, ENTER TO KEEP");
     if (renameIndex_ >= 0) drawTextEditor("CUE NAME", renameText_, "ENTER TO KEEP, BACK TO LEAVE IT");
     if (renameIndex_ == kNamingShow) drawTextEditor("SHOW NAME", renameText_, "ENTER TO SAVE, BACK TO LEAVE IT");
     if (sheet_ >= 0) {
@@ -2188,6 +2199,23 @@ class Pocket {
       y += 6 * u;
       button({lx, y, lw, 5 * u}, splashOn_ ? "SPLASH AT START: ON" : "SPLASH AT START: OFF",
              [this] { splashOn_ = !splashOn_; saveHelpers(); }, true, splashOn_);
+      y += 6.5f * u;
+    }
+    heading("REMOTE CONTROL");
+    {
+      button({lx, y, lw, 5 * u}, remoteNetwork_ ? "FROM THE NETWORK" : "ON THIS PHONE ONLY",
+             [this] {
+               if (remoteNetwork_) { setRemoteNetwork(false); return; }
+               if (remotePass_.size() < 8) { wantNetworkAfterPass_ = true; beginPassEdit(); return; }
+               setRemoteNetwork(true);
+             }, true, remoteNetwork_);
+      y += 6 * u;
+      if (remoteNetwork_) {
+        text_.drawName(mono_, deckboy::core::i18n::format("This phone: {1}", {remoteAddressText()}), kDeep, {lx, y, lw, 4.5f * u});
+        y += 5 * u;
+      }
+      button({lx, y, lw, 5 * u}, remotePass_.size() >= 8 ? "CHANGE THE PASSPHRASE" : "SET A PASSPHRASE",
+             [this] { wantNetworkAfterPass_ = false; beginPassEdit(); });
       y += 6.5f * u;
     }
     heading("ON THE PICTURE (THE PHONE ONLY)");
@@ -4044,9 +4072,97 @@ class Pocket {
   // report, the same shapes the desk and Mini use, so a client written for
   // either drives Pocket as deck 1.
 
-  struct RemoteClient { SocketHandle socket; std::string buffer; };
+  // A client on the phone itself (adb forward, an app) is trusted; one from
+  // the network sends AUTH <passphrase> first, as Companion does to the desk.
+  struct RemoteClient { SocketHandle socket; std::string buffer; bool authed = true; bool local = false; int fails = 0; };
+
+  // -- REMOTE CONTROL FROM THE NETWORK (MENU > PHONE > REMOTE CONTROL) --
+  //
+  // Off the network unless asked for (security check 2026-11-25: it answered
+  // anyone on the Wi-Fi). FROM THE NETWORK listens on every address, takes
+  // private LAN and Tailscale addresses only, and wants the passphrase
+  // (8 or more characters) before any command. Saved in pocket_remote.txt.
+  std::string remoteFile() const {
+    const char* state = SDL_getenv("DECKBOY_STATE_DIR");
+    return std::string(state ? state : ".") + "/pocket_remote.txt";
+  }
+
+  void loadRemoteSettings() {
+    size_t n = 0;
+    char* saved = static_cast<char*>(SDL_LoadFile(remoteFile().c_str(), &n));
+    if (!saved) return;
+    std::istringstream in(std::string(saved, n));
+    SDL_free(saved);
+    std::string line;
+    while (std::getline(in, line)) {
+      if (!line.empty() && line.back() == '\r') line.pop_back();
+      if (line.rfind("pass\t", 0) == 0) remotePass_ = line.substr(5);
+      if (line == "network\t1") remoteNetwork_ = true;
+    }
+    if (remotePass_.size() < 8) remoteNetwork_ = false;
+  }
+
+  void saveRemoteSettings() {
+    const std::string text = std::string("network\t") + (remoteNetwork_ ? "1" : "0") + "\npass\t" + remotePass_ + "\n";
+    SDL_SaveFile(remoteFile().c_str(), text.data(), text.size());
+  }
+
+  void openRemotePort() {
+    for (RemoteClient& c : clients_) closeSocket(c.socket);
+    clients_.clear();
+    if (listen_ != kInvalidSocket) closeSocket(listen_);
+    listen_ = createBoundSocket(SOCK_STREAM, kRemotePort, true, !remoteNetwork_);
+    if (listen_ == kInvalidSocket) SDL_Log("pocket: remote port %d is taken; remote control is off", kRemotePort);
+    else SDL_Log("pocket: remote control %s", remoteNetwork_ ? "from the network" : "on this phone only");
+  }
+
+  // ON | OFF: a passphrase of 8 or more is needed for ON.
+  bool setRemoteNetwork(bool on) {
+    if (on && remotePass_.size() < 8) return false;
+    if (on == remoteNetwork_) return true;
+    remoteNetwork_ = on;
+    saveRemoteSettings();
+    reopenRemote_ = true;   // after the replies in hand are sent (pollRemote)
+    return true;
+  }
+
+  static bool remotePeerAllowed(std::uint32_t ip) {
+    return (ip >> 24) == 127 || (ip >> 24) == 10 || (ip >> 20) == 0xAC1 || (ip >> 16) == 0xC0A8 ||
+           (ip >> 22) == (0x64400000u >> 22);   // 100.64/10: Tailscale
+  }
+
+  std::string remoteAddressText() const {
+    const std::string ip = privateLanIPv4Address();
+    return ip.empty() ? std::string("no Wi-Fi") : ip + ":" + std::to_string(kRemotePort);
+  }
+
+  void beginPassEdit() {
+    passEditing_ = true;
+    passDraft_ = remotePass_;
+    SDL_StartTextInput(window_);
+  }
+
+  void endPassEdit(bool keep) {
+    if (!passEditing_) return;
+    passEditing_ = false;
+    SDL_StopTextInput(window_);
+    if (!keep) return;
+    if (passDraft_.size() < 8) {
+      notice_ = "The passphrase needs 8 or more characters";
+      noticeUntil_ = SDL_GetTicks() + 3000;
+      return;
+    }
+    remotePass_ = passDraft_;
+    saveRemoteSettings();
+    if (wantNetworkAfterPass_) setRemoteNetwork(true);
+    wantNetworkAfterPass_ = false;
+  }
 
   void pollRemote() {
+    if (reopenRemote_) {
+      reopenRemote_ = false;
+      openRemotePort();
+    }
     if (listen_ == kInvalidSocket) return;
     fd_set readable;
     FD_ZERO(&readable);
@@ -4059,8 +4175,15 @@ class Pocket {
       sockaddr_in from {};
       socklen_t len = sizeof(from);
       SocketHandle sock = static_cast<SocketHandle>(accept(listen_, reinterpret_cast<sockaddr*>(&from), &len));
-      if (sock != kInvalidSocket && clients_.size() < 16) clients_.push_back({sock, {}});
-      else if (sock != kInvalidSocket) closeSocket(sock);
+      const std::uint32_t ip = ntohl(from.sin_addr.s_addr);
+      if (sock != kInvalidSocket && clients_.size() < 16 && (remotePeerAllowed(ip) && (remoteNetwork_ || (ip >> 24) == 127))) {
+        RemoteClient c {sock, {}};
+        c.local = (ip >> 24) == 127;    // on the phone itself (adb forward, an app)
+        c.authed = c.local;
+        clients_.push_back(c);
+      } else if (sock != kInvalidSocket) {
+        closeSocket(sock);
+      }
     }
     for (std::size_t i = 0; i < clients_.size();) {
       RemoteClient& c = clients_[i];
@@ -4075,7 +4198,26 @@ class Pocket {
           std::string line = c.buffer.substr(0, eol);
           c.buffer.erase(0, eol + 1);
           if (!line.empty() && line.back() == '\r') line.pop_back();
-          const std::string answer = remoteCommand(line);
+          std::string answer;
+          const bool isAuth = line.size() >= 4 && (line.compare(0, 4, "AUTH") == 0 || line.compare(0, 4, "auth") == 0) &&
+                              (line.size() == 4 || line[4] == ' ');
+          if (isAuth) {
+            const std::string given = line.size() > 5 ? line.substr(5) : std::string();
+            if (c.authed || (!remotePass_.empty() && given == remotePass_)) {
+              c.authed = true;
+              c.fails = 0;
+              answer = "OK AUTH\n";
+            } else {
+              answer = "ERR AUTH: wrong passphrase\n";
+              if (++c.fails >= 5) alive = false;
+            }
+          } else if (!c.authed) {
+            answer = "ERR AUTH: send AUTH <passphrase> first\n";
+          } else {
+            remoteCallerLocal_ = c.local;
+            answer = remoteCommand(line);
+            remoteCallerLocal_ = false;
+          }
           if (!answer.empty()) send(c.socket, answer.data(), static_cast<int>(answer.size()), kSocketSendFlags);
         }
         if (c.buffer.size() > 65536) alive = false;
@@ -4495,6 +4637,34 @@ class Pocket {
       if (want == "flat" || want.empty()) { setShell(""); return ok(); }
       setShell(want);
       return shell_ == want ? ok() : err("no shell " + rest);
+    }
+    // REMOTE STATUS | REMOTE NETWORK ON|OFF | REMOTE PASS <8+ characters>:
+    // from the phone itself only (adb), never over the network.
+    if (verb == "REMOTE") {
+      if (!remoteCallerLocal_) return err("set on the phone (MENU > PHONE > REMOTE CONTROL)");
+      std::istringstream args(rest);
+      std::string sub, value;
+      args >> sub;
+      std::getline(args, value);
+      while (!value.empty() && value.front() == ' ') value.erase(value.begin());
+      for (char& ch : sub) ch = static_cast<char>(std::toupper(static_cast<unsigned char>(ch)));
+      if (sub == "PASS") {
+        if (value.size() < 8) return err("8 or more characters");
+        remotePass_ = value;
+        saveRemoteSettings();
+        return ok();
+      }
+      if (sub == "NETWORK") {
+        for (char& ch : value) ch = static_cast<char>(std::toupper(static_cast<unsigned char>(ch)));
+        if (value != "ON" && value != "OFF") return err("REMOTE NETWORK ON|OFF");
+        if (!setRemoteNetwork(value == "ON")) return err("set a passphrase first (REMOTE PASS)");
+        return ok();
+      }
+      if (sub.empty() || sub == "STATUS") {
+        return std::string("OK REMOTE: network=") + (remoteNetwork_ ? "on" : "off") + " pass=" +
+               (remotePass_.size() >= 8 ? "set" : "none") + " address=" + remoteAddressText() + "\n";
+      }
+      return err("REMOTE STATUS | NETWORK ON|OFF | PASS <passphrase>");
     }
     if (verb == "SNAP") {    // the next frame as a BMP file, for checking the screen without touching it
       // A file name only, written in Pocket's own state folder: a path could
@@ -9356,6 +9526,9 @@ class Pocket {
   int syncSeeks_ = 0;
   bool seekLanding_ = false;
   bool hostEditing_ = false;
+  bool reopenRemote_ = false;
+  bool remoteNetwork_ = false, passEditing_ = false, wantNetworkAfterPass_ = false, remoteCallerLocal_ = false;
+  std::string remotePass_, passDraft_;
   std::string snapPath_;
   bool haptics_ = true;
   Defaults defaults_;
