@@ -241,6 +241,19 @@
       handleSyncCommand(parts);
       return;
     }
+    // RIPPLE DROP [n]: a ring (or n, up to 8) in every Mega Ripple on air --
+    // for Companion, a MIDI map or a script cue to drop one on cue.
+    if (command == "RIPPLE") {
+      const std::string sub = parts.size() > 1 ? toUpper(parts[1]) : std::string();
+      if (sub != "DROP") {
+        failRemoteCommand("RIPPLE DROP [1-8]");
+        return;
+      }
+      const int n = parts.size() > 2 ? std::clamp(std::atoi(parts[2].c_str()), 1, 8) : 1;
+      deckboy::effects::detail::gMegaRippleDrops.fetch_add(static_cast<std::uint32_t>(n));
+      remoteCommandDetail_ = std::to_string(n) + (n == 1 ? " drop" : " drops");
+      return;
+    }
     // A verb a private extra brought (see core/private_extras.hpp).
     if (const auto* extra = deckboy::extras::findCommand(command)) {
       if (command == "TABLE" && !project_.tabletopUnlocked) {

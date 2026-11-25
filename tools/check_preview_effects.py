@@ -106,6 +106,7 @@ EFFECTS = [
     ("tape",            "1:0.6:0.6:0.5:0.5"),
     ("circuit_bend",    "1:0.4:0.35:0.4:0.45"),
     ("breath",          "1:0.5:0.5"),
+    ("mega_ripple",     "1:0.7:0.3:0.5:0.4"),
 ]
 
 # Both need something a paused frame cannot give them.

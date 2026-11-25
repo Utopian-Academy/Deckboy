@@ -5041,3 +5041,14 @@ ENTER TO SAVE, BACK TO LEAVE IT	ENTER TALLENTAA, TAKAISIN JÄTTÄÄ ENNALLEEN
 ON THE PICTURE (THE PHONE ONLY)	KUVAN PÄÄLLÄ (VAIN PUHELIN)
 8 OR MORE CHARACTERS, ENTER TO KEEP	VÄHINTÄÄN 8 MERKKIÄ, ENTER PITÄÄ
 Settings > Network: Listen on ALL INTERFACES,	Asetukset > Verkko: Kuuntele KAIKKI LIITÄNNÄT,
+calm	tyyni
+gold	kulta
+shine	kiilto
+chrome	kromi
+drop size	pisaran koko
+mega ripple	megaväreily
+RIPPLE DROP [1-8]	VÄREILYPISARA [1-8]
+the picture's own	kuvan omat
+The picture keeps its own colours, or turns to chrome or liquid gold.	Kuva säilyttää omat värinsä tai muuttuu kromiksi tai nestekullaksi.
+Glints where the water faces the light, and bright lines where the rings focus it.	Välkettä siellä, missä vesi kääntyy valoa kohti, ja kirkkaita viivoja siellä, mihin renkaat sen keskittävät.
+Raindrops on the water: none at the left, about twenty a second at the right. RIPPLE DROP (Companion, a MIDI map, a script cue) drops a bigger one on cue.	Sadepisaroita vedessä: vasemmalla ei yhtään, oikealla noin kaksikymmentä sekunnissa. VÄREILYPISARA (Companion, MIDI-kartta, skripticue) pudottaa isomman käskystä.

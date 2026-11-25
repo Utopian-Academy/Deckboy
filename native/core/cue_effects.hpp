@@ -162,6 +162,12 @@ enum class CueEffectKind : int {
   // if its your eyes or not"). The picture swells and settles on a slow,
   // uneven breath, with a soft swell drifting through it.
   Breath,
+  // MEGA RIPPLE (board BBfda3Tf, James 2026-11-25: "i'm more interested in the
+  // ripple"; the name came off a simulated die). Real ripples on the picture:
+  // rain, taps from Companion or MIDI (RIPPLE DROP), rings that spread and
+  // cross; the picture seen through them, bent and glinting, flowing and
+  // melting underneath if asked.
+  MegaRipple,
   Count,
 };
 
@@ -225,6 +231,7 @@ inline const char* cueEffectLabel(CueEffectKind kind) {
     case CueEffectKind::Tape:           return "tape";
     case CueEffectKind::CircuitBend:    return "circuit bend";
     case CueEffectKind::Breath:         return "breath";
+    case CueEffectKind::MegaRipple:     return "mega ripple";
     default:                            return "none";
   }
 }
@@ -291,6 +298,7 @@ inline const char* cueEffectToken(CueEffectKind kind) {
     case CueEffectKind::Tape:           return "tape";
     case CueEffectKind::CircuitBend:    return "circuit_bend";
     case CueEffectKind::Breath:         return "breath";
+    case CueEffectKind::MegaRipple:     return "mega_ripple";
     default:                            return "none";
   }
 }
@@ -362,6 +370,8 @@ inline bool cueEffectKindAnimates(CueEffectKind kind) {
     case CueEffectKind::CircuitBend:
     // It breathes on the clock.
     case CueEffectKind::Breath:
+    // Its water keeps moving between frames.
+    case CueEffectKind::MegaRipple:
       return true;
     default:
       return false;
@@ -540,6 +550,9 @@ inline const char* cueEffectParamLabel(CueEffectKind kind, int which) {
            : which == 2 ? "bleed" : which == 3 ? "ringing" : nullptr;
     case CueEffectKind::Breath:
       return which == 0 ? "pace" : which == 1 ? "flow" : nullptr;
+    case CueEffectKind::MegaRipple:
+      return which == 0 ? "rain" : which == 1 ? "calm"
+           : which == 2 ? "drop size" : which == 3 ? "flow" : nullptr;
     case CueEffectKind::Schlieren:
       return which == 0 ? "knife angle" : which == 1 ? "sensitivity"
            : which == 2 ? "colour" : nullptr;
@@ -902,6 +915,16 @@ inline const char* cueEffectParamTip(CueEffectKind kind, int which) {
           "thin neck with a heavier head."
         : "How fast what has dripped hardens away. At the left the drips "
           "stay until the cue changes.";
+    case CueEffectKind::MegaRipple:
+      return which == 0
+        ? "Raindrops on the water: none at the left, about twenty a second at the right. "
+          "RIPPLE DROP (Companion, a MIDI map, a script cue) drops a bigger one on cue."
+        : which == 1
+        ? "How quickly the rings die away. At the left they cross the picture and bounce "
+          "off its edges; at the right they settle almost at once."
+        : which == 2
+        ? "How big each drop is."
+        : "The picture under the water drifts on a slow current and the ripples' own slope.";
     case CueEffectKind::Breath:
       return which == 0
         ? "How slowly it breathes: one breath in about twelve seconds at the left, "
@@ -1657,6 +1680,7 @@ inline const char* cueEffectChoiceLabel(CueEffectKind kind, int which) {
   switch (kind) {
     case CueEffectKind::Melt: return which == 0 ? "direction" : which == 1 ? "material" : nullptr;
     case CueEffectKind::Tape: return which == 0 ? "speed" : which == 1 ? "interference" : nullptr;
+    case CueEffectKind::MegaRipple: return which == 0 ? "colour" : nullptr;
     default: return nullptr;
   }
 }
@@ -1671,6 +1695,9 @@ inline std::vector<const char*> cueEffectChoiceOptions(CueEffectKind kind, int w
       if (which == 0) return {"SP", "LP", "EP"};
       if (which == 1) return {"none", "phone", "dimmer", "radio"};
       break;
+    case CueEffectKind::MegaRipple:
+      if (which == 0) return {"the picture's own", "chrome", "gold"};
+      break;
     default: break;
   }
   return {};
@@ -1683,6 +1710,9 @@ inline const char* cueEffectChoiceTip(CueEffectKind kind, int which) {
            "is wax, and the picture itself runs down in its own colours. Liquid: the picture turns to "
            "glossy molten plastic, sagging in lumps with rainbow highlights, and what moves leaves "
            "melting ghosts.";
+  }
+  if (kind == CueEffectKind::MegaRipple && which == 0) {
+    return "The picture keeps its own colours, or turns to chrome or liquid gold.";
   }
   if (kind == CueEffectKind::Tape && which == 0) {
     return "Tape speed: SP is the best picture, LP and EP fit more on a tape and lose detail and colour.";
@@ -1714,6 +1744,12 @@ inline void applyCueEffectArrivalDefaults(CueEffect& fx) {
       // It arrives barely there: about two pixels of swell on a 1080p picture.
       fx.amount = 0.35f;
       fx.paramA = 0.5f; fx.paramB = 0.5f;
+      break;
+    case CueEffectKind::MegaRipple:
+      // As the board's prototype arrived: steady light rain, a little flow, some shine.
+      fx.amount = 0.7f;
+      fx.paramA = 0.35f; fx.paramB = 0.3f; fx.paramC = 0.4f; fx.paramD = 0.25f; fx.paramE = 0.35f; fx.paramF = 0.55f;
+      fx.choiceA = 0;
       break;
     default:
       break;
@@ -1755,6 +1791,10 @@ inline const char* cueEffectParamLabelFor(const CueEffect& fx, int which) {
     if (which == 4) return "tears";
     if (which == 5) return nullptr;
   }
+  if (fx.kind == CueEffectKind::MegaRipple) {
+    if (which == 4) return "melt";
+    if (which == 5) return "shine";
+  }
   return cueEffectParamLabel(fx.kind, which);
 }
 
@@ -1782,6 +1822,13 @@ inline const char* cueEffectParamTipFor(const CueEffect& fx, int which) {
   }
   if (fx.kind == CueEffectKind::CircuitBend && which == 4) {
     return "The sync slips: bands of lines jump sideways for a moment.";
+  }
+  if (fx.kind == CueEffectKind::MegaRipple && which == 4) {
+    return "How long the picture under the water keeps what it was: at the right it melts and "
+           "smears as it flows; at the left there is only the ripple.";
+  }
+  if (fx.kind == CueEffectKind::MegaRipple && which == 5) {
+    return "Glints where the water faces the light, and bright lines where the rings focus it.";
   }
   if (fx.kind == CueEffectKind::Chladni) {
     const int st = chladniStyle(fx);
@@ -1881,6 +1928,9 @@ struct CueEffectContext {
 };
 
 namespace detail {
+// RIPPLE DROP: one more each time Companion, a MIDI map or a cue asks for a
+// drop. Every Mega Ripple drops a ring for each it has not seen yet.
+inline std::atomic<std::uint32_t> gMegaRippleDrops {0};
 
 inline std::uint8_t clamp8(double v) {
   return static_cast<std::uint8_t>(std::clamp(v, 0.0, 255.0));
@@ -2696,6 +2746,218 @@ inline void shrinkRgbaBox(const std::uint8_t* src, int width, int height, int fa
           d[2] = static_cast<std::uint8_t>((b + a / 2) / a);
           d[3] = static_cast<std::uint8_t>((a + area / 2) / area);
         }
+      }
+    }
+  });
+}
+
+// MEGA RIPPLE, out of applyCueEffectStack: MSVC allows a function only so many
+// block-scope statics (C2603), and this effect keeps six scratch buffers.
+inline void applyMegaRipple(std::vector<std::uint8_t>& pixels, const CueEffect& fx, const CueEffectContext& ctx,
+                            std::vector<std::uint8_t>* state, double amt, double pA, double pB, double pC,
+                            double pD, double pE, double pF) {
+  // MEGA RIPPLE (board BBfda3Tf, James 2026-11-25; the name came off a
+  // physically simulated die, 6: even = MEGA). Real ripples: a wave
+  // equation on a grid a quarter of the picture's size, with rain, and
+  // RIPPLE DROP from Companion, MIDI or a cue, dropping rings into it.
+  // The rings spread, cross and bounce off the edges. The picture is seen
+  // through the water: bent by the slope of the surface, glinting where
+  // it faces the light, brighter where the rings focus it. Under the
+  // water the picture can FLOW and MELT: a kept pool at half size,
+  // pushed along a slow current and the ripples' own slope, as Melt
+  // keeps its drips. Everything is read bilinearly: the bend is a
+  // fraction of a pixel at the edge of a ring, and a whole-pixel step is
+  // what the eye catches.
+  if (!state) return;
+  const int W = ctx.width, H = ctx.height;
+  if (W < 8 || H < 8) return;
+  const int RW = std::max(16, W / 4), RH = std::max(9, H / 4);
+  const int PW = std::max(2, W / 2), PH = std::max(2, H / 2);
+  const std::size_t rcount = static_cast<std::size_t>(RW) * RH;
+  const std::size_t pcount = static_cast<std::size_t>(PW) * PH;
+  const std::size_t kHead = 32;
+  const std::size_t bytes = kHead + rcount * 2 * sizeof(float) + pcount * 3 * sizeof(std::uint16_t);
+  std::vector<std::uint8_t>& store = *state;
+  auto headerAt = [&](int i) { std::int32_t v; std::memcpy(&v, store.data() + i * 4, 4); return v; };
+  auto setHeader = [&](int i, std::int32_t v) { std::memcpy(store.data() + i * 4, &v, 4); };
+  if (store.size() != bytes || headerAt(0) != RW || headerAt(1) != RH || headerAt(2) != PW || headerAt(3) != PH) {
+    store.assign(bytes, 0);
+    setHeader(0, RW); setHeader(1, RH); setHeader(2, PW); setHeader(3, PH);
+    setHeader(4, static_cast<std::int32_t>(detail::gMegaRippleDrops.load()));
+  }
+  float* hA = reinterpret_cast<float*>(store.data() + kHead);
+  float* hB = hA + rcount;
+  std::uint16_t* pool = reinterpret_cast<std::uint16_t*>(store.data() + kHead + rcount * 2 * sizeof(float));
+  // header 5: which height buffer is "now"; 6: whether the pool holds a picture yet
+  float* now = headerAt(5) ? hB : hA;
+  float* before = headerAt(5) ? hA : hB;
+  const double t = ctx.seconds >= 0.0 ? ctx.seconds : static_cast<double>(ctx.frameIndex) / 30.0;
+  if (!ctx.stateHold) {
+    std::uint64_t rng = (ctx.frameIndex + 1) * 0x9E3779B97F4A7C15ull ^ static_cast<std::uint64_t>(RW) * 0xBF58476D1CE4E5B9ull;
+    auto next01 = [&]() {
+      rng ^= rng >> 30; rng *= 0xBF58476D1CE4E5B9ull; rng ^= rng >> 27; rng *= 0x94D049BB133111EBull; rng ^= rng >> 31;
+      return static_cast<double>(rng >> 11) / 9007199254740992.0;
+    };
+    const double radius = 1.5 + pC * 6.0;   // grid cells
+    auto drop = [&](double fx01, double fy01, double r, double amp) {
+      const int cx = static_cast<int>(fx01 * RW), cy = static_cast<int>(fy01 * RH), ri = static_cast<int>(std::ceil(r));
+      for (int j = -ri; j <= ri; ++j) {
+        for (int i = -ri; i <= ri; ++i) {
+          const int x = cx + i, y = cy + j;
+          if (x < 1 || y < 1 || x >= RW - 1 || y >= RH - 1) continue;
+          const double d = std::sqrt(static_cast<double>(i * i + j * j)) / r;
+          if (d > 1.0) continue;
+          now[static_cast<std::size_t>(y) * RW + x] += static_cast<float>(amp * 0.5 * (std::cos(d * 3.14159265358979) + 1.0));
+        }
+      }
+    };
+    // RAIN: up to twenty drops a second, counted at thirty frames a second
+    const double perFrame = pA * pA * 20.0 / 30.0;
+    int drops = static_cast<int>(perFrame);
+    if (next01() < perFrame - drops) ++drops;
+    for (int i = 0; i < drops; ++i) drop(next01(), next01(), radius * (0.6 + 0.8 * next01()), 0.8 + 0.8 * next01());
+    // RIPPLE DROP: a bigger ring for each one asked for since the last frame
+    const std::uint32_t asked = detail::gMegaRippleDrops.load();
+    const std::uint32_t seen = static_cast<std::uint32_t>(headerAt(4));
+    for (std::uint32_t i = 0; i < std::min<std::uint32_t>(8u, asked - seen); ++i) drop(0.15 + 0.7 * next01(), 0.15 + 0.7 * next01(), radius * 1.8, 2.2);
+    setHeader(4, static_cast<std::int32_t>(asked));
+    // CALM: how quickly the rings die away
+    const float damp = static_cast<float>(0.90 + (1.0 - pB) * 0.097);   // calm 1: rings gone in a few frames; 0: they linger
+    for (int step = 0; step < 2; ++step) {
+      for (int y = 1; y < RH - 1; ++y) {
+        for (int x = 1; x < RW - 1; ++x) {
+          const std::size_t k = static_cast<std::size_t>(y) * RW + x;
+          before[k] = ((now[k - 1] + now[k + 1] + now[k - RW] + now[k + RW]) * 0.5f - before[k]) * damp;
+        }
+      }
+      std::swap(now, before);
+    }
+    setHeader(5, now == hB ? 1 : 0);
+  }
+  // the water's slope and light, per grid cell
+  static thread_local std::vector<float> gx, gy, lit, glow;
+  gx.resize(rcount); gy.resize(rcount); lit.resize(rcount); glow.resize(rcount);
+  const double shine = pF;
+  const double lx = -0.4, ly = 0.5, lz = 0.75, ll = std::sqrt(lx * lx + ly * ly + lz * lz);
+  for (int y = 0; y < RH; ++y) {
+    for (int x = 0; x < RW; ++x) {
+      const std::size_t k = static_cast<std::size_t>(y) * RW + x;
+      const float dx = now[static_cast<std::size_t>(y) * RW + std::min(RW - 1, x + 1)] - now[static_cast<std::size_t>(y) * RW + std::max(0, x - 1)];
+      const float dy = now[static_cast<std::size_t>(std::min(RH - 1, y + 1)) * RW + x] - now[static_cast<std::size_t>(std::max(0, y - 1)) * RW + x];
+      gx[k] = dx; gy[k] = dy;
+      // the surface's normal against a light up and to the left
+      const double nxs = -dx * 4.0 * amt, nys = -dy * 4.0 * amt, nzs = 1.0, nl = std::sqrt(nxs * nxs + nys * nys + nzs * nzs);
+      const double nd = (nxs * lx + nys * ly + nzs * lz) / (nl * ll);
+      // reflection of the light about the normal, seen from straight on
+      const double rz = 2.0 * nd * (nzs / nl) - lz / ll;
+      double spec = rz > 0.0 ? rz : 0.0;
+      spec = spec * spec; spec = spec * spec; spec = spec * spec; spec = spec * spec;   // ^16
+      const double caustic = std::min(0.45, (static_cast<double>(dx) * dx + static_cast<double>(dy) * dy) * 6.0 * amt);
+      lit[k] = static_cast<float>(0.88 + 0.18 * nd);
+      glow[k] = static_cast<float>(255.0 * shine * (spec * 1.2 + caustic));
+    }
+  }
+  const std::size_t total = static_cast<std::size_t>(W) * H;
+  static thread_local std::vector<std::uint8_t> src;
+  src.assign(pixels.begin(), pixels.begin() + static_cast<std::ptrdiff_t>(total * 4));
+  // FLOW and MELT: the kept pool, at half size, 8.8 fixed point
+  const bool pooled = pD > 0.001 || pE > 0.001;
+  if (pooled && !ctx.stateHold) {
+    const bool fresh = headerAt(6) == 0;
+    const double keep = pE * 0.965;
+    const double push = pD * 0.012 * PW;   // pool pixels a frame, at most about one percent of the width
+    static thread_local std::vector<std::uint16_t> next;
+    next.resize(pcount * 3);
+    const std::uint8_t* from = src.data();
+    for (int y = 0; y < PH; ++y) {
+      for (int x = 0; x < PW; ++x) {
+        const double qx = static_cast<double>(x) / PW, qy = static_cast<double>(y) / PH;
+        // a slow current, plus the slope of the water above it
+        const std::size_t rk = static_cast<std::size_t>(std::min(RH - 1, y * RH / PH)) * RW + std::min(RW - 1, x * RW / PW);
+        const double fxv = push * (std::sin(qy * 5.0 + t * 0.7) + std::sin((qx + qy) * 3.5 - t * 0.9)) * 0.5 + gx[rk] * 2.0 * pD;
+        const double fyv = push * (std::cos(qx * 5.0 - t * 0.6) + std::cos((qx - qy) * 4.0 + t * 0.8)) * 0.5 + gy[rk] * 2.0 * pD;
+        const double sx = std::clamp(x - fxv, 0.0, PW - 1.001), sy = std::clamp(y - fyv, 0.0, PH - 1.001);
+        const int x0 = static_cast<int>(sx), y0 = static_cast<int>(sy);
+        const double tx = sx - x0, ty = sy - y0;
+        const int ix = std::min(W - 1, x * 2), iy = std::min(H - 1, y * 2);
+        const std::uint8_t* here = from + (static_cast<std::size_t>(iy) * W + ix) * 4;
+        for (int c = 0; c < 3; ++c) {
+          auto at = [&](int xx, int yy) { return static_cast<double>(pool[(static_cast<std::size_t>(yy) * PW + xx) * 3 + c]); };
+          const double old = fresh ? here[c] * 256.0
+            : (at(x0, y0) * (1 - tx) + at(std::min(PW - 1, x0 + 1), y0) * tx) * (1 - ty) +
+              (at(x0, std::min(PH - 1, y0 + 1)) * (1 - tx) + at(std::min(PW - 1, x0 + 1), std::min(PH - 1, y0 + 1)) * tx) * ty;
+          const double v = here[c] * 256.0 * (1.0 - keep) + old * keep;
+          next[(static_cast<std::size_t>(y) * PW + x) * 3 + c] = static_cast<std::uint16_t>(std::clamp(v, 0.0, 65535.0));
+        }
+      }
+    }
+    std::memcpy(pool, next.data(), pcount * 3 * sizeof(std::uint16_t));
+    setHeader(6, 1);
+  }
+  const bool usePool = pooled && headerAt(6) != 0;
+  const double poolMix = std::min(1.0, pD * 0.6 + pE);
+  // RIPPLE (the amount): how far the water bends the picture, a share of the short side
+  const double bend = amt * 0.05 * std::min(W, H);
+  const int mode = std::clamp(fx.choiceA, 0, 2);   // 0 the picture's own, 1 chrome, 2 gold
+  const float* GX = gx.data(); const float* GY = gy.data(); const float* LIT = lit.data(); const float* GLOW = glow.data();
+  const std::uint8_t* from = src.data();
+  const std::uint16_t* P = pool;
+  std::uint8_t* to = pixels.data();
+  detail::parallelRows(H, W * 6, [=](int firstRow, int lastRow) {
+    for (int y = firstRow; y < lastRow; ++y) {
+      const double gyf = std::clamp((y + 0.5) * RH / H - 0.5, 0.0, RH - 1.001);
+      const int ry0 = static_cast<int>(gyf);
+      const double rty = gyf - ry0;
+      const int ry1 = std::min(RH - 1, ry0 + 1);
+      for (int x = 0; x < W; ++x) {
+        const double gxf = std::clamp((x + 0.5) * RW / W - 0.5, 0.0, RW - 1.001);
+        const int rx0 = static_cast<int>(gxf);
+        const double rtx = gxf - rx0;
+        const int rx1 = std::min(RW - 1, rx0 + 1);
+        const std::size_t k00 = static_cast<std::size_t>(ry0) * RW + rx0, k10 = static_cast<std::size_t>(ry0) * RW + rx1;
+        const std::size_t k01 = static_cast<std::size_t>(ry1) * RW + rx0, k11 = static_cast<std::size_t>(ry1) * RW + rx1;
+        auto mix4 = [&](const float* a) {
+          return (a[k00] * (1 - rtx) + a[k10] * rtx) * (1 - rty) + (a[k01] * (1 - rtx) + a[k11] * rtx) * rty;
+        };
+        const double sx = std::clamp(x + mix4(GX) * bend, 0.0, W - 1.001);
+        const double sy = std::clamp(y + mix4(GY) * bend, 0.0, H - 1.001);
+        const int x0 = static_cast<int>(sx), y0 = static_cast<int>(sy);
+        const double tx = sx - x0, ty = sy - y0;
+        const std::uint8_t* p00 = from + (static_cast<std::size_t>(y0) * W + x0) * 4;
+        const std::uint8_t* p10 = p00 + 4;
+        const std::uint8_t* p01 = p00 + static_cast<std::size_t>(W) * 4;
+        const std::uint8_t* p11 = p01 + 4;
+        double c3[3];
+        for (int c = 0; c < 3; ++c) {
+          c3[c] = (p00[c] * (1 - tx) + p10[c] * tx) * (1 - ty) + (p01[c] * (1 - tx) + p11[c] * tx) * ty;
+        }
+        if (usePool) {
+          const double px = std::clamp(sx * 0.5 - 0.25, 0.0, PW - 1.001), py = std::clamp(sy * 0.5 - 0.25, 0.0, PH - 1.001);
+          const int qx = static_cast<int>(px), qy = static_cast<int>(py);
+          const double qtx = px - qx, qty = py - qy;
+          const int qx1 = std::min(PW - 1, qx + 1), qy1 = std::min(PH - 1, qy + 1);
+          for (int c = 0; c < 3; ++c) {
+            const double v = ((P[(static_cast<std::size_t>(qy) * PW + qx) * 3 + c] * (1 - qtx) + P[(static_cast<std::size_t>(qy) * PW + qx1) * 3 + c] * qtx) * (1 - qty) +
+                              (P[(static_cast<std::size_t>(qy1) * PW + qx) * 3 + c] * (1 - qtx) + P[(static_cast<std::size_t>(qy1) * PW + qx1) * 3 + c] * qtx) * qty) / 256.0;
+            c3[c] = c3[c] * (1.0 - poolMix) + v * poolMix;
+          }
+        }
+        if (mode != 0) {
+          const double lum = (0.3 * c3[0] + 0.55 * c3[1] + 0.15 * c3[2]) / 255.0;
+          if (mode == 1) {
+            const double v = lum * lum * (3.0 - 2.0 * lum) * 255.0;
+            c3[0] = v * 0.82; c3[1] = v * 0.88; c3[2] = v;
+          } else {
+            const double a = std::clamp(lum / 0.6, 0.0, 1.0), b = std::clamp((lum - 0.6) / 0.4, 0.0, 1.0);
+            c3[0] = (0.12 + (0.95 - 0.12) * a + (1.0 - 0.95) * b) * 255.0;
+            c3[1] = (0.04 + (0.62 - 0.04) * a + (0.93 - 0.62) * b) * 255.0;
+            c3[2] = (0.0 + 0.08 * a + (0.6 - 0.08) * b) * 255.0;
+          }
+        }
+        const double l = mix4(LIT), gl = mix4(GLOW);
+        std::uint8_t* dp = to + (static_cast<std::size_t>(y) * W + x) * 4;
+        for (int c = 0; c < 3; ++c) dp[c] = static_cast<std::uint8_t>(std::clamp(c3[c] * l + gl, 0.0, 255.0));
+        dp[3] = static_cast<std::uint8_t>((p00[3] * (1 - tx) + p10[3] * tx) * (1 - ty) + (p01[3] * (1 - tx) + p11[3] * tx) * ty);
       }
     }
   });
@@ -7019,6 +7281,10 @@ inline void applyCueEffectStack(std::vector<std::uint8_t>& pixels,
         });
         break;
       }
+
+      case CueEffectKind::MegaRipple:
+        applyMegaRipple(pixels, fx, ctx, state, amt, pA, pB, pC, pD, pE, pF);
+        break;
 
       case CueEffectKind::CircuitBend: {
         // CIRCUIT BEND (see the enum). The GPU's bendMain does this line for

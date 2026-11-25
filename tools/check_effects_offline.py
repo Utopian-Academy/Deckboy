@@ -95,6 +95,8 @@ EFFECTS = [
     ("tape",            "1.0:0.6:0.6:0.5:0.5::0.6:0.5:1:0"),
     ("circuit_bend",    "1.0:0.4:0.35:0.4:0.45::0.25:0"),
     ("breath",          "1.0:0.5:0.5"),
+    # Rain falls into the water over frames (PASSES), so the rings need time.
+    ("mega_ripple",     "1.0:0.7:0.3:0.5:0.4::0.5:0.7:0"),
 ]
 
 # Effects whose whole subject is what happens ACROSS frames need more than one
@@ -105,7 +107,7 @@ EFFECTS = [
 # Feedback bloom is the same argument as feedback: the first pass is the
 # picture with a faint tinted copy on it, and the hue walk and the melt
 # only exist once the loop has gone round enough times to compound.
-PASSES = {"feedback": 12, "feedback_bloom": 12, "scotopic": 6, "melt": 40,
+PASSES = {"mega_ripple": 20, "feedback": 12, "feedback_bloom": 12, "scotopic": 6, "melt": 40,
           # Chladni's Sand and Fluid carry the plate from frame to frame; a
           # control's effect builds up over the frames, as it does on stage.
           "chladni@sand": 30, "chladni@fluid": 30, "melt@liquid": 40}
@@ -143,6 +145,8 @@ ANIMATES_BY_INDEX = {"grain", "temporal_dither", "block_glitch", "ripple",
                      # It breathes on the clock (frameIndex / 30 in a dump).
                      "breath"}
 ANIMATES_BY_STATE = {"feedback", "feedback_bloom", "motion_puppet",
+                     # The water keeps moving between frames.
+                     "mega_ripple",
                     "scotopic", "text_mode",
                      # Holds the swept frame between calls.
                      "slit_scan",
@@ -210,6 +214,7 @@ PARAM_SLOTS = {
     "tape":            ["tape age", "head wear", "tracking", "deck age", "colour drift", "copies"],
     "circuit_bend":    ["bands", "drift", "bleed", "ringing", "tears"],
     "breath":          ["pace", "flow"],
+    "mega_ripple":     ["rain", "calm", "drop size", "flow", "melt", "shine"],
     "schlieren":       ["knife angle", "sensitivity", "colour"],
     "chladni":         ["mode", "second mode", "gather", "line glow", "style"],
     # The same effect in its other two styles (slot E picks one; see
