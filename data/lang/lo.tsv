@@ -4975,3 +4975,9 @@ Waiting for {1}	ກຳລັງລໍຖ້າ {1}
 No room for {1}'s playlist	ບໍ່ມີບ່ອນສຳລັບ playlist ຂອງ {1}
 {1} is not following this desk	{1} ບໍ່ໄດ້ຕາມໂຕະນີ້
 OUTPUT PHONE <name|number> PLAYS <FOCUS|DARK|OWN|playlist> or IDENTIFY	OUTPUT PHONE <ຊື່|ເລກ> PLAYS <FOCUS|DARK|OWN|playlist> ຫຼື IDENTIFY
+Viewers at once	ຜູ້ຊົມພ້ອມກັນ
+Web Monitor Viewers	ຜູ້ຊົມຈໍຕິດຕາມເວັບ
+Phone control is at {1}	ການຄວບຄຸມດ້ວຍໂທລະສັບຢູ່ທີ່ {1}
+web monitor viewers: 1-64	ຜູ້ຊົມຈໍຕິດຕາມເວັບ: 1-64
+Phone control moved to {1}	ການຄວບຄຸມດ້ວຍໂທລະສັບຍ້າຍໄປ {1}
+live pictures sent at once, 1-64 (default 8)	ພາບສົດທີ່ສົ່ງພ້ອມກັນ, 1-64 (ຄ່າເລີ່ມຕົ້ນ 8)

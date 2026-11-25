@@ -4986,3 +4986,9 @@ Waiting for {1}	Αναμονή για {1}
 No room for {1}'s playlist	Δεν υπάρχει χώρος για τη λίστα του {1}
 {1} is not following this desk	{1} δεν ακολουθεί αυτή την κονσόλα
 OUTPUT PHONE <name|number> PLAYS <FOCUS|DARK|OWN|playlist> or IDENTIFY	OUTPUT PHONE <όνομα|αριθμός> PLAYS <FOCUS|DARK|OWN|λίστα> ή IDENTIFY
+Viewers at once	Ταυτόχρονοι θεατές
+Web Monitor Viewers	Θεατές Web Monitor
+Phone control is at {1}	Ο έλεγχος από τηλέφωνο είναι στο {1}
+web monitor viewers: 1-64	θεατές web monitor: 1-64
+Phone control moved to {1}	Ο έλεγχος από τηλέφωνο μεταφέρθηκε στο {1}
+live pictures sent at once, 1-64 (default 8)	ζωντανές εικόνες που στέλνονται ταυτόχρονα, 1-64 (προεπιλογή 8)

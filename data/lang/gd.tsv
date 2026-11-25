@@ -4986,3 +4986,9 @@ Waiting for {1}	A' feitheamh ri {1}
 No room for {1}'s playlist	Chan eil rùm airson liosta {1}
 {1} is not following this desk	Chan eil {1} a' leantainn an deasg seo
 OUTPUT PHONE <name|number> PLAYS <FOCUS|DARK|OWN|playlist> or IDENTIFY	OUTPUT PHONE <ainm|àireamh> PLAYS <FOCUS|DARK|OWN|liosta> no IDENTIFY
+Viewers at once	Luchd-coimhead còmhla
+Web Monitor Viewers	Luchd-coimhead sgrìn-lìn
+Phone control is at {1}	Tha smachd fòn aig {1}
+web monitor viewers: 1-64	luchd-coimhead sgrùdair lìn: 1-64
+Phone control moved to {1}	Ghluais smachd fòn gu {1}
+live pictures sent at once, 1-64 (default 8)	dealbhan beò air an cur còmhla, 1-64 (bun-roghainn 8)

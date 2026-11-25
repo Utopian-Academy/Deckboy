@@ -4983,3 +4983,9 @@ Waiting for {1}	Li benda {1}
 No room for {1}'s playlist	Ji bo lîsteya lêxistinê ya {1} cih tune
 {1} is not following this desk	{1} vê maseya kontrolê naşopîne
 OUTPUT PHONE <name|number> PLAYS <FOCUS|DARK|OWN|playlist> or IDENTIFY	OUTPUT PHONE <nav|hejmar> PLAYS <FOCUS|DARK|OWN|lîsteya lêxistinê> an jî IDENTIFY
+Viewers at once	Temaşevan bi hev re
+Web Monitor Viewers	Temaşevanên şopandera webê
+Phone control is at {1}	Kontrola telefonê li {1} e
+web monitor viewers: 1-64	temaşevanên çavdêrê webê: 1-64
+Phone control moved to {1}	Kontrola telefonê çû {1}
+live pictures sent at once, 1-64 (default 8)	wêneyên zindî bi hev re têne şandin, 1-64 (standard 8)

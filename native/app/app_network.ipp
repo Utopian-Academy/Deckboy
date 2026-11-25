@@ -1063,6 +1063,15 @@
   // The address on an active private Ethernet/Wi-Fi interface. In particular,
   // do not derive this from the default route, which may belong to a VPN.
   std::string webMonitorLanAddress() const {
+    // DECKBOY_TEST_LAN_ADDRESS_FILE: the address is read from that file, so
+    // tools/check_web_monitor_load.py can move it (or take it away) and see
+    // the server follow, as a new Wi-Fi or DHCP lease would.
+    if (const char* file = SDL_getenv("DECKBOY_TEST_LAN_ADDRESS_FILE")) {
+      std::ifstream in(file);
+      std::string address;
+      std::getline(in, address);
+      return trim(address);
+    }
     return privateLanIPv4Address();
   }
 
@@ -1777,7 +1786,40 @@
   // Tailscale coming up or going down after phone control started: rebuild
   // the server so its tailnet listener follows. Checked every five seconds.
   Uint64 webRemoteTailnetCheckedMs_ = 0;
+  // THE SERVER FOLLOWS THE NETWORK. It is bound to this computer's LAN
+  // address (never every interface), so a new address -- other Wi-Fi, a new
+  // DHCP lease, waking from sleep -- left phones with nowhere to connect
+  // until the desk restarted, and a desk started before its network was up
+  // never served at all. Every 3 s: a server that should be up and is not is
+  // started, and one on an address this computer no longer has is moved.
+  void serviceWebServerAddress(Uint64 now) {
+    if (!project_.webMonitorEnabled && !project_.webRemoteEnabled) return;
+    if (now - webServerAddressCheckedMs_ < 3000) return;
+    webServerAddressCheckedMs_ = now;
+    const bool lan = webServerOnNetwork();
+    if (webMonitorListen_ == kInvalidSocket) {
+      if (lan && project_.webMonitorPin.size() < 8) return;   // waits for a passphrase, as before
+      if (startWebMonitor()) {
+        showLog("WEB", "web server up on " + (lan ? webMonitorBoundLan_ : std::string("this computer")));
+        if (lan && project_.webRemoteEnabled) {
+          triggerToast(deckboy::core::i18n::format("Phone control is at {1}", {webRemoteUrl()}));
+        }
+      }
+      return;
+    }
+    if (!lan) return;
+    const std::string address = webMonitorLanAddress();
+    if (address.empty() || address == webMonitorBoundLan_) return;   // no network just now: keep the old one
+    showLog("WEB", "this computer's address changed from " + webMonitorBoundLan_ + " to " + address + ": moving the web server");
+    restartWebMonitorIfRunning();
+    if (webMonitorListen_ != kInvalidSocket && project_.webRemoteEnabled) {
+      triggerToast(deckboy::core::i18n::format("Phone control moved to {1}", {webRemoteUrl()}), ToastKind::Warning,
+                   kToastReadableMs);
+    }
+  }
+
   void serviceTailnetWatch(Uint64 now) {
+    serviceWebServerAddress(now);
     if (!project_.webRemoteEnabled || !webMonitorReady_ || now - webRemoteTailnetCheckedMs_ < 5000) return;
     webRemoteTailnetCheckedMs_ = now;
     if (deckboy::platform::tailnetIPv4Address() != webRemoteTailnetAddress_) restartWebMonitorIfRunning();
@@ -1863,6 +1905,35 @@
   // Control is a separate opt-in on the existing listener. The header PIN is
   // never accepted in a URL or cookie. Browsers cannot send this custom header
   // across origins without a preflight, which this server refuses.
+  // WRONG PASSPHRASES, counted by the address that sent them, for the Web
+  // Monitor and phone control alike: five in a row lock THAT address out for
+  // 2 s, doubling to a minute (a flat two seconds still let a script try 150
+  // a minute). Counted per address so one machine guessing cannot lock out
+  // every phone in the room. Caller holds webMonitorDirMutex_.
+  bool webPinLockedLocked(std::uint32_t ip, std::chrono::steady_clock::time_point now) const {
+    const auto it = webPinFailures_.find(ip);
+    return it != webPinFailures_.end() && now < it->second.retryAt;
+  }
+
+  void webPinResultLocked(std::uint32_t ip, bool good, std::chrono::steady_clock::time_point now) {
+    if (good) {
+      webPinFailures_.erase(ip);
+      return;
+    }
+    if (webPinFailures_.size() >= 1024 && !webPinFailures_.count(ip)) {
+      // Bounded: drop the addresses whose lockouts have passed.
+      for (auto it = webPinFailures_.begin(); it != webPinFailures_.end();) {
+        it = now >= it->second.retryAt ? webPinFailures_.erase(it) : std::next(it);
+      }
+    }
+    WebPinFailures& f = webPinFailures_[ip];
+    if (++f.fails >= 5) {
+      f.fails = 0;
+      const int lockout = std::min(60, 2 << std::min(f.lockouts++, 5));
+      f.retryAt = now + std::chrono::seconds(lockout);
+    }
+  }
+
   void handleWebRemoteClient(SocketHandle client, const std::string& method,
                              const std::string& path, std::string request) {
     auto reply = [&](const std::string& status, const std::string& body) {
@@ -2013,21 +2084,18 @@
       std::lock_guard<std::mutex> lock(webMonitorDirMutex_);
       enabled = webRemoteEnabledSnapshot_ && webMonitorPinSnapshot_.size() >= 8;
       const auto now = std::chrono::steady_clock::now();
-      throttled = now < webRemoteRetryAt_;
-      if (!throttled && enabled) {
+      if (enabled) {
         loadWebRemoteKeysLocked();
         if (givenKey.size() == 32) {
           for (const auto& entry : webRemoteDeviceKeys_) paired = paired || entry.first == givenKey;
         }
-        authenticated = paired || givenPin == webMonitorPinSnapshot_;
-        // Two seconds after five misses, doubling to a minute. A flat two
-        // seconds still let a script try 150 passphrases a minute.
-        if (authenticated) webRemoteFailedPins_ = webRemoteLockouts_ = 0;
-        else if (++webRemoteFailedPins_ >= 5) {
-          webRemoteFailedPins_ = 0;
-          const int lockout = std::min(60, 2 << std::min(webRemoteLockouts_++, 5));
-          webRemoteRetryAt_ = now + std::chrono::seconds(lockout);
-        }
+      }
+      // A paired phone's key is 128 random bits and is never throttled: a
+      // machine guessing passphrases cannot lock the operator's phone out.
+      throttled = !paired && webPinLockedLocked(peerIp, now);
+      if (!throttled && enabled) {
+        authenticated = paired || (!givenPin.empty() && givenPin == webMonitorPinSnapshot_);
+        if (!paired && !givenPin.empty()) webPinResultLocked(peerIp, authenticated, now);
       }
       snapshot = webRemoteStateSnapshot_;
     }
@@ -2286,6 +2354,24 @@
       if (pair.rfind("pin=", 0) == 0) given = webMonitorDecodeQuery(pair.substr(4));
       at = end + 1;
     }
+    // The same passphrase as phone control, so the same limit on guessing it:
+    // without one, ?pin= here was a way round phone control's lockout.
+    bool pinLocked = false;
+    if (!pin.empty()) {
+      sockaddr_in peer {};
+      socklen_t peerSize = sizeof(peer);
+      const std::uint32_t peerIp = getpeername(client, reinterpret_cast<sockaddr*>(&peer), &peerSize) == 0
+                                     ? ntohl(peer.sin_addr.s_addr) : 0u;
+      std::lock_guard<std::mutex> lock(webMonitorDirMutex_);
+      const auto now = std::chrono::steady_clock::now();
+      pinLocked = webPinLockedLocked(peerIp, now);
+      if (!pinLocked && !given.empty()) webPinResultLocked(peerIp, given == pin, now);
+    }
+    if (pinLocked) {
+      webMonitorSendPage(client, "429 Too Many Requests", "text/plain; charset=utf-8",
+                         "Too many wrong passphrases from this device; wait a minute and try again\n");
+      return;
+    }
     if (!pin.empty() && given != pin) {
       webMonitorSendPage(client, "401 Unauthorized", "text/html; charset=utf-8",
         webMonitorPageShell("Deckboy", "<header>DECKBOY WEB MONITOR</header>"
@@ -2368,8 +2454,27 @@
           : webMonitorPageShell(title, "<div class='full'><img src='/out/" + n + pinQuery + "' alt=''></div>"));
       return;
     }
+    // A LIVE PICTURE takes one of the viewers' places; the limit is the
+    // operator's (Settings > Network > Web Monitor > Viewers at once).
+    struct ViewerPlace {
+      std::atomic<int>& streams;
+      bool held = false;
+      ~ViewerPlace() { if (held) streams.fetch_sub(1); }
+    } place {webMonitorStreams_};
+    auto takeViewerPlace = [&]() {
+      const int limit = std::max(1, webMonitorMaxClients_.load());
+      if (webMonitorStreams_.fetch_add(1) >= limit) {
+        webMonitorStreams_.fetch_sub(1);
+        webMonitorSendPage(client, "503 Service Unavailable", "text/plain; charset=utf-8",
+                           "Deckboy is already sending " + std::to_string(limit) +
+                           " live pictures. The limit is Viewers at once, in Settings > Network > Web Monitor.\n");
+        return false;
+      }
+      place.held = true;
+      return true;
+    };
     if (int out = outputFromPath("/av/"); out >= 0) {
-      streamWebAv(client, out);
+      if (takeViewerPlace()) streamWebAv(client, out);
       return;
     }
     if (int out = outputFromPath("/snap/"); out >= 0) {
@@ -2384,7 +2489,7 @@
       return;
     }
     if (int out = outputFromPath("/out/"); out >= 0) {
-      streamWebMonitor(client, out);
+      if (takeViewerPlace()) streamWebMonitor(client, out);
       return;
     }
     webMonitorSendPage(client, "404 Not Found", "text/plain; charset=utf-8", "not found\n");
@@ -2464,7 +2569,14 @@
       tv.tv_usec = 250000;
       const int nfds = std::max(selectNfds(webMonitorListen_),
                                 tailnet != kInvalidSocket ? selectNfds(tailnet) : 0);
-      if (select(nfds, &readFds, nullptr, nullptr, &tv) <= 0) {
+      const int selected = select(nfds, &readFds, nullptr, nullptr, &tv);
+      if (selected < 0) {
+        // A listener whose address went away fails at once, every time: wait
+        // rather than spin a core until serviceWebServerAddress rebinds it.
+        std::this_thread::sleep_for(std::chrono::milliseconds(250));
+        continue;
+      }
+      if (selected == 0) {
         continue;
       }
       const SocketHandle ready = (tailnet != kInvalidSocket && FD_ISSET(tailnet, &readFds)) ? tailnet
@@ -2473,10 +2585,12 @@
       socklen_t clientLength = sizeof(clientAddress);
       SocketHandle client = accept(ready, reinterpret_cast<sockaddr*>(&clientAddress), &clientLength);
       if (client == kInvalidSocket) continue;
-      // The operator's limit (Settings > Network > Web Monitor). Each viewer
-      // holds a connection only for a playlist poll or a fragment, so this
-      // is concurrent REQUESTS, and it serves several times as many phones.
-      if (webMonitorClients_.size() >= static_cast<std::size_t>(std::max(1, webMonitorMaxClients_.load()))) {
+      // Every connection gets a thread, up to the viewers the operator allows
+      // (Settings > Network > Web Monitor, checked per stream when the
+      // request says it is one) plus a budget for short requests. The two
+      // used to be one number: eight people watching, or a browser's idle
+      // preconnections, left phone control answering nothing at all.
+      if (webMonitorClients_.size() >= static_cast<std::size_t>(std::max(1, webMonitorMaxClients_.load()) + kWebRequestHeadroom)) {
         static constexpr char kBusy[] =
           "HTTP/1.1 503 Service Unavailable\r\nConnection: close\r\nContent-Length: 0\r\n\r\n";
         webMonitorSendAll(client, kBusy, sizeof(kBusy) - 1);
@@ -2901,6 +3015,7 @@ html,body{width:100%;height:100%;overflow:hidden}
       webMonitorReady_ = false;
       return false;
     }
+    webMonitorBoundLan_ = lanAddress;
     // FROM ANYWHERE: the same server on this computer's Tailscale address,
     // while phone control is on. Only the tailnet can reach that address.
     webRemoteTailnetAddress_ = project_.webRemoteEnabled ? deckboy::platform::tailnetIPv4Address() : std::string();

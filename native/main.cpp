@@ -10635,6 +10635,15 @@ class App {
     std::shared_ptr<std::atomic<bool>> done;
   };
   std::vector<WebMonitorClient> webMonitorClients_;   // accept thread + stop only
+  // Live pictures being sent (/out MJPEG, /av sound and picture): what the
+  // operator's "Viewers at once" limits. Pages, phone control and HLS
+  // segments are short requests with a budget of their own.
+  std::atomic<int> webMonitorStreams_ {0};
+  static constexpr int kWebRequestHeadroom = 32;
+  // The LAN address the server is bound to, and when it was last compared
+  // with this computer's (serviceWebServerAddress).
+  std::string webMonitorBoundLan_;
+  Uint64 webServerAddressCheckedMs_ = 0;
   std::atomic<bool> webMonitorStop_ {true};
   SocketHandle webMonitorListen_ = kInvalidSocket;
   SocketHandle webMonitorTailnetListen_ = kInvalidSocket;   // phone control on the Tailscale address
@@ -10672,9 +10681,13 @@ class App {
   bool webMonitorShareSnapshot_ = false;    // same mutex
   std::string webRemoteStateSnapshot_;
   std::string webRemoteStyleSnapshot_;
-  int webRemoteFailedPins_ = 0;
-  int webRemoteLockouts_ = 0;  // consecutive, so each one waits twice as long
-  std::chrono::steady_clock::time_point webRemoteRetryAt_ {}; // same mutex
+  // Wrong passphrases by the address that sent them (webMonitorDirMutex_).
+  struct WebPinFailures {
+    int fails = 0;
+    int lockouts = 0;   // consecutive, so each one waits twice as long
+    std::chrono::steady_clock::time_point retryAt {};
+  };
+  std::map<std::uint32_t, WebPinFailures> webPinFailures_;
   int webMonitorHeightSnapshot_ = 1080;
   Uint64 webMonitorDirSyncedMs_ = 0;
   SDL_Rect warpGridBtnRect_ {};

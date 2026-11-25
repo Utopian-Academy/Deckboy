@@ -5004,3 +5004,9 @@ Waiting for {1}	Peni {1}
 No room for {1}'s playlist	Va kaea go vekaku {1}
 {1} is not following this desk	{1} vanovtoki so dekadora nakae
 OUTPUT PHONE <name|number> PLAYS <FOCUS|DARK|OWN|playlist> or IDENTIFY	OUTPUT PHONE <hola|numa> PLAYS <FOCUS|DARK|OWN|vekaku> va IDENTIFY
+Viewers at once	Mirawiaku entok
+Web Monitor Viewers	Retavekamira Mirawiaku
+Phone control is at {1}	Hupa telefona kae {1}
+web monitor viewers: 1-64	miradora reta mirawiaku: 1-64
+Phone control moved to {1}	Hupa telefona tiriseti go {1}
+live pictures sent at once, 1-64 (default 8)	vekaku lumo seni entok, 1-64 (muno 8)

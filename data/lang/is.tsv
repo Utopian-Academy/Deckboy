@@ -4983,3 +4983,9 @@ Waiting for {1}	Bíður eftir {1}
 No room for {1}'s playlist	Ekkert pláss fyrir spilunarlista {1}
 {1} is not following this desk	{1} fylgir ekki þessu stjórnborði
 OUTPUT PHONE <name|number> PLAYS <FOCUS|DARK|OWN|playlist> or IDENTIFY	OUTPUT PHONE <heiti|númer> PLAYS <FOCUS|DARK|OWN|spilunarlisti> eða IDENTIFY
+Viewers at once	Áhorfendur samtímis
+Web Monitor Viewers	Áhorfendur vefskjás
+Phone control is at {1}	Símastýring er á {1}
+web monitor viewers: 1-64	áhorfendur vefskjás: 1-64
+Phone control moved to {1}	Símastýring flutt á {1}
+live pictures sent at once, 1-64 (default 8)	myndir í beinni sendar samtímis, 1-64 (sjálfgefið 8)

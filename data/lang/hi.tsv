@@ -4993,3 +4993,9 @@ Waiting for {1}	{1} की प्रतीक्षा
 No room for {1}'s playlist	{1} की प्लेलिस्ट के लिए जगह नहीं
 {1} is not following this desk	{1} इस डेस्क का अनुसरण नहीं कर रहा है
 OUTPUT PHONE <name|number> PLAYS <FOCUS|DARK|OWN|playlist> or IDENTIFY	OUTPUT PHONE <नाम|संख्या> PLAYS <FOCUS|DARK|OWN|प्लेलिस्ट> या IDENTIFY
+Viewers at once	एक साथ दर्शक
+Web Monitor Viewers	वेब मॉनिटर दर्शक
+Phone control is at {1}	फ़ोन नियंत्रण {1} पर है
+web monitor viewers: 1-64	वेब मॉनिटर दर्शक: 1-64
+Phone control moved to {1}	फ़ोन नियंत्रण {1} पर ले जाया गया
+live pictures sent at once, 1-64 (default 8)	एक साथ भेजी गई लाइव तस्वीरें, 1-64 (डिफ़ॉल्ट 8)

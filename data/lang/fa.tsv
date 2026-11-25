@@ -5004,3 +5004,9 @@ Waiting for {1}	در انتظار {1}
 No room for {1}'s playlist	جایی برای فهرست پخش {1} نیست
 {1} is not following this desk	{1} این اپراتور را دنبال نمی‌کند
 OUTPUT PHONE <name|number> PLAYS <FOCUS|DARK|OWN|playlist> or IDENTIFY	OUTPUT PHONE <نام|شماره> PLAYS <FOCUS|DARK|OWN|فهرست پخش> یا IDENTIFY
+Viewers at once	بینندگان هم‌زمان
+Web Monitor Viewers	بینندگان نمایشگر وب
+Phone control is at {1}	کنترل تلفن در {1} است
+web monitor viewers: 1-64	بینندگان مانیتور وب: 1-64
+Phone control moved to {1}	کنترل تلفن به {1} منتقل شد
+live pictures sent at once, 1-64 (default 8)	تصاویر زندهٔ ارسالی هم‌زمان، 1-64 (پیش‌فرض 8)

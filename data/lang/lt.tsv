@@ -4062,3 +4062,9 @@ Waiting for {1}	Laukiama: {1}
 No room for {1}'s playlist	Nėra vietos {1} grojaraščiui
 {1} is not following this desk	{1} neseka šio pulto
 OUTPUT PHONE <name|number> PLAYS <FOCUS|DARK|OWN|playlist> or IDENTIFY	OUTPUT PHONE <pavadinimas|numeris> PLAYS <FOCUS|DARK|OWN|grojaraštis> arba IDENTIFY
+Viewers at once	Žiūrovų vienu metu
+Web Monitor Viewers	Žiniatinklio monitoriaus žiūrovai
+Phone control is at {1}	Valdymas telefonu – {1}
+web monitor viewers: 1-64	tinklo monitoriaus žiūrovai: 1-64
+Phone control moved to {1}	Valdymas telefonu perkeltas į {1}
+live pictures sent at once, 1-64 (default 8)	gyvų vaizdų siunčiama vienu metu, 1-64 (numatyta 8)

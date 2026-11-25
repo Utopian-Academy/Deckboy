@@ -4993,3 +4993,9 @@ Waiting for {1}	چاوەڕوانی {1}
 No room for {1}'s playlist	شوێن نییە بۆ لیستی لێدانی {1}
 {1} is not following this desk	{1} شوێن ئەم مێزی کۆنترۆڵە ناکەوێت
 OUTPUT PHONE <name|number> PLAYS <FOCUS|DARK|OWN|playlist> or IDENTIFY	OUTPUT PHONE <ناو|ژمارە> PLAYS <FOCUS|DARK|OWN|لیستی لێدان> یان IDENTIFY
+Viewers at once	بینەرانی هاوکات
+Web Monitor Viewers	بینەرانی چاودێری وێب
+Phone control is at {1}	کۆنترۆڵی تەلەفۆن لە {1} دایە
+web monitor viewers: 1-64	بینەرانی چاودێری وێب: 1-64
+Phone control moved to {1}	کۆنترۆڵی تەلەفۆن گوازرایەوە بۆ {1}
+live pictures sent at once, 1-64 (default 8)	وێنەی ڕاستەوخۆی هاوکات نێردراو، 1-64 (بنەڕەتی 8)

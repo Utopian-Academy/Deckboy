@@ -4989,3 +4989,9 @@ Waiting for {1}	Odotetaan: {1}
 No room for {1}'s playlist	Ei tilaa soittolistalle: {1}
 {1} is not following this desk	{1} ei seuraa tätä pöytää
 OUTPUT PHONE <name|number> PLAYS <FOCUS|DARK|OWN|playlist> or IDENTIFY	OUTPUT PHONE <nimi|numero> PLAYS <FOCUS|DARK|OWN|soittolista> tai IDENTIFY
+Viewers at once	Katsojia kerralla
+Web Monitor Viewers	Verkkonäytön katsojat
+Phone control is at {1}	Puhelinohjaus on osoitteessa {1}
+web monitor viewers: 1-64	web-monitorin katsojat: 1-64
+Phone control moved to {1}	Puhelinohjaus siirtyi osoitteeseen {1}
+live pictures sent at once, 1-64 (default 8)	samanaikaisesti lähetettäviä suoria kuvia, 1-64 (oletus 8)

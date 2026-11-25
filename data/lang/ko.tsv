@@ -4989,3 +4989,9 @@ Waiting for {1}	{1} 대기 중
 No room for {1}'s playlist	{1}의 플레이리스트를 둘 공간 없음
 {1} is not following this desk	{1}이(가) 이 콘솔을 따르지 않음
 OUTPUT PHONE <name|number> PLAYS <FOCUS|DARK|OWN|playlist> or IDENTIFY	OUTPUT PHONE <이름|번호> PLAYS <FOCUS|DARK|OWN|플레이리스트> 또는 IDENTIFY
+Viewers at once	동시 시청자 수
+Web Monitor Viewers	웹 모니터 시청자
+Phone control is at {1}	휴대폰 제어는 {1}에 있음
+web monitor viewers: 1-64	웹 모니터 시청자 수: 1-64
+Phone control moved to {1}	휴대폰 제어가 {1}(으)로 이동됨
+live pictures sent at once, 1-64 (default 8)	동시 전송 라이브 화면 수, 1-64(기본 8)

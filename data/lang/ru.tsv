@@ -4992,3 +4992,9 @@ Waiting for {1}	Ожидание {1}
 No room for {1}'s playlist	Нет места для плейлиста {1}
 {1} is not following this desk	{1} не следует за этим оператором
 OUTPUT PHONE <name|number> PLAYS <FOCUS|DARK|OWN|playlist> or IDENTIFY	OUTPUT PHONE <имя|номер> PLAYS <FOCUS|DARK|OWN|плейлист> или IDENTIFY
+Viewers at once	Зрителей одновременно
+Web Monitor Viewers	Зрители веб-монитора
+Phone control is at {1}	Управление с телефона по адресу {1}
+web monitor viewers: 1-64	зрители веб-монитора: 1-64
+Phone control moved to {1}	Управление с телефона перенесено на {1}
+live pictures sent at once, 1-64 (default 8)	живых изображений, отправляемых одновременно, 1-64 (по умолчанию 8)

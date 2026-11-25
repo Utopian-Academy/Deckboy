@@ -12,7 +12,7 @@
 - Pocket keeps the phone awake through a show and can follow a desk (below).
 - The face falls asleep after 5 minutes without a touch, not 45 seconds.
 - Pocket speaks the phone's language: every language the desk has, chosen from the phone's own setting, with the phone's fonts for Japanese, Chinese, Korean, Arabic, Hindi and the rest. Names (cues, shows, playlists, addresses) stay as they were typed.
-- Remote control on the desk's port (5510), answering many of the desk's own commands.
+- Remote control on the desk's port (5510), answering many of the desk's own commands, on the phone itself (over USB with adb).
 - Not yet: iOS, and Pocket in Google Play. The APK is on the releases page; Android asks once to allow installing it.
 
 ### Following a desk (second screens and rooms)
@@ -25,6 +25,12 @@
 - New: **a phone as a deck**. Set a phone's PLAYS to **Its own list** and its own cue list appears on the desk as a playlist named after the phone. GO, TAKE, STOP, PLAY and PAUSE on that playlist run the phone, which plays its own media; the desk's BLACK blacks it out too. The playlist's monitor shows a small picture of what the phone is showing (about four a second), with the live cue and its time left. Cues added, renamed, moved or deleted on the phone reach the desk within a second. The playlist is saved with the show: until the phone joins again its rows are greyed and its header says "phone away". Editing the list stays on the phone. On the phone the header says DESK RUNS THIS LIST and its own GO is locked.
 - Companion: `OUTPUT PHONES`, `OUTPUT PHONE <name|number> PLAYS FOCUS|DARK|OWN|<playlist>` and `OUTPUT PHONE <name|number> IDENTIFY`.
 - Companion: `SYNC FOLLOW <address> [BACKUP|FLEET]`, `SYNC STOP`, `SYNC DRILL`, `SYNC REARM`, `SYNC TAKEOVER <ms>` on the desk.
+
+### Web Monitor and phone control
+- Fixed: people watching the Web Monitor could lock out phone control. The limit counted every connection, so eight viewers (or a browser's idle preconnections) left phone control and the monitor's own page answering nothing. The limit now counts live pictures only (Settings > Network > Web Monitor > **Viewers at once**, default 8); pages and phone control always get through. Tested: phone control answered in 0.01 s with 12 viewers watching and with 24 idle connections open.
+- Fixed: the web server follows this computer's address. It listens on the LAN address alone, so a new address (other Wi-Fi, a new DHCP lease, waking from sleep) left phones nowhere to connect until Deckboy restarted, and a desk started before its network was up never served at all. It now checks every 3 seconds: it starts when a network appears and moves when the address changes, with a toast naming the new address.
+- Security: wrong passphrases are now counted per device, for the Web Monitor and phone control alike. The monitor's passphrase (the same one) had no limit, so it could be guessed there and used for phone control. One device guessing no longer locks every phone out, and a paired phone is never locked out.
+- Security: Deckboy Pocket's remote port answers only on the phone itself (USB, through adb), as Mini does without `--remote`. It answered anyone on the same Wi-Fi with no passphrase. Following a desk is unaffected. SNAP now takes a file name and writes it in Pocket's own folder.
 
 ### Running the show
 - New: after a TAKE, the next cue is selected, so the next TAKE plays it (asked for on r/VIDEOENGINEERING). This is the operator's TAKE: Enter, the TAKE button, and GO from a lighting desk over MSC (a GO with no cue number now plays the next cue). Companion's `TAKE` is unchanged: the selection stays on the cue it took, so the commands after it still act on that cue. Disarmed cues are stepped over; at the end of the list the selection stays on the last cue; a standby, where one is set, is left to run the order. Settings > System > SHOW FLOW > **TAKE selects next** (on) turns it off.

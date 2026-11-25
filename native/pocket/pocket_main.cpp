@@ -776,7 +776,12 @@ class Pocket {
 
     // The desk's remote protocol on the desk's port, so Companion, scripts and
     // the desk itself drive Pocket as deck 1 (the same shape Mini answers in).
-    listen_ = createBoundSocket(SOCK_STREAM, kRemotePort, true, false);
+    // ON THE PHONE ONLY (USB through adb forward, and apps on the phone), as
+    // Mini is without --remote. It listened on every network with no
+    // passphrase: anyone on a venue's Wi-Fi could GO, BLACK, delete cues or
+    // write a file with SNAP (security check 2026-11-25). Following a desk is
+    // a connection Pocket makes, so it is unaffected.
+    listen_ = createBoundSocket(SOCK_STREAM, kRemotePort, true, true);
     if (listen_ == kInvalidSocket) SDL_Log("pocket: remote port %d is taken; remote control is off", kRemotePort);
     loadMediaFolder();
     // The list starts with what is in the media folder and nothing else
@@ -4492,8 +4497,14 @@ class Pocket {
       return shell_ == want ? ok() : err("no shell " + rest);
     }
     if (verb == "SNAP") {    // the next frame as a BMP file, for checking the screen without touching it
-      if (rest.empty()) return err("SNAP <file.bmp>");
-      snapPath_ = rest;
+      // A file name only, written in Pocket's own state folder: a path could
+      // overwrite the show or anything else the app may write.
+      if (rest.empty() || rest.find_first_of("/\:") != std::string::npos || rest.find("..") != std::string::npos)
+        return err("SNAP <file.bmp> (a name, saved in Pocket's folder)");
+      {
+        const char* state = SDL_getenv("DECKBOY_STATE_DIR");
+        snapPath_ = joinPath(state ? state : ".", rest);
+      }
       return ok();
     }
     if (verb == "SYNC") {

@@ -4938,3 +4938,9 @@ Waiting for {1}	Venter på {1}
 No room for {1}'s playlist	Ingen plads til playlisten fra {1}
 {1} is not following this desk	{1} følger ikke denne pult
 OUTPUT PHONE <name|number> PLAYS <FOCUS|DARK|OWN|playlist> or IDENTIFY	OUTPUT PHONE <navn|nummer> PLAYS <FOCUS|DARK|OWN|playliste> eller IDENTIFY
+Viewers at once	Samtidige seere
+Web Monitor Viewers	Webmonitorseere
+Phone control is at {1}	Telefonstyring er på {1}
+web monitor viewers: 1-64	webmonitor-seere: 1-64
+Phone control moved to {1}	Telefonstyring flyttet til {1}
+live pictures sent at once, 1-64 (default 8)	livebilleder sendt samtidig, 1-64 (standard 8)

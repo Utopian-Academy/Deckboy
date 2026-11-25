@@ -4956,3 +4956,9 @@ Waiting for {1}	Ke kali nei iā {1}
 No room for {1}'s playlist	ʻAʻohe wahi no ka papa helu o {1}
 {1} is not following this desk	ʻAʻole ʻo {1} e hahai ana i kēia papa
 OUTPUT PHONE <name|number> PLAYS <FOCUS|DARK|OWN|playlist> or IDENTIFY	OUTPUT PHONE <inoa|helu> PLAYS <FOCUS|DARK|OWN|papa helu> a i ʻole IDENTIFY
+Viewers at once	Nā mea nānā i ka manawa hoʻokahi
+Web Monitor Viewers	Nā mea nānā o Nānā Pūnaewele
+Phone control is at {1}	Aia ke kāohi kelepona ma {1}
+web monitor viewers: 1-64	nā mea nānā o nānā pūnaewele: 1-64
+Phone control moved to {1}	Ua neʻe ke kāohi kelepona i {1}
+live pictures sent at once, 1-64 (default 8)	nā kiʻi ola i hoʻouna ʻia i ka manawa hoʻokahi, 1-64 (maʻamau 8)

@@ -2623,11 +2623,11 @@
         drawUIValueControl(wmQuality, std::to_string(project_.webMonitorMaxHeight) + "p");
         settingsBtns_.push_back({wmQuality, kSettingsActionWebMonitorQualityDropdown,
                                  "web_monitor_quality"});
-        SDL_Rect wmClients = settingsRow(wmX, wmW, wmY, sRowH, "Connections at once", sGap);
+        SDL_Rect wmClients = settingsRow(wmX, wmW, wmY, sRowH, "Viewers at once", sGap);
         drawUIValueControl(wmClients, std::to_string(project_.webMonitorMaxClients));
         settingsBtns_.push_back({wmClients, kSettingsActionWebMonitorClientsPrompt,
-                                 "How many browser requests are served at once. Each phone holds one "
-                                 "only briefly, so 8 serves roughly 10-20 viewers"});
+                                 "How many live pictures are sent at once. Pages and phone control "
+                                 "always get through"});
         SDL_Rect wmPort = settingsRow(wmX, wmW, wmY, sRowH, "Port", sGap);
         drawUIValueControl(wmPort, std::to_string(project_.webMonitorPort));
         settingsBtns_.push_back({wmPort, kSettingsActionWebMonitorPortPrompt, "web_monitor_port"});
@@ -5826,8 +5826,8 @@
         return;
       } else if (sb.action == kSettingsActionWebMonitorClientsPrompt) {
         settingsOpen_ = false;
-        openInlineTextEditor("settings.web_monitor_clients", "Web Monitor Connections",
-                             "browser connections at once, 1-64 (default 8)",
+        openInlineTextEditor("settings.web_monitor_clients", "Web Monitor Viewers",
+                             "live pictures sent at once, 1-64 (default 8)",
                              std::to_string(project_.webMonitorMaxClients),
                              [this](const std::string& value) {
                                try {
@@ -5835,7 +5835,7 @@
                                  if (n >= 1 && n <= 64) { setWebMonitorMaxClients(n); return; }
                                } catch (...) {
                                }
-                               triggerToast("web monitor connections: 1-64", ToastKind::Warning,
+                               triggerToast("web monitor viewers: 1-64", ToastKind::Warning,
                                             kToastReadableMs);
                              });
       } else if (sb.action == kSettingsActionWebMonitorPortPrompt) {

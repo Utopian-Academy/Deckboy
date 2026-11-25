@@ -4956,3 +4956,9 @@ Waiting for {1}	In attesa di {1}
 No room for {1}'s playlist	Non c'è spazio per la scaletta di {1}
 {1} is not following this desk	{1} non segue questa console
 OUTPUT PHONE <name|number> PLAYS <FOCUS|DARK|OWN|playlist> or IDENTIFY	OUTPUT PHONE <nome|numero> PLAYS <FOCUS|DARK|OWN|scaletta> o IDENTIFY
+Viewers at once	Spettatori simultanei
+Web Monitor Viewers	Spettatori monitor web
+Phone control is at {1}	Il controllo da telefono è su {1}
+web monitor viewers: 1-64	spettatori monitor web: 1-64
+Phone control moved to {1}	Controllo da telefono spostato su {1}
+live pictures sent at once, 1-64 (default 8)	immagini in onda inviate simultaneamente, 1-64 (predefinito 8)

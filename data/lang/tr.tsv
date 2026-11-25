@@ -4983,3 +4983,9 @@ Waiting for {1}	{1} bekleniyor
 No room for {1}'s playlist	{1} için çalma listesine yer yok
 {1} is not following this desk	{1} bu operatörü izlemiyor
 OUTPUT PHONE <name|number> PLAYS <FOCUS|DARK|OWN|playlist> or IDENTIFY	OUTPUT PHONE <ad|numara> PLAYS <FOCUS|DARK|OWN|çalma listesi> veya IDENTIFY
+Viewers at once	Eşzamanlı izleyici
+Web Monitor Viewers	Web monitör izleyicileri
+Phone control is at {1}	Telefon kontrolü {1} adresinde
+web monitor viewers: 1-64	web monitörü izleyicileri: 1-64
+Phone control moved to {1}	Telefon kontrolü {1} adresine taşındı
+live pictures sent at once, 1-64 (default 8)	eşzamanlı gönderilen canlı görüntü, 1-64 (varsayılan 8)

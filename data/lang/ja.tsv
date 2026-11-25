@@ -4991,3 +4991,9 @@ Waiting for {1}	{1} を待機中
 No room for {1}'s playlist	{1} のプレイリスト用の空きがありません
 {1} is not following this desk	{1} はこの操作卓に連動していません
 OUTPUT PHONE <name|number> PLAYS <FOCUS|DARK|OWN|playlist> or IDENTIFY	OUTPUT PHONE <名前|番号> PLAYS <FOCUS|DARK|OWN|プレイリスト> または IDENTIFY
+Viewers at once	同時視聴者数
+Web Monitor Viewers	Webモニター視聴者数
+Phone control is at {1}	電話操作は{1}にあります
+web monitor viewers: 1-64	ウェブモニター視聴者数: 1-64
+Phone control moved to {1}	電話操作を{1}に移動しました
+live pictures sent at once, 1-64 (default 8)	同時送信するライブ映像数、1-64 (既定8)

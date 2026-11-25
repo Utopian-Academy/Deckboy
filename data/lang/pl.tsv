@@ -4961,3 +4961,9 @@ Waiting for {1}	Oczekiwanie na {1}
 No room for {1}'s playlist	Brak miejsca na playlistę {1}
 {1} is not following this desk	{1} nie śledzi tego pulpitu
 OUTPUT PHONE <name|number> PLAYS <FOCUS|DARK|OWN|playlist> or IDENTIFY	OUTPUT PHONE <nazwa|numer> PLAYS <FOCUS|DARK|OWN|playlista> lub IDENTIFY
+Viewers at once	Widzowie jednocześnie
+Web Monitor Viewers	Widzowie monitora WWW
+Phone control is at {1}	Sterowanie z telefonu jest pod adresem {1}
+web monitor viewers: 1-64	widzowie monitora WWW: 1-64
+Phone control moved to {1}	Sterowanie z telefonu przeniesiono na {1}
+live pictures sent at once, 1-64 (default 8)	jednocześnie wysyłane obrazy na żywo, 1-64 (domyślnie 8)
