@@ -4891,10 +4891,14 @@ void MediaEngine::rebuildPatternFrame(const Cue& cue, double wallSeconds) {
     drawClockWall_ = wallSeconds;
     animTime = drawClock_;
     const auto m = deckboy::draw::momentAt(cue.drawing, animTime);
-    const std::array<std::uint64_t, 7> key {std::hash<std::string> {}(cue.id), cue.drawing.revision,
+    // Critters keep moving: a drawing with any is rebuilt thirty times a second.
+    const bool critters = m.frame >= 0 && m.frame < static_cast<int>(cue.drawing.frames.size()) &&
+                          deckboy::draw::frameHasCritters(cue.drawing.frames[static_cast<std::size_t>(m.frame)]);
+    const std::array<std::uint64_t, 8> key {std::hash<std::string> {}(cue.id), cue.drawing.revision,
                                             static_cast<std::uint64_t>(m.frame),
                                             m.strokes, m.lastPoints, static_cast<std::uint64_t>(fallbackW),
-                                            static_cast<std::uint64_t>(fallbackH)};
+                                            static_cast<std::uint64_t>(fallbackH),
+                                            critters ? static_cast<std::uint64_t>(animTime * 30.0) : 0u};
     if (displayFrame_ && key == lastDrawKey_) return;
     lastDrawKey_ = key;
   }
@@ -18066,6 +18070,11 @@ void MediaEngine::buildPatternFrameInto(DecodedFrame& frame, const Cue& cue, dou
       frame.pixels = raster.pixels();
     } else {
       frame.pixels.assign(static_cast<std::size_t>(frame.width) * static_cast<std::size_t>(frame.height) * 4u, 0);
+    }
+    // The Critter Brush's strokes, over the ink, at this moment.
+    if (moment.frame >= 0 && moment.frame < static_cast<int>(frames.size())) {
+      deckboy::draw::drawCritters(frame.pixels.data(), frame.width, frame.height, frames[static_cast<std::size_t>(moment.frame)],
+                                  moment.strokes, moment.lastPoints, animTime);
     }
   } else if (basePatternType == "portal") {
     // Always animated: the blobs are born, drift, melt and fade.

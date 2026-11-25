@@ -5066,3 +5066,12 @@ the picture's own	koro veka
 The picture keeps its own colours, or turns to chrome or liquid gold.	Veka guri koro lumaku; pel seti go mirpata, pel seti go fluo lumpata.
 Glints where the water faces the light, and bright lines where the rings focus it.	Mirlumaku kae wata dopi luma, so lumo ranaku kae kororanaku kormiri.
 Raindrops on the water: none at the left, about twenty a second at the right. RIPPLE DROP (Companion, a MIDI map, a script cue) drops a bigger one on cue.	Kiswataku sov wata: vana kae dopa ran, tal 20 go kiskistok kae dopa nov. KISVELARLANA (Companion, jandora MIDI, holveka) lani vakiso kiswata kae veka.
+write words	Grai holaku
+critter brush	kispatavekgrajana
+nothing to write	vaala go grai
+Write in critters	Grai dora kispataku
+select a Draw cue first	piki muna DRAW CUE
+DRAW EVERY: seconds, 0.5-20	DRAW EVERY: kistokaku, 0.5-20
+How often they all change together	Tal ala seti unatok
+the words to spell out in critters	holaku go grai dora kispataku
+Which critters: all of them changing together, each new stroke the next one, or one you choose	Kispataku: ala seti unatok, ala nova grarana novtoka, alo una tu piki

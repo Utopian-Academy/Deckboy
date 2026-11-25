@@ -25,9 +25,14 @@
 #include <string>
 #include <vector>
 
+#include "core/critter_sprites.hpp"
+
 namespace deckboy::draw {
 
-enum class Tool { Brush = 0, Erase, Line, Box, Oval, Fill, Count };
+// Critters: the Critter Brush (board BBfda3Tf, James 2026-11-25). Its strokes
+// are not ink: they are laid down as animated pixel critters, drawn fresh
+// every frame over the cached ink (drawCritters).
+enum class Tool { Brush = 0, Erase, Line, Box, Oval, Fill, Critters, Count };
 
 inline const char* toolToken(Tool t) {
   switch (t) {
@@ -36,6 +41,7 @@ inline const char* toolToken(Tool t) {
     case Tool::Box:   return "box";
     case Tool::Oval:  return "oval";
     case Tool::Fill:  return "fill";
+    case Tool::Critters: return "critters";
     default:          return "brush";
   }
 }
@@ -47,6 +53,7 @@ inline const char* toolLabel(Tool t) {
     case Tool::Box:   return "box";
     case Tool::Oval:  return "oval";
     case Tool::Fill:  return "fill the frame";
+    case Tool::Critters: return "critter brush";
     default:          return "brush";
   }
 }
@@ -200,6 +207,7 @@ inline bool coverStroke(const Stroke& s, std::size_t from, std::size_t to, std::
                         int& x0, int& y0, int& x1, int& y1) {
   const std::size_t n = std::min(to, s.points.size());
   if (n == 0 || w <= 0 || h <= 0) return false;
+  if (s.tool == Tool::Critters) return false;   // not ink: drawCritters draws them, every frame
   auto px = [&](const Point& p) { return p.x * static_cast<float>(w); };
   auto py = [&](const Point& p) { return p.y * static_cast<float>(h); };
   switch (s.tool) {
@@ -534,6 +542,12 @@ struct Brush {
   float size = 0.012f;      // fraction of the picture's height
   float opacity = 1.0f;
   bool onion = true;        // show the frame before, faintly, while drawing
+  // The Critter Brush: -2 every critter stroke changes together, -1 each new
+  // stroke takes the next critter, 0.. that one critter. How often "together"
+  // changes, in seconds. Where "alternate" has got to (not saved).
+  int critter = -2;
+  float critterEvery = 3.0f;
+  int critterNext = 0;
 };
 
 inline constexpr float kMinBrushSize = 0.001f;
@@ -543,5 +557,106 @@ inline constexpr float kMaxBrushSize = 0.2f;
 constexpr std::uint32_t kPalette[8] = {
   0xFFFFFFFFu, 0x101010FFu, 0xE03030FFu, 0xF08020FFu, 0xF0E040FFu, 0x30C060FFu, 0x3080F0FFu, 0xB050E0FFu,
 };
+
+
+// ── THE CRITTER BRUSH ────────────────────────────────────────────────────
+//
+// A critter stroke keeps its points like any stroke; its colour field says what
+// it is: the low byte which critter (255: it changes with every other such
+// stroke), the next how often they change in tenths of a second, and bit 16
+// whether its critters sit only ON its points (typed words) rather than every
+// critter's width along the line.
+inline std::uint32_t critterStrokeRgba(int kind, float everySeconds, bool dots) {
+  const unsigned k = kind < 0 ? 255u : static_cast<unsigned>(std::min(kind, 254));
+  const long tenths = std::lround(static_cast<double>(everySeconds) * 10.0);
+  const unsigned every = static_cast<unsigned>(std::clamp(tenths, 1L, 255L));
+  return (dots ? 0x10000u : 0u) | (every << 8) | k;
+}
+
+inline bool frameHasCritters(const Frame& f) {
+  for (const Stroke& s : f.strokes) {
+    if (s.tool == Tool::Critters) return true;
+  }
+  return false;
+}
+
+// The critters of the first `strokeCount` strokes (the last one only to
+// `lastPoints`), into RGBA pixels, at `seconds` on the drawing's clock. Each
+// critter is pixel art scaled by a whole number (the stroke's size is its
+// height), steps between its two frames four times a second, bobs, and sits a
+// little off the line, each from its own place in the stroke.
+inline void drawCritters(std::uint8_t* pixels, int W, int H, const Frame& frame, std::size_t strokeCount,
+                         std::size_t lastPoints, double seconds) {
+  if (!pixels || W <= 0 || H <= 0) return;
+  const std::size_t n = std::min(strokeCount, frame.strokes.size());
+  for (std::size_t si = 0; si < n; ++si) {
+    const Stroke& s = frame.strokes[si];
+    if (s.tool != Tool::Critters || s.points.empty()) continue;
+    const std::size_t pts = si + 1 == n ? std::min(lastPoints, s.points.size()) : s.points.size();
+    if (pts == 0) continue;
+    const unsigned kindByte = s.rgba & 0xFFu;
+    const double every = std::max(0.1, static_cast<double>((s.rgba >> 8) & 0xFFu) / 10.0);
+    const bool dots = (s.rgba & 0x10000u) != 0;
+    const int kind = kindByte == 255u ? static_cast<int>(static_cast<long long>(std::floor(std::max(0.0, seconds) / every)) % kCritterCount)
+                                      : static_cast<int>(kindByte % static_cast<unsigned>(kCritterCount));
+    const CritterSprite& sp = kCritters[kind];
+    const int scale = std::max(1, static_cast<int>(std::lround(s.size * static_cast<float>(H) / 10.0f)));
+    const double spacing = std::max(4.0, 11.0 * scale);
+    const int alpha = static_cast<int>(std::lround(std::clamp(s.opacity, 0.0f, 1.0f) * 255.0f));
+    int stamp = 0;
+    auto place = [&](double x, double y) {
+      std::uint32_t hsh = static_cast<std::uint32_t>(si) * 2654435761u ^ static_cast<std::uint32_t>(stamp) * 40503u;
+      hsh ^= hsh >> 13; hsh *= 0x5bd1e995u; hsh ^= hsh >> 15;
+      ++stamp;
+      const double phase = static_cast<double>(hsh & 1023u) / 1023.0;
+      const int fr = static_cast<int>(std::floor(seconds * 4.0 + phase * 2.0)) & 1;
+      const double bob = std::sin(seconds * 3.0 + phase * 6.283) * scale * 0.7;
+      const double jx = (static_cast<double>((hsh >> 10) & 255u) / 255.0 - 0.5) * scale * 2.0;
+      const double jy = (static_cast<double>((hsh >> 18) & 255u) / 255.0 - 0.5) * scale * 2.0;
+      const int ox = static_cast<int>(std::lround(x - 5.0 * scale + jx));
+      const int oy = static_cast<int>(std::lround(y - 5.0 * scale + jy + bob));
+      for (int r = 0; r < 10; ++r) {
+        const char* row = sp.frames[fr][r];
+        for (int c = 0; c < 10 && row[c]; ++c) {
+          const std::uint32_t ink = critterInk(row[c]);
+          if (!ink) continue;
+          const int ir = static_cast<int>(ink >> 24), ig = static_cast<int>((ink >> 16) & 255u), ib = static_cast<int>((ink >> 8) & 255u);
+          for (int by = 0; by < scale; ++by) {
+            const int py = oy + r * scale + by;
+            if (py < 0 || py >= H) continue;
+            for (int bx = 0; bx < scale; ++bx) {
+              const int px = ox + c * scale + bx;
+              if (px < 0 || px >= W) continue;
+              std::uint8_t* d = pixels + (static_cast<std::size_t>(py) * static_cast<std::size_t>(W) + static_cast<std::size_t>(px)) * 4;
+              d[0] = static_cast<std::uint8_t>(d[0] + ((ir - d[0]) * alpha) / 255);
+              d[1] = static_cast<std::uint8_t>(d[1] + ((ig - d[1]) * alpha) / 255);
+              d[2] = static_cast<std::uint8_t>(d[2] + ((ib - d[2]) * alpha) / 255);
+              d[3] = static_cast<std::uint8_t>(std::max<int>(d[3], alpha));
+            }
+          }
+        }
+      }
+    };
+    if (dots) {
+      for (std::size_t i = 0; i < pts; ++i) place(s.points[i].x * W, s.points[i].y * H);
+      continue;
+    }
+    // along the line: one where it starts, then one every `spacing` pixels
+    double carry = 0.0;
+    place(s.points[0].x * W, s.points[0].y * H);
+    for (std::size_t i = 1; i < pts; ++i) {
+      const double ax = s.points[i - 1].x * W, ay = s.points[i - 1].y * H;
+      const double bx = s.points[i].x * W, by = s.points[i].y * H;
+      const double len = std::hypot(bx - ax, by - ay);
+      double at = spacing - carry;
+      while (at <= len) {
+        const double t = len > 0.0 ? at / len : 0.0;
+        place(ax + (bx - ax) * t, ay + (by - ay) * t);
+        at += spacing;
+      }
+      carry = len - (at - spacing);
+    }
+  }
+}
 
 }  // namespace deckboy::draw

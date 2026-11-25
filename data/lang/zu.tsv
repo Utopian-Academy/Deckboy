@@ -5040,3 +5040,13 @@ the picture's own	okwesithombe uqobo
 The picture keeps its own colours, or turns to chrome or liquid gold.	Isithombe sigcina imibala yaso, noma siphenduke i-chrome noma igolide eliwuketshezi.
 Glints where the water faces the light, and bright lines where the rings focus it.	Ukucwebezela lapho amanzi abheke khona ukukhanya, nemigqa ekhanyayo lapho izindandatho zikugxilisa khona.
 Raindrops on the water: none at the left, about twenty a second at the right. RIPPLE DROP (Companion, a MIDI map, a script cue) drops a bigger one on cue.	Amathonsi emvula emanzini: lutho kwesobunxele, cishe angamashumi amabili ngomzuzwana kwesokudla. I-RIPPLE DROP (i-Companion, imephu ye-MIDI, i-cue yeskripthi) iwisa elikhulu ku-cue.
+write words	bhala amagama
+critter brush	ibhulashi lezilwanyana
+nothing to write	akukho okokubhala
+Write in critters	Bhala ngezilwanyana
+DRAW WRITE <words>	DRAW WRITE <amagama>
+select a Draw cue first	qala ukhethe i-cue ka-Draw
+DRAW EVERY: seconds, 0.5-20	DRAW EVERY: imizuzwana, 0.5-20
+How often they all change together	Kaningi kangakanani zonke zishintsha ndawonye
+the words to spell out in critters	amagama azobhalwa ngezilwanyana
+Which critters: all of them changing together, each new stroke the next one, or one you choose	Iziphi izilwanyana: zonke zishintsha ndawonye, umdwebo omusha ngamunye uthola esilandelayo, noma esisodwa osikhethayo

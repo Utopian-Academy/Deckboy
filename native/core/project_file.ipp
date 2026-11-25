@@ -296,6 +296,7 @@ void writeProjectScalars(std::ostream& output, const Project& project) {
     output << "draw_brush\t" << deckboy::draw::toolToken(project.drawBrush.tool) << '\t' << rgba << '\t'
            << project.drawBrush.size << '\t' << project.drawBrush.opacity << '\t'
            << (project.drawBrush.onion ? 1 : 0) << '\t' << escapeField(serializeToneLfos(project.drawBrushLfo))
+           << '\t' << project.drawBrush.critter << '\t' << project.drawBrush.critterEvery
            << '\n';
   }
   // Motion, on one line: on, source, sensitivity, rise, fall, mirror, zones.
@@ -1498,6 +1499,8 @@ bool applyProjectScalarLine(Project& project, const std::vector<std::string>& fi
                         deckboy::draw::kMaxBrushSize);
     b.opacity = std::clamp(static_cast<float>(safeDouble(fields, 4, b.opacity)), 0.01f, 1.0f);
     b.onion = safeBool(fields, 5, true);
+    b.critter = std::clamp(safeInt(fields, 7, -2), -2, deckboy::draw::kCritterCount - 1);
+    b.critterEvery = std::clamp(static_cast<float>(safeDouble(fields, 8, 3.0)), 0.5f, 20.0f);
     project.drawBrush = b;
     project.drawBrushLfo = parseToneLfos(safeString(fields, 6));
   } else if (fields[0] == "motion") {

@@ -5052,3 +5052,12 @@ the picture's own	畫面原色
 The picture keeps its own colours, or turns to chrome or liquid gold.	畫面保持原有顏色，或變為鍍鉻或液態金。
 Glints where the water faces the light, and bright lines where the rings focus it.	水面迎光處閃爍光點，漣漪環聚焦處出現亮線。
 Raindrops on the water: none at the left, about twenty a second at the right. RIPPLE DROP (Companion, a MIDI map, a script cue) drops a bigger one on cue.	水面雨滴：最左為無，最右約每秒二十滴。RIPPLE DROP（Companion、MIDI 對應、腳本 cue）可依 cue 落下一顆更大的。
+write words	寫詞語
+critter brush	小動物畫筆
+nothing to write	沒有可寫的內容
+Write in critters	用小動物書寫
+select a Draw cue first	請先選取一個Draw cue
+DRAW EVERY: seconds, 0.5-20	DRAW EVERY：秒數，0.5-20
+How often they all change together	全部一起變化的頻率
+the words to spell out in critters	要用小動物拼出的詞語
+Which critters: all of them changing together, each new stroke the next one, or one you choose	哪些小動物：全部一起變化、每個新筆觸換下一個，或你選擇的一個

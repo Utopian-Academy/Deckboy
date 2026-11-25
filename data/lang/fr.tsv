@@ -4985,3 +4985,13 @@ the picture's own	propre à l'image
 The picture keeps its own colours, or turns to chrome or liquid gold.	L'image garde ses propres couleurs, ou devient chrome ou or liquide.
 Glints where the water faces the light, and bright lines where the rings focus it.	Des reflets là où l'eau fait face à la lumière, et des lignes claires là où les anneaux la concentrent.
 Raindrops on the water: none at the left, about twenty a second at the right. RIPPLE DROP (Companion, a MIDI map, a script cue) drops a bigger one on cue.	Gouttes de pluie sur l'eau : aucune à gauche, une vingtaine par seconde à droite. GOUTTE D'ONDULATION (Companion, une carte MIDI, un cue script) en lâche une plus grosse sur commande.
+write words	écrire des mots
+critter brush	pinceau à bestioles
+nothing to write	rien à écrire
+Write in critters	Écrire en bestioles
+DRAW WRITE <words>	DRAW WRITE <mots>
+select a Draw cue first	choisis d'abord un cue Draw
+DRAW EVERY: seconds, 0.5-20	DRAW EVERY : secondes, 0.5-20
+How often they all change together	Fréquence à laquelle elles changent toutes ensemble
+the words to spell out in critters	les mots à écrire en bestioles
+Which critters: all of them changing together, each new stroke the next one, or one you choose	Quelles bestioles : toutes changeant ensemble, chaque nouveau trait la suivante, ou celle de votre choix

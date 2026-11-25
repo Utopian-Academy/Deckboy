@@ -4076,6 +4076,10 @@ enum class QuickAction {
   DrawUndoStroke,
   DrawSaveStill,
   DrawSaveAnimation,
+  DrawCritterCycle,       // the Critter Brush: together -> alternate -> each critter
+  DrawCritterEveryCycle,  // how often "together" changes
+  DrawCritterWrite,       // typed words, spelled in critters
+  DrawCritterDoodle,      // a stroke that draws itself
   CueSectionDrawToggle,
   // An effect's fifth and sixth sliders (CueEffect::paramE / paramF).
   EffectParamEDec,

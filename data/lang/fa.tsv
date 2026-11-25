@@ -5067,3 +5067,13 @@ the picture's own	خودِ تصویر
 The picture keeps its own colours, or turns to chrome or liquid gold.	تصویر رنگ‌های خودش را نگه می‌دارد، یا کروم یا طلای مایع می‌شود.
 Glints where the water faces the light, and bright lines where the rings focus it.	درخشش جایی که آب رو به نور است، و خطوط روشن جایی که حلقه‌ها آن را متمرکز می‌کنند.
 Raindrops on the water: none at the left, about twenty a second at the right. RIPPLE DROP (Companion, a MIDI map, a script cue) drops a bigger one on cue.	قطره‌های باران روی آب: در چپ هیچ، در راست حدود بیست در ثانیه. قطرهٔ موجک (Companion، یک نقشهٔ MIDI، یک کیوی اسکریپت) سرِ کیو قطره‌ای بزرگ‌تر می‌اندازد.
+write words	نوشتن واژه‌ها
+critter brush	قلم‌موی جانوران
+nothing to write	چیزی برای نوشتن نیست
+Write in critters	نوشتن با جانوران
+DRAW WRITE <words>	DRAW WRITE <واژه‌ها>
+select a Draw cue first	ابتدا یک کیوی Draw انتخاب کنید
+DRAW EVERY: seconds, 0.5-20	DRAW EVERY: ثانیه، 0.5-20
+How often they all change together	هر چند وقت یک‌بار همه با هم تغییر می‌کنند
+the words to spell out in critters	واژه‌هایی که با جانوران نوشته می‌شوند
+Which critters: all of them changing together, each new stroke the next one, or one you choose	کدام جانوران: همه با هم در حال تغییر، هر قلم‌موی جدید بعدی، یا یکی که خودتان انتخاب کنید

@@ -5046,3 +5046,13 @@ the picture's own	eigin litir myndarinnar
 The picture keeps its own colours, or turns to chrome or liquid gold.	Myndin heldur eigin litum, eða verður að krómi eða fljótandi gulli.
 Glints where the water faces the light, and bright lines where the rings focus it.	Glampar þar sem vatnið snýr að ljósinu, og bjartar línur þar sem hringirnir beina því.
 Raindrops on the water: none at the left, about twenty a second at the right. RIPPLE DROP (Companion, a MIDI map, a script cue) drops a bigger one on cue.	Regndropar á vatninu: engir til vinstri, um tuttugu á sekúndu til hægri. GÁRUDROPI (Companion, MIDI-kort, skriftucue) lætur stærri dropa falla á cue.
+write words	skrifa orð
+critter brush	kvikindapensill
+nothing to write	ekkert að skrifa
+Write in critters	Skrifa með kvikindum
+DRAW WRITE <words>	DRAW WRITE <orð>
+select a Draw cue first	veldu fyrst DRAW-CUE
+DRAW EVERY: seconds, 0.5-20	DRAW EVERY: sekúndur, 0.5-20
+How often they all change together	Hve oft þau breytast öll saman
+the words to spell out in critters	orðin sem á að stafa með kvikindum
+Which critters: all of them changing together, each new stroke the next one, or one you choose	Hvaða kvikindi: öll breytast saman, hvert nýtt strok fær það næsta, eða eitt sem þú velur

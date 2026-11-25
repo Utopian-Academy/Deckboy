@@ -5038,3 +5038,13 @@ the picture's own	win n tugna s yiman-is
 The picture keeps its own colours, or turns to chrome or liquid gold.	Tugna teṭṭef initen-is, neɣ tuɣal d krum neɣ d ureɣ amengan.
 Glints where the water faces the light, and bright lines where the rings focus it.	Tibriqin anida i d-yezzi waman ɣer tafat, d yizirigen aceɛlalen anida i t-ssaḍasent tiwnisin.
 Raindrops on the water: none at the left, about twenty a second at the right. RIPPLE DROP (Companion, a MIDI map, a script cue) drops a bigger one on cue.	Taqeṭṭarin n ugeffur ɣef waman: ulac deg uzelmaḍ, azal n ɛecrin di tsint deg uyeffus. TAQEṬṬART N TMḌELT (Companion, takarḍa MIDI, cue n uskript) tesseɣli yiwet tameqqrant ɣef cue.
+write words	aru awalen
+critter brush	tacetta n yiɣersiwen
+nothing to write	ulac acu ara taruḍ
+Write in critters	Aru s yiɣersiwen
+DRAW WRITE <words>	DRAW WRITE <awalen>
+select a Draw cue first	fren uqbel yiwen DRAW CUE
+DRAW EVERY: seconds, 0.5-20	DRAW EVERY: tasinin, 0.5-20
+How often they all change together	Acḥal n tikkal i ttbeddilen akk yiwet n tikkelt
+the words to spell out in critters	awalen ara d-yettwarun s yiɣersiwen
+Which critters: all of them changing together, each new stroke the next one, or one you choose	Anwi iɣersiwen: akk ttbeddilen yiwet n tikkelt, yal ajerriḍ amaynut d win i d-iteddun, neɣ yiwen ara tefreneḍ

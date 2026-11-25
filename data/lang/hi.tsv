@@ -5056,3 +5056,13 @@ the picture's own	चित्र का अपना
 The picture keeps its own colours, or turns to chrome or liquid gold.	चित्र अपने रंग रखता है, या क्रोम या तरल सोने में बदल जाता है।
 Glints where the water faces the light, and bright lines where the rings focus it.	जहाँ पानी प्रकाश की ओर है वहाँ झिलमिलाहट, और जहाँ वलय उसे फ़ोकस करते हैं वहाँ उज्ज्वल रेखाएँ।
 Raindrops on the water: none at the left, about twenty a second at the right. RIPPLE DROP (Companion, a MIDI map, a script cue) drops a bigger one on cue.	पानी पर बारिश की बूँदें: बाएँ कोई नहीं, दाएँ लगभग बीस प्रति सेकंड। लहर बूँद (Companion, MIDI मैप, स्क्रिप्ट क्यू) क्यू पर एक बड़ी बूँद गिराता है।
+write words	शब्द लिखें
+critter brush	जीव-जंतु ब्रश
+nothing to write	लिखने को कुछ नहीं
+Write in critters	जीव-जंतुओं से लिखें
+DRAW WRITE <words>	DRAW WRITE <शब्द>
+select a Draw cue first	पहले एक Draw cue चुनें
+DRAW EVERY: seconds, 0.5-20	DRAW EVERY: सेकंड, 0.5-20
+How often they all change together	सभी कितनी बार एक साथ बदलें
+the words to spell out in critters	जीव-जंतुओं से लिखे जाने वाले शब्द
+Which critters: all of them changing together, each new stroke the next one, or one you choose	कौन-से जीव-जंतु: सभी एक साथ बदलें, हर नया ब्रश स्ट्रोक अगला, या एक जिसे आप चुनें

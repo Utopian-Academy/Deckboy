@@ -5036,3 +5036,13 @@ the picture's own	màu riêng của hình ảnh
 The picture keeps its own colours, or turns to chrome or liquid gold.	Hình ảnh giữ màu riêng, hoặc chuyển thành crôm hay vàng lỏng.
 Glints where the water faces the light, and bright lines where the rings focus it.	Lấp lánh nơi mặt nước hướng về ánh sáng, và các đường sáng nơi các vòng hội tụ ánh sáng.
 Raindrops on the water: none at the left, about twenty a second at the right. RIPPLE DROP (Companion, a MIDI map, a script cue) drops a bigger one on cue.	Giọt mưa trên mặt nước: không có ở bên trái, khoảng hai mươi giọt mỗi giây ở bên phải. RIPPLE DROP (Companion, bản đồ MIDI, cue script) thả một giọt lớn hơn theo cue.
+write words	viết từ
+critter brush	cọ sinh vật
+nothing to write	không có gì để viết
+Write in critters	Viết bằng sinh vật
+DRAW WRITE <words>	DRAW WRITE <từ>
+select a Draw cue first	hãy chọn một cue Draw trước
+DRAW EVERY: seconds, 0.5-20	DRAW EVERY: giây, 0.5-20
+How often they all change together	Tần suất tất cả cùng đổi
+the words to spell out in critters	các từ để ghép bằng sinh vật
+Which critters: all of them changing together, each new stroke the next one, or one you choose	Sinh vật nào: tất cả cùng đổi, mỗi nét vẽ mới là con tiếp theo, hoặc một con bạn chọn

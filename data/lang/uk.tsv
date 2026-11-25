@@ -5054,3 +5054,12 @@ the picture's own	кольори зображення
 The picture keeps its own colours, or turns to chrome or liquid gold.	Зображення зберігає власні кольори або перетворюється на хром чи рідке золото.
 Glints where the water faces the light, and bright lines where the rings focus it.	Відблиски там, де вода звернена до світла, і яскраві лінії там, де кільця його фокусують.
 Raindrops on the water: none at the left, about twenty a second at the right. RIPPLE DROP (Companion, a MIDI map, a script cue) drops a bigger one on cue.	Краплі дощу на воді: ліворуч немає, праворуч близько двадцяти на секунду. RIPPLE DROP (Companion, MIDI-мапа, скриптовий к’ю) кидає більшу краплю точно за командою.
+write words	написати слова
+critter brush	пензель звіряток
+nothing to write	немає чого писати
+Write in critters	Писати звірятками
+select a Draw cue first	спершу виберіть команду Draw
+DRAW EVERY: seconds, 0.5-20	DRAW EVERY: секунди, 0.5-20
+How often they all change together	Як часто усі змінюються разом
+the words to spell out in critters	слова для викладання звірятками
+Which critters: all of them changing together, each new stroke the next one, or one you choose	Які звірятка: усі змінюються разом, кожен новий штрих — наступне, або одне на ваш вибір

@@ -2080,7 +2080,7 @@ class MediaEngine {
   // A Draw cue's last built state: which cue, revision, frame, strokes,
   // points, raster. The same again means the same pixels, so nothing is
   // rebuilt or uploaded.
-  std::array<std::uint64_t, 7> lastDrawKey_ {};
+  std::array<std::uint64_t, 8> lastDrawKey_ {};
   // A Draw cue's own clock: seconds since it was loaded. The transport's
   // position does not move for a held generator, so the flipbook and replay
   // keep time here.

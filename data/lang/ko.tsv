@@ -5052,3 +5052,12 @@ the picture's own	영상 원래 색
 The picture keeps its own colours, or turns to chrome or liquid gold.	영상이 원래 색을 유지하거나, 크롬 또는 액체 금으로 바뀝니다.
 Glints where the water faces the light, and bright lines where the rings focus it.	물이 빛을 향하는 곳에는 반짝임이, 고리가 빛을 모으는 곳에는 밝은 선이 생깁니다.
 Raindrops on the water: none at the left, about twenty a second at the right. RIPPLE DROP (Companion, a MIDI map, a script cue) drops a bigger one on cue.	물 위의 빗방울: 왼쪽은 없음, 오른쪽은 초당 약 20개. 잔물결 드롭(Companion, MIDI 맵, 스크립트 큐)은 큐에 맞춰 더 큰 물방울을 떨어뜨립니다.
+write words	단어 쓰기
+critter brush	동물 브러시
+nothing to write	쓸 내용 없음
+Write in critters	동물로 쓰기
+select a Draw cue first	먼저 Draw 큐를 선택하세요
+DRAW EVERY: seconds, 0.5-20	DRAW EVERY: 초, 0.5-20
+How often they all change together	모두 함께 변경되는 빈도
+the words to spell out in critters	동물로 쓸 단어
+Which critters: all of them changing together, each new stroke the next one, or one you choose	어떤 동물: 모두 함께 변경, 새 획마다 다음 동물, 또는 직접 선택한 하나

@@ -5048,3 +5048,12 @@ the picture's own	τα χρώματα της εικόνας
 The picture keeps its own colours, or turns to chrome or liquid gold.	Η εικόνα κρατά τα δικά της χρώματα ή γίνεται χρώμιο ή υγρό χρυσάφι.
 Glints where the water faces the light, and bright lines where the rings focus it.	Λάμψεις όπου το νερό κοιτά προς το φως, και φωτεινές γραμμές όπου οι δακτύλιοι το εστιάζουν.
 Raindrops on the water: none at the left, about twenty a second at the right. RIPPLE DROP (Companion, a MIDI map, a script cue) drops a bigger one on cue.	Σταγόνες βροχής στο νερό: καμία αριστερά, περίπου είκοσι το δευτερόλεπτο δεξιά. Το RIPPLE DROP (Companion, ένας χάρτης MIDI, ένα cue σεναρίου) ρίχνει μια μεγαλύτερη στο cue.
+write words	γράψιμο λέξεων
+critter brush	πινέλο με πλασματάκια
+nothing to write	τίποτα για γράψιμο
+Write in critters	Γράψε με πλασματάκια
+select a Draw cue first	επίλεξε πρώτα ένα cue Draw
+DRAW EVERY: seconds, 0.5-20	DRAW EVERY: δευτερόλεπτα, 0.5-20
+How often they all change together	Πόσο συχνά αλλάζουν όλα μαζί
+the words to spell out in critters	οι λέξεις που θα γραφτούν με πλασματάκια
+Which critters: all of them changing together, each new stroke the next one, or one you choose	Ποια πλασματάκια: όλα αλλάζουν μαζί, κάθε νέα πινελιά το επόμενο, ή ένα που διαλέγεις

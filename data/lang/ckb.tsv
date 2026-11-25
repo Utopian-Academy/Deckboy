@@ -5055,3 +5055,12 @@ the picture's own	ڕەنگی خودی وێنەکە
 The picture keeps its own colours, or turns to chrome or liquid gold.	وێنەکە ڕەنگەکانی خۆی دەپارێزێت، یان دەبێتە کرۆم یان ئاڵتوونی شل.
 Glints where the water faces the light, and bright lines where the rings focus it.	درەوشانەوە لەو شوێنانەی ئاو ڕووی لە ڕووناکییە، و هێڵی ڕووناک لەو شوێنانەی بازنەکان چڕی دەکەنەوە.
 Raindrops on the water: none at the left, about twenty a second at the right. RIPPLE DROP (Companion, a MIDI map, a script cue) drops a bigger one on cue.	دڵۆپە باران لەسەر ئاو: هیچ لە چەپ، نزیکەی بیست لە چرکەیەکدا لە ڕاست. RIPPLE DROP (Companion، نەخشەی MIDI، cue ی سکریپت) دڵۆپێکی گەورەتر لە کاتی cue دا دەخات.
+write words	نووسینی وشەکان
+critter brush	فڵچەی گیانلەبەر
+nothing to write	هیچ نییە بۆ نووسین
+Write in critters	بە گیانلەبەران بنووسە
+select a Draw cue first	سەرەتا cue ی Draw هەڵبژێرە
+DRAW EVERY: seconds, 0.5-20	DRAW EVERY: چرکە، 0.5-20
+How often they all change together	هەموویان چەند جار پێکەوە دەگۆڕێن
+the words to spell out in critters	ئەو وشانەی بە گیانلەبەران دەنووسرێن
+Which critters: all of them changing together, each new stroke the next one, or one you choose	کام گیانلەبەر: هەموویان پێکەوە دەگۆڕێن، هەر هێڵی فڵچەی نوێ دانەی دواتر، یان یەکێک کە خۆت هەڵیدەبژێریت

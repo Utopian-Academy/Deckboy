@@ -104,7 +104,7 @@
     const auto& b = project_.drawBrush;
     deckboy::draw::Stroke s;
     s.tool = b.tool;
-    s.rgba = b.rgba;
+    s.rgba = b.tool == deckboy::draw::Tool::Critters ? nextCritterRgba(false) : b.rgba;
     s.size = brushSizeNow();
     s.opacity = brushOpacityNow();
     s.points.push_back({fx, fy, pointerIsPen_ ? penPressure_ : 1.0f, drawClockNow()});
@@ -291,7 +291,7 @@
       for (int i = 0; i < count; ++i) draw(i, SDL_Rect {x0 + i * (cw + gap), y, cw, ix.rowH});
       y += ix.rowStep;
     };
-    static const char* kToolShort[] = {"brush", "erase", "line", "box", "oval", "fill"};
+    static const char* kToolShort[] = {"brush", "erase", "line", "box", "oval", "fill", "critters"};
     chipRow(static_cast<int>(deckboy::draw::Tool::Count), [&](int i, const SDL_Rect& r) {
       const bool on = static_cast<int>(b.tool) == i;
       drawUIPanel(r, paletteToggleFill(on), pal.deep, pal.light);
@@ -300,7 +300,8 @@
                                std::string("Draw with the ") + deckboy::draw::toolLabel(static_cast<deckboy::draw::Tool>(i)),
                                i});
     });
-    chipRow(9, [&](int i, const SDL_Rect& r) {
+    if (b.tool == deckboy::draw::Tool::Critters) y = drawCritterRows(ix, y);
+    else chipRow(9, [&](int i, const SDL_Rect& r) {
       if (i == 8) {
         // The ninth chip: any colour, typed.
         drawUIPanel(r, pal.tile, pal.deep, pal.mid);
@@ -389,10 +390,149 @@
     return y;
   }
 
+  // ── THE CRITTER BRUSH (board BBfda3Tf, James 2026-11-25) ────────────────
+  //
+  // A Draw tool: strokes laid down as pixel critters that keep moving where
+  // they land (core/drawing.hpp drawCritters). The critters change together on
+  // a timer, or each new stroke takes the next, or one is chosen. Strokes come
+  // from the mouse or pen, from typed words (spelled in critters) and from a
+  // doodle that draws itself. "Quite silly and slightly unexpected".
+  std::string critterChoiceText() const {
+    const auto& b = project_.drawBrush;
+    if (b.critter == -2) return "all change together";
+    if (b.critter == -1) return "each stroke the next";
+    return deckboy::draw::kCritters[std::clamp(b.critter, 0, deckboy::draw::kCritterCount - 1)].name;
+  }
+
+  std::uint32_t nextCritterRgba(bool dots) {
+    auto& b = project_.drawBrush;
+    int kind = b.critter;
+    if (kind == -1) kind = b.critterNext++ % deckboy::draw::kCritterCount;
+    return deckboy::draw::critterStrokeRgba(kind == -2 ? -1 : kind, b.critterEvery, dots);
+  }
+
+  int drawCritterRows(const InspectorCtx& ix, int y) {
+    const auto& b = project_.drawBrush;
+    y = inspDrawChoiceRow(ix, y, "critter", critterChoiceText(), QuickAction::DrawCritterCycle,
+                          "Which critters: all of them changing together, each new stroke the next one, or one you choose");
+    if (b.critter == -2) {
+      char every[24];
+      std::snprintf(every, sizeof every, "every %.0f s", static_cast<double>(b.critterEvery));
+      y = inspDrawChoiceRow(ix, y, "changes", every, QuickAction::DrawCritterEveryCycle, "How often they all change together");
+    }
+    const int x0 = ix.ctrl.x + ix.inset, w = ix.ctrlW - ix.inset * 2, gap = uiScaled(3), cw = (w - gap) / 2;
+    for (int i = 0; i < 2; ++i) {
+      const SDL_Rect r {x0 + i * (cw + gap), y, cw, ix.rowH};
+      drawUIPanel(r, pal.tile, pal.deep, pal.mid);
+      drawCenteredTextSafe(controlRenderer_, fontSmall_, r, i == 0 ? "write words" : "doodle", pal.fg);
+      quickButtons_.push_back({r, i == 0 ? QuickAction::DrawCritterWrite : QuickAction::DrawCritterDoodle,
+                               i == 0 ? "Type something: it is spelled out in critters" : "A loop that draws itself", -1});
+    }
+    y += ix.rowStep;
+    return y;
+  }
+
+  // Typed words as one critter stroke: the words drawn in the desk's own face,
+  // and a critter on every few pixels of the letters, left to right, so a
+  // replay writes them in.
+  bool writeCritterWords(Cue& cue, const std::string& words) {
+    TTF_Font* font = fontPixel_ ? fontPixel_ : fontBase_;
+    if (words.empty() || !font) return false;
+    SDL_Surface* surface = deckboy::render::shaping::renderText(font, words.c_str(), 0, SDL_Color {255, 255, 255, 255});
+    if (!surface) return false;
+    SDL_Surface* rgba = SDL_ConvertSurface(surface, SDL_PIXELFORMAT_RGBA32);
+    SDL_DestroySurface(surface);
+    if (!rgba) return false;
+    // The words fill 80% of the picture's width (less if that would make them
+    // taller than a third of it), and every letter is about eight critters
+    // tall, so the words read whatever the brush's size.
+    float wordsW = 0.8f;
+    float scale = wordsW / static_cast<float>(rgba->w);
+    float heightFrac = static_cast<float>(rgba->h) * scale * (16.0f / 9.0f);
+    if (heightFrac > 0.34f) {
+      wordsW *= 0.34f / heightFrac;
+      scale = wordsW / static_cast<float>(rgba->w);
+      heightFrac = 0.34f;
+    }
+    const float cell = std::max(1.0f, static_cast<float>(rgba->h) / 8.0f);   // source pixels per critter
+    deckboy::draw::Stroke s;
+    s.tool = deckboy::draw::Tool::Critters;
+    s.rgba = nextCritterRgba(true);
+    s.size = std::clamp(heightFrac / 8.0f, deckboy::draw::kMinBrushSize, deckboy::draw::kMaxBrushSize);   // one critter a cell
+    s.opacity = brushOpacityNow();
+    const float t0 = drawClockNow();
+    const auto* px = static_cast<const std::uint8_t*>(rgba->pixels);
+    for (float sx = cell * 0.5f; sx < rgba->w; sx += cell) {
+      for (float sy = cell * 0.5f; sy < rgba->h; sy += cell) {
+        const int ix0 = static_cast<int>(sx), iy0 = static_cast<int>(sy);
+        if (px[static_cast<std::size_t>(iy0) * static_cast<std::size_t>(rgba->pitch) + static_cast<std::size_t>(ix0) * 4 + 3] < 128) continue;
+        const float fx = 0.5f - wordsW / 2 + sx * scale;
+        const float fy = 0.5f - heightFrac / 2 + sy * scale * (16.0f / 9.0f);
+        s.points.push_back({fx, fy, 1.0f, t0 + 0.01f * static_cast<float>(s.points.size())});
+      }
+    }
+    SDL_DestroySurface(rgba);
+    if (s.points.empty()) return false;
+    pushUndoSnapshot();
+    drawEditFrame(cue)->strokes.push_back(std::move(s));
+    touchDrawing(cue);
+    return true;
+  }
+
+  // A loop that draws itself: a Lissajous figure somewhere on the picture.
+  void doodleCritters(Cue& cue) {
+    std::mt19937 rng(static_cast<std::uint32_t>(SDL_GetTicksNS()));
+    std::uniform_real_distribution<float> u(0.0f, 1.0f);
+    const int a = 1 + static_cast<int>(u(rng) * 3), bb = a + 1 + static_cast<int>(u(rng) * 2);
+    const float ph = u(rng) * 3.0f, cx = 0.25f + u(rng) * 0.5f, cy = 0.3f + u(rng) * 0.4f;
+    const float rx = 0.12f + u(rng) * 0.18f, ry = 0.12f + u(rng) * 0.15f;
+    deckboy::draw::Stroke s;
+    s.tool = deckboy::draw::Tool::Critters;
+    s.rgba = nextCritterRgba(false);
+    s.size = brushSizeNow();
+    s.opacity = brushOpacityNow();
+    const float t0 = drawClockNow();
+    for (int i = 0; i <= 240; ++i) {
+      const float t = static_cast<float>(i) / 240.0f * 6.2831853f;
+      s.points.push_back({cx + std::sin(a * t + ph) * rx, cy + std::sin(bb * t) * ry, 1.0f, t0 + 0.0125f * static_cast<float>(i)});
+    }
+    pushUndoSnapshot();
+    drawEditFrame(cue)->strokes.push_back(std::move(s));
+    touchDrawing(cue);
+  }
+
   // ── ACTIONS ─────────────────────────────────────────────────────────────
 
   bool handleDrawQuickAction(QuickAction action, int param) {
     switch (action) {
+      case QuickAction::DrawCritterCycle: {
+        auto& b = project_.drawBrush;
+        b.critter = b.critter + 1 >= deckboy::draw::kCritterCount ? -2 : b.critter + 1;
+        markProjectDirty();
+        return true;
+      }
+      case QuickAction::DrawCritterEveryCycle: {
+        static const float kEvery[] = {1.0f, 2.0f, 3.0f, 5.0f, 8.0f};
+        auto& b = project_.drawBrush;
+        int at = 0;
+        while (at < 5 && kEvery[at] <= b.critterEvery + 0.01f) ++at;
+        b.critterEvery = kEvery[at % 5];
+        markProjectDirty();
+        return true;
+      }
+      case QuickAction::DrawCritterWrite: {
+        if (!drawCue()) return true;
+        settingsOpen_ = false;
+        openInlineTextEditor("draw.critter_words", "Write in critters", "the words to spell out in critters", "",
+                             [this](const std::string& value) {
+                               Cue* cue = drawCue();
+                               if (cue && !writeCritterWords(*cue, trim(value))) triggerToast("nothing to write");
+                             });
+        return true;
+      }
+      case QuickAction::DrawCritterDoodle:
+        if (Cue* cue = drawCue()) doodleCritters(*cue);
+        return true;
       case QuickAction::DrawEditToggle: openDrawEditor(!drawEditor_.open); return true;
       case QuickAction::CueSectionDrawToggle: cueSectionDrawOpen_ = !cueSectionDrawOpen_; return true;
       case QuickAction::DrawToolSet:
@@ -841,6 +981,45 @@
       drawEditFrame(*cue)->strokes.push_back(std::move(s));
       touchDrawing(*cue);
       remoteCommandDetail_ = "strokes here: " + std::to_string(drawEditFrame(*cue)->strokes.size());
+      return;
+    }
+    // The Critter Brush: DRAW CRITTER <TOGETHER|ALTERNATE|name>, DRAW EVERY <s>,
+    // DRAW WRITE <words>, DRAW DOODLE.
+    if (sub == "CRITTER" || sub == "CRITTERS") {
+      const std::string v = parts.size() > 2 ? toLower(parts[2]) : std::string();
+      auto& brush = project_.drawBrush;
+      if (v == "together") brush.critter = -2;
+      else if (v == "alternate") brush.critter = -1;
+      else {
+        int found = -1;
+        for (int i = 0; i < deckboy::draw::kCritterCount; ++i) if (v == deckboy::draw::kCritters[i].name) found = i;
+        if (found < 0) {
+          std::string names;
+          for (int i = 0; i < deckboy::draw::kCritterCount; ++i) names += std::string(i ? " " : "") + deckboy::draw::kCritters[i].name;
+          failRemoteCommand("DRAW CRITTER TOGETHER, ALTERNATE or one of: " + names);
+          return;
+        }
+        brush.critter = found;
+      }
+      brush.tool = deckboy::draw::Tool::Critters;
+      markProjectDirty();
+      remoteCommandDetail_ = critterChoiceText();
+      return;
+    }
+    if (sub == "EVERY") {
+      double v = 0;
+      if (!number(2, 0.5, 20.0, v)) { failRemoteCommand("DRAW EVERY: seconds, 0.5-20"); return; }
+      project_.drawBrush.critterEvery = static_cast<float>(v);
+      markProjectDirty();
+      return;
+    }
+    if (sub == "WRITE" || sub == "DOODLE") {
+      Cue* target = drawCue();
+      if (!target) { failRemoteCommand("select a Draw cue first"); return; }
+      if (sub == "DOODLE") { doodleCritters(*target); return; }
+      std::string words;
+      for (std::size_t i = 2; i < parts.size(); ++i) words += (i > 2 ? " " : "") + parts[i];
+      if (!writeCritterWords(*target, words)) failRemoteCommand("DRAW WRITE <words>");
       return;
     }
     if (sub == "UNDO" || sub == "CLEAR") {
