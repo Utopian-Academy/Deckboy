@@ -4958,3 +4958,21 @@ A cue's own TRANSITION and STYLE win.	Eigin UMSKIPTI og STÍLL cue ganga fyrir.
 Zoom, focus and the rest are on a phone.	Aðdráttur, fókus og hitt er í síma.
 Not on air: the picture shows it once taken.	Ekki í loftinu: myndin sýnir það eftir take.
 Deleted {1}	{1} eytt
+in step	í takt
+Phone {1}	Sími {1}
+Fetched {1}	{1} sótt
+MISSING {1}	VANTAR {1}
+Playlist {1}	Spilunarlisti {1}
+{1} plays {2}	{1} spilar {2}
+{1} frames off	{1} rammar á skjön
+Not here now: {1}	Ekki hér núna: {1}
+fetching {1} {2}%	sæki {1} {2}%
+Could not read {1}	Tókst ekki að lesa {1}
+Playlist {1} (gone)	Spilunarlisti {1} (horfinn)
+Could not fetch {1}: {2}	Tókst ekki að sækja {1}: {2}
+No phone is following this desk	Enginn sími fylgir þessu stjórnborði
+This desk leads: phones can follow it	Þetta stjórnborð er í forystu: símar geta fylgt því
+PLAYS FOCUS, DARK or a playlist number	PLAYS FOCUS, DARK eða númer spilunarlista
+This desk is not leading, so no phone can follow it	Þetta stjórnborð er ekki í forystu, svo enginn sími getur fylgt því
+On the phone: MENU > SYNC, then type this desk's address	Í símanum: VALMYND > SYNC, sláðu svo inn vistfang þessa stjórnborðs
+OUTPUT PHONE <name|number> PLAYS <FOCUS|DARK|playlist> or IDENTIFY	OUTPUT PHONE <heiti|númer> PLAYS <FOCUS|DARK|spilunarlisti> eða IDENTIFY

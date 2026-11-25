@@ -395,10 +395,17 @@
     for (int o = 0; o < static_cast<int>(project_.outputs.size()); ++o) {
       chip(outputLabel(o), project_.outputs[static_cast<std::size_t>(o)].enabled ? red : grey);
     }
+    // Phones are outputs too: one chip each. Other followers (a backup
+    // desk, Minis) are counted.
+    const auto phones = phoneTallies();
+    for (const auto& phone : phones) chip(phone.label, phone.dot);
     if (project_.syncLead) {
-      chip(syncFollowers_.size() == 1 ? std::string("1 follower")
-                                       : deckboy::core::i18n::format("{1} followers", {std::to_string(syncFollowers_.size())}),
-           syncFollowers_.empty() ? grey : green);
+      const std::size_t others = syncFollowers_.size() - phones.size();
+      if (others > 0 || phones.empty()) {
+        chip(others == 1 ? std::string("1 follower")
+                         : deckboy::core::i18n::format("{1} followers", {std::to_string(others)}),
+             others == 0 ? grey : green);
+      }
     }
 
     SDL_Rect body {area.x, area.y + statusH + gap, area.w, std::max(0, area.h - statusH - gap)};
@@ -917,6 +924,15 @@
         Primitives::fillRect(controlRenderer_, SDL_Rect {ox, hud.y + (hud.h - d) / 2, d, d}, it->enabled ? red : pal.inkSoft);
         drawTextSafe(controlRenderer_, fontSmall_, SDL_Rect {ox + d + uiScaled(6), hud.y, w - d - uiScaled(6), hud.h}, text,
                      it->enabled ? pal.light : pal.fgSoft);
+        ox -= uiScaled(14);
+      }
+      for (const auto& phone : phoneTallies()) {   // the phones, before the outputs
+        const int d = uiScaled(8);
+        const int w = measuredTextWidth(fontSmall_, phone.label) + d + uiScaled(10);
+        if (ox - w < hx) break;
+        ox -= w;
+        Primitives::fillRect(controlRenderer_, SDL_Rect {ox, hud.y + (hud.h - d) / 2, d, d}, phone.dot);
+        drawTextSafe(controlRenderer_, fontSmall_, SDL_Rect {ox + d + uiScaled(6), hud.y, w - d - uiScaled(6), hud.h}, phone.label, pal.fgSoft);
         ox -= uiScaled(14);
       }
     }
@@ -2673,7 +2689,16 @@
                      out.enabled ? std::string("ON") : std::string("off"), out.enabled ? red : pal.fgSoft);
         y += rowH;
       }
-      if (project_.outputs.empty()) {
+      for (const auto& phone : phoneTallies()) {
+        if (y + rowH > page.y + page.h) break;
+        const int d = uiScaled(10);
+        Primitives::fillRect(controlRenderer_, SDL_Rect {page.x + pad, y + (rowH - d) / 2, d, d}, phone.dot);
+        drawTextSafe(controlRenderer_, fontBase_, SDL_Rect {page.x + pad + d + uiScaled(10), y, page.w / 2, rowH},
+                     deckboy::core::i18n::format("Phone {1}", {phone.label}), pal.fg);
+        drawTextSafe(controlRenderer_, fontSmall_, SDL_Rect {page.x + page.w / 2, y, page.w / 2 - pad, rowH}, phone.state, pal.fgSoft);
+        y += rowH;
+      }
+      if (project_.outputs.empty() && syncFollowers_.empty()) {
         drawTextSafe(controlRenderer_, fontSmall_, SDL_Rect {page.x + pad, y, page.w - pad * 2, rowH}, "no outputs", pal.inkSoft);
       }
     }

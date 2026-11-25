@@ -3127,13 +3127,13 @@
       cy += std::max(sTallH, uiScaled(32)) + uiScaled(6);
 
       // ─── Sub-tab bar ───
-      settingsVideoSubTab_ = std::clamp(settingsVideoSubTab_, 0, 3);
+      settingsVideoSubTab_ = std::clamp(settingsVideoSubTab_, 0, 4);
       // Standard AV desk vocabulary, the words that appear on a projector menu
       // or in Mitti/QLab/Resolume — not invented ones. "Screen" is the physical
       // panel this output drives, "Geometry" is the projector-menu term for
       // crop/edge shaping, "Devices" is where the frame is sent (NDI/SDI/Spout).
       // The earlier "Shaping"/"Destinations" pair was atypical and overlapping.
-      const std::vector<std::string> subTabs {"Screen", "Geometry", "Devices", "Streaming"};
+      const std::vector<std::string> subTabs {"Screen", "Geometry", "Devices", "Streaming", "Phones"};
       {
         // Same cartridge-shelf treatment as the main tab bar, one size down.
         const int kSubTabH = std::max(uiScaled(30), textLineHeight(fontSmall_) + uiScaled(12));
@@ -4589,6 +4589,8 @@
             sy += recordH + kSectionGap;
           }
         }
+      } else if (settingsVideoSubTab_ == 4) {
+        sy = renderSettingsPhones(cx, sy, subContentW, kRowH, kRowGap);
       }
 
       // MEASURED, not predicted: sy is where the last section actually
@@ -5157,6 +5159,107 @@
   // SYNC's rows in Settings > Network (leading, following, the backup).
   // Their own function: one more branch in the click chain is past MSVC's
   // nesting limit (C1061).
+  // Settings > Video Outputs > Phones: every phone following this desk, one
+  // row each -- its number and name, how it is doing, what it PLAYS (click
+  // to step Focus, Playlist 1..n, Dark) and IDENTIFY. Returns the y below.
+  int renderSettingsPhones(int x, int y, int w, int rowH, int rowGap) {
+    const int pad = uiScaled(8);
+    const int gap = uiScaled(4);
+    std::vector<SyncFollower*> phones;
+    for (auto& f : syncFollowers_) {
+      if (followerIsPhone(f) && static_cast<int>(phones.size()) < kMaxPhoneRows) phones.push_back(&f);
+    }
+    std::sort(phones.begin(), phones.end(), [](const SyncFollower* a, const SyncFollower* b) { return a->number < b->number; });
+    std::vector<std::string> absent;
+    for (const auto& p : project_.phonePlays) {
+      bool here = false;
+      for (const SyncFollower* f : phones) here = here || f->name == p.first;
+      if (!here) absent.push_back(p.first + " (" + phonePlaysLabel(p.second) + ")");
+    }
+    const int lineH = std::max(uiScaled(16), textLineHeight(fontSmall_));
+    // The lead line, a row per phone (or the "no phone" line), the absent ones.
+    const int bodyH = (rowH + rowGap) +
+                      (phones.empty() ? lineH + rowGap : static_cast<int>(phones.size()) * (rowH + rowGap)) +
+                      (absent.empty() ? 0 : lineH + rowGap);
+    SDL_Rect frame {x, y, w, settingsHeaderHeight(fontSmall_) + uiScaled(6) + bodyH + pad};
+    Primitives::drawFramedPanel(controlRenderer_, frame, pal.shellInner, pal.deep, pal.light);
+    const SDL_Rect hdr = drawSettingsPlate(frame, "PHONES", fontSmall_);
+    int cy = hdr.y + hdr.h + uiScaled(6);
+    const int left = x + pad, width = w - pad * 2;
+    auto button = [&](const SDL_Rect& r, const std::string& label, int action, bool on) {
+      drawSettingsStateFill(r, on);
+      drawCenteredTextSafe(controlRenderer_, fontSmall_, r, label, settingsStateInk(on));
+      settingsBtns_.push_back({r, action, label});
+    };
+    // Whether phones can follow at all.
+    {
+      SDL_Rect line {left, cy, width, rowH};
+      if (!project_.syncLead) {
+        const int bw = measuredTextWidth(fontSmall_, "LEAD ON") + uiScaled(24);
+        button({left + width - bw, cy, bw, rowH}, "LEAD ON", kSettingsActionPhoneLeadOn, false);
+        line.w -= bw + gap;
+        drawTextSafe(controlRenderer_, fontSmall_, line, "This desk is not leading, so no phone can follow it", pal.inkSoft);
+      } else {
+        drawTextSafe(controlRenderer_, fontSmall_, line,
+                     "On the phone: MENU > SYNC, then type this desk's address", pal.inkSoft);
+      }
+      cy += rowH + rowGap;
+    }
+    settingsPhoneRows_.clear();
+    if (phones.empty()) {
+      drawTextSafe(controlRenderer_, fontSmall_, {left, cy, width, lineH}, "No phone is following this desk", pal.inkSoft);
+      cy += lineH + rowGap;
+    }
+    const int identifyW = measuredTextWidth(fontSmall_, "IDENTIFY") + uiScaled(24);
+    const int playsW = std::max(measuredTextWidth(fontSmall_, "PLAYS: Playlist 88 (gone)") + uiScaled(24), width / 4);
+    for (std::size_t i = 0; i < phones.size(); ++i) {
+      SyncFollower& f = *phones[i];
+      settingsPhoneRows_.push_back(f.name);
+      const int plays = phonePlaysFor(f.name);
+      SDL_Rect idBtn {left + width - identifyW, cy, identifyW, rowH};
+      SDL_Rect playsBtn {idBtn.x - gap - playsW, cy, playsW, rowH};
+      button(playsBtn, deckboy::core::i18n::format("PLAYS: {1}", {phonePlaysLabel(plays)}),
+             kSettingsActionPhonePlaysBase + static_cast<int>(i), plays != 0);
+      button(idBtn, "IDENTIFY", kSettingsActionPhoneIdentifyBase + static_cast<int>(i), false);
+      const int nameW = std::min(width / 3, measuredTextWidth(fontSmall_, std::to_string(f.number) + "  " + f.name) + uiScaled(16));
+      drawTextSafe(controlRenderer_, fontSmall_, {left, cy, nameW, rowH}, std::to_string(f.number) + "  " + f.name, pal.light);
+      bool warn = false;
+      const std::string state = phoneStateText(f, warn);
+      drawTextSafe(controlRenderer_, fontSmall_, {left + nameW, cy, playsBtn.x - gap - left - nameW, rowH}, state,
+                   warn ? pal.deleteBezel : pal.inkSoft);
+      cy += rowH + rowGap;
+    }
+    if (!absent.empty()) {
+      std::string list;
+      for (const auto& a : absent) list += (list.empty() ? "" : ", ") + a;
+      drawTextSafe(controlRenderer_, fontSmall_, {left, cy, width, lineH},
+                   deckboy::core::i18n::format("Not here now: {1}", {list}), pal.inkSoft);
+      cy += lineH + rowGap;
+    }
+    return frame.y + std::max(frame.h, cy - frame.y + pad) + uiScaled(14);
+  }
+
+  void handlePhoneSettingsAction(int action) {
+    if (action == kSettingsActionPhoneLeadOn) {
+      project_.syncLead = true;
+      markProjectDirty();
+      triggerToast("This desk leads: phones can follow it");
+      return;
+    }
+    const bool identify = action >= kSettingsActionPhoneIdentifyBase;
+    const int row = action - (identify ? kSettingsActionPhoneIdentifyBase : kSettingsActionPhonePlaysBase);
+    if (row < 0 || row >= static_cast<int>(settingsPhoneRows_.size())) return;
+    SyncFollower* phone = findPhone(settingsPhoneRows_[static_cast<std::size_t>(row)]);
+    if (!phone) return;
+    if (identify) {
+      identifyPhone(*phone);
+      return;
+    }
+    const int plays = nextPhonePlays(phonePlaysFor(phone->name));
+    setPhonePlays(phone->name, plays);
+    triggerToast(deckboy::core::i18n::format("{1} plays {2}", {phone->name, phonePlaysLabel(plays)}));
+  }
+
   void handleSyncSettingsAction(int action) {
     if (action == kSettingsActionSyncFollowHost) {
       settingsOpen_ = false;
@@ -5588,6 +5691,10 @@
                              });
       } else if (sb.action >= kSettingsActionSyncLeadToggle && sb.action <= kSettingsActionSyncBackupAtem) {
         handleSyncSettingsAction(sb.action);
+      } else if (sb.action == kSettingsActionPhoneLeadOn ||
+                 (sb.action >= kSettingsActionPhonePlaysBase && sb.action < kSettingsActionPhonePlaysBase + kMaxPhoneRows) ||
+                 (sb.action >= kSettingsActionPhoneIdentifyBase && sb.action < kSettingsActionPhoneIdentifyBase + kMaxPhoneRows)) {
+        handlePhoneSettingsAction(sb.action);
       } else if (sb.action == kSettingsActionTrustLastRefused) {
         if (!controlLastRefused_.empty()) trustController(controlLastRefused_);
       } else if (sb.action == kSettingsActionOutputHdrToggle) {
@@ -7842,7 +7949,7 @@
           }
         }
       } else if (sb.action >= kSettingsActionVideoSubTabBase &&
-                 sb.action < kSettingsActionVideoSubTabBase + 4) {
+                 sb.action < kSettingsActionVideoSubTabBase + 5) {
         settingsVideoSubTab_ = sb.action - kSettingsActionVideoSubTabBase;
         // Each sub-tab is a different height, so a scroll carried over from
         // the last one lands somewhere arbitrary in this one.

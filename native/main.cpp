@@ -2691,6 +2691,9 @@ class App {
     stopIntegrationBridges();
     stopHyperDeckServer();
     endSyncLead("the leading desk closed");
+    // Phones fetching media: stop sending and give the threads a moment to close.
+    syncMediaStop_ = true;
+    for (int wait = 0; wait < 50 && syncMediaSending_.load() > 0; ++wait) SDL_Delay(10);
     stopDeskFollow();
     stopAtemSwitcherClient();
     stopMidiInput();
@@ -3378,7 +3381,7 @@ class App {
     showSplashOverlay_ = false;
     settingsOpen_ = true;
     settingsTab_ = std::clamp(tab, 0, 5);
-    settingsVideoSubTab_ = std::clamp(videoSubTab, 0, 3);
+    settingsVideoSubTab_ = std::clamp(videoSubTab, 0, 4);
   }
 
   // ---- Show log ------------------------------------------------------------
@@ -8745,7 +8748,7 @@ class App {
   static constexpr int kSettingsActionOutputHdrSignal = 867;
   static constexpr int kSettingsActionLearnBasics = 868;   // MENU > LEARN THE BASICS (the tour)
   static constexpr int kSettingsActionStreamKeyPrompt = 641;
-  static constexpr int kSettingsActionVideoSubTabBase = 642; // 642–645 for 4 sub-tabs
+  static constexpr int kSettingsActionVideoSubTabBase = 642; // 642–646 for 5 sub-tabs
   static constexpr int kSettingsActionEncoderConvertAll = 647;
   static constexpr int kSettingsActionEncoderAddFile = 648;
   // Preset chips. 715-718 (656-701 and 715+ were the free blocks; 720 and 750
@@ -8802,6 +8805,11 @@ class App {
   static constexpr int kSettingsActionSyncTakeoverMs = 889;
   static constexpr int kSettingsActionSyncBackupDrill = 890;
   static constexpr int kSettingsActionSyncBackupAtem = 891;
+  // Settings > Video Outputs > Phones (sub-tab 4 is kSettingsActionVideoSubTabBase + 4 = 646).
+  static constexpr int kSettingsActionPhoneLeadOn = 60399;
+  static constexpr int kSettingsActionPhonePlaysBase = 60400;      // 60400-60431, one per phone row
+  static constexpr int kSettingsActionPhoneIdentifyBase = 60432;   // 60432-60463
+  static constexpr int kMaxPhoneRows = 32;
   // The MIDI map page (app_midi_map.ipp). 1100-1179: the page's controls,
   // then one per visible table row from kSettingsActionMidiMapRowBase.
   static constexpr int kSettingsActionMidiMapOpen = 1100;
@@ -11417,7 +11425,7 @@ class App {
   // Settings modal
   bool settingsOpen_ = false;
   int settingsTab_ = 0; // 0=System 1=Audio 2=Network 3=Video Outputs 4=About
-  int settingsVideoSubTab_ = 0; // 0=Display 1=Processing 2=Backends 3=Streaming
+  int settingsVideoSubTab_ = 0; // 0=Display 1=Processing 2=Backends 3=Streaming 4=Phones
   bool videoOutputsAdvanced_ = false;
   bool routingMoveMode_ = true; // true=single-output move, false=add/remove fan-out
   SDL_Rect settingsCloseBtn_ {};
@@ -11575,6 +11583,17 @@ class App {
   std::vector<SyncFollower> syncFollowers_;
   std::string syncLastKey_;
   std::uint64_t syncLastSentNs_ = 0;
+  // PHONES: each phone's own last report (SYNC REPORT, taken on the network
+  // thread) by socket, and the files a phone may fetch (SYNC MEDIA <cue id>)
+  // by cue id. Both under companionClientsMutex_.
+  struct PhoneReport { std::string line; std::uint64_t atMs = 0; };
+  std::map<SocketHandle, PhoneReport> syncReports_;
+  std::map<std::string, std::string> syncMediaPaths_;
+  std::uint64_t syncMediaPathsMs_ = 0;
+  std::atomic<int> syncMediaSending_ {0};
+  std::atomic<bool> syncMediaStop_ {false};
+  // The Phones sub-tab's rows, by name, as last drawn (a click names its row).
+  std::vector<std::string> settingsPhoneRows_;
   // SYNC follower (app_network.ipp): this desk following another desk.
   enum class DeskFollow { Off, Connecting, Joining, Following, Lost };
   struct FollowClockSample { Sint64 offset; Uint64 rtt; };

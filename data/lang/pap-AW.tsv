@@ -4945,3 +4945,20 @@ A cue's own TRANSITION and STYLE win.	E TRANSICION y ESTILO propio di un cue ta 
 Zoom, focus and the rest are on a phone.	Acercamento, enfoke y e resto ta riba un telefon.
 Not on air: the picture shows it once taken.	No ta bibu: e portret ta mustr'e ora e wordo tuma.
 Deleted {1}	{1} kita
+in step	sincronisá
+Phone {1}	Telefon {1}
+Fetched {1}	A descarga {1}
+MISSING {1}	FALTANDO {1}
+{1} plays {2}	{1} ta toca {2}
+{1} frames off	{1} frame-nan di diferencia
+Not here now: {1}	No ta aki awor: {1}
+fetching {1} {2}%	ta descarga {1} {2}%
+Could not read {1}	No por a lesa {1}
+Playlist {1} (gone)	Playlist {1} (no tin mas)
+Could not fetch {1}: {2}	No por a descarga {1}: {2}
+No phone is following this desk	Ningun telefon no ta sigui e mesa aki
+This desk leads: phones can follow it	E mesa aki ta guia: telefon-nan por sigui'é
+PLAYS FOCUS, DARK or a playlist number	PLAYS FOCUS, DARK of un number di playlist
+This desk is not leading, so no phone can follow it	E mesa aki no ta guia, pues ningun telefon no por sigui'é
+On the phone: MENU > SYNC, then type this desk's address	Riba e telefon: MENU > SYNC, despues tipa e adres di e mesa aki
+OUTPUT PHONE <name|number> PLAYS <FOCUS|DARK|playlist> or IDENTIFY	OUTPUT PHONE <nomber|number> PLAYS <FOCUS|DARK|playlist> of IDENTIFY

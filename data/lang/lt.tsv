@@ -4036,3 +4036,22 @@ A cue's own TRANSITION and STYLE win.	Pirmenybę turi paties ženklo PERĖJIMAS 
 Zoom, focus and the rest are on a phone.	Mastelis, fokusas ir visa kita – telefone.
 Not on air: the picture shows it once taken.	Ne eteryje: vaizdas parodys po TAKE.
 Deleted {1}	Ištrinta: {1}
+in step	sinchronizuota
+Phone {1}	Telefonas {1}
+PLAYS: {1}	GROJA: {1}
+Fetched {1}	Atsiųsta: {1}
+MISSING {1}	TRŪKSTA {1}
+Playlist {1}	Grojaraštis {1}
+{1} plays {2}	{1} groja {2}
+{1} frames off	Kadrai nesutampa: {1}
+Not here now: {1}	Dabar ne čia: {1}
+fetching {1} {2}%	atsiunčiama {1} {2}%
+Could not read {1}	Nepavyko perskaityti {1}
+Playlist {1} (gone)	Grojaraštis {1} (nebėra)
+Could not fetch {1}: {2}	Nepavyko atsiųsti {1}: {2}
+No phone is following this desk	Joks telefonas neseka šio pulto
+This desk leads: phones can follow it	Šis pultas vadovauja: telefonai gali jį sekti
+PLAYS FOCUS, DARK or a playlist number	PLAYS FOCUS, DARK arba grojaraščio numeris
+This desk is not leading, so no phone can follow it	Šis pultas nevadovauja, todėl joks telefonas negali jo sekti
+On the phone: MENU > SYNC, then type this desk's address	Telefone: MENIU > SYNC, tada įveskite šio pulto adresą
+OUTPUT PHONE <name|number> PLAYS <FOCUS|DARK|playlist> or IDENTIFY	OUTPUT PHONE <pavadinimas|numeris> PLAYS <FOCUS|DARK|grojaraštis> arba IDENTIFY

@@ -10932,6 +10932,11 @@
     }
     if (command == "OUTPUT") {
       const std::string sub = parts.size() < 2 ? std::string("STATUS") : toUpper(parts[1]);
+      // OUTPUT PHONES, OUTPUT PHONE <name|number> PLAYS <FOCUS|DARK|n> | IDENTIFY
+      if (sub == "PHONE" || sub == "PHONES") {
+        handlePhoneOutputCommand(parts);
+        return;
+      }
       // OUTPUT NAME <text>: rename the focused output (OUTPUT SELECT <n> first)
       if (sub == "NAME") {
         if (project_.outputs.empty()) {

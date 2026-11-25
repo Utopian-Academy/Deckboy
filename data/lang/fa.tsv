@@ -4979,3 +4979,21 @@ A cue's own TRANSITION and STYLE win.	گذار و سبکِ خودِ کیو او�
 Zoom, focus and the rest are on a phone.	بزرگ‌نمایی، فوکوس و بقیه روی تلفن هستند.
 Not on air: the picture shows it once taken.	روی آنتن نیست: تصویر پس از take نشانش می‌دهد.
 Deleted {1}	{1} حذف شد
+in step	هم‌گام
+Phone {1}	تلفن {1}
+Fetched {1}	{1} دریافت شد
+MISSING {1}	ناموجود {1}
+Playlist {1}	فهرست پخش {1}
+{1} plays {2}	{1} {2} را می‌نوازد
+{1} frames off	{1} فریم اختلاف
+Not here now: {1}	اکنون اینجا نیست: {1}
+fetching {1} {2}%	در حال دریافت {1} {2}%
+Could not read {1}	{1} خوانده نشد
+Playlist {1} (gone)	فهرست پخش {1} (حذف شده)
+Could not fetch {1}: {2}	دریافت {1} ممکن نشد: {2}
+No phone is following this desk	هیچ تلفنی این اپراتور را دنبال نمی‌کند
+This desk leads: phones can follow it	این اپراتور رهبری می‌کند: تلفن‌ها می‌توانند آن را دنبال کنند
+PLAYS FOCUS, DARK or a playlist number	PLAYS FOCUS، DARK یا شمارهٔ فهرست پخش
+This desk is not leading, so no phone can follow it	این اپراتور رهبری نمی‌کند، پس هیچ تلفنی نمی‌تواند آن را دنبال کند
+On the phone: MENU > SYNC, then type this desk's address	روی تلفن: منو > SYNC، سپس نشانی این میز را وارد کن
+OUTPUT PHONE <name|number> PLAYS <FOCUS|DARK|playlist> or IDENTIFY	OUTPUT PHONE <نام|شماره> PLAYS <FOCUS|DARK|فهرست پخش> یا IDENTIFY

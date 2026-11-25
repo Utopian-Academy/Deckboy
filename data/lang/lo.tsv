@@ -4951,3 +4951,20 @@ A cue's own TRANSITION and STYLE win.	ການປ່ຽນພາບ ແລະ �
 Zoom, focus and the rest are on a phone.	ຊູມ, ຈຸດສຸມ ແລະ ອື່ນໆ ຢູ່ໃນໂທລະສັບ.
 Not on air: the picture shows it once taken.	ບໍ່ສົດ: ຮູບຈະສະແດງເມື່ອ take.
 Deleted {1}	ລຶບ {1} ແລ້ວ
+in step	ກົງກັນ
+Phone {1}	ໂທລະສັບ {1}
+Fetched {1}	ດຶງ {1} ແລ້ວ
+MISSING {1}	ຂາດໄປ {1}
+{1} plays {2}	{1} ຫຼິ້ນ {2}
+{1} frames off	ຄາດເຄື່ອນ {1} ເຟຣມ
+Not here now: {1}	ດຽວນີ້ບໍ່ຢູ່ທີ່ນີ້: {1}
+fetching {1} {2}%	ກຳລັງດຶງ {1} {2}%
+Could not read {1}	ອ່ານ {1} ບໍ່ໄດ້
+Playlist {1} (gone)	Playlist {1} (ຫາຍໄປ)
+Could not fetch {1}: {2}	ດຶງ {1} ບໍ່ໄດ້: {2}
+No phone is following this desk	ບໍ່ມີໂທລະສັບໃດຕາມໂຕະນີ້
+This desk leads: phones can follow it	ໂຕະນີ້ກຳລັງນຳ: ໂທລະສັບຕາມໂຕະນີ້ໄດ້
+PLAYS FOCUS, DARK or a playlist number	PLAYS FOCUS, DARK ຫຼື ເລກ playlist
+This desk is not leading, so no phone can follow it	ໂຕະນີ້ບໍ່ໄດ້ນຳ, ສະນັ້ນບໍ່ມີໂທລະສັບໃດຕາມໄດ້
+On the phone: MENU > SYNC, then type this desk's address	ໃນໂທລະສັບ: ເມນູ > SYNC, ແລ້ວພິມທີ່ຢູ່ຂອງໂຕະນີ້
+OUTPUT PHONE <name|number> PLAYS <FOCUS|DARK|playlist> or IDENTIFY	OUTPUT PHONE <ຊື່|ເລກ> PLAYS <FOCUS|DARK|playlist> ຫຼື IDENTIFY

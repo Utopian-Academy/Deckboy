@@ -152,7 +152,11 @@ def size_limits(root):
                         cue_mgmt, re.S)
     if catalog:
         limits["formats"] = len(re.findall(r"^\s*\{\"", catalog.group(1), re.M))
+    main_cpp = read(os.path.join(root, "native", "main.cpp"))
+    phones = re.search(r"constexpr\s+int\s+kMaxPhoneRows\s*=\s*(\d+)", main_cpp)
     return {
+        # Settings > Video Outputs > Phones: one row per phone, at most this many.
+        "kMaxPhoneRows": int(phones.group(1)) if phones else None,
         "project_.decks.size()": limits.get("kMaxDecks"),
         "project_.outputs.size()": limits.get("kMaxOutputs"),
         "encoderFormatCatalog().size()": limits.get("formats"),

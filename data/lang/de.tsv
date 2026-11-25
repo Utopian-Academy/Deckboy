@@ -4930,3 +4930,20 @@ A cue's own TRANSITION and STYLE win.	ÜBERGANG und STIL eines Cues haben Vorran
 Zoom, focus and the rest are on a phone.	Vergrößerung, Fokus und der Rest sind auf einem Telefon.
 Not on air: the picture shows it once taken.	Nicht auf Sendung: das Bild zeigt es nach dem Nehmen.
 Deleted {1}	{1} gelöscht
+in step	synchron
+Phone {1}	Telefon {1}
+Fetched {1}	{1} geladen
+MISSING {1}	FEHLT {1}
+{1} plays {2}	{1} spielt {2}
+{1} frames off	{1} Bilder versetzt
+Not here now: {1}	Jetzt nicht hier: {1}
+fetching {1} {2}%	lade {1} {2}%
+Could not read {1}	{1} konnte nicht gelesen werden
+Playlist {1} (gone)	Playlist {1} (weg)
+Could not fetch {1}: {2}	{1} konnte nicht geladen werden: {2}
+No phone is following this desk	Kein Telefon folgt diesem Pult
+This desk leads: phones can follow it	Dieses Pult führt: Telefone können ihm folgen
+PLAYS FOCUS, DARK or a playlist number	PLAYS FOCUS, DARK oder eine Playlist-Nummer
+This desk is not leading, so no phone can follow it	Dieses Pult führt nicht, daher kann ihm kein Telefon folgen
+On the phone: MENU > SYNC, then type this desk's address	Auf dem Telefon: MENÜ > SYNC, dann die Adresse dieses Pults eingeben
+OUTPUT PHONE <name|number> PLAYS <FOCUS|DARK|playlist> or IDENTIFY	OUTPUT PHONE <Name|Nummer> PLAYS <FOCUS|DARK|Playlist> oder IDENTIFY

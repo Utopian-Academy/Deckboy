@@ -4968,3 +4968,21 @@ A cue's own TRANSITION and STYLE win.	क्यू का अपना संक
 Zoom, focus and the rest are on a phone.	ज़ूम, फ़ोकस और बाकी सब फ़ोन पर हैं।
 Not on air: the picture shows it once taken.	ऑन एयर नहीं: take होने पर चित्र इसे दिखाएगा।
 Deleted {1}	{1} हटाया गया
+in step	तालमेल में
+Phone {1}	फ़ोन {1}
+Fetched {1}	{1} प्राप्त हुआ
+MISSING {1}	अनुपलब्ध {1}
+Playlist {1}	प्लेलिस्ट {1}
+{1} plays {2}	{1} {2} बजाता है
+{1} frames off	{1} फ़्रेम का अंतर
+Not here now: {1}	अभी यहाँ नहीं: {1}
+fetching {1} {2}%	{1} प्राप्त हो रहा है {2}%
+Could not read {1}	{1} पढ़ नहीं सके
+Playlist {1} (gone)	प्लेलिस्ट {1} (हटा दी गई)
+Could not fetch {1}: {2}	{1} प्राप्त नहीं कर सके: {2}
+No phone is following this desk	कोई फ़ोन इस डेस्क का अनुसरण नहीं कर रहा
+This desk leads: phones can follow it	यह डेस्क अग्रणी है: फ़ोन इसका अनुसरण कर सकते हैं
+PLAYS FOCUS, DARK or a playlist number	PLAYS FOCUS, DARK या प्लेलिस्ट संख्या
+This desk is not leading, so no phone can follow it	यह डेस्क अग्रणी नहीं है, इसलिए कोई फ़ोन इसका अनुसरण नहीं कर सकता
+On the phone: MENU > SYNC, then type this desk's address	फ़ोन पर: मेनू > SYNC, फिर इस डेस्क का पता लिखें
+OUTPUT PHONE <name|number> PLAYS <FOCUS|DARK|playlist> or IDENTIFY	OUTPUT PHONE <नाम|संख्या> PLAYS <FOCUS|DARK|प्लेलिस्ट> या IDENTIFY

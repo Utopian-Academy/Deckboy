@@ -4965,3 +4965,21 @@ A cue's own TRANSITION and STYLE win.	cue 自身的轉場與樣式優先。
 Zoom, focus and the rest are on a phone.	縮放、聚焦等都在電話上。
 Not on air: the picture shows it once taken.	未播出：取用後畫面才會顯示。
 Deleted {1}	已刪除 {1}
+in step	同步
+Phone {1}	電話 {1}
+Fetched {1}	已擷取 {1}
+MISSING {1}	缺少 {1}
+Playlist {1}	播放清單 {1}
+{1} plays {2}	{1} 播放 {2}
+{1} frames off	偏差影格數 {1}
+Not here now: {1}	目前不在此處：{1}
+fetching {1} {2}%	正在擷取 {1} {2}%
+Could not read {1}	無法讀取 {1}
+Playlist {1} (gone)	播放清單 {1}（已移除）
+Could not fetch {1}: {2}	無法擷取 {1}：{2}
+No phone is following this desk	沒有電話正在跟隨此控制台
+This desk leads: phones can follow it	此控制台主導：電話可跟隨它
+PLAYS FOCUS, DARK or a playlist number	PLAYS FOCUS, DARK 或播放清單編號
+This desk is not leading, so no phone can follow it	此控制台未主導，因此沒有電話能跟隨它
+On the phone: MENU > SYNC, then type this desk's address	在電話上：選單 > SYNC，然後輸入此控制台的位址
+OUTPUT PHONE <name|number> PLAYS <FOCUS|DARK|playlist> or IDENTIFY	OUTPUT PHONE <名稱|編號> PLAYS <FOCUS|DARK|播放清單> 或 IDENTIFY

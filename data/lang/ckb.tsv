@@ -4968,3 +4968,21 @@ A cue's own TRANSITION and STYLE win.	گواستنەوە و شێوازی خود�
 Zoom, focus and the rest are on a phone.	زووم، فۆکەس و ئەوانی تر لەسەر تەلەفۆنن.
 Not on air: the picture shows it once taken.	لە پەخش نییە: وێنەکە نیشانی دەدات کاتێک وەردەگیرێت.
 Deleted {1}	{1} سڕایەوە
+in step	هاوکات
+Phone {1}	تەلەفۆن {1}
+Fetched {1}	{1} وەرگیرا
+MISSING {1}	ون بووە {1}
+Playlist {1}	لیستی لێدان {1}
+{1} plays {2}	{1} {2} لێ دەدات
+{1} frames off	جیاوازی {1} چوارچێوە
+Not here now: {1}	ئێستا لێرە نییە: {1}
+fetching {1} {2}%	وەرگرتنی {1} {2}%
+Could not read {1}	{1} نەخوێندرایەوە
+Playlist {1} (gone)	لیستی لێدان {1} (نەماوە)
+Could not fetch {1}: {2}	{1} وەرنەگیرا: {2}
+No phone is following this desk	هیچ تەلەفۆنێک شوێن ئەم مێزی کۆنترۆڵە ناکەوێت
+This desk leads: phones can follow it	ئەم مێزی کۆنترۆڵە ڕابەرە: تەلەفۆنەکان دەتوانن شوێنی بکەون
+PLAYS FOCUS, DARK or a playlist number	PLAYS FOCUS، DARK یان ژمارەی لیستی لێدان
+This desk is not leading, so no phone can follow it	ئەم مێزی کۆنترۆڵە ڕابەر نییە، بۆیە هیچ تەلەفۆنێک ناتوانێت شوێنی بکەوێت
+On the phone: MENU > SYNC, then type this desk's address	لەسەر تەلەفۆن: مێنیو > SYNC، پاشان ناونیشانی ئەم مێزی کۆنترۆڵە بنووسە
+OUTPUT PHONE <name|number> PLAYS <FOCUS|DARK|playlist> or IDENTIFY	OUTPUT PHONE <ناو|ژمارە> PLAYS <FOCUS|DARK|لیستی لێدان> یان IDENTIFY

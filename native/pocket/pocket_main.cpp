@@ -982,6 +982,8 @@ class Pocket {
     for (auto& [id, list] : stillsTex_) for (SDL_Texture* t : list) if (t) SDL_DestroyTexture(t);
     dirCancel_ = true;
     if (dirThread_.joinable()) dirThread_.join();
+    fetchStop_ = true;
+    if (fetchThread_.joinable()) fetchThread_.join();
     dropFollowSocket();
     if (shellTex_) SDL_DestroyTexture(shellTex_);
     for (RemoteClient& c : clients_) closeSocket(c.socket);
@@ -3967,6 +3969,11 @@ class Pocket {
     if (testPattern_ || SDL_GetTicks() < identifyUntil_) {
       char id[160];
       std::snprintf(id, sizeof id, "DECKBOY POCKET  OUTPUT 1  %dx%d", ow, oh);
+      if (follow_ != Follow::Off && phoneNumber_ > 0) {
+        const std::string shows = assignPlays_ == "dark" ? std::string("DARK")
+                                : assignPlays_ == "focus" ? std::string("FOCUS") : "PLAYLIST " + std::to_string(assignDeck_);
+        std::snprintf(id, sizeof id, "PHONE %d  %s", phoneNumber_, shows.c_str());
+      }
       if (!identifyFont_ || identifyFontH_ != bh) {
         if (identifyFont_) { deckboy::render::shaping::forgetFace(identifyFont_); TTF_CloseFont(identifyFont_); }
         const char* root = SDL_getenv("DECKBOY_ROOT");
@@ -4610,6 +4617,28 @@ class Pocket {
 
   struct ClockSample { Sint64 offset; Uint64 rtt; };
 
+  // key=value pairs; a value in quotes may hold spaces.
+  static std::map<std::string, std::string> syncFields(const std::string& body) {
+    std::map<std::string, std::string> out;
+    std::size_t at = 0;
+    while (at < body.size()) {
+      while (at < body.size() && body[at] == ' ') ++at;
+      const std::size_t eq = body.find('=', at);
+      if (eq == std::string::npos) break;
+      const std::string k = body.substr(at, eq - at);
+      if (eq + 1 < body.size() && body[eq + 1] == '"') {
+        const std::size_t close = body.find('"', eq + 2);
+        out[k] = body.substr(eq + 2, (close == std::string::npos ? body.size() : close) - eq - 2);
+        at = close == std::string::npos ? body.size() : close + 1;
+      } else {
+        const std::size_t sp = body.find(' ', eq + 1);
+        out[k] = body.substr(eq + 1, (sp == std::string::npos ? body.size() : sp) - eq - 1);
+        at = sp == std::string::npos ? body.size() : sp + 1;
+      }
+    }
+    return out;
+  }
+
   static bool parseSyncLine(const std::string& line, SyncLine& out) {
     if (line.rfind("SYNC ", 0) != 0) return false;
     // key=value pairs; a value in quotes may hold spaces (file=, name=).
@@ -4773,6 +4802,9 @@ class Pocket {
     followError_.clear();
     syncCue_.clear();
     missingCue_.clear();
+    assignPlays_ = "focus";
+    assignName_.clear();
+    assignDeck_ = phoneNumber_ = 0;
     saveSyncSettings();
   }
 
@@ -4833,6 +4865,19 @@ class Pocket {
         return;
       }
       return;
+    }
+    finishFetch();
+    // How this phone is doing, for its row on the desk.
+    if (now >= nextReport_) {
+      nextReport_ = now + 1000;
+      std::string missing = missingCue_;
+      std::replace(missing.begin(), missing.end(), '"', '\'');
+      std::ostringstream o;
+      o << std::fixed << std::setprecision(1) << "SYNC REPORT state=" << (follow_ == Follow::Following ? "following" : "lost")
+        << " drift=" << std::fabs(driftFrames_) << " battery=" << battery_
+        << " heat=" << (thermal_ >= 3 ? "hot" : thermal_ == 2 ? "warm" : "cool")
+        << " fetch=" << fetchPercent_.load() << " missing=\"" << missing << "\"\n";
+      followSend(o.str());
     }
     // Clock probes: quick at first, then every two seconds.
     if (now >= nextTimeProbe_) {
@@ -4907,6 +4952,26 @@ class Pocket {
       }
       return;
     }
+    // The desk says what this phone shows, and its number there.
+    if (line.rfind("SYNC ASSIGN ", 0) == 0) {
+      const auto f = syncFields(line.substr(12));
+      auto get = [&](const char* k) { const auto it = f.find(k); return it == f.end() ? std::string() : it->second; };
+      assignPlays_ = get("plays").empty() ? "focus" : get("plays");
+      assignDeck_ = std::atoi(get("deck").c_str());
+      assignName_ = get("name");
+      phoneNumber_ = std::atoi(get("number").c_str());
+      SDL_Log("pocket: the desk has this phone (number %d) show %s", phoneNumber_, assignPlays_.c_str());
+      lastHeard_ = now;
+      return;
+    }
+    if (line.rfind("SYNC IDENTIFY", 0) == 0) {
+      const auto f = syncFields(line.size() > 14 ? line.substr(14) : std::string());
+      const auto it = f.find("number");
+      if (it != f.end()) phoneNumber_ = std::atoi(it->second.c_str());
+      identifyUntil_ = now + 4000;
+      buzz("lock");
+      return;
+    }
     SyncLine sync;
     if (parseSyncLine(line, sync)) {
       lastHeard_ = now;
@@ -4974,9 +5039,11 @@ class Pocket {
       syncCue_ = sync.cue;
       const int local = localCueFor(sync);
       if (local < 0) {
-        // Never show the wrong picture: go dark and say which cue is missing.
+        // Never show the wrong picture: go dark and say which cue is missing,
+        // and fetch its media from the desk.
         missingCue_ = !sync.name.empty() ? sync.name : !sync.file.empty() ? sync.file : "cue " + std::to_string(sync.num);
         if (active_ >= 0) { engine_->clear(); active_ = -1; }
+        startFetch(sync);
         return;
       }
       missingCue_.clear();
@@ -5025,6 +5092,157 @@ class Pocket {
     }
   }
 
+  // -- FETCHING A CUE'S MEDIA FROM THE DESK --
+  //
+  // A second connection to the desk's remote port: "SYNC MEDIA <cue id>",
+  // and the desk answers "OK MEDIA <bytes> <file name>" and the file. It
+  // lands in Pocket's media folder (".part" until whole), becomes a cue, and
+  // the desk's next line finds it by its file name. A cue the desk cannot
+  // give (a stream, a generator, a file it cannot read) is not asked again.
+  // A blocking recv that waited out SO_RCVTIMEO (not an error: the desk is slow).
+  static bool recvTimedOut() {
+#ifdef _WIN32
+    const int e = WSAGetLastError();
+    return e == WSAETIMEDOUT || e == WSAEWOULDBLOCK;
+#else
+    return errno == EAGAIN || errno == EWOULDBLOCK || errno == EINTR;
+#endif
+  }
+
+  void startFetch(const SyncLine& sync) {
+    if (fetchThread_.joinable() || sync.cue == "-") return;
+    if (std::find(fetchRefused_.begin(), fetchRefused_.end(), sync.cue) != fetchRefused_.end()) return;
+    if (sync.file.empty() || sync.file.rfind("pattern://", 0) == 0) return;
+    fetchCue_ = sync.cue;
+    fetchName_ = sync.name;
+    fetchPercent_ = 0;
+    fetchDone_ = false;
+    fetchStop_ = false;
+    const sockaddr_in addr = followAddr_;
+    const std::string id = sync.cue, dir = mediaDir_;
+    fetchThread_ = std::thread([this, addr, id, dir] { fetchMedia(addr, id, dir); });
+  }
+
+  void fetchMedia(sockaddr_in addr, const std::string& id, const std::string& dir) {
+    std::string error, path;
+    const SocketHandle sock = static_cast<SocketHandle>(socket(AF_INET, SOCK_STREAM, 0));
+    auto done = [&] {
+      if (sock != kInvalidSocket) closeSocket(sock);
+      std::lock_guard<std::mutex> hold(fetchLock_);
+      fetchError_ = error;
+      fetchPath_ = path;
+      fetchDone_ = true;
+    };
+    if (sock == kInvalidSocket) { error = "No network socket"; done(); return; }
+#ifdef _WIN32
+    DWORD wait = 2000;
+    setsockopt(sock, SOL_SOCKET, SO_RCVTIMEO, reinterpret_cast<const char*>(&wait), sizeof wait);
+#else
+    timeval wait {2, 0};
+    setsockopt(sock, SOL_SOCKET, SO_RCVTIMEO, &wait, sizeof wait);
+#endif
+    if (connect(sock, reinterpret_cast<const sockaddr*>(&addr), sizeof addr) != 0) { error = "Cannot reach the desk"; done(); return; }
+    const std::string ask = "SYNC MEDIA " + id + "\n";
+    if (send(sock, ask.data(), static_cast<int>(ask.size()), kSocketSendFlags) != static_cast<int>(ask.size())) {
+      error = "The desk did not take the request";
+      done();
+      return;
+    }
+    // The answer's first line, a byte at a time (the file follows it).
+    std::string head;
+    int quiet = 0;
+    while (head.size() < 1024 && !fetchStop_.load()) {
+      char c = 0;
+      const int n = static_cast<int>(recv(sock, &c, 1, 0));
+      if (n == 1) { if (c == '\n') break; head += c; continue; }
+      if (n == 0 || !recvTimedOut() || ++quiet > 5) break;
+    }
+    if (!head.empty() && head.back() == '\r') head.pop_back();
+    if (head.rfind("OK MEDIA ", 0) != 0) {
+      error = head.rfind("ERR MEDIA: ", 0) == 0 ? head.substr(11) : std::string("The desk did not answer");
+      done();
+      return;
+    }
+    std::istringstream in(head.substr(9));
+    long long size = -1;
+    in >> size;
+    std::string name;
+    std::getline(in, name);
+    while (!name.empty() && name.front() == ' ') name.erase(name.begin());
+    for (char& ch : name) if (ch == '/' || ch == '\\' || ch == ':') ch = '_';
+    if (name.empty() || name == "." || name == "..") name = "from-desk-" + id;
+    if (size < 0) { error = "The desk sent no size"; done(); return; }
+    const std::string target = joinPath(dir, name);
+    const std::string part = target + ".part";
+    SDL_IOStream* out = SDL_IOFromFile(part.c_str(), "wb");
+    if (!out) { error = "No room for it on this phone"; done(); return; }
+    std::vector<char> buf(256 * 1024);
+    long long got = 0;
+    quiet = 0;
+    while (got < size && !fetchStop_.load()) {
+      const int n = static_cast<int>(recv(sock, buf.data(), static_cast<int>(std::min<long long>(size - got, static_cast<long long>(buf.size()))), 0));
+      if (n > 0) {
+        if (SDL_WriteIO(out, buf.data(), static_cast<std::size_t>(n)) != static_cast<std::size_t>(n)) { error = "This phone is full"; break; }
+        got += n;
+        quiet = 0;
+        fetchPercent_ = size > 0 ? static_cast<int>(got * 100 / size) : 100;
+        continue;
+      }
+      if (n == 0 || !recvTimedOut() || ++quiet > 5) { error = "The desk stopped sending"; break; }
+    }
+    SDL_CloseIO(out);
+    std::error_code ec;
+    if (got == size && error.empty()) {
+      dbfs::remove(dbfs::path(target), ec);
+      dbfs::rename(dbfs::path(part), dbfs::path(target), ec);
+      if (ec) error = "Could not keep the file";
+      else path = target;
+    } else {
+      dbfs::remove(dbfs::path(part), ec);
+      if (error.empty()) error = "Stopped";
+    }
+    done();
+  }
+
+  // On the main thread: a finished fetch becomes a cue.
+  void finishFetch() {
+    if (!fetchDone_.load()) return;
+    if (fetchThread_.joinable()) fetchThread_.join();
+    fetchDone_ = false;
+    fetchPercent_ = -1;
+    std::string path, error;
+    {
+      std::lock_guard<std::mutex> hold(fetchLock_);
+      path = fetchPath_;
+      error = fetchError_;
+    }
+    if (path.empty()) {
+      fetchRefused_.push_back(fetchCue_);
+      SDL_Log("pocket: fetching %s from the desk: %s", fetchName_.c_str(), error.c_str());
+      notice_ = deckboy::core::i18n::format("Could not fetch {1}: {2}", {fetchName_, deckboy::core::i18n::translate(error)});
+      noticeUntil_ = SDL_GetTicks() + 5000;
+      return;
+    }
+    std::optional<Cue> probed = deckboy::core::media::probeCue(dbfs::path(path));
+    if (!probed) {
+      fetchRefused_.push_back(fetchCue_);
+      notice_ = deckboy::core::i18n::format("Could not read {1}", {fetchName_});
+      noticeUntil_ = SDL_GetTicks() + 5000;
+      return;
+    }
+    Cue cue = std::move(*probed);
+    cue.id = "pocket-" + std::to_string(++nextId_);
+    applyDefaults(cue);
+    if (cue.kind == CueKind::Image) cue.stillDurationSeconds = 0.0;
+    cue.pauseOnLastFrame = true;
+    if (!fetchName_.empty()) cue.name = fetchName_;
+    cues_.push_back(std::move(cue));
+    SDL_Log("pocket: fetched %s from the desk", path.c_str());
+    notice_ = deckboy::core::i18n::format("Fetched {1}", {fetchName_});
+    noticeUntil_ = SDL_GetTicks() + 3000;
+    syncCue_.clear();   // the desk's next line takes it
+  }
+
   bool followLocked() {
     if (follow_ == Follow::Off) return false;
     notice_ = "The desk has GO while following. MENU > SYNC to stop.";
@@ -5037,7 +5255,11 @@ class Pocket {
     switch (state) {
       case Follow::Connecting: return "FINDING DESK";
       case Follow::Joining: return "JOINING DESK";
-      case Follow::Following: return missingCue_.empty() ? "FOLLOWING DESK" : "MISSING CUE";
+      case Follow::Following:
+        if (!missingCue_.empty()) return fetchPercent_.load() >= 0 ? "FETCHING " + std::to_string(fetchPercent_.load()) + "%" : "MISSING CUE";
+        if (assignPlays_ == "dark") return "DARK";
+        if (assignPlays_ != "focus" && assignDeck_ > 0) return "PLAYLIST " + std::to_string(assignDeck_);
+        return "FOLLOWING DESK";
       case Follow::Lost: return "LOST THE DESK";
       default: return "DECKBOY POCKET";
     }
@@ -6088,7 +6310,10 @@ class Pocket {
   // lets the phone draw ten times a second instead of sixty.
 
   bool faceShown() const { return active_ < 0 && !splashing(); }
-  bool faceAsleep() const { return SDL_GetTicks() - lastInputMs_ > 45000 && facePokes_.fleeStartedMs == 0; }
+  // Asleep after five minutes without a touch (was 45 s; James 11-25: "it falls
+  // asleep too quickly").
+  static constexpr Uint64 kFaceSleepMs = 5 * 60 * 1000;
+  bool faceAsleep() const { return SDL_GetTicks() - lastInputMs_ > kFaceSleepMs && facePokes_.fleeStartedMs == 0; }
 
   // ── Shake him (James 11-20) ──
   //
@@ -8955,6 +9180,18 @@ class Pocket {
   bool clockReady_ = false;
   SyncLine lastSync_;
   std::string syncCue_, missingCue_;
+  // What the desk has this phone show (SYNC ASSIGN): "focus", "dark" or a
+  // playlist number; the playlist's name; this phone's number on that desk.
+  std::string assignPlays_ = "focus", assignName_;
+  int assignDeck_ = 0, phoneNumber_ = 0;
+  Uint64 nextReport_ = 0;
+  // A cue's media fetched from the desk (SYNC MEDIA), on a thread of its own.
+  std::thread fetchThread_;
+  std::atomic<int> fetchPercent_ {-1};
+  std::atomic<bool> fetchDone_ {false}, fetchStop_ {false};
+  std::mutex fetchLock_;
+  std::string fetchCue_, fetchName_, fetchPath_, fetchError_;
+  std::vector<std::string> fetchRefused_;   // cues the desk could not give: not asked again this session
   double driftFrames_ = 0.0;
   double seekLead_ = 0.0;   // seconds a seek takes to land; measured, then set
   int syncSeeks_ = 0;

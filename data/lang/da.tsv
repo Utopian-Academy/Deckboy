@@ -4913,3 +4913,21 @@ A cue's own TRANSITION and STYLE win.	En cues egen OVERGANG og STIL vinder.
 Zoom, focus and the rest are on a phone.	Forstørrelse, fokus og resten findes på en telefon.
 Not on air: the picture shows it once taken.	Ikke på luften: billedet viser det efter take.
 Deleted {1}	{1} slettet
+in step	i takt
+Phone {1}	Telefon {1}
+Fetched {1}	Hentet {1}
+MISSING {1}	MANGLER {1}
+Playlist {1}	Playliste {1}
+{1} plays {2}	{1} spiller {2}
+{1} frames off	{1} billeder forskudt
+Not here now: {1}	Ikke her nu: {1}
+fetching {1} {2}%	henter {1} {2}%
+Could not read {1}	Kunne ikke læse {1}
+Playlist {1} (gone)	Playliste {1} (væk)
+Could not fetch {1}: {2}	Kunne ikke hente {1}: {2}
+No phone is following this desk	Ingen telefon følger denne pult
+This desk leads: phones can follow it	Denne pult fører: telefoner kan følge den
+PLAYS FOCUS, DARK or a playlist number	PLAYS FOCUS, DARK eller et playlistenummer
+This desk is not leading, so no phone can follow it	Denne pult fører ikke, så ingen telefon kan følge den
+On the phone: MENU > SYNC, then type this desk's address	På telefonen: MENU > SYNC, og skriv så denne pults adresse
+OUTPUT PHONE <name|number> PLAYS <FOCUS|DARK|playlist> or IDENTIFY	OUTPUT PHONE <navn|nummer> PLAYS <FOCUS|DARK|playliste> eller IDENTIFY

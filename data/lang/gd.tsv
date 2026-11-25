@@ -4961,3 +4961,21 @@ A cue's own TRANSITION and STYLE win.	Buannaichidh GLUASAD is STOIDHLE a' cue fh
 Zoom, focus and the rest are on a phone.	Tha sùm, fòcas is an còrr air fòn.
 Not on air: the picture shows it once taken.	Chan eil e air an adhar: seallaidh an dealbh e nuair a ghabhar e.
 Deleted {1}	{1} air a sguabadh às
+in step	ann an ceum
+Phone {1}	Fòn {1}
+Fetched {1}	Fhuaradh {1}
+MISSING {1}	A DHÌTH {1}
+Playlist {1}	Liosta {1}
+{1} plays {2}	Cluichidh {1} {2}
+{1} frames off	diofar {1} frèamaichean
+Not here now: {1}	Chan eil an seo a-nis: {1}
+fetching {1} {2}%	a' faighinn {1} {2}%
+Could not read {1}	Cha deach {1} a leughadh
+Playlist {1} (gone)	Liosta {1} (air falbh)
+Could not fetch {1}: {2}	Cha deach {1} fhaighinn: {2}
+No phone is following this desk	Chan eil fòn sam bith a' leantainn an deasg seo
+This desk leads: phones can follow it	Tha an deasg seo a' stiùireadh: faodaidh fònaichean a leantainn
+PLAYS FOCUS, DARK or a playlist number	PLAYS FOCUS, DARK no àireamh liosta
+This desk is not leading, so no phone can follow it	Chan eil an deasg seo a' stiùireadh, mar sin chan urrainn do dh'fhòn sam bith a leantainn
+On the phone: MENU > SYNC, then type this desk's address	Air an fhòn: CLÀR > SYNC, an uairsin sgrìobh seòladh an deasga seo
+OUTPUT PHONE <name|number> PLAYS <FOCUS|DARK|playlist> or IDENTIFY	OUTPUT PHONE <ainm|àireamh> PLAYS <FOCUS|DARK|liosta> no IDENTIFY

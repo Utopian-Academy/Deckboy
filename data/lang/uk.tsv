@@ -4967,3 +4967,21 @@ A cue's own TRANSITION and STYLE win.	Власні ПЕРЕХІД і СТИЛЬ 
 Zoom, focus and the rest are on a phone.	Масштаб, фокус та інше — на телефоні.
 Not on air: the picture shows it once taken.	Не в ефірі: зображення покаже його після take.
 Deleted {1}	Видалено {1}
+in step	синхронно
+Phone {1}	Телефон {1}
+Fetched {1}	Отримано: {1}
+MISSING {1}	ВІДСУТНЄ {1}
+Playlist {1}	Плейлист {1}
+{1} plays {2}	{1} грає {2}
+{1} frames off	розбіжність: {1} кадр.
+Not here now: {1}	Зараз немає: {1}
+fetching {1} {2}%	отримання {1} {2}%
+Could not read {1}	Не вдалося прочитати {1}
+Playlist {1} (gone)	Плейлист {1} (видалено)
+Could not fetch {1}: {2}	Не вдалося отримати {1}: {2}
+No phone is following this desk	Жоден телефон не слідує за цим оператором
+This desk leads: phones can follow it	Цей оператор ведучий: телефони можуть слідувати за ним
+PLAYS FOCUS, DARK or a playlist number	PLAYS FOCUS, DARK або номер плейлиста
+This desk is not leading, so no phone can follow it	Цей оператор не ведучий, тому жоден телефон не може слідувати за ним
+On the phone: MENU > SYNC, then type this desk's address	На телефоні: МЕНЮ > SYNC, потім введіть адресу цього пульта
+OUTPUT PHONE <name|number> PLAYS <FOCUS|DARK|playlist> or IDENTIFY	OUTPUT PHONE <назва|номер> PLAYS <FOCUS|DARK|плейлист> або IDENTIFY

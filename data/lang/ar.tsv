@@ -4981,3 +4981,21 @@ A cue's own TRANSITION and STYLE win.	الانتقال والنمط الخاصا
 Zoom, focus and the rest are on a phone.	التكبير والتركيز والباقي على الهاتف.
 Not on air: the picture shows it once taken.	ليس على الهواء: يظهر في الصورة عند take.
 Deleted {1}	حُذف {1}
+in step	متزامن
+Phone {1}	هاتف {1}
+Fetched {1}	تم جلب {1}
+MISSING {1}	مفقود {1}
+Playlist {1}	قائمة التشغيل {1}
+{1} plays {2}	{1} يعزف {2}
+{1} frames off	فارق {1} إطارات
+Not here now: {1}	ليس هنا الآن: {1}
+fetching {1} {2}%	جارٍ جلب {1} {2}%
+Could not read {1}	تعذرت قراءة {1}
+Playlist {1} (gone)	قائمة التشغيل {1} (محذوفة)
+Could not fetch {1}: {2}	تعذر جلب {1}: {2}
+No phone is following this desk	لا يتبع أي هاتف طاولة التحكم هذه
+This desk leads: phones can follow it	طاولة التحكم هذه تقود: يمكن للهواتف أن تتبعها
+PLAYS FOCUS, DARK or a playlist number	PLAYS FOCUS أو DARK أو رقم قائمة التشغيل
+This desk is not leading, so no phone can follow it	طاولة التحكم هذه لا تقود، لذا لا يمكن لأي هاتف أن يتبعها
+On the phone: MENU > SYNC, then type this desk's address	على الهاتف: القائمة > SYNC، ثم اكتب عنوان طاولة التحكم هذه
+OUTPUT PHONE <name|number> PLAYS <FOCUS|DARK|playlist> or IDENTIFY	OUTPUT PHONE <الاسم|الرقم> PLAYS <FOCUS|DARK|قائمة التشغيل> أو IDENTIFY

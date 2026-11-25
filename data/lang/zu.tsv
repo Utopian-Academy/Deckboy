@@ -4953,3 +4953,21 @@ A cue's own TRANSITION and STYLE win.	UKUGUQULA kanye ne-ISITAYELA se-cue uqobo 
 Zoom, focus and the rest are on a phone.	Ukusondeza, ukugxila nokunye kusocingweni.
 Not on air: the picture shows it once taken.	Ayikho emoyeni: isithombe siyayibonisa uma isithathiwe.
 Deleted {1}	Kususwe {1}
+in step	ihambisana
+Phone {1}	Ucingo {1}
+Fetched {1}	Kulandiwe {1}
+MISSING {1}	AKUTHOLAKALI {1}
+Playlist {1}	Uhlu {1}
+{1} plays {2}	{1} idlala {2}
+{1} frames off	Iphambuke ngozimele {1}
+Not here now: {1}	Akukho lapha manje: {1}
+fetching {1} {2}%	ilanda {1} {2}%
+Could not read {1}	Ayikwazanga ukufunda {1}
+Playlist {1} (gone)	Uhlu {1} (alusekho)
+Could not fetch {1}: {2}	Ayikwazanga ukulanda {1}: {2}
+No phone is following this desk	Alukho ucingo olulandela leli deski
+This desk leads: phones can follow it	Leli deski liyahola: izingcingo zingalilandela
+PLAYS FOCUS, DARK or a playlist number	PLAYS FOCUS, DARK noma inombolo yohlu
+This desk is not leading, so no phone can follow it	Leli deski aliholi, ngakho alukho ucingo olungalilandela
+On the phone: MENU > SYNC, then type this desk's address	Ocingweni: IMENYU > SYNC, bese uthayipha ikheli laleli deski
+OUTPUT PHONE <name|number> PLAYS <FOCUS|DARK|playlist> or IDENTIFY	OUTPUT PHONE <igama|inombolo> PLAYS <FOCUS|DARK|uhlu> noma IDENTIFY

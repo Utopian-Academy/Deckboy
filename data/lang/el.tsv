@@ -4961,3 +4961,21 @@ A cue's own TRANSITION and STYLE win.	Η ΜΕΤΑΒΑΣΗ και το ΣΤΥΛ �
 Zoom, focus and the rest are on a phone.	Ζουμ, εστίαση και τα υπόλοιπα είναι σε τηλέφωνο.
 Not on air: the picture shows it once taken.	Όχι στον αέρα: η εικόνα το δείχνει μετά το take.
 Deleted {1}	Διαγράφηκε: {1}
+in step	σε συγχρονισμό
+Phone {1}	Τηλέφωνο {1}
+Fetched {1}	Λήφθηκε {1}
+MISSING {1}	ΛΕΙΠΕΙ {1}
+Playlist {1}	Λίστα {1}
+{1} plays {2}	{1} παίζει {2}
+{1} frames off	απόκλιση {1} καρέ
+Not here now: {1}	Δεν είναι εδώ τώρα: {1}
+fetching {1} {2}%	λήψη {1} {2}%
+Could not read {1}	Αδυναμία ανάγνωσης {1}
+Playlist {1} (gone)	Λίστα {1} (δεν υπάρχει)
+Could not fetch {1}: {2}	Αδυναμία λήψης {1}: {2}
+No phone is following this desk	Κανένα τηλέφωνο δεν ακολουθεί αυτή την κονσόλα
+This desk leads: phones can follow it	Αυτή η κονσόλα οδηγεί: τα τηλέφωνα μπορούν να την ακολουθούν
+PLAYS FOCUS, DARK or a playlist number	PLAYS FOCUS, DARK ή αριθμός λίστας
+This desk is not leading, so no phone can follow it	Αυτή η κονσόλα δεν οδηγεί, άρα κανένα τηλέφωνο δεν μπορεί να την ακολουθήσει
+On the phone: MENU > SYNC, then type this desk's address	Στο τηλέφωνο: ΜΕΝΟΥ > SYNC, μετά πληκτρολόγησε τη διεύθυνση αυτής της κονσόλας
+OUTPUT PHONE <name|number> PLAYS <FOCUS|DARK|playlist> or IDENTIFY	OUTPUT PHONE <όνομα|αριθμός> PLAYS <FOCUS|DARK|λίστα> ή IDENTIFY

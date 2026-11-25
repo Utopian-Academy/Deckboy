@@ -4931,3 +4931,21 @@ A cue's own TRANSITION and STYLE win.	TRANSIZIONE e STILE propri del cue hanno l
 Zoom, focus and the rest are on a phone.	Ingrandimento, fuoco e il resto sono sul telefono.
 Not on air: the picture shows it once taken.	Non in onda: l'immagine lo mostra dopo il take.
 Deleted {1}	Eliminato: {1}
+in step	in sincronia
+Phone {1}	Telefono {1}
+Fetched {1}	Recuperato {1}
+MISSING {1}	MANCANTE {1}
+Playlist {1}	Scaletta {1}
+{1} plays {2}	{1} suona {2}
+{1} frames off	{1} fotogrammi di scarto
+Not here now: {1}	Ora non presente: {1}
+fetching {1} {2}%	recupero {1} {2}%
+Could not read {1}	Impossibile leggere {1}
+Playlist {1} (gone)	Scaletta {1} (rimossa)
+Could not fetch {1}: {2}	Impossibile recuperare {1}: {2}
+No phone is following this desk	Nessun telefono segue questa console
+This desk leads: phones can follow it	Questa console guida: i telefoni possono seguirla
+PLAYS FOCUS, DARK or a playlist number	PLAYS FOCUS, DARK o un numero di scaletta
+This desk is not leading, so no phone can follow it	Questa console non guida, quindi nessun telefono può seguirla
+On the phone: MENU > SYNC, then type this desk's address	Sul telefono: MENU > SYNC, poi scrivi l'indirizzo di questa console
+OUTPUT PHONE <name|number> PLAYS <FOCUS|DARK|playlist> or IDENTIFY	OUTPUT PHONE <nome|numero> PLAYS <FOCUS|DARK|scaletta> o IDENTIFY

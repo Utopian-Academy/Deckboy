@@ -4958,3 +4958,21 @@ A cue's own TRANSITION and STYLE win.	DERBASBÛN û ŞÊWAZ yên cueyê bi xwe s
 Zoom, focus and the rest are on a phone.	Zûm, fokus û yên din li ser telefonê ne.
 Not on air: the picture shows it once taken.	Ne li çapê: dema hat girtin wêne wê nîşan dide.
 Deleted {1}	{1} hat jêbirin
+in step	hevdem
+Phone {1}	Telefon {1}
+Fetched {1}	{1} hat anîn
+MISSING {1}	WINDA {1}
+Playlist {1}	Lîsteya lêxistinê {1}
+{1} plays {2}	{1} {2} lê dide
+{1} frames off	{1} çarçove dûr
+Not here now: {1}	Niha ne li vir e: {1}
+fetching {1} {2}%	{1} tê anîn {2}%
+Could not read {1}	{1} nehat xwendin
+Playlist {1} (gone)	Lîsteya lêxistinê {1} (nemaye)
+Could not fetch {1}: {2}	{1} nehat anîn: {2}
+No phone is following this desk	Tu telefon vê maseya kontrolê naşopîne
+This desk leads: phones can follow it	Ev maseya kontrolê pêşeng e: telefon dikarin wê bişopînin
+PLAYS FOCUS, DARK or a playlist number	PLAYS FOCUS, DARK an jî hejmara lîsteya lêxistinê
+This desk is not leading, so no phone can follow it	Ev maseya kontrolê ne pêşeng e, loma tu telefon nikare wê bişopîne
+On the phone: MENU > SYNC, then type this desk's address	Li ser telefonê: MENÛ > SYNC, paşê navnîşana vê maseya kontrolê binivîse
+OUTPUT PHONE <name|number> PLAYS <FOCUS|DARK|playlist> or IDENTIFY	OUTPUT PHONE <nav|hejmar> PLAYS <FOCUS|DARK|lîsteya lêxistinê> an jî IDENTIFY

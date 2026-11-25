@@ -4925,3 +4925,21 @@ A cue's own TRANSITION and STYLE win.	A TRANSIÇÃO e o ESTILO do próprio cue p
 Zoom, focus and the rest are on a phone.	Ampliação, foco e o resto ficam no telefone.
 Not on air: the picture shows it once taken.	Não está no ar: a imagem o mostra ao tomar.
 Deleted {1}	Excluído: {1}
+in step	em sincronia
+Phone {1}	Telefone {1}
+Fetched {1}	{1} baixado
+MISSING {1}	FALTANDO {1}
+Playlist {1}	Lista {1}
+{1} plays {2}	{1} toca {2}
+{1} frames off	{1} quadros de diferença
+Not here now: {1}	Ausente agora: {1}
+fetching {1} {2}%	baixando {1} {2}%
+Could not read {1}	Não foi possível ler {1}
+Playlist {1} (gone)	Lista {1} (removida)
+Could not fetch {1}: {2}	Não foi possível baixar {1}: {2}
+No phone is following this desk	Nenhum telefone está seguindo esta mesa
+This desk leads: phones can follow it	Esta mesa lidera: telefones podem segui-la
+PLAYS FOCUS, DARK or a playlist number	PLAYS FOCUS, DARK ou um número de playlist
+This desk is not leading, so no phone can follow it	Esta mesa não está liderando, então nenhum telefone pode segui-la
+On the phone: MENU > SYNC, then type this desk's address	No telefone: MENU > SYNC, depois digite o endereço desta mesa
+OUTPUT PHONE <name|number> PLAYS <FOCUS|DARK|playlist> or IDENTIFY	OUTPUT PHONE <nome|número> PLAYS <FOCUS|DARK|playlist> ou IDENTIFY

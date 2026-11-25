@@ -4979,3 +4979,21 @@ A cue's own TRANSITION and STYLE win.	ⴰⵎⵓⵜⵜⵉ ⴷ ⵓⵏⴰⵡ ⵏ cu
 Zoom, focus and the rest are on a phone.	ⴰⵙⵉⵎⵖⵓⵔ, ⴰⵙⴰⴹⴰⵙ ⴷ ⵡⵉⵢⵢⴰⴹ ⵍⵍⴰⵏ ⵖ ⵜⵉⵍⵉⵖⵔⵉ.
 Not on air: the picture shows it once taken.	ⵓⵔ ⵉⵍⵍⵉ ⵖ ⵜⵓⴼⴼⵖⴰ: ⵜⴰⵡⵍⴰⴼⵜ ⴰⴷ ⵜ ⵜⵙⵙⴽⵏ ⴷⴼⴼⵉⵔ TAKE.
 Deleted {1}	{1} ⵉⵜⵜⵓⴽⴽⵙ
+in step	ⵉⵎⵙⴰⵙⴰ
+Phone {1}	ⵜⵉⵍⵉⵖⵔⵉ {1}
+Fetched {1}	ⵜⵜⵓⵡⵉ {1}
+MISSING {1}	ⵓⵔ ⵉⵍⵍⵉ {1}
+Playlist {1}	ⵜⴰⴱⴷⴰⵔⵜ {1}
+{1} plays {2}	{1} ⵉⵜⵜⵖⵔⴰ {2}
+{1} frames off	{1} ⵜⵓⴳⵏⵉⵡⵉⵏ ⵏ ⵓⵎⵣⴰⵔⴰⵢ
+Not here now: {1}	ⵓⵔ ⵉⵍⵍⵉ ⵖⵉⴷ ⵖⵉⵍⴰ: {1}
+fetching {1} {2}%	ⴰⵡⴰⵢ ⵏ {1} {2}%
+Could not read {1}	ⵓⵔ ⵉⵣⵎⵉⵔ ⴰⴷ ⵉⵖⵔ {1}
+Playlist {1} (gone)	ⵜⴰⴱⴷⴰⵔⵜ {1} (ⵜⵜⵓⴽⴽⵙ)
+Could not fetch {1}: {2}	ⵓⵔ ⵉⵣⵎⵉⵔ ⴰⴷ ⵢⴰⵡⵉ {1}: {2}
+No phone is following this desk	ⵓⵔ ⵜⵍⵍⵉ ⵃⵜⵜⴰ ⵜⵉⵍⵉⵖⵔⵉ ⵉⵜⵜⴹⴼⴰⵔⵏ ⵜⴰⴼⵉⵍⵓⵜ ⴰⴷ
+This desk leads: phones can follow it	ⵜⴰⴼⵉⵍⵓⵜ ⴰⴷ ⵜⵜⵣⵡⵉⵔ: ⵜⵉⵍⵉⵖⵔⵉⵡⵉⵏ ⵣⵎⵔⵏⵜ ⴰⴷ ⵜⵜ ⴹⴼⵔⵏⵜ
+PLAYS FOCUS, DARK or a playlist number	PLAYS FOCUS, DARK ⵏⵖ ⵓⵟⵟⵓⵏ ⵏ ⵜⴱⴷⴰⵔⵜ
+This desk is not leading, so no phone can follow it	ⵜⴰⴼⵉⵍⵓⵜ ⴰⴷ ⵓⵔ ⵜⵜⵣⵡⵉⵔ, ⵓⵔ ⵜⵣⵎⵉⵔ ⵃⵜⵜⴰ ⵜⵉⵍⵉⵖⵔⵉ ⴰⴷ ⵜⵜ ⵜⴹⴼⵔ
+On the phone: MENU > SYNC, then type this desk's address	ⵖ ⵜⵉⵍⵉⵖⵔⵉ: ⵓⵎⵓⵖ > SYNC, ⴷⴼⴼⵉⵔ ⴰⵔⵓ ⵜⴰⵏⵙⴰ ⵏ ⵜⴼⵉⵍⵓⵜ ⴰⴷ
+OUTPUT PHONE <name|number> PLAYS <FOCUS|DARK|playlist> or IDENTIFY	OUTPUT PHONE <ⵉⵙⵎ|ⵓⵟⵟⵓⵏ> PLAYS <FOCUS|DARK|ⵜⴰⴱⴷⴰⵔⵜ> ⵏⵖ IDENTIFY

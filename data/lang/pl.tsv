@@ -4936,3 +4936,21 @@ A cue's own TRANSITION and STYLE win.	Wygrywają własne PRZEJŚCIE i STYL cue.
 Zoom, focus and the rest are on a phone.	Powiększenie, ostrość i reszta są na telefonie.
 Not on air: the picture shows it once taken.	Nie na antenie: obraz pokaże go po take.
 Deleted {1}	Usunięto {1}
+in step	w synchronizacji
+Phone {1}	Telefon {1}
+Fetched {1}	Pobrano {1}
+MISSING {1}	BRAKUJE {1}
+Playlist {1}	Playlista {1}
+{1} plays {2}	{1} gra {2}
+{1} frames off	{1} klatek różnicy
+Not here now: {1}	Teraz nieobecne: {1}
+fetching {1} {2}%	pobieranie {1} {2}%
+Could not read {1}	Nie można odczytać {1}
+Playlist {1} (gone)	Playlista {1} (usunięta)
+Could not fetch {1}: {2}	Nie udało się pobrać {1}: {2}
+No phone is following this desk	Żaden telefon nie śledzi tego pulpitu
+This desk leads: phones can follow it	Ten pulpit prowadzi: telefony mogą go śledzić
+PLAYS FOCUS, DARK or a playlist number	PLAYS FOCUS, DARK lub numer playlisty
+This desk is not leading, so no phone can follow it	Ten pulpit nie prowadzi, więc żaden telefon nie może go śledzić
+On the phone: MENU > SYNC, then type this desk's address	Na telefonie: MENU > SYNC, potem wpisz adres tego pulpitu
+OUTPUT PHONE <name|number> PLAYS <FOCUS|DARK|playlist> or IDENTIFY	OUTPUT PHONE <nazwa|numer> PLAYS <FOCUS|DARK|playlista> lub IDENTIFY

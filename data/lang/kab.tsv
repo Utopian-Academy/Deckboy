@@ -4951,3 +4951,21 @@ A cue's own TRANSITION and STYLE win.	AƐEDDI d UƔANIB n cue s yiman-is i yezwa
 Zoom, focus and the rest are on a phone.	Asimɣur, asaḍas d wayen nniḍen ɣef tiliɣri.
 Not on air: the picture shows it once taken.	Mačči deg tuffɣa: tugna ad t-tesken mi yettwaṭṭef.
 Deleted {1}	Yettwakkes {1}
+in step	yemtawa
+Phone {1}	Tiliɣri {1}
+Fetched {1}	{1} yettwasader
+MISSING {1}	IXUṢ {1}
+Playlist {1}	Tabdart {1}
+{1} plays {2}	{2} yettwaurar ɣef {1}
+{1} frames off	Amgired n {1} tugniwin
+Not here now: {1}	Ulac-it dagi tura: {1}
+fetching {1} {2}%	asader n {1} {2}%
+Could not read {1}	Ur yezmir ara ad yeɣer {1}
+Playlist {1} (gone)	Tabdart {1} (tettwakkes)
+Could not fetch {1}: {2}	Ur yezmir ara ad yesader {1}: {2}
+No phone is following this desk	Ulac tiliɣri i yeṭṭafaren ṭṭabla-agi
+This desk leads: phones can follow it	Ṭṭabla-agi yettwellih: tiliɣriyin zemrent ad tt-ḍfrent
+PLAYS FOCUS, DARK or a playlist number	PLAYS FOCUS, DARK neɣ uṭṭun n tbdart
+This desk is not leading, so no phone can follow it	Ṭṭabla-agi ur yettwellih ara, ihi ula d yiwet n tiliɣri ur tezmir ara ad tt-teḍfer
+On the phone: MENU > SYNC, then type this desk's address	Deg tiliɣri: UMUƔ > SYNC, sakin aru tansa n ṭṭabla-agi
+OUTPUT PHONE <name|number> PLAYS <FOCUS|DARK|playlist> or IDENTIFY	OUTPUT PHONE <isem|uṭṭun> PLAYS <FOCUS|DARK|tabdart> neɣ IDENTIFY

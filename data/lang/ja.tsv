@@ -4966,3 +4966,21 @@ A cue's own TRANSITION and STYLE win.	キュー自身のトランジションと
 Zoom, focus and the rest are on a phone.	ズーム、フォーカスなどは電話で。
 Not on air: the picture shows it once taken.	オンエア外: テイク後に映像に表示されます。
 Deleted {1}	{1}を削除しました
+in step	同期中
+Phone {1}	電話 {1}
+Fetched {1}	{1} を取得しました
+MISSING {1}	{1} が見つかりません
+Playlist {1}	プレイリスト {1}
+{1} plays {2}	{1} が {2} を演奏
+{1} frames off	フレーム数のずれ: {1}
+Not here now: {1}	現在ここにありません: {1}
+fetching {1} {2}%	{1} を取得中 {2}%
+Could not read {1}	{1} を読み取れません
+Playlist {1} (gone)	プレイリスト {1} (削除済み)
+Could not fetch {1}: {2}	{1} を取得できません: {2}
+No phone is following this desk	この操作卓に連動している電話はありません
+This desk leads: phones can follow it	この操作卓が主導中: 電話が連動できます
+PLAYS FOCUS, DARK or a playlist number	PLAYS FOCUS、DARK、またはプレイリスト番号
+This desk is not leading, so no phone can follow it	この操作卓は主導していないため、電話は連動できません
+On the phone: MENU > SYNC, then type this desk's address	電話で: メニュー > SYNC を開き、この操作卓のアドレスを入力
+OUTPUT PHONE <name|number> PLAYS <FOCUS|DARK|playlist> or IDENTIFY	OUTPUT PHONE <名前|番号> PLAYS <FOCUS|DARK|プレイリスト> または IDENTIFY

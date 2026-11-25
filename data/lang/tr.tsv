@@ -4958,3 +4958,21 @@ A cue's own TRANSITION and STYLE win.	Cue'nun kendi GEÇİŞ ve STİL ayarı ön
 Zoom, focus and the rest are on a phone.	Yakınlaştırma, odak ve geri kalanı telefonda.
 Not on air: the picture shows it once taken.	Yayında değil: take'ten sonra resimde görünür.
 Deleted {1}	{1} silindi
+in step	senkron
+Phone {1}	Telefon {1}
+Fetched {1}	{1} alındı
+MISSING {1}	EKSİK {1}
+Playlist {1}	Çalma listesi {1}
+{1} plays {2}	{1}, {2} çalar
+{1} frames off	{1} kare fark
+Not here now: {1}	Şimdi burada değil: {1}
+fetching {1} {2}%	{1} alınıyor {2}%
+Could not read {1}	{1} okunamadı
+Playlist {1} (gone)	Çalma listesi {1} (silindi)
+Could not fetch {1}: {2}	{1} alınamadı: {2}
+No phone is following this desk	Hiçbir telefon bu operatörü izlemiyor
+This desk leads: phones can follow it	Bu operatör lider: telefonlar onu izleyebilir
+PLAYS FOCUS, DARK or a playlist number	PLAYS FOCUS, DARK veya çalma listesi numarası
+This desk is not leading, so no phone can follow it	Bu operatör lider değil, bu yüzden hiçbir telefon onu izleyemez
+On the phone: MENU > SYNC, then type this desk's address	Telefonda: MENÜ > SYNC, sonra bu masanın adresini yaz
+OUTPUT PHONE <name|number> PLAYS <FOCUS|DARK|playlist> or IDENTIFY	OUTPUT PHONE <ad|numara> PLAYS <FOCUS|DARK|çalma listesi> veya IDENTIFY

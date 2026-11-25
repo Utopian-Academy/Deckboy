@@ -4952,3 +4952,20 @@ A cue's own TRANSITION and STYLE win.	CHUYỂN CẢNH và KIỂU riêng của cu
 Zoom, focus and the rest are on a phone.	Thu phóng, tiêu điểm và phần còn lại nằm trên điện thoại.
 Not on air: the picture shows it once taken.	Chưa lên sóng: hình ảnh sẽ hiện khi take.
 Deleted {1}	Đã xóa {1}
+in step	khớp nhịp
+Phone {1}	Điện thoại {1}
+Fetched {1}	Đã tải {1}
+MISSING {1}	THIẾU {1}
+{1} plays {2}	{1} phát {2}
+{1} frames off	lệch {1} khung hình
+Not here now: {1}	Hiện tại không ở đây: {1}
+fetching {1} {2}%	đang tải {1} {2}%
+Could not read {1}	Không đọc được {1}
+Playlist {1} (gone)	Playlist {1} (đã mất)
+Could not fetch {1}: {2}	Không tải được {1}: {2}
+No phone is following this desk	Không điện thoại nào đang theo bàn này
+This desk leads: phones can follow it	Bàn này đang dẫn: điện thoại có thể theo
+PLAYS FOCUS, DARK or a playlist number	PLAYS FOCUS, DARK hoặc số playlist
+This desk is not leading, so no phone can follow it	Bàn này không dẫn, nên không điện thoại nào theo được
+On the phone: MENU > SYNC, then type this desk's address	Trên điện thoại: DANH MỤC > SYNC, rồi nhập địa chỉ của bàn này
+OUTPUT PHONE <name|number> PLAYS <FOCUS|DARK|playlist> or IDENTIFY	OUTPUT PHONE <tên|số> PLAYS <FOCUS|DARK|playlist> hoặc IDENTIFY

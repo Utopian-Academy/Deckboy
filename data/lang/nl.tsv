@@ -4902,3 +4902,21 @@ A cue's own TRANSITION and STYLE win.	De eigen OVERGANG en STIJL van een cue gaa
 Zoom, focus and the rest are on a phone.	Vergroting, scherpstelling en de rest zitten op een telefoon.
 Not on air: the picture shows it once taken.	Niet in de lucht: het beeld toont het na take.
 Deleted {1}	{1} verwijderd
+in step	in de pas
+Phone {1}	Telefoon {1}
+Fetched {1}	{1} opgehaald
+MISSING {1}	ONTBREEKT {1}
+Playlist {1}	Afspeellijst {1}
+{1} plays {2}	{1} speelt {2}
+{1} frames off	{1} beelden verschoven
+Not here now: {1}	Nu niet hier: {1}
+fetching {1} {2}%	{1} ophalen {2}%
+Could not read {1}	Kon {1} niet lezen
+Playlist {1} (gone)	Afspeellijst {1} (weg)
+Could not fetch {1}: {2}	Kon {1} niet ophalen: {2}
+No phone is following this desk	Geen telefoon volgt deze regietafel
+This desk leads: phones can follow it	Deze regietafel is leidend: telefoons kunnen hem volgen
+PLAYS FOCUS, DARK or a playlist number	PLAYS FOCUS, DARK of een afspeellijstnummer
+This desk is not leading, so no phone can follow it	Deze regietafel is niet leidend, dus kan geen telefoon hem volgen
+On the phone: MENU > SYNC, then type this desk's address	Op de telefoon: MENU > SYNC, typ dan het adres van deze regietafel
+OUTPUT PHONE <name|number> PLAYS <FOCUS|DARK|playlist> or IDENTIFY	OUTPUT PHONE <naam|nummer> PLAYS <FOCUS|DARK|afspeellijst> of IDENTIFY

@@ -4931,3 +4931,21 @@ A cue's own TRANSITION and STYLE win.	Lanakila ka HOʻOLOLI a me ka ʻANO ponoʻ
 Zoom, focus and the rest are on a phone.	Ma ke kelepona ka Hoʻokokoke, ke kālele a me nā mea ʻē aʻe.
 Not on air: the picture shows it once taken.	ʻAʻole ma ka lewa: hōʻike ke kiʻi iā ia ke lawe ʻia.
 Deleted {1}	Ua holoi ʻia ʻo {1}
+in step	kūlike
+Phone {1}	Kelepona {1}
+Fetched {1}	Ua kiʻi ʻia ʻo {1}
+MISSING {1}	NALOWALE {1}
+Playlist {1}	Papa helu {1}
+{1} plays {2}	Hoʻokani ʻo {1} i {2}
+{1} frames off	ʻOkoʻa ma {1} mōlina
+Not here now: {1}	ʻAʻole ma ʻaneʻi i kēia manawa: {1}
+fetching {1} {2}%	ke kiʻi nei i {1} {2}%
+Could not read {1}	ʻAʻole hiki ke heluhelu i {1}
+Playlist {1} (gone)	Papa helu {1} (ua nalo)
+Could not fetch {1}: {2}	ʻAʻole hiki ke kiʻi i {1}: {2}
+No phone is following this desk	ʻAʻohe kelepona e hahai ana i kēia papa
+This desk leads: phones can follow it	Ke alakaʻi nei kēia papa: hiki i nā kelepona ke hahai iā ia
+PLAYS FOCUS, DARK or a playlist number	PLAYS FOCUS, DARK a i ʻole ka helu o ka papa helu
+This desk is not leading, so no phone can follow it	ʻAʻole e alakaʻi ana kēia papa, no laila ʻaʻole hiki i kekahi kelepona ke hahai iā ia
+On the phone: MENU > SYNC, then type this desk's address	Ma ke kelepona: PAPA KUHIKUHI > SYNC, a laila kikokiko i ka helu wahi o kēia papa
+OUTPUT PHONE <name|number> PLAYS <FOCUS|DARK|playlist> or IDENTIFY	OUTPUT PHONE <inoa|helu> PLAYS <FOCUS|DARK|papa helu> a i ʻole IDENTIFY

@@ -239,6 +239,9 @@ void writeProjectScalars(std::ostream& output, const Project& project) {
   output << "sync_lead\t" << (project.syncLead ? 1 : 0) << '\n';
   output << "sync_follow\t" << escapeField(project.syncFollowHost) << '\t' << escapeField(project.syncFollowRole)
          << '\t' << project.syncTakeoverMs << '\t' << project.syncBackupAtemInput << '\n';
+  for (const auto& phone : project.phonePlays) {
+    output << "phone_plays\t" << escapeField(phone.first) << '\t' << phone.second << '\n';
+  }
   // The mask library, one line each (core/masks.hpp, serializeMask).
   for (const deckboy::masks::Mask& mask : project.masks) {
     output << "mask\t" << escapeField(deckboy::masks::serializeMask(mask, serializeGeometryLfos(mask.lfo)))
@@ -1549,6 +1552,9 @@ bool applyProjectScalarLine(Project& project, const std::vector<std::string>& fi
     project.syncFollowRole = safeString(fields, 2) == "fleet" ? "fleet" : "backup";
     project.syncTakeoverMs = std::clamp(safeInt(fields, 3, 1000), 250, 10000);
     project.syncBackupAtemInput = std::clamp(safeInt(fields, 4, 0), 0, 9999);
+  } else if (fields[0] == "phone_plays") {
+    const std::string name = safeString(fields, 1);
+    if (!name.empty()) project.phonePlays.emplace_back(name, std::max(-1, safeInt(fields, 2, 0)));
   } else if (fields[0] == "mask") {
     deckboy::masks::Mask mask;
     std::string lfoText;

@@ -4967,3 +4967,21 @@ A cue's own TRANSITION and STYLE win.	Собственият ПРЕХОД и С�
 Zoom, focus and the rest are on a phone.	Приближението, фокусът и останалото са на телефона.
 Not on air: the picture shows it once taken.	Не е в ефир: картината го показва след take.
 Deleted {1}	Изтрито: {1}
+in step	в синхрон
+Phone {1}	Телефон {1}
+Fetched {1}	Изтеглено: {1}
+MISSING {1}	ЛИПСВА {1}
+Playlist {1}	Плейлист {1}
+{1} plays {2}	{1} свири {2}
+{1} frames off	разлика {1} кадри
+Not here now: {1}	Не е тук сега: {1}
+fetching {1} {2}%	изтегляне на {1} {2}%
+Could not read {1}	Неуспешно четене на {1}
+Playlist {1} (gone)	Плейлист {1} (няма го)
+Could not fetch {1}: {2}	Неуспешно изтегляне на {1}: {2}
+No phone is following this desk	Никой телефон не следва този пулт
+This desk leads: phones can follow it	Този пулт води: телефоните могат да го следват
+PLAYS FOCUS, DARK or a playlist number	PLAYS FOCUS, DARK или номер на плейлист
+This desk is not leading, so no phone can follow it	Този пулт не води, затова никой телефон не може да го следва
+On the phone: MENU > SYNC, then type this desk's address	На телефона: МЕНЮ > SYNC, после въведи адреса на този пулт
+OUTPUT PHONE <name|number> PLAYS <FOCUS|DARK|playlist> or IDENTIFY	OUTPUT PHONE <име|номер> PLAYS <FOCUS|DARK|плейлист> или IDENTIFY

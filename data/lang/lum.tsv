@@ -4979,3 +4979,21 @@ A cue's own TRANSITION and STYLE win.	SETA so PATA koro veka: muna.
 Zoom, focus and the rest are on a phone.	Vekaseta, kormira so ala kae sonajana.
 Not on air: the picture shows it once taken.	Va kae luma: veka veki kae seni.
 Deleted {1}	{1} vaguro
+in step	dora beta
+Phone {1}	Sonajana {1}
+Fetched {1}	Tiro {1}
+MISSING {1}	VAKAE {1}
+Playlist {1}	Vekaku {1}
+{1} plays {2}	{1} soni {2}
+{1} frames off	{1} vekaku vap
+Not here now: {1}	Va nakae nakaetoka: {1}
+fetching {1} {2}%	tiri {1} {2}%
+Could not read {1}	Va pel miri {1}
+Playlist {1} (gone)	Vekaku {1} (vakae)
+Could not fetch {1}: {2}	Va pel tiri {1}: {2}
+No phone is following this desk	Va sonajana novtoki so dekadora nakae
+This desk leads: phones can follow it	Muni: sonajanaku pel novtoki so dekadora nakae
+PLAYS FOCUS, DARK or a playlist number	PLAYS FOCUS, DARK / vekakunuma
+This desk is not leading, so no phone can follow it	Vamuni: sonajana vapel novtoki so dekadora nakae
+On the phone: MENU > SYNC, then type this desk's address	Kae sonajana: MENU > SYNC, novtok grai kaea dekadora nakae
+OUTPUT PHONE <name|number> PLAYS <FOCUS|DARK|playlist> or IDENTIFY	OUTPUT PHONE <hola|numa> PLAYS <FOCUS|DARK|vekaku> / IDENTIFY

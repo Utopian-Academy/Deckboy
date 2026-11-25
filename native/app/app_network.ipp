@@ -3206,6 +3206,12 @@ html,body{width:100%;height:100%;overflow:hidden}
     // thread, the moment it arrives: through the main thread's queue it waited
     // up to a frame, the round trip read 100 ms on one machine, and the clock
     // offset a follower works out from it was only good to half of that.
+    // A phone's report (SYNC REPORT k=v ...), once a second: kept for its
+    // row in Settings, never answered, never queued, never in the monitor.
+    if (upper.rfind("SYNC REPORT ", 0) == 0) {
+      syncReports_[client] = PhoneReport {query.substr(12), SDL_GetTicks()};
+      return true;
+    }
     if (upper == "TIME" || upper.rfind("TIME ", 0) == 0) {
       const std::string sent = upper.size() > 5 ? trim(query.substr(5)) : std::string("0");
       sendSnapshot("OK TIME: " + sent + " " + std::to_string(SDL_GetTicksNS()) + "\n");
@@ -5913,6 +5919,7 @@ bool looksLikeHttpRequestLine(const std::string& line) {
       {
         std::lock_guard<std::mutex> lk(companionClientsMutex_);
         flushCompanionRepliesLocked(writeFds);
+        std::vector<std::pair<SocketHandle, std::string>> mediaRequests;   // SYNC MEDIA: handed off after the loop
         for (auto client : companionClients_) {
           if (!readyFd(client, &readFds) || companionDrainingClients_.count(client)) {
             continue;
@@ -5952,6 +5959,11 @@ bool looksLikeHttpRequestLine(const std::string& line) {
               if (!companionClientMayProceedLocked(client, line, closedClients)) {
                 continue;
               }
+              if (toUpper(line).rfind("SYNC MEDIA ", 0) == 0) {
+                mediaRequests.emplace_back(client, trim(line.substr(11)));
+                pending.clear();
+                break;
+              }
               if (!maybeRespondToCompanionQuery(client, line)) {
                 // The client gets an OK/ERR line once the main thread has run
                 // this command.
@@ -5962,6 +5974,11 @@ bool looksLikeHttpRequestLine(const std::string& line) {
               }
             }
           }
+        }
+
+        for (const auto& request : mediaRequests) {
+          closedClients.erase(std::remove(closedClients.begin(), closedClients.end(), request.first), closedClients.end());
+          detachForMediaLocked(request.first, request.second);
         }
 
         // A client that stops sending is NOT necessarily gone. `printf 'TAKE\n'
@@ -6110,6 +6127,7 @@ bool looksLikeHttpRequestLine(const std::string& line) {
       companionClientPeer_.erase(client);
       companionClientAuthed_.erase(client);
       companionClientAuthFailures_.erase(client);
+      syncReports_.erase(client);
       companionClients_.erase(
         std::remove(companionClients_.begin(), companionClients_.end(), client),
         companionClients_.end()
@@ -6139,6 +6157,8 @@ bool looksLikeHttpRequestLine(const std::string& line) {
     std::uint64_t generation = 0;
     std::string name, kind, role;
     std::uint64_t joinedNs = 0;
+    int number = 0;            // a phone's number on this desk (IDENTIFY shows it)
+    std::string assignSent;    // the last SYNC ASSIGN this phone was sent
   };
 
   bool companionClientAlive(SocketHandle client, std::uint64_t generation) {
@@ -6173,6 +6193,7 @@ bool looksLikeHttpRequestLine(const std::string& line) {
       syncFollowers_.erase(std::remove_if(syncFollowers_.begin(), syncFollowers_.end(),
                                           [&](const SyncFollower& o) { return o.socket == f.socket; }),
                            syncFollowers_.end());
+      if (followerIsPhone(f)) f.number = nextPhoneNumber();
       syncFollowers_.push_back(f);
       syncLastSentNs_ = 0;   // the newcomer gets the state at once
       showLog("SYNC", "follower " + f.name + " (" + f.kind + ", " + f.role + ") joined");
@@ -6308,13 +6329,18 @@ bool looksLikeHttpRequestLine(const std::string& line) {
                          syncFollowers_.end());
     if (syncFollowers_.empty()) return;
     std::string line = syncStateLine();
-    // A desk follows EVERY playlist; Mini and Pocket the focused one.
-    bool anyDesk = false;
-    for (const auto& f : syncFollowers_) anyDesk = anyDesk || f.kind == "desk";
+    // A desk follows EVERY playlist; Mini the focused one; a phone the one
+    // it is given (PLAYS: the focus, a playlist, or dark).
+    bool anyDesk = false, anyPhone = false;
+    for (const auto& f : syncFollowers_) {
+      anyDesk = anyDesk || f.kind == "desk";
+      anyPhone = anyPhone || followerIsPhone(f);
+    }
     std::vector<std::string> deckLines;
-    if (anyDesk) {
+    if (anyDesk || anyPhone) {
       for (int d = 0; d < static_cast<int>(project_.decks.size()); ++d) deckLines.push_back(syncStateLine(d));
     }
+    if (anyPhone && SDL_GetTicks() - syncMediaPathsMs_ > 1000) refreshSyncMediaPaths();
     // The change test leaves out pos= and at=, which move every tick.
     auto keyOf = [](std::string key) {
       for (const char* field : {" pos=", " at="}) {
@@ -6327,17 +6353,337 @@ bool looksLikeHttpRequestLine(const std::string& line) {
     };
     std::string key = keyOf(line);
     for (const auto& l : deckLines) key += "|" + keyOf(l);
+    for (const auto& f : syncFollowers_) {
+      if (followerIsPhone(f)) key += "|" + phoneAssignLine(f);
+    }
     const std::uint64_t now = SDL_GetTicksNS();
     if (key == syncLastKey_ && now - syncLastSentNs_ < 250000000ull) return;
     syncLastKey_ = key;
     syncLastSentNs_ = now;
-    for (const auto& f : syncFollowers_) {
+    for (auto& f : syncFollowers_) {
       if (f.kind == "desk") {
         for (const auto& l : deckLines) sendCompanionLine(f.socket, l, f.generation);
+      } else if (followerIsPhone(f)) {
+        const std::string assign = phoneAssignLine(f);
+        if (assign != f.assignSent) {
+          sendCompanionLine(f.socket, assign, f.generation);
+          f.assignSent = assign;
+        }
+        const int deck = phoneDeckIndex(phonePlaysFor(f.name));
+        sendCompanionLine(f.socket, deck >= 0 && deck < static_cast<int>(deckLines.size()) ? deckLines[static_cast<std::size_t>(deck)]
+                                                                                          : syncDarkLine(),
+                          f.generation);
       } else {
         sendCompanionLine(f.socket, line, f.generation);
       }
     }
+  }
+
+  // ── PHONES AS OUTPUTS ──
+  //
+  // Every phone (Pocket) following this desk is an output the desk assigns:
+  // PLAYS the focused playlist (what phones always did), a given playlist, or
+  // dark (Settings > Video Outputs > Phones, OUTPUT PHONE). The choice is kept
+  // in the show by the phone's name, so the same phone gets the same playlist
+  // next time. A phone is told what it shows (SYNC ASSIGN, for its header),
+  // can be asked to show its number (SYNC IDENTIFY), reports how it is doing
+  // once a second (SYNC REPORT), and fetches a cue's media it does not have
+  // (SYNC MEDIA <cue id>, served on a thread of its own).
+  static bool followerIsPhone(const SyncFollower& f) { return f.kind == "pocket"; }
+
+  int phonePlaysFor(const std::string& name) const {
+    for (const auto& p : project_.phonePlays) {
+      if (p.first == name) return p.second;
+    }
+    return 0;
+  }
+
+  // The playlist index a PLAYS value shows; -1 is dark (asked for, or a
+  // playlist that has since been removed).
+  int phoneDeckIndex(int plays) const {
+    if (plays < 0) return -1;
+    if (plays == 0) return project_.focusedDeckIndex;
+    return plays - 1 < static_cast<int>(project_.decks.size()) ? plays - 1 : -1;
+  }
+
+  std::string phonePlaysLabel(int plays) const {
+    if (plays < 0) return "Dark";
+    if (plays == 0) return "Focus";
+    if (plays - 1 >= static_cast<int>(project_.decks.size())) {
+      return deckboy::core::i18n::format("Playlist {1} (gone)", {std::to_string(plays)});
+    }
+    return deckboy::core::i18n::format("Playlist {1}", {std::to_string(plays)});
+  }
+
+  void setPhonePlays(const std::string& name, int plays) {
+    plays = std::max(-1, plays);
+    bool found = false;
+    for (auto& p : project_.phonePlays) {
+      if (p.first == name) { p.second = plays; found = true; }
+    }
+    if (!found) project_.phonePlays.emplace_back(name, plays);
+    markProjectDirty();
+    syncLastSentNs_ = 0;   // the phone hears it at once
+    showLog("SYNC", "phone " + name + " plays " + phonePlaysLabel(plays));
+  }
+
+  // FOCUS -> playlist 1 -> ... -> playlist n -> DARK -> FOCUS.
+  int nextPhonePlays(int plays) const {
+    const int decks = static_cast<int>(project_.decks.size());
+    if (plays < 0) return 0;
+    if (plays >= decks) return -1;
+    return plays + 1;
+  }
+
+  int nextPhoneNumber() const {
+    for (int n = 1;; ++n) {
+      bool used = false;
+      for (const auto& f : syncFollowers_) used = used || (followerIsPhone(f) && f.number == n);
+      if (!used) return n;
+    }
+  }
+
+  SyncFollower* findPhone(const std::string& nameOrNumber) {
+    const std::string want = toLower(nameOrNumber);
+    const int number = std::atoi(nameOrNumber.c_str());
+    for (auto& f : syncFollowers_) {
+      if (!followerIsPhone(f)) continue;
+      if (toLower(f.name) == want || (number > 0 && f.number == number && nameOrNumber.find_first_not_of("0123456789") == std::string::npos)) return &f;
+    }
+    return nullptr;
+  }
+
+  // Nothing on air, outputs dark: what a phone set to DARK is sent.
+  static std::string syncDarkLine() {
+    return "SYNC deck=0 cue=- num=0 state=black pos=0.000000 at=" + std::to_string(SDL_GetTicksNS()) +
+           " speed=1.000000 trans=cut/0 file=\"\" name=\"\"";
+  }
+
+  std::string phoneAssignLine(const SyncFollower& f) const {
+    const int plays = phonePlaysFor(f.name);
+    const int deck = phoneDeckIndex(plays);
+    std::string name = deck >= 0 ? project_.decks[static_cast<std::size_t>(deck)].name : std::string();
+    std::replace(name.begin(), name.end(), '"', '\'');
+    std::replace(name.begin(), name.end(), '\n', ' ');
+    return "SYNC ASSIGN plays=" + std::string(plays < 0 ? "dark" : plays == 0 ? "focus" : std::to_string(plays)) +
+           " deck=" + std::to_string(deck + 1) + " number=" + std::to_string(f.number) + " name=\"" + name + "\"";
+  }
+
+  void identifyPhone(const SyncFollower& f) {
+    sendCompanionLine(f.socket, "SYNC IDENTIFY number=" + std::to_string(f.number), f.generation);
+  }
+
+  // A phone's last report as key=value pairs ({} when none; "age_ms" says how old).
+  std::map<std::string, std::string> phoneReport(const SyncFollower& f) {
+    PhoneReport r;
+    {
+      std::lock_guard<std::mutex> lk(companionClientsMutex_);
+      const auto it = syncReports_.find(f.socket);
+      if (it == syncReports_.end()) return {};
+      r = it->second;
+    }
+    std::map<std::string, std::string> out;
+    std::size_t at = 0;
+    const std::string& body = r.line;
+    while (at < body.size()) {
+      while (at < body.size() && body[at] == ' ') ++at;
+      const std::size_t eq = body.find('=', at);
+      if (eq == std::string::npos) break;
+      const std::string k = body.substr(at, eq - at);
+      std::string v;
+      if (eq + 1 < body.size() && body[eq + 1] == '"') {
+        const std::size_t close = body.find('"', eq + 2);
+        v = body.substr(eq + 2, (close == std::string::npos ? body.size() : close) - eq - 2);
+        at = close == std::string::npos ? body.size() : close + 1;
+      } else {
+        const std::size_t sp = body.find(' ', eq + 1);
+        v = body.substr(eq + 1, (sp == std::string::npos ? body.size() : sp) - eq - 1);
+        at = sp == std::string::npos ? body.size() : sp + 1;
+      }
+      out[k] = v;
+    }
+    out["age_ms"] = std::to_string(SDL_GetTicks() - r.atMs);
+    return out;
+  }
+
+  // One line on how a phone is doing, for its row and STATUS.
+  std::string phoneStateText(const SyncFollower& f, bool& warn) {
+    warn = false;
+    const auto r = phoneReport(f);
+    if (r.empty()) return "joining";
+    if (std::atoll(r.at("age_ms").c_str()) > 3000) { warn = true; return "not reporting"; }
+    auto get = [&](const char* k) { const auto it = r.find(k); return it == r.end() ? std::string() : it->second; };
+    std::ostringstream o;
+    const std::string fetch = get("fetch"), missing = get("missing");
+    if (!fetch.empty() && fetch != "-1") {
+      o << deckboy::core::i18n::format("fetching {1} {2}%", {missing, fetch});
+    } else if (!missing.empty()) {
+      warn = true;
+      o << deckboy::core::i18n::format("MISSING {1}", {missing});
+    } else if (get("state") == "lost") {
+      warn = true;
+      o << "LOST";
+    } else {
+      // Within two frames is what the phone holds to; more is worth a number.
+      const double drift = std::atof(get("drift").c_str());
+      if (drift <= 2.0) o << deckboy::core::i18n::translate("in step");
+      else o << deckboy::core::i18n::format("{1} frames off", {std::to_string(static_cast<int>(drift + 0.5))});
+    }
+    if (!get("battery").empty() && get("battery") != "-1") o << "  " << get("battery") << "%";
+    if (get("heat") == "hot") { warn = true; o << "  HOT"; }
+    return o.str();
+  }
+
+  // The phones among the outputs' tally: red while the phone shows a cue that
+  // is on air, amber when it needs a look (missing media, not reporting, hot),
+  // grey when dark or idle. The words are its number and name.
+  struct PhoneTally { std::string label, state; SDL_Color dot; };
+  std::vector<PhoneTally> phoneTallies() {
+    std::vector<PhoneTally> out;
+    for (auto& f : syncFollowers_) {
+      if (!followerIsPhone(f)) continue;
+      bool warn = false;
+      PhoneTally t;
+      t.state = phoneStateText(f, warn);
+      t.label = std::to_string(f.number) + " " + f.name;
+      const int deck = phoneDeckIndex(phonePlaysFor(f.name));
+      const bool live = deck >= 0 && activeCuePtr(deck) != nullptr && masterDimmerTarget_ > 0.001;
+      t.dot = warn ? SDL_Color {230, 170, 40, 255} : live ? SDL_Color {220, 50, 45, 255} : pal.inkSoft;
+      out.push_back(std::move(t));
+    }
+    std::sort(out.begin(), out.end(), [](const PhoneTally& a, const PhoneTally& b) { return a.label < b.label; });
+    return out;
+  }
+
+  // Which files a phone may fetch: the media of every cue in the show, by id.
+  // Nothing else on this computer is reachable this way.
+  void refreshSyncMediaPaths() {
+    syncMediaPathsMs_ = SDL_GetTicks();
+    std::map<std::string, std::string> paths;
+    for (const Deck& deck : project_.decks) {
+      for (const Cue& cue : deck.cues) {
+        if (cue.id.empty() || cue.path.empty() || cue.path.find("://") != std::string::npos) continue;
+        paths[cue.id] = cue.path;
+      }
+    }
+    std::lock_guard<std::mutex> lk(companionClientsMutex_);
+    syncMediaPaths_.swap(paths);
+  }
+
+  // SYNC MEDIA <cue id>, on the network thread: the connection is taken out
+  // of the remote server and handed to a thread of its own, which sends
+  // "OK MEDIA <bytes> <file name>", the file, and closes. A phone opens a
+  // second connection for this, so the show's own lines never wait behind a
+  // clip. Caller holds companionClientsMutex_; the client must not be used
+  // by the caller afterwards.
+  void detachForMediaLocked(SocketHandle client, const std::string& cueId) {
+    const auto found = syncMediaPaths_.find(cueId);
+    std::string path = found == syncMediaPaths_.end() ? std::string() : found->second;
+    companionClientReplies_.erase(client);
+    companionClientGenerations_.erase(client);
+    companionReplyStartedAt_.erase(client);
+    companionClientBuffers_.erase(client);
+    companionClientFirstLine_.erase(client);
+    companionClientRemote_.erase(client);
+    companionClientPeer_.erase(client);
+    companionClientAuthed_.erase(client);
+    companionClientAuthFailures_.erase(client);
+    companionDrainingClients_.erase(client);
+    syncReports_.erase(client);
+    companionClients_.erase(std::remove(companionClients_.begin(), companionClients_.end(), client), companionClients_.end());
+    if (syncMediaSending_.load() >= 3) path = "busy";
+    if (syncMediaStop_.load()) path.clear();
+    ++syncMediaSending_;
+    std::thread([this, client, path, cueId] {
+      sendSyncMedia(client, path, cueId);
+      closeSocket(client);
+      --syncMediaSending_;
+    }).detach();
+  }
+
+  void sendSyncMedia(SocketHandle client, const std::string& path, const std::string& cueId) {
+#ifdef _WIN32
+    u_long off = 0;
+    ioctlsocket(static_cast<SOCKET>(client), FIONBIO, &off);
+#else
+    fcntl(client, F_SETFL, fcntl(client, F_GETFL, 0) & ~O_NONBLOCK);
+#endif
+    auto sendAll = [&](const char* data, std::size_t size) {
+      while (size > 0) {
+        if (syncMediaStop_.load()) return false;
+        const int n = send(client, data, static_cast<int>(std::min<std::size_t>(size, 65536)), kSocketSendFlags);
+        if (n <= 0) return false;
+        data += n;
+        size -= static_cast<std::size_t>(n);
+      }
+      return true;
+    };
+    auto refuse = [&](const std::string& why) {
+      const std::string line = "ERR MEDIA: " + why + "\n";
+      sendAll(line.data(), line.size());
+    };
+    if (path == "busy") { refuse("three phones are already fetching; try again"); return; }
+    if (path.empty()) { refuse("no cue " + cueId + " with a file in this show"); return; }
+    SDL_IOStream* in = SDL_IOFromFile(path.c_str(), "rb");
+    if (!in) { refuse("cannot read the cue's file on the desk"); return; }
+    const Sint64 size = SDL_GetIOSize(in);
+    std::string fileName = dbfs::path(path).filename().string();
+    std::replace(fileName.begin(), fileName.end(), '\n', ' ');
+    const std::string head = "OK MEDIA " + std::to_string(size) + " " + fileName + "\n";
+    if (size < 0 || !sendAll(head.data(), head.size())) { SDL_CloseIO(in); return; }
+    std::vector<char> buf(256 * 1024);
+    Sint64 left = size;
+    while (left > 0) {
+      const std::size_t n = SDL_ReadIO(in, buf.data(), static_cast<std::size_t>(std::min<Sint64>(left, static_cast<Sint64>(buf.size()))));
+      if (n == 0 || !sendAll(buf.data(), n)) break;
+      left -= static_cast<Sint64>(n);
+    }
+    SDL_CloseIO(in);
+  }
+
+  // OUTPUT PHONES | OUTPUT PHONE <name|number> PLAYS <FOCUS|DARK|playlist> | IDENTIFY
+  void handlePhoneOutputCommand(const std::vector<std::string>& parts) {
+    if (toUpper(parts[1]) == "PHONES" || parts.size() < 3) {
+      std::ostringstream o;
+      int n = 0;
+      for (auto& f : syncFollowers_) {
+        if (!followerIsPhone(f)) continue;
+        bool warn = false;
+        o << (n++ ? " " : "") << "[" << f.number << " " << f.name << " plays=" << phonePlaysLabel(phonePlaysFor(f.name))
+          << " " << phoneStateText(f, warn) << "]";
+      }
+      remoteCommandDetail_ = n ? o.str() : std::string("no phone is following this desk");
+      return;
+    }
+    const std::string what = parts.size() > 3 ? toUpper(parts[3]) : std::string();
+    SyncFollower* phone = findPhone(parts[2]);
+    if (what == "IDENTIFY") {
+      if (!phone) { failRemoteCommand("no phone " + parts[2] + " is following this desk"); return; }
+      identifyPhone(*phone);
+      return;
+    }
+    if (what == "PLAYS" && parts.size() > 4) {
+      const std::string v = toUpper(parts[4]);
+      int plays = 0;
+      if (v == "FOCUS") plays = 0;
+      else if (v == "DARK") plays = -1;
+      else if (v.find_first_not_of("0123456789") == std::string::npos && !v.empty()) {
+        plays = std::atoi(v.c_str());
+        if (plays < 1 || plays > static_cast<int>(project_.decks.size())) {
+          failRemoteCommand("there is no playlist " + v);
+          return;
+        }
+      } else {
+        failRemoteCommand("PLAYS FOCUS, DARK or a playlist number");
+        return;
+      }
+      // A phone not here yet is kept by name, for when it joins.
+      const std::string name = phone ? phone->name : parts[2];
+      setPhonePlays(name, plays);
+      remoteCommandDetail_ = name + " plays " + phonePlaysLabel(plays);
+      return;
+    }
+    failRemoteCommand("OUTPUT PHONE <name|number> PLAYS <FOCUS|DARK|playlist> or IDENTIFY");
   }
 
   // Tell every follower this desk has stopped leading on purpose, so a backup
