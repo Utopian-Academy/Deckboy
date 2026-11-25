@@ -331,6 +331,12 @@ R"JS(
   el('movep').addEventListener('click', () => { move = Math.min(20, move + 1); el('moveval').textContent = 'MOVE ' + move + '"'; });
   el('ringset').addEventListener('click', () => { ringSet = (ringSet + 1) % ringSets.length; el('ringset').textContent = 'RINGS ' + ringSets[ringSet][0]; });
   el('anim').addEventListener('click', () => send('TABLE ANIMATE TOGGLE').then(poll));
+  // A NEW GAME (and the clocks' reset) wipe the evening's state: held for half
+  // a second, as BLACKOUT is on the controller, never one stray tap.
+  const holdOnly = (b, cmd, label) => hold(b, () => { el('result').textContent = 'Hold ' + label + ' to do it'; el('result').classList.remove('err'); },
+                                           () => send(cmd).then(poll));
+  holdOnly(el('reset'), 'TABLE RESET', 'NEW GAME');
+  holdOnly(el('clockreset'), 'TABLE CLOCK RESET', 'RESET CLOCKS');
   for (const b of document.querySelectorAll('[data-ground]')) b.addEventListener('click', () => send('TABLE GROUND ' + b.dataset.ground.toUpperCase()).then(poll));
   for (const b of document.querySelectorAll('[data-style]')) b.addEventListener('click', () => send('TABLE STYLE ' + ['CLEAN', 'ARCANE', 'EMBER'][Number(b.dataset.style)]).then(poll));
   for (const id of ['c1', 'c2', 'c3', 'c4']) el(id).addEventListener('change', () => send('TABLE COLOR ' + el(id).dataset.who + ' ' + el(id).value).then(poll));

@@ -42,7 +42,7 @@ R"PAGE(<!doctype html>
 <div class="row3" style="margin-top:6px"><button data-c="TABLE PHASE BACK">&lt; PHASE</button><button id="phase" disabled>PHASE</button><button class="on" data-c="TABLE PHASE NEXT">NEXT PHASE &gt;</button></div>
 <div class="row4" style="margin-top:6px"><button data-c="TABLE VP P1 -" id="v1m">P1 -</button><button data-c="TABLE VP P1 +" id="v1p">P1 +</button><button data-c="TABLE VP P2 -" id="v2m">P2 -</button><button data-c="TABLE VP P2 +" id="v2p">P2 +</button></div>
 <div class="row4" style="margin-top:6px"><button data-c="TABLE CP P1 -" id="c1m">CP -</button><button data-c="TABLE CP P1 +" id="c1p">CP +</button><button data-c="TABLE CP P2 -" id="c2m">CP -</button><button data-c="TABLE CP P2 +" id="c2p">CP +</button></div>
-<div class="row3" style="margin-top:6px"><button id="clock" data-c="TABLE CLOCK TOGGLE">CLOCK</button><button id="clockpause" data-c="TABLE CLOCK PAUSE">PAUSE</button><button data-c="TABLE CLOCK RESET">RESET CLOCKS</button></div>
+<div class="row3" style="margin-top:6px"><button id="clock" data-c="TABLE CLOCK TOGGLE">CLOCK</button><button id="clockpause" data-c="TABLE CLOCK PAUSE">PAUSE</button><button id="clockreset">HOLD: RESET CLOCKS</button></div>
 <p class="label">OBJECTIVES <span class="dim">TAP: WHO HOLDS IT &middot; HOLD: HIGHLIGHT &middot; &#9671; PLACES OF POWER</span></p>
 <div id="map" class="map"><svg class="geometry" aria-hidden="true"></svg></div>
 <section id="w40k" hidden>
@@ -111,7 +111,7 @@ R"PAGE(<!doctype html>
 <section class="plan-group" id="custom-group" hidden><p class="label">CUSTOM PLANS</p>
 <div id="custom-plans" class="chips outs" style="flex-wrap:wrap"></div></section>
 </div>
-<button data-c="TABLE RESET" id="reset" style="margin-top:18px">NEW GAME</button>
+<button id="reset" style="margin-top:18px">HOLD: NEW GAME</button>
 <p id="result" class="result"></p>
 </main>
 <script src="/remote/x/table.js"></script></body></html>)PAGE"
