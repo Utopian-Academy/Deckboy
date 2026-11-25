@@ -3765,11 +3765,30 @@
           warpSaveBtnRect_ = warpCopyBtnRect_ = warpPasteBtnRect_ = warpRecallBtnRect_ = {};
         }
 
-        // Shift hint on the right side
-        drawTextSafe(controlRenderer_, fontSmall_,
-                     SDL_Rect {mi.x + mi.w - toolBtnW("Shift: snap"), toolY,
-                               toolBtnW("Shift: snap"), toolH},
-                     "Shift: snap", SDL_Color{255, 220, 0, 100});
+        // CHOOSE A CORNER WITHOUT FINDING ITS HANDLE (James 11-24: the bottom
+        // left one "can get lost behind all the settings and text there"; "it
+        // just needs some other way to be selectable"). TL TR BR BL at the
+        // right end select that corner, as pressing its handle does; Tab steps
+        // through them; the arrows then nudge it, Shift ten at a time.
+        {
+          static const char* const kCorner[4] = {"TL", "TR", "BR", "BL"};
+          const int chipW = toolBtnW("BR");
+          int chipX = mi.x + mi.w - 4 - (chipW + toolGap) * 4 + toolGap;
+          for (int i = 0; i < 4; ++i) {
+            warpCornerBtnRects_[i] = {chipX + i * (chipW + toolGap), toolY, chipW, toolH};
+            const bool on = warpSelPoint_ == i;
+            Primitives::fillRect(controlRenderer_, warpCornerBtnRects_[i], on ? SDL_Color {255, 220, 0, 220} : warpBtnFill);
+            Primitives::strokeRect(controlRenderer_, warpCornerBtnRects_[i], warpBtnEdge);
+            drawCenteredText(controlRenderer_, fontSmall_, kCorner[i], on ? SDL_Color {15, 15, 15, 255} : warpBtnInk,
+                             warpCornerBtnRects_[i]);
+          }
+          const std::string tip = "Tab: next corner  Shift: snap";
+          const int tipW = toolBtnW(tip.c_str());
+          if (bx + tipW < chipX - toolGap) {
+            drawTextSafe(controlRenderer_, fontSmall_, SDL_Rect {chipX - toolGap - tipW, toolY, tipW, toolH},
+                         tip, SDL_Color {255, 220, 0, 100});
+          }
+        }
 
         SDL_SetRenderDrawBlendMode(controlRenderer_, SDL_BLENDMODE_NONE);
       }

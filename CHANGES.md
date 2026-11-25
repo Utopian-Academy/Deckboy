@@ -34,6 +34,9 @@
 ### Languages
 - New: **Lithuanian** (Lietuvių).
 
+### Warp
+- New: choose a warp corner without finding its handle: TL, TR, BR and BL at the right end of the warp toolbar select that corner, and Tab steps through them (Shift+Tab back); the arrows then nudge it, Shift ten at a time. A corner on the picture's bottom edge could sit behind the toolbar, where it could not be pressed.
+
 ### Names
 - New: rename a playlist: right-click its tab or the name at the top of its column. Rename an output: RENAME beside the output's name in Settings > Video Outputs. Leave the name blank for the default back. Companion: `NAME <text>` (the focused playlist, or `DECK <n> NAME <text>`) and `OUTPUT NAME <text>` (the selected output).
 

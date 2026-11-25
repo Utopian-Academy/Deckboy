@@ -10572,6 +10572,7 @@ class App {
   SDL_Keycode liveKeyArmed_ = 0;
   Uint64 liveKeyArmedAtMs_ = 0;
   int warpSelPoint_ = -1;
+  SDL_Rect warpCornerBtnRects_[4] {};   // TL TR BR BL in the warp toolbar
   SDL_Rect warpSelXRect_ {};
   SDL_Rect warpSelYRect_ {};
   int warpDragGridPoint_ = -1;   // grid point being dragged (row * cols + col), -1 = none

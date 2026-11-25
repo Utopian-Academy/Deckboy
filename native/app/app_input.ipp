@@ -942,6 +942,12 @@
       });
       return;
     }
+    for (int i = 0; i < 4; ++i) {   // a corner chosen by name (TL TR BR BL)
+      if (warpEditMode_ && warpCornerBtnRects_[i].w > 0 && pointInRect(x, y, warpCornerBtnRects_[i])) {
+        warpSelPoint_ = i;
+        return;
+      }
+    }
     if (warpCopyBtnRect_.w > 0 && pointInRect(x, y, warpCopyBtnRect_)) {
       copyFocusedWarpSettings();
       return;
@@ -2037,6 +2043,13 @@
       return;
     }
 
+    // TAB STEPS THROUGH THE WARP CORNERS while the editor is up (Shift+Tab
+    // back), so a corner hidden under the toolbar can still be chosen.
+    if (warpEditMode_ && key == SDLK_TAB && !settingsOpen_ && !inlineEditor_.open) {
+      const int from = warpSelPoint_ >= 0 && warpSelPoint_ < 4 ? warpSelPoint_ : (shift ? 0 : 3);
+      warpSelPoint_ = (from + (shift ? 3 : 1)) % 4;
+      return;
+    }
     // ARROWS NUDGE THE SELECTED WARP POINT while the editor is up: a pixel a
     // press, ten with Shift (a tenth / one percent on a layer's pin).
     if (warpEditMode_ && warpSelPoint_ >= 0 && !settingsOpen_ && !inlineEditor_.open &&
