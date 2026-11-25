@@ -72,6 +72,7 @@ struct ChromeKit {
   std::string dir;      // empty: no kit (the drawn painter)
   float density = 4.0f, tileDensity = 2.0f;
   ChromeKitPiece panel, well, cap;
+  ChromeKitPiece panelPlain;   // optional: a panel too small for the corner screws (clear shells)
   std::string tilePanel, tileWell, tileDesk;
   float stickerImage = 68.0f, stickerFoil = 37.44f;   // a sticker's picture and its foil, across
   SDL_Color surfacePanel {0, 0, 0, 255}, surfaceWell {0, 0, 0, 255}, surfaceDesk {0, 0, 0, 255};

@@ -2,17 +2,17 @@
 # A RENDERED skin: style_kit names the pieces in data/desk-kits (pocket-skins/desk_kit.py);
 # the colours below are read off those renders. All colour values are RRGGBBAA hex.
 
-shell_outer	282929FF
-shell_inner	2B2B2BFF
-shell_shadow	111111FF
+shell_outer	000000FF
+shell_inner	000100FF
+shell_shadow	000000FF
 screen_light	F4D4D9FF
 screen_mid	ED6C7CFF
-screen_dark	A95560FF
-screen_deep	131313FF
-screen_ink_soft	9B9B9CFF
+screen_dark	9A4751FF
+screen_deep	000000FF
+screen_ink_soft	878888FF
 screen_fg	F6F6F8FF
-screen_fg_soft	B9B9BAFF
-screen_tile	2B2B2BFF
+screen_fg_soft	ACACAEFF
+screen_tile	000100FF
 button_bezel	ED6C7CFF
 delete_bezel	AA2820FF
 scanline_alpha	0

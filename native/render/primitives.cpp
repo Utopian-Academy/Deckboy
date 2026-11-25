@@ -959,7 +959,12 @@ bool drawKitChrome(SDL_Renderer* renderer, const SDL_Rect& rect, SDL_Color fill,
     return true;
   }
   if (!control && surface) {
-    if (!drawKitPiece(renderer, kit.panel, kit.panel.file, rect, s, {255, 255, 255, 255}, SDL_BLENDMODE_BLEND, &middle,
+    // A clear shell's corner screws belong on the big plates: a panel less
+    // than three corners across in either direction takes the plain piece.
+    const bool smallPanel = !kit.panelPlain.file.empty() &&
+                       (rect.w < 3.0f * kit.panel.inset * s || rect.h < 3.0f * kit.panel.inset * s);
+    const ChromeKitPiece& panelPiece = smallPanel ? kit.panelPlain : kit.panel;
+    if (!drawKitPiece(renderer, panelPiece, panelPiece.file, rect, s, {255, 255, 255, 255}, SDL_BLENDMODE_BLEND, &middle,
                       [&](const SDL_FRect& area) {
                         drawKitTile(renderer, kit.tilePanel, area, s);
                         drawKitBoardLife(renderer, area, s);
@@ -1012,8 +1017,8 @@ bool loadChromeKit(const std::string& dir, ChromeKit& kit) {
     const std::string& key = f[0];
     if (key == "density") k.density = std::clamp(num(1, 4.0f), 1.0f, 16.0f);
     else if (key == "tile_density") k.tileDensity = std::clamp(num(1, 2.0f), 1.0f, 16.0f);
-    else if (key == "panel" || key == "well") {
-      ChromeKitPiece& piece = key == "panel" ? k.panel : k.well;
+    else if (key == "panel" || key == "well" || key == "panel_plain") {
+      ChromeKitPiece& piece = key == "panel" ? k.panel : key == "well" ? k.well : k.panelPlain;
       piece.file = str(1);
       piece.pad = num(2, 0.0f);
       piece.inset = num(3, 16.0f);

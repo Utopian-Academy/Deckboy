@@ -67,7 +67,7 @@
 - For theme authors: `style_` lines in theme.txt set the shape and finish. See the manual, section 21.
 - New: **rendered skins** (3D), listed first in the Theme list: 24 of them, the materials of Pocket's shells. Their panels, recesses, key caps, the desk behind them and their holographic stickers are rendered in Blender with real light and shadow, then built to fit at whatever size each piece is, so they work in every layout, at every UI scale and in any window. A key keeps its own colour: a lit tally is a lit cap.
   - Fourteen solid ones: Broadcast, Bakelite, Hi-Fi, Synth, Space Age, Field Kit, Arcade Cab, Swiss, Neon Night, Ceramic, Carbon, Toybox, Brass, Concrete.
-  - Ten in clear plastic over a circuit board: Grape Soda, Lime Jelly, Orange Soda, Cherry Jelly, Ocean Jelly, Ice, Smoke, Glow, Crystal Pink, Teal Insides.
+  - Ten in clear plastic, built as Pocket's see-through shells are: a 3 mm face plate over a hollow shell, the circuit board deep inside with its chips, parts and screw posts showing through, lit as Pocket's are. Grape Soda, Lime Jelly, Orange Soda, Cherry Jelly, Ocean Jelly, Ice, Smoke, Glow, Crystal Pink, Teal Insides. Big panels show their corner screws; small ones do not.
   - Each has its own creatures and stickers.
 - Stickers on the new layouts, next to SHOW and EDIT (not on Rundown, whose strip holds the clock).
 - For theme authors: `style_kit <folder>` names a kit in data/desk-kits.
