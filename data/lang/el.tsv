@@ -5057,3 +5057,6 @@ DRAW EVERY: seconds, 0.5-20	DRAW EVERY: δευτερόλεπτα, 0.5-20
 How often they all change together	Πόσο συχνά αλλάζουν όλα μαζί
 the words to spell out in critters	οι λέξεις που θα γραφτούν με πλασματάκια
 Which critters: all of them changing together, each new stroke the next one, or one you choose	Ποια πλασματάκια: όλα αλλάζουν μαζί, κάθε νέα πινελιά το επόμενο, ή ένα που διαλέγεις
+Space key	Πλήκτρο Space
+Space plays and pauses	Το Space αναπαράγει και κάνει παύση
+Space takes (Shift+Space plays and pauses)	Το Space κάνει TAKE (το Shift+Space αναπαράγει και κάνει παύση)

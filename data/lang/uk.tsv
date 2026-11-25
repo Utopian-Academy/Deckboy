@@ -5063,3 +5063,6 @@ DRAW EVERY: seconds, 0.5-20	DRAW EVERY: секунди, 0.5-20
 How often they all change together	Як часто усі змінюються разом
 the words to spell out in critters	слова для викладання звірятками
 Which critters: all of them changing together, each new stroke the next one, or one you choose	Які звірятка: усі змінюються разом, кожен новий штрих — наступне, або одне на ваш вибір
+Space key	Клавіша Space
+Space plays and pauses	Space: пуск і пауза
+Space takes (Shift+Space plays and pauses)	Space виконує TAKE (Shift+Space: пуск і пауза)

@@ -4995,3 +4995,6 @@ DRAW EVERY: seconds, 0.5-20	DRAW EVERY : secondes, 0.5-20
 How often they all change together	Fréquence à laquelle elles changent toutes ensemble
 the words to spell out in critters	les mots à écrire en bestioles
 Which critters: all of them changing together, each new stroke the next one, or one you choose	Quelles bestioles : toutes changeant ensemble, chaque nouveau trait la suivante, ou celle de votre choix
+Space key	Touche Space
+Space plays and pauses	Space lit et met en pause
+Space takes (Shift+Space plays and pauses)	Space envoie un cue en direct (Shift+Space lit et met en pause)

@@ -5046,3 +5046,6 @@ DRAW EVERY: seconds, 0.5-20	DRAW EVERY: giây, 0.5-20
 How often they all change together	Tần suất tất cả cùng đổi
 the words to spell out in critters	các từ để ghép bằng sinh vật
 Which critters: all of them changing together, each new stroke the next one, or one you choose	Sinh vật nào: tất cả cùng đổi, mỗi nét vẽ mới là con tiếp theo, hoặc một con bạn chọn
+Space key	Phím Space
+Space plays and pauses	Space phát và tạm dừng
+Space takes (Shift+Space plays and pauses)	Space thực hiện TAKE (Shift+Space phát và tạm dừng)

@@ -5031,3 +5031,6 @@ DRAW EVERY: seconds, 0.5-20	DRAW EVERY: sekundy, 0.5-20
 How often they all change together	Jak często wszystkie zmieniają się razem
 the words to spell out in critters	słowa do ułożenia ze stworków
 Which critters: all of them changing together, each new stroke the next one, or one you choose	Które stworki: wszystkie zmieniają się razem, każda nowa kreska to następny lub jeden, który wybierzesz
+Space key	Klawisz Space
+Space plays and pauses	Space odtwarza i pauzuje
+Space takes (Shift+Space plays and pauses)	Space wykonuje TAKE (Shift+Space odtwarza i pauzuje)

@@ -3405,6 +3405,11 @@ struct Project {
   // it (2026-11-23, an operator on r/VIDEOENGINEERING: "the playhead doesn't
   // move to the next cue ... when you start a clip"). Off: the selection stays.
   bool takeSelectsNext = true;
+  // SPACE TAKES (Settings > System > SHOW FLOW; asked for on r/VIDEOENGINEERING,
+  // 2026-11-25: "I actually meant take with space"). Off: Space plays and
+  // pauses, as always. On: Space is the operator's TAKE, as Enter is, and
+  // Shift+Space plays and pauses.
+  bool spaceTakes = false;
   // Panic button behavior (emergency stop):
   std::string panicProfile = "outputs_off"; // "outputs_off"|"fade_pause"|"fade_rewind"|"fade_load_next"
   double panicFadeSeconds = 0.9;            // panic fade-out duration

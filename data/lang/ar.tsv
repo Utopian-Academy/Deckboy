@@ -5077,3 +5077,6 @@ DRAW EVERY: seconds, 0.5-20	DRAW EVERY: ثوانٍ، 0.5-20
 How often they all change together	عدد مرات تغيّرها كلها معًا
 the words to spell out in critters	الكلمات المراد تهجئتها بالمخلوقات
 Which critters: all of them changing together, each new stroke the next one, or one you choose	أيّ المخلوقات: كلها تتغيّر معًا، أو التالي مع كل ضربة فرشاة جديدة، أو واحد تختاره
+Space key	مفتاح Space
+Space plays and pauses	Space يشغّل ويوقف مؤقتًا
+Space takes (Shift+Space plays and pauses)	Space ينفّذ TAKE (Shift+Space يشغّل ويوقف مؤقتًا)

@@ -5059,3 +5059,6 @@ DRAW EVERY: seconds, 0.5-20	DRAW EVERY: diogan, 0.5-20
 How often they all change together	Dè cho tric ’s a dh’atharraicheas iad uile còmhla
 the words to spell out in critters	na faclan ri litreachadh le creutairean
 Which critters: all of them changing together, each new stroke the next one, or one you choose	Dè na creutairean: iad uile ag atharrachadh còmhla, gach stròc ùr an ath fhear, no fear a thaghas tu
+Space key	Iuchair Space
+Space plays and pauses	Cluichidh is stadaidh Space
+Space takes (Shift+Space plays and pauses)	Cuiridh Space cue air an èadhar (cluichidh is stadaidh Shift+Space)

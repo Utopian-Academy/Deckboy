@@ -5077,3 +5077,6 @@ DRAW EVERY: seconds, 0.5-20	DRAW EVERY: ثانیه، 0.5-20
 How often they all change together	هر چند وقت یک‌بار همه با هم تغییر می‌کنند
 the words to spell out in critters	واژه‌هایی که با جانوران نوشته می‌شوند
 Which critters: all of them changing together, each new stroke the next one, or one you choose	کدام جانوران: همه با هم در حال تغییر، هر قلم‌موی جدید بعدی، یا یکی که خودتان انتخاب کنید
+Space key	کلید Space
+Space plays and pauses	Space پخش و مکث می‌کند
+Space takes (Shift+Space plays and pauses)	Space کیو را زنده پخش می‌کند (Shift+Space پخش و مکث می‌کند)

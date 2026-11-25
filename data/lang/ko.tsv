@@ -5061,3 +5061,6 @@ DRAW EVERY: seconds, 0.5-20	DRAW EVERY: 초, 0.5-20
 How often they all change together	모두 함께 변경되는 빈도
 the words to spell out in critters	동물로 쓸 단어
 Which critters: all of them changing together, each new stroke the next one, or one you choose	어떤 동물: 모두 함께 변경, 새 획마다 다음 동물, 또는 직접 선택한 하나
+Space key	Space 키
+Space plays and pauses	Space로 재생 및 일시정지
+Space takes (Shift+Space plays and pauses)	Space로 TAKE (Shift+Space로 재생 및 일시정지)

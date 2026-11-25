@@ -5023,3 +5023,6 @@ DRAW EVERY: seconds, 0.5-20	DRAW EVERY: Sekunden, 0.5-20
 How often they all change together	Wie oft alle zusammen wechseln
 the words to spell out in critters	die Wörter, die mit Tierchen geschrieben werden
 Which critters: all of them changing together, each new stroke the next one, or one you choose	Welche Tierchen: alle wechseln zusammen, bei jedem neuen Strich das nächste, oder eines nach Wahl
+Space key	Space-Taste
+Space plays and pauses	Space spielt ab und pausiert
+Space takes (Shift+Space plays and pauses)	Space führt TAKE aus (Shift+Space spielt ab und pausiert)

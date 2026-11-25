@@ -5050,3 +5050,6 @@ DRAW EVERY: seconds, 0.5-20	DRAW EVERY: imizuzwana, 0.5-20
 How often they all change together	Kaningi kangakanani zonke zishintsha ndawonye
 the words to spell out in critters	amagama azobhalwa ngezilwanyana
 Which critters: all of them changing together, each new stroke the next one, or one you choose	Iziphi izilwanyana: zonke zishintsha ndawonye, umdwebo omusha ngamunye uthola esilandelayo, noma esisodwa osikhethayo
+Space key	Inkinobho ye-Space
+Space plays and pauses	U-Space uyadlala futhi umisa kancane
+Space takes (Shift+Space plays and pauses)	U-Space wenza i-TAKE (u-Shift+Space uyadlala futhi umisa kancane)

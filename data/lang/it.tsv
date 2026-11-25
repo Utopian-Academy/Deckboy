@@ -5026,3 +5026,6 @@ DRAW EVERY: seconds, 0.5-20	DRAW EVERY: secondi, 0.5-20
 How often they all change together	Ogni quanto cambiano tutte insieme
 the words to spell out in critters	le parole da comporre con le bestioline
 Which critters: all of them changing together, each new stroke the next one, or one you choose	Quali bestioline: tutte che cambiano insieme, la prossima a ogni nuovo tratto, o una che scegli
+Space key	Tasto Space
+Space plays and pauses	Space riproduce e mette in pausa
+Space takes (Shift+Space plays and pauses)	Space manda in diretta (Shift+Space riproduce e mette in pausa)

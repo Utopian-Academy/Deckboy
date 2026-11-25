@@ -5030,3 +5030,6 @@ DRAW EVERY: seconds, 0.5-20	DRAW EVERY: segundos, 0.5-20
 How often they all change together	Cada cuánto cambian todos a la vez
 the words to spell out in critters	las palabras que se escriben con bichos
 Which critters: all of them changing together, each new stroke the next one, or one you choose	Qué bichos: todos cambiando a la vez, cada trazo nuevo el siguiente, o uno que elijas
+Space key	Tecla Space
+Space plays and pauses	Space reproduce y pausa
+Space takes (Shift+Space plays and pauses)	Space pone un cue en vivo (Shift+Space reproduce y pausa)

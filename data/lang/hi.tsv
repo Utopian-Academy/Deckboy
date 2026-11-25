@@ -5066,3 +5066,6 @@ DRAW EVERY: seconds, 0.5-20	DRAW EVERY: सेकंड, 0.5-20
 How often they all change together	सभी कितनी बार एक साथ बदलें
 the words to spell out in critters	जीव-जंतुओं से लिखे जाने वाले शब्द
 Which critters: all of them changing together, each new stroke the next one, or one you choose	कौन-से जीव-जंतु: सभी एक साथ बदलें, हर नया ब्रश स्ट्रोक अगला, या एक जिसे आप चुनें
+Space key	Space कुंजी
+Space plays and pauses	Space चलाता और रोकता है
+Space takes (Shift+Space plays and pauses)	Space take करता है (Shift+Space चलाता और रोकता है)

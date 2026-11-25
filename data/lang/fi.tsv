@@ -5062,3 +5062,6 @@ DRAW EVERY: seconds, 0.5-20	DRAW EVERY: sekunnit, 0.5-20
 How often they all change together	Kuinka usein ne kaikki vaihtuvat yhtä aikaa
 the words to spell out in critters	sanat, jotka kirjoitetaan ötököillä
 Which critters: all of them changing together, each new stroke the next one, or one you choose	Mitkä ötökät: kaikki vaihtuvat yhtä aikaa, jokainen uusi veto seuraava, tai valitsemasi
+Space key	Space-näppäin
+Space plays and pauses	Space toistaa ja tauottaa
+Space takes (Shift+Space plays and pauses)	Space vie cuen lähetykseen (Shift+Space toistaa ja tauottaa)

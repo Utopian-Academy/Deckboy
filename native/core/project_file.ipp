@@ -446,6 +446,7 @@ void writeProjectScalars(std::ostream& output, const Project& project) {
   output << "jump_mode\t" << escapeField(project.jumpMode) << '\n';
   output << "jump_transition\t" << (project.jumpTransitionEnabled ? 1 : 0) << '\n';
   output << "take_selects_next\t" << (project.takeSelectsNext ? 1 : 0) << '\n';
+  output << "space_takes\t" << (project.spaceTakes ? 1 : 0) << '\n';
   output << "panic_profile\t" << escapeField(project.panicProfile) << '\n';
   output << "panic_fade_seconds\t" << project.panicFadeSeconds << '\n';
   output << "panic_auto_restore\t" << (project.panicAutoRestore ? 1 : 0) << '\n';
@@ -1861,6 +1862,8 @@ bool applyProjectScalarLinePart2(Project& project, const std::vector<std::string
     project.jumpTransitionEnabled = safeBool(fields, 1, true);
   } else if (fields[0] == "take_selects_next") {
     project.takeSelectsNext = safeBool(fields, 1, true);
+  } else if (fields[0] == "space_takes") {
+    project.spaceTakes = safeBool(fields, 1, false);
   } else if (fields[0] == "panic_profile") {
     project.panicProfile = normalizePanicProfileToken(safeString(fields, 1));
   } else if (fields[0] == "panic_fade_seconds") {

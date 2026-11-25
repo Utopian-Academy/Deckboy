@@ -5064,3 +5064,6 @@ DRAW EVERY: seconds, 0.5-20	DRAW EVERY: 秒、0.5-20
 How often they all change together	すべてが一斉に変わる間隔
 the words to spell out in critters	生き物でつづる単語
 Which critters: all of them changing together, each new stroke the next one, or one you choose	使う生き物：すべてを一斉に変更、新規ストロークごとに次へ、または選択した1つ
+Space key	Spaceキー
+Space plays and pauses	Space で再生/一時停止
+Space takes (Shift+Space plays and pauses)	Space で TAKE (Shift+Space で再生/一時停止)

@@ -5018,3 +5018,6 @@ DRAW EVERY: seconds, 0.5-20	DRAW EVERY: segundos, 0.5-20
 How often they all change together	Com que frequência todos mudam juntos
 the words to spell out in critters	as palavras a formar com bichinhos
 Which critters: all of them changing together, each new stroke the next one, or one you choose	Quais bichinhos: todos mudando juntos, cada novo traço o próximo, ou um que você escolher
+Space key	Tecla Space
+Space plays and pauses	Space toca e pausa
+Space takes (Shift+Space plays and pauses)	Space faz o TAKE (Shift+Space toca e pausa)

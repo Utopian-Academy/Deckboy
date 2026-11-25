@@ -5005,3 +5005,6 @@ DRAW EVERY: seconds, 0.5-20	DRAW EVERY: sekunder, 0.5-20
 How often they all change together	Hvor ofte de alle skifter sammen
 the words to spell out in critters	de ord, der skal staves med dyr
 Which critters: all of them changing together, each new stroke the next one, or one you choose	Hvilke dyr: alle skifter sammen, det næste for hvert nyt strøg, eller ét, du vælger
+Space key	Space-tast
+Space plays and pauses	Space afspiller og pauser
+Space takes (Shift+Space plays and pauses)	Space laver TAKE (Shift+Space afspiller og pauser)

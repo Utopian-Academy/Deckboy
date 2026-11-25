@@ -2422,7 +2422,9 @@
         operatorTake();
         break;
       case SDLK_SPACE:
-        toggleTransport();
+        // Space TAKES when SHOW FLOW says so; Shift+Space then plays and pauses.
+        if (project_.spaceTakes && !(mod & SDL_KMOD_SHIFT)) operatorTake();
+        else toggleTransport();
         break;
       case SDLK_S:
         stopTransport();

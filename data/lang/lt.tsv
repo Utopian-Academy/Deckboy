@@ -4144,3 +4144,6 @@ DRAW EVERY: seconds, 0.5-20	DRAW EVERY: sekundės, 0.5-20
 How often they all change together	Kaip dažnai jie visi keičiasi kartu
 the words to spell out in critters	žodžiai, kuriuos išdėlioti gyvūnėliais
 Which critters: all of them changing together, each new stroke the next one, or one you choose	Kurie gyvūnėliai: visi keičiasi kartu, kiekvienas naujas kontūras – kitas, arba vienas jūsų pasirinktas
+Space key	Space klavišas
+Space plays and pauses	Space groja ir pristabdo
+Space takes (Shift+Space plays and pauses)	Space atlieka TAKE (Shift+Space groja ir pristabdo)

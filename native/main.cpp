@@ -8886,6 +8886,7 @@ class App {
   static constexpr int kSettingsActionPhoneForget = 797;
   static constexpr int kSettingsActionGoGuardCycle = 798;
   static constexpr int kSettingsActionTakeSelectsNext = 60300;
+  static constexpr int kSettingsActionSpaceTakes = 60303;
   // ST 2110-20 output (Devices sub-tab).
   static constexpr int kSettingsActionSt2110Toggle = 658;
   static constexpr int kSettingsActionSt2110AddressPrompt = 659;

@@ -5063,3 +5063,6 @@ DRAW EVERY: seconds, 0.5-20	DRAW EVERY: секунди, 0.5-20
 How often they all change together	Колко често се сменят всички заедно
 the words to spell out in critters	думите, които да се изпишат със зверчета
 Which critters: all of them changing together, each new stroke the next one, or one you choose	Кои зверчета: всички се сменят заедно, всеки нов щрих е следващото, или едно по ваш избор
+Space key	Клавиш Space
+Space plays and pauses	Space пуска и паузира
+Space takes (Shift+Space plays and pauses)	Space прави TAKE (Shift+Space пуска и паузира)

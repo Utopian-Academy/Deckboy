@@ -5046,3 +5046,6 @@ DRAW EVERY: seconds, 0.5-20	DRAW EVERY: ວິນາທີ, 0.5-20
 How often they all change together	ຄວາມຖີ່ທີ່ທັງໝົດປ່ຽນພ້ອມກັນ
 the words to spell out in critters	ຄຳທີ່ຈະສະກົດດ້ວຍສັດນ້ອຍ
 Which critters: all of them changing together, each new stroke the next one, or one you choose	ສັດນ້ອຍໃດ: ທັງໝົດປ່ຽນພ້ອມກັນ, ຮອຍວາດໃໝ່ແຕ່ລະອັນເປັນໂຕຖັດໄປ, ຫຼື ໜຶ່ງໂຕທີ່ເຈົ້າເລືອກ
+Space key	ປຸ່ມ Space
+Space plays and pauses	Space ຫຼິ້ນ ແລະ ຢຸດຊົ່ວຄາວ
+Space takes (Shift+Space plays and pauses)	Space ເຮັດ TAKE (Shift+Space ຫຼິ້ນ ແລະ ຢຸດຊົ່ວຄາວ)

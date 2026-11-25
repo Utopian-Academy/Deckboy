@@ -1007,8 +1007,8 @@
                                 sRowH, sRowH, sRowH, sRowH, sRowH, sRowH, sRowH});
       int safetyH = stackH({sRowH, sRowH, sRowH, sRowH});
       // SHOW FLOW: vj mode, jump mode, global crossfade, TAKE selects next,
-      // double-GO guard, panic profile, panic now. Seven rows, one each.
-      int flowH = stackH({sRowH, sRowH, sRowH, sRowH, sRowH, sRowH, sRowH});
+      // the Space key, double-GO guard, panic profile, panic now. Eight rows, one each.
+      int flowH = stackH({sRowH, sRowH, sRowH, sRowH, sRowH, sRowH, sRowH, sRowH});
       int cueToolsH = sCardHeaderH + sLineH * 2 + sGap + sRowH + sPad;
       int prefsH = stackH({sRowH, sLineH, sRowH, sRowH, sRowH, sRowH, sRowH, sRowH, sRowH});
       // One toggle, one row of two buttons, one status line. Counted rather
@@ -1317,6 +1317,13 @@
       drawPillToggle(takeNextBtn, project_.takeSelectsNext, "ON", "OFF");
       settingsBtns_.push_back({takeNextBtn, kSettingsActionTakeSelectsNext,
                                "After a TAKE the next cue is selected, so the next TAKE plays it"});
+
+      SDL_Rect spaceBtn =
+        settingsRow(flowX, flowW, flowY, sRowH, "Space key", sGap);
+      drawPillToggle(spaceBtn, project_.spaceTakes, "TAKE", "PLAY/PAUSE");
+      settingsBtns_.push_back({spaceBtn, kSettingsActionSpaceTakes,
+                               "TAKE: Space takes the selected cue, as Enter does, and Shift+Space plays and pauses. "
+                               "PLAY/PAUSE: Space plays and pauses"});
 
       SDL_Rect goGuardBtn =
         settingsRow(flowX, flowW, flowY, sRowH, "Double-GO guard", sGap);
@@ -5777,6 +5784,10 @@
         setWebMonitorLowLatency(!project_.webMonitorLowLatency);
       } else if (sb.action == kSettingsActionWebMonitorQr) {
         openWebMonitorQr();
+      } else if (sb.action == kSettingsActionSpaceTakes) {
+        project_.spaceTakes = !project_.spaceTakes;
+        triggerToast(project_.spaceTakes ? "Space takes (Shift+Space plays and pauses)" : "Space plays and pauses");
+        markProjectDirty();
       } else if (sb.action == kSettingsActionTakeSelectsNext) {
         project_.takeSelectsNext = !project_.takeSelectsNext;
         triggerToast(project_.takeSelectsNext ? "TAKE selects the next cue" : "TAKE leaves the selection where it is");

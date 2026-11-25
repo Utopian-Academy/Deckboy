@@ -5054,3 +5054,6 @@ DRAW EVERY: seconds, 0.5-20	DRAW EVERY: saniye, 0.5-20
 How often they all change together	Tümünün birlikte değişme sıklığı
 the words to spell out in critters	yaratıklarla yazılacak sözcükler
 Which critters: all of them changing together, each new stroke the next one, or one you choose	Hangi yaratıklar: tümü birlikte değişir, her yeni fırça izi sonrakini kullanır ya da seçtiğiniz biri
+Space key	Space tuşu
+Space plays and pauses	Space oynatır ve duraklatır
+Space takes (Shift+Space plays and pauses)	Space TAKE yapar (Shift+Space oynatır ve duraklatır)

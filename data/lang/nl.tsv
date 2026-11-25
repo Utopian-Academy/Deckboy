@@ -4996,3 +4996,6 @@ DRAW EVERY: seconds, 0.5-20	DRAW EVERY: seconden, 0.5-20
 How often they all change together	Hoe vaak ze allemaal samen wijzigen
 the words to spell out in critters	de woorden om in beestjes te spellen
 Which critters: all of them changing together, each new stroke the next one, or one you choose	Welke beestjes: allemaal samen wijzigen, elke nieuwe streek de volgende, of één die je kiest
+Space key	Space-toets
+Space plays and pauses	Space speelt af en pauzeert
+Space takes (Shift+Space plays and pauses)	Space doet een TAKE (Shift+Space speelt af en pauzeert)

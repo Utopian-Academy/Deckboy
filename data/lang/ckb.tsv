@@ -5064,3 +5064,6 @@ DRAW EVERY: seconds, 0.5-20	DRAW EVERY: چرکە، 0.5-20
 How often they all change together	هەموویان چەند جار پێکەوە دەگۆڕێن
 the words to spell out in critters	ئەو وشانەی بە گیانلەبەران دەنووسرێن
 Which critters: all of them changing together, each new stroke the next one, or one you choose	کام گیانلەبەر: هەموویان پێکەوە دەگۆڕێن، هەر هێڵی فڵچەی نوێ دانەی دواتر، یان یەکێک کە خۆت هەڵیدەبژێریت
+Space key	کلیلی Space
+Space plays and pauses	Space لێ دەدات و دەوەستێنێت
+Space takes (Shift+Space plays and pauses)	Space TAKE دەکات (Shift+Space لێ دەدات و دەوەستێنێت)

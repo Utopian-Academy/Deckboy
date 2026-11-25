@@ -5056,3 +5056,6 @@ DRAW EVERY: seconds, 0.5-20	DRAW EVERY: sekúndur, 0.5-20
 How often they all change together	Hve oft þau breytast öll saman
 the words to spell out in critters	orðin sem á að stafa með kvikindum
 Which critters: all of them changing together, each new stroke the next one, or one you choose	Hvaða kvikindi: öll breytast saman, hvert nýtt strok fær það næsta, eða eitt sem þú velur
+Space key	Space-lykill
+Space plays and pauses	Space spilar og gerir hlé
+Space takes (Shift+Space plays and pauses)	Space setur í loftið (Shift+Space spilar og gerir hlé)

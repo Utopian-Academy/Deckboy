@@ -5061,3 +5061,6 @@ DRAW EVERY: seconds, 0.5-20	DRAW EVERY：秒数，0.5-20
 How often they all change together	全部一起变化的频率
 the words to spell out in critters	要用小动物拼出的词语
 Which critters: all of them changing together, each new stroke the next one, or one you choose	哪些小动物：全部一起变化、每个新笔触换下一个，或你选择的一个
+Space key	Space 键
+Space plays and pauses	Space 播放和暂停
+Space takes (Shift+Space plays and pauses)	Space 执行 TAKE（Shift+Space 播放和暂停）
