@@ -4931,3 +4931,10 @@ PLAYS FOCUS, DARK or a playlist number	PLAYS FOCUS, DARK eller et playlistenumme
 This desk is not leading, so no phone can follow it	Denne pult fører ikke, så ingen telefon kan følge den
 On the phone: MENU > SYNC, then type this desk's address	På telefonen: MENU > SYNC, og skriv så denne pults adresse
 OUTPUT PHONE <name|number> PLAYS <FOCUS|DARK|playlist> or IDENTIFY	OUTPUT PHONE <navn|nummer> PLAYS <FOCUS|DARK|playliste> eller IDENTIFY
+phone away	telefon væk
+Its own list	Sin egen liste
+on the phone	på telefonen
+Waiting for {1}	Venter på {1}
+No room for {1}'s playlist	Ingen plads til playlisten fra {1}
+{1} is not following this desk	{1} følger ikke denne pult
+OUTPUT PHONE <name|number> PLAYS <FOCUS|DARK|OWN|playlist> or IDENTIFY	OUTPUT PHONE <navn|nummer> PLAYS <FOCUS|DARK|OWN|playliste> eller IDENTIFY

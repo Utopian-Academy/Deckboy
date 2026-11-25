@@ -1666,8 +1666,9 @@
       // Asked of the routing, not read off the label: this compared the label
       // with "--" after the label had become "no output", so the warning
       // never showed.
-      bool routed = false;
-      for (int o = 0; o < static_cast<int>(project_.outputs.size()) && !routed; ++o) {
+      // A phone's own list is "routed" while the phone is here to play it.
+      bool routed = deckIsPhone(deckIndex) && phoneDeckHere(deckIndex);
+      for (int o = 0; o < static_cast<int>(project_.outputs.size()) && !routed && !deckIsPhone(deckIndex); ++o) {
         routed = assignmentIndexForDeckOutput(deckIndex, o).has_value();
       }
       if (routed) {
@@ -2527,7 +2528,8 @@
     // Cached display strings — avoids TTF loop in ellipsizeToPixelWidth every frame
     bool isProbing = cue.width == 0 && cue.height == 0 && !cue.path.empty()
                      && cue.kind != CueKind::Pattern && cue.kind != CueKind::LowerThird
-                     && cue.kind != CueKind::Mic;
+                     && cue.kind != CueKind::Mic
+                     && cue.path.rfind("phone://", 0) != 0;   // a phone's cue: the phone knows its size
     auto& dc = cueRowDisplayCache_[cue.id];
     if (dc.name != cue.name || dc.nameW != nameW || dc.cueId != cue.cueId
         || dc.cueNumber != cue.cueNumber || dc.index != index || dc.kind != cue.kind
@@ -2820,6 +2822,17 @@
     // half-disabled -- the thing that gets fixed systemically or not at all.
     // Painted in the row's own fill so it washes toward the panel it sits in
     // on every theme, light or dark, instead of toward a fixed grey.
+    // A phone's own list while the phone is away: the rows are the copy the
+    // show kept, washed out the same way, until the phone is back.
+    if (cue.armed && deckIsPhone(deckIndex) && !phoneDeckHere(deckIndex)) {
+      SDL_Color scrim = fill;
+      scrim.a = 140;
+      if (deckboy::render::gChrome.enabled) {
+        Primitives::fillChromeSlice(controlRenderer_, row, row, scrim, uiScaled(1));
+      } else {
+        Primitives::fillRect(controlRenderer_, insetRect(row, 1), scrim);
+      }
+    }
     if (!cue.armed) {
       SDL_Color scrim = fill;
       scrim.a = 165;

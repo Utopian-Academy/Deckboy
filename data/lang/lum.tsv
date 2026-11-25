@@ -4997,3 +4997,10 @@ PLAYS FOCUS, DARK or a playlist number	PLAYS FOCUS, DARK / vekakunuma
 This desk is not leading, so no phone can follow it	Vamuni: sonajana vapel novtoki so dekadora nakae
 On the phone: MENU > SYNC, then type this desk's address	Kae sonajana: MENU > SYNC, novtok grai kaea dekadora nakae
 OUTPUT PHONE <name|number> PLAYS <FOCUS|DARK|playlist> or IDENTIFY	OUTPUT PHONE <hola|numa> PLAYS <FOCUS|DARK|vekaku> / IDENTIFY
+phone away	Sonajana va kae
+Its own list	Vekaku sova
+on the phone	Kae sonajana
+Waiting for {1}	Peni {1}
+No room for {1}'s playlist	Va kaea go vekaku {1}
+{1} is not following this desk	{1} vanovtoki so dekadora nakae
+OUTPUT PHONE <name|number> PLAYS <FOCUS|DARK|OWN|playlist> or IDENTIFY	OUTPUT PHONE <hola|numa> PLAYS <FOCUS|DARK|OWN|vekaku> va IDENTIFY

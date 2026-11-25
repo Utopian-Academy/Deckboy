@@ -4986,3 +4986,10 @@ PLAYS FOCUS, DARK or a playlist number	PLAYS FOCUS، DARK یان ژمارەی ل
 This desk is not leading, so no phone can follow it	ئەم مێزی کۆنترۆڵە ڕابەر نییە، بۆیە هیچ تەلەفۆنێک ناتوانێت شوێنی بکەوێت
 On the phone: MENU > SYNC, then type this desk's address	لەسەر تەلەفۆن: مێنیو > SYNC، پاشان ناونیشانی ئەم مێزی کۆنترۆڵە بنووسە
 OUTPUT PHONE <name|number> PLAYS <FOCUS|DARK|playlist> or IDENTIFY	OUTPUT PHONE <ناو|ژمارە> PLAYS <FOCUS|DARK|لیستی لێدان> یان IDENTIFY
+phone away	تەلەفۆن ئامادە نییە
+Its own list	لیستی خۆی
+on the phone	لەسەر تەلەفۆن
+Waiting for {1}	چاوەڕوانی {1}
+No room for {1}'s playlist	شوێن نییە بۆ لیستی لێدانی {1}
+{1} is not following this desk	{1} شوێن ئەم مێزی کۆنترۆڵە ناکەوێت
+OUTPUT PHONE <name|number> PLAYS <FOCUS|DARK|OWN|playlist> or IDENTIFY	OUTPUT PHONE <ناو|ژمارە> PLAYS <FOCUS|DARK|OWN|لیستی لێدان> یان IDENTIFY

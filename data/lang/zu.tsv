@@ -4971,3 +4971,10 @@ PLAYS FOCUS, DARK or a playlist number	PLAYS FOCUS, DARK noma inombolo yohlu
 This desk is not leading, so no phone can follow it	Leli deski aliholi, ngakho alukho ucingo olungalilandela
 On the phone: MENU > SYNC, then type this desk's address	Ocingweni: IMENYU > SYNC, bese uthayipha ikheli laleli deski
 OUTPUT PHONE <name|number> PLAYS <FOCUS|DARK|playlist> or IDENTIFY	OUTPUT PHONE <igama|inombolo> PLAYS <FOCUS|DARK|uhlu> noma IDENTIFY
+phone away	ucingo alukho
+Its own list	Uhlu lwayo
+on the phone	ocingweni
+Waiting for {1}	Kulindwe {1}
+No room for {1}'s playlist	Ayikho indawo yohlu lwe-{1}
+{1} is not following this desk	{1} ayilandeli leli deski
+OUTPUT PHONE <name|number> PLAYS <FOCUS|DARK|OWN|playlist> or IDENTIFY	OUTPUT PHONE <igama|inombolo> PLAYS <FOCUS|DARK|OWN|uhlu> noma IDENTIFY

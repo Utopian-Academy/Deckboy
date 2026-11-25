@@ -4954,3 +4954,10 @@ PLAYS FOCUS, DARK or a playlist number	PLAYS FOCUS, DARK lub numer playlisty
 This desk is not leading, so no phone can follow it	Ten pulpit nie prowadzi, więc żaden telefon nie może go śledzić
 On the phone: MENU > SYNC, then type this desk's address	Na telefonie: MENU > SYNC, potem wpisz adres tego pulpitu
 OUTPUT PHONE <name|number> PLAYS <FOCUS|DARK|playlist> or IDENTIFY	OUTPUT PHONE <nazwa|numer> PLAYS <FOCUS|DARK|playlista> lub IDENTIFY
+phone away	telefon nieobecny
+Its own list	Własna lista
+on the phone	na telefonie
+Waiting for {1}	Oczekiwanie na {1}
+No room for {1}'s playlist	Brak miejsca na playlistę {1}
+{1} is not following this desk	{1} nie śledzi tego pulpitu
+OUTPUT PHONE <name|number> PLAYS <FOCUS|DARK|OWN|playlist> or IDENTIFY	OUTPUT PHONE <nazwa|numer> PLAYS <FOCUS|DARK|OWN|playlista> lub IDENTIFY

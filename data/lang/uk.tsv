@@ -4985,3 +4985,10 @@ PLAYS FOCUS, DARK or a playlist number	PLAYS FOCUS, DARK або номер пл�
 This desk is not leading, so no phone can follow it	Цей оператор не ведучий, тому жоден телефон не може слідувати за ним
 On the phone: MENU > SYNC, then type this desk's address	На телефоні: МЕНЮ > SYNC, потім введіть адресу цього пульта
 OUTPUT PHONE <name|number> PLAYS <FOCUS|DARK|playlist> or IDENTIFY	OUTPUT PHONE <назва|номер> PLAYS <FOCUS|DARK|плейлист> або IDENTIFY
+phone away	телефон не на зв’язку
+Its own list	Власний список
+on the phone	на телефоні
+Waiting for {1}	Очікування {1}
+No room for {1}'s playlist	Немає місця для плейлиста {1}
+{1} is not following this desk	{1} не слідує за цим оператором
+OUTPUT PHONE <name|number> PLAYS <FOCUS|DARK|OWN|playlist> or IDENTIFY	OUTPUT PHONE <назва|номер> PLAYS <FOCUS|DARK|OWN|плейлист> або IDENTIFY

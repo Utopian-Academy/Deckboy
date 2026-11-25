@@ -2261,6 +2261,11 @@ struct Deck {
   // itself -- see serviceWatchFolders() in app_cue_mgmt.ipp for why the scan
   // runs on a worker and why a file has to hold still before it is taken.
   std::string watchFolder;
+  // A PHONE'S OWN LIST (app_network.ipp, "a phone as a deck"): the name of
+  // the phone whose cue list this playlist is. Its cues are the phone's
+  // (path phone://<the phone's cue id>); GO, STOP, PLAY and PAUSE are sent to
+  // the phone, which plays its own media. Empty for every other playlist.
+  std::string phoneName;
   std::vector<Cue> cues;                  // ordered cue list for this deck
   int selectedIndex = -1;                 // UI cursor position (-1 = nothing selected)
   int activeIndex = -1;                   // currently playing/on-air cue (-1 = none)

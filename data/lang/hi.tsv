@@ -4986,3 +4986,10 @@ PLAYS FOCUS, DARK or a playlist number	PLAYS FOCUS, DARK या प्लेल�
 This desk is not leading, so no phone can follow it	यह डेस्क अग्रणी नहीं है, इसलिए कोई फ़ोन इसका अनुसरण नहीं कर सकता
 On the phone: MENU > SYNC, then type this desk's address	फ़ोन पर: मेनू > SYNC, फिर इस डेस्क का पता लिखें
 OUTPUT PHONE <name|number> PLAYS <FOCUS|DARK|playlist> or IDENTIFY	OUTPUT PHONE <नाम|संख्या> PLAYS <FOCUS|DARK|प्लेलिस्ट> या IDENTIFY
+phone away	फ़ोन मौजूद नहीं
+Its own list	इसकी अपनी सूची
+on the phone	फ़ोन पर
+Waiting for {1}	{1} की प्रतीक्षा
+No room for {1}'s playlist	{1} की प्लेलिस्ट के लिए जगह नहीं
+{1} is not following this desk	{1} इस डेस्क का अनुसरण नहीं कर रहा है
+OUTPUT PHONE <name|number> PLAYS <FOCUS|DARK|OWN|playlist> or IDENTIFY	OUTPUT PHONE <नाम|संख्या> PLAYS <FOCUS|DARK|OWN|प्लेलिस्ट> या IDENTIFY

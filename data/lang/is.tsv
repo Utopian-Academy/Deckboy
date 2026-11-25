@@ -4976,3 +4976,10 @@ PLAYS FOCUS, DARK or a playlist number	PLAYS FOCUS, DARK eða númer spilunarlis
 This desk is not leading, so no phone can follow it	Þetta stjórnborð er ekki í forystu, svo enginn sími getur fylgt því
 On the phone: MENU > SYNC, then type this desk's address	Í símanum: VALMYND > SYNC, sláðu svo inn vistfang þessa stjórnborðs
 OUTPUT PHONE <name|number> PLAYS <FOCUS|DARK|playlist> or IDENTIFY	OUTPUT PHONE <heiti|númer> PLAYS <FOCUS|DARK|spilunarlisti> eða IDENTIFY
+phone away	sími fjarverandi
+Its own list	Eigin listi
+on the phone	í símanum
+Waiting for {1}	Bíður eftir {1}
+No room for {1}'s playlist	Ekkert pláss fyrir spilunarlista {1}
+{1} is not following this desk	{1} fylgir ekki þessu stjórnborði
+OUTPUT PHONE <name|number> PLAYS <FOCUS|DARK|OWN|playlist> or IDENTIFY	OUTPUT PHONE <heiti|númer> PLAYS <FOCUS|DARK|OWN|spilunarlisti> eða IDENTIFY

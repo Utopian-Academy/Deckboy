@@ -4949,3 +4949,10 @@ PLAYS FOCUS, DARK or a playlist number	PLAYS FOCUS, DARK a i ʻole ka helu o ka 
 This desk is not leading, so no phone can follow it	ʻAʻole e alakaʻi ana kēia papa, no laila ʻaʻole hiki i kekahi kelepona ke hahai iā ia
 On the phone: MENU > SYNC, then type this desk's address	Ma ke kelepona: PAPA KUHIKUHI > SYNC, a laila kikokiko i ka helu wahi o kēia papa
 OUTPUT PHONE <name|number> PLAYS <FOCUS|DARK|playlist> or IDENTIFY	OUTPUT PHONE <inoa|helu> PLAYS <FOCUS|DARK|papa helu> a i ʻole IDENTIFY
+phone away	kelepona ma kahi ʻē
+Its own list	Kona papa helu ponoʻī
+on the phone	ma ke kelepona
+Waiting for {1}	Ke kali nei iā {1}
+No room for {1}'s playlist	ʻAʻohe wahi no ka papa helu o {1}
+{1} is not following this desk	ʻAʻole ʻo {1} e hahai ana i kēia papa
+OUTPUT PHONE <name|number> PLAYS <FOCUS|DARK|OWN|playlist> or IDENTIFY	OUTPUT PHONE <inoa|helu> PLAYS <FOCUS|DARK|OWN|papa helu> a i ʻole IDENTIFY

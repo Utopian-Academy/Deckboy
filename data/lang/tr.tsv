@@ -4976,3 +4976,10 @@ PLAYS FOCUS, DARK or a playlist number	PLAYS FOCUS, DARK veya çalma listesi num
 This desk is not leading, so no phone can follow it	Bu operatör lider değil, bu yüzden hiçbir telefon onu izleyemez
 On the phone: MENU > SYNC, then type this desk's address	Telefonda: MENÜ > SYNC, sonra bu masanın adresini yaz
 OUTPUT PHONE <name|number> PLAYS <FOCUS|DARK|playlist> or IDENTIFY	OUTPUT PHONE <ad|numara> PLAYS <FOCUS|DARK|çalma listesi> veya IDENTIFY
+phone away	telefon uzakta
+Its own list	Kendi listesi
+on the phone	telefonda
+Waiting for {1}	{1} bekleniyor
+No room for {1}'s playlist	{1} için çalma listesine yer yok
+{1} is not following this desk	{1} bu operatörü izlemiyor
+OUTPUT PHONE <name|number> PLAYS <FOCUS|DARK|OWN|playlist> or IDENTIFY	OUTPUT PHONE <ad|numara> PLAYS <FOCUS|DARK|OWN|çalma listesi> veya IDENTIFY

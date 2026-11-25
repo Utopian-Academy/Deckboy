@@ -4997,3 +4997,10 @@ PLAYS FOCUS, DARK or a playlist number	PLAYS FOCUS, DARK ⵏⵖ ⵓⵟⵟⵓⵏ 
 This desk is not leading, so no phone can follow it	ⵜⴰⴼⵉⵍⵓⵜ ⴰⴷ ⵓⵔ ⵜⵜⵣⵡⵉⵔ, ⵓⵔ ⵜⵣⵎⵉⵔ ⵃⵜⵜⴰ ⵜⵉⵍⵉⵖⵔⵉ ⴰⴷ ⵜⵜ ⵜⴹⴼⵔ
 On the phone: MENU > SYNC, then type this desk's address	ⵖ ⵜⵉⵍⵉⵖⵔⵉ: ⵓⵎⵓⵖ > SYNC, ⴷⴼⴼⵉⵔ ⴰⵔⵓ ⵜⴰⵏⵙⴰ ⵏ ⵜⴼⵉⵍⵓⵜ ⴰⴷ
 OUTPUT PHONE <name|number> PLAYS <FOCUS|DARK|playlist> or IDENTIFY	OUTPUT PHONE <ⵉⵙⵎ|ⵓⵟⵟⵓⵏ> PLAYS <FOCUS|DARK|ⵜⴰⴱⴷⴰⵔⵜ> ⵏⵖ IDENTIFY
+phone away	ⵜⵉⵍⵉⵖⵔⵉ ⵓⵔ ⵜⵍⵍⵉ
+Its own list	ⵜⴰⴱⴷⴰⵔⵜ ⵏⵏⵙ
+on the phone	ⵖ ⵜⵉⵍⵉⵖⵔⵉ
+Waiting for {1}	ⴰⵔⴰⵊⵓ ⵏ {1}
+No room for {1}'s playlist	ⵓⵔ ⵉⵍⵍⵉ ⵓⴷⵖⴰⵔ ⵉ ⵜⴱⴷⴰⵔⵜ ⵏ {1}
+{1} is not following this desk	{1} ⵓⵔ ⵉⵜⵜⴹⴼⴰⵔ ⵜⴰⴼⵉⵍⵓⵜ ⴰⴷ
+OUTPUT PHONE <name|number> PLAYS <FOCUS|DARK|OWN|playlist> or IDENTIFY	OUTPUT PHONE <ⵉⵙⵎ|ⵓⵟⵟⵓⵏ> PLAYS <FOCUS|DARK|OWN|ⵜⴰⴱⴷⴰⵔⵜ> ⵏⵖ IDENTIFY

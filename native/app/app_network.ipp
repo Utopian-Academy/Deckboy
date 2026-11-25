@@ -3212,6 +3212,40 @@ html,body{width:100%;height:100%;overflow:hidden}
       syncReports_[client] = PhoneReport {query.substr(12), SDL_GetTicks()};
       return true;
     }
+    // A phone as a deck: its picture and its list, the same way.
+    if (upper.rfind("SYNC PIC ", 0) == 0) {
+      std::istringstream in(query.substr(9));
+      int w = 0, h = 0;
+      std::string text;
+      in >> w >> h >> text;
+      if (w > 0 && h > 0 && w <= 320 && h <= 240) {
+        std::string pixels = deckboy::audiofx::detail::base64Decode(text);
+        if (pixels.size() == static_cast<std::size_t>(w) * static_cast<std::size_t>(h) * 2) {
+          PhonePicture& p = syncPictures_[client];
+          p.w = w;
+          p.h = h;
+          p.pixels.swap(pixels);
+          ++p.serial;
+        }
+      }
+      return true;
+    }
+    if (upper == "SYNC LIST BEGIN") {
+      syncLists_[client].pending.clear();
+      return true;
+    }
+    if (upper.rfind("SYNC CUE ", 0) == 0) {
+      PhoneList& list = syncLists_[client];
+      if (list.pending.size() < 2000) list.pending.push_back(query.substr(9));
+      return true;
+    }
+    if (upper == "SYNC LIST END") {
+      PhoneList& list = syncLists_[client];
+      list.lines.swap(list.pending);
+      list.pending.clear();
+      ++list.serial;
+      return true;
+    }
     if (upper == "TIME" || upper.rfind("TIME ", 0) == 0) {
       const std::string sent = upper.size() > 5 ? trim(query.substr(5)) : std::string("0");
       sendSnapshot("OK TIME: " + sent + " " + std::to_string(SDL_GetTicksNS()) + "\n");
@@ -6128,6 +6162,8 @@ bool looksLikeHttpRequestLine(const std::string& line) {
       companionClientAuthed_.erase(client);
       companionClientAuthFailures_.erase(client);
       syncReports_.erase(client);
+      syncLists_.erase(client);
+      syncPictures_.erase(client);
       companionClients_.erase(
         std::remove(companionClients_.begin(), companionClients_.end(), client),
         companionClients_.end()
@@ -6159,6 +6195,8 @@ bool looksLikeHttpRequestLine(const std::string& line) {
     std::uint64_t joinedNs = 0;
     int number = 0;            // a phone's number on this desk (IDENTIFY shows it)
     std::string assignSent;    // the last SYNC ASSIGN this phone was sent
+    std::uint64_t listSerial = 0, pictureSerial = 0;   // a phone as a deck: what was taken
+    int blackSent = -1;        // a phone as a deck: the blackout it was last told
   };
 
   bool companionClientAlive(SocketHandle client, std::uint64_t generation) {
@@ -6341,6 +6379,7 @@ bool looksLikeHttpRequestLine(const std::string& line) {
       for (int d = 0; d < static_cast<int>(project_.decks.size()); ++d) deckLines.push_back(syncStateLine(d));
     }
     if (anyPhone && SDL_GetTicks() - syncMediaPathsMs_ > 1000) refreshSyncMediaPaths();
+    if (anyPhone) servicePhoneDecks();
     // The change test leaves out pos= and at=, which move every tick.
     auto keyOf = [](std::string key) {
       for (const char* field : {" pos=", " at="}) {
@@ -6369,6 +6408,18 @@ bool looksLikeHttpRequestLine(const std::string& line) {
           sendCompanionLine(f.socket, assign, f.generation);
           f.assignSent = assign;
         }
+        if (phonePlaysFor(f.name) == kPhoneOwnList) {
+          // Its own list: the desk sends GO, not a playlist. A heartbeat, so
+          // the phone knows the desk is there, and the desk's blackout.
+          sendCompanionLine(f.socket, "SYNC OWN at=" + std::to_string(SDL_GetTicksNS()), f.generation);
+          const int black = masterDimmerTarget_ <= 0.001 ? 1 : 0;
+          if (black != f.blackSent) {
+            sendCompanionLine(f.socket, std::string("SYNC DO BLACK ") + (black ? "ON" : "OFF"), f.generation);
+            f.blackSent = black;
+          }
+          continue;
+        }
+        f.blackSent = -1;
         const int deck = phoneDeckIndex(phonePlaysFor(f.name));
         sendCompanionLine(f.socket, deck >= 0 && deck < static_cast<int>(deckLines.size()) ? deckLines[static_cast<std::size_t>(deck)]
                                                                                           : syncDarkLine(),
@@ -6401,12 +6452,13 @@ bool looksLikeHttpRequestLine(const std::string& line) {
   // The playlist index a PLAYS value shows; -1 is dark (asked for, or a
   // playlist that has since been removed).
   int phoneDeckIndex(int plays) const {
-    if (plays < 0) return -1;
+    if (plays < 0) return -1;   // dark, or its own list (the desk sends it no playlist)
     if (plays == 0) return project_.focusedDeckIndex;
     return plays - 1 < static_cast<int>(project_.decks.size()) ? plays - 1 : -1;
   }
 
   std::string phonePlaysLabel(int plays) const {
+    if (plays == kPhoneOwnList) return "Its own list";
     if (plays < 0) return "Dark";
     if (plays == 0) return "Focus";
     if (plays - 1 >= static_cast<int>(project_.decks.size())) {
@@ -6416,7 +6468,8 @@ bool looksLikeHttpRequestLine(const std::string& line) {
   }
 
   void setPhonePlays(const std::string& name, int plays) {
-    plays = std::max(-1, plays);
+    plays = std::max(kPhoneOwnList, plays);
+    if (plays == kPhoneOwnList) ensurePhoneDeck(name);
     bool found = false;
     for (auto& p : project_.phonePlays) {
       if (p.first == name) { p.second = plays; found = true; }
@@ -6427,12 +6480,16 @@ bool looksLikeHttpRequestLine(const std::string& line) {
     showLog("SYNC", "phone " + name + " plays " + phonePlaysLabel(plays));
   }
 
-  // FOCUS -> playlist 1 -> ... -> playlist n -> DARK -> FOCUS.
+  // FOCUS -> playlist 1 -> ... -> playlist n -> DARK -> ITS OWN LIST -> FOCUS.
+  // A phone's own playlist is not offered to another phone.
   int nextPhonePlays(int plays) const {
     const int decks = static_cast<int>(project_.decks.size());
-    if (plays < 0) return 0;
-    if (plays >= decks) return -1;
-    return plays + 1;
+    if (plays == kPhoneOwnList) return 0;
+    if (plays == -1) return kPhoneOwnList;
+    for (int n = plays + 1; n <= decks; ++n) {
+      if (project_.decks[static_cast<std::size_t>(n - 1)].phoneName.empty()) return n;
+    }
+    return -1;
   }
 
   int nextPhoneNumber() const {
@@ -6461,11 +6518,11 @@ bool looksLikeHttpRequestLine(const std::string& line) {
 
   std::string phoneAssignLine(const SyncFollower& f) const {
     const int plays = phonePlaysFor(f.name);
-    const int deck = phoneDeckIndex(plays);
+    const int deck = plays == kPhoneOwnList ? phoneDeckFor(f.name) : phoneDeckIndex(plays);
     std::string name = deck >= 0 ? project_.decks[static_cast<std::size_t>(deck)].name : std::string();
     std::replace(name.begin(), name.end(), '"', '\'');
     std::replace(name.begin(), name.end(), '\n', ' ');
-    return "SYNC ASSIGN plays=" + std::string(plays < 0 ? "dark" : plays == 0 ? "focus" : std::to_string(plays)) +
+    return "SYNC ASSIGN plays=" + std::string(plays == kPhoneOwnList ? "own" : plays < 0 ? "dark" : plays == 0 ? "focus" : std::to_string(plays)) +
            " deck=" + std::to_string(deck + 1) + " number=" + std::to_string(f.number) + " name=\"" + name + "\"";
   }
 
@@ -6590,6 +6647,8 @@ bool looksLikeHttpRequestLine(const std::string& line) {
     companionClientAuthFailures_.erase(client);
     companionDrainingClients_.erase(client);
     syncReports_.erase(client);
+    syncLists_.erase(client);
+    syncPictures_.erase(client);
     companionClients_.erase(std::remove(companionClients_.begin(), companionClients_.end(), client), companionClients_.end());
     if (syncMediaSending_.load() >= 3) path = "busy";
     if (syncMediaStop_.load()) path.clear();
@@ -6650,7 +6709,13 @@ bool looksLikeHttpRequestLine(const std::string& line) {
         if (!followerIsPhone(f)) continue;
         bool warn = false;
         o << (n++ ? " " : "") << "[" << f.number << " " << f.name << " plays=" << phonePlaysLabel(phonePlaysFor(f.name))
-          << " " << phoneStateText(f, warn) << "]";
+          << " " << phoneStateText(f, warn);
+        const int own = phonePlaysFor(f.name) == kPhoneOwnList ? phoneDeckFor(f.name) : -1;
+        if (own >= 0) {
+          o << " playlist=" << (own + 1) << " cues=" << project_.decks[static_cast<std::size_t>(own)].cues.size()
+            << " pictures=" << f.pictureSerial;
+        }
+        o << "]";
       }
       remoteCommandDetail_ = n ? o.str() : std::string("no phone is following this desk");
       return;
@@ -6667,6 +6732,7 @@ bool looksLikeHttpRequestLine(const std::string& line) {
       int plays = 0;
       if (v == "FOCUS") plays = 0;
       else if (v == "DARK") plays = -1;
+      else if (v == "OWN") plays = kPhoneOwnList;
       else if (v.find_first_not_of("0123456789") == std::string::npos && !v.empty()) {
         plays = std::atoi(v.c_str());
         if (plays < 1 || plays > static_cast<int>(project_.decks.size())) {
@@ -6683,7 +6749,256 @@ bool looksLikeHttpRequestLine(const std::string& line) {
       remoteCommandDetail_ = name + " plays " + phonePlaysLabel(plays);
       return;
     }
-    failRemoteCommand("OUTPUT PHONE <name|number> PLAYS <FOCUS|DARK|playlist> or IDENTIFY");
+    failRemoteCommand("OUTPUT PHONE <name|number> PLAYS <FOCUS|DARK|OWN|playlist> or IDENTIFY");
+  }
+
+  // ── A PHONE AS A DECK ── (board PRMfKbn2RxrEhs5s5wAdcn, James 11-25)
+  //
+  // PLAYS "Its own list": the phone runs its OWN cue list and media, and the
+  // desk shows that list as a playlist of its own (Deck::phoneName). GO,
+  // STOP, PLAY and PAUSE on that playlist are sent to the phone (SYNC DO ...),
+  // and so is the desk's blackout. The phone sends its list (SYNC LIST BEGIN,
+  // SYNC CUE ..., SYNC LIST END) whenever it changes, what is live in its
+  // report (live=, pos=, dur=, state=), and a small picture four times a
+  // second (SYNC PIC <w> <h> <base64 RGB565>) for the playlist's monitor. The
+  // playlist is saved with the show, so its rows are there before the phone
+  // joins. Editing the list stays on the phone.
+  static constexpr int kPhoneOwnList = -2;
+
+  int phoneDeckFor(const std::string& name) const {
+    for (std::size_t d = 0; d < project_.decks.size(); ++d) {
+      if (project_.decks[d].phoneName == name) return static_cast<int>(d);
+    }
+    return -1;
+  }
+
+  bool deckIsPhone(int deckIndex) const {
+    return deckIndex >= 0 && deckIndex < static_cast<int>(project_.decks.size()) &&
+           !project_.decks[static_cast<std::size_t>(deckIndex)].phoneName.empty();
+  }
+
+  // The phone running this playlist, when it is here and running its own list.
+  SyncFollower* phoneForDeck(int deckIndex) {
+    if (!deckIsPhone(deckIndex)) return nullptr;
+    const std::string& name = project_.decks[static_cast<std::size_t>(deckIndex)].phoneName;
+    for (auto& f : syncFollowers_) {
+      if (followerIsPhone(f) && f.name == name && phonePlaysFor(f.name) == kPhoneOwnList) return &f;
+    }
+    return nullptr;
+  }
+
+  bool phoneDeckHere(int deckIndex) const {
+    if (!deckIsPhone(deckIndex)) return false;
+    const std::string& name = project_.decks[static_cast<std::size_t>(deckIndex)].phoneName;
+    for (const auto& f : syncFollowers_) {
+      if (followerIsPhone(f) && f.name == name && phonePlaysFor(f.name) == kPhoneOwnList) return true;
+    }
+    return false;
+  }
+
+  int ensurePhoneDeck(const std::string& name) {
+    int at = phoneDeckFor(name);
+    if (at >= 0) return at;
+    if (!addDeck(false)) {
+      triggerToast(deckboy::core::i18n::format("No room for {1}'s playlist", {name}), ToastKind::Warning, kToastReadableMs);
+      return -1;
+    }
+    at = static_cast<int>(project_.decks.size()) - 1;
+    Deck& deck = project_.decks[static_cast<std::size_t>(at)];
+    deck.phoneName = name;
+    deck.name = "PHONE " + name;
+    markProjectDirty();
+    showLog("SYNC", "phone " + name + " runs its own list as playlist " + std::to_string(at + 1));
+    return at;
+  }
+
+  static std::map<std::string, std::string> parseSyncFields(const std::string& body) {
+    std::map<std::string, std::string> out;
+    std::size_t at = 0;
+    while (at < body.size()) {
+      while (at < body.size() && body[at] == ' ') ++at;
+      const std::size_t eq = body.find('=', at);
+      if (eq == std::string::npos) break;
+      const std::string k = body.substr(at, eq - at);
+      if (eq + 1 < body.size() && body[eq + 1] == '"') {
+        const std::size_t close = body.find('"', eq + 2);
+        out[k] = body.substr(eq + 2, (close == std::string::npos ? body.size() : close) - eq - 2);
+        at = close == std::string::npos ? body.size() : close + 1;
+      } else {
+        const std::size_t sp = body.find(' ', eq + 1);
+        out[k] = body.substr(eq + 1, (sp == std::string::npos ? body.size() : sp) - eq - 1);
+        at = sp == std::string::npos ? body.size() : sp + 1;
+      }
+    }
+    return out;
+  }
+
+  static CueKind cueKindFromSyncToken(const std::string& token) {
+    for (int k = 0; k <= static_cast<int>(CueKind::Mic); ++k) {
+      if (deckboy::core::utils::cueKindToken(static_cast<CueKind>(k)) == token) return static_cast<CueKind>(k);
+    }
+    return CueKind::Video;
+  }
+
+  // The phone's list, as this playlist's rows (the selection kept by cue).
+  void applyPhoneList(int deckIndex, const std::string& phone, const std::vector<std::string>& lines) {
+    Deck& deck = project_.decks[static_cast<std::size_t>(deckIndex)];
+    const std::string selectedPath = deck.selectedIndex >= 0 && deck.selectedIndex < static_cast<int>(deck.cues.size())
+                                       ? deck.cues[static_cast<std::size_t>(deck.selectedIndex)].path : std::string();
+    std::vector<Cue> cues;
+    for (const std::string& line : lines) {
+      const auto f = parseSyncFields(line);
+      const auto id = f.find("id");
+      if (id == f.end() || id->second.empty()) continue;
+      Cue cue;
+      cue.id = "phone-" + phone + "-" + id->second;
+      cue.path = "phone://" + id->second;
+      const auto name = f.find("name");
+      cue.name = name == f.end() ? id->second : name->second;
+      const auto kind = f.find("kind");
+      cue.kind = kind == f.end() ? CueKind::Video : cueKindFromSyncToken(kind->second);
+      const auto dur = f.find("dur");
+      cue.duration = dur == f.end() ? 0.0 : std::max(0.0, std::atof(dur->second.c_str()));
+      cues.push_back(std::move(cue));
+    }
+    bool same = cues.size() == deck.cues.size();
+    for (std::size_t i = 0; same && i < cues.size(); ++i) {
+      same = cues[i].path == deck.cues[i].path && cues[i].name == deck.cues[i].name && cues[i].kind == deck.cues[i].kind &&
+             std::fabs(cues[i].duration - deck.cues[i].duration) < 0.01;
+    }
+    if (same) return;
+    deck.cues = std::move(cues);
+    deck.selectedIndices.clear();
+    deck.selectedIndex = -1;
+    for (std::size_t i = 0; i < deck.cues.size(); ++i) {
+      if (deck.cues[i].path == selectedPath) deck.selectedIndex = static_cast<int>(i);
+    }
+    if (deck.selectedIndex < 0 && !deck.cues.empty()) deck.selectedIndex = 0;
+    markProjectDirty();
+  }
+
+  void uploadPhonePicture(int deckIndex, int picW, int picH, const std::string& pixels) {
+    if (static_cast<int>(deckPreviewTex_.size()) < static_cast<int>(project_.decks.size())) {
+      deckPreviewTex_.resize(project_.decks.size());
+    }
+    DeckPreviewTex& slot = deckPreviewTex_[static_cast<std::size_t>(deckIndex)];
+    if (!slot.tex || slot.w != picW || slot.h != picH || slot.fmt != SDL_PIXELFORMAT_RGB565) {
+      if (slot.tex) SDL_DestroyTexture(slot.tex);
+      slot.tex = SDL_CreateTexture(controlRenderer_, SDL_PIXELFORMAT_RGB565, SDL_TEXTUREACCESS_STREAMING, picW, picH);
+      if (!slot.tex) return;
+      SDL_SetTextureScaleMode(slot.tex, SDL_SCALEMODE_LINEAR);
+      slot.w = picW;
+      slot.h = picH;
+      slot.fmt = SDL_PIXELFORMAT_RGB565;
+    }
+    SDL_UpdateTexture(slot.tex, nullptr, pixels.data(), picW * 2);
+    slot.frameIdx = ~std::uint64_t {0};   // no engine frame replaces it
+  }
+
+  // Every tick while phones follow: each phone running its own list gets its
+  // playlist, its rows, its live cue and its picture.
+  void servicePhoneDecks() {
+    for (auto& f : syncFollowers_) {
+      if (!followerIsPhone(f) || phonePlaysFor(f.name) != kPhoneOwnList) continue;
+      const int d = ensurePhoneDeck(f.name);
+      if (d < 0) continue;
+      std::vector<std::string> lines;
+      std::uint64_t listSerial = 0;
+      PhonePicture pic;
+      bool newPicture = false;
+      {
+        std::lock_guard<std::mutex> lk(companionClientsMutex_);
+        const auto list = syncLists_.find(f.socket);
+        if (list != syncLists_.end() && list->second.serial != f.listSerial) {
+          lines = list->second.lines;
+          listSerial = list->second.serial;
+        }
+        const auto picture = syncPictures_.find(f.socket);
+        if (picture != syncPictures_.end() && picture->second.serial != f.pictureSerial) {
+          pic = picture->second;
+          newPicture = true;
+        }
+      }
+      if (listSerial) {
+        f.listSerial = listSerial;
+        applyPhoneList(d, f.name, lines);
+      }
+      if (newPicture) {
+        f.pictureSerial = pic.serial;
+        uploadPhonePicture(d, pic.w, pic.h, pic.pixels);
+      }
+      // What is live on the phone is live on its playlist.
+      const auto report = phoneReport(f);
+      const auto live = report.find("live");
+      if (live != report.end()) {
+        Deck& deck = project_.decks[static_cast<std::size_t>(d)];
+        int at = -1;
+        for (std::size_t i = 0; i < deck.cues.size(); ++i) {
+          if (deck.cues[i].path == "phone://" + live->second) at = static_cast<int>(i);
+        }
+        deck.activeIndex = at;
+      }
+    }
+  }
+
+  // A command for the phone running this playlist; false (and a toast) when
+  // it is not here.
+  bool sendToPhoneDeck(int deckIndex, const std::string& command) {
+    SyncFollower* phone = phoneForDeck(deckIndex);
+    if (!phone) {
+      triggerToast(deckboy::core::i18n::format("{1} is not following this desk",
+                                               {project_.decks[static_cast<std::size_t>(deckIndex)].phoneName}),
+                   ToastKind::Warning, kToastReadableMs);
+      return false;
+    }
+    sendCompanionLine(phone->socket, "SYNC DO " + command, phone->generation);
+    showLog("SYNC", "phone " + phone->name + ": " + command);
+    return true;
+  }
+
+  // GO on a phone's playlist: the phone takes its own cue.
+  void takeOnPhone(int deckIndex) {
+    Deck& deck = project_.decks[static_cast<std::size_t>(deckIndex)];
+    if (deck.selectedIndex < 0 || deck.selectedIndex >= static_cast<int>(deck.cues.size())) return;
+    const Cue& cue = deck.cues[static_cast<std::size_t>(deck.selectedIndex)];
+    if (cue.path.rfind("phone://", 0) != 0) return;
+    if (sendToPhoneDeck(deckIndex, "TAKEID " + cue.path.substr(8))) {
+      deck.activeIndex = deck.selectedIndex;   // the phone's report confirms it
+    }
+  }
+
+  // How the phone's live cue stands, for its monitor: "name  -0:31".
+  std::string phoneDeckLiveText(int deckIndex) {
+    SyncFollower* phone = phoneForDeck(deckIndex);
+    const Deck& deck = project_.decks[static_cast<std::size_t>(deckIndex)];
+    if (!phone) return deckboy::core::i18n::format("Waiting for {1}", {deck.phoneName});
+    const auto r = phoneReport(*phone);
+    auto get = [&](const char* k) { const auto it = r.find(k); return it == r.end() ? std::string() : it->second; };
+    std::string text = std::to_string(phone->number) + " " + phone->name;
+    if (deck.activeIndex >= 0 && deck.activeIndex < static_cast<int>(deck.cues.size())) {
+      text += "  " + deck.cues[static_cast<std::size_t>(deck.activeIndex)].name;
+      const double pos = std::atof(get("pos").c_str()), dur = std::atof(get("dur").c_str());
+      if (dur > 0.0 && pos <= dur) text += "  -" + formatSeconds(dur - pos);
+    }
+    if (get("black") == "1") text += "  BLACK";
+    return text;
+  }
+
+  // The monitor of a phone's playlist: its picture, or who it waits for.
+  void drawPhoneMonitor(int deckIndex, const SDL_Rect& inner) {
+    Primitives::fillRect(controlRenderer_, inner, SDL_Color {0, 0, 0, 255});
+    const bool here = phoneForDeck(deckIndex) != nullptr;
+    if (here && deckIndex < static_cast<int>(deckPreviewTex_.size()) && deckPreviewTex_[static_cast<std::size_t>(deckIndex)].tex) {
+      const DeckPreviewTex& p = deckPreviewTex_[static_cast<std::size_t>(deckIndex)];
+      const float scale = std::min(static_cast<float>(inner.w) / static_cast<float>(p.w), static_cast<float>(inner.h) / static_cast<float>(p.h));
+      const SDL_FRect dst {inner.x + (inner.w - p.w * scale) / 2.0f, inner.y + (inner.h - p.h * scale) / 2.0f, p.w * scale, p.h * scale};
+      SDL_RenderTexture(controlRenderer_, p.tex, nullptr, &dst);
+    }
+    const int lineH = textLineHeight(fontSmall_) + uiScaled(8);
+    SDL_Rect strip {inner.x, inner.y + inner.h - lineH, inner.w, lineH};
+    Primitives::fillRect(controlRenderer_, strip, SDL_Color {0, 0, 0, 170});
+    drawTextSafe(controlRenderer_, fontSmall_, SDL_Rect {strip.x + uiScaled(8), strip.y, strip.w - uiScaled(16), strip.h},
+                 phoneDeckLiveText(deckIndex), SDL_Color {235, 235, 235, 255});
   }
 
   // Tell every follower this desk has stopped leading on purpose, so a backup

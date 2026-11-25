@@ -4979,3 +4979,10 @@ PLAYS FOCUS, DARK or a playlist number	PLAYS FOCUS, DARK ή αριθμός λί�
 This desk is not leading, so no phone can follow it	Αυτή η κονσόλα δεν οδηγεί, άρα κανένα τηλέφωνο δεν μπορεί να την ακολουθήσει
 On the phone: MENU > SYNC, then type this desk's address	Στο τηλέφωνο: ΜΕΝΟΥ > SYNC, μετά πληκτρολόγησε τη διεύθυνση αυτής της κονσόλας
 OUTPUT PHONE <name|number> PLAYS <FOCUS|DARK|playlist> or IDENTIFY	OUTPUT PHONE <όνομα|αριθμός> PLAYS <FOCUS|DARK|λίστα> ή IDENTIFY
+phone away	το τηλέφωνο λείπει
+Its own list	Δική του λίστα
+on the phone	στο τηλέφωνο
+Waiting for {1}	Αναμονή για {1}
+No room for {1}'s playlist	Δεν υπάρχει χώρος για τη λίστα του {1}
+{1} is not following this desk	{1} δεν ακολουθεί αυτή την κονσόλα
+OUTPUT PHONE <name|number> PLAYS <FOCUS|DARK|OWN|playlist> or IDENTIFY	OUTPUT PHONE <όνομα|αριθμός> PLAYS <FOCUS|DARK|OWN|λίστα> ή IDENTIFY

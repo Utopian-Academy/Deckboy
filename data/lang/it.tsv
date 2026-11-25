@@ -4949,3 +4949,10 @@ PLAYS FOCUS, DARK or a playlist number	PLAYS FOCUS, DARK o un numero di scaletta
 This desk is not leading, so no phone can follow it	Questa console non guida, quindi nessun telefono può seguirla
 On the phone: MENU > SYNC, then type this desk's address	Sul telefono: MENU > SYNC, poi scrivi l'indirizzo di questa console
 OUTPUT PHONE <name|number> PLAYS <FOCUS|DARK|playlist> or IDENTIFY	OUTPUT PHONE <nome|numero> PLAYS <FOCUS|DARK|scaletta> o IDENTIFY
+phone away	telefono assente
+Its own list	La sua scaletta
+on the phone	sul telefono
+Waiting for {1}	In attesa di {1}
+No room for {1}'s playlist	Non c'è spazio per la scaletta di {1}
+{1} is not following this desk	{1} non segue questa console
+OUTPUT PHONE <name|number> PLAYS <FOCUS|DARK|OWN|playlist> or IDENTIFY	OUTPUT PHONE <nome|numero> PLAYS <FOCUS|DARK|OWN|scaletta> o IDENTIFY

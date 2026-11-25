@@ -4982,3 +4982,10 @@ PLAYS FOCUS, DARK or a playlist number	PLAYS FOCUS, DARK tai soittolistan numero
 This desk is not leading, so no phone can follow it	Tämä pöytä ei johda, joten mikään puhelin ei voi seurata sitä
 On the phone: MENU > SYNC, then type this desk's address	Puhelimessa: VALIKKO > SYNC, kirjoita sitten tämän pöydän osoite
 OUTPUT PHONE <name|number> PLAYS <FOCUS|DARK|playlist> or IDENTIFY	OUTPUT PHONE <nimi|numero> PLAYS <FOCUS|DARK|soittolista> tai IDENTIFY
+phone away	puhelin poissa
+Its own list	Oma soittolista
+on the phone	puhelimessa
+Waiting for {1}	Odotetaan: {1}
+No room for {1}'s playlist	Ei tilaa soittolistalle: {1}
+{1} is not following this desk	{1} ei seuraa tätä pöytää
+OUTPUT PHONE <name|number> PLAYS <FOCUS|DARK|OWN|playlist> or IDENTIFY	OUTPUT PHONE <nimi|numero> PLAYS <FOCUS|DARK|OWN|soittolista> tai IDENTIFY

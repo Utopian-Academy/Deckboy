@@ -3148,6 +3148,9 @@
     const bool multiviewDrawn = renderMultiview(warpMonitorInner_);
     if (multiviewDrawn) {
       // The grid is the picture. Nothing else to draw here.
+    } else if (deckIsPhone(project_.focusedDeckIndex)) {
+      // A phone's own list: the phone's picture, not this desk's programme.
+      drawPhoneMonitor(project_.focusedDeckIndex, warpMonitorInner_);
     } else if (vjMixPreview) {
       SDL_Rect inner = warpMonitorInner_;
       const int deckCount = static_cast<int>(project_.decks.size());

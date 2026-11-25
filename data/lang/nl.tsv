@@ -4920,3 +4920,10 @@ PLAYS FOCUS, DARK or a playlist number	PLAYS FOCUS, DARK of een afspeellijstnumm
 This desk is not leading, so no phone can follow it	Deze regietafel is niet leidend, dus kan geen telefoon hem volgen
 On the phone: MENU > SYNC, then type this desk's address	Op de telefoon: MENU > SYNC, typ dan het adres van deze regietafel
 OUTPUT PHONE <name|number> PLAYS <FOCUS|DARK|playlist> or IDENTIFY	OUTPUT PHONE <naam|nummer> PLAYS <FOCUS|DARK|afspeellijst> of IDENTIFY
+phone away	telefoon afwezig
+Its own list	Eigen lijst
+on the phone	op de telefoon
+Waiting for {1}	Wachten op {1}
+No room for {1}'s playlist	Geen ruimte voor de afspeellijst van {1}
+{1} is not following this desk	{1} volgt deze regietafel niet
+OUTPUT PHONE <name|number> PLAYS <FOCUS|DARK|OWN|playlist> or IDENTIFY	OUTPUT PHONE <naam|nummer> PLAYS <FOCUS|DARK|OWN|afspeellijst> of IDENTIFY

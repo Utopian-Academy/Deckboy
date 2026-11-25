@@ -4983,3 +4983,10 @@ PLAYS FOCUS, DARK or a playlist number	PLAYS FOCUS, DARK 或播放清單編號
 This desk is not leading, so no phone can follow it	此控制台未主導，因此沒有電話能跟隨它
 On the phone: MENU > SYNC, then type this desk's address	在電話上：選單 > SYNC，然後輸入此控制台的位址
 OUTPUT PHONE <name|number> PLAYS <FOCUS|DARK|playlist> or IDENTIFY	OUTPUT PHONE <名稱|編號> PLAYS <FOCUS|DARK|播放清單> 或 IDENTIFY
+phone away	電話已離開
+Its own list	自有清單
+on the phone	在電話上
+Waiting for {1}	正在等待 {1}
+No room for {1}'s playlist	沒有空間容納 {1} 的播放清單
+{1} is not following this desk	{1} 未跟隨此控制台
+OUTPUT PHONE <name|number> PLAYS <FOCUS|DARK|OWN|playlist> or IDENTIFY	OUTPUT PHONE <名稱|編號> PLAYS <FOCUS|DARK|OWN|播放清單> 或 IDENTIFY

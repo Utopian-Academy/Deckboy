@@ -38,6 +38,7 @@
 #include "core/utils.hpp"
 #include "engine/media_engine.hpp"
 #include "render/text_shaper.hpp"     // every label: bidi and fallback faces, as on the desk
+#include "core/audio_effects.hpp"
 #include "core/i18n.hpp"
 #include "render/font_fallbacks.hpp"
 #if defined(DECKBOY_INPROC_DECODE)
@@ -1235,6 +1236,7 @@ class Pocket {
     const Uint64 t3 = SDL_GetPerformanceCounter();
     layout();
     SDL_Renderer* r = renderer_;
+    sendDeskPicture();   // the desk runs this list: what is on air, small
     hits_.clear();
     sliders_.clear();
     // Picture-in-picture and full screen: the program alone.
@@ -3970,7 +3972,8 @@ class Pocket {
       char id[160];
       std::snprintf(id, sizeof id, "DECKBOY POCKET  OUTPUT 1  %dx%d", ow, oh);
       if (follow_ != Follow::Off && phoneNumber_ > 0) {
-        const std::string shows = assignPlays_ == "dark" ? std::string("DARK")
+        const std::string shows = assignPlays_ == "own" ? std::string("OWN LIST")
+                                : assignPlays_ == "dark" ? std::string("DARK")
                                 : assignPlays_ == "focus" ? std::string("FOCUS") : "PLAYLIST " + std::to_string(assignDeck_);
         std::snprintf(id, sizeof id, "PHONE %d  %s", phoneNumber_, shows.c_str());
       }
@@ -4790,6 +4793,8 @@ class Pocket {
     }
     followSock_ = kInvalidSocket;
     followBuffer_.clear();
+    followOut_.clear();
+    listSent_.clear();
     clockSamples_.clear();
     clockReady_ = false;
     nextTimeProbe_ = 0;
@@ -4805,6 +4810,7 @@ class Pocket {
     assignPlays_ = "focus";
     assignName_.clear();
     assignDeck_ = phoneNumber_ = 0;
+    ownMode_ = false;
     saveSyncSettings();
   }
 
@@ -4817,6 +4823,8 @@ class Pocket {
     if (followSock_ != kInvalidSocket) closeSocket(followSock_);
     followSock_ = kInvalidSocket;
     followBuffer_.clear();
+    followOut_.clear();
+    listSent_.clear();
     clockSamples_.clear();
     clockReady_ = false;
     if (!why.empty()) followError_ = why;
@@ -4824,9 +4832,22 @@ class Pocket {
     followRetryAt_ = SDL_GetTicks() + 2000;
   }
 
+  // Lines to the desk go through a queue: a socket that takes only part of
+  // a long line (a picture) would otherwise glue its tail to the next line.
   bool followSend(const std::string& line) {
     if (followSock_ == kInvalidSocket) return false;
-    return send(followSock_, line.data(), static_cast<int>(line.size()), kSocketSendFlags) == static_cast<int>(line.size());
+    if (followOut_.size() > 512 * 1024) return false;   // the desk is not reading; drop rather than grow
+    followOut_ += line;
+    flushFollowOut();
+    return true;
+  }
+
+  void flushFollowOut() {
+    while (!followOut_.empty() && followSock_ != kInvalidSocket) {
+      const int n = static_cast<int>(send(followSock_, followOut_.data(), static_cast<int>(std::min<std::size_t>(followOut_.size(), 65536)), kSocketSendFlags));
+      if (n <= 0) return;   // full: the rest goes on the next poll
+      followOut_.erase(0, static_cast<std::size_t>(n));
+    }
   }
 
   std::string phoneName() {
@@ -4867,16 +4888,28 @@ class Pocket {
       return;
     }
     finishFetch();
-    // How this phone is doing, for its row on the desk.
+    flushFollowOut();
+    if (ownMode_) sendListToDesk();
+    // How this phone is doing, for its row on the desk (four times a second
+    // while the desk runs this list: its monitor counts the live cue down).
     if (now >= nextReport_) {
-      nextReport_ = now + 1000;
+      nextReport_ = now + (ownMode_ ? 250 : 1000);
       std::string missing = missingCue_;
       std::replace(missing.begin(), missing.end(), '"', '\'');
       std::ostringstream o;
       o << std::fixed << std::setprecision(1) << "SYNC REPORT state=" << (follow_ == Follow::Following ? "following" : "lost")
         << " drift=" << std::fabs(driftFrames_) << " battery=" << battery_
         << " heat=" << (thermal_ >= 3 ? "hot" : thermal_ == 2 ? "warm" : "cool")
-        << " fetch=" << fetchPercent_.load() << " missing=\"" << missing << "\"\n";
+        << " fetch=" << fetchPercent_.load() << " missing=\"" << missing << "\"";
+      if (ownMode_) {
+        const bool live = active_ >= 0 && active_ < static_cast<int>(cues_.size());
+        o << std::setprecision(2) << " live=" << (live ? cues_[static_cast<std::size_t>(active_)].id : std::string("-"))
+          << " pos=" << (live ? engine_->position() : 0.0)
+          << " dur=" << (live ? cueOut(cues_[static_cast<std::size_t>(active_)]) : 0.0)
+          << " play=" << (live && engine_->state() == TransportState::Playing ? 1 : 0)
+          << " black=" << (black_ ? 1 : 0);
+      }
+      o << "\n";
       followSend(o.str());
     }
     // Clock probes: quick at first, then every two seconds.
@@ -4961,7 +4994,26 @@ class Pocket {
       assignName_ = get("name");
       phoneNumber_ = std::atoi(get("number").c_str());
       SDL_Log("pocket: the desk has this phone (number %d) show %s", phoneNumber_, assignPlays_.c_str());
+      const bool own = assignPlays_ == "own";
+      if (own != ownMode_) {
+        ownMode_ = own;
+        listSent_.clear();   // the desk gets the list at once
+        syncCue_.clear();    // back to following: the next line is taken afresh
+        missingCue_.clear();
+      }
       lastHeard_ = now;
+      return;
+    }
+    // Its own list: the desk's heartbeat, and the desk's GO, STOP, PLAY,
+    // PAUSE and blackout.
+    if (line.rfind("SYNC OWN", 0) == 0) {
+      lastHeard_ = now;
+      if (follow_ != Follow::Following && follow_ != Follow::Off) follow_ = Follow::Following;
+      return;
+    }
+    if (line.rfind("SYNC DO ", 0) == 0) {
+      lastHeard_ = now;
+      if (ownMode_) runDeskCommand(line.substr(8));
       return;
     }
     if (line.rfind("SYNC IDENTIFY", 0) == 0) {
@@ -4977,7 +5029,7 @@ class Pocket {
       lastHeard_ = now;
       if (follow_ != Follow::Following && follow_ != Follow::Off) follow_ = Follow::Following;
       lastSync_ = sync;
-      if (clockReady_) applySync(sync);
+      if (clockReady_ && !ownMode_) applySync(sync);
     }
   }
 
@@ -5090,6 +5142,94 @@ class Pocket {
       seekLanding_ = playing;
       ++syncSeeks_;
     }
+  }
+
+  // -- THIS PHONE AS A DECK --
+  //
+  // The desk shows this list as a playlist of its own and sends GO: the list
+  // goes to the desk whenever it changes (a cue added, renamed, moved,
+  // deleted), and four times a second a 160x90 picture of what is on air.
+  void sendListToDesk() {
+    std::ostringstream list;
+    list << std::fixed << std::setprecision(2) << "SYNC LIST BEGIN\n";
+    for (const Cue& c : cues_) {
+      std::string name = c.name;
+      std::replace(name.begin(), name.end(), '"', '\'');
+      std::replace(name.begin(), name.end(), '\n', ' ');
+      list << "SYNC CUE id=" << c.id << " kind=" << deckboy::core::utils::cueKindToken(c.kind)
+           << " dur=" << (cueHasTimeline(c) ? cueOut(c) - cueIn(c) : 0.0) << " name=\"" << name << "\"\n";
+    }
+    list << "SYNC LIST END\n";
+    const std::string text = list.str();
+    if (text == listSent_) return;
+    if (followSend(text)) listSent_ = text;
+  }
+
+  void runDeskCommand(const std::string& command) {
+    std::istringstream in(command);
+    std::string verb, arg;
+    in >> verb >> arg;
+    if (verb == "TAKEID") {
+      for (std::size_t i = 0; i < cues_.size(); ++i) {
+        if (cues_[i].id == arg) {
+          take(static_cast<int>(i));
+          select(static_cast<int>(i) + 1);
+          return;
+        }
+      }
+      SDL_Log("pocket: the desk asked for cue %s, which is not in the list", arg.c_str());
+    } else if (verb == "STOP") {
+      engine_->clear();
+      active_ = -1;
+    } else if (verb == "PLAY") {
+      if (active_ >= 0) engine_->play();
+    } else if (verb == "PAUSE") {
+      if (active_ >= 0) engine_->pause();
+    } else if (verb == "BLACK") {
+      black_ = arg == "ON";
+    }
+  }
+
+  void sendDeskPicture() {
+    if (!ownMode_ || follow_ != Follow::Following || !programTex_) return;
+    const Uint64 now = SDL_GetTicks();
+    if (now < nextPicture_ || followOut_.size() > 128 * 1024) return;   // the desk is behind: skip one
+    nextPicture_ = now + 250;
+    constexpr int kW = 160, kH = 90;
+    if (!deskPicTex_) deskPicTex_ = SDL_CreateTexture(renderer_, SDL_PIXELFORMAT_RGBA32, SDL_TEXTUREACCESS_TARGET, kW, kH);
+    if (!deskPicTex_) return;
+    SDL_Texture* before = SDL_GetRenderTarget(renderer_);
+    SDL_SetRenderTarget(renderer_, deskPicTex_);
+    SDL_SetRenderDrawColor(renderer_, 0, 0, 0, 255);
+    SDL_RenderClear(renderer_);
+    if (!black_) {
+      float pw = 0, ph = 0;
+      SDL_GetTextureSize(programTex_, &pw, &ph);
+      if (pw > 0 && ph > 0) {
+        const float k = std::min(static_cast<float>(kW) / pw, static_cast<float>(kH) / ph);
+        const SDL_FRect dst {(kW - pw * k) / 2, (kH - ph * k) / 2, pw * k, ph * k};
+        SDL_RenderTexture(renderer_, programTex_, nullptr, &dst);
+      }
+    }
+    SDL_Surface* shot = SDL_RenderReadPixels(renderer_, nullptr);
+    SDL_SetRenderTarget(renderer_, before);
+    if (!shot) return;
+    SDL_Surface* rgba = shot->format == SDL_PIXELFORMAT_RGBA32 ? shot : SDL_ConvertSurface(shot, SDL_PIXELFORMAT_RGBA32);
+    if (rgba && rgba->w == kW && rgba->h == kH) {
+      std::string pixels(static_cast<std::size_t>(kW * kH * 2), '\0');
+      for (int y = 0; y < kH; ++y) {
+        const Uint8* row = static_cast<const Uint8*>(rgba->pixels) + static_cast<std::size_t>(y) * static_cast<std::size_t>(rgba->pitch);
+        for (int x = 0; x < kW; ++x) {
+          const Uint16 v = static_cast<Uint16>(((row[x * 4] >> 3) << 11) | ((row[x * 4 + 1] >> 2) << 5) | (row[x * 4 + 2] >> 3));
+          pixels[static_cast<std::size_t>((y * kW + x) * 2)] = static_cast<char>(v & 0xFF);
+          pixels[static_cast<std::size_t>((y * kW + x) * 2 + 1)] = static_cast<char>(v >> 8);
+        }
+      }
+      followSend("SYNC PIC " + std::to_string(kW) + " " + std::to_string(kH) + " " +
+                 deckboy::audiofx::detail::base64Encode(pixels) + "\n");
+    }
+    if (rgba && rgba != shot) SDL_DestroySurface(rgba);
+    SDL_DestroySurface(shot);
   }
 
   // -- FETCHING A CUE'S MEDIA FROM THE DESK --
@@ -5257,6 +5397,7 @@ class Pocket {
       case Follow::Joining: return "JOINING DESK";
       case Follow::Following:
         if (!missingCue_.empty()) return fetchPercent_.load() >= 0 ? "FETCHING " + std::to_string(fetchPercent_.load()) + "%" : "MISSING CUE";
+        if (assignPlays_ == "own") return "DESK RUNS THIS LIST";
         if (assignPlays_ == "dark") return "DARK";
         if (assignPlays_ != "focus" && assignDeck_ > 0) return "PLAYLIST " + std::to_string(assignDeck_);
         return "FOLLOWING DESK";
@@ -9185,6 +9326,13 @@ class Pocket {
   std::string assignPlays_ = "focus", assignName_;
   int assignDeck_ = 0, phoneNumber_ = 0;
   Uint64 nextReport_ = 0;
+  // A phone as a deck (assignPlays_ "own"): the desk runs THIS list. What was
+  // last sent of the list, when the next picture goes, its little target,
+  // and the lines waiting for the socket (a picture is a long line).
+  bool ownMode_ = false;
+  std::string listSent_, followOut_;
+  Uint64 nextPicture_ = 0;
+  SDL_Texture* deskPicTex_ = nullptr;
   // A cue's media fetched from the desk (SYNC MEDIA), on a thread of its own.
   std::thread fetchThread_;
   std::atomic<int> fetchPercent_ {-1};

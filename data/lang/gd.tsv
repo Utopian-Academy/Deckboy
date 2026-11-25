@@ -4979,3 +4979,10 @@ PLAYS FOCUS, DARK or a playlist number	PLAYS FOCUS, DARK no àireamh liosta
 This desk is not leading, so no phone can follow it	Chan eil an deasg seo a' stiùireadh, mar sin chan urrainn do dh'fhòn sam bith a leantainn
 On the phone: MENU > SYNC, then type this desk's address	Air an fhòn: CLÀR > SYNC, an uairsin sgrìobh seòladh an deasga seo
 OUTPUT PHONE <name|number> PLAYS <FOCUS|DARK|playlist> or IDENTIFY	OUTPUT PHONE <ainm|àireamh> PLAYS <FOCUS|DARK|liosta> no IDENTIFY
+phone away	fòn air falbh
+Its own list	An liosta aige fhèin
+on the phone	air an fhòn
+Waiting for {1}	A' feitheamh ri {1}
+No room for {1}'s playlist	Chan eil rùm airson liosta {1}
+{1} is not following this desk	Chan eil {1} a' leantainn an deasg seo
+OUTPUT PHONE <name|number> PLAYS <FOCUS|DARK|OWN|playlist> or IDENTIFY	OUTPUT PHONE <ainm|àireamh> PLAYS <FOCUS|DARK|OWN|liosta> no IDENTIFY

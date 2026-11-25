@@ -1965,6 +1965,7 @@ std::string outputOrientationLabel(int degrees) {
 #include "core/project_file.ipp"
 
 bool cueUsesFilesystemMedia(const Cue& cue) {
+  if (cue.path.rfind("phone://", 0) == 0) return false;   // a phone's own cue: its media is on the phone
   return cue.kind == CueKind::Video ||
          cue.kind == CueKind::Image ||
          cue.kind == CueKind::Audio ||
@@ -11588,6 +11589,12 @@ class App {
   // by cue id. Both under companionClientsMutex_.
   struct PhoneReport { std::string line; std::uint64_t atMs = 0; };
   std::map<SocketHandle, PhoneReport> syncReports_;
+  // A phone as a deck: its list (SYNC LIST BEGIN / SYNC CUE / SYNC LIST END)
+  // and its small picture (SYNC PIC), by socket, taken on the network thread.
+  struct PhoneList { std::vector<std::string> lines, pending; std::uint64_t serial = 0; };
+  struct PhonePicture { int w = 0, h = 0; std::string pixels; std::uint64_t serial = 0; };
+  std::map<SocketHandle, PhoneList> syncLists_;
+  std::map<SocketHandle, PhonePicture> syncPictures_;
   std::map<std::string, std::string> syncMediaPaths_;
   std::uint64_t syncMediaPathsMs_ = 0;
   std::atomic<int> syncMediaSending_ {0};

@@ -4999,3 +4999,10 @@ PLAYS FOCUS, DARK or a playlist number	PLAYS FOCUS أو DARK أو رقم قائ�
 This desk is not leading, so no phone can follow it	طاولة التحكم هذه لا تقود، لذا لا يمكن لأي هاتف أن يتبعها
 On the phone: MENU > SYNC, then type this desk's address	على الهاتف: القائمة > SYNC، ثم اكتب عنوان طاولة التحكم هذه
 OUTPUT PHONE <name|number> PLAYS <FOCUS|DARK|playlist> or IDENTIFY	OUTPUT PHONE <الاسم|الرقم> PLAYS <FOCUS|DARK|قائمة التشغيل> أو IDENTIFY
+phone away	الهاتف غير متصل
+Its own list	قائمته الخاصة
+on the phone	على الهاتف
+Waiting for {1}	بانتظار {1}
+No room for {1}'s playlist	لا مساحة لقائمة تشغيل {1}
+{1} is not following this desk	{1} لا يتبع طاولة التحكم هذه
+OUTPUT PHONE <name|number> PLAYS <FOCUS|DARK|OWN|playlist> or IDENTIFY	OUTPUT PHONE <الاسم|الرقم> PLAYS <FOCUS|DARK|OWN|قائمة التشغيل> أو IDENTIFY

@@ -4917,3 +4917,10 @@ PLAYS FOCUS, DARK or a playlist number	PLAYS FOCUS, DARK ou un numéro de liste
 This desk is not leading, so no phone can follow it	Ce pupitre ne mène pas, donc aucun téléphone ne peut le suivre
 On the phone: MENU > SYNC, then type this desk's address	Sur le téléphone : MENU > SYNC, puis saisissez l'adresse de ce pupitre
 OUTPUT PHONE <name|number> PLAYS <FOCUS|DARK|playlist> or IDENTIFY	OUTPUT PHONE <nom|numéro> PLAYS <FOCUS|DARK|liste> ou IDENTIFY
+phone away	téléphone absent
+Its own list	Sa propre liste
+on the phone	sur le téléphone
+Waiting for {1}	En attente de {1}
+No room for {1}'s playlist	Pas de place pour la liste de {1}
+{1} is not following this desk	{1} ne suit pas ce pupitre
+OUTPUT PHONE <name|number> PLAYS <FOCUS|DARK|OWN|playlist> or IDENTIFY	OUTPUT PHONE <nom|numéro> PLAYS <FOCUS|DARK|OWN|liste> ou IDENTIFY

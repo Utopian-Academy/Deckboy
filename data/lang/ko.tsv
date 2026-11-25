@@ -4982,3 +4982,10 @@ PLAYS FOCUS, DARK or a playlist number	PLAYS FOCUS, DARK 또는 플레이리스�
 This desk is not leading, so no phone can follow it	이 콘솔은 리드 안 함: 어떤 전화도 따를 수 없음
 On the phone: MENU > SYNC, then type this desk's address	전화에서: 메뉴 > SYNC, 그다음 이 콘솔의 주소 입력
 OUTPUT PHONE <name|number> PLAYS <FOCUS|DARK|playlist> or IDENTIFY	OUTPUT PHONE <이름|번호> PLAYS <FOCUS|DARK|플레이리스트> 또는 IDENTIFY
+phone away	전화 자리 비움
+Its own list	자체 목록
+on the phone	전화에서
+Waiting for {1}	{1} 대기 중
+No room for {1}'s playlist	{1}의 플레이리스트를 둘 공간 없음
+{1} is not following this desk	{1}이(가) 이 콘솔을 따르지 않음
+OUTPUT PHONE <name|number> PLAYS <FOCUS|DARK|OWN|playlist> or IDENTIFY	OUTPUT PHONE <이름|번호> PLAYS <FOCUS|DARK|OWN|플레이리스트> 또는 IDENTIFY

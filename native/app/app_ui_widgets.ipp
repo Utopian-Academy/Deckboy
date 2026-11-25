@@ -668,6 +668,8 @@
   // routing menu. What the header has room to say, and what somebody scanning
   // a column actually wants, is the destination.
   std::string playlistRoutingChipLabel(int deckIndex) const {
+    // A phone's own list plays on the phone, or waits for it.
+    if (deckIsPhone(deckIndex)) return phoneDeckHere(deckIndex) ? "on the phone" : "phone away";
     std::string list;
     for (int i = 0; i < static_cast<int>(project_.outputs.size()); ++i) {
       if (!assignmentIndexForDeckOutput(deckIndex, i)) {

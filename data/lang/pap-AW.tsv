@@ -4962,3 +4962,10 @@ PLAYS FOCUS, DARK or a playlist number	PLAYS FOCUS, DARK of un number di playlis
 This desk is not leading, so no phone can follow it	E mesa aki no ta guia, pues ningun telefon no por sigui'é
 On the phone: MENU > SYNC, then type this desk's address	Riba e telefon: MENU > SYNC, despues tipa e adres di e mesa aki
 OUTPUT PHONE <name|number> PLAYS <FOCUS|DARK|playlist> or IDENTIFY	OUTPUT PHONE <nomber|number> PLAYS <FOCUS|DARK|playlist> of IDENTIFY
+phone away	telefon ausente
+Its own list	Su mes lista
+on the phone	riba e telefon
+Waiting for {1}	Ta warda {1}
+No room for {1}'s playlist	No tin espacio pa e playlist di {1}
+{1} is not following this desk	{1} no ta sigui e mesa aki
+OUTPUT PHONE <name|number> PLAYS <FOCUS|DARK|OWN|playlist> or IDENTIFY	OUTPUT PHONE <nomber|number> PLAYS <FOCUS|DARK|OWN|playlist> of IDENTIFY

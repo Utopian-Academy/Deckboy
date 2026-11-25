@@ -1255,6 +1255,7 @@
 
   // Ask for a still of one cue, unless another request is already waiting.
   void wantCueStill(const std::string& key, int deckIndex, int cueIndex) {
+    if (deckIsPhone(deckIndex)) return;   // its media is on the phone
     if (rowThumbWantedKey_.empty() && deckIndex >= 0 && cueIndex >= 0) {
       rowThumbWantedKey_ = key;
       rowThumbWantedDeck_ = deckIndex;

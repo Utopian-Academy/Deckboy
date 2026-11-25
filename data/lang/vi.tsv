@@ -4969,3 +4969,10 @@ PLAYS FOCUS, DARK or a playlist number	PLAYS FOCUS, DARK hoặc số playlist
 This desk is not leading, so no phone can follow it	Bàn này không dẫn, nên không điện thoại nào theo được
 On the phone: MENU > SYNC, then type this desk's address	Trên điện thoại: DANH MỤC > SYNC, rồi nhập địa chỉ của bàn này
 OUTPUT PHONE <name|number> PLAYS <FOCUS|DARK|playlist> or IDENTIFY	OUTPUT PHONE <tên|số> PLAYS <FOCUS|DARK|playlist> hoặc IDENTIFY
+phone away	điện thoại đã rời đi
+Its own list	Danh sách riêng
+on the phone	trên điện thoại
+Waiting for {1}	Đang chờ {1}
+No room for {1}'s playlist	Không đủ chỗ cho playlist của {1}
+{1} is not following this desk	{1} không theo bàn này
+OUTPUT PHONE <name|number> PLAYS <FOCUS|DARK|OWN|playlist> or IDENTIFY	OUTPUT PHONE <tên|số> PLAYS <FOCUS|DARK|OWN|playlist> hoặc IDENTIFY

@@ -4055,3 +4055,10 @@ PLAYS FOCUS, DARK or a playlist number	PLAYS FOCUS, DARK arba grojaraščio nume
 This desk is not leading, so no phone can follow it	Šis pultas nevadovauja, todėl joks telefonas negali jo sekti
 On the phone: MENU > SYNC, then type this desk's address	Telefone: MENIU > SYNC, tada įveskite šio pulto adresą
 OUTPUT PHONE <name|number> PLAYS <FOCUS|DARK|playlist> or IDENTIFY	OUTPUT PHONE <pavadinimas|numeris> PLAYS <FOCUS|DARK|grojaraštis> arba IDENTIFY
+phone away	telefono nėra
+Its own list	Nuosavas sąrašas
+on the phone	telefone
+Waiting for {1}	Laukiama: {1}
+No room for {1}'s playlist	Nėra vietos {1} grojaraščiui
+{1} is not following this desk	{1} neseka šio pulto
+OUTPUT PHONE <name|number> PLAYS <FOCUS|DARK|OWN|playlist> or IDENTIFY	OUTPUT PHONE <pavadinimas|numeris> PLAYS <FOCUS|DARK|OWN|grojaraštis> arba IDENTIFY

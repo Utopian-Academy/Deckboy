@@ -262,6 +262,11 @@
   }
 
   void playTransport() {
+    if (deckIsPhone(project_.focusedDeckIndex)) {
+      if (focusedDeck().activeIndex < 0) takeSelected(true);
+      else sendToPhoneDeck(project_.focusedDeckIndex, "PLAY");
+      return;
+    }
     MediaEngine* engine = focusedMediaEngine();
     DeckRuntime* runtime = focusedRuntime();
     const Cue* activeCue = activeCuePtr();
@@ -288,6 +293,10 @@
   }
 
   void pauseTransport() {
+    if (deckIsPhone(project_.focusedDeckIndex)) {
+      sendToPhoneDeck(project_.focusedDeckIndex, "PAUSE");
+      return;
+    }
     MediaEngine* engine = focusedMediaEngine();
     DeckRuntime* runtime = focusedRuntime();
     const Cue* activeCue = activeCuePtr();
@@ -306,6 +315,10 @@
   }
 
   void stopTransport() {
+    if (deckIsPhone(project_.focusedDeckIndex)) {
+      sendToPhoneDeck(project_.focusedDeckIndex, "STOP");
+      return;
+    }
     showLog("STOP", showLogCueRef(project_.focusedDeckIndex, focusedDeck().activeIndex));
     // STOP is a decision. Anything this deck was about to take -- a pre-wait
     // counting down, a continue waiting -- dies with it, or it fires seconds
@@ -5396,6 +5409,11 @@
     int deckIndex = std::clamp(project_.focusedDeckIndex, 0, static_cast<int>(project_.decks.size()) - 1);
     MediaEngine* engine = focusedMediaEngine();
     if (deck.selectedIndex < 0 || deck.selectedIndex >= static_cast<int>(deck.cues.size())) {
+      return;
+    }
+    // A PHONE'S OWN LIST: the phone takes its own cue and plays its own media.
+    if (deckIsPhone(deckIndex)) {
+      takeOnPhone(deckIndex);
       return;
     }
     // Taking anything cancels whatever this deck was about to take. The

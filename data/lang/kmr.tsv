@@ -4976,3 +4976,10 @@ PLAYS FOCUS, DARK or a playlist number	PLAYS FOCUS, DARK an jî hejmara lîsteya
 This desk is not leading, so no phone can follow it	Ev maseya kontrolê ne pêşeng e, loma tu telefon nikare wê bişopîne
 On the phone: MENU > SYNC, then type this desk's address	Li ser telefonê: MENÛ > SYNC, paşê navnîşana vê maseya kontrolê binivîse
 OUTPUT PHONE <name|number> PLAYS <FOCUS|DARK|playlist> or IDENTIFY	OUTPUT PHONE <nav|hejmar> PLAYS <FOCUS|DARK|lîsteya lêxistinê> an jî IDENTIFY
+phone away	telefon ne li vir e
+Its own list	Lîsteya xwe
+on the phone	li ser telefonê
+Waiting for {1}	Li benda {1}
+No room for {1}'s playlist	Ji bo lîsteya lêxistinê ya {1} cih tune
+{1} is not following this desk	{1} vê maseya kontrolê naşopîne
+OUTPUT PHONE <name|number> PLAYS <FOCUS|DARK|OWN|playlist> or IDENTIFY	OUTPUT PHONE <nav|hejmar> PLAYS <FOCUS|DARK|OWN|lîsteya lêxistinê> an jî IDENTIFY

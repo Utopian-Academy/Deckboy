@@ -4984,3 +4984,10 @@ PLAYS FOCUS, DARK or a playlist number	PLAYS FOCUS、DARK、またはプレイ�
 This desk is not leading, so no phone can follow it	この操作卓は主導していないため、電話は連動できません
 On the phone: MENU > SYNC, then type this desk's address	電話で: メニュー > SYNC を開き、この操作卓のアドレスを入力
 OUTPUT PHONE <name|number> PLAYS <FOCUS|DARK|playlist> or IDENTIFY	OUTPUT PHONE <名前|番号> PLAYS <FOCUS|DARK|プレイリスト> または IDENTIFY
+phone away	電話は不在
+Its own list	専用リスト
+on the phone	電話で
+Waiting for {1}	{1} を待機中
+No room for {1}'s playlist	{1} のプレイリスト用の空きがありません
+{1} is not following this desk	{1} はこの操作卓に連動していません
+OUTPUT PHONE <name|number> PLAYS <FOCUS|DARK|OWN|playlist> or IDENTIFY	OUTPUT PHONE <名前|番号> PLAYS <FOCUS|DARK|OWN|プレイリスト> または IDENTIFY

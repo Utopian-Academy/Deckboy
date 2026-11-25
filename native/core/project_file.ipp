@@ -1222,6 +1222,9 @@ void writeProjectRecords(std::ostream& output, const Project& project) {
       << '	' << escapeField(deck.watchFolder)
       << '	' << escapeField(serializeAudioPatch(deck.audioPatch))
       << '\n';
+    if (!deck.phoneName.empty()) {
+      output << "deck_phone\t" << deckIndex << '\t' << escapeField(deck.phoneName) << '\n';
+    }
 
     for (const auto& cue : deck.cues) {
       writeCueRecord(static_cast<long long>(deckIndex), cue);
@@ -2372,6 +2375,10 @@ Project loadProject(const fs::path& projectFile,
 
     if (applyProjectScalarLine(project, fields, ensureDeck)) {
       // handled above
+    } else if (fields[0] == "deck_phone") {
+      Deck& phoneDeck = ensureDeck(safeInt(fields, 1, 0));
+      phoneDeck.phoneName = safeString(fields, 2);
+      phoneDeck.activeIndex = -1;   // what plays is the phone's to say when it joins; nothing is racked here
     } else if (fields[0] == "deck") {
       int deckIndex = safeInt(fields, 1, static_cast<int>(project.decks.size()) - 1);
       Deck& deck = ensureDeck(deckIndex);

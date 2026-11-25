@@ -4968,3 +4968,10 @@ PLAYS FOCUS, DARK or a playlist number	PLAYS FOCUS, DARK ຫຼື ເລກ pla
 This desk is not leading, so no phone can follow it	ໂຕະນີ້ບໍ່ໄດ້ນຳ, ສະນັ້ນບໍ່ມີໂທລະສັບໃດຕາມໄດ້
 On the phone: MENU > SYNC, then type this desk's address	ໃນໂທລະສັບ: ເມນູ > SYNC, ແລ້ວພິມທີ່ຢູ່ຂອງໂຕະນີ້
 OUTPUT PHONE <name|number> PLAYS <FOCUS|DARK|playlist> or IDENTIFY	OUTPUT PHONE <ຊື່|ເລກ> PLAYS <FOCUS|DARK|playlist> ຫຼື IDENTIFY
+phone away	ໂທລະສັບບໍ່ຢູ່
+Its own list	ລາຍການຂອງມັນເອງ
+on the phone	ໃນໂທລະສັບ
+Waiting for {1}	ກຳລັງລໍຖ້າ {1}
+No room for {1}'s playlist	ບໍ່ມີບ່ອນສຳລັບ playlist ຂອງ {1}
+{1} is not following this desk	{1} ບໍ່ໄດ້ຕາມໂຕະນີ້
+OUTPUT PHONE <name|number> PLAYS <FOCUS|DARK|OWN|playlist> or IDENTIFY	OUTPUT PHONE <ຊື່|ເລກ> PLAYS <FOCUS|DARK|OWN|playlist> ຫຼື IDENTIFY

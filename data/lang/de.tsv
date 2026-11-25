@@ -4947,3 +4947,10 @@ PLAYS FOCUS, DARK or a playlist number	PLAYS FOCUS, DARK oder eine Playlist-Numm
 This desk is not leading, so no phone can follow it	Dieses Pult führt nicht, daher kann ihm kein Telefon folgen
 On the phone: MENU > SYNC, then type this desk's address	Auf dem Telefon: MENÜ > SYNC, dann die Adresse dieses Pults eingeben
 OUTPUT PHONE <name|number> PLAYS <FOCUS|DARK|playlist> or IDENTIFY	OUTPUT PHONE <Name|Nummer> PLAYS <FOCUS|DARK|Playlist> oder IDENTIFY
+phone away	Telefon abwesend
+Its own list	Eigene Liste
+on the phone	auf dem Telefon
+Waiting for {1}	Warte auf {1}
+No room for {1}'s playlist	Kein Platz für die Playlist von {1}
+{1} is not following this desk	{1} folgt diesem Pult nicht
+OUTPUT PHONE <name|number> PLAYS <FOCUS|DARK|OWN|playlist> or IDENTIFY	OUTPUT PHONE <Name|Nummer> PLAYS <FOCUS|DARK|OWN|Playlist> oder IDENTIFY
