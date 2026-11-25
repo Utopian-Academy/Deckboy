@@ -4957,3 +4957,27 @@ Backup: {1}. It will not take over until the primary leads again.	الاحتيا
 SYNC LEAD ON|OFF, STATUS, FOLLOW <ip> [BACKUP|FLEET], STOP, DRILL, REARM or TAKEOVER <ms>	SYNC LEAD ON|OFF, STATUS, FOLLOW <ip> [BACKUP|FLEET], STOP, DRILL, REARM أو TAKEOVER <ms>
 The leading desk's IP address, like 192.168.1.20 (or 192.168.1.20:5510). Empty = do not follow	عنوان IP لطاولة التحكم القائدة، مثل 192.168.1.20 (أو 192.168.1.20:5510). فارغ = لا تتبع
 The switcher input this desk is on. At a takeover the backup cuts the programme to it. 0 = no cut	دخل المبدّل الذي عليه طاولة التحكم هذه. عند التولي يقطع الاحتياطي البرنامج إليه. 0 = بلا قطع
+IN POCKET	في الجيب
+AT THE END	في النهاية
+No cues yet.	لا كيو بعد.
+DECKBOY POCKET	DECKBOY الجيب
+Nothing on air	لا شيء على الهواء
+, not saved yet	، لم يُحفظ بعد
+LET GO TO DELETE	إفلات للحذف
+NEW CUES START WITH	تبدأ الكيوهات الجديدة بـ
+No saved shows yet.	لا عروض محفوظة بعد.
+type a value or a sum	اكتب قيمة أو عملية حسابية
+This cue has no sound.	هذا الكيو بلا صوت.
+No effects on this cue.	لا مؤثرات على هذا الكيو.
+No shells in this build	لا shell في هذه النسخة
+MENU > SOURCES adds them.	تُضاف من القائمة > المصادر.
+The phone half of Deckboy.	جزء الهاتف من Deckboy.
+Tap, then type the desk's IP	المس، ثم اكتب IP الطاولة
+Tap the picture to focus there.	المس الصورة للتركيز هناك.
+Free software: GPL-3.0 or later.	برنامج حر: GPL-3.0 أو أحدث.
+Hold the cue, then SET: its type	ثبّت الكيو، ثم SET: نوعه
+Nothing more to set on this one.	لا شيء آخر لتعيينه هنا.
+A cue's own TRANSITION and STYLE win.	الانتقال والنمط الخاصان بالكيو لهما الأولوية.
+Zoom, focus and the rest are on a phone.	التكبير والتركيز والباقي على الهاتف.
+Not on air: the picture shows it once taken.	ليس على الهواء: يظهر في الصورة عند take.
+Deleted {1}	حُذف {1}

@@ -4941,3 +4941,27 @@ Backup: {1}. It will not take over until the primary leads again.	備機：{1}�
 SYNC LEAD ON|OFF, STATUS, FOLLOW <ip> [BACKUP|FLEET], STOP, DRILL, REARM or TAKEOVER <ms>	SYNC LEAD ON|OFF, STATUS, FOLLOW <ip> [BACKUP|FLEET], STOP, DRILL, REARM 或 TAKEOVER <ms>
 The leading desk's IP address, like 192.168.1.20 (or 192.168.1.20:5510). Empty = do not follow	主導控制台的 IP 位址，如 192.168.1.20（或 192.168.1.20:5510）。空白 = 不跟隨
 The switcher input this desk is on. At a takeover the backup cuts the programme to it. 0 = no cut	此控制台所在的切換台輸入。接管時，備機會將節目切換到該輸入。0 = 不切換
+IN POCKET	在口袋裡
+AT THE END	在末尾
+No cues yet.	還沒有 cue。
+DECKBOY POCKET	DECKBOY 口袋版
+Nothing on air	無播出內容
+, not saved yet	，尚未儲存
+LET GO TO DELETE	釋放以刪除
+NEW CUES START WITH	新增 CUE 起始為
+No saved shows yet.	還沒有已儲存的演出。
+type a value or a sum	輸入數值或算式
+This cue has no sound.	此 cue 沒有聲音。
+No effects on this cue.	此 cue 沒有效果。
+No shells in this build	此版本中沒有外殼
+MENU > SOURCES adds them.	在 選單 > 來源 中新增。
+The phone half of Deckboy.	Deckboy 的電話端。
+Tap, then type the desk's IP	點按，然後輸入控台的 IP
+Tap the picture to focus there.	點按畫面以在該處聚焦。
+Free software: GPL-3.0 or later.	自由軟體：GPL-3.0 或更新版本。
+Hold the cue, then SET: its type	保持按住 cue，然後選 設定：類型
+Nothing more to set on this one.	此項沒有其他可設定的了。
+A cue's own TRANSITION and STYLE win.	cue 自身的轉場與樣式優先。
+Zoom, focus and the rest are on a phone.	縮放、聚焦等都在電話上。
+Not on air: the picture shows it once taken.	未播出：取用後畫面才會顯示。
+Deleted {1}	已刪除 {1}

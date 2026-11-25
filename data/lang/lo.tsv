@@ -4927,3 +4927,27 @@ Backup: {1}. It will not take over until the primary leads again.	ສຳຮອ�
 SYNC LEAD ON|OFF, STATUS, FOLLOW <ip> [BACKUP|FLEET], STOP, DRILL, REARM or TAKEOVER <ms>	SYNC LEAD ON|OFF, STATUS, FOLLOW <ip> [BACKUP|FLEET], STOP, DRILL, REARM ຫຼື TAKEOVER <ms>
 The leading desk's IP address, like 192.168.1.20 (or 192.168.1.20:5510). Empty = do not follow	ທີ່ຢູ່ IP ຂອງໂຕະທີ່ກຳລັງນຳ ເຊັ່ນ 192.168.1.20 (ຫຼື 192.168.1.20:5510). ຫວ່າງ = ບໍ່ຕາມ
 The switcher input this desk is on. At a takeover the backup cuts the programme to it. 0 = no cut	ຂາເຂົ້າ switcher ທີ່ໂຕະນີ້ຢູ່. ເມື່ອຮັບແທນ ສຳຮອງຈະຕັດໂປຣແກຣມໄປຫາມັນ. 0 = ບໍ່ຕັດ
+IN POCKET	ໃນກະເປົ໋າ
+AT THE END	ຢູ່ທ້າຍສຸດ
+No cues yet.	ຍັງບໍ່ມີ cue.
+DECKBOY POCKET	DECKBOY ກະເປົ໋າ
+Nothing on air	ບໍ່ມີຫຍັງສົດຢູ່
+, not saved yet	, ຍັງບໍ່ໄດ້ບັນທຶກ
+LET GO TO DELETE	ປ່ອຍເພື່ອລຶບ
+NEW CUES START WITH	CUE ໃໝ່ເລີ່ມດ້ວຍ
+No saved shows yet.	ຍັງບໍ່ມີໂຊທີ່ບັນທຶກໄວ້.
+type a value or a sum	ພິມຄ່າ ຫຼື ສູດຄຳນວນ
+This cue has no sound.	Cue ນີ້ບໍ່ມີສຽງ.
+No effects on this cue.	Cue ນີ້ບໍ່ມີເອັບເຟັກ.
+No shells in this build	ບໍ່ມີ shell ໃນລຸ້ນນີ້
+MENU > SOURCES adds them.	ເພີ່ມໄດ້ໃນ ເມນູ > ແຫຼ່ງ.
+The phone half of Deckboy.	ເຄິ່ງໂທລະສັບຂອງ Deckboy.
+Tap, then type the desk's IP	ແຕະ, ແລ້ວພິມ IP ຂອງໂຕະ
+Tap the picture to focus there.	ແຕະຮູບເພື່ອຕັ້ງຈຸດສຸມບ່ອນນັ້ນ.
+Free software: GPL-3.0 or later.	ຊອບແວເສລີ: GPL-3.0 ຫຼື ໃໝ່ກວ່າ.
+Hold the cue, then SET: its type	ຄ້າງ cue, ແລ້ວ ຕັ້ງ: ປະເພດຂອງມັນ
+Nothing more to set on this one.	ບໍ່ມີຫຍັງໃຫ້ຕັ້ງເພີ່ມໃນອັນນີ້.
+A cue's own TRANSITION and STYLE win.	ການປ່ຽນພາບ ແລະ ຮູບແບບ ຂອງ cue ເອງມີຜົນກ່ອນ.
+Zoom, focus and the rest are on a phone.	ຊູມ, ຈຸດສຸມ ແລະ ອື່ນໆ ຢູ່ໃນໂທລະສັບ.
+Not on air: the picture shows it once taken.	ບໍ່ສົດ: ຮູບຈະສະແດງເມື່ອ take.
+Deleted {1}	ລຶບ {1} ແລ້ວ

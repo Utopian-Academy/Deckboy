@@ -4917,7 +4917,7 @@ Not following another desk	Ur yeṭṭafar ara ṭṭabla nniḍen
 Not following another desk.	Ur yeṭṭafar ara ṭṭabla nniḍen.
 the role is BACKUP or FLEET	tamlilt d BACKUP neɣ FLEET
 the primary was silent for {1}	ṭṭabla tagejdant tessusem {1}
-BACKUP LIVE: {1}. This desk has the show.	AḤRAZ S TIDET: {1}. Ṭṭabla-agi tesεa askan.
+BACKUP LIVE: {1}. This desk has the show.	AḤRAZ S TIDET: {1}. Ṭṭabla-agi tesɛa askan.
 this backup is already live (SYNC REARM first)	aḥraz-agi yella yakan s tidet (SYNC REARM di tazwara)
 this desk is not a backup (SYNC FOLLOW <ip> BACKUP)	ṭṭabla-agi macči d aḥraz (SYNC FOLLOW <ip> BACKUP)
 Backup re-armed: outputs dark, following the primary	Aḥraz yettwahegga tikkelt nniḍen: tuffɣiwin d abruk, yeṭṭafar ṭṭabla tagejdant
@@ -4927,3 +4927,27 @@ Backup: {1}. It will not take over until the primary leads again.	Aḥraz: {1}. 
 SYNC LEAD ON|OFF, STATUS, FOLLOW <ip> [BACKUP|FLEET], STOP, DRILL, REARM or TAKEOVER <ms>	SYNC LEAD ON|OFF, STATUS, FOLLOW <ip> [BACKUP|FLEET], STOP, DRILL, REARM neɣ TAKEOVER <ms>
 The leading desk's IP address, like 192.168.1.20 (or 192.168.1.20:5510). Empty = do not follow	Tansa IP n ṭṭabla yettwellihen, am 192.168.1.20 (neɣ 192.168.1.20:5510). Ilem = ur ḍfer ara
 The switcher input this desk is on. At a takeover the backup cuts the programme to it. 0 = no cut	Anekcum n switcher ɣef tella ṭṭabla-agi. Mi ara yeṭṭef, aḥraz yegzem ahil ɣur-s. 0 = ulac agzam
+IN POCKET	DEG UJIB
+AT THE END	DEG TAGARA
+No cues yet.	Mazal ulac cue.
+DECKBOY POCKET	DECKBOY N UJIB
+Nothing on air	Ulac deg tuffɣa
+, not saved yet	, mazal ur yettwasekles ara
+LET GO TO DELETE	SERREḤ I TUKKSA
+NEW CUES START WITH	CUE IMAYNUTEN BDAN S
+No saved shows yet.	Mazal ulac iskanen yettwaskelsen.
+type a value or a sum	aru azal neɣ timernit
+This cue has no sound.	Cue-agi ulac imesli.
+No effects on this cue.	Ulac isemda ɣef cue-agi.
+No shells in this build	Ulac shell deg lqem-agi
+MENU > SOURCES adds them.	UMUƔ > IƔBULA ad ten-yernu.
+The phone half of Deckboy.	Azgen n tiliɣri n Deckboy.
+Tap, then type the desk's IP	Sit, sakin aru IP n ṭṭabla
+Tap the picture to focus there.	Sit ɣef tugna i usaḍas dinna.
+Free software: GPL-3.0 or later.	Aseɣzan ilelli: GPL-3.0 neɣ lqem d-iteddun.
+Hold the cue, then SET: its type	Ṭṭef cue, sakin SBADU: anaw-is
+Nothing more to set on this one.	Ulac ayen nniḍen ara tesbaduḍ deg wa.
+A cue's own TRANSITION and STYLE win.	AƐEDDI d UƔANIB n cue s yiman-is i yezwaren.
+Zoom, focus and the rest are on a phone.	Asimɣur, asaḍas d wayen nniḍen ɣef tiliɣri.
+Not on air: the picture shows it once taken.	Mačči deg tuffɣa: tugna ad t-tesken mi yettwaṭṭef.
+Deleted {1}	Yettwakkes {1}

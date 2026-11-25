@@ -4944,3 +4944,27 @@ Backup: {1}. It will not take over until the primary leads again.	बैकअ�
 SYNC LEAD ON|OFF, STATUS, FOLLOW <ip> [BACKUP|FLEET], STOP, DRILL, REARM or TAKEOVER <ms>	SYNC LEAD ON|OFF, STATUS, FOLLOW <ip> [BACKUP|FLEET], STOP, DRILL, REARM या TAKEOVER <ms>
 The leading desk's IP address, like 192.168.1.20 (or 192.168.1.20:5510). Empty = do not follow	अग्रणी डेस्क का IP पता, जैसे 192.168.1.20 (या 192.168.1.20:5510)। खाली = अनुसरण नहीं
 The switcher input this desk is on. At a takeover the backup cuts the programme to it. 0 = no cut	इस डेस्क का स्विचर इनपुट। कमान संभालने पर बैकअप प्रोग्राम को इस पर कट करता है। 0 = कोई कट नहीं
+IN POCKET	पॉकेट में
+AT THE END	अंत में
+No cues yet.	अभी कोई क्यू नहीं।
+DECKBOY POCKET	DECKBOY पॉकेट
+Nothing on air	ऑन एयर कुछ नहीं
+, not saved yet	, अभी सहेजा नहीं गया
+LET GO TO DELETE	हटाने के लिए छोड़ें
+NEW CUES START WITH	नए क्यू इसके साथ शुरू होते हैं
+No saved shows yet.	अभी कोई सहेजा गया शो नहीं।
+type a value or a sum	कोई मान या योग लिखें
+This cue has no sound.	इस क्यू में ध्वनि नहीं है।
+No effects on this cue.	इस क्यू पर कोई प्रभाव नहीं।
+No shells in this build	इस बिल्ड में कोई शेल नहीं
+MENU > SOURCES adds them.	मेनू > स्रोत इन्हें जोड़ता है।
+The phone half of Deckboy.	Deckboy का फ़ोन वाला हिस्सा।
+Tap, then type the desk's IP	टैप करें, फिर डेस्क का IP लिखें
+Tap the picture to focus there.	वहाँ फ़ोकस करने के लिए चित्र पर टैप करें।
+Free software: GPL-3.0 or later.	मुक्त सॉफ़्टवेयर: GPL-3.0 या बाद का संस्करण।
+Hold the cue, then SET: its type	क्यू को दबाए रखें, फिर तय करें: उसका प्रकार
+Nothing more to set on this one.	इसमें तय करने को और कुछ नहीं।
+A cue's own TRANSITION and STYLE win.	क्यू का अपना संक्रमण और शैली मान्य रहते हैं।
+Zoom, focus and the rest are on a phone.	ज़ूम, फ़ोकस और बाकी सब फ़ोन पर हैं।
+Not on air: the picture shows it once taken.	ऑन एयर नहीं: take होने पर चित्र इसे दिखाएगा।
+Deleted {1}	{1} हटाया गया

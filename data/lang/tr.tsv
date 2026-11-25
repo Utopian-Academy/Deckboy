@@ -4935,3 +4935,26 @@ Backup: {1}. It will not take over until the primary leads again.	Yedek: {1}. Bi
 SYNC LEAD ON|OFF, STATUS, FOLLOW <ip> [BACKUP|FLEET], STOP, DRILL, REARM or TAKEOVER <ms>	SYNC LEAD ON|OFF, STATUS, FOLLOW <ip> [BACKUP|FLEET], STOP, DRILL, REARM veya TAKEOVER <ms>
 The leading desk's IP address, like 192.168.1.20 (or 192.168.1.20:5510). Empty = do not follow	Lider operatörün IP adresi, örneğin 192.168.1.20 (veya 192.168.1.20:5510). Boş = izleme
 The switcher input this desk is on. At a takeover the backup cuts the programme to it. 0 = no cut	Bu operatörün bulunduğu switcher girişi. Devralmada yedek programı buna keser. 0 = kesme yok
+IN POCKET	CEPTE
+AT THE END	SONDA
+No cues yet.	Henüz cue yok.
+Nothing on air	Yayında hiçbir şey yok
+, not saved yet	, henüz kaydedilmedi
+LET GO TO DELETE	SİLMEK İÇİN BIRAK
+NEW CUES START WITH	YENİ CUE'LAR ŞUNUNLA BAŞLAR
+No saved shows yet.	Henüz kayıtlı gösteri yok.
+type a value or a sum	bir değer ya da toplam yaz
+This cue has no sound.	Bu cue'da ses yok.
+No effects on this cue.	Bu cue'da efekt yok.
+No shells in this build	Bu yapıda kabuk yok
+MENU > SOURCES adds them.	MENÜ > KAYNAKLAR bunları ekler.
+The phone half of Deckboy.	Deckboy'un telefon yarısı.
+Tap, then type the desk's IP	Dokun, sonra masanın IP'sini yaz
+Tap the picture to focus there.	Oraya odaklamak için resme dokun.
+Free software: GPL-3.0 or later.	Özgür yazılım: GPL-3.0 veya sonrası.
+Hold the cue, then SET: its type	Cue'yu basılı tut, sonra AYARLA: türü
+Nothing more to set on this one.	Bunda ayarlanacak başka bir şey yok.
+A cue's own TRANSITION and STYLE win.	Cue'nun kendi GEÇİŞ ve STİL ayarı önceliklidir.
+Zoom, focus and the rest are on a phone.	Yakınlaştırma, odak ve geri kalanı telefonda.
+Not on air: the picture shows it once taken.	Yayında değil: take'ten sonra resimde görünür.
+Deleted {1}	{1} silindi

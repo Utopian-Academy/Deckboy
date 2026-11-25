@@ -4889,3 +4889,27 @@ Backup: {1}. It will not take over until the primary leads again.	Backup: {1}. D
 SYNC LEAD ON|OFF, STATUS, FOLLOW <ip> [BACKUP|FLEET], STOP, DRILL, REARM or TAKEOVER <ms>	SYNC LEAD ON|OFF, STATUS, FOLLOW <ip> [BACKUP|FLEET], STOP, DRILL, REARM eller TAKEOVER <ms>
 The leading desk's IP address, like 192.168.1.20 (or 192.168.1.20:5510). Empty = do not follow	Den førende pults IP-adresse, fx 192.168.1.20 (eller 192.168.1.20:5510). Tom = følg ikke
 The switcher input this desk is on. At a takeover the backup cuts the programme to it. 0 = no cut	Switcherens indgang, som denne pult er på. Ved overtagelse klipper backuppen programmet til den. 0 = intet klip
+IN POCKET	I LOMMEN
+AT THE END	TIL SIDST
+No cues yet.	Ingen cues endnu.
+DECKBOY POCKET	DECKBOY LOMME
+Nothing on air	Intet på luften
+, not saved yet	, ikke gemt endnu
+LET GO TO DELETE	SLIP FOR AT SLETTE
+NEW CUES START WITH	NYE CUES STARTER MED
+No saved shows yet.	Ingen gemte shows endnu.
+type a value or a sum	skriv en værdi eller et regnestykke
+This cue has no sound.	Denne cue har ingen lyd.
+No effects on this cue.	Ingen effekter på denne cue.
+No shells in this build	Ingen shells i denne build
+MENU > SOURCES adds them.	MENU > KILDER tilføjer dem.
+The phone half of Deckboy.	Telefondelen af Deckboy.
+Tap, then type the desk's IP	Tryk, og skriv så pultens IP
+Tap the picture to focus there.	Tryk på billedet for at fokusere der.
+Free software: GPL-3.0 or later.	Fri software: GPL-3.0 eller nyere.
+Hold the cue, then SET: its type	Hold cuen, og så SET: dens type
+Nothing more to set on this one.	Intet mere at indstille her.
+A cue's own TRANSITION and STYLE win.	En cues egen OVERGANG og STIL vinder.
+Zoom, focus and the rest are on a phone.	Forstørrelse, fokus og resten findes på en telefon.
+Not on air: the picture shows it once taken.	Ikke på luften: billedet viser det efter take.
+Deleted {1}	{1} slettet

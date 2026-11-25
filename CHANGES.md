@@ -10,13 +10,14 @@
 - Turned on its side, the picture fills the screen frame's height (about a fifth bigger), with the transport in a column beside it and the cue's name and time above.
 - 25 rendered shells, upright and on their side, and the desk's face when nothing is on air.
 - Pocket keeps the phone awake through a show and can follow a desk (below).
+- Pocket speaks the phone's language: every language the desk has, chosen from the phone's own setting, with the phone's fonts for Japanese, Chinese, Korean, Arabic, Hindi and the rest. Names (cues, shows, playlists, addresses) stay as they were typed.
 - Remote control on the desk's port (5510), answering many of the desk's own commands.
 - Not yet: iOS, and Pocket in Google Play. The APK is on the releases page; Android asks once to allow installing it.
 
 ### Following a desk (second screens and rooms)
 - New: a desk can **lead** (Settings > Network > Lead other machines). Deckboy Mini (`--follow`, or `SYNC FOLLOW <address>`) and Deckboy Pocket (MENU > SYNC) follow it on the same network: they take, pause, seek and black out with the desk, on the desk's clock. Use one as a backup screen, or to run a second room from one desk.
 - Companion: `FOLLOW`, `TIME`, `SYNC LEAD ON|OFF` and `SYNC STATUS` on the desk; `SYNC FOLLOW`, `SYNC STOP` and `SYNC STATUS` on Mini.
-- New: **a backup desk**. A second desk follows the first on every playlist (Settings > Network > Follow a desk, as BACKUP). It plays the show in step with every output black and its sound silent, and a frame round its window says so. If the primary goes quiet for 1 second (0.5, 2 or 4 to choose), the backup takes over where it is, already in step, and stays live until you press RE-ARM. It can cut an ATEM to its own input as it takes over. DRILL rehearses a takeover on purpose. When the primary stops leading or closes on purpose, the backup is told and does not take over. On one PC, killing the primary put the backup live in 0.35 to 1.1 seconds, within 1.5 frames of where the primary was.
+- New: **a backup desk**. A second desk follows the first on every playlist (Settings > Network > Follow a desk, as BACKUP). It plays the show in step with every output black and its sound silent, and a frame round its window says so. If the primary goes quiet for 1 second (0.5, 2 or 4 to choose), the backup takes over where it is, already in step, and stays live until you press RE-ARM. It can cut an ATEM to its own input as it takes over (tested on an ATEM Mini: programme on input 1, the primary killed, the switcher on the backup's input 2 within the second). DRILL rehearses a takeover on purpose. When the primary stops leading or closes on purpose, the backup is told and does not take over. On one PC, killing the primary put the backup live in 0.35 to 1.1 seconds, within 1.5 frames of where the primary was.
 - A desk can also follow as FLEET: it plays along, live, and follows the primary's blackout.
 - Companion: `SYNC FOLLOW <address> [BACKUP|FLEET]`, `SYNC STOP`, `SYNC DRILL`, `SYNC REARM`, `SYNC TAKEOVER <ms>` on the desk.
 

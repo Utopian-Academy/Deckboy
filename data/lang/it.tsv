@@ -4907,3 +4907,27 @@ Backup: {1}. It will not take over until the primary leads again.	Backup: {1}. N
 SYNC LEAD ON|OFF, STATUS, FOLLOW <ip> [BACKUP|FLEET], STOP, DRILL, REARM or TAKEOVER <ms>	SYNC LEAD ON|OFF, STATUS, FOLLOW <ip> [BACKUP|FLEET], STOP, DRILL, REARM o TAKEOVER <ms>
 The leading desk's IP address, like 192.168.1.20 (or 192.168.1.20:5510). Empty = do not follow	Indirizzo IP della console guida, es. 192.168.1.20 (o 192.168.1.20:5510). Vuoto = non seguire
 The switcher input this desk is on. At a takeover the backup cuts the programme to it. 0 = no cut	L'ingresso dello switcher di questa console. Al subentro il backup taglia il programma su di esso. 0 = nessun taglio
+IN POCKET	IN TASCA
+AT THE END	ALLA FINE
+No cues yet.	Ancora nessun cue.
+DECKBOY POCKET	DECKBOY TASCABILE
+Nothing on air	Niente in onda
+, not saved yet	, non ancora salvato
+LET GO TO DELETE	RILASCIA PER ELIMINARE
+NEW CUES START WITH	I NUOVI CUE INIZIANO CON
+No saved shows yet.	Ancora nessuno show salvato.
+type a value or a sum	scrivi un valore o una somma
+This cue has no sound.	Questo cue non ha suono.
+No effects on this cue.	Nessun effetto su questo cue.
+No shells in this build	Nessuna shell in questa build
+MENU > SOURCES adds them.	MENU > SORGENTI li aggiunge.
+The phone half of Deckboy.	La metà telefono di Deckboy.
+Tap, then type the desk's IP	Tocca, poi scrivi l'IP del banco
+Tap the picture to focus there.	Tocca l'immagine per mettere a fuoco lì.
+Free software: GPL-3.0 or later.	Software libero: GPL-3.0 o successiva.
+Hold the cue, then SET: its type	Tieni premuto il cue, poi IMPOSTA: il suo tipo
+Nothing more to set on this one.	Nient'altro da impostare qui.
+A cue's own TRANSITION and STYLE win.	TRANSIZIONE e STILE propri del cue hanno la precedenza.
+Zoom, focus and the rest are on a phone.	Ingrandimento, fuoco e il resto sono sul telefono.
+Not on air: the picture shows it once taken.	Non in onda: l'immagine lo mostra dopo il take.
+Deleted {1}	Eliminato: {1}

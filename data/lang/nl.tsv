@@ -4878,3 +4878,27 @@ Backup: {1}. It will not take over until the primary leads again.	Back-up: {1}. 
 SYNC LEAD ON|OFF, STATUS, FOLLOW <ip> [BACKUP|FLEET], STOP, DRILL, REARM or TAKEOVER <ms>	SYNC LEAD ON|OFF, STATUS, FOLLOW <ip> [BACKUP|FLEET], STOP, DRILL, REARM of TAKEOVER <ms>
 The leading desk's IP address, like 192.168.1.20 (or 192.168.1.20:5510). Empty = do not follow	Het IP-adres van de leidende regietafel, zoals 192.168.1.20 (of 192.168.1.20:5510). Leeg = niet volgen
 The switcher input this desk is on. At a takeover the backup cuts the programme to it. 0 = no cut	De switcheringang waarop deze regietafel zit. Bij een overname snijdt de back-up het programma daarheen. 0 = geen snede
+IN POCKET	OP ZAK
+AT THE END	AAN HET EIND
+No cues yet.	Nog geen cues.
+DECKBOY POCKET	DECKBOY OP ZAK
+Nothing on air	Niets in de lucht
+, not saved yet	, nog niet opgeslagen
+LET GO TO DELETE	LOSLATEN OM TE VERWIJDEREN
+NEW CUES START WITH	NIEUWE CUES STARTEN MET
+No saved shows yet.	Nog geen opgeslagen shows.
+type a value or a sum	typ een waarde of een som
+This cue has no sound.	Deze cue heeft geen geluid.
+No effects on this cue.	Geen effecten op deze cue.
+No shells in this build	Geen shells in deze build
+MENU > SOURCES adds them.	MENU > BRONNEN voegt ze toe.
+The phone half of Deckboy.	De telefoonhelft van Deckboy.
+Tap, then type the desk's IP	Tik en typ dan het IP van de tafel
+Tap the picture to focus there.	Tik op het beeld om daar scherp te stellen.
+Free software: GPL-3.0 or later.	Vrije software: GPL-3.0 of later.
+Hold the cue, then SET: its type	Houd de cue vast, dan INSTELLEN: het type
+Nothing more to set on this one.	Hier valt verder niets in te stellen.
+A cue's own TRANSITION and STYLE win.	De eigen OVERGANG en STIJL van een cue gaan voor.
+Zoom, focus and the rest are on a phone.	Vergroting, scherpstelling en de rest zitten op een telefoon.
+Not on air: the picture shows it once taken.	Niet in de lucht: het beeld toont het na take.
+Deleted {1}	{1} verwijderd

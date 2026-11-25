@@ -4940,3 +4940,27 @@ Backup: {1}. It will not take over until the primary leads again.	백업: {1}. �
 SYNC LEAD ON|OFF, STATUS, FOLLOW <ip> [BACKUP|FLEET], STOP, DRILL, REARM or TAKEOVER <ms>	SYNC LEAD ON|OFF, STATUS, FOLLOW <ip> [BACKUP|FLEET], STOP, DRILL, REARM 또는 TAKEOVER <ms>
 The leading desk's IP address, like 192.168.1.20 (or 192.168.1.20:5510). Empty = do not follow	리드하는 콘솔의 IP 주소, 예: 192.168.1.20 (또는 192.168.1.20:5510). 비어 있음 = 따르지 않음
 The switcher input this desk is on. At a takeover the backup cuts the programme to it. 0 = no cut	이 콘솔이 연결된 스위처 입력. 인계 시 백업이 프로그램을 이 입력으로 컷합니다. 0 = 컷 없음
+IN POCKET	포켓에서
+AT THE END	끝에서
+No cues yet.	아직 큐가 없습니다.
+DECKBOY POCKET	DECKBOY 포켓
+Nothing on air	온에어 없음
+, not saved yet	, 아직 저장 안 됨
+LET GO TO DELETE	놓으면 삭제
+NEW CUES START WITH	새 큐의 시작값
+No saved shows yet.	아직 저장된 쇼가 없습니다.
+type a value or a sum	값 또는 계산식 입력
+This cue has no sound.	이 큐에는 사운드가 없습니다.
+No effects on this cue.	이 큐에 효과 없음.
+No shells in this build	이 빌드에는 셸이 없음
+MENU > SOURCES adds them.	메뉴 > 소스에서 추가합니다.
+The phone half of Deckboy.	Deckboy의 전화용 절반.
+Tap, then type the desk's IP	탭한 다음 데스크 IP 입력
+Tap the picture to focus there.	영상을 탭하면 그 지점에 초점을 맞춥니다.
+Free software: GPL-3.0 or later.	자유 소프트웨어: GPL-3.0 이상.
+Hold the cue, then SET: its type	큐를 길게 누른 뒤 설정: 유형
+Nothing more to set on this one.	여기에는 더 설정할 것이 없습니다.
+A cue's own TRANSITION and STYLE win.	큐 자체의 전환과 스타일이 우선합니다.
+Zoom, focus and the rest are on a phone.	줌, 초점 등은 전화에 있습니다.
+Not on air: the picture shows it once taken.	온에어 아님: 테이크하면 영상에 표시됩니다.
+Deleted {1}	{1} 삭제됨

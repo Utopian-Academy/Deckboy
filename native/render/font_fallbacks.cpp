@@ -45,6 +45,7 @@ std::vector<FallbackFont> cjkFaces(Cjk which) {
         {"/System/Library/Fonts/Hiragino Sans GB.ttc", 0},
         {"/System/Library/Fonts/STHeiti Light.ttc", 0},
 #else
+        {"/system/fonts/NotoSansCJK-Regular.ttc", 2},   // Android
         {"/usr/share/fonts/opentype/noto/NotoSansCJK-Regular.ttc", 2},
         {"/usr/share/fonts/noto-cjk/NotoSansCJK-Regular.ttc", 2},
         {"/usr/share/fonts/truetype/wqy/wqy-microhei.ttc", 0},
@@ -61,6 +62,7 @@ std::vector<FallbackFont> cjkFaces(Cjk which) {
         {"/System/Library/Fonts/PingFang.ttc", 1},
         {"/System/Library/Fonts/STHeiti Light.ttc", 0},
 #else
+        {"/system/fonts/NotoSansCJK-Regular.ttc", 3},   // Android
         {"/usr/share/fonts/opentype/noto/NotoSansCJK-Regular.ttc", 3},
         {"/usr/share/fonts/noto-cjk/NotoSansCJK-Regular.ttc", 3},
         {"/usr/share/fonts/truetype/arphic/uming.ttc", 0},
@@ -79,6 +81,7 @@ std::vector<FallbackFont> cjkFaces(Cjk which) {
          "\xE3\x82\xB4\xE3\x82\xB7\xE3\x83\x83\xE3\x82\xAF W3.ttc", 0},  // Hiragino Kaku Gothic W3
         {"/System/Library/Fonts/Hiragino Sans GB.ttc", 0},
 #else
+        {"/system/fonts/NotoSansCJK-Regular.ttc", 0},   // Android
         {"/usr/share/fonts/opentype/noto/NotoSansCJK-Regular.ttc", 0},
         {"/usr/share/fonts/noto-cjk/NotoSansCJK-Regular.ttc", 0},
         {"/usr/share/fonts/opentype/ipafont-gothic/ipagp.ttf", 0},
@@ -93,6 +96,7 @@ std::vector<FallbackFont> cjkFaces(Cjk which) {
 #elif defined(__APPLE__)
         {"/System/Library/Fonts/AppleSDGothicNeo.ttc", 0},
 #else
+        {"/system/fonts/NotoSansCJK-Regular.ttc", 1},   // Android
         {"/usr/share/fonts/opentype/noto/NotoSansCJK-Regular.ttc", 1},
         {"/usr/share/fonts/noto-cjk/NotoSansCJK-Regular.ttc", 1},
         {"/usr/share/fonts/truetype/nanum/NanumGothic.ttf", 0},
@@ -169,6 +173,22 @@ std::vector<FallbackFont> otherScripts() {
     {"/System/Library/Fonts/Apple Color Emoji.ttc", 0},
     {"/System/Library/Fonts/Supplemental/Arial Unicode.ttf", 0},
 #else
+    // Android (Pocket): the system's Noto faces. Newer releases ship the
+    // variable (-VF) versions, older ones the -Regular; whichever exists.
+    {"/system/fonts/NotoNaskhArabic-Regular.ttf", 0},
+    {"/system/fonts/NotoSansArabic-Regular.ttf", 0},
+    {"/system/fonts/NotoSansDevanagari-VF.ttf", 0},
+    {"/system/fonts/NotoSansDevanagari-Regular.otf", 0},
+    {"/system/fonts/NotoSansThai-Regular.ttf", 0},
+    {"/system/fonts/NotoSansLao-Regular.ttf", 0},
+    {"/system/fonts/NotoSansHebrew-Regular.ttf", 0},
+    {"/system/fonts/NotoSansEthiopic-VF.ttf", 0},
+    {"/system/fonts/NotoSansEthiopic-Regular.ttf", 0},
+    {"/system/fonts/NotoSansGeorgian-VF.ttf", 0},
+    {"/system/fonts/NotoSansArmenian-VF.ttf", 0},
+    {"/system/fonts/NotoSansTamil-VF.ttf", 0},
+    {"/system/fonts/NotoSansBengali-VF.ttf", 0},
+    {"/system/fonts/NotoSansSymbols-Regular-Subsetted.ttf", 0},
     {"/usr/share/fonts/truetype/noto/NotoSansDevanagari-Regular.ttf", 0},
     {"/usr/share/fonts/truetype/noto/NotoSansBengali-Regular.ttf", 0},
     {"/usr/share/fonts/truetype/noto/NotoSansTamil-Regular.ttf", 0},

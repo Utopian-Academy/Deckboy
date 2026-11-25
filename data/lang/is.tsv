@@ -4934,3 +4934,27 @@ Backup: {1}. It will not take over until the primary leads again.	Varavél: {1}.
 SYNC LEAD ON|OFF, STATUS, FOLLOW <ip> [BACKUP|FLEET], STOP, DRILL, REARM or TAKEOVER <ms>	SYNC LEAD ON|OFF, STATUS, FOLLOW <ip> [BACKUP|FLEET], STOP, DRILL, REARM eða TAKEOVER <ms>
 The leading desk's IP address, like 192.168.1.20 (or 192.168.1.20:5510). Empty = do not follow	IP-vistfang stjórnborðsins í forystu, t.d. 192.168.1.20 (eða 192.168.1.20:5510). Tómt = ekki fylgja
 The switcher input this desk is on. At a takeover the backup cuts the programme to it. 0 = no cut	Inntak skiptarans sem þetta stjórnborð er á. Við yfirtöku klippir varavélin dagskrána á það. 0 = engin klipping
+IN POCKET	Í VASA
+AT THE END	Í LOKIN
+No cues yet.	Engin cue enn.
+DECKBOY POCKET	VASA-DECKBOY
+Nothing on air	Ekkert í loftinu
+, not saved yet	, ekki vistað enn
+LET GO TO DELETE	SLEPPTU TIL AÐ EYÐA
+NEW CUES START WITH	NÝ CUE BYRJA MEÐ
+No saved shows yet.	Engar vistaðar sýningar enn.
+type a value or a sum	sláðu inn gildi eða summu
+This cue has no sound.	Þetta cue hefur ekkert hljóð.
+No effects on this cue.	Engin áhrif á þessu cue.
+No shells in this build	Engar skeljar í þessari útgáfu
+MENU > SOURCES adds them.	VALMYND > GJAFAR bætir þeim við.
+The phone half of Deckboy.	Símahluti Deckboy.
+Tap, then type the desk's IP	Pikkaðu, sláðu svo inn IP borðsins
+Tap the picture to focus there.	Pikkaðu á myndina til að stilla fókus þar.
+Free software: GPL-3.0 or later.	Frjáls hugbúnaður: GPL-3.0 eða nýrra.
+Hold the cue, then SET: its type	Haltu cue inni, síðan STILLA: gerð þess
+Nothing more to set on this one.	Ekkert meira að stilla á þessu.
+A cue's own TRANSITION and STYLE win.	Eigin UMSKIPTI og STÍLL cue ganga fyrir.
+Zoom, focus and the rest are on a phone.	Aðdráttur, fókus og hitt er í síma.
+Not on air: the picture shows it once taken.	Ekki í loftinu: myndin sýnir það eftir take.
+Deleted {1}	{1} eytt

@@ -4929,3 +4929,27 @@ Backup: {1}. It will not take over until the primary leads again.	Isipele: {1}. 
 SYNC LEAD ON|OFF, STATUS, FOLLOW <ip> [BACKUP|FLEET], STOP, DRILL, REARM or TAKEOVER <ms>	SYNC LEAD ON|OFF, STATUS, FOLLOW <ip> [BACKUP|FLEET], STOP, DRILL, REARM noma TAKEOVER <ms>
 The leading desk's IP address, like 192.168.1.20 (or 192.168.1.20:5510). Empty = do not follow	Ikheli le-IP ledeski elihola, njenge-192.168.1.20 (noma 192.168.1.20:5510). Akunalutho = ungalandeli
 The switcher input this desk is on. At a takeover the backup cuts the programme to it. 0 = no cut	Okokufaka kwe-switcher okukulo leli deski. Uma kuthathwa indawo, isipele sisika uhlelo siye kukho. 0 = akukho kusika
+IN POCKET	ESPHAKETHENI
+AT THE END	EKUGCINENI
+No cues yet.	Awekho ama-cue okwamanje.
+DECKBOY POCKET	DECKBOY YASEPHAKETHE
+Nothing on air	Akukho lutho emoyeni
+, not saved yet	, akukalondolozwa
+LET GO TO DELETE	DEDELA UKUZE USUSE
+NEW CUES START WITH	AMA-CUE AMASHA AQALA NGE
+No saved shows yet.	Ayikho imibukiso elondoloziwe okwamanje.
+type a value or a sum	thayipha inani noma isibalo
+This cue has no sound.	Le cue ayinawo umsindo.
+No effects on this cue.	Ayikho imiphumela kule cue.
+No shells in this build	Awekho ama-shell kulesi sakhiwo
+MENU > SOURCES adds them.	IMENYU > IMITHOMBO iyazengeza.
+The phone half of Deckboy.	Ingxenye yocingo ye-Deckboy.
+Tap, then type the desk's IP	Thepha, bese uthayipha i-IP yedeski
+Tap the picture to focus there.	Thepha isithombe ukuze ugxile lapho.
+Free software: GPL-3.0 or later.	Isofthiwe yamahhala: GPL-3.0 noma kamuva.
+Hold the cue, then SET: its type	Bamba i-cue, bese SETHA: uhlobo lwayo
+Nothing more to set on this one.	Akusekho lutho olungasethwa kulena.
+A cue's own TRANSITION and STYLE win.	UKUGUQULA kanye ne-ISITAYELA se-cue uqobo kuphambili.
+Zoom, focus and the rest are on a phone.	Ukusondeza, ukugxila nokunye kusocingweni.
+Not on air: the picture shows it once taken.	Ayikho emoyeni: isithombe siyayibonisa uma isithathiwe.
+Deleted {1}	Kususwe {1}

@@ -4941,3 +4941,26 @@ Backup: {1}. It will not take over until the primary leads again.	Varapöytä: {
 SYNC LEAD ON|OFF, STATUS, FOLLOW <ip> [BACKUP|FLEET], STOP, DRILL, REARM or TAKEOVER <ms>	SYNC LEAD ON|OFF, STATUS, FOLLOW <ip> [BACKUP|FLEET], STOP, DRILL, REARM tai TAKEOVER <ms>
 The leading desk's IP address, like 192.168.1.20 (or 192.168.1.20:5510). Empty = do not follow	Johtavan pöydän IP-osoite, esim. 192.168.1.20 (tai 192.168.1.20:5510). Tyhjä = älä seuraa
 The switcher input this desk is on. At a takeover the backup cuts the programme to it. 0 = no cut	Switcherin tulo, jossa tämä pöytä on. Ohjien vaihdossa varapöytä leikkaa ohjelman siihen. 0 = ei leikkausta
+IN POCKET	POCKETISSA
+AT THE END	LOPUSSA
+No cues yet.	Ei vielä cueja.
+Nothing on air	Ei mitään lähetyksessä
+, not saved yet	, ei vielä tallennettu
+LET GO TO DELETE	VAPAUTA POISTAAKSESI
+NEW CUES START WITH	UUSIEN CUEJEN ALKUARVO
+No saved shows yet.	Ei vielä tallennettuja esityksiä.
+type a value or a sum	kirjoita arvo tai summa
+This cue has no sound.	Tällä cuella ei ole ääntä.
+No effects on this cue.	Tällä cuella ei ole tehosteita.
+No shells in this build	Tässä versiossa ei ole shellejä
+MENU > SOURCES adds them.	VALIKKO > LÄHTEET lisää ne.
+The phone half of Deckboy.	Deckboyn puhelinpuolisko.
+Tap, then type the desk's IP	Napauta ja kirjoita pöydän IP
+Tap the picture to focus there.	Napauta kuvaa tarkentaaksesi siihen.
+Free software: GPL-3.0 or later.	Vapaa ohjelmisto: GPL-3.0 tai uudempi.
+Hold the cue, then SET: its type	Pidä cuea, sitten ASETA: sen tyyppi
+Nothing more to set on this one.	Tässä ei ole enempää asetettavaa.
+A cue's own TRANSITION and STYLE win.	Cuen oma SIIRTYMÄ ja TYYLI menevät edelle.
+Zoom, focus and the rest are on a phone.	Suurennus, tarkennus ja muut ovat puhelimessa.
+Not on air: the picture shows it once taken.	Ei lähetyksessä: kuva näkyy taken jälkeen.
+Deleted {1}	{1} poistettu

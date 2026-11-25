@@ -93,6 +93,9 @@ tasks.register("copyPocketAssets", Copy) {
     from("${rootDir}/../data") {
         include "PressStart2P.ttf", "fonts/LiberationSans-Regular.ttf", "fonts/LiberationMono-Regular.ttf",
                 "fonts/LICENSE-Liberation.txt", "themes/*/theme.txt",
+                "lang/*.tsv",   // every catalogue; the app copies out only the phone's language
+                "fonts/NotoSansArabic-Regular.ttf", "fonts/NotoSansTifinagh-Regular.ttf",
+                "fonts/NotoSansLao-Regular.ttf", "fonts/NotoSansCherokee-Regular.ttf", "fonts/LICENSE-Noto.txt",
                 "pocket-shells/*.jpg", "pocket-shells/index.txt",   // the rendered shells (pocket-skins)
                 "pocket-splash/splash_*.jpg", "pocket-splash/logo.jpg", "pocket-splash/index.txt"   // the splash art (not the candidates beside it)
     }

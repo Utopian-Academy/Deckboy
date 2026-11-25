@@ -4907,3 +4907,27 @@ Backup: {1}. It will not take over until the primary leads again.	Kākoʻo: {1}.
 SYNC LEAD ON|OFF, STATUS, FOLLOW <ip> [BACKUP|FLEET], STOP, DRILL, REARM or TAKEOVER <ms>	SYNC LEAD ON|OFF, STATUS, FOLLOW <ip> [BACKUP|FLEET], STOP, DRILL, REARM a i ʻole TAKEOVER <ms>
 The leading desk's IP address, like 192.168.1.20 (or 192.168.1.20:5510). Empty = do not follow	Ka helu wahi IP o ka papa alakaʻi, e like me 192.168.1.20 (a i ʻole 192.168.1.20:5510). Hakahaka = mai hahai
 The switcher input this desk is on. At a takeover the backup cuts the programme to it. 0 = no cut	Ka hoʻokomo switcher o kēia papa. I ka lawe ʻana, ʻoki ke kākoʻo i ka papahana i laila. 0 = ʻaʻohe ʻoki
+IN POCKET	MA KA PĀKEKE
+AT THE END	MA KA HOPE
+No cues yet.	ʻAʻohe cue i kēia manawa.
+DECKBOY POCKET	DECKBOY PĀKEKE
+Nothing on air	ʻAʻohe mea ma ka lewa
+, not saved yet	, ʻaʻole i mālama ʻia i kēia manawa
+LET GO TO DELETE	HOʻOKUʻU NO KA HOLOI
+NEW CUES START WITH	HOʻOMAKA NĀ CUE HOU ME
+No saved shows yet.	ʻAʻohe hōʻike i mālama ʻia i kēia manawa.
+type a value or a sum	kikokiko i kekahi helu a i ʻole huina
+This cue has no sound.	ʻAʻohe leo o kēia cue.
+No effects on this cue.	ʻAʻohe hopena ma kēia cue.
+No shells in this build	ʻAʻohe shell ma kēia kūkulu
+MENU > SOURCES adds them.	Hoʻohui ʻia lākou e PAPA KUHIKUHI > NĀ KUMU.
+The phone half of Deckboy.	Ka hapa kelepona o Deckboy.
+Tap, then type the desk's IP	Paʻi, a laila kikokiko i ka IP o ka papa
+Tap the picture to focus there.	Paʻi i ke kiʻi e kālele ai ma laila.
+Free software: GPL-3.0 or later.	Polokalamu kūʻokoʻa: GPL-3.0 a i ʻole ma hope.
+Hold the cue, then SET: its type	Paʻa i ka cue, a laila HOʻONOHO: kona ʻano
+Nothing more to set on this one.	ʻAʻohe mea hou e hoʻonoho ai ma kēia.
+A cue's own TRANSITION and STYLE win.	Lanakila ka HOʻOLOLI a me ka ʻANO ponoʻī o ka cue.
+Zoom, focus and the rest are on a phone.	Ma ke kelepona ka Hoʻokokoke, ke kālele a me nā mea ʻē aʻe.
+Not on air: the picture shows it once taken.	ʻAʻole ma ka lewa: hōʻike ke kiʻi iā ia ke lawe ʻia.
+Deleted {1}	Ua holoi ʻia ʻo {1}

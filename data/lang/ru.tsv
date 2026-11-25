@@ -4944,3 +4944,26 @@ Backup: {1}. It will not take over until the primary leads again.	Резерв: 
 SYNC LEAD ON|OFF, STATUS, FOLLOW <ip> [BACKUP|FLEET], STOP, DRILL, REARM or TAKEOVER <ms>	SYNC LEAD ON|OFF, STATUS, FOLLOW <ip> [BACKUP|FLEET], STOP, DRILL, REARM или TAKEOVER <ms>
 The leading desk's IP address, like 192.168.1.20 (or 192.168.1.20:5510). Empty = do not follow	IP-адрес ведущего оператора, например 192.168.1.20 (или 192.168.1.20:5510). Пусто = не следовать
 The switcher input this desk is on. At a takeover the backup cuts the programme to it. 0 = no cut	Вход микшера, на котором этот оператор. При перехвате резерв переключает программу на него. 0 = без среза
+IN POCKET	В КАРМАНЕ
+AT THE END	В КОНЦЕ
+No cues yet.	Пока нет cue.
+Nothing on air	В эфире ничего
+, not saved yet	, ещё не сохранено
+LET GO TO DELETE	ОТПУСТИТЕ, ЧТОБЫ УДАЛИТЬ
+NEW CUES START WITH	НОВЫЕ CUE НАЧИНАЮТСЯ С
+No saved shows yet.	Пока нет сохранённых шоу.
+type a value or a sum	введите значение или сумму
+This cue has no sound.	У этого cue нет звука.
+No effects on this cue.	Нет эффектов в этом cue.
+No shells in this build	В этой сборке нет оболочек
+MENU > SOURCES adds them.	Их добавляет МЕНЮ > ИСТОЧНИКИ.
+The phone half of Deckboy.	Половина Deckboy для телефона.
+Tap, then type the desk's IP	Тапните, затем введите IP пульта
+Tap the picture to focus there.	Тапните по изображению, чтобы навести фокус.
+Free software: GPL-3.0 or later.	Свободное ПО: GPL-3.0 или новее.
+Hold the cue, then SET: its type	Удерживайте cue, затем ЗАДАТЬ: его тип
+Nothing more to set on this one.	Здесь больше нечего задать.
+A cue's own TRANSITION and STYLE win.	Собственные ПЕРЕХОД и СТИЛЬ cue имеют приоритет.
+Zoom, focus and the rest are on a phone.	Масштаб, фокус и прочее — на телефоне.
+Not on air: the picture shows it once taken.	Не в эфире: изображение покажет его при take.
+Deleted {1}	Удалено: {1}

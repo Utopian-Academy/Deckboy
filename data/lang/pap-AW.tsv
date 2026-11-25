@@ -4922,3 +4922,26 @@ Backup: {1}. It will not take over until the primary leads again.	Respaldo: {1}.
 SYNC LEAD ON|OFF, STATUS, FOLLOW <ip> [BACKUP|FLEET], STOP, DRILL, REARM or TAKEOVER <ms>	SYNC LEAD ON|OFF, STATUS, FOLLOW <ip> [BACKUP|FLEET], STOP, DRILL, REARM of TAKEOVER <ms>
 The leading desk's IP address, like 192.168.1.20 (or 192.168.1.20:5510). Empty = do not follow	E adres IP di e mesa cu ta guia, manera 192.168.1.20 (of 192.168.1.20:5510). Bashi = no sigui
 The switcher input this desk is on. At a takeover the backup cuts the programme to it. 0 = no cut	E entrada di switcher di e mesa aki. Ora e respaldo tuma over, e ta corta e programa n'e. 0 = sin corte
+IN POCKET	DEN SAKU
+AT THE END	NA FIN
+No cues yet.	Ainda no tin cue.
+Nothing on air	Nada no ta bibu
+, not saved yet	, no warda ainda
+LET GO TO DELETE	LAGA PA KITA
+NEW CUES START WITH	CUENAN NOBO TA CUMINSA CU
+No saved shows yet.	Ainda no tin show warda.
+type a value or a sum	tipa un balor of un suma
+This cue has no sound.	E cue aki no tin zonido.
+No effects on this cue.	Sin efecto riba e cue aki.
+No shells in this build	No tin shell den e version aki
+MENU > SOURCES adds them.	MENU > FUENTENAN ta agrega nan.
+The phone half of Deckboy.	E parti di telefon di Deckboy.
+Tap, then type the desk's IP	Tok, despues tipa e IP di e mesa
+Tap the picture to focus there.	Tok e portret pa enfoke aya.
+Free software: GPL-3.0 or later.	Software liber: GPL-3.0 of mas nobo.
+Hold the cue, then SET: its type	Tene e cue, despues PONE: su tipo
+Nothing more to set on this one.	Nada mas pa pone riba esaki.
+A cue's own TRANSITION and STYLE win.	E TRANSICION y ESTILO propio di un cue ta gana.
+Zoom, focus and the rest are on a phone.	Acercamento, enfoke y e resto ta riba un telefon.
+Not on air: the picture shows it once taken.	No ta bibu: e portret ta mustr'e ora e wordo tuma.
+Deleted {1}	{1} kita

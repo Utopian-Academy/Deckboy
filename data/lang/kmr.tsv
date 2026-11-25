@@ -4934,3 +4934,27 @@ Backup: {1}. It will not take over until the primary leads again.	Yedek: {1}. He
 SYNC LEAD ON|OFF, STATUS, FOLLOW <ip> [BACKUP|FLEET], STOP, DRILL, REARM or TAKEOVER <ms>	SYNC LEAD ON|OFF, STATUS, FOLLOW <ip> [BACKUP|FLEET], STOP, DRILL, REARM an TAKEOVER <ms>
 The leading desk's IP address, like 192.168.1.20 (or 192.168.1.20:5510). Empty = do not follow	Navnîşana IP ya maseya kontrolê ya pêşeng, wekî 192.168.1.20 (an 192.168.1.20:5510). Vala = neşopîne
 The switcher input this desk is on. At a takeover the backup cuts the programme to it. 0 = no cut	Têketina switcherê ya ku ev maseya kontrolê li ser e. Dema girtina kontrolê yedek bername dibire ser wê. 0 = birrîn tune
+IN POCKET	DI BERÎKÊ DE
+AT THE END	LI DAWIYÊ
+No cues yet.	Hêj cue tune.
+DECKBOY POCKET	DECKBOYÊ BERÎKÊ
+Nothing on air	Li çapê tiştek tune
+, not saved yet	, hêj nehatiye tomarkirin
+LET GO TO DELETE	BERDE KU JÊ BIBE
+NEW CUES START WITH	CUEYÊN NÛ DEST PÊ DIKIN BI
+No saved shows yet.	Hêj nîşanên tomarkirî tune.
+type a value or a sum	nirxek an jî hesabek binivîse
+This cue has no sound.	Ev cue deng tune.
+No effects on this cue.	Li ser vê cue efekt tune.
+No shells in this build	Di vê guhertoyê de shell tune
+MENU > SOURCES adds them.	MENÛ > ÇAVKANÎ wan zêde dike.
+The phone half of Deckboy.	Nîvê telefonê yê Deckboy.
+Tap, then type the desk's IP	Lêxe, paşê IP-ya maseyê binivîse
+Tap the picture to focus there.	Wêneyê lêxe da ku li wir fokus bike.
+Free software: GPL-3.0 or later.	Nermalava azad: GPL-3.0 an guhertoyên paştir.
+Hold the cue, then SET: its type	Cue bigire, paşê DIYAR BIKE: cureya wê
+Nothing more to set on this one.	Li vê yekê tiştek din tune ku diyar bike.
+A cue's own TRANSITION and STYLE win.	DERBASBÛN û ŞÊWAZ yên cueyê bi xwe serdikevin.
+Zoom, focus and the rest are on a phone.	Zûm, fokus û yên din li ser telefonê ne.
+Not on air: the picture shows it once taken.	Ne li çapê: dema hat girtin wêne wê nîşan dide.
+Deleted {1}	{1} hat jêbirin

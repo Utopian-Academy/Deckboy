@@ -4955,3 +4955,27 @@ Backup: {1}. It will not take over until the primary leads again.	ⴰⵃⵔⴰ�
 SYNC LEAD ON|OFF, STATUS, FOLLOW <ip> [BACKUP|FLEET], STOP, DRILL, REARM or TAKEOVER <ms>	SYNC LEAD ON|OFF, STATUS, FOLLOW <ip> [BACKUP|FLEET], STOP, DRILL, REARM ⵏⵖ TAKEOVER <ms>
 The leading desk's IP address, like 192.168.1.20 (or 192.168.1.20:5510). Empty = do not follow	ⵜⴰⵏⵙⴰ IP ⵏ ⵜⴼⵉⵍⵓⵜ ⵉⵜⵜⵣⵡⵉⵔⵏ, ⵣⵓⵏⴷ 192.168.1.20 (ⵏⵖ 192.168.1.20:5510). ⵉⵍⵎ = ⵓⵔ ⵜⵜⴹⴼⴰⵔ
 The switcher input this desk is on. At a takeover the backup cuts the programme to it. 0 = no cut	ⴰⵏⴽⵛⵓⵎ ⵏ switcher ⴳ ⵜⵍⵍⴰ ⵜⴰⴼⵉⵍⵓⵜ ⴰⴷ. ⴳ ⵓⵟⵟⴰⴼ, ⴰⵃⵔⴰⵣ ⴰⵔ ⵉⴳⵣⵣⵎ ⴰⵀⵉⵍ ⵙⵔⵙ. 0 = ⵓⵔ ⵉⵍⵍⵉ ⵓⴳⵣⴰⵎ
+IN POCKET	ⵖ ⵜⵊⵉⴱⵜ
+AT THE END	ⵖ ⵜⴳⵉⵔⴰ
+No cues yet.	ⵓⵔ ⵍⵍⵉⵏ cue ⵖⵉⵍⴰ.
+DECKBOY POCKET	DECKBOY ⵏ ⵜⵊⵉⴱⵜ
+Nothing on air	ⵡⴰⵍⵓ ⵖ ⵜⵓⴼⴼⵖⴰ
+, not saved yet	, ⵓⵔ ⵉⵃⴹⴰ ⵖⵉⵍⴰ
+LET GO TO DELETE	ⵙⵔⵔⵃ ⴰⴷ ⵜⴽⴽⵙⴷ
+NEW CUES START WITH	cue ⵉⵎⴰⵢⵏⵓⵜⵏ ⴰⵔ ⴱⴷⴷⵓⵏ ⵙ
+No saved shows yet.	ⵓⵔ ⵍⵍⵉⵏ ⵉⵙⵙⴽⴰⵏⵏ ⵉⵜⵜⵓⵃⴹⴰⵏ ⵖⵉⵍⴰ.
+type a value or a sum	ⴰⵔⵓ ⴰⵣⴰⵍ ⵏⵖ ⴰⵙⵉⴹⵏ
+This cue has no sound.	cue ⴰⴷ ⵓⵔ ⵖⵓⵔⵙ ⵉⵎⵙⵍⵉ.
+No effects on this cue.	ⵓⵔ ⵍⵍⵉⵏ ⵉⵙⵏⴼⴰⵍⵏ ⵖ cue ⴰⴷ.
+No shells in this build	ⵓⵔ ⵍⵍⵉⵏ ⵜⵉⵇⵛⵓⵔⵉⵏ ⴳ ⵓⴱⵏⵉ ⴰⴷ
+MENU > SOURCES adds them.	ⵓⵎⵓⵖ > ⵉⵖⴱⵓⵍⴰ ⴰⵔ ⵜⵏ ⵉⵔⵏⵏⵓ.
+The phone half of Deckboy.	ⴰⵣⴳⵏ ⵏ ⵜⵉⵍⵉⵖⵔⵉ ⵏ Deckboy.
+Tap, then type the desk's IP	ⵙⵉⵜ, ⴷⴼⴼⵉⵔ ⴰⵔⵓ IP ⵏ ⵜⴼⵉⵍⵓⵜ
+Tap the picture to focus there.	ⵙⵉⵜ ⵖ ⵜⵡⵍⴰⴼⵜ ⴰⴷ ⵜⴳⴷ ⴰⵙⴰⴹⴰⵙ ⵖⵉⵏⵏ.
+Free software: GPL-3.0 or later.	ⴰⵙⵏⴰⵙ ⵉⵍⴻⵍⵍⵉⵏ: GPL-3.0 ⵏⵖ ⵢⴰⵏ ⴰⵎⴰⵢⵏⵓ.
+Hold the cue, then SET: its type	ⵟⵟⴼ cue, ⴷⴼⴼⵉⵔ ⵙⴱⴷⴷ: ⴰⵏⴰⵡ ⵏⵏⵙ
+Nothing more to set on this one.	ⵓⵔ ⵉⵇⵇⵉⵎ ⵡⴰⵍⵓ ⴰⴷ ⵜⵙⴱⴷⴷⴷ ⵖ ⵡⴰ.
+A cue's own TRANSITION and STYLE win.	ⴰⵎⵓⵜⵜⵉ ⴷ ⵓⵏⴰⵡ ⵏ cue ⵙ ⵢⵉⵎⴰⵏ ⵏⵏⵙ ⴰⴷ ⵉⵣⵡⴰⵔⵏ.
+Zoom, focus and the rest are on a phone.	ⴰⵙⵉⵎⵖⵓⵔ, ⴰⵙⴰⴹⴰⵙ ⴷ ⵡⵉⵢⵢⴰⴹ ⵍⵍⴰⵏ ⵖ ⵜⵉⵍⵉⵖⵔⵉ.
+Not on air: the picture shows it once taken.	ⵓⵔ ⵉⵍⵍⵉ ⵖ ⵜⵓⴼⴼⵖⴰ: ⵜⴰⵡⵍⴰⴼⵜ ⴰⴷ ⵜ ⵜⵙⵙⴽⵏ ⴷⴼⴼⵉⵔ TAKE.
+Deleted {1}	{1} ⵉⵜⵜⵓⴽⴽⵙ

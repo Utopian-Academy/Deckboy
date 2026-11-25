@@ -4876,3 +4876,26 @@ Backup: {1}. It will not take over until the primary leads again.	Secours : {1}.
 SYNC LEAD ON|OFF, STATUS, FOLLOW <ip> [BACKUP|FLEET], STOP, DRILL, REARM or TAKEOVER <ms>	SYNC LEAD ON|OFF, STATUS, FOLLOW <ip> [BACKUP|FLEET], STOP, DRILL, REARM ou TAKEOVER <ms>
 The leading desk's IP address, like 192.168.1.20 (or 192.168.1.20:5510). Empty = do not follow	L'adresse IP du pupitre meneur, par ex. 192.168.1.20 (ou 192.168.1.20:5510). Vide = ne pas suivre
 The switcher input this desk is on. At a takeover the backup cuts the programme to it. 0 = no cut	L'entrée du switcher où se trouve ce pupitre. Lors d'une reprise, le secours y coupe le programme. 0 = pas de coupe
+IN POCKET	DANS POCKET
+AT THE END	À LA FIN
+No cues yet.	Aucun cue pour l'instant.
+Nothing on air	Rien à l'antenne
+, not saved yet	, pas encore enregistré
+LET GO TO DELETE	RELÂCHER POUR SUPPRIMER
+NEW CUES START WITH	LES NOUVEAUX CUES PARTENT DE
+No saved shows yet.	Aucun spectacle enregistré pour l'instant.
+type a value or a sum	saisir une valeur ou une somme
+This cue has no sound.	Ce cue n'a pas de son.
+No effects on this cue.	Aucun effet sur ce cue.
+No shells in this build	Aucun shell dans cette version
+MENU > SOURCES adds them.	MENU > SOURCES les ajoute.
+The phone half of Deckboy.	La moitié téléphone de Deckboy.
+Tap, then type the desk's IP	Tapez, puis saisissez l'IP de la régie
+Tap the picture to focus there.	Tapez l'image pour y faire la mise au point.
+Free software: GPL-3.0 or later.	Logiciel libre : GPL-3.0 ou ultérieure.
+Hold the cue, then SET: its type	Maintenez le cue, puis DÉFINIR : son type
+Nothing more to set on this one.	Rien de plus à définir sur celui-ci.
+A cue's own TRANSITION and STYLE win.	La TRANSITION et le STYLE propres au cue l'emportent.
+Zoom, focus and the rest are on a phone.	Le zoom, la mise au point et le reste sont sur un téléphone.
+Not on air: the picture shows it once taken.	Pas à l'antenne : l'image l'affiche après le take.
+Deleted {1}	Supprimé : {1}

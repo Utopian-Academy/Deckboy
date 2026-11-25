@@ -4937,3 +4937,27 @@ Backup: {1}. It will not take over until the primary leads again.	Εφεδρικ
 SYNC LEAD ON|OFF, STATUS, FOLLOW <ip> [BACKUP|FLEET], STOP, DRILL, REARM or TAKEOVER <ms>	SYNC LEAD ON|OFF, STATUS, FOLLOW <ip> [BACKUP|FLEET], STOP, DRILL, REARM ή TAKEOVER <ms>
 The leading desk's IP address, like 192.168.1.20 (or 192.168.1.20:5510). Empty = do not follow	Η διεύθυνση IP της κονσόλας που οδηγεί, π.χ. 192.168.1.20 (ή 192.168.1.20:5510). Κενό = χωρίς ακολούθηση
 The switcher input this desk is on. At a takeover the backup cuts the programme to it. 0 = no cut	Η είσοδος του switcher όπου βρίσκεται αυτή η κονσόλα. Σε ανάληψη το εφεδρικό κόβει το πρόγραμμα σε αυτήν. 0 = χωρίς κόψιμο
+IN POCKET	ΣΤΗΝ ΤΣΕΠΗ
+AT THE END	ΣΤΟ ΤΕΛΟΣ
+No cues yet.	Δεν υπάρχουν cue ακόμη.
+DECKBOY POCKET	DECKBOY ΤΣΕΠΗΣ
+Nothing on air	Τίποτα στον αέρα
+, not saved yet	, δεν έχει αποθηκευτεί ακόμη
+LET GO TO DELETE	ΑΠΕΛΕΥΘΕΡΩΣΗ ΓΙΑ ΔΙΑΓΡΑΦΗ
+NEW CUES START WITH	ΤΑ ΝΕΑ CUE ΞΕΚΙΝΟΥΝ ΜΕ
+No saved shows yet.	Δεν υπάρχουν ακόμη αποθηκευμένες παραστάσεις.
+type a value or a sum	πληκτρολόγησε τιμή ή πράξη
+This cue has no sound.	Αυτό το cue δεν έχει ήχο.
+No effects on this cue.	Χωρίς εφέ σε αυτό το cue.
+No shells in this build	Χωρίς shell σε αυτή την έκδοση
+MENU > SOURCES adds them.	Προστίθενται από ΜΕΝΟΥ > ΠΗΓΕΣ.
+The phone half of Deckboy.	Το μισό του Deckboy στο τηλέφωνο.
+Tap, then type the desk's IP	Πάτησε και πληκτρολόγησε την IP της κονσόλας
+Tap the picture to focus there.	Πάτησε την εικόνα για εστίαση εκεί.
+Free software: GPL-3.0 or later.	Ελεύθερο λογισμικό: GPL-3.0 ή νεότερη.
+Hold the cue, then SET: its type	Κράτα το cue, μετά SET: τον τύπο του
+Nothing more to set on this one.	Τίποτα άλλο για ορισμό εδώ.
+A cue's own TRANSITION and STYLE win.	Η ΜΕΤΑΒΑΣΗ και το ΣΤΥΛ του ίδιου του cue υπερισχύουν.
+Zoom, focus and the rest are on a phone.	Ζουμ, εστίαση και τα υπόλοιπα είναι σε τηλέφωνο.
+Not on air: the picture shows it once taken.	Όχι στον αέρα: η εικόνα το δείχνει μετά το take.
+Deleted {1}	Διαγράφηκε: {1}

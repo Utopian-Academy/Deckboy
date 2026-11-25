@@ -73,6 +73,8 @@ DRAW_HELPERS = [
     # The inline editor draws its title and prompt through drawText; its literals
     # (key colour, offset, width...) were never counted either.
     r"openInline\w*Editor",
+    # Deckboy Pocket draws every label through its text cache (pocket_main.cpp).
+    r"text_\.draw",
 ]
 
 SOURCE_DIRS = [os.path.join(ROOT, "native")]

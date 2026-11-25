@@ -4956,3 +4956,26 @@ Backup: {1}. It will not take over until the primary leads again.	پشتیبان
 SYNC LEAD ON|OFF, STATUS, FOLLOW <ip> [BACKUP|FLEET], STOP, DRILL, REARM or TAKEOVER <ms>	SYNC LEAD ON|OFF، STATUS، FOLLOW <ip> [BACKUP|FLEET]، STOP، DRILL، REARM یا TAKEOVER <ms>
 The leading desk's IP address, like 192.168.1.20 (or 192.168.1.20:5510). Empty = do not follow	نشانی IP اپراتور رهبر، مثل 192.168.1.20 (یا 192.168.1.20:5510). خالی = دنبال نکن
 The switcher input this desk is on. At a takeover the backup cuts the programme to it. 0 = no cut	ورودی سوئیچر که این اپراتور روی آن است. هنگام تحویل کنترل، پشتیبان برنامه را به آن برش می‌دهد. 0 = بدون برش
+IN POCKET	در Pocket
+AT THE END	در انتها
+No cues yet.	هنوز کیویی نیست.
+Nothing on air	هیچ‌چیز روی آنتن نیست
+, not saved yet	، هنوز ذخیره نشده
+LET GO TO DELETE	برای حذف رها کن
+NEW CUES START WITH	کیوهای جدید شروع می‌شوند با
+No saved shows yet.	هنوز نمایش ذخیره‌شده‌ای نیست.
+type a value or a sum	یک مقدار یا یک جمع وارد کن
+This cue has no sound.	این کیو صدا ندارد.
+No effects on this cue.	این کیو افکتی ندارد.
+No shells in this build	در این نسخه shell نیست
+MENU > SOURCES adds them.	منو > منابع آن‌ها را اضافه می‌کند.
+The phone half of Deckboy.	نیمهٔ تلفنی Deckboy.
+Tap, then type the desk's IP	ضربه بزن، سپس IP میز را وارد کن
+Tap the picture to focus there.	برای فوکوس، روی تصویر ضربه بزن.
+Free software: GPL-3.0 or later.	نرم‌افزار آزاد: GPL-3.0 یا نسخه‌های بعدی.
+Hold the cue, then SET: its type	کیو را نگه دار، سپس تنظیم: نوع آن
+Nothing more to set on this one.	چیز دیگری برای تنظیم روی این یکی نیست.
+A cue's own TRANSITION and STYLE win.	گذار و سبکِ خودِ کیو اولویت دارند.
+Zoom, focus and the rest are on a phone.	بزرگ‌نمایی، فوکوس و بقیه روی تلفن هستند.
+Not on air: the picture shows it once taken.	روی آنتن نیست: تصویر پس از take نشانش می‌دهد.
+Deleted {1}	{1} حذف شد

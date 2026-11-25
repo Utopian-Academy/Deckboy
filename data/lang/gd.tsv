@@ -4938,3 +4938,26 @@ Backup: {1}. It will not take over until the primary leads again.	Cùl-taic: {1}
 SYNC LEAD ON|OFF, STATUS, FOLLOW <ip> [BACKUP|FLEET], STOP, DRILL, REARM or TAKEOVER <ms>	SYNC LEAD ON|OFF, STATUS, FOLLOW <ip> [BACKUP|FLEET], STOP, DRILL, REARM no TAKEOVER <ms>
 The leading desk's IP address, like 192.168.1.20 (or 192.168.1.20:5510). Empty = do not follow	Seòladh IP an deisg a tha a' stiùireadh, mar 192.168.1.20 (no 192.168.1.20:5510). Falamh = na lean
 The switcher input this desk is on. At a takeover the backup cuts the programme to it. 0 = no cut	An t-ion-chur switcher air a bheil an deasg seo. Aig gabhail-thairis, gearraidh an cùl-taic am prògram thuige. 0 = gun ghearradh
+IN POCKET	ANN AN POCKET
+AT THE END	AIG AN DEIREADH
+No cues yet.	Chan eil cue ann fhathast.
+Nothing on air	Dad air an adhar
+, not saved yet	, gun shàbhaladh fhathast
+LET GO TO DELETE	LEIG ÀS GUS A SGUABADH ÀS
+NEW CUES START WITH	TÒISICHIDH CUES ÙRA LE
+No saved shows yet.	Chan eil taisbeanadh air a shàbhaladh fhathast.
+type a value or a sum	sgrìobh luach no suim
+This cue has no sound.	Chan eil fuaim aig a' cue seo.
+No effects on this cue.	Gun èifeachd air a' cue seo.
+No shells in this build	Chan eil shell san togail seo
+MENU > SOURCES adds them.	Cuiridh CLÀR > TÙSAN ris iad.
+The phone half of Deckboy.	An leth fòn de Deckboy.
+Tap, then type the desk's IP	Buail, an uairsin sgrìobh IP an deasga
+Tap the picture to focus there.	Buail an dealbh gus fòcas a chur an sin.
+Free software: GPL-3.0 or later.	Bathar-bog saor: GPL-3.0 no tionndadh nas ùire.
+Hold the cue, then SET: its type	Cùm an cue, an uairsin SUIDHICH: a sheòrsa
+Nothing more to set on this one.	Chan eil dad eile ri shuidheachadh air an fhear seo.
+A cue's own TRANSITION and STYLE win.	Buannaichidh GLUASAD is STOIDHLE a' cue fhèin.
+Zoom, focus and the rest are on a phone.	Tha sùm, fòcas is an còrr air fòn.
+Not on air: the picture shows it once taken.	Chan eil e air an adhar: seallaidh an dealbh e nuair a ghabhar e.
+Deleted {1}	{1} air a sguabadh às

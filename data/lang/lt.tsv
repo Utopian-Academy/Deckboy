@@ -4009,3 +4009,30 @@ Backup: {1}. It will not take over until the primary leads again.	Atsarginis: {1
 SYNC LEAD ON|OFF, STATUS, FOLLOW <ip> [BACKUP|FLEET], STOP, DRILL, REARM or TAKEOVER <ms>	SYNC LEAD ON|OFF, STATUS, FOLLOW <ip> [BACKUP|FLEET], STOP, DRILL, REARM arba TAKEOVER <ms>
 The leading desk's IP address, like 192.168.1.20 (or 192.168.1.20:5510). Empty = do not follow	Vedančiojo pulto IP adresas, pvz., 192.168.1.20 (arba 192.168.1.20:5510). Tuščia = nesekti
 The switcher input this desk is on. At a takeover the backup cuts the programme to it. 0 = no cut	Maišytuvo įėjimas, kuriame yra šis pultas. Perėmimo metu atsarginis perjungia programą į jį. 0 = be kirpimo
+MENU	MENIU
+ON AIR	ETERYJE
+IN POCKET	KIŠENĖJE
+AT THE END	PABAIGOJE
+ON THE DESK	PULTE
+No cues yet.	Dar nėra ženklų.
+DECKBOY POCKET	KIŠENINIS DECKBOY
+Nothing on air	Eteryje nieko nėra
+, not saved yet	, dar neišsaugota
+LET GO TO DELETE	PALEISTI – IŠTRINTI
+NEW CUES START WITH	NAUJI ŽENKLAI PRADEDAMI NUO
+No saved shows yet.	Dar nėra išsaugotų šou.
+type a value or a sum	įveskite reikšmę arba sumą
+This cue has no sound.	Šis signalas neturi garso.
+No effects on this cue.	Šis signalas be efektų.
+No shells in this build	Šioje versijoje nėra apvalkalų
+MENU > SOURCES adds them.	MENIU > ŠALTINIAI juos prideda.
+The phone half of Deckboy.	Deckboy telefono pusė.
+Tap, then type the desk's IP	Bakstelėkite ir įveskite pulto IP
+Tap the picture to focus there.	Bakstelėkite vaizdą, kad sufokusuotumėte ten.
+Free software: GPL-3.0 or later.	Laisva programinė įranga: GPL-3.0 arba vėlesnė.
+Hold the cue, then SET: its type	Palaikykite ženklą, tada NUSTATYTI: tipas
+Nothing more to set on this one.	Čia daugiau nėra ką nustatyti.
+A cue's own TRANSITION and STYLE win.	Pirmenybę turi paties ženklo PERĖJIMAS ir STILIUS.
+Zoom, focus and the rest are on a phone.	Mastelis, fokusas ir visa kita – telefone.
+Not on air: the picture shows it once taken.	Ne eteryje: vaizdas parodys po TAKE.
+Deleted {1}	Ištrinta: {1}

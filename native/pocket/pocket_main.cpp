@@ -38,6 +38,7 @@
 #include "core/utils.hpp"
 #include "engine/media_engine.hpp"
 #include "render/text_shaper.hpp"     // every label: bidi and fallback faces, as on the desk
+#include "core/i18n.hpp"
 #include "render/font_fallbacks.hpp"
 #if defined(DECKBOY_INPROC_DECODE)
 #include "engine/libav_decoder.hpp"   // the rendered shells' JPEGs
@@ -197,12 +198,74 @@ const char* const kBundledData[] = {
     "PressStart2P.ttf",
     "fonts/LiberationSans-Regular.ttf",
     "fonts/LiberationMono-Regular.ttf",
+    "fonts/NotoSansArabic-Regular.ttf",
+    "fonts/NotoSansTifinagh-Regular.ttf",
+    "fonts/NotoSansLao-Regular.ttf",
+    "fonts/NotoSansCherokee-Regular.ttf",
     "themes/pocket/theme.txt",
 };
 
 std::string joinPath(const std::string& a, const std::string& b) {
   if (a.empty()) return b;
   return a.back() == '/' ? a + b : a + "/" + b;
+}
+
+// THE PHONE'S LANGUAGE (James 11-24: "is pocket fully translated as well?" --
+// it was not, at all). Pocket speaks whatever the phone is set to, from the
+// desk's own catalogues: the APK carries them all, and only the one in use
+// is copied out, afresh at every start, so an update brings its new words.
+std::string phoneLanguageCode() {
+  int count = 0;
+  SDL_Locale** locales = SDL_GetPreferredLocales(&count);
+  std::string code = "en";
+  if (locales && count > 0 && locales[0] && locales[0]->language) {
+    const std::string lang = locales[0]->language;
+    const std::string country = locales[0]->country ? locales[0]->country : "";
+    if (lang == "zh") code = (country == "TW" || country == "HK" || country == "MO") ? "zh-Hant" : "zh-Hans";
+    else if (lang == "pt") code = "pt-BR";
+    else if (lang == "es" && country == "CU") code = "es-CU";
+    else if (lang == "pap") code = "pap-AW";
+    else code = lang;
+  }
+  SDL_free(locales);
+  if (const char* forced = SDL_getenv("DECKBOY_POCKET_LANGUAGE")) code = forced;   // tests, and a desktop build
+  return code;
+}
+
+// lang/<code>.tsv out of the APK (or a desktop build's data folder). False when
+// Deckboy has no catalogue for it: Pocket then stays in English.
+bool copyCatalogue(const std::string& data, const std::string& code) {
+  const std::string rel = "lang/" + code + ".tsv";
+  size_t size = 0;
+  void* bytes = SDL_LoadFile(("data/" + rel).c_str(), &size);
+  if (!bytes) return false;
+  const std::string to = joinPath(data, rel);
+  SDL_CreateDirectory(joinPath(data, "lang").c_str());
+  const bool ok = SDL_SaveFile(to.c_str(), bytes, size);
+  SDL_free(bytes);
+  return ok;
+}
+
+void applyPhoneLanguage(const std::string& data, TTF_Font* probeFont) {
+  // Arabic, Persian and Kurdish need the shaper's right-to-left runs; say
+  // whether this build has them, as the desk does, before choosing.
+  if (probeFont) {
+    const bool can = TTF_SetFontDirection(probeFont, TTF_DIRECTION_RTL);
+    TTF_SetFontDirection(probeFont, TTF_DIRECTION_LTR);
+    deckboy::core::i18n::noteShapingAvailable(can);
+  }
+  const std::string code = phoneLanguageCode();
+  if (code == "en" || !copyCatalogue(data, code)) return;
+  if (code == "es-CU") copyCatalogue(data, "es");   // its catalogue fills its gaps from Spanish
+  std::string error;
+  if (!deckboy::core::i18n::setLanguage(code, data, error)) {
+    SDL_Log("pocket: language %s: %s", code.c_str(), error.c_str());
+    return;
+  }
+  deckboy::core::i18n::noteRtlSupported(deckboy::core::i18n::activeIsRtl() && deckboy::core::i18n::shapingAvailable());
+  // The faces for its script first (a Japanese phone's Han in a Japanese face).
+  deckboy::render::shaping::setFallbackChain(deckboy::render::scriptFallbacks(code));
+  SDL_Log("pocket: speaking %s", code.c_str());
 }
 
 #if defined(SDL_PLATFORM_ANDROID)
@@ -508,6 +571,14 @@ class Text {
 
   // Draw in box (left, or centred when centre is set), vertically centred.
   void draw(TTF_Font* font, const std::string& s, Ink c, const SDL_FRect& box, bool centre = false) {
+    // Translated as the desk's draw helpers translate: a label with a line in
+    // the phone's catalogue, or one built from pieces that have (i18n.cpp).
+    drawName(font, deckboy::core::i18n::translate(s), c, box, centre);
+  }
+
+  // A NAME, drawn as it was typed: a cue, a show, a playlist, an address.
+  // Through the translator "My Clip" came out as "Dir Clip" in German.
+  void drawName(TTF_Font* font, const std::string& s, Ink c, const SDL_FRect& box, bool centre = false) {
     if (!font || s.empty()) return;
     const std::string fitted = fit(font, s, box.w);
     Entry& e = entry(font, fitted, c);
@@ -1235,6 +1306,11 @@ class Pocket {
     pixelSmall_ = TTF_OpenFont((data + "PressStart2P.ttf").c_str(), 1.6f * u);
     sans_ = TTF_OpenFont((data + "fonts/LiberationSans-Regular.ttf").c_str(), 3.0f * u);
     mono_ = TTF_OpenFont((data + "fonts/LiberationMono-Regular.ttf").c_str(), 2.9f * u);
+    static bool spoken = false;
+    if (!spoken) {   // once: fonts reopen whenever the phone turns
+      spoken = true;
+      applyPhoneLanguage(data, sans_);
+    }
     // the faces' own print: Liberation Mono at 2 mm (pocket-skins text size 2.0)
     printFont_ = TTF_OpenFont((data + "fonts/LiberationMono-Regular.ttf").c_str(), 2.0f * u);
     {
@@ -1381,7 +1457,7 @@ class Pocket {
         const double at = engine_->position();
         clock = timecode(std::max(0.0, at - cueIn(onAirCue)), onAirCue.fps) + " -" + timecode(std::max(0.0, cueOut(onAirCue) - at), onAirCue.fps);
       }
-      text_.draw(pixelSmall_, std::string(live ? "LIVE  " : (black_ ? "BLACK  " : "READY  ")) + onAirCue.name + "   " + clock +
+      text_.drawName(pixelSmall_, deckboy::core::i18n::translate(live ? "LIVE" : (black_ ? "BLACK" : "READY")) + "  " + onAirCue.name + "   " + clock +
                                   (outputLabel_.empty() ? std::string() : "   " + outputLabel_),
                  Ink {170, 170, 180}, title);
     } else {
@@ -1435,7 +1511,7 @@ class Pocket {
     }
     const float textW = lcd.w;
     const float textY = y;
-    text_.draw(mono_, onAir ? onAir->name : "Nothing on air", kDeep, {lcd.x + u, textY, textW - 3 * u - static_cast<float>(cw), 4 * u});
+    text_.drawName(mono_, onAir ? onAir->name : deckboy::core::i18n::translate("Nothing on air"), kDeep, {lcd.x + u, textY, textW - 3 * u - static_cast<float>(cw), 4 * u});
     if (!clockText.empty()) {
       text_.draw(mono_, clockText, kDeep, {lcd.x + textW - u - static_cast<float>(cw), textY, static_cast<float>(cw) + 1, 4 * u});
     }
@@ -1789,14 +1865,14 @@ class Pocket {
     // the cue and its time, top left; EXIT top right
     const Cue* onAir = active_ >= 0 ? &cues_[static_cast<std::size_t>(active_)] : nullptr;
     const double pos = onAir ? engine_->position() : 0.0;
-    std::string title = onAir ? onAir->name : std::string("Nothing on air");
+    std::string title = onAir ? onAir->name : deckboy::core::i18n::translate("Nothing on air");
     if (onAir && cueHasTimeline(*onAir)) {
       title += "   " + timecode(std::max(0.0, pos - cueIn(*onAir)), onAir->fps) + "  -" +
                timecode(std::max(0.0, cueOut(*onAir) - pos), onAir->fps);
     }
     ghostBlob({3 * u, 3 * u, ghostW_ * 0.6f, 6 * u}, u, static_cast<float>(secs * 2.0), 0.0f, white, 0.12f);
-    text_.draw(mono_, title, Ink {30, 20, 60}, {5.2f * u, 3.2f * u, ghostW_ * 0.6f - 4 * u, 6 * u});
-    text_.draw(mono_, title, white, {5 * u, 3 * u, ghostW_ * 0.6f - 4 * u, 6 * u});
+    text_.drawName(mono_, title, Ink {30, 20, 60}, {5.2f * u, 3.2f * u, ghostW_ * 0.6f - 4 * u, 6 * u});
+    text_.drawName(mono_, title, white, {5 * u, 3 * u, ghostW_ * 0.6f - 4 * u, 6 * u});
     ghost({ghostW_ - 22 * u, 3 * u, 19 * u, 7 * u}, "EXIT", [this] { phoneFull_ = false; ghostUntil_ = 0; });
     // the transport along the bottom, GO the biggest and furthest right
     const float by = ghostH_ - 16 * u;
@@ -2561,7 +2637,7 @@ class Pocket {
 
   void drawShowPage(float lx, float lw, float& y) {
     const float u = unit_;
-    text_.draw(pixel_, showName(), kDeep, {lx, y, lw, 5 * u});
+    text_.drawName(pixel_, showName(), kDeep, {lx, y, lw, 5 * u});
     y += 5.5f * u;
     text_.draw(mono_, std::to_string(cues_.size()) + (cues_.size() == 1 ? " cue" : " cues") +
                           (showFile_.empty() ? std::string(", not saved yet") : std::string()),
@@ -2572,7 +2648,7 @@ class Pocket {
       y += 4.2f * u;
       const float bw = 9 * u;
       button({lx, y, bw, 6 * u}, "<", [this] { switchPlaylist(-1); });
-      text_.draw(mono_, std::to_string(showDeck_ + 1) + "/" + std::to_string(show_.decks.size()) + "  " +
+      text_.drawName(mono_, std::to_string(showDeck_ + 1) + "/" + std::to_string(show_.decks.size()) + "  " +
                             show_.decks[static_cast<std::size_t>(showDeck_)].name,
                  kDeep, {lx + bw + u, y, lw - 2 * bw - 2 * u, 6 * u}, true);
       button({lx + lw - bw, y, bw, 6 * u}, ">", [this] { switchPlaylist(1); });
@@ -3650,7 +3726,7 @@ class Pocket {
     const float h = 6.5f * u;
     const SDL_FRect bar {lcd.x, lcd.y + lcd.h - h, lcd.w, h};
     fillRect(r, kDeep, bar);
-    text_.draw(mono_, "Deleted " + undoCue_->name, kLight, {bar.x + 1.5f * u, bar.y, bar.w - 22 * u, h});
+    text_.drawName(mono_, deckboy::core::i18n::format("Deleted {1}", {undoCue_->name}), kLight, {bar.x + 1.5f * u, bar.y, bar.w - 22 * u, h});
     button({bar.x + bar.w - 19 * u, bar.y + 0.75f * u, 18 * u, h - 1.5f * u}, "UNDO", [this] { undoDelete(); });
   }
 
@@ -3704,7 +3780,7 @@ class Pocket {
       // selected row, where the soft ink would sink into the fill.
       const Ink soft = isLive ? kMid : isSel ? kDeep : kDark;
       text_.draw(mono_, std::to_string(i + 1), isSel && !isLive ? kLight : soft, {row.x + 1.5f * u, row.y, 5 * u, row.h});
-      text_.draw(mono_, c.name, ink, {row.x + 7 * u, row.y, row.w - 30 * u, row.h});
+      text_.drawName(mono_, c.name, ink, {row.x + 7 * u, row.y, row.w - 30 * u, row.h});
       const int qp = queuePlace(c);
       text_.draw(pixelSmall_, qp ? "NEXT " + std::to_string(qp) : std::string(kindTag(c)), soft,
                  {row.x + row.w - 22.5f * u, row.y, 13 * u, row.h}, true);
@@ -5074,7 +5150,7 @@ class Pocket {
     const SDL_FRect field {lx, y, lw, 5 * u};
     fillRect(renderer_, kDeep, field);
     fillRect(renderer_, kLight, {field.x + 0.4f * u, field.y + 0.4f * u, field.w - 0.8f * u, field.h - 0.8f * u});
-    text_.draw(mono_, followHost_.empty() ? "Tap, then type the desk's IP" : followHost_, kDeep,
+    text_.drawName(mono_, followHost_.empty() ? deckboy::core::i18n::translate("Tap, then type the desk's IP") : followHost_, kDeep,
                {field.x + u, field.y, field.w - 2 * u, field.h});
     hits_.push_back({field, [this] { beginHostEdit(); }});
     y += 6 * u;

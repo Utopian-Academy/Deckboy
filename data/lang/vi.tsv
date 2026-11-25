@@ -4928,3 +4928,27 @@ Backup: {1}. It will not take over until the primary leads again.	Dự phòng: {
 SYNC LEAD ON|OFF, STATUS, FOLLOW <ip> [BACKUP|FLEET], STOP, DRILL, REARM or TAKEOVER <ms>	SYNC LEAD ON|OFF, STATUS, FOLLOW <ip> [BACKUP|FLEET], STOP, DRILL, REARM hoặc TAKEOVER <ms>
 The leading desk's IP address, like 192.168.1.20 (or 192.168.1.20:5510). Empty = do not follow	Địa chỉ IP của bàn đang dẫn, ví dụ 192.168.1.20 (hoặc 192.168.1.20:5510). Trống = không theo
 The switcher input this desk is on. At a takeover the backup cuts the programme to it. 0 = no cut	Đầu vào switcher của bàn này. Khi tiếp quản, máy dự phòng cắt chương trình sang đó. 0 = không cắt
+IN POCKET	TRONG TÚI
+AT THE END	Ở CUỐI
+No cues yet.	Chưa có cue nào.
+DECKBOY POCKET	DECKBOY BỎ TÚI
+Nothing on air	Không có gì lên sóng
+, not saved yet	, chưa lưu
+LET GO TO DELETE	NHẢ ĐỂ XÓA
+NEW CUES START WITH	CUE MỚI BẮT ĐẦU VỚI
+No saved shows yet.	Chưa có show nào được lưu.
+type a value or a sum	nhập giá trị hoặc phép tính
+This cue has no sound.	Cue này không có âm thanh.
+No effects on this cue.	Cue này không có hiệu ứng.
+No shells in this build	Bản dựng này không có shell
+MENU > SOURCES adds them.	DANH MỤC > NGUỒN để thêm.
+The phone half of Deckboy.	Phần điện thoại của Deckboy.
+Tap, then type the desk's IP	Chạm, rồi nhập IP của bàn
+Tap the picture to focus there.	Chạm vào hình ảnh để đặt tiêu điểm ở đó.
+Free software: GPL-3.0 or later.	Phần mềm tự do: GPL-3.0 trở lên.
+Hold the cue, then SET: its type	Giữ cue, rồi ĐẶT: loại của nó
+Nothing more to set on this one.	Không còn gì để đặt cho cái này.
+A cue's own TRANSITION and STYLE win.	CHUYỂN CẢNH và KIỂU riêng của cue được ưu tiên.
+Zoom, focus and the rest are on a phone.	Thu phóng, tiêu điểm và phần còn lại nằm trên điện thoại.
+Not on air: the picture shows it once taken.	Chưa lên sóng: hình ảnh sẽ hiện khi take.
+Deleted {1}	Đã xóa {1}
