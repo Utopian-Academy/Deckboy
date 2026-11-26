@@ -3766,22 +3766,35 @@ class Pocket {
     const float u = unit_;
     trayChips_.clear();
     text_.draw(mono_, "THROW IN: drag onto the water", kDark, {lcd.x + 1.5f * u, lcd.y + 0.5f * u, lcd.w - 3 * u, 4.5f * u});
-    const float gap = 0.8f * u, chipH = 5.2f * u;
+    const float gap = 0.8f * u, btnH = 5.2f * u;
     float y = lcd.y + 5.5f * u;
+    // THE CHIPS SHARE THE ROOM ABOVE THE BUTTONS. The list panel is shorter
+    // on a phone than on the desktop build, and three rows of 5.2 units ran
+    // the last row into NEW BEACH / CLEAR / PLACE / LIST (430, S24 FE). Each
+    // row is as tall as the room allows, up to 5.2; a very short screen puts
+    // the things five across in two rows.
+    const float buttonsTop = lcd.y + lcd.h - btnH - 0.5f * u;
+    int throwable = 0;
+    for (const Cue& c : cues_) if (surfCanThrow(c)) ++throwable;
+    const float room = buttonsTop - gap - y;
+    int cols = 4;   // five across cut "surprise" short, so only when it must
+    int thingRows = 3;
+    if ((room - gap * 2) / 3 < 3.6f * u) { cols = 5; thingRows = 2; }
+    const int rows = thingRows + std::min(4, (throwable + 1) / 2);
+    const float chipH = std::clamp((room - gap * static_cast<float>(rows - 1)) / static_cast<float>(rows), 3.2f * u, 5.2f * u);
     static const char* const kThings[] = {"duck", "ball", "chicken", "toaster", "melon",
                                           "cone", "bottle", "board", "critter", "surprise"};
-    const int cols = 4;   // five across cut "surprise" short
-    const float cw = (lcd.w - 2 * u - gap * (cols - 1)) / cols;
+    const float cw = (lcd.w - 2 * u - gap * static_cast<float>(cols - 1)) / static_cast<float>(cols);
     for (int i = 0; i < 10; ++i) {
-      const SDL_FRect b {lcd.x + u + (i % cols) * (cw + gap), y + (i / cols) * (chipH + gap), cw, chipH};
+      const SDL_FRect b {lcd.x + u + static_cast<float>(i % cols) * (cw + gap), y + static_cast<float>(i / cols) * (chipH + gap), cw, chipH};
       trayChips_.push_back({kThings[i], kThings[i], b});
     }
-    y += 3 * (chipH + gap);
+    y += static_cast<float>(thingRows) * (chipH + gap);
     const float half = (lcd.w - 2 * u - gap) / 2;
     int n = 0;
     for (const Cue& c : cues_) {
       if (!surfCanThrow(c)) continue;
-      if (y + (n / 2 + 1) * (chipH + gap) > lcd.y + lcd.h - chipH - gap) break;   // room for the buttons
+      if (y + static_cast<float>(n / 2 + 1) * (chipH + gap) > buttonsTop) break;   // room for the buttons
       std::string label = c.kind == CueKind::Text ? c.textBody.substr(0, c.textBody.find('\n')) : c.name;
       if (label.find_first_not_of(' ') == std::string::npos) label = c.name;
       trayChips_.push_back({label, "cue:" + c.id, {lcd.x + u + (n % 2) * (half + gap), y + (n / 2) * (chipH + gap), half, chipH}});
@@ -3793,16 +3806,16 @@ class Pocket {
       text_.draw(pixelSmall_, trayChips_[k].label, kLight, trayChips_[k].rect, true);
     }
     // NEW BEACH gets two shares of the row, the other three one each.
-    const float by = lcd.y + lcd.h - chipH - 0.5f * u, bw = (lcd.w - 2 * u - gap * 3) / 5;
-    button({lcd.x + u, by, 2 * bw, chipH}, "NEW BEACH", [this] { surfNewBeach(); });
-    button({lcd.x + u + 2 * bw + gap, by, bw, chipH}, "CLEAR", [this] {
+    const float by = buttonsTop, bw = (lcd.w - 2 * u - gap * 3) / 5;
+    button({lcd.x + u, by, 2 * bw, btnH}, "NEW BEACH", [this] { surfNewBeach(); });
+    button({lcd.x + u + 2 * bw + gap, by, bw, btnH}, "CLEAR", [this] {
       deckboy::surf::pushDrop({std::string(), "#clear", -1.0f}, surfNow());
     });
-    button({lcd.x + u + 3 * bw + 2 * gap, by, bw, chipH}, "PLACE", [this] {
+    button({lcd.x + u + 3 * bw + 2 * gap, by, bw, btnH}, "PLACE", [this] {
       surfTray_ = false;
       if (active_ >= 0) { openSheet(active_); page_ = Page::Place; }
     });
-    button({lcd.x + u + 4 * bw + 3 * gap, by, bw, chipH}, "LIST", [this] { surfTray_ = false; });
+    button({lcd.x + u + 4 * bw + 3 * gap, by, bw, btnH}, "LIST", [this] { surfTray_ = false; });
     // the chip in hand, over the picture
     if (trayDrag_ >= 0 && trayMoved_ && trayDrag_ < static_cast<int>(trayChips_.size())) {
       const SDL_FRect& c0 = trayChips_[static_cast<std::size_t>(trayDrag_)].rect;
