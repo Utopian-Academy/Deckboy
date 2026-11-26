@@ -30,7 +30,7 @@ EFFECTS = ["invert", "posterise", "solarise", "levels", "curves", "strobe", "sca
            "threshold", "colour", "colour_replace", "vignette", "grain", "channel_offset",
            "mirror", "luma_key", "edges", "polar_warp", "luma_displace", "relativistic",
            "ripple", "kaleidoscope", "mosaic", "blur", "glow", "sharpen", "stereogram", "tape", "melt",
-           "circuit_bend"]
+           "circuit_bend", "breath"]
 # amount:a:b:c:d
 SETTINGS = ["1", "0.7:0.2:0.6:0.4:0.3", "1:0.9:0.3:0.8:0.1", "0.4:0.05:1:0.2:0.9"]
 # An effect with a fifth and sixth slider or choices (amount:a:b:c:d:colour:e:f:choiceA:choiceB).

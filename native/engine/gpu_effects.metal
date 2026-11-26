@@ -36,6 +36,7 @@ struct Params {
 #define K_WARP 11
 #define K_MOSAIC 12
 #define K_MIX 13
+#define K_BREATH 14
 
 #define SRC texture2d<float, access::sample>
 #define DST texture2d<float, access::write>
@@ -270,6 +271,19 @@ kernel void pointMain(ARGS) {
       o.g = floor(c255(s.g * gain));
       o.b = floor(c255(s.b * gain * (1.0f + shift * 0.55f)));
     }
+  } else if (p.kind == K_BREATH) {
+    // BREATH: gpu_effects.hlsl's K_BREATH, line for line.
+    const float rA = sin(p.f6 * y - p.f8), rB = cos(p.f6 * 0.8f * y + p.f7);
+    const float cA = sin(p.f5 * x + p.f7), cB = cos(p.f5 * 0.7f * x - p.f8);
+    const float sxf = clamp(p.f0 + (x - p.f0) * (1.0f - p.f2) + p.f3 * rA * cB, 0.0f, float(p.width) - 1.001f);
+    const float syf = clamp(p.f1 + (y - p.f1) * (1.0f - p.f2) + p.f3 * cA * rB, 0.0f, float(p.height) - 1.001f);
+    const int x0 = int(sxf), y0 = int(syf);
+    const int fx = int((sxf - x0) * 256.0f), fy = int((syf - y0) * 256.0f);
+    const int4 a = int4(texel(src, x0, y0)), b = int4(texel(src, x0 + 1, y0));
+    const int4 c = int4(texel(src, x0, y0 + 1)), d = int4(texel(src, x0 + 1, y0 + 1));
+    const int4 top = a * (256 - fx) + b * fx;
+    const int4 bot = c * (256 - fx) + d * fx;
+    o = float4((top * (256 - fy) + bot * fy + 32768) >> 16);
   } else if (p.kind == K_MOSAIC) {
     const int ty = y / p.i0, tx = x / p.i0;
     const uint4 a = texel(aux, tx, ty);

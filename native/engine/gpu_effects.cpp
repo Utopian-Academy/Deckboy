@@ -44,7 +44,7 @@ static_assert(sizeof(Params) == 128 + 768 + 1024, "Params must match gpu_effects
 
 enum GpuKind : std::uint32_t {
   K_LUT = 1, K_THRESHOLD, K_COLOUR, K_COLOUR_REPLACE, K_VIGNETTE, K_GRAIN, K_CHANNEL_OFFSET,
-  K_MIRROR, K_LUMA_KEY, K_EDGES, K_WARP, K_MOSAIC, K_MIX
+  K_MIRROR, K_LUMA_KEY, K_EDGES, K_WARP, K_MOSAIC, K_MIX, K_BREATH
 };
 enum Entry { E_POINT = 0, E_DOWN, E_BOX, E_STREAK, E_TILE, E_NV12, E_TRANS, E_STEREO, E_TAPE,
              E_MELT_INIT, E_MELT_STEP, E_MELT_SHOW, E_SOURCE,
@@ -572,6 +572,30 @@ bool planEffect(std::vector<Pass>& plan, const fx::CueEffect& e, int w, int h, c
       plan.push_back(point(p, w, h));
       return true;
     }
+    case CueEffectKind::Breath: {
+      // BREATH (cue_effects.hpp): the frame's numbers worked out here exactly
+      // as the CPU effect works them out, the per-pixel warp and its bilinear
+      // read in the shader. The two phases are taken modulo a turn so a float
+      // keeps them precise however long the show has run.
+      const double t = ctx.seconds >= 0.0 ? ctx.seconds : static_cast<double>(ctx.frameIndex) / 30.0;
+      const double kTau = 6.283185307179586;
+      const double period = 12.0 * std::pow(2.5 / 12.0, pA);
+      const double a = kTau * t / period;
+      double breath = 0.5 - 0.5 * std::cos(a) + 0.12 * std::sin(2.0 * a);
+      breath *= 0.85 + 0.15 * std::sin(t * 0.21 + 1.3);
+      const double shortSide = static_cast<double>(std::min(w, h));
+      p.kind = K_BREATH;
+      p.f0 = static_cast<float>((w - 1) * 0.5 + 0.08 * w * std::sin(t * 0.05));   // the swell's centre
+      p.f1 = static_cast<float>((h - 1) * 0.5 + 0.06 * h * std::cos(t * 0.043));
+      p.f2 = static_cast<float>(amt * 0.006 * breath);                            // swell
+      p.f3 = static_cast<float>(amt * pB * 0.0035 * shortSide);                   // flow, pixels
+      p.f5 = static_cast<float>(kTau * 1.3 / w);                                  // kx
+      p.f6 = static_cast<float>(kTau * 1.1 / h);                                  // ky
+      p.f7 = static_cast<float>(std::fmod(t * 0.23, kTau));                       // d1
+      p.f8 = static_cast<float>(std::fmod(t * 0.17 + 2.0, kTau));                 // d2
+      plan.push_back(point(p, w, h));
+      return true;
+    }
     case CueEffectKind::Mosaic: {
       const double shortSide = std::min(w, h);
       const int tile = std::max(2, static_cast<int>(std::lround(shortSide * (0.004 + pA * pA * 0.08))));
@@ -691,7 +715,7 @@ bool supportedKind(CueEffectKind k) {
     case CueEffectKind::Relativistic: case CueEffectKind::Ripple: case CueEffectKind::Kaleidoscope:
     case CueEffectKind::Mosaic: case CueEffectKind::Blur: case CueEffectKind::Glow:
     case CueEffectKind::Sharpen: case CueEffectKind::Stereogram: case CueEffectKind::Tape:
-    case CueEffectKind::Melt: case CueEffectKind::CircuitBend:
+    case CueEffectKind::Melt: case CueEffectKind::CircuitBend: case CueEffectKind::Breath:
       return true;
     default:
       return false;

@@ -67,6 +67,7 @@ BINDING(0, 2) cbuffer Params : register(b0 SPACE(2)) {
 #define K_WARP 11
 #define K_MOSAIC 12
 #define K_MIX 13
+#define K_BREATH 14
 
 uint lutByte(uint i) {
   const uint word = lut[i >> 4][(i >> 2) & 3];
@@ -301,6 +302,21 @@ void pointMain(uint3 id : SV_DispatchThreadID) {
       o.g = floor(clamp(s.g * gain, 0.0, 255.0));
       o.b = floor(clamp(s.b * gain * (1.0 + shift * 0.55), 0.0, 255.0));
     }
+  } else if (kind == K_BREATH) {
+    // BREATH (cue_effects.hpp, line for line): f0/f1 the swell's centre, f2
+    // swell, f3 flow, f5 kx, f6 ky, f7 d1, f8 d2. Read bilinearly in 1/256
+    // steps, as the CPU effect reads, alpha included.
+    const float rA = sin(f6 * y - f8), rB = cos(f6 * 0.8 * y + f7);
+    const float cA = sin(f5 * x + f7), cB = cos(f5 * 0.7 * x - f8);
+    const float sxf = clamp(f0 + (x - f0) * (1.0 - f2) + f3 * rA * cB, 0.0, width - 1.001);
+    const float syf = clamp(f1 + (y - f1) * (1.0 - f2) + f3 * cA * rB, 0.0, height - 1.001);
+    const int x0 = int(sxf), y0 = int(syf);
+    const int fx = int((sxf - x0) * 256.0), fy = int((syf - y0) * 256.0);
+    const int4 a = int4(texel(x0, y0)), b = int4(texel(x0 + 1, y0));
+    const int4 c = int4(texel(x0, y0 + 1)), d = int4(texel(x0 + 1, y0 + 1));
+    const int4 top = a * (256 - fx) + b * fx;
+    const int4 bot = c * (256 - fx) + d * fx;
+    o = float4((top * (256 - fy) + bot * fy + 32768) >> 16);
   } else if (kind == K_MOSAIC) {
     // i0 tile; aux holds each tile's average. f0 half, f1 corner, i1 rounded.
     const int ty = y / i0, tx = x / i0;
