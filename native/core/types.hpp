@@ -3122,6 +3122,7 @@ struct Project {
   // leak across shows). Saved cues load fine either way.
   bool terrariumUnlocked = false;
   bool tabletopUnlocked = false;  // belongs to the show, like the ecosystem
+  bool surfHaunted = false;       // the night sea's ship has been found: Rat Dad tells sea tales (app_rat_dad.ipp)
   // UI scale factor — multiplies every font point size at load time so text
   // grows on HiDPI / 4K screens without ballooning the layout chrome. 1.0 is
   // the native baseline tuned for 1080p. 1.5–2.0 covers 4K desktops and

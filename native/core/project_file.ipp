@@ -376,6 +376,7 @@ void writeProjectScalars(std::ostream& output, const Project& project) {
   }
   output << "terrarium_unlocked\t" << (project.terrariumUnlocked ? 1 : 0) << '\n';
   output << "tabletop_unlocked\t" << (project.tabletopUnlocked ? 1 : 0) << '\n';
+  output << "surf_haunted\t" << (project.surfHaunted ? 1 : 0) << '\n';
   output << "geometry_aspect_link\t" << (project.geometryAspectLinked ? 1 : 0) << '\n';
   {
     const StagePlan& sp = project.stagePlan;
@@ -1741,6 +1742,8 @@ bool applyProjectScalarLinePart2(Project& project, const std::vector<std::string
     project.terrariumUnlocked = safeBool(fields, 1, false);
   } else if (fields[0] == "tabletop_unlocked") {
     project.tabletopUnlocked = safeBool(fields, 1, false);
+  } else if (fields[0] == "surf_haunted") {
+    project.surfHaunted = safeBool(fields, 1, false);
   } else if (fields[0] == "geometry_aspect_link") {
     project.geometryAspectLinked = safeBool(fields, 1, true);
   } else if (fields[0] == "stage_plan") {

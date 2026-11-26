@@ -198,10 +198,56 @@
     return kJokes;
   }
 
+  // THE SEA TALES (James, 2026-11-26: "rat dad can start telling worrysome
+  // sea tales just after its unlocked"). Once the night sea's ship has been
+  // found (Project::surfHaunted, core/surf.hpp) they join the bag; typing the
+  // word on his page brings him out with one at once. Like everything about
+  // him and the haunting, never in published text.
+  static const std::vector<RatDadJoke>& ratDadSeaTales() {
+    static const std::vector<RatDadJoke> kTales = {
+      {"Kiddo. Sit down. Your great-grandfather sailed on a ship with no crew. He was the crew. He was a rat.", nullptr},
+      {"Never whistle on the beach at night. The water whistles back.", nullptr},
+      {"I saw a ship once with green sails. Didn't need wind. Didn't need water either.", nullptr},
+      {"Your uncle went looking for that ship. He came back. Mostly.", nullptr},
+      {"The tide came in last night and didn't go out. I'm keeping an eye on it.", nullptr},
+      {"Sailors say if you hear singing under the waves, don't hum along. I hummed along. Long story.", nullptr},
+      {"Every full moon I hear oars in the ceiling. Your mother says it's the pipes. Pipes don't row, kiddo.", nullptr},
+      {"Keep a candle in the window and a sandwich in the rack. The ship takes one. Pray it's the candle.", nullptr},
+      {"That ship's been sailing four hundred years. Still hasn't found anywhere to park.", nullptr},
+      {"Why can't the ghost ship ever dock?", "It keeps missing its cue. ...Forever. That's the scary part."},
+      {"Ghosts don't scare me. Ghosts who want to borrow cheese, though. Different story.", nullptr},
+      {"Don't take the last cue on a full moon, kiddo. Something else might want it.", nullptr},
+    };
+    return kTales;
+  }
+
+  // What he can say now: the jokes, and the tales once the sea is haunted.
+  int ratDadLineCount() const {
+    return static_cast<int>(ratDadJokes().size() + (project_.surfHaunted ? ratDadSeaTales().size() : 0));
+  }
+  const RatDadJoke& ratDadLineAt(int i) const {
+    const int jokes = static_cast<int>(ratDadJokes().size());
+    return i < jokes ? ratDadJokes()[static_cast<std::size_t>(i)] : ratDadSeaTales()[static_cast<std::size_t>(i - jokes)];
+  }
+
+  // The night sea has been found: the tales from now on, and one at once if he is home.
+  void ratDadHaunted(bool tellOneNow) {
+    if (!project_.surfHaunted) {
+      project_.surfHaunted = true;
+      markProjectDirty();
+    }
+    ratDad_.bag.clear();   // refilled with the tales in it
+    if (!tellOneNow) return;
+    static std::mt19937 rng {std::random_device {}()};
+    ratDad_.joke = static_cast<int>(ratDadJokes().size() + rng() % ratDadSeaTales().size());
+    ratDad_.onPunchline = false;
+    ratDadComeOut();
+  }
+
   // Draws the next joke from the bag, refilled and shuffled when empty, and
   // never the one just told.
   void ratDadNextJoke() {
-    const int count = static_cast<int>(ratDadJokes().size());
+    const int count = ratDadLineCount();
     if (ratDad_.bag.empty()) {
       static std::mt19937 rng {std::random_device {}()};
       for (int i = 0; i < count; ++i) ratDad_.bag.push_back(i);
@@ -217,9 +263,8 @@
 
   // The joke's punchline is still to come.
   bool ratDadPunchlinePending() const {
-    const auto& jokes = ratDadJokes();
-    return ratDad_.joke >= 0 && ratDad_.joke < static_cast<int>(jokes.size()) &&
-           jokes[static_cast<std::size_t>(ratDad_.joke)].punchline && !ratDad_.onPunchline;
+    return ratDad_.joke >= 0 && ratDad_.joke < ratDadLineCount() &&
+           ratDadLineAt(ratDad_.joke).punchline && !ratDad_.onPunchline;
   }
 
   // On to what he says next: the punchline, or another joke.
@@ -233,8 +278,8 @@
   }
 
   std::string ratDadSays() {
-    if (ratDad_.joke < 0) ratDadNextJoke();
-    const RatDadJoke& joke = ratDadJokes()[static_cast<std::size_t>(ratDad_.joke)];
+    if (ratDad_.joke < 0 || ratDad_.joke >= ratDadLineCount()) ratDadNextJoke();
+    const RatDadJoke& joke = ratDadLineAt(ratDad_.joke);
     return ratDad_.onPunchline && joke.punchline ? joke.punchline : joke.line;
   }
 
@@ -262,6 +307,7 @@
   }
 
   void serviceRatDad() {
+    if (!project_.surfHaunted && deckboy::surf::shipSeenThisRun()) ratDadHaunted(false);   // seen on a full moon, or called
     const Uint64 now = SDL_GetTicks();
     if (now - ratDad_.drawnAtMs > 250) {
       // Just arrived on the page: he stays in, and peeks out by himself only

@@ -2143,7 +2143,7 @@
 
   bool noteSealedKey(SDL_Keycode key) {
     const Uint64 now = SDL_GetTicks();
-    if (now - sealedTypedAtMs_ > 2000) sealedTyped_.clear();
+    if (now - sealedTypedAtMs_ > 2000) { sealedTyped_.clear(); shipTyped_.clear(); }
     sealedTypedAtMs_ = now;
     // THE LETTER THE KEYBOARD'S OWN LAYOUT TYPES (James, 2026-11-15: "make
     // sure typing the answer works in any language, especially bulgarian").
@@ -2160,6 +2160,27 @@
       if (own != SDLK_UNKNOWN) typed = own;
     }
     const std::string latin = sealedLatinFor(typed);
+    // The haunting's words (core/surf.hpp), typed here like the other codes;
+    // they call the ghost ship to every Surf on air, on any night. Their own
+    // buffer, because they are two words: a space does not clear it.
+    if (typed != SDLK_SPACE) {
+      if (latin.empty()) {
+        shipTyped_.clear();
+      } else {
+        shipTyped_ += latin;
+        if (shipTyped_.size() > 24) shipTyped_.erase(0, shipTyped_.size() - 24);
+        for (std::size_t n = 3; n <= shipTyped_.size(); ++n) {
+          if (deckboy::surf::isShipWord(shipTyped_.substr(shipTyped_.size() - n))) {
+            shipTyped_.clear();
+            sealedTyped_.clear();
+            deckboy::surf::pushDrop({std::string(), "#ship", -1.0f}, surfNowSeconds());
+            triggerToast("* something stirs on the night sea *");
+            ratDadHaunted(true);
+            return false;
+          }
+        }
+      }
+    }
     if (latin.empty()) {
       sealedTyped_.clear();
       return false;

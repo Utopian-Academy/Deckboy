@@ -5186,6 +5186,12 @@
   // A beach thing or critter by name ("surprise" for anything). False for a name it does not know.
   bool surfThrowName(std::string name, float x01) {
     name = toLower(trim(name));
+    if (deckboy::surf::isShipWord(name)) {   // the haunting's word (core/surf.hpp): never named in the log
+      deckboy::surf::pushDrop({std::string(), "#ship", x01}, surfNowSeconds());
+      ratDadHaunted(false);
+      showLog("SURF", "threw in something");
+      return true;
+    }
     if (name != "surprise" && name != "critter") {
       const auto names = deckboy::surf::thingNames();
       if (std::find(names.begin(), names.end(), name) == names.end()) return false;
@@ -5198,6 +5204,15 @@
   // One of the show's cues. False (with the reason) when it has no picture to give.
   bool surfThrowCue(const Cue& thing, float x01, std::string& why) {
     if (surfPatternCue(thing)) { why = "a Surf cannot be thrown into a Surf"; return false; }
+    if (thing.kind == CueKind::Text || thing.kind == CueKind::LowerThird) {   // the haunting's word, written on a cue
+      std::string words = thing.kind == CueKind::Text ? thing.textBody : thing.lowerThirdText;
+      if (const auto nl = words.find('\n'); nl != std::string::npos) words.resize(nl);
+      if (deckboy::surf::isShipWord(words)) {
+        deckboy::surf::pushDrop({std::string(), "#ship", x01}, surfNowSeconds());
+        ratDadHaunted(false);
+        return true;
+      }
+    }
     const std::string key = "cue:" + thing.id;
     // Each Surf in the show remembers it, for what it throws in by itself.
     for (Deck& deck : project_.decks) {

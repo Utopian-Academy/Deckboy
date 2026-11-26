@@ -62,6 +62,8 @@ FORBIDDEN = [
     (r"rakia.{0,60}(every|each|all the) (lesson|lessons)|(every|each) lesson.{0,60}rakia",
      "explains the lesson hunt"),
     (r"sealed.{0,40}(splash|panel|art)|(splash|panel|art).{0,40}sealed", "names the sealed splash art"),
+    # Surf's haunting (2026-11-26): the changelog may say the beach is haunted, nothing more.
+    (r"ghost[\s-]*ship|full[\s-]*moon", "gives away what haunts Surf's beach, or when"),
 ]
 
 # The answer to the lesson riddle is not checked here: a hash of it in a

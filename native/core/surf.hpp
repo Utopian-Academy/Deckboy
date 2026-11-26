@@ -16,11 +16,13 @@
 // Companion, a Target cue, a drag onto the monitor and Pocket all land alike.
 #include <algorithm>
 #include <array>
+#include <atomic>
 #include <cmath>
 #include <cstdint>
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
+#include <ctime>
 #include <map>
 #include <memory>
 #include <mutex>
@@ -227,6 +229,55 @@ inline PicturePtr builtinPicture(const std::string& name) {
   return p;
 }
 
+// ── THE HAUNTING (James 2026-11-26, board MjgVbM1CjLMdeWfCNScE7W) ─────────
+// Ghosts drift over every night beach. On a real full-moon night (the actual
+// date) a ghost ship sails across all night and the ghosts follow it. A code
+// calls it on any night, two ways: a secret word (thrown in by name from
+// Companion's SURF DROP, or as a text cue's words; the desk turns it into the
+// drop "#ship"), or a cheat code -- a sequence of things thrown in, one after
+// another, each within a few seconds of the last. Both are kept as hashes, so
+// the public source does not give them away.
+
+// Days since the last new moon at time t (mean synodic month, from the new
+// moon of 2000-01-06 18:14 UTC). DECKBOY_SURF_MOON_AGE=<days> stands in for
+// the date, for tests.
+inline double moonAgeDays(std::time_t t) {
+  constexpr double kSynodic = 29.530588853, kNewMoon2000 = 947182440.0;
+  double a = std::fmod((static_cast<double>(t) - kNewMoon2000) / 86400.0, kSynodic);
+  return a < 0 ? a + kSynodic : a;
+}
+inline double moonAgeNow() {
+  if (const char* e = std::getenv("DECKBOY_SURF_MOON_AGE"); e && *e) return std::clamp(std::atof(e), 0.0, 29.53);
+  return moonAgeDays(std::time(nullptr));
+}
+// Full: within about a day either side of the middle of the month (two nights).
+inline bool moonIsFull(double ageDays) { return std::abs(ageDays - 29.530588853 / 2) < 1.1; }
+
+inline std::uint32_t wordHash(const std::string& s) {   // FNV-1a over the lower-cased letters and digits
+  std::uint32_t h = 2166136261u;
+  for (char c : s) {
+    if (c >= 'A' && c <= 'Z') c = static_cast<char>(c - 'A' + 'a');
+    if ((c < 'a' || c > 'z') && (c < '0' || c > '9')) continue;
+    h = (h ^ static_cast<std::uint8_t>(c)) * 16777619u;
+  }
+  return h;
+}
+// Set from James's choices (0: not set). The cheat code is the thrown-in names
+// joined by spaces, e.g. "duck duck ball", hashed the same way.
+inline constexpr std::uint32_t kShipWordHash = 0xd0c6d270u;
+inline constexpr std::uint32_t kShipCodeHash = 0u;
+inline constexpr int kShipCodeLength = 0;
+inline bool isShipWord(const std::string& s) { return kShipWordHash != 0 && wordHash(s) == kShipWordHash; }
+
+// Whether a ghost ship is sailing on any Surf, for the music (the full-moon take while it is).
+namespace detail {
+inline std::atomic<bool>& shipFlag() { static std::atomic<bool> f {false}; return f; }
+inline std::atomic<bool>& shipSeenFlag() { static std::atomic<bool> f {false}; return f; }
+}  // namespace detail
+inline bool shipSailingNow() { return detail::shipFlag().load(std::memory_order_relaxed); }
+// Whether a ship has been on screen at all this run (the desk keeps it: Project::surfHaunted).
+inline bool shipSeenThisRun() { return detail::shipSeenFlag().load(std::memory_order_relaxed); }
+
 // ── THE SIMULATION ──────────────────────────────────────────────────────
 //
 // Port of the board's prototype (approved 2026-11-25), in the same units:
@@ -280,18 +331,24 @@ class Sim {
     bushes_.clear();
     for (int n = 3 + static_cast<int>(r() * 5); n > 0; --n) bushes_.push_back(r());
     for (int x = 0; x <= kW; ++x) tuft_[x] = r();
+    shoreX_ = kW;                                        // where the ghost ship fades: the water turns shallow
+    for (int x = 0; x < kW; ++x) if (bed_[x + kOff] > kSea - 8) { shoreX_ = static_cast<float>(x); break; }
     landKey_ = -1;
     paddle_ = 6; paddleV_ = 0; t_ = 0; restDensity_ = 0;
+    summoned_ = false; shipT_ = 0; follow_ = 0; recent_.clear();
+    ghostPh_ = r() * 6.2831853f;
     fill();
   }
 
   std::uint32_t seed() const { return seed_; }
   bool ready() const { return np_ > 0; }
 
-  void clearThings() { things_.clear(); }
+  void clearThings() { things_.clear(); summoned_ = false; }
 
   // A thing into the water: by name, or a picture already registered.
   void drop(const std::string& what, float x01, std::uint32_t salt) {
+    if (what == "#ship") { summoned_ = true; return; }   // the secret word (see THE HAUNTING)
+    heardThrow(what);                                    // the cheat code (see THE HAUNTING)
     PicturePtr pic;
     bool art = true;
     std::string name = what;
@@ -329,6 +386,7 @@ class Sim {
 
   // Advance to `seconds` on the cue's clock, in fixed sixtieths.
   void update(double seconds, const Settings& s) {
+    if (moonAge_ < 0 || std::abs(seconds - moonAt_) > 1.0) { moonAge_ = moonAgeNow(); moonAt_ = seconds; }
     if (lastSeconds_ < 0.0 || seconds < lastSeconds_ || seconds - lastSeconds_ > 2.0) lastSeconds_ = seconds - 1.0 / 60.0;
     int steps = static_cast<int>(std::floor((seconds - lastSeconds_) * 60.0 + 1e-6));
     steps = std::clamp(steps, 0, 4);
@@ -357,8 +415,13 @@ class Sim {
       }
     }
     const float sx = static_cast<float>(W) / kW, sy = static_cast<float>(H) / kH;
+    const bool night = sky == 2;
+    if (night && shipVisible()) drawShip(out, W, H, sx, sy);
     for (const Thing& t : things_) drawThing(out, W, H, t, sx, sy);
+    if (night) drawGhosts(out, W, H, sx, sy);
   }
+
+  bool shipSailing() const { return shipOn_; }
 
   int thingCount() const { return static_cast<int>(things_.size()); }
   const std::vector<Thing>& things() const { return things_; }
@@ -563,6 +626,13 @@ class Sim {
 
   void step(float dt, const Settings& s) {
     t_ += dt;
+    // the ghost ship: all night on a full moon, or once called by a code
+    shipOn_ = s.sky == 2 && (summoned_ || (moonAge_ >= 0 && moonIsFull(moonAge_)));
+    if (shipOn_ || shipVisible()) shipT_ += dt;         // a ship already out finishes its crossing
+    else shipT_ = 0;
+    follow_ = std::clamp(follow_ + (shipVisible() ? dt * 0.4f : -dt * 0.4f), 0.0f, 1.0f);
+    detail::shipFlag().store(shipOn_ && shipVisible(), std::memory_order_relaxed);
+    if (shipOn_ && shipVisible() && s.sky == 2) detail::shipSeenFlag().store(true, std::memory_order_relaxed);
     // the paddle: a long quick push and a slow return, in sets
     const float period = 3.8f - static_cast<float>(s.period) * 1.8f, amp = 10 + static_cast<float>(s.waveHeight) * 46;
     const float set = 0.55f + 0.45f * std::max(0.0f, std::sin(t_ * 6.2831853f / (period * 4)));
@@ -696,9 +766,19 @@ class Sim {
       std::fill(view_.begin() + static_cast<std::ptrdiff_t>(y) * kW, view_.begin() + static_cast<std::ptrdiff_t>(y + 1) * kW, c);
     }
     if (S.hasSun) {
-      const int cx = sky == 2 ? 250 : 262, cy = sky == 2 ? 26 : horizon - 26, r = sky == 2 ? 7 : 13;
+      // the night moon is bigger and in tonight's real phase (waxing lit from the right); its dark part a faint earthshine
+      const int cx = sky == 2 ? 250 : 262, cy = sky == 2 ? 28 : horizon - 26, r = sky == 2 ? 10 : 13;
+      const double phase = (moonAge_ < 0 ? 14.77 : moonAge_) / 29.530588853 * 6.283185307;
       for (int y = cy - r; y <= cy + r; ++y) for (int x = cx - r; x <= cx + r; ++x) {
-        if ((x - cx) * (x - cx) + (y - cy) * (y - cy) <= r * r && x >= 0 && x < kW && y >= 0 && y < kH) view_[static_cast<std::size_t>(y) * kW + x] = rgb(S.sun[0], S.sun[1], S.sun[2]);
+        if ((x - cx) * (x - cx) + (y - cy) * (y - cy) > r * r || x < 0 || x >= kW || y < 0 || y >= kH) continue;
+        bool lit = true;
+        if (sky == 2) {
+          const double nx = (x + 0.5 - cx) / r, ny = (y + 0.5 - cy) / r, w = std::sqrt(std::max(0.0, 1 - ny * ny));
+          lit = phase <= 3.141592654 ? nx > w * std::cos(phase) : nx < w * std::cos(phase - 3.141592654);
+        }
+        const std::uint32_t sk = view_[static_cast<std::size_t>(y) * kW + x];
+        view_[static_cast<std::size_t>(y) * kW + x] = lit ? rgb(S.sun[0], S.sun[1], S.sun[2])
+            : rgb(static_cast<int>((sk & 255) + 14), static_cast<int>(((sk >> 8) & 255) + 16), static_cast<int>(((sk >> 16) & 255) + 22));
       }
     }
     if (landKey_ != static_cast<int>(seed_ * 3u + static_cast<std::uint32_t>(sky))) buildLand(sky);
@@ -712,6 +792,7 @@ class Sim {
       if (x >= 0 && x < kW && ys < top[x]) top[x] = ys;
     }
     for (int x = 1; x < kW - 1; ++x) top[x] = std::min(top[x], (top[x - 1] + top[x + 1]) / 2 + 2);
+    surfaceTop_ = top;
     const auto& pal = kWater[sky];
     for (int k = 0; k < np_; ++k) {
       const int x = static_cast<int>(px_[k] - kOff), ys = static_cast<int>(kH - py_[k]);
@@ -768,6 +849,117 @@ class Sim {
     }
   }
 
+  // ── the haunting ──
+  // The cheat code: the last few names thrown in, on the cue's clock; a gap of
+  // more than 4 seconds starts a new sequence.
+  void heardThrow(const std::string& what) {
+    if constexpr (kShipCodeLength <= 0 || kShipCodeHash == 0u) return;
+    if (!recent_.empty() && t_ - lastThrowAt_ > 4.0f) recent_.clear();
+    lastThrowAt_ = t_;
+    recent_.push_back(what);
+    if (static_cast<int>(recent_.size()) > kShipCodeLength) recent_.erase(recent_.begin());
+    if (static_cast<int>(recent_.size()) == kShipCodeLength) {
+      std::string joined;
+      for (const auto& n : recent_) joined += (joined.empty() ? "" : " ") + n;
+      if (wordHash(joined) == kShipCodeHash) { summoned_ = true; recent_.clear(); }
+    }
+  }
+
+  // A crossing: 50 s from off the left until it fades away where the water
+  // turns shallow (a ghost ship never runs aground), then 12 s of empty sea.
+  static constexpr float kCross = 50.0f, kGap = 12.0f, kShipW = 55.0f;
+  bool shipVisible() const { return shipT_ > 0 && std::fmod(shipT_, kCross + kGap) < kCross; }
+  float shipEnd() const { return std::max(40.0f, shoreX_ - kShipW * 0.6f); }
+  float shipX() const { return -64.0f + std::fmod(shipT_, kCross + kGap) / kCross * (shipEnd() + 64.0f); }   // view x of its left edge
+  float shipFade() const { return std::clamp((shipEnd() - shipX()) / 45.0f, 0.0f, 1.0f); }
+
+  // Pixel art ('#'): the body at `alpha`, a one-art-pixel glow at `glow`, each output pixel blended once.
+  static void sprite(std::uint8_t* out, int W, int H, const char* const* rows, int nr, float vx, float vy, int px, bool flip,
+                     const int ink[3], float alpha, float glow, float sx, float sy) {
+    int nc = 0;
+    for (int r = 0; r < nr; ++r) nc = std::max<int>(nc, static_cast<int>(std::strlen(rows[r])));
+    const int gw = nc + 2, gh = nr + 2;
+    std::array<std::uint8_t, 40 * 20> g {};
+    if (gw > 40 || gh > 20) return;
+    for (int r = 0; r < nr; ++r) {
+      for (int c = 0; rows[r][c]; ++c) {
+        if (rows[r][c] != '#') continue;
+        const int cc = flip ? nc - 1 - c : c;
+        g[static_cast<std::size_t>((r + 1) * gw + cc + 1)] = 2;
+        for (int dy = 0; dy <= 2; ++dy) {
+          for (int dx = 0; dx <= 2; ++dx) {
+            auto& v = g[static_cast<std::size_t>((r + dy) * gw + cc + dx)];
+            if (!v) v = 1;
+          }
+        }
+      }
+    }
+    const int ox = static_cast<int>(std::lround(vx * sx)) - px, oy = static_cast<int>(std::lround(vy * sy)) - px;
+    for (int r = 0; r < gh; ++r) {
+      for (int c = 0; c < gw; ++c) {
+        const std::uint8_t v = g[static_cast<std::size_t>(r * gw + c)];
+        if (!v) continue;
+        const int a256 = static_cast<int>((v == 2 ? alpha : glow) * 256);
+        const int xa = std::max(0, ox + c * px), xb = std::min(W, ox + (c + 1) * px);
+        for (int y = std::max(0, oy + r * px); y < std::min(H, oy + (r + 1) * px); ++y) {
+          std::uint8_t* d = out + (static_cast<std::size_t>(y) * W + xa) * 4;
+          for (int x = xa; x < xb; ++x, d += 4) {
+            for (int k = 0; k < 3; ++k) d[k] = static_cast<std::uint8_t>(d[k] + (((ink[k] - d[k]) * a256) >> 8));
+          }
+        }
+      }
+    }
+  }
+
+  float waterTop(float vx) const {   // the water's top (view y, down) at a view column
+    const int x = std::clamp(static_cast<int>(vx), 0, kW - 1);
+    return surfaceTop_[x] > kH ? static_cast<float>(kH) - kSea : surfaceTop_[x];
+  }
+
+  void drawShip(std::uint8_t* out, int W, int H, float sx, float sy) const {
+    static const char* const kShip[] = {
+      "..........#...........", ".........##...#.......", "........#.#...##......", ".......##.#..#.#......",
+      "......#.#.#..#..#.....", ".....##.#.#..##.#.....", "....#...#.#..#.#.#....", "...######.#..######...",
+      ".........##.....#.....", "#.....################", "##.##################.", ".###################..",
+      "..#################...",
+    };
+    static const int kInk[3] = {150, 235, 200};
+    const float art = 2.5f;                            // view pixels per art pixel (James: "a bit bigger")
+    const int px = std::max(1, static_cast<int>(std::lround(art * sx)));
+    const float x = shipX();
+    float top = 0;                                     // rides the water: the mean surface under its hull
+    for (int k = 4; k < 22; k += 3) top += waterTop(x + k * art);
+    top /= 6;
+    const float fade = shipFade();
+    sprite(out, W, H, kShip, 13, x, top - 11.6f * art, px, false, kInk, 0.6f * fade, 0.15f * fade, sx, sy);
+  }
+
+  void drawGhosts(std::uint8_t* out, int W, int H, float sx, float sy) const {
+    static const char* const kA[] = {"...####...", "..######..", ".########.", ".#.##.###.", ".#.##.###.",
+                                     "##########", "##########", "##########", "##########", "#.##.##.##"};
+    static const char* const kB[] = {"...####...", "..######..", ".########.", ".#.##.###.", ".#.##.###.",
+                                     "##########", "##########", "##########", "##########", ".##.##.##."};
+    static const int kInk[3] = {214, 236, 255};
+    const int px = std::max(1, static_cast<int>(std::lround(sx)));
+    const float k = follow_ * follow_ * (3 - 2 * follow_);
+    const float shipLeft = shipX(), shipTop = waterTop(shipLeft + 27) - 30;
+    for (int i = 0; i < 5; ++i) {
+      const float w = 0.05f + 0.017f * i, ph = ghostPh_ + i * 1.7f;
+      float x = kW * (0.1f + 0.19f * i) + 34.0f * std::sin(t_ * w + ph);
+      float y = 24 + 9.0f * i + 7.0f * std::sin(2 * t_ * w + ph) + 2.0f * std::sin(t_ * 1.6f + i);
+      bool flip = std::cos(t_ * w + ph) < 0;            // facing where it drifts
+      if (k > 0) {                                      // following the ship, in a wavering line behind it
+        const float fx = shipLeft - 6 - i * 15.0f, fy = shipTop - i * 4.0f + 3.0f * std::sin(t_ * 1.9f + i * 1.3f);
+        x += (fx - x) * k;
+        y += (fy - y) * k;
+        if (k > 0.5f) flip = false;
+      }
+      y = std::min(y, waterTop(x + 5) - 12);            // never under the water
+      const bool hem = static_cast<int>(std::floor(t_ * 4 + i)) % 2 == 0;
+      sprite(out, W, H, hem ? kA : kB, 10, x, y, px, flip, kInk, 0.55f, 0.12f, sx, sy);
+    }
+  }
+
   enum : std::uint8_t { kFluid = 0, kAir = 1, kSolid = 2 };
   std::uint32_t seed_ = 0;
   std::array<float, kSimW + 1> bed_ {};
@@ -787,6 +979,12 @@ class Sim {
   float paddle_ = 6, paddleV_ = 0, t_ = 0, restDensity_ = 0;
   double lastSeconds_ = -1.0;
   std::vector<Thing> things_;
+  // the haunting
+  std::array<float, kW> surfaceTop_ = [] { std::array<float, kW> a {}; a.fill(kH + 10.0f); return a; }();
+  double moonAge_ = -1.0, moonAt_ = 0.0;
+  bool summoned_ = false, shipOn_ = false;
+  float shipT_ = 0, follow_ = 0, ghostPh_ = 0, lastThrowAt_ = 0, shoreX_ = kW;
+  std::vector<std::string> recent_;
 };
 
 }  // namespace deckboy::surf

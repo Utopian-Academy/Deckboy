@@ -75,7 +75,7 @@
 
   void handleMouseDown(int x, int y, Uint8 button) {
     tabletopCodeIndex_ = 0;
-    sealedTyped_.clear();
+    sealedTyped_.clear(); shipTyped_.clear();
     // Before anything else: the middle button has its own meaning now, and must
     // never fall through to the left-button paths below.
     if (beginAutoScrollIfMiddle(x, y, button)) {
@@ -1972,7 +1972,7 @@
 
     if (!settingsOpen_ || settingsTab_ != 4 || inlineEditor_.open || codeEditor_.open || dropdown_.open) {
       tabletopCodeIndex_ = 0;
-      sealedTyped_.clear();
+      sealedTyped_.clear(); shipTyped_.clear();
     }
 
     if (showSplashOverlay_) {
@@ -2209,7 +2209,7 @@
         noteSealedKey(key);
       } else if (!keyRepeat) {
         tabletopCodeIndex_ = 0;
-        sealedTyped_.clear();
+        sealedTyped_.clear(); shipTyped_.clear();
       }
       // Ctrl+, (Cmd+, on macOS) closes as well as opens, the way every other
       // application's preferences shortcut does. Escape still closes too.

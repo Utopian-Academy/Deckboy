@@ -40,6 +40,11 @@ inline const char* const kLoadingQuips[] = {
       "persuading the projector it is straight",
       "loading the playlist the long way round",
       "finding the second screen",
+      // Surf's haunting (2026-11-26): allusions only.
+      "the night tide keeps a calendar",
+      "a ship nobody built waits for a round moon",
+      "the About box knows a word the sea answers to",
+      "the sea remembers what you throw, and in what order",
 };
 
 inline constexpr int kLoadingQuipCount = static_cast<int>(sizeof(kLoadingQuips) / sizeof(kLoadingQuips[0]));
@@ -85,6 +90,7 @@ inline const char* const kPocketLoadingQuips[] = {
   "warming up the GO button",
   "folding the timeline twice",
   "teaching the shell to blink",
+  "the beach is quieter when the moon is thin",
 };
 
 inline constexpr int kPocketLoadingQuipCount = static_cast<int>(sizeof(kPocketLoadingQuips) / sizeof(kPocketLoadingQuips[0]));

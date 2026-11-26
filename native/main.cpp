@@ -10976,6 +10976,7 @@ class App {
   Uint64 tabletopCodeLastKeyMs_ = 0;
   std::string sealedTyped_;   // the About page's last letters, for the napkin's answer (app_tutorial.ipp)
   Uint64 sealedTypedAtMs_ = 0;
+  std::string shipTyped_;     // the About page's last letters, spaces skipped, for Surf's haunting (app_tutorial.ipp)
   int sealedShown_ = 0;
   SDL_Scancode lastKeyScancode_ = SDL_SCANCODE_UNKNOWN;   // of the key event being handled
   std::vector<std::string> startupBootLog_;  // splash boot-console lines (built once per boot)
