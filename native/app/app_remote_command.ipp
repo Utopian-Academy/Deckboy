@@ -241,6 +241,11 @@
       handleSyncCommand(parts);
       return;
     }
+    // SURF DROP|CLEAR|BEACH|THINGS (app_cue_mgmt.ipp): what goes into the sea.
+    if (command == "SURF") {
+      handleSurfCommand(parts);
+      return;
+    }
     // RIPPLE DROP [n]: a ring (or n, up to 8) in every Mega Ripple on air --
     // for Companion, a MIDI map or a script cue to drop one on cue.
     if (command == "RIPPLE") {
@@ -3407,13 +3412,13 @@
         // would fall back to Start, and a cue labelled "stop the music" that
         // quietly starts it is the worst possible failure here.
         static const char* kVerbs[] = {"start", "stop", "pause", "resume",
-                                       "load", "arm", "disarm"};
+                                       "load", "arm", "disarm", "surf"};
         bool known = false;
         for (const char* v : kVerbs) {
           known = known || token == v;
         }
         if (!known) {
-          failRemoteCommand("TARGET VERB: expected start|stop|pause|resume|load|arm|disarm");
+          failRemoteCommand("TARGET VERB: expected start|stop|pause|resume|load|arm|disarm|surf");
           return;
         }
         cue.targetVerb = cueTargetVerbFromToken(token);
@@ -7018,6 +7023,13 @@
         endMotionZoneDrag();
         endDrawEditorDrag();
         endMaskEditorDrag();
+        // A cue row held by CLICK HOLD: let go where HOVER left it, as a real
+        // mouse-up does (app_update.ipp) -- over the monitor, into the Surf.
+        if (drag_.active && drag_.moving && drag_.cueIndex >= 0) {
+          surfDropRowOnMonitor(drag_.deckIndex, drag_.cueIndex, static_cast<int>(mouseX_), static_cast<int>(mouseY_));
+        }
+        drag_.active = false;
+        drag_.cueIndex = -1;
         remoteCommandDetail_ = "released";
         return;
       }

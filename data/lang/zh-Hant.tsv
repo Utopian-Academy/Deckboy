@@ -5100,3 +5100,36 @@ Circuit trip	電路迷幻
 Night vision	夜視
 Rain on glass	雨打玻璃
 Melting rainbow	融化彩虹
+Sky	天空
+sky	天空
+Surf	海浪
+Wind	風
+wind	風
+Period	週期
+period	週期
+THROW IN	拋入
+Throws in	拋入
+throws in	拋入
+Throw into Surf	拋入海浪
+no Surf is on air	沒有播出中的海浪
+{1} into the surf	{1} 拋入海浪
+Day, sunset or night	白天、日落或夜晚
+How big the sets are	浪組的大小
+0 day, 1 sunset, 2 night	0 白天，1 日落，2 夜晚
+its file cannot be found	找不到其檔案
+THROW IN (once it is on air)	拋入（播出中時）
+its words could not be drawn	無法繪製其詞語
+Surf (a sea to throw things into)	海浪（可往裡拋東西的海）
+Pushes what floats toward the beach	把漂浮物推向海灘
+a Surf cannot be thrown into a Surf	海浪不能拋入海浪
+0-100%: long slow sets to short quick ones	0-100%：從長而慢的浪組到短而快的浪組
+0-100%: pushes what floats toward the beach	0-100%：把漂浮物推向海灘
+only a picture, a video or a text cue can be thrown in	只能拋入畫面、視訊或文字提示
+seconds between things it throws in by itself; 0 never	自動拋入的間隔秒數；0 為從不
+Long, slow sets at the left; short, quick ones at the right	左邊浪組長而慢；右邊浪組短而快
+SURF DROP <thing|cue> [x%], SURF CLEAR, SURF BEACH or SURF THINGS	SURF DROP <物體|cue> [x%]、SURF CLEAR、SURF BEACH 或 SURF THINGS
+TARGET VERB: expected start|stop|pause|resume|load|arm|disarm|surf	TARGET VERB：應為 start|stop|pause|resume|load|arm|disarm|surf
+Every so many seconds it throws something in by itself: one of what has been thrown in before, or anything. 0: only when you throw	每隔若干秒自動拋入一樣東西：之前拋入過的某樣，或任意東西。0：僅在你拋擲時
+LIST	清單
+PLACE	放置
+NEW BEACH	新增海灘

@@ -5105,3 +5105,36 @@ Circuit trip	सर्किट ट्रिप
 Night vision	नाइट विज़न
 Rain on glass	काँच पर बारिश
 Melting rainbow	पिघलता इंद्रधनुष
+Sky	आसमान
+sky	आसमान
+Surf	लहर
+Wind	हवा
+wind	हवा
+Period	आवर्तकाल
+period	आवर्तकाल
+THROW IN	अंदर फेंकें
+Throws in	फेंकाव
+throws in	फेंकाव
+Throw into Surf	लहर में फेंकें
+no Surf is on air	कोई लहर ऑन एयर नहीं है
+{1} into the surf	{1} लहरों में
+Day, sunset or night	दिन, सूर्यास्त या रात
+How big the sets are	लहर-सेट कितने बड़े हों
+0 day, 1 sunset, 2 night	0 दिन, 1 सूर्यास्त, 2 रात
+its file cannot be found	इसकी फ़ाइल नहीं मिल सकी
+THROW IN (once it is on air)	अंदर फेंकें (ऑन एयर होने पर)
+its words could not be drawn	इसके शब्द नहीं बनाए जा सके
+Surf (a sea to throw things into)	लहर (चीज़ें फेंकने के लिए समुद्र)
+Pushes what floats toward the beach	तैरती चीज़ों को तट की ओर धकेलती है
+a Surf cannot be thrown into a Surf	लहर को लहर में नहीं फेंका जा सकता
+0-100%: long slow sets to short quick ones	0-100%: लंबे धीमे सेट से छोटे तेज़ सेट तक
+0-100%: pushes what floats toward the beach	0-100%: तैरती चीज़ों को तट की ओर धकेलती है
+only a picture, a video or a text cue can be thrown in	केवल चित्र, वीडियो या टेक्स्ट क्यू ही अंदर फेंके जा सकते हैं
+seconds between things it throws in by itself; 0 never	अपने आप फेंकी गई चीज़ों के बीच सेकंड; 0 कभी नहीं
+Long, slow sets at the left; short, quick ones at the right	बाएँ लंबे, धीमे सेट; दाएँ छोटे, तेज़ सेट
+SURF DROP <thing|cue> [x%], SURF CLEAR, SURF BEACH or SURF THINGS	SURF DROP <चीज़|क्यू> [x%], SURF CLEAR, SURF BEACH या SURF THINGS
+TARGET VERB: expected start|stop|pause|resume|load|arm|disarm|surf	TARGET VERB: अपेक्षित start|stop|pause|resume|load|arm|disarm|surf
+Every so many seconds it throws something in by itself: one of what has been thrown in before, or anything. 0: only when you throw	हर कुछ सेकंड में यह अपने आप कुछ फेंकती है: पहले फेंकी गई चीज़ों में से एक, या कुछ भी। 0: केवल जब तुम फेंको
+LIST	सूची
+PLACE	रखें
+NEW BEACH	नया तट

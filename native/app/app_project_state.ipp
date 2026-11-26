@@ -798,6 +798,11 @@
            << "\"settingsOpen\":" << (settingsOpen_ ? "true" : "false") << ","
            << "\"outputChipRect\":[" << outputBadgeRect_.x << "," << outputBadgeRect_.y << ","
            << outputBadgeRect_.w << "," << outputBadgeRect_.h << "],"
+           // The monitor's picture and the focused playlist's first row, for
+           // the check that drags a cue onto the monitor (Surf).
+           << "\"monitorRect\":[" << warpMonitorInner_.x << "," << warpMonitorInner_.y << ","
+           << warpMonitorInner_.w << "," << warpMonitorInner_.h << "],"
+           << "\"firstCueRow\":" << focusedFirstCueRowJson() << ","
            // The lesson card's quiet links, for the check that they are drawn.
            << "\"lessonVoiceRect\":[" << tutorial_.voiceRect.x << "," << tutorial_.voiceRect.y << ","
            << tutorial_.voiceRect.w << "," << tutorial_.voiceRect.h << "],"
@@ -3777,6 +3782,18 @@
     }
   }
 
+  // [x, y, w, h] of the focused playlist's first row as the desk hit-tests it
+  // (app_input.ipp: the frame inset 8/30), scrolled; the next rows follow at
+  // kRowHeight + 8.
+  std::string focusedFirstCueRowJson() const {
+    const int d = project_.focusedDeckIndex;
+    if (d < 0 || d >= static_cast<int>(deckListClipRects_.size())) return "[0,0,0,0]";
+    const SDL_Rect& f = deckListClipRects_[static_cast<std::size_t>(d)];
+    const int scroll = d < static_cast<int>(deckScrolls_.size()) ? deckScrolls_[static_cast<std::size_t>(d)] : 0;
+    return "[" + std::to_string(f.x + 8) + "," + std::to_string(f.y + 30 - scroll) + "," + std::to_string(f.w - 16) +
+           "," + std::to_string(kRowHeight) + "]";
+  }
+
   std::string cueVisualCacheKey(const Cue& cue) const {
     auto quantizeMillis = [](double seconds) {
       return static_cast<long long>(std::llround(std::max(0.0, seconds) * 1000.0));
@@ -3799,6 +3816,8 @@
         key << '|' << m.shape << '|' << m.palette << '|' << m.density << '|' << m.speed << '|'
             << m.warp << '|' << m.turn << '|' << m.centreX << '|' << m.centreY << '|' << m.grey
             << '|' << m.hue << '|' << serializeGeometryLfos(m.lfo);
+      } else if (type == "surf") {
+        key << '|' << deckboy::surf::serialize(cue.surf);
       } else if (type == "illusion") {
         const IllusionSettings& il = cue.illusion;
         key << '|' << il.shape << '|' << il.form << '|' << il.flow << '|' << il.flip << '|' << il.palette

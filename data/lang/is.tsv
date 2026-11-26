@@ -5095,3 +5095,36 @@ Circuit trip	Rafrásarferð
 Night vision	Nætursjónauki
 Rain on glass	Rigning á gleri
 Melting rainbow	Bráðnandi regnbogi
+Sky	Himinn
+sky	himinn
+Surf	Brim
+Wind	Vindur
+wind	vindur
+Period	Sveiflutími
+period	sveiflutími
+THROW IN	KASTA INN
+Throws in	Köst inn
+throws in	köst inn
+Throw into Surf	Kasta í Brimið
+no Surf is on air	ekkert Brim í loftinu
+{1} into the surf	{1} í brimið
+Day, sunset or night	Dagur, sólsetur eða nótt
+How big the sets are	Hve stór öldusettin eru
+0 day, 1 sunset, 2 night	0 dagur, 1 sólsetur, 2 nótt
+its file cannot be found	skráin þess finnst ekki
+THROW IN (once it is on air)	KASTA INN (þegar það er í loftinu)
+its words could not be drawn	ekki tókst að teikna orð þess
+Surf (a sea to throw things into)	Brim (haf til að kasta hlutum í)
+Pushes what floats toward the beach	Ýtir því sem flýtur í átt að ströndinni
+a Surf cannot be thrown into a Surf	ekki er hægt að kasta Brimi í Brim
+0-100%: long slow sets to short quick ones	0-100%: frá löngum, hægum settum til stuttra, hraðra
+0-100%: pushes what floats toward the beach	0-100%: ýtir því sem flýtur í átt að ströndinni
+only a picture, a video or a text cue can be thrown in	aðeins er hægt að kasta inn mynd, vídeói eða textacue
+seconds between things it throws in by itself; 0 never	sekúndur milli þess sem það kastar inn sjálft; 0 aldrei
+Long, slow sets at the left; short, quick ones at the right	Löng, hæg sett vinstra megin; stutt, hröð hægra megin
+SURF DROP <thing|cue> [x%], SURF CLEAR, SURF BEACH or SURF THINGS	SURF DROP <hlutur|cue> [x%], SURF CLEAR, SURF BEACH eða SURF THINGS
+TARGET VERB: expected start|stop|pause|resume|load|arm|disarm|surf	TARGET VERB: bjóst við start|stop|pause|resume|load|arm|disarm|surf
+Every so many seconds it throws something in by itself: one of what has been thrown in before, or anything. 0: only when you throw	Á nokkurra sekúndna fresti kastar það sjálft einhverju inn: einhverju sem hefur verið kastað inn áður, eða hverju sem er. 0: aðeins þegar þú kastar
+LIST	LISTI
+PLACE	STAÐSETJA
+NEW BEACH	NÝ STRÖND

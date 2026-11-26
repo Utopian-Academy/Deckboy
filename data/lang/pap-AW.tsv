@@ -5075,3 +5075,36 @@ Circuit trip	Biahe di circuito
 Night vision	Vista di anochi
 Rain on glass	Awa riba glas
 Melting rainbow	Arco iris derití
+Sky	Shelo
+sky	shelo
+Surf	Ola
+Wind	Biento
+wind	biento
+Period	Periodo
+period	periodo
+THROW IN	TIRA PADEN
+Throws in	Ta tira paden
+throws in	ta tira paden
+Throw into Surf	Tira den Ola
+no Surf is on air	no tin ningun Ola bibu
+{1} into the surf	{1} den e olanan
+Day, sunset or night	Dia, baha di solo of anochi
+How big the sets are	Con grandi e gruponan di ola ta
+0 day, 1 sunset, 2 night	0 dia, 1 baha di solo, 2 anochi
+its file cannot be found	su archivo no por wordo haya
+THROW IN (once it is on air)	TIRA PADEN (ora e ta bibu)
+its words could not be drawn	su palabranan no por a wordo dibuha
+Surf (a sea to throw things into)	Ola (un lama pa tira cosnan aden)
+Pushes what floats toward the beach	Ta pusha loke ta flota pa banda di playa
+a Surf cannot be thrown into a Surf	un Ola no por wordo tira den un Ola
+0-100%: long slow sets to short quick ones	0-100%: di gruponan largu y poco poco te cortico y lihe
+0-100%: pushes what floats toward the beach	0-100%: ta pusha loke ta flota pa banda di playa
+only a picture, a video or a text cue can be thrown in	solamente un portret, un video of un cue di texto por wordo tira paden
+seconds between things it throws in by itself; 0 never	segundo entre cosnan cu e ta tira paden su mes; 0 nunca
+Long, slow sets at the left; short, quick ones at the right	Gruponan largu y poco poco na robes; cortico y lihe na drechi
+SURF DROP <thing|cue> [x%], SURF CLEAR, SURF BEACH or SURF THINGS	SURF DROP <cos|cue> [x%], SURF CLEAR, SURF BEACH of SURF THINGS
+TARGET VERB: expected start|stop|pause|resume|load|arm|disarm|surf	TARGET VERB: mester ta start|stop|pause|resume|load|arm|disarm|surf
+Every so many seconds it throws something in by itself: one of what has been thrown in before, or anything. 0: only when you throw	Cada cierto cantidad di segundo e ta tira algo paden su mes: un di loke a wordo tira caba, of cualkier cos. 0: solamente ora bo tira
+LIST	LISTA
+PLACE	PON
+NEW BEACH	PLAYA NOBO

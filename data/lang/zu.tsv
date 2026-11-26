@@ -5089,3 +5089,36 @@ Circuit trip	Uhambo lwesekhethi
 Night vision	Ukubona ebusuku
 Rain on glass	Imvula engilazini
 Melting rainbow	Uthingo oluncibilikayo
+Sky	Isibhakabhaka
+sky	isibhakabhaka
+Surf	Amagagasi
+Wind	Umoya
+wind	umoya
+Period	Isikhawu
+period	isikhawu
+THROW IN	PHONSA NGAPHAKATHI
+Throws in	Iphonsa ngaphakathi
+throws in	iphonsa ngaphakathi
+Throw into Surf	Phonsa emaGagasini
+no Surf is on air	awekho amaGagasi asemoyeni
+{1} into the surf	{1} emagagasini
+Day, sunset or night	Imini, ukushona kwelanga noma ubusuku
+How big the sets are	Ubukhulu bamaqoqo amagagasi
+0 day, 1 sunset, 2 night	0 imini, 1 ukushona kwelanga, 2 ubusuku
+its file cannot be found	ifayela layo alitholakali
+THROW IN (once it is on air)	PHONSA NGAPHAKATHI (uma isisemoyeni)
+its words could not be drawn	amagama ayo awakwazanga ukudwetshwa
+Surf (a sea to throw things into)	Amagagasi (ulwandle lokuphonsela izinto kulo)
+Pushes what floats toward the beach	Uphushela okuntantayo ngasebhishi
+a Surf cannot be thrown into a Surf	amaGagasi awakwazi ukuphonswa emaGagasini
+0-100%: long slow sets to short quick ones	0-100%: kusukela emaqoqweni amade ahamba kancane kuya kwamafushane asheshayo
+0-100%: pushes what floats toward the beach	0-100%: uphushela okuntantayo ngasebhishi
+only a picture, a video or a text cue can be thrown in	isithombe, ividiyo noma i-cue lombhalo kuphela okungaphonswa ngaphakathi
+seconds between things it throws in by itself; 0 never	imizuzwana phakathi kokuphonsa ngokwayo; 0 akusoze
+Long, slow sets at the left; short, quick ones at the right	Amaqoqo amade, ahamba kancane kwesobunxele; amafushane, asheshayo kwesokudla
+SURF DROP <thing|cue> [x%], SURF CLEAR, SURF BEACH or SURF THINGS	SURF DROP <into|cue> [x%], SURF CLEAR, SURF BEACH noma SURF THINGS
+TARGET VERB: expected start|stop|pause|resume|load|arm|disarm|surf	TARGET VERB: kulindeleke start|stop|pause|resume|load|arm|disarm|surf
+Every so many seconds it throws something in by itself: one of what has been thrown in before, or anything. 0: only when you throw	Njalo ngemva kwemizuzwana ethile iphonsa okuthile ngokwayo: okukodwa kwalokho okwake kwaphonswa, noma noma yini. 0: kuphela uma uphonsa wena
+LIST	UHLU
+PLACE	BEKA
+NEW BEACH	IBHISHI ELISHA

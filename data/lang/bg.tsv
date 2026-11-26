@@ -5102,3 +5102,36 @@ Circuit trip	Трип във веригата
 Night vision	Нощно виждане
 Rain on glass	Дъжд върху стъкло
 Melting rainbow	Топяща се дъга
+Sky	Небе
+sky	небе
+Surf	Прибой
+Wind	Вятър
+wind	вятър
+Period	Период
+period	период
+THROW IN	ХВЪРЛИ
+Throws in	Хвърля
+throws in	хвърля
+Throw into Surf	Хвърли в Прибоя
+no Surf is on air	няма Прибой в ефир
+{1} into the surf	{1} в прибоя
+Day, sunset or night	Ден, залез или нощ
+How big the sets are	Колко големи са сериите вълни
+0 day, 1 sunset, 2 night	0 ден, 1 залез, 2 нощ
+its file cannot be found	файлът му не може да бъде намерен
+THROW IN (once it is on air)	ХВЪРЛИ (щом е в ефир)
+its words could not be drawn	думите му не можаха да се изрисуват
+Surf (a sea to throw things into)	Прибой (море, в което да хвърляш неща)
+Pushes what floats toward the beach	Тласка плаващото към брега
+a Surf cannot be thrown into a Surf	Прибой не може да се хвърли в Прибой
+0-100%: long slow sets to short quick ones	0-100%: от дълги бавни серии до кратки бързи
+0-100%: pushes what floats toward the beach	0-100%: тласка плаващото към брега
+only a picture, a video or a text cue can be thrown in	само картина, видео или текстов cue може да се хвърли
+seconds between things it throws in by itself; 0 never	секунди между нещата, които хвърля сам; 0 никога
+Long, slow sets at the left; short, quick ones at the right	Дълги, бавни серии вляво; кратки, бързи вдясно
+SURF DROP <thing|cue> [x%], SURF CLEAR, SURF BEACH or SURF THINGS	SURF DROP <thing|cue> [x%], SURF CLEAR, SURF BEACH или SURF THINGS
+TARGET VERB: expected start|stop|pause|resume|load|arm|disarm|surf	TARGET VERB: очаква се start|stop|pause|resume|load|arm|disarm|surf
+Every so many seconds it throws something in by itself: one of what has been thrown in before, or anything. 0: only when you throw	На всеки толкова секунди хвърля нещо сам: едно от хвърлените преди или каквото и да е. 0: само когато ти хвърляш
+LIST	СПИСЪК
+PLACE	ПОСТАВИ
+NEW BEACH	НОВ БРЯГ

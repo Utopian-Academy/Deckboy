@@ -5094,3 +5094,36 @@ Circuit trip	Gera çerxê
 Night vision	Dîtina şevê
 Rain on glass	Baran li ser camê
 Melting rainbow	Keskesora dihele
+Sky	Ezman
+sky	ezman
+Surf	Pêl
+Wind	Ba
+wind	ba
+Period	Dewr
+period	dewr
+THROW IN	BAVÊJE NAV
+Throws in	Davêje nav
+throws in	davêje nav
+Throw into Surf	Bavêje nav Pêlê
+no Surf is on air	tu Pêl ne li çapê ye
+{1} into the surf	{1} ket nav pêlan
+Day, sunset or night	Roj, rojava an şev
+How big the sets are	Mezinahiya komên pêlan
+0 day, 1 sunset, 2 night	0 roj, 1 rojava, 2 şev
+its file cannot be found	pela wê nayê dîtin
+THROW IN (once it is on air)	BAVÊJE NAV (dema li çapê be)
+its words could not be drawn	peyvên wê nehatin xêzkirin
+Surf (a sea to throw things into)	Pêl (deryayek ku tişt tê de bên avêtin)
+Pushes what floats toward the beach	Tiştên li ser avê ber bi peravê ve dehf dide
+a Surf cannot be thrown into a Surf	Pêl nayê avêtin nav Pêlê
+0-100%: long slow sets to short quick ones	0-100%: ji komên dirêj û hêdî heta yên kurt û bilez
+0-100%: pushes what floats toward the beach	0-100%: tiştên li ser avê ber bi peravê ve dehf dide
+only a picture, a video or a text cue can be thrown in	tenê wêne, vîdyo an kyûya tekstê dikare bê avêtin
+seconds between things it throws in by itself; 0 never	çirkeyên di navbera tiştên ku bi xwe davêje de; 0 qet
+Long, slow sets at the left; short, quick ones at the right	Komên dirêj û hêdî li çepê; yên kurt û bilez li rastê
+SURF DROP <thing|cue> [x%], SURF CLEAR, SURF BEACH or SURF THINGS	SURF DROP <tişt|cue> [x%], SURF CLEAR, SURF BEACH an SURF THINGS
+TARGET VERB: expected start|stop|pause|resume|load|arm|disarm|surf	TARGET VERB: divê yek ji start|stop|pause|resume|load|arm|disarm|surf be
+Every so many seconds it throws something in by itself: one of what has been thrown in before, or anything. 0: only when you throw	Her çend çirkeyan carekê bi xwe tiştekî davêje nav: yek ji yên berê hatine avêtin, an her tiştî. 0: tenê dema tu biavêjî
+LIST	LÎSTE
+PLACE	DEYNE
+NEW BEACH	PERAVA NÛ

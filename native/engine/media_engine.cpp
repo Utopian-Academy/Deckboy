@@ -18076,6 +18076,40 @@ void MediaEngine::buildPatternFrameInto(DecodedFrame& frame, const Cue& cue, dou
       deckboy::draw::drawCritters(frame.pixels.data(), frame.width, frame.height, frames[static_cast<std::size_t>(moment.frame)],
                                   moment.strokes, moment.lastPoints, animTime);
     }
+  } else if (basePatternType == "surf") {
+    // SURF (core/surf.hpp): a particle sea kept per cue, stepped on the clock,
+    // a new beach when the seed changes, and whatever has been thrown in.
+    static thread_local std::map<std::string, deckboy::surf::Sim> sims;
+    static thread_local std::map<std::string, std::uint64_t> seen;
+    static thread_local std::map<std::string, double> nextThrow;
+    if (sims.size() > 8 && sims.find(cue.id) == sims.end()) { sims.clear(); seen.clear(); nextThrow.clear(); }
+    deckboy::surf::Sim& sim = sims[cue.id];
+    const deckboy::surf::Settings& st = cue.surf;
+    if (!sim.ready() || sim.seed() != st.seed) sim.reset(st.seed);
+    std::uint64_t& last = seen.try_emplace(cue.id, deckboy::surf::latestDropSerial()).first->second;
+    for (const auto& d : deckboy::surf::dropsSince(cue.id, last)) {
+      if (d.what == "#clear") sim.clearThings();
+      else sim.drop(d.what, d.x01, static_cast<std::uint32_t>(d.serial));
+    }
+    // What it throws in by itself, every so often, from its list (or anything).
+    if (st.throwEvery > 0.0) {
+      double& when = nextThrow[cue.id];
+      if (when <= 0.0 || when > animTime + st.throwEvery) when = animTime + st.throwEvery;
+      if (animTime >= when) {
+        when = animTime + st.throwEvery;
+        const std::uint32_t pick = static_cast<std::uint32_t>(animTime * 7919.0);
+        std::string what = "surprise";
+        if (!st.throwList.empty()) {
+          const std::string& item = st.throwList[pick % st.throwList.size()];
+          if (item.rfind("cue:", 0) != 0 || deckboy::surf::hasPicture(item)) what = item;
+        }
+        sim.drop(what, -1.0f, pick);
+      }
+    }
+    sim.update(animTime, st);
+    frame.format = FramePixelFormat::RGBA32;
+    frame.pixels.resize(static_cast<std::size_t>(frame.width) * static_cast<std::size_t>(frame.height) * 4u);
+    sim.render(frame.pixels.data(), frame.width, frame.height, st.sky);
   } else if (basePatternType == "portal") {
     // Always animated: the blobs are born, drift, melt and fade.
     buildPortal(frame, animTime, cue.portal);

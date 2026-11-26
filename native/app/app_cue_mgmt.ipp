@@ -3487,6 +3487,7 @@
       list.emplace_back("swirl",          "Swirl (melting pixel greens)");
       list.emplace_back("moire-field",    "Moire (interference bands)");
       list.emplace_back("illusion",       "Illusion (Pictures that move!?)");
+      list.emplace_back("surf",           "Surf (a sea to throw things into)");
       list.emplace_back("lumia",          "Lumia (laser light and mirrors)");
       list.emplace_back("isf",            "Shader (an ISF .fs file)");
       list.emplace_back("code",           "Code (live expression)");
@@ -5137,6 +5138,8 @@
     // the cue's audio toggle.
     cue.hasAudio = (typeId == "pocket-test");
     cue.audioEnabled = (typeId == "pocket-test");
+    // A SURF starts on a beach of its own.
+    if (typeId == "surf") cue.surf.seed = static_cast<std::uint32_t>(SDL_GetTicksNS() * 2654435761ull) | 1u;
     deck.cues.push_back(cue);
     deck.selectedIndex = static_cast<int>(deck.cues.size()) - 1;
     deck.selectedIndices.clear();   // the new cue alone
@@ -5144,6 +5147,217 @@
     triggerToast(generatorName.empty() ? "pattern: " + label : label + " added");
     playUiSound(UiSoundEffect::Import);
     markProjectDirty();
+  }
+
+  // ── SURF: THROWING THINGS IN (core/surf.hpp; board BBfda3Tf) ───────────
+  //
+  // A thing is a beach thing or a critter by name, or one of the show's cues
+  // by ID ("cue:<id>", as a Target or a PiP points at its cue). A cue's picture
+  // is made once -- a picture or a video's first frame decoded on a thread of
+  // its own, a text cue's words drawn here -- shrunk, and registered with the
+  // sea; the drop is asked for when the picture is ready. Every Surf on air
+  // takes it. A cue thrown in joins the list each Surf throws in by itself.
+  static bool surfPatternCue(const Cue& cue) {
+    return cue.kind == CueKind::Pattern && normalizePatternTypeId(cue.path) == "surf";
+  }
+
+  double surfNowSeconds() const { return static_cast<double>(SDL_GetTicksNS()) / 1e9; }
+
+  // A cue's words, drawn in the desk's face, for a text cue thrown in.
+  deckboy::surf::PicturePtr surfTextPicture(const std::string& text) {
+    TTF_Font* font = fontBase_;
+    if (!font || text.empty()) return nullptr;
+    SDL_Surface* surface = deckboy::render::shaping::renderText(font, text.c_str(), 0, SDL_Color {255, 255, 255, 255});
+    if (!surface) return nullptr;
+    SDL_Surface* rgba = SDL_ConvertSurface(surface, SDL_PIXELFORMAT_RGBA32);
+    SDL_DestroySurface(surface);
+    if (!rgba) return nullptr;
+    std::vector<std::uint8_t> px(static_cast<std::size_t>(rgba->w) * rgba->h * 4);
+    for (int y = 0; y < rgba->h; ++y) {
+      std::memcpy(px.data() + static_cast<std::size_t>(y) * rgba->w * 4,
+                  static_cast<const std::uint8_t*>(rgba->pixels) + static_cast<std::size_t>(y) * rgba->pitch,
+                  static_cast<std::size_t>(rgba->w) * 4);
+    }
+    const int w = rgba->w, h = rgba->h;
+    SDL_DestroySurface(rgba);
+    return deckboy::surf::shrinkPicture(w, h, px);
+  }
+
+  // A beach thing or critter by name ("surprise" for anything). False for a name it does not know.
+  bool surfThrowName(std::string name, float x01) {
+    name = toLower(trim(name));
+    if (name != "surprise" && name != "critter") {
+      const auto names = deckboy::surf::thingNames();
+      if (std::find(names.begin(), names.end(), name) == names.end()) return false;
+    }
+    deckboy::surf::pushDrop({std::string(), name, x01}, surfNowSeconds());
+    showLog("SURF", "threw in " + name);
+    return true;
+  }
+
+  // One of the show's cues. False (with the reason) when it has no picture to give.
+  bool surfThrowCue(const Cue& thing, float x01, std::string& why) {
+    if (surfPatternCue(thing)) { why = "a Surf cannot be thrown into a Surf"; return false; }
+    const std::string key = "cue:" + thing.id;
+    // Each Surf in the show remembers it, for what it throws in by itself.
+    for (Deck& deck : project_.decks) {
+      for (Cue& c : deck.cues) {
+        if (!surfPatternCue(c)) continue;
+        auto& list = c.surf.throwList;
+        if (std::find(list.begin(), list.end(), key) == list.end() && list.size() < 16) {
+          list.push_back(key);
+          markProjectDirty();
+        }
+      }
+    }
+    if (deckboy::surf::hasPicture(key)) {
+      deckboy::surf::pushDrop({std::string(), key, x01}, surfNowSeconds());
+      return true;
+    }
+    if (thing.kind == CueKind::Text || thing.kind == CueKind::LowerThird) {
+      std::string words = thing.kind == CueKind::Text ? thing.textBody : thing.lowerThirdText;
+      if (const auto nl = words.find('\n'); nl != std::string::npos) words.resize(nl);   // the first line
+      if (trim(words).empty()) words = thing.name;
+      auto pic = surfTextPicture(words);
+      if (!pic) { why = "its words could not be drawn"; return false; }
+      deckboy::surf::registerPicture(key, pic);
+      deckboy::surf::pushDrop({std::string(), key, x01}, surfNowSeconds());
+      return true;
+    }
+    if (thing.kind != CueKind::Image && thing.kind != CueKind::Video) {
+      why = "only a picture, a video or a text cue can be thrown in";
+      return false;
+    }
+    auto resolved = resolveCueFilesystemPath(thing, currentProjectFile_);
+    if (!resolved || resolved->empty()) { why = "its file cannot be found"; return false; }
+    const fs::path file = *resolved;
+    const double asked = surfNowSeconds();
+    auto work = [key, file, x01, asked]() {
+      int w = 0, h = 0;
+      std::vector<std::uint8_t> rgba;
+      bool ok = false;
+#if DECKBOY_INPROC_DECODE
+      ok = deckboy::libav::decodeImageRgba(file.string(), w, h, rgba);
+#endif
+      if (!ok) {
+        const auto size = probeStillImageSize(file);
+        ok = size && decodeStillImageRgba(file, size->first, size->second, rgba);
+        if (ok) { w = size->first; h = size->second; }
+      }
+      if (!ok) return;
+      auto pic = deckboy::surf::shrinkPicture(w, h, rgba);
+      if (!pic) return;
+      deckboy::surf::registerPicture(key, pic);
+      deckboy::surf::pushDrop({std::string(), key, x01}, asked);
+    };
+    std::thread(work).detach();   // a picture or a video's first frame, off the desk's thread
+    return true;
+  }
+
+  int surfOnAirCount() const {
+    int n = 0;
+    for (const Deck& deck : project_.decks) {
+      if (deck.activeIndex >= 0 && deck.activeIndex < static_cast<int>(deck.cues.size()) &&
+          surfPatternCue(deck.cues[static_cast<std::size_t>(deck.activeIndex)])) ++n;
+    }
+    return n;
+  }
+
+  static bool surfCanThrow(const Cue& cue) {
+    return cue.kind == CueKind::Image || cue.kind == CueKind::Video || cue.kind == CueKind::Text ||
+           cue.kind == CueKind::LowerThird;
+  }
+
+  // A cue row let go over the monitor while a Surf is on air: that cue goes in
+  // where it was let go. False when nothing was thrown (no Surf, or not over it).
+  bool surfDropRowOnMonitor(int deckIndex, int cueIndex, int x, int y) {
+    const SDL_Rect m = warpMonitorInner_;
+    if (m.w <= 0 || m.h <= 0 || !pointInRect(x, y, m) || surfOnAirCount() == 0) return false;
+    if (deckIndex < 0 || deckIndex >= static_cast<int>(project_.decks.size())) return false;
+    const Deck& deck = project_.decks[static_cast<std::size_t>(deckIndex)];
+    if (cueIndex < 0 || cueIndex >= static_cast<int>(deck.cues.size())) return false;
+    const Cue thing = deck.cues[static_cast<std::size_t>(cueIndex)];
+    if (surfPatternCue(thing)) return false;
+    std::string why;
+    const float x01 = std::clamp(static_cast<float>(x - m.x) / static_cast<float>(m.w), 0.0f, 1.0f);
+    if (!surfThrowCue(thing, x01, why)) {
+      triggerToast(thing.name + ": " + why, ToastKind::Warning, kToastReadableMs);
+      return true;
+    }
+    triggerToast(deckboy::core::i18n::format("{1} into the surf", {thing.name}));
+    return true;
+  }
+
+  // The Surfs on air: a new beach, or clear the water.
+  int surfOnAirApply(const std::function<void(Cue&)>& fn) {
+    int n = 0;
+    for (int d = 0; d < static_cast<int>(project_.decks.size()); ++d) {
+      Deck& deck = project_.decks[static_cast<std::size_t>(d)];
+      if (deck.activeIndex < 0 || deck.activeIndex >= static_cast<int>(deck.cues.size())) continue;
+      Cue& c = deck.cues[static_cast<std::size_t>(deck.activeIndex)];
+      if (!surfPatternCue(c)) continue;
+      fn(c);
+      ++n;
+    }
+    if (n) markProjectDirty();
+    return n;
+  }
+
+  // A cue named over the wire: its number in the focused playlist, its cue
+  // number ("Q4"), or its name, in any playlist.
+  const Cue* surfCueNamed(const std::string& token) const {
+    if (!token.empty() && token.find_first_not_of("0123456789") == std::string::npos) {
+      const Deck& deck = focusedDeck();
+      const int n = std::atoi(token.c_str());
+      if (n >= 1 && n <= static_cast<int>(deck.cues.size())) return &deck.cues[static_cast<std::size_t>(n - 1)];
+    }
+    const std::string want = toLower(token);
+    for (const Deck& deck : project_.decks) {
+      for (const Cue& c : deck.cues) if (!c.cueNumber.empty() && toLower(c.cueNumber) == want) return &c;
+    }
+    for (const Deck& deck : project_.decks) {
+      for (const Cue& c : deck.cues) if (toLower(c.name) == want) return &c;
+    }
+    return nullptr;
+  }
+
+  // SURF DROP <thing|cue> [x%] | SURF CLEAR | SURF BEACH | SURF THINGS
+  void handleSurfCommand(const std::vector<std::string>& parts) {
+    const std::string sub = parts.size() > 1 ? toUpper(parts[1]) : std::string();
+    if (sub == "THINGS") {
+      std::string list;
+      for (const auto& n : deckboy::surf::thingNames()) list += (list.empty() ? "" : " ") + n;
+      remoteCommandDetail_ = list + " critter surprise, or a cue by number or name";
+      return;
+    }
+    if (sub == "CLEAR") {
+      deckboy::surf::pushDrop({std::string(), "#clear", -1.0f}, surfNowSeconds());
+      return;
+    }
+    if (sub == "BEACH") {
+      const std::uint32_t seed = static_cast<std::uint32_t>(SDL_GetTicksNS() * 2654435761ull) | 1u;
+      if (!surfOnAirApply([&](Cue& c) { c.surf.seed = seed; })) { failRemoteCommand("no Surf is on air"); return; }
+      return;
+    }
+    if (sub == "DROP" && parts.size() > 2) {
+      float x01 = -1.0f;
+      std::size_t end = parts.size();
+      const std::string& lastWord = parts.back();
+      if (parts.size() > 3 && !lastWord.empty() && lastWord.back() == '%') {
+        x01 = std::clamp(static_cast<float>(std::atof(lastWord.c_str())) / 100.0f, 0.0f, 1.0f);
+        --end;
+      }
+      std::string what;
+      for (std::size_t i = 2; i < end; ++i) what += (i > 2 ? " " : "") + parts[i];
+      if (surfThrowName(what, x01)) { remoteCommandDetail_ = toLower(what); return; }
+      const Cue* thing = surfCueNamed(what);
+      if (!thing) { failRemoteCommand("no thing or cue \"" + what + "\" (SURF THINGS lists the things)"); return; }
+      std::string why;
+      if (!surfThrowCue(*thing, x01, why)) { failRemoteCommand(why); return; }
+      remoteCommandDetail_ = thing->name;
+      return;
+    }
+    failRemoteCommand("SURF DROP <thing|cue> [x%], SURF CLEAR, SURF BEACH or SURF THINGS");
   }
 
   // One of the things Deckboy makes, from SOURCE > MADE BY DECKBOY.

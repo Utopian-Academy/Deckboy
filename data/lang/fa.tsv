@@ -5116,3 +5116,36 @@ Circuit trip	سفر مداری
 Night vision	دید شب
 Rain on glass	باران روی شیشه
 Melting rainbow	رنگین‌کمان ذوب‌شونده
+Sky	آسمان
+sky	آسمان
+Surf	خیزاب
+Wind	باد
+wind	باد
+Period	دوره
+period	دوره
+THROW IN	پرتاب کن
+Throws in	پرتاب می‌کند
+throws in	پرتاب می‌کند
+Throw into Surf	پرتاب به خیزاب
+no Surf is on air	هیچ خیزابی روی آنتن نیست
+{1} into the surf	{1} به خیزاب
+Day, sunset or night	روز، غروب یا شب
+How big the sets are	اندازهٔ موج‌ها
+0 day, 1 sunset, 2 night	0 روز، 1 غروب، 2 شب
+its file cannot be found	فایلش پیدا نمی‌شود
+THROW IN (once it is on air)	پرتاب کن (وقتی روی آنتن است)
+its words could not be drawn	واژه‌هایش رسم نشد
+Surf (a sea to throw things into)	خیزاب (دریایی برای پرتاب چیزها در آن)
+Pushes what floats toward the beach	شناورها را به سمت ساحل می‌راند
+a Surf cannot be thrown into a Surf	نمی‌توان خیزاب را در خیزاب پرتاب کرد
+0-100%: long slow sets to short quick ones	0-100%: از موج‌های بلند و آرام تا کوتاه و تند
+0-100%: pushes what floats toward the beach	0-100%: شناورها را به سمت ساحل می‌راند
+only a picture, a video or a text cue can be thrown in	فقط تصویر، ویدیو یا کیوی متنی را می‌توان پرتاب کرد
+seconds between things it throws in by itself; 0 never	ثانیه‌های میان چیزهایی که خودش پرتاب می‌کند؛ 0 هرگز
+Long, slow sets at the left; short, quick ones at the right	موج‌های بلند و آرام در چپ؛ کوتاه و تند در راست
+SURF DROP <thing|cue> [x%], SURF CLEAR, SURF BEACH or SURF THINGS	SURF DROP <چیز|cue> [x%]، SURF CLEAR، SURF BEACH یا SURF THINGS
+TARGET VERB: expected start|stop|pause|resume|load|arm|disarm|surf	TARGET VERB: انتظار می‌رفت start|stop|pause|resume|load|arm|disarm|surf
+Every so many seconds it throws something in by itself: one of what has been thrown in before, or anything. 0: only when you throw	هر چند ثانیه خودش چیزی پرتاب می‌کند: یکی از چیزهایی که قبلاً پرتاب شده، یا هر چیزی. 0: فقط وقتی تو پرتاب کنی
+LIST	فهرست
+PLACE	جای‌گذاری
+NEW BEACH	ساحل جدید

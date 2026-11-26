@@ -5098,3 +5098,36 @@ Circuit trip	Turas cuairte
 Night vision	Lèirsinn oidhche
 Rain on glass	Uisge air glainne
 Melting rainbow	Bogha-froise a' leaghadh
+Sky	Speur
+sky	speur
+Surf	Tonnan
+Wind	Gaoth
+wind	gaoth
+Period	Ùine
+period	ùine
+THROW IN	TILG A-STEACH
+Throws in	Tilgeil a-steach
+throws in	tilgeil a-steach
+Throw into Surf	Tilg dha na Tonnan
+no Surf is on air	chan eil Tonnan air an adhar
+{1} into the surf	{1} a-steach dha na tonnan
+Day, sunset or night	Latha, laighe na grèine no oidhche
+How big the sets are	Dè cho mòr ’s a tha na tonnan
+0 day, 1 sunset, 2 night	0 latha, 1 laighe na grèine, 2 oidhche
+its file cannot be found	cha lorgar am faidhle aige
+THROW IN (once it is on air)	TILG A-STEACH (nuair a bhios e air an adhar)
+its words could not be drawn	cha b' urrainn na faclan aige a tharraing
+Surf (a sea to throw things into)	Tonnan (muir airson rudan a thilgeil innte)
+Pushes what floats toward the beach	Putaidh e na tha a' fleòdradh chun na tràghad
+a Surf cannot be thrown into a Surf	chan urrainnear Tonnan a thilgeil a-steach do Thonnan
+0-100%: long slow sets to short quick ones	0-100%: bho thonnan fada slaodach gu feadhainn ghoirid luath
+0-100%: pushes what floats toward the beach	0-100%: putaidh e na tha a' fleòdradh chun na tràghad
+only a picture, a video or a text cue can be thrown in	chan fhaodar ach dealbh, bhideo no cue teacsa a thilgeil a-steach
+seconds between things it throws in by itself; 0 never	diogan eadar rudan a thilgeas e leis fhèin; 0 chan ann idir
+Long, slow sets at the left; short, quick ones at the right	Tonnan fada slaodach air a’ chlì; feadhainn ghoirid luath air an taobh deas
+SURF DROP <thing|cue> [x%], SURF CLEAR, SURF BEACH or SURF THINGS	SURF DROP <rud|cue> [x%], SURF CLEAR, SURF BEACH no SURF THINGS
+TARGET VERB: expected start|stop|pause|resume|load|arm|disarm|surf	TARGET VERB: bha dùil ri start|stop|pause|resume|load|arm|disarm|surf
+Every so many seconds it throws something in by itself: one of what has been thrown in before, or anything. 0: only when you throw	Gach beagan dhiogan tilgidh e rudeigin a-steach leis fhèin: aon de na chaidh a thilgeil roimhe, no rud sam bith. 0: dìreach nuair a thilgeas tu
+LIST	LIOSTA
+PLACE	SUIDHICH
+NEW BEACH	TRÀIGH ÙR

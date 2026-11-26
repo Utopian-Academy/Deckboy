@@ -5065,3 +5065,36 @@ Circuit trip	Viaggio nel circuito
 Night vision	Visione notturna
 Rain on glass	Pioggia sul vetro
 Melting rainbow	Arcobaleno che cola
+Sky	Cielo
+sky	cielo
+Surf	Risacca
+Wind	Vento
+wind	vento
+Period	Periodo
+period	periodo
+THROW IN	LANCIA
+Throws in	Lanci
+throws in	lanci
+Throw into Surf	Lancia nella Risacca
+no Surf is on air	nessuna Risacca in onda
+{1} into the surf	{1} nella risacca
+Day, sunset or night	Giorno, tramonto o notte
+How big the sets are	Dimensione dei set di onde
+0 day, 1 sunset, 2 night	0 giorno, 1 tramonto, 2 notte
+its file cannot be found	il suo file non si trova
+THROW IN (once it is on air)	LANCIA (una volta in onda)
+its words could not be drawn	impossibile disegnare le sue parole
+Surf (a sea to throw things into)	Risacca (un mare in cui lanciare le cose)
+Pushes what floats toward the beach	Spinge ciò che galleggia verso la spiaggia
+a Surf cannot be thrown into a Surf	non si può lanciare una Risacca in una Risacca
+0-100%: long slow sets to short quick ones	0-100%: da set lunghi e lenti a set corti e rapidi
+0-100%: pushes what floats toward the beach	0-100%: spinge ciò che galleggia verso la spiaggia
+only a picture, a video or a text cue can be thrown in	si possono lanciare solo un'immagine, un video o un cue di testo
+seconds between things it throws in by itself; 0 never	secondi tra le cose che lancia da sola; 0 mai
+Long, slow sets at the left; short, quick ones at the right	Set lunghi e lenti a sinistra; corti e rapidi a destra
+SURF DROP <thing|cue> [x%], SURF CLEAR, SURF BEACH or SURF THINGS	SURF DROP <cosa|cue> [x%], SURF CLEAR, SURF BEACH o SURF THINGS
+TARGET VERB: expected start|stop|pause|resume|load|arm|disarm|surf	TARGET VERB: atteso start|stop|pause|resume|load|arm|disarm|surf
+Every so many seconds it throws something in by itself: one of what has been thrown in before, or anything. 0: only when you throw	Ogni tot secondi lancia qualcosa da sola: una delle cose già lanciate, o qualsiasi cosa. 0: solo quando lanci tu
+LIST	LISTA
+PLACE	POSIZIONA
+NEW BEACH	NUOVA SPIAGGIA

@@ -5070,3 +5070,36 @@ Circuit trip	Odlot obwodu
 Night vision	Widzenie nocne
 Rain on glass	Deszcz na szkle
 Melting rainbow	Topniejąca tęcza
+Sky	Niebo
+sky	niebo
+Surf	Przybój
+Wind	Wiatr
+wind	wiatr
+Period	Okres
+period	okres
+THROW IN	WRZUĆ
+Throws in	Wrzuca
+throws in	wrzuca
+Throw into Surf	Wrzuć do Przyboju
+no Surf is on air	żaden Przybój nie jest na antenie
+{1} into the surf	{1} do przyboju
+Day, sunset or night	Dzień, zachód słońca lub noc
+How big the sets are	Jak duże są serie fal
+0 day, 1 sunset, 2 night	0 dzień, 1 zachód słońca, 2 noc
+its file cannot be found	nie można znaleźć jego pliku
+THROW IN (once it is on air)	WRZUĆ (gdy jest na antenie)
+its words could not be drawn	nie udało się narysować jego słów
+Surf (a sea to throw things into)	Przybój (morze, do którego się wrzuca rzeczy)
+Pushes what floats toward the beach	Pcha to, co pływa, w stronę plaży
+a Surf cannot be thrown into a Surf	Przyboju nie można wrzucić do Przyboju
+0-100%: long slow sets to short quick ones	0-100%: od długich, wolnych serii do krótkich, szybkich
+0-100%: pushes what floats toward the beach	0-100%: pcha to, co pływa, w stronę plaży
+only a picture, a video or a text cue can be thrown in	wrzucić można tylko obraz, wideo lub cue tekstowy
+seconds between things it throws in by itself; 0 never	sekundy między rzeczami, które wrzuca sam; 0 nigdy
+Long, slow sets at the left; short, quick ones at the right	Długie, wolne serie po lewej; krótkie, szybkie po prawej
+SURF DROP <thing|cue> [x%], SURF CLEAR, SURF BEACH or SURF THINGS	SURF DROP <rzecz|cue> [x%], SURF CLEAR, SURF BEACH lub SURF THINGS
+TARGET VERB: expected start|stop|pause|resume|load|arm|disarm|surf	TARGET VERB: oczekiwano start|stop|pause|resume|load|arm|disarm|surf
+Every so many seconds it throws something in by itself: one of what has been thrown in before, or anything. 0: only when you throw	Co tyle sekund sam coś wrzuca: coś z wcześniej wrzuconych albo cokolwiek. 0: tylko gdy ty wrzucasz
+LIST	LISTA
+PLACE	UMIEŚĆ
+NEW BEACH	NOWA PLAŻA

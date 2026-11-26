@@ -5085,3 +5085,36 @@ Circuit trip	ທ່ອງວົງຈອນ
 Night vision	ມອງເຫັນກາງຄືນ
 Rain on glass	ຝົນເທິງແກ້ວ
 Melting rainbow	ຮຸ້ງລະລາຍ
+Sky	ທ້ອງຟ້າ
+sky	ທ້ອງຟ້າ
+Surf	ຄື້ນ
+Wind	ລົມ
+wind	ລົມ
+Period	ຄາບ
+period	ຄາບ
+THROW IN	ໂຍນເຂົ້າ
+Throws in	ໂຍນເຂົ້າ
+throws in	ໂຍນເຂົ້າ
+Throw into Surf	ໂຍນເຂົ້າຄື້ນ
+no Surf is on air	ບໍ່ມີຄື້ນທີ່ສົດຢູ່
+{1} into the surf	{1} ລົງຄື້ນ
+Day, sunset or night	ກາງເວັນ, ຕາເວັນຕົກ ຫຼື ກາງຄືນ
+How big the sets are	ຊຸດຄື້ນໃຫຍ່ປານໃດ
+0 day, 1 sunset, 2 night	0 ກາງເວັນ, 1 ຕາເວັນຕົກ, 2 ກາງຄືນ
+its file cannot be found	ຊອກບໍ່ເຫັນໄຟລ໌ຂອງມັນ
+THROW IN (once it is on air)	ໂຍນເຂົ້າ (ເມື່ອສົດແລ້ວ)
+its words could not be drawn	ແຕ້ມຄຳຂອງມັນບໍ່ໄດ້
+Surf (a sea to throw things into)	ຄື້ນ (ທະເລໄວ້ໂຍນສິ່ງຕ່າງໆເຂົ້າ)
+Pushes what floats toward the beach	ຍູ້ສິ່ງທີ່ລອຍໄປຫາຫາດ
+a Surf cannot be thrown into a Surf	ໂຍນຄື້ນເຂົ້າຄື້ນບໍ່ໄດ້
+0-100%: long slow sets to short quick ones	0-100%: ຈາກຊຸດຄື້ນຍາວ ຊ້າ ໄປຫາສັ້ນ ໄວ
+0-100%: pushes what floats toward the beach	0-100%: ຍູ້ສິ່ງທີ່ລອຍໄປຫາຫາດ
+only a picture, a video or a text cue can be thrown in	ໂຍນເຂົ້າໄດ້ສະເພາະຮູບ, video ຫຼື cue ຂໍ້ຄວາມ
+seconds between things it throws in by itself; 0 never	ວິນາທີລະຫວ່າງສິ່ງທີ່ມັນໂຍນເຂົ້າເອງ; 0 ບໍ່ເຄີຍ
+Long, slow sets at the left; short, quick ones at the right	ຊຸດຄື້ນຍາວ ຊ້າ ຢູ່ຊ້າຍ; ສັ້ນ ໄວ ຢູ່ຂວາ
+SURF DROP <thing|cue> [x%], SURF CLEAR, SURF BEACH or SURF THINGS	SURF DROP <ສິ່ງ|cue> [x%], SURF CLEAR, SURF BEACH ຫຼື SURF THINGS
+TARGET VERB: expected start|stop|pause|resume|load|arm|disarm|surf	TARGET VERB: ຄາດວ່າເປັນ start|stop|pause|resume|load|arm|disarm|surf
+Every so many seconds it throws something in by itself: one of what has been thrown in before, or anything. 0: only when you throw	ທຸກໆຈຳນວນວິນາທີທີ່ກຳນົດ ມັນໂຍນບາງສິ່ງເຂົ້າເອງ: ອັນໜຶ່ງທີ່ເຄີຍໂຍນເຂົ້າມາກ່ອນ ຫຼື ອັນໃດກໍໄດ້. 0: ສະເພາະເມື່ອເຈົ້າໂຍນ
+LIST	ລາຍການ
+PLACE	ວາງ
+NEW BEACH	ຫາດໃໝ່

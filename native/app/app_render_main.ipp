@@ -5898,6 +5898,87 @@
         ry = drY + kInspectorSectionGap;
       }
 
+      // A SURF (core/surf.hpp): its numbers, NEW BEACH and CLEAR, and THROW IN --
+      // the beach things, and this playlist's pictures, videos and words.
+      // Buttons run the SURF verb, as Companion would (RunExtraDeskCommand).
+      if (selectedCue->kind == CueKind::Pattern &&
+          normalizePatternTypeId(selectedCue->path) == "surf") {
+        // Shares the Moire section's open flag: a cue is only ever one of them.
+        auto suSection = beginInspectorSection(ry, "SURF", cueSectionMoireOpen_,
+          QuickAction::CueSectionMoireToggle, "Collapse/expand the surf's controls");
+        int suY = suSection.bodyStartY;
+        if (cueSectionMoireOpen_) {
+          const deckboy::surf::Settings& su = selectedCue->surf;
+          for (const auto& row : deckboy::params::paramRowsForCue(*selectedCue)) {
+            double value = 0.0;
+            readNumericParam(*selectedCue, row.id, value);
+            char text[24];
+            if (row.id == NumericParam::SurfSky)
+              std::snprintf(text, sizeof(text), "%s", su.sky == 1 ? "sunset" : su.sky == 2 ? "night" : "day");
+            else if (row.id == NumericParam::SurfThrowEvery)
+              std::snprintf(text, sizeof(text), value <= 0.0 ? "off" : "%.0f s", value);
+            else std::snprintf(text, sizeof(text), "%.0f%%", value);
+            suY += inspDrawQuickRow(ix, suY, row.key, QuickAction::NumericParamDec, text,
+              QuickAction::NumericParamInc, QuickAction::ToggleLoop, false, false,
+              row.tip, true, QuickAction::EditNumericParam, static_cast<int>(row.id));
+            suY += kInspectorRowStep;
+          }
+          extraDeskCommands_.clear();
+          // Lined up with the rows above: their label's left edge to their ~'s right edge.
+          const int x0 = ix.ctrl.x + ix.inset;
+          const int width = ix.ctrlW - ix.inset * 2;
+          const int rowH = std::max(uiScaled(28), textLineHeight(fontSmall_) + uiScaled(8));
+          const int gap = uiScaled(4);
+          // A row of buttons, each running one SURF command.
+          auto buttons = [&](const std::vector<std::pair<std::string, std::string>>& row, const std::string& tip) {
+            const int n = static_cast<int>(row.size());
+            const int w = (width - gap * (n - 1)) / std::max(1, n);
+            for (int k = 0; k < n; ++k) {
+              SDL_Rect btn {x0 + k * (w + gap), suY, w, rowH};
+              drawUIPanel(btn, paletteToggleFill(false), pal.deep, pal.mid);
+              drawCenteredTextSafe(controlRenderer_, fontSmall_, btn, row[static_cast<std::size_t>(k)].first,
+                                   paletteToggleInk(false));
+              QuickButton qb {btn, QuickAction::RunExtraDeskCommand, tip};
+              qb.param = static_cast<int>(extraDeskCommands_.size());
+              quickButtons_.push_back(qb);
+              extraDeskCommands_.push_back(row[static_cast<std::size_t>(k)].second);
+            }
+            suY += rowH + gap;
+          };
+          buttons({{"NEW BEACH", "SURF BEACH"}, {"CLEAR", "SURF CLEAR"}},
+                  "NEW BEACH: another beach, land and sky. CLEAR: everything out of the water");
+          const SDL_Rect head {x0, suY, width, textLineHeight(fontSmall_)};
+          drawTextSafe(controlRenderer_, fontSmall_, head,
+                       surfOnAirCount() ? "THROW IN" : "THROW IN (once it is on air)", pal.fgSoft);
+          suY += textLineHeight(fontSmall_) + gap;
+          const std::string thingTip = "Throw this in. Or drag a cue from the playlist onto the monitor";
+          static const char* const kThingRows[2][5] = {{"duck", "ball", "chicken", "toaster", "melon"},
+                                                       {"cone", "bottle", "board", "critter", "surprise"}};
+          for (const auto& thingRow : kThingRows) {
+            std::vector<std::pair<std::string, std::string>> row;
+            for (const char* name : thingRow) row.emplace_back(name, std::string("SURF DROP ") + name);
+            buttons(row, thingTip);
+          }
+          // This playlist's cues that can go in, two to a row, up to eight.
+          std::vector<std::pair<std::string, std::string>> cueRow;
+          int shown = 0;
+          const Deck& here = focusedDeck();
+          for (int i = 0; i < static_cast<int>(here.cues.size()) && shown < 8; ++i) {
+            const Cue& c = here.cues[static_cast<std::size_t>(i)];
+            if (!surfCanThrow(c)) continue;
+            // A text cue by its words (what will float), anything else by its name.
+            std::string what = c.kind == CueKind::Text ? c.textBody.substr(0, c.textBody.find('\n')) : c.name;
+            if (trim(what).empty()) what = c.name;
+            cueRow.emplace_back(std::to_string(i + 1) + " " + what, "SURF DROP " + std::to_string(i + 1));
+            ++shown;
+            if (cueRow.size() == 2) { buttons(cueRow, "Throw this cue in: a picture, a video's first frame, or its words"); cueRow.clear(); }
+          }
+          if (!cueRow.empty()) buttons(cueRow, "Throw this cue in: a picture, a video's first frame, or its words");
+        }
+        finishInspectorSection(suSection, suY);
+        ry = suY + kInspectorSectionGap;
+      }
+
       // A PRIVATE EXTRA'S OWN CONTROLS (core/private_extras.hpp): its buttons,
       // grouped as it groups them, each running one of its commands.
       if (selectedCue && selectedCue->kind == CueKind::Pattern) {

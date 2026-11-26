@@ -5114,3 +5114,36 @@ Circuit trip	Kora dora
 Night vision	Nirmira
 Rain on glass	Nira lan kara lumo
 Melting rainbow	Vapato alaluma
+Sky	Lumkaea
+sky	lumkaea
+Surf	Ransea
+Wind	Vamirtira
+wind	vamirtira
+Period	Novtoka
+period	novtoka
+THROW IN	ZARTIRI DORA
+Throws in	Zartiri dora
+throws in	zartiri dora
+Throw into Surf	Zartiri dora Ransea
+no Surf is on air	va Ransea kae luma
+{1} into the surf	{1} dora ransea
+Day, sunset or night	Lumtok, ranlumtok, nirtok
+How big the sets are	Tal taro seapataku
+0 day, 1 sunset, 2 night	0 lumtok, 1 ranlumtok, 2 nirtok
+its file cannot be found	va pel miri so graka
+THROW IN (once it is on air)	ZARTIRI DORA (ni kae luma)
+its words could not be drawn	va pel grai so holaku
+Surf (a sea to throw things into)	Ransea (sea go zartiri karaku dora)
+Pushes what floats toward the beach	Tiriseti karaku ni sea go rankaea
+a Surf cannot be thrown into a Surf	Ransea va pel zartirto dora Ransea
+0-100%: long slow sets to short quick ones	0-100%: tamo vazaro seapataku go kiso zaro
+0-100%: pushes what floats toward the beach	0-100%: tiriseti karaku ni sea go rankaea
+only a picture, a video or a text cue can be thrown in	solo Veka, VEKA, hola vekakisa pel zartirto dora
+seconds between things it throws in by itself; 0 never	kiskistokku kor karaku so zartiri dora; 0 vatok
+Long, slow sets at the left; short, quick ones at the right	Tamo vazaro seapataku en dopa ran; kiso zaro en dopa nov
+SURF DROP <thing|cue> [x%], SURF CLEAR, SURF BEACH or SURF THINGS	SURF DROP <kara|veka> [x%], SURF CLEAR, SURF BEACH, SURF THINGS
+TARGET VERB: expected start|stop|pause|resume|load|arm|disarm|surf	TARGET VERB: peni start|stop|pause|resume|load|arm|disarm|surf
+Every so many seconds it throws something in by itself: one of what has been thrown in before, or anything. 0: only when you throw	Ala tal kiskistokku zartiri kara dora so: una kara zartirto muna, ala kara. 0: solo kae tu zartiri
+LIST	RETA
+PLACE	LANI
+NEW BEACH	NOVO RANKAEA

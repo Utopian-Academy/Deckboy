@@ -229,6 +229,11 @@
               }
               endPatchScrub();
               endMotionZoneDrag();
+              // A cue row let go over the monitor goes into the Surf on air.
+              if (drag_.active && drag_.moving && drag_.cueIndex >= 0) {
+                surfDropRowOnMonitor(drag_.deckIndex, drag_.cueIndex, static_cast<int>(event.button.x),
+                                     static_cast<int>(event.button.y));
+              }
               drag_.active = false;
               drag_.cueIndex = -1;
               masterFaderDragActive_ = false;

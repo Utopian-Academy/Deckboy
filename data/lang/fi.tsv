@@ -5101,3 +5101,36 @@ Circuit trip	Piiritrippi
 Night vision	Yönäkö
 Rain on glass	Sade lasilla
 Melting rainbow	Sulava sateenkaari
+Sky	Taivas
+sky	taivas
+Surf	Tyrsky
+Wind	Tuuli
+wind	tuuli
+Period	Jakso
+period	jakso
+THROW IN	HEITÄ
+Throws in	Heittää
+throws in	heittää
+Throw into Surf	Heitä Tyrskyyn
+no Surf is on air	mikään Tyrsky ei ole lähetyksessä
+{1} into the surf	{1} tyrskyyn
+Day, sunset or night	Päivä, auringonlasku tai yö
+How big the sets are	Kuinka suuria aaltosarjat ovat
+0 day, 1 sunset, 2 night	0 päivä, 1 auringonlasku, 2 yö
+its file cannot be found	sen tiedostoa ei löydy
+THROW IN (once it is on air)	HEITÄ (kun se on lähetyksessä)
+its words could not be drawn	sen sanoja ei voitu piirtää
+Surf (a sea to throw things into)	Tyrsky (meri, johon heitetään asioita)
+Pushes what floats toward the beach	Työntää kelluvat kohti rantaa
+a Surf cannot be thrown into a Surf	Tyrskyä ei voi heittää Tyrskyyn
+0-100%: long slow sets to short quick ones	0-100%: pitkistä hitaista sarjoista lyhyisiin nopeisiin
+0-100%: pushes what floats toward the beach	0-100%: työntää kelluvat kohti rantaa
+only a picture, a video or a text cue can be thrown in	vain kuvan, videon tai teksticuen voi heittää
+seconds between things it throws in by itself; 0 never	sekunteja itsestään heitettyjen välillä; 0 ei koskaan
+Long, slow sets at the left; short, quick ones at the right	Pitkät, hitaat sarjat vasemmalla; lyhyet, nopeat oikealla
+SURF DROP <thing|cue> [x%], SURF CLEAR, SURF BEACH or SURF THINGS	SURF DROP <asia|cue> [x%], SURF CLEAR, SURF BEACH tai SURF THINGS
+TARGET VERB: expected start|stop|pause|resume|load|arm|disarm|surf	TARGET VERB: odotettiin start|stop|pause|resume|load|arm|disarm|surf
+Every so many seconds it throws something in by itself: one of what has been thrown in before, or anything. 0: only when you throw	Muutaman sekunnin välein se heittää jotain itsestään: jotain aiemmin heitettyä tai mitä tahansa. 0: vain kun sinä heität
+LIST	LISTA
+PLACE	SIJOITA
+NEW BEACH	UUSI RANTA

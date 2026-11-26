@@ -1154,6 +1154,9 @@ void writeProjectRecords(std::ostream& output, const Project& project) {
         << '\t' << (cue.flipVertical ? 1 : 0)
         // vs + 224: oscillators on any number (Cue::paramLfo)
         << '\t' << escapeField(serializeParamLfoMap(cue.paramLfo))
+        // vs + 225: a Surf's settings (core/surf.hpp); empty on every other cue
+        << '\t' << escapeField(cue.kind == CueKind::Pattern && cue.path.find("surf") != std::string::npos
+                                   ? deckboy::surf::serialize(cue.surf) : std::string())
         << '\n';
   };
   for (size_t deckIndex = 0; deckIndex < project.decks.size(); ++deckIndex) {
@@ -3182,6 +3185,10 @@ Project loadProject(const fs::path& projectFile,
         // Absent before 0.99.430: no number moves by itself.
         if (fields.size() >= static_cast<std::size_t>(vs + 225)) {
           cue.paramLfo = parseParamLfoMap(safeString(fields, vs + 224));
+        }
+        // Absent before Surf (0.99.430).
+        if (fields.size() >= static_cast<std::size_t>(vs + 226)) {
+          cue.surf = deckboy::surf::parse(safeString(fields, vs + 225));
         }
       }
       // A MASTER CUE HAS NO PATH, and this gate would have dropped it on load

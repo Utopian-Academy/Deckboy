@@ -2946,7 +2946,7 @@
           // Moire fields went in, only two of five checks were bumped, and the
           // other three trimmed nothing but Moire -- passing without testing
           // the show they were named for.
-          constexpr int kAfterTrackerFields = 75;   // + direction, its copy, key, length, the voice and the sting (ten), the illusion (sixteen), flip H and V (two), the oscillators on any number (one)
+          constexpr int kAfterTrackerFields = 76;   // + direction, its copy, key, length, the voice and the sting (ten), the illusion (sixteen), flip H and V (two), the oscillators on any number (one), a Surf (one)
           // A show from immediately before the fixture patch (one tail field
           // fewer) keeps its mic channel and has no fixture levels.
           {
@@ -3093,6 +3093,30 @@
         } else {
           expect(false, "a preset keeps its playlist and its output");
         }
+        // A SURF keeps its sea and what it throws in by itself (core/surf.hpp,
+        // the last field of the cue record).
+        {
+          Project surfShow;
+          surfShow.decks.emplace_back();
+          Cue sc;
+          sc.kind = CueKind::Pattern;
+          sc.path = "pattern://surf";
+          sc.surf.waveHeight = 0.9;
+          sc.surf.period = 0.2;
+          sc.surf.wind = 0.75;
+          sc.surf.sky = 2;
+          sc.surf.seed = 123456789u;
+          sc.surf.throwEvery = 7;
+          sc.surf.throwList = {"duck", "cue:cue-abc"};
+          surfShow.decks[0].cues.push_back(sc);
+          const fs::path surfPath = smokeDir / "deckboy-smoke-surf.deckboy";
+          const bool saved = saveProject(surfPath, surfShow);
+          const Project surfBack = loadProject(surfPath);
+          const bool same = saved && !surfBack.decks.empty() && surfBack.decks[0].cues.size() == 1 &&
+                            deckboy::surf::serialize(surfBack.decks[0].cues[0].surf) == deckboy::surf::serialize(sc.surf);
+          expect(same, "a Surf keeps its waves, wind, sky, beach and what it throws in");
+          fs::remove(surfPath);
+        }
         // A CUE LIST MUST NOT GROW A CONTINUE BY ITSELF. Simulated by taking
         // the file just written and cutting every field from preWaitSeconds
         // onward off each cue line, which is precisely what an older Deckboy
@@ -3106,7 +3130,7 @@
         // the spine and trimming 3 stopped reaching preWaitSeconds -- the test
         // failed loudly, which is the only reason this comment exists rather
         // than a silent hole in the backward-compatibility check.
-        constexpr int kSpineTailFields = 168;  // preWait, postWait, continue, masters, (flip H/V, then the oscillators on any number, added the last three)
+        constexpr int kSpineTailFields = 169;  // preWait, postWait, continue, masters, (flip H/V, the oscillators on any number, then a Surf, added the last four)
                                               // target id/deck/verb, armed, panel w/h,
                                               // fade secs/to/what/curve/stop,
                                               // fireside view, overlay lower-third

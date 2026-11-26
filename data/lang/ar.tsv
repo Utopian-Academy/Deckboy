@@ -5116,3 +5116,36 @@ Circuit trip	رحلة الدائرة الكهربائية
 Night vision	منظار ليلي
 Rain on glass	مطر على زجاج
 Melting rainbow	قوس قزح ذائب
+Sky	سماء
+sky	سماء
+Surf	موج
+Wind	رياح
+wind	رياح
+Period	دورة
+period	دورة
+THROW IN	قذف
+Throws in	يقذف
+throws in	يقذف
+Throw into Surf	قذف في الموج
+no Surf is on air	لا يوجد موج على الهواء
+{1} into the surf	{1} في الموج
+Day, sunset or night	نهار أو غروب أو ليل
+How big the sets are	حجم مجموعات الأمواج
+0 day, 1 sunset, 2 night	0 نهار، 1 غروب، 2 ليل
+its file cannot be found	تعذر العثور على ملفه
+THROW IN (once it is on air)	قذف (بعد أن يصبح على الهواء)
+its words could not be drawn	تعذر رسم كلماته
+Surf (a sea to throw things into)	موج (بحر تُقذف فيه الأشياء)
+Pushes what floats toward the beach	يدفع ما يطفو نحو الشاطئ
+a Surf cannot be thrown into a Surf	لا يمكن قذف موج في موج
+0-100%: long slow sets to short quick ones	0-100%: من مجموعات طويلة بطيئة إلى قصيرة سريعة
+0-100%: pushes what floats toward the beach	0-100%: يدفع ما يطفو نحو الشاطئ
+only a picture, a video or a text cue can be thrown in	يمكن قذف كيو صورة أو فيديو أو نص فقط
+seconds between things it throws in by itself; 0 never	ثوانٍ بين ما يقذفه تلقائيًا؛ 0 أبدًا
+Long, slow sets at the left; short, quick ones at the right	مجموعات طويلة وبطيئة يساراً؛ قصيرة وسريعة يميناً
+SURF DROP <thing|cue> [x%], SURF CLEAR, SURF BEACH or SURF THINGS	SURF DROP <thing|cue> [x%]، SURF CLEAR، SURF BEACH أو SURF THINGS
+TARGET VERB: expected start|stop|pause|resume|load|arm|disarm|surf	TARGET VERB: يُتوقع start|stop|pause|resume|load|arm|disarm|surf
+Every so many seconds it throws something in by itself: one of what has been thrown in before, or anything. 0: only when you throw	كل بضع ثوانٍ يقذف شيئًا تلقائيًا: أحد ما قُذف من قبل، أو أي شيء. 0: فقط عندما تقذف أنت
+LIST	قائمة
+PLACE	ضع
+NEW BEACH	شاطئ جديد

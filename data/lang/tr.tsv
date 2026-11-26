@@ -5093,3 +5093,36 @@ Circuit trip	Devre yolculuğu
 Night vision	Gece görüşü
 Rain on glass	Camda yağmur
 Melting rainbow	Eriyen gökkuşağı
+Sky	Gökyüzü
+sky	gökyüzü
+Surf	Dalga
+Wind	Rüzgâr
+wind	rüzgâr
+Period	Periyot
+period	periyot
+THROW IN	İÇERİ AT
+Throws in	Atar
+throws in	atar
+Throw into Surf	Dalgaya at
+no Surf is on air	yayında Dalga yok
+{1} into the surf	{1} dalgalara
+Day, sunset or night	Gündüz, gün batımı veya gece
+How big the sets are	Dalga setlerinin büyüklüğü
+0 day, 1 sunset, 2 night	0 gündüz, 1 gün batımı, 2 gece
+its file cannot be found	dosyası bulunamıyor
+THROW IN (once it is on air)	İÇERİ AT (yayına girince)
+its words could not be drawn	sözcükleri çizilemedi
+Surf (a sea to throw things into)	Dalga (içine bir şeyler atılan bir deniz)
+Pushes what floats toward the beach	Yüzeni kıyıya doğru iter
+a Surf cannot be thrown into a Surf	Dalga, Dalgaya atılamaz
+0-100%: long slow sets to short quick ones	0-100%: uzun, yavaş setlerden kısa, hızlı setlere
+0-100%: pushes what floats toward the beach	0-100%: yüzeni kıyıya doğru iter
+only a picture, a video or a text cue can be thrown in	yalnızca resim, video veya metin cue'su atılabilir
+seconds between things it throws in by itself; 0 never	kendiliğinden attıkları arasındaki saniye; 0 hiç
+Long, slow sets at the left; short, quick ones at the right	Solda uzun, yavaş setler; sağda kısa, hızlı olanlar
+SURF DROP <thing|cue> [x%], SURF CLEAR, SURF BEACH or SURF THINGS	SURF DROP <şey|cue> [x%], SURF CLEAR, SURF BEACH veya SURF THINGS
+TARGET VERB: expected start|stop|pause|resume|load|arm|disarm|surf	TARGET VERB: beklenen start|stop|pause|resume|load|arm|disarm|surf
+Every so many seconds it throws something in by itself: one of what has been thrown in before, or anything. 0: only when you throw	Birkaç saniyede bir kendiliğinden bir şey atar: daha önce atılanlardan biri ya da herhangi bir şey. 0: yalnızca sen attığında
+LIST	LİSTE
+PLACE	YERLEŞTİR
+NEW BEACH	YENİ KIYI

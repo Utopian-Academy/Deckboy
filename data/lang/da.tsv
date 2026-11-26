@@ -5044,3 +5044,36 @@ Circuit trip	Kredsløbstrip
 Night vision	Nattesyn
 Rain on glass	Regn på glas
 Melting rainbow	Smeltende regnbue
+Sky	Himmel
+sky	himmel
+Surf	Brænding
+Wind	Vind
+wind	vind
+Period	Periode
+period	periode
+THROW IN	KAST IND
+Throws in	Kaster ind
+throws in	kaster ind
+Throw into Surf	Kast ind i Brændingen
+no Surf is on air	ingen Brænding er på luften
+{1} into the surf	{1} ind i brændingen
+Day, sunset or night	Dag, solnedgang eller nat
+How big the sets are	Hvor store sættene er
+0 day, 1 sunset, 2 night	0 dag, 1 solnedgang, 2 nat
+its file cannot be found	dens fil kan ikke findes
+THROW IN (once it is on air)	KAST IND (når den er på luften)
+its words could not be drawn	dens ord kunne ikke tegnes
+Surf (a sea to throw things into)	Brænding (et hav at kaste ting i)
+Pushes what floats toward the beach	Skubber det, der flyder, mod stranden
+a Surf cannot be thrown into a Surf	en Brænding kan ikke kastes ind i en Brænding
+0-100%: long slow sets to short quick ones	0-100%: fra lange, langsomme sæt til korte, hurtige
+0-100%: pushes what floats toward the beach	0-100%: skubber det, der flyder, mod stranden
+only a picture, a video or a text cue can be thrown in	kun et billede, en video eller en tekst-cue kan kastes ind
+seconds between things it throws in by itself; 0 never	sekunder mellem ting, den selv kaster ind; 0 aldrig
+Long, slow sets at the left; short, quick ones at the right	Lange, langsomme sæt til venstre; korte, hurtige til højre
+SURF DROP <thing|cue> [x%], SURF CLEAR, SURF BEACH or SURF THINGS	SURF DROP <thing|cue> [x%], SURF CLEAR, SURF BEACH eller SURF THINGS
+TARGET VERB: expected start|stop|pause|resume|load|arm|disarm|surf	TARGET VERB: forventet start|stop|pause|resume|load|arm|disarm|surf
+Every so many seconds it throws something in by itself: one of what has been thrown in before, or anything. 0: only when you throw	Med så og så mange sekunders mellemrum kaster den selv noget ind: noget, der er kastet ind før, eller hvad som helst. 0: kun når du kaster
+LIST	LISTE
+PLACE	PLACÉR
+NEW BEACH	NY STRAND

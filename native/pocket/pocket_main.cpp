@@ -1123,6 +1123,7 @@ class Pocket {
           if (fingers_.empty()) gesture_ = false;
           else beginGesture();   // one finger lifted: carry on from here with the rest
         }
+        if (trayDrag_ >= 0) finishTrayDrag();
         drag_ = Drag::None;
         activeSlider_ = -1;
         holdRow_ = -1;
@@ -1194,8 +1195,12 @@ class Pocket {
     if (picHoldSince_ && SDL_GetTicks() - picHoldSince_ > 500) {
       picHoldSince_ = 0;
       if (active_ >= 0 && sheet_ < 0) {
-        openSheet(active_);
-        page_ = Page::Place;
+        if (liveIsSurf()) {
+          surfTray_ = true;   // THROW IN: the list gives way to what can go in the water
+        } else {
+          openSheet(active_);
+          page_ = Page::Place;
+        }
         buzz("lock");
       }
     }
@@ -2822,7 +2827,7 @@ class Pocket {
   std::vector<std::pair<std::string, std::string>> synthChoices() const {
     std::vector<std::pair<std::string, std::string>> out = {
         {"swirl", "Swirl"}, {"lumia", "Lumia"}, {"illusion", "Illusion"}, {"fireside", "Fireside"},
-        {"portal", "Portal"}, {"moire-field", "Moire"}, {"video-synth", "Video Synth"}};
+        {"portal", "Portal"}, {"moire-field", "Moire"}, {"surf", "Surf"}, {"video-synth", "Video Synth"}};
     if (terrariumUnlocked_) out.emplace_back("terrarium", "Terrarium");
     for (const auto& g : deckboy::extras::generators()) {
       if (g.id == "lava-lamp" && !lavaFound_) continue;
@@ -3668,6 +3673,8 @@ class Pocket {
     cue.pauseOnLastFrame = true;
     cue.stillDurationSeconds = 0.0;
     cue.hasAudio = cue.audioEnabled = (std::string(type) == "pocket-test");
+    // A SURF starts on a beach of its own.
+    if (std::string(type) == "surf") cue.surf.seed = static_cast<std::uint32_t>(SDL_GetTicksNS() * 2654435761ull) | 1u;
     cue.id = "pocket-" + std::to_string(++nextId_);
     applyDefaults(cue);   // what new cues start with (MENU > SHOW)
     const int at = std::min(selected_ + 1, static_cast<int>(cues_.size()));
@@ -3713,6 +3720,144 @@ class Pocket {
     cueEdited(active_, true);
     notice_ = (in ? "IN " : "OUT ") + timecode(at, c.fps);
     noticeUntil_ = SDL_GetTicks() + 2000;
+  }
+
+  // ── SURF: THROWING THINGS IN (core/surf.hpp) ────────────────────────────
+  //
+  // Holding the picture while a Surf is on air puts THROW IN where the list
+  // was: the beach things, then this list's pictures, videos and words. A chip
+  // dragged onto the picture goes in where it is let go; a tap throws it in
+  // anywhere. Same queue as the desk's, so the engine here takes it alike.
+  bool liveIsSurf() const {
+    return active_ >= 0 && active_ < static_cast<int>(cues_.size()) &&
+           cues_[static_cast<std::size_t>(active_)].kind == CueKind::Pattern &&
+           sourceTypeOf(cues_[static_cast<std::size_t>(active_)]) == "surf";
+  }
+
+  static bool surfCanThrow(const Cue& c) {
+    return c.kind == CueKind::Image || c.kind == CueKind::Video || c.kind == CueKind::Text;
+  }
+
+  void drawSurfTray(const SDL_FRect& lcd) {
+    SDL_Renderer* r = renderer_;
+    const float u = unit_;
+    trayChips_.clear();
+    text_.draw(mono_, "THROW IN: drag onto the water", kDark, {lcd.x + 1.5f * u, lcd.y + 0.5f * u, lcd.w - 3 * u, 4.5f * u});
+    const float gap = 0.8f * u, chipH = 5.2f * u;
+    float y = lcd.y + 5.5f * u;
+    static const char* const kThings[] = {"duck", "ball", "chicken", "toaster", "melon",
+                                          "cone", "bottle", "board", "critter", "surprise"};
+    const int cols = 4;   // five across cut "surprise" short
+    const float cw = (lcd.w - 2 * u - gap * (cols - 1)) / cols;
+    for (int i = 0; i < 10; ++i) {
+      const SDL_FRect b {lcd.x + u + (i % cols) * (cw + gap), y + (i / cols) * (chipH + gap), cw, chipH};
+      trayChips_.push_back({kThings[i], kThings[i], b});
+    }
+    y += 3 * (chipH + gap);
+    const float half = (lcd.w - 2 * u - gap) / 2;
+    int n = 0;
+    for (const Cue& c : cues_) {
+      if (!surfCanThrow(c)) continue;
+      if (y + (n / 2 + 1) * (chipH + gap) > lcd.y + lcd.h - chipH - gap) break;   // room for the buttons
+      std::string label = c.kind == CueKind::Text ? c.textBody.substr(0, c.textBody.find('\n')) : c.name;
+      if (label.find_first_not_of(' ') == std::string::npos) label = c.name;
+      trayChips_.push_back({label, "cue:" + c.id, {lcd.x + u + (n % 2) * (half + gap), y + (n / 2) * (chipH + gap), half, chipH}});
+      ++n;
+    }
+    for (std::size_t k = 0; k < trayChips_.size(); ++k) {
+      if (static_cast<int>(k) == trayDrag_ && trayMoved_) continue;   // it is under the finger
+      fillRound(r, kDeep, trayChips_[k].rect, 0.8f * u);
+      text_.draw(pixelSmall_, trayChips_[k].label, kLight, trayChips_[k].rect, true);
+    }
+    // NEW BEACH gets two shares of the row, the other three one each.
+    const float by = lcd.y + lcd.h - chipH - 0.5f * u, bw = (lcd.w - 2 * u - gap * 3) / 5;
+    button({lcd.x + u, by, 2 * bw, chipH}, "NEW BEACH", [this] { surfNewBeach(); });
+    button({lcd.x + u + 2 * bw + gap, by, bw, chipH}, "CLEAR", [this] {
+      deckboy::surf::pushDrop({std::string(), "#clear", -1.0f}, surfNow());
+    });
+    button({lcd.x + u + 3 * bw + 2 * gap, by, bw, chipH}, "PLACE", [this] {
+      surfTray_ = false;
+      if (active_ >= 0) { openSheet(active_); page_ = Page::Place; }
+    });
+    button({lcd.x + u + 4 * bw + 3 * gap, by, bw, chipH}, "LIST", [this] { surfTray_ = false; });
+    // the chip in hand, over the picture
+    if (trayDrag_ >= 0 && trayMoved_ && trayDrag_ < static_cast<int>(trayChips_.size())) {
+      const SDL_FRect& c0 = trayChips_[static_cast<std::size_t>(trayDrag_)].rect;
+      const SDL_FRect held {trayX_ - c0.w / 2, trayY_ - c0.h / 2, c0.w, c0.h};
+      fillRound(r, inside(picRect_, trayX_, trayY_) ? kButtonLit : kDeep, held, 0.8f * u);
+      text_.draw(pixelSmall_, trayChips_[static_cast<std::size_t>(trayDrag_)].label, kLight, held, true);
+    }
+  }
+
+  static double surfNow() { return static_cast<double>(SDL_GetTicksNS()) / 1e9; }
+
+  void finishTrayDrag() {
+    const int k = trayDrag_;
+    trayDrag_ = -1;
+    if (k < 0 || k >= static_cast<int>(trayChips_.size())) return;
+    const TrayChip chip = trayChips_[static_cast<std::size_t>(k)];
+    if (trayMoved_ && inside(picRect_, trayX_, trayY_)) {
+      const SDL_FRect fit = fitProgram(picRect_);
+      surfThrow(chip.what, std::clamp((trayX_ - fit.x) / std::max(1.0f, fit.w), 0.0f, 1.0f), chip.label);
+    } else if (!trayMoved_) {
+      surfThrow(chip.what, -1.0f, chip.label);
+    }
+  }
+
+  void surfNewBeach() {
+    if (!liveIsSurf()) return;
+    cues_[static_cast<std::size_t>(active_)].surf.seed = static_cast<std::uint32_t>(SDL_GetTicksNS() * 2654435761ull) | 1u;
+    cueEdited(active_, false);
+  }
+
+  // A thing by name, or one of this list's cues ("cue:<id>"): its picture made once.
+  void surfThrow(const std::string& what, float x01, const std::string& label) {
+    notice_ = "Into the surf: " + label;
+    noticeUntil_ = SDL_GetTicks() + 1500;
+    buzz("tap");
+    if (what.rfind("cue:", 0) != 0 || deckboy::surf::hasPicture(what)) {
+      deckboy::surf::pushDrop({std::string(), what, x01}, surfNow());
+      return;
+    }
+    const std::string id = what.substr(4);
+    const auto it = std::find_if(cues_.begin(), cues_.end(), [&](const Cue& c) { return c.id == id; });
+    if (it == cues_.end()) return;
+    if (it->kind == CueKind::Text) {
+      std::string words = it->textBody.substr(0, it->textBody.find('\n'));
+      if (words.find_first_not_of(' ') == std::string::npos) words = it->name;
+      SDL_Surface* t = deckboy::render::shaping::renderText(mono_, words.c_str(), 0, SDL_Color {255, 255, 255, 255});
+      SDL_Surface* rgba = t ? SDL_ConvertSurface(t, SDL_PIXELFORMAT_RGBA32) : nullptr;
+      if (t) SDL_DestroySurface(t);
+      if (!rgba) return;
+      std::vector<std::uint8_t> px(static_cast<std::size_t>(rgba->w) * rgba->h * 4);
+      for (int y = 0; y < rgba->h; ++y) {
+        std::memcpy(px.data() + static_cast<std::size_t>(y) * rgba->w * 4,
+                    static_cast<const std::uint8_t*>(rgba->pixels) + static_cast<std::size_t>(y) * rgba->pitch,
+                    static_cast<std::size_t>(rgba->w) * 4);
+      }
+      auto pic = deckboy::surf::shrinkPicture(rgba->w, rgba->h, px);
+      SDL_DestroySurface(rgba);
+      if (!pic) return;
+      deckboy::surf::registerPicture(what, pic);
+      deckboy::surf::pushDrop({std::string(), what, x01}, surfNow());
+      return;
+    }
+#if defined(DECKBOY_INPROC_DECODE)
+    const std::string path = it->path;
+    const double asked = surfNow();
+    std::thread([what, path, x01, asked]() {
+      int w = 0, h = 0;
+      std::vector<std::uint8_t> rgba;
+      if (!deckboy::libav::decodeImageRgba(path, w, h, rgba)) {
+        SDL_Log("pocket: surf could not read a picture from %s", path.c_str());
+        return;
+      }
+      auto pic = deckboy::surf::shrinkPicture(w, h, rgba);
+      if (!pic) return;
+      deckboy::surf::registerPicture(what, pic);
+      deckboy::surf::pushDrop({std::string(), what, x01}, asked);
+    }).detach();
+#endif
   }
 
   // After any edit: the cue on air takes it now (trim without a restart).
@@ -3782,6 +3927,11 @@ class Pocket {
     SDL_SetRenderClipRect(r, nullptr);
     if (splashing()) {
       drawSplashList(lcd);
+      return;
+    }
+    if (surfTray_ && !liveIsSurf()) surfTray_ = false;   // the Surf went off air
+    if (surfTray_) {
+      drawSurfTray(lcd);
       return;
     }
     if (cues_.empty()) {
@@ -4665,6 +4815,39 @@ class Pocket {
                (remotePass_.size() >= 8 ? "set" : "none") + " address=" + remoteAddressText() + "\n";
       }
       return err("REMOTE STATUS | NETWORK ON|OFF | PASS <passphrase>");
+    }
+    // TOUCH DOWN|MOVE|UP x y: one finger at window pixels, delivered as SDL's own
+    // finger events -- so a check can hold, drag and let go on the desktop build
+    // exactly as a phone does (adb's input goes through Android instead).
+    if (verb == "TOUCH") {
+      std::istringstream args(rest);
+      std::string what;
+      float x = -1, y = -1;
+      args >> what >> x >> y;
+      for (char& ch : what) ch = static_cast<char>(std::toupper(static_cast<unsigned char>(ch)));
+      if ((what != "DOWN" && what != "MOVE" && what != "UP") || x < 0 || y < 0 || pxW_ <= 0 || pxH_ <= 0)
+        return err("TOUCH DOWN|MOVE|UP <x> <y> (window pixels)");
+      SDL_Event e {};
+      e.type = what == "DOWN" ? SDL_EVENT_FINGER_DOWN : what == "MOVE" ? SDL_EVENT_FINGER_MOTION : SDL_EVENT_FINGER_UP;
+      e.tfinger.fingerID = 4242;
+      e.tfinger.x = x / pxW_;
+      e.tfinger.y = y / pxH_;
+      e.tfinger.pressure = what == "UP" ? 0.0f : 1.0f;
+      SDL_PushEvent(&e);
+      return ok();
+    }
+    // TRAY: where the picture is and, while Surf's THROW IN is open, each chip
+    // (label@x,y,w,h), for the check that drags one onto the water.
+    if (verb == "TRAY") {
+      std::ostringstream out;
+      out << "OK TRAY open=" << (surfTray_ ? 1 : 0) << " pic=" << static_cast<int>(picRect_.x) << ','
+          << static_cast<int>(picRect_.y) << ',' << static_cast<int>(picRect_.w) << ',' << static_cast<int>(picRect_.h);
+      for (const TrayChip& c : trayChips_) {
+        out << " |" << c.what << '@' << static_cast<int>(c.rect.x) << ',' << static_cast<int>(c.rect.y) << ','
+            << static_cast<int>(c.rect.w) << ',' << static_cast<int>(c.rect.h);
+      }
+      out << '\n';
+      return out.str();
     }
     if (verb == "SNAP") {    // the next frame as a BMP file, for checking the screen without touching it
       // A file name only, written in Pocket's own state folder: a path could
@@ -7547,6 +7730,18 @@ class Pocket {
       }
     }
     if (mapDown(x, y)) return;
+    // THROW IN: a chip is picked up (it goes in where it is let go over the picture).
+    if (surfTray_ && sheet_ < 0 && !menuOpen_) {
+      for (std::size_t k = 0; k < trayChips_.size(); ++k) {
+        if (!inside(trayChips_[k].rect, x, y)) continue;
+        trayDrag_ = static_cast<int>(k);
+        trayX_ = x;
+        trayY_ = y;
+        trayMoved_ = false;
+        buzz("tap");
+        return;
+      }
+    }
     // A slider's lower half grabs it. Touching does not change the value; only
     // dragging does (onMove), so a thumb landing on a row is harmless.
     for (std::size_t k = sliders_.size(); k-- > 0;) {
@@ -7609,6 +7804,12 @@ class Pocket {
   }
 
   void onMove(float x, float y) {
+    if (trayDrag_ >= 0) {
+      trayX_ = x;
+      trayY_ = y;
+      if (std::fabs(x - downX_) > 2 * unit_ || std::fabs(y - downY_) > 2 * unit_) trayMoved_ = true;
+      return;
+    }
     if (holdRow_ >= 0 && (std::fabs(x - downX_) > 2 * unit_ || std::fabs(y - downY_) > 2 * unit_)) holdRow_ = -1;
     if (swipeRow_ >= 0) {
       const float dx = x - downX_, dy = y - downY_;
@@ -9587,6 +9788,13 @@ class Pocket {
   float gestureScale0_ = 1, gestureScaleY0_ = 1, gestureOffX0_ = 0, gestureOffY0_ = 0, gestureRot0_ = 0;
   Uint64 lastPicTap_ = 0;
   Uint64 picHoldSince_ = 0;
+  // SURF's THROW IN tray (drawSurfTray): open, its chips this frame, the one in hand.
+  struct TrayChip { std::string label, what; SDL_FRect rect; };
+  bool surfTray_ = false;
+  std::vector<TrayChip> trayChips_;
+  int trayDrag_ = -1;
+  float trayX_ = 0.0f, trayY_ = 0.0f;
+  bool trayMoved_ = false;
   int renameIndex_ = -1;
   std::string renameText_;
   // playing the list

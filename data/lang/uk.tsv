@@ -5102,3 +5102,36 @@ Circuit trip	Трип по схемі
 Night vision	Нічне бачення
 Rain on glass	Дощ на склі
 Melting rainbow	Тануча веселка
+Sky	Небо
+sky	небо
+Surf	Прибій
+Wind	Вітер
+wind	вітер
+Period	Період
+period	період
+THROW IN	КИНУТИ
+Throws in	Кидає
+throws in	кидає
+Throw into Surf	Кинути в Прибій
+no Surf is on air	немає Прибою в ефірі
+{1} into the surf	{1} у прибій
+Day, sunset or night	День, захід сонця чи ніч
+How big the sets are	Розмір серій хвиль
+0 day, 1 sunset, 2 night	0 день, 1 захід сонця, 2 ніч
+its file cannot be found	його файл не знайдено
+THROW IN (once it is on air)	КИНУТИ (коли в ефірі)
+its words could not be drawn	не вдалося намалювати його слова
+Surf (a sea to throw things into)	Прибій (море, куди кидають речі)
+Pushes what floats toward the beach	Штовхає те, що пливе, до берега
+a Surf cannot be thrown into a Surf	Прибій не можна кинути в Прибій
+0-100%: long slow sets to short quick ones	0-100%: від довгих повільних серій до коротких швидких
+0-100%: pushes what floats toward the beach	0-100%: штовхає те, що пливе, до берега
+only a picture, a video or a text cue can be thrown in	кинути можна лише зображення, відео або текстове к’ю
+seconds between things it throws in by itself; 0 never	секунди між тим, що він кидає сам; 0 — ніколи
+Long, slow sets at the left; short, quick ones at the right	Ліворуч довгі повільні серії; праворуч короткі швидкі
+SURF DROP <thing|cue> [x%], SURF CLEAR, SURF BEACH or SURF THINGS	SURF DROP <річ|cue> [x%], SURF CLEAR, SURF BEACH або SURF THINGS
+TARGET VERB: expected start|stop|pause|resume|load|arm|disarm|surf	TARGET VERB: очікується start|stop|pause|resume|load|arm|disarm|surf
+Every so many seconds it throws something in by itself: one of what has been thrown in before, or anything. 0: only when you throw	Кожні кілька секунд він сам щось кидає: щось із кинутого раніше або будь-що. 0: лише коли кидаєш ти
+LIST	СПИСОК
+PLACE	РОЗМІСТИТИ
+NEW BEACH	НОВИЙ БЕРЕГ

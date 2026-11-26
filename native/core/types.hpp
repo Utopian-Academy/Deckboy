@@ -33,6 +33,7 @@
 #include "multiview_layout.hpp"
 #include "motion.hpp"
 #include "drawing.hpp"
+#include "surf.hpp"
 #include "slices.hpp"
 #include "core/sdl_compat.hpp"
 #include <map>
@@ -140,6 +141,8 @@ enum class CueTargetVerb {
   StopAll,
   PauseAll,
   ResumeAll,
+  // Throw the named cue into whatever Surf is on air (core/surf.hpp).
+  Surf,
 };
 
 inline bool cueTargetVerbIsAll(CueTargetVerb v) {
@@ -322,6 +325,7 @@ inline const char* cueTargetVerbToken(CueTargetVerb v) {
     case CueTargetVerb::StopAll:   return "stopall";
     case CueTargetVerb::PauseAll:  return "pauseall";
     case CueTargetVerb::ResumeAll: return "resumeall";
+    case CueTargetVerb::Surf:      return "surf";
     case CueTargetVerb::Start:  break;
   }
   return "start";
@@ -339,6 +343,7 @@ inline const char* cueTargetVerbLabel(CueTargetVerb v) {
     case CueTargetVerb::StopAll:   return "Stop all";
     case CueTargetVerb::PauseAll:  return "Pause all";
     case CueTargetVerb::ResumeAll: return "Resume all";
+    case CueTargetVerb::Surf:      return "Throw into Surf";
     case CueTargetVerb::Start:  break;
   }
   return "Start";
@@ -355,6 +360,7 @@ inline CueTargetVerb cueTargetVerbFromToken(const std::string& token) {
   if (token == "stopall")   return CueTargetVerb::StopAll;
   if (token == "pauseall")  return CueTargetVerb::PauseAll;
   if (token == "resumeall") return CueTargetVerb::ResumeAll;
+  if (token == "surf")      return CueTargetVerb::Surf;
   return CueTargetVerb::Start;
 }
 
@@ -2167,6 +2173,9 @@ struct Cue {
   LumiaSettings lumia;
   // An Illusion source's controls. Only meaningful on an "illusion" pattern cue.
   IllusionSettings illusion;
+  // A Surf source's controls and what it throws in by itself (core/surf.hpp).
+  // Only meaningful on a "surf" pattern cue.
+  deckboy::surf::Settings surf;
   // A SHADER cue's values (path "pattern://isf:<file>"), by input name.
   std::vector<IsfSetting> isf;
   // A text cue laid out as a lower third. Off on every other cue.

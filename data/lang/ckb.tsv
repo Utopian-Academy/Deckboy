@@ -5103,3 +5103,36 @@ Circuit trip	گەشتی بازنە
 Night vision	بینینی شەو
 Rain on glass	باران لەسەر شووشە
 Melting rainbow	کەوانەی ڕەنگینی تواوە
+Sky	ئاسمان
+sky	ئاسمان
+Surf	شەپۆل
+Wind	با
+wind	با
+Period	خول
+period	خول
+THROW IN	فڕێدان
+Throws in	فڕێدەدات
+throws in	فڕێدەدات
+Throw into Surf	فڕێدان بۆ ناو شەپۆل
+no Surf is on air	هیچ شەپۆلێک لە پەخش نییە
+{1} into the surf	{1} بۆ ناو شەپۆل
+Day, sunset or night	ڕۆژ، خۆرئاوا یان شەو
+How big the sets are	قەبارەی کۆمەڵە شەپۆلەکان
+0 day, 1 sunset, 2 night	0 ڕۆژ، 1 خۆرئاوا، 2 شەو
+its file cannot be found	فایلەکەی نادۆزرێتەوە
+THROW IN (once it is on air)	فڕێدان (کاتێک لە پەخش بوو)
+its words could not be drawn	وشەکانی نەکێشران
+Surf (a sea to throw things into)	شەپۆل (دەریایەک بۆ فڕێدانی شتەکان تێیدا)
+Pushes what floats toward the beach	ئەوەی سەر ئاو دەکەوێت بەرەو کەنار پاڵ دەنێت
+a Surf cannot be thrown into a Surf	شەپۆل ناتوانرێت فڕێبدرێتە ناو شەپۆل
+0-100%: long slow sets to short quick ones	0-100%: لە کۆمەڵەی درێژ و هێواشەوە بۆ کورت و خێرا
+0-100%: pushes what floats toward the beach	0-100%: ئەوەی سەر ئاو دەکەوێت بەرەو کەنار پاڵ دەنێت
+only a picture, a video or a text cue can be thrown in	تەنها وێنە، ڤیدیۆ یان cue ی دەق دەتوانرێت فڕێبدرێت
+seconds between things it throws in by itself; 0 never	چرکە لە نێوان ئەو شتانەی خۆی فڕێیان دەدات؛ 0 هەرگیز
+Long, slow sets at the left; short, quick ones at the right	کۆمەڵەی درێژ و هێواش لە چەپ؛ کورت و خێرا لە ڕاست
+SURF DROP <thing|cue> [x%], SURF CLEAR, SURF BEACH or SURF THINGS	SURF DROP <thing|cue> [x%]، SURF CLEAR، SURF BEACH یان SURF THINGS
+TARGET VERB: expected start|stop|pause|resume|load|arm|disarm|surf	TARGET VERB: چاوەڕوان دەکرا start|stop|pause|resume|load|arm|disarm|surf
+Every so many seconds it throws something in by itself: one of what has been thrown in before, or anything. 0: only when you throw	هەر چەند چرکەیەک جارێک خۆی شتێک فڕێدەدات: یەکێک لەوانەی پێشتر فڕێدراون، یان هەر شتێک. 0: تەنها کاتێک تۆ فڕێدەدەیت
+LIST	لیست
+PLACE	دایبنێ
+NEW BEACH	کەناری نوێ

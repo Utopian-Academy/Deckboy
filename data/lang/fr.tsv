@@ -5034,3 +5034,36 @@ Circuit trip	Trip de circuit
 Night vision	Vision nocturne
 Rain on glass	Pluie sur verre
 Melting rainbow	Arc-en-ciel fondant
+Sky	Ciel
+sky	ciel
+Surf	Ressac
+Wind	Vent
+wind	vent
+Period	Période
+period	période
+THROW IN	JETER
+Throws in	Jette
+throws in	jette
+Throw into Surf	Jeter dans le Ressac
+no Surf is on air	aucun Ressac n'est à l'antenne
+{1} into the surf	{1} dans le ressac
+Day, sunset or night	Jour, coucher de soleil ou nuit
+How big the sets are	Taille des séries
+0 day, 1 sunset, 2 night	0 jour, 1 coucher de soleil, 2 nuit
+its file cannot be found	son fichier est introuvable
+THROW IN (once it is on air)	JETER (une fois à l'antenne)
+its words could not be drawn	ses mots n'ont pas pu être dessinés
+Surf (a sea to throw things into)	Ressac (une mer où jeter des choses)
+Pushes what floats toward the beach	Pousse ce qui flotte vers la plage
+a Surf cannot be thrown into a Surf	on ne peut pas jeter un Ressac dans un Ressac
+0-100%: long slow sets to short quick ones	0-100% : de longues séries lentes aux courtes et rapides
+0-100%: pushes what floats toward the beach	0-100% : pousse ce qui flotte vers la plage
+only a picture, a video or a text cue can be thrown in	seuls une image, une vidéo ou un cue texte peuvent être jetés
+seconds between things it throws in by itself; 0 never	secondes entre les choses qu'il jette tout seul ; 0 jamais
+Long, slow sets at the left; short, quick ones at the right	Séries longues et lentes à gauche ; courtes et rapides à droite
+SURF DROP <thing|cue> [x%], SURF CLEAR, SURF BEACH or SURF THINGS	SURF DROP <chose|cue> [x%], SURF CLEAR, SURF BEACH ou SURF THINGS
+TARGET VERB: expected start|stop|pause|resume|load|arm|disarm|surf	TARGET VERB : attendu start|stop|pause|resume|load|arm|disarm|surf
+Every so many seconds it throws something in by itself: one of what has been thrown in before, or anything. 0: only when you throw	À intervalle régulier, il jette quelque chose tout seul : une chose déjà jetée, ou n'importe quoi. 0 : seulement quand tu jettes
+LIST	LISTE
+PLACE	PLACER
+NEW BEACH	NOUVELLE PLAGE

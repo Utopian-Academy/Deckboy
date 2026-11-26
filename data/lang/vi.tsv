@@ -5085,3 +5085,36 @@ Circuit trip	Mạch ảo giác
 Night vision	Nhìn đêm
 Rain on glass	Mưa trên kính
 Melting rainbow	Cầu vồng tan chảy
+Sky	Bầu trời
+sky	bầu trời
+Surf	Sóng vỗ
+Wind	Gió
+wind	gió
+Period	Chu kỳ
+period	chu kỳ
+THROW IN	NÉM VÀO
+Throws in	Ném vào
+throws in	ném vào
+Throw into Surf	Ném vào Sóng vỗ
+no Surf is on air	không có Sóng vỗ nào đang lên sóng
+{1} into the surf	{1} vào sóng vỗ
+Day, sunset or night	Ngày, hoàng hôn hoặc đêm
+How big the sets are	Kích thước các đợt sóng
+0 day, 1 sunset, 2 night	0 ngày, 1 hoàng hôn, 2 đêm
+its file cannot be found	không tìm thấy tệp của nó
+THROW IN (once it is on air)	NÉM VÀO (khi đã lên sóng)
+its words could not be drawn	không vẽ được các từ của nó
+Surf (a sea to throw things into)	Sóng vỗ (một biển để ném đồ vào)
+Pushes what floats toward the beach	Đẩy vật nổi về phía bãi biển
+a Surf cannot be thrown into a Surf	không thể ném Sóng vỗ vào Sóng vỗ
+0-100%: long slow sets to short quick ones	0-100%: từ đợt sóng dài, chậm đến đợt ngắn, nhanh
+0-100%: pushes what floats toward the beach	0-100%: đẩy vật nổi về phía bãi biển
+only a picture, a video or a text cue can be thrown in	chỉ ném vào được cue hình ảnh, video hoặc cue chữ
+seconds between things it throws in by itself; 0 never	số giây giữa các lần tự ném vào; 0 là không bao giờ
+Long, slow sets at the left; short, quick ones at the right	Trái: đợt sóng dài, chậm; Phải: đợt ngắn, nhanh
+SURF DROP <thing|cue> [x%], SURF CLEAR, SURF BEACH or SURF THINGS	SURF DROP <vật|cue> [x%], SURF CLEAR, SURF BEACH hoặc SURF THINGS
+TARGET VERB: expected start|stop|pause|resume|load|arm|disarm|surf	TARGET VERB: cần start|stop|pause|resume|load|arm|disarm|surf
+Every so many seconds it throws something in by itself: one of what has been thrown in before, or anything. 0: only when you throw	Cứ sau một số giây nó tự ném một thứ vào: một thứ đã từng được ném vào, hoặc bất kỳ thứ gì. 0: chỉ khi bạn ném
+LIST	DANH SÁCH
+PLACE	ĐẶT
+NEW BEACH	BÃI BIỂN MỚI

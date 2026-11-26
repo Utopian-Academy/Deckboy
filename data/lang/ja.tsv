@@ -5103,3 +5103,36 @@ Circuit trip	回路トリップ
 Night vision	ナイトビジョン
 Rain on glass	ガラスに雨
 Melting rainbow	溶ける虹
+Sky	空
+sky	空
+Surf	サーフ
+Wind	風
+wind	風
+Period	周期
+period	周期
+THROW IN	投げ入れ
+Throws in	投げ入れ
+throws in	投げ入れ
+Throw into Surf	サーフへ投げ入れる
+no Surf is on air	オンエア中のサーフはありません
+{1} into the surf	{1}をサーフへ
+Day, sunset or night	昼、夕暮れ、または夜
+How big the sets are	波のセットの大きさ
+0 day, 1 sunset, 2 night	0 昼、1 夕暮れ、2 夜
+its file cannot be found	ファイルが見つかりません
+THROW IN (once it is on air)	投げ入れ（オンエア後）
+its words could not be drawn	単語を描画できませんでした
+Surf (a sea to throw things into)	サーフ（物を投げ入れる海）
+Pushes what floats toward the beach	浮いている物を浜辺へ押す
+a Surf cannot be thrown into a Surf	サーフをサーフへ投げ入れることはできません
+0-100%: long slow sets to short quick ones	0-100%: 長くゆっくりしたセットから短く速いセットまで
+0-100%: pushes what floats toward the beach	0-100%: 浮いている物を浜辺へ押す
+only a picture, a video or a text cue can be thrown in	投げ入れられるのは映像、ビデオ、テキストキューだけです
+seconds between things it throws in by itself; 0 never	自動で投げ入れる間隔の秒数。0なら行わない
+Long, slow sets at the left; short, quick ones at the right	左端は長くゆっくりしたセット、右端は短く速いセット
+SURF DROP <thing|cue> [x%], SURF CLEAR, SURF BEACH or SURF THINGS	SURF DROP <物|キュー> [x%]、SURF CLEAR、SURF BEACH または SURF THINGS
+TARGET VERB: expected start|stop|pause|resume|load|arm|disarm|surf	TARGET VERB: start|stop|pause|resume|load|arm|disarm|surf のいずれかが必要です
+Every so many seconds it throws something in by itself: one of what has been thrown in before, or anything. 0: only when you throw	数秒ごとに自動で何かを投げ入れます。以前に投げ入れた物のどれか、または何でも。0: 自分で投げたときだけ
+LIST	リスト
+PLACE	配置
+NEW BEACH	新しい浜辺

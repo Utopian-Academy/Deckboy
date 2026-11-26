@@ -4463,6 +4463,7 @@
       CueTargetVerb::Resume, CueTargetVerb::Load, CueTargetVerb::Arm,
       CueTargetVerb::Disarm, CueTargetVerb::Devamp,
       CueTargetVerb::StopAll, CueTargetVerb::PauseAll, CueTargetVerb::ResumeAll,
+      CueTargetVerb::Surf,
     };
     const int count = static_cast<int>(sizeof(kOrder) / sizeof(kOrder[0]));
     int at = 0;
@@ -4974,6 +4975,24 @@
     const std::string victimName = project_.decks[victimDeck].cues[victimIndex].name;
     const char* verbLabel = cueTargetVerbLabel(targeting.targetVerb);
 
+    // Into the Surf on air: the cue's picture, words or first frame goes in the water.
+    if (targeting.targetVerb == CueTargetVerb::Surf) {
+      if (surfOnAirCount() == 0) {
+        const std::string why = std::string(verbLabel) + ": no Surf is on air";
+        triggerToast(why);
+        return why;
+      }
+      std::string why;
+      if (!surfThrowCue(project_.decks[victimDeck].cues[victimIndex], -1.0f, why)) {
+        why = std::string(verbLabel) + ": " + victimName + ": " + why;
+        triggerToast(why);
+        return why;
+      }
+      const std::string did = std::string(verbLabel) + ": " + victimName;
+      triggerToast(did);
+      return did;
+    }
+
     // Arm and disarm are edits, not transport: they change the victim and stop.
     if (targeting.targetVerb == CueTargetVerb::Arm ||
         targeting.targetVerb == CueTargetVerb::Disarm) {
@@ -5035,6 +5054,7 @@
       case CueTargetVerb::StopAll:
       case CueTargetVerb::PauseAll:
       case CueTargetVerb::ResumeAll:
+      case CueTargetVerb::Surf:
         break;                                // handled above
     }
     project_.focusedDeckIndex = savedFocus;

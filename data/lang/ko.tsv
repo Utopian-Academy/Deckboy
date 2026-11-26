@@ -5100,3 +5100,36 @@ Circuit trip	회로 트립
 Night vision	야간 투시
 Rain on glass	유리 위의 비
 Melting rainbow	녹아내리는 무지개
+Sky	하늘
+sky	하늘
+Surf	파도
+Wind	바람
+wind	바람
+Period	주기
+period	주기
+THROW IN	던져 넣기
+Throws in	던져 넣음
+throws in	던져 넣음
+Throw into Surf	파도에 던져 넣기
+no Surf is on air	온에어 중인 파도 없음
+{1} into the surf	{1}, 파도 속으로
+Day, sunset or night	낮, 노을 또는 밤
+How big the sets are	파도 세트의 크기
+0 day, 1 sunset, 2 night	0 낮, 1 노을, 2 밤
+its file cannot be found	파일을 찾을 수 없음
+THROW IN (once it is on air)	던져 넣기 (온에어 중일 때)
+its words could not be drawn	단어를 그릴 수 없음
+Surf (a sea to throw things into)	파도 (물건을 던져 넣는 바다)
+Pushes what floats toward the beach	떠 있는 것을 해변 쪽으로 밉니다
+a Surf cannot be thrown into a Surf	파도는 파도에 던져 넣을 수 없음
+0-100%: long slow sets to short quick ones	0-100%: 길고 느린 세트에서 짧고 빠른 세트까지
+0-100%: pushes what floats toward the beach	0-100%: 떠 있는 것을 해변 쪽으로 밉니다
+only a picture, a video or a text cue can be thrown in	영상, 비디오 또는 텍스트 큐만 던져 넣을 수 있음
+seconds between things it throws in by itself; 0 never	알아서 던져 넣는 간격(초); 0은 안 함
+Long, slow sets at the left; short, quick ones at the right	왼쪽은 길고 느린 세트, 오른쪽은 짧고 빠른 세트
+SURF DROP <thing|cue> [x%], SURF CLEAR, SURF BEACH or SURF THINGS	SURF DROP <물건|큐> [x%], SURF CLEAR, SURF BEACH 또는 SURF THINGS
+TARGET VERB: expected start|stop|pause|resume|load|arm|disarm|surf	TARGET VERB: start|stop|pause|resume|load|arm|disarm|surf 중 하나여야 함
+Every so many seconds it throws something in by itself: one of what has been thrown in before, or anything. 0: only when you throw	정해진 초마다 알아서 무언가를 던져 넣습니다: 전에 던져 넣은 것 중 하나, 또는 아무거나. 0: 직접 던질 때만
+LIST	목록
+PLACE	배치
+NEW BEACH	새 해변

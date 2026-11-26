@@ -5035,3 +5035,34 @@ Circuit trip	Circuittrip
 Night vision	Nachtzicht
 Rain on glass	Regen op glas
 Melting rainbow	Smeltende regenboog
+Sky	Hemel
+sky	hemel
+Surf	Branding
+Period	Periode
+period	periode
+THROW IN	ERIN GOOIEN
+Throws in	Gooit erin
+throws in	gooit erin
+Throw into Surf	In de Branding gooien
+no Surf is on air	er is geen Branding in de lucht
+{1} into the surf	{1} de branding in
+Day, sunset or night	Dag, zonsondergang of nacht
+How big the sets are	Hoe groot de golfsets zijn
+0 day, 1 sunset, 2 night	0 dag, 1 zonsondergang, 2 nacht
+its file cannot be found	het bestand is niet te vinden
+THROW IN (once it is on air)	ERIN GOOIEN (zodra het in de lucht is)
+its words could not be drawn	de woorden konden niet getekend worden
+Surf (a sea to throw things into)	Branding (een zee om dingen in te gooien)
+Pushes what floats toward the beach	Duwt wat drijft naar het strand
+a Surf cannot be thrown into a Surf	een Branding kan niet in een Branding gegooid worden
+0-100%: long slow sets to short quick ones	0-100%: lange trage sets tot korte snelle
+0-100%: pushes what floats toward the beach	0-100%: duwt wat drijft naar het strand
+only a picture, a video or a text cue can be thrown in	alleen een beeld, een video of een tekstcue kan erin gegooid worden
+seconds between things it throws in by itself; 0 never	seconden tussen wat ze zelf erin gooit; 0 nooit
+Long, slow sets at the left; short, quick ones at the right	Lange, trage sets links; korte, snelle rechts
+SURF DROP <thing|cue> [x%], SURF CLEAR, SURF BEACH or SURF THINGS	SURF DROP <ding|cue> [x%], SURF CLEAR, SURF BEACH of SURF THINGS
+TARGET VERB: expected start|stop|pause|resume|load|arm|disarm|surf	TARGET VERB: verwacht start|stop|pause|resume|load|arm|disarm|surf
+Every so many seconds it throws something in by itself: one of what has been thrown in before, or anything. 0: only when you throw	Om de zoveel seconden gooit ze zelf iets erin: iets wat er eerder in gegooid is, of wat dan ook. 0: alleen als jij gooit
+LIST	LIJST
+PLACE	PLAATSEN
+NEW BEACH	NIEUW STRAND

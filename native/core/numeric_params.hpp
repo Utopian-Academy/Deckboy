@@ -150,6 +150,12 @@ enum class NumericParam : int {
   TimerLogoSize,
   FireIntensity,
   FireSparks,
+  // Surf (core/surf.hpp). At the END: oscillators save these ids by number.
+  SurfWaveHeight,
+  SurfPeriod,
+  SurfWind,
+  SurfSky,
+  SurfThrowEvery,
 };
 
 struct NumericParamSpec {
@@ -403,6 +409,26 @@ inline const NumericParamSpec* numericParamSpec(NumericParam id, const Cue* cue 
     }
     case NumericParam::IllusionSpeed: {
       static const NumericParamSpec s {"illusion.speed", "Speed", "0-100%: 0 holds it still", 0, 100, 0, false, 2};
+      return &s;
+    }
+    case NumericParam::SurfWaveHeight: {
+      static const NumericParamSpec s {"surf.wave", "Wave height", "0-100%", 0, 100, 0, false, 2};
+      return &s;
+    }
+    case NumericParam::SurfPeriod: {
+      static const NumericParamSpec s {"surf.period", "Period", "0-100%: long slow sets to short quick ones", 0, 100, 0, false, 2};
+      return &s;
+    }
+    case NumericParam::SurfWind: {
+      static const NumericParamSpec s {"surf.wind", "Wind", "0-100%: pushes what floats toward the beach", 0, 100, 0, false, 2};
+      return &s;
+    }
+    case NumericParam::SurfSky: {
+      static const NumericParamSpec s {"surf.sky", "Sky", "0 day, 1 sunset, 2 night", 0, 2, 0, true, 1};
+      return &s;
+    }
+    case NumericParam::SurfThrowEvery: {
+      static const NumericParamSpec s {"surf.every", "Throws in", "seconds between things it throws in by itself; 0 never", 0, 120, 0, true, 1};
       return &s;
     }
     case NumericParam::IllusionCentreX: {
@@ -807,6 +833,22 @@ inline bool readNumericParam(const Cue& cue, NumericParam id, double& out) {
           : m.hue * 360.0;
       return true;
     }
+    case NumericParam::SurfWaveHeight:
+    case NumericParam::SurfPeriod:
+    case NumericParam::SurfWind:
+    case NumericParam::SurfSky:
+    case NumericParam::SurfThrowEvery: {
+      if (cue.kind != CueKind::Pattern || normalizePatternTypeId(cue.path) != "surf") return false;
+      const auto& su = cue.surf;
+      switch (id) {
+        case NumericParam::SurfWaveHeight: out = su.waveHeight * 100.0; break;
+        case NumericParam::SurfPeriod: out = su.period * 100.0; break;
+        case NumericParam::SurfWind: out = su.wind * 100.0; break;
+        case NumericParam::SurfSky: out = su.sky; break;
+        default: out = su.throwEvery; break;
+      }
+      return true;
+    }
     case NumericParam::IllusionShape:
     case NumericParam::IllusionForm:
     case NumericParam::IllusionFlow:
@@ -1029,6 +1071,11 @@ inline void writeNumericParam(Cue& cue, NumericParam id, double value) {
     case NumericParam::IllusionCount: cue.illusion.count = std::clamp(value / 100.0, 0.0, 1.0); break;
     case NumericParam::IllusionEdge: cue.illusion.edge = std::clamp(value / 100.0, 0.0, 1.0); break;
     case NumericParam::IllusionSpeed: cue.illusion.speed = std::clamp(value / 100.0, 0.0, 1.0); break;
+    case NumericParam::SurfWaveHeight: cue.surf.waveHeight = std::clamp(value / 100.0, 0.0, 1.0); break;
+    case NumericParam::SurfPeriod: cue.surf.period = std::clamp(value / 100.0, 0.0, 1.0); break;
+    case NumericParam::SurfWind: cue.surf.wind = std::clamp(value / 100.0, 0.0, 1.0); break;
+    case NumericParam::SurfSky: cue.surf.sky = std::clamp(static_cast<int>(std::lround(value)), 0, 2); break;
+    case NumericParam::SurfThrowEvery: cue.surf.throwEvery = std::clamp(std::round(value), 0.0, 120.0); break;
     case NumericParam::IllusionCentreX: cue.illusion.centreX = std::clamp(value / 100.0, 0.0, 1.0); break;
     case NumericParam::IllusionCentreY: cue.illusion.centreY = std::clamp(value / 100.0, 0.0, 1.0); break;
     case NumericParam::IllusionTone: cue.illusion.tone = std::clamp(value / 100.0, 0.0, 1.0); break;
@@ -1142,6 +1189,17 @@ inline std::vector<ParamRow> paramRowsForCue(const Cue& cue, bool includeHeading
     };
     rows.erase(std::remove_if(rows.begin(), rows.end(), [&](const ParamRow& row) { return (row.id == NumericParam::MoireGrey && cue.moire.palette == 1) || (row.id == NumericParam::MoireHue && cue.moire.palette == 3); }), rows.end());
     return rows;
+  }
+  if (cue.kind == CueKind::Pattern && type == "surf") {
+    return {
+      {"wave height", NumericParam::SurfWaveHeight, "How big the sets are"},
+      {"period", NumericParam::SurfPeriod, "Long, slow sets at the left; short, quick ones at the right"},
+      {"wind", NumericParam::SurfWind, "Pushes what floats toward the beach"},
+      {"sky", NumericParam::SurfSky, "Day, sunset or night"},
+      {"throws in", NumericParam::SurfThrowEvery,
+       "Every so many seconds it throws something in by itself: one of what has been thrown in before, "
+       "or anything. 0: only when you throw"},
+    };
   }
   if (cue.kind == CueKind::Pattern && type == "illusion") {
     const auto& il = cue.illusion;

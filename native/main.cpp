@@ -7455,7 +7455,7 @@ class App {
     bool attemptedLoad = false;
   };
 
-  std::optional<std::pair<int, int>> probeStillImageSize(const fs::path& path) const {
+  static std::optional<std::pair<int, int>> probeStillImageSize(const fs::path& path) {
     auto output = readAllText({
       "ffprobe", "-v", "error",
       "-select_streams", "v:0",
@@ -7483,7 +7483,7 @@ class App {
     }
   }
 
-  bool decodeStillImageRgba(const fs::path& path, int width, int height, std::vector<std::uint8_t>& outPixels) const {
+  static bool decodeStillImageRgba(const fs::path& path, int width, int height, std::vector<std::uint8_t>& outPixels) {
     if (width <= 0 || height <= 0) {
       return false;
     }

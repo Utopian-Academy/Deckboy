@@ -1644,3 +1644,41 @@ tr	DRAW WRITE <words>
 uk	DRAW WRITE <words>
 zh-Hans	DRAW WRITE <words>
 zh-Hant	DRAW WRITE <words>
+de	Wind
+nl	Wind
+nl	wind
+ar	#clear
+bg	#clear
+ckb	#clear
+da	#clear
+de	#clear
+el	#clear
+es-CU	#clear
+es	#clear
+fa	#clear
+fi	#clear
+fr	#clear
+gd	#clear
+haw	#clear
+hi	#clear
+is	#clear
+it	#clear
+ja	#clear
+kab	#clear
+kmr	#clear
+ko	#clear
+lo	#clear
+lum	#clear
+nl	#clear
+lt	#clear
+pap-AW	#clear
+pl	#clear
+pt-BR	#clear
+ru	#clear
+tr	#clear
+uk	#clear
+vi	#clear
+zgh	#clear
+zh-Hans	#clear
+zh-Hant	#clear
+zu	#clear
