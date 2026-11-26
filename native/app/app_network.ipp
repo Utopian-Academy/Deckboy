@@ -7756,8 +7756,18 @@ bool looksLikeHttpRequestLine(const std::string& line) {
       remoteReplyTo_ = command.replyTo;          // FOLLOW keeps the caller's socket
       remoteReplyGeneration_ = command.replyGeneration;
       const bool refusedBeforeRunning = !remoteCommandError_.empty();
-      const Uint64 commandT0 = uiProfileEnabled_ ? SDL_GetTicksNS() : 0;
+      const Uint64 commandT0 = SDL_GetTicksNS();
       if (remoteCommandError_.empty()) handleRemoteCommand(command.text);
+      // HALF A SECOND IS A STALL, said always (not only under the profile):
+      // a controller waits on the reply, and CI showed a TAKE with none in
+      // 10 s on a runner with no sound device and nothing to say why.
+      {
+        const double ms = static_cast<double>(SDL_GetTicksNS() - commandT0) / 1e6;
+        if (ms > 500.0) {
+          std::cerr << "stall: remote command \"" << command.text.substr(0, 40) << "\" took "
+                    << static_cast<long long>(ms) << " ms\n";
+        }
+      }
       // A remote command that held the frame up, named (DECKBOY_UI_PROFILE).
       if (uiProfileEnabled_) {
         const double ms = static_cast<double>(SDL_GetTicksNS() - commandT0) / 1e6;

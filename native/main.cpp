@@ -2863,6 +2863,14 @@ class App {
       tickUiDump();
       tickContrastCheck();
       auto afterRender = std::chrono::steady_clock::now();
+      // A FRAME OVER A SECOND, always said, with where the time went: the
+      // finer phases are under DECKBOY_UI_PROFILE, this is the alarm.
+      if (ms(afterRender - frameStart) > 1000.0) {
+        std::cerr << "stall: a frame took " << static_cast<long long>(ms(afterRender - frameStart)) << " ms (events "
+                  << static_cast<long long>(ms(afterEvents - frameStart)) << ", update "
+                  << static_cast<long long>(ms(afterUpdate - afterPickers)) << ", render+outputs "
+                  << static_cast<long long>(ms(afterRender - afterUpdate)) << ")\n";
+      }
       if (uiProfileEnabled_) {
         double frameMs = ms(afterRender - frameStart);
         if (frameMs > uiProfileSlowFrameMs_) {
