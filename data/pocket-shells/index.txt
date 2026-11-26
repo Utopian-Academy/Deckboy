@@ -6,7 +6,7 @@ ice	Ice	249 249 252
 mint-pearl	Mint Pearl	89 149 129
 pocket-grey	Pocket Grey	108 108 134
 smoke	Smoke	246 246 248
-terrazzo	Terrazzo	108 101 97
+terrazzo	Terrazzo	44 41 39 bold
 arcade-cab	Arcade Cab	246 241 221
 bakelite	Bakelite	237 222 191
 brass	Brass	66 80 66

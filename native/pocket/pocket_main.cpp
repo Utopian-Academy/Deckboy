@@ -1099,6 +1099,11 @@ class Pocket {
           default: break;
         }
         break;
+      case SDL_EVENT_MOUSE_WHEEL:
+        if (menuOpen_ && menuScrollMax() > 0) {
+          menuScroll_ = std::clamp(menuScroll_ - e.wheel.y * 6 * unit_, 0.0f, menuScrollMax());
+        }
+        break;
       case SDL_EVENT_FINGER_DOWN: {
         const SDL_FPoint pt {e.tfinger.x * pxW_, e.tfinger.y * pxH_};
         fingers_[e.tfinger.fingerID] = pt;
@@ -1119,6 +1124,10 @@ class Pocket {
       case SDL_EVENT_FINGER_UP:
       case SDL_EVENT_FINGER_CANCELED:
         fingers_.erase(e.tfinger.fingerID);
+        if (menuPress_) {   // a scrolling page's button: it answers now, if the finger stayed put
+          menuPress_ = false;
+          if (!menuDragged_ && e.type == SDL_EVENT_FINGER_UP && menuOpen_) pressHit(downX_, downY_);
+        }
         if (gesture_) {
           if (fingers_.empty()) gesture_ = false;
           else beginGesture();   // one finger lifted: carry on from here with the rest
@@ -1603,7 +1612,10 @@ class Pocket {
     SDL_Rect had {};
     const bool clipped = SDL_RenderClipEnabled(renderer_);
     if (clipped) SDL_GetRenderClipRect(renderer_, &had);
-    const SDL_Rect clip {static_cast<int>(box.x), static_cast<int>(box.y), static_cast<int>(box.w), static_cast<int>(box.h)};
+    SDL_Rect clip {static_cast<int>(box.x), static_cast<int>(box.y), static_cast<int>(box.w), static_cast<int>(box.h)};
+    SDL_Rect inPage {};
+    if (clipped && SDL_GetRectIntersection(&clip, &had, &inPage)) clip = inPage;   // a scrolled MENU page's room
+    else if (clipped) clip = {0, 0, 0, 0};
     SDL_SetRenderClipRect(renderer_, &clip);
     if (mapConvex()) drawPinned(programTex_, q);
     SDL_SetRenderClipRect(renderer_, clipped ? &had : nullptr);
@@ -2081,8 +2093,49 @@ class Pocket {
       const int up = menuTab_ == 6 ? 4 : (menuTab_ == 7 || menuTab_ == 8 || menuTab_ == 10) ? 5 : menuTab_ == 9 ? 1 : -1;
       button({lx, by, bw, bh}, up == 4 ? "< PHONE" : up == 5 ? "< SHOW" : up == 1 ? "< OUTPUT" : "< MENU", [this, up] { menuTab_ = up; confirmOpen_.clear(); endHostEdit(); });
       button({lx + bw + u, by, bw, bh}, "CLOSE", [this] { menuOpen_ = false; endHostEdit(); });
+      // THE PAGE between its title and that row, never over it. A page
+      // taller than the room scrolls (a drag, or the wheel on a desktop), so
+      // a short phone, a flip's cover or a sideways phone loses nothing.
+      menuView_ = {lcd.x, y + 7 * u, lcd.w, by - 0.5f * u - (y + 7 * u)};
     }
-    y += 7 * u;
+    if (menuTab_ != menuScrollTab_) {   // a new page starts at its top
+      menuScrollTab_ = menuTab_;
+      menuScroll_ = 0;
+    }
+    y += 7 * u - menuScroll_;
+    const float pageTop = y;
+    const std::size_t pageHits = hits_.size();
+    const SDL_Rect pageClip {static_cast<int>(std::floor(menuView_.x)), static_cast<int>(std::floor(menuView_.y)),
+                             static_cast<int>(std::ceil(menuView_.w)), static_cast<int>(std::ceil(menuView_.h))};
+    SDL_SetRenderClipRect(r, &pageClip);
+    drawMenuPage(lx, lw, y);
+    SDL_SetRenderClipRect(r, nullptr);
+    // what the page took, for the scroll's limit; a button scrolled out of
+    // the room answers only where it shows
+    menuPageH_ = y - pageTop + u;
+    menuScroll_ = std::clamp(menuScroll_, 0.0f, menuScrollMax());
+    for (std::size_t k = hits_.size(); k-- > pageHits;) {
+      SDL_FRect& b = hits_[k].rect;
+      const float top = std::max(b.y, menuView_.y), bottom = std::min(b.y + b.h, menuView_.y + menuView_.h);
+      if (bottom - top < 0.5f) hits_.erase(hits_.begin() + static_cast<std::ptrdiff_t>(k));
+      else { b.y = top; b.h = bottom - top; }
+    }
+    if (menuScrollMax() > 0) {
+      // where you are on the page: a bar down the right edge
+      const float track = menuView_.h - u, frac = menuView_.h / (menuView_.h + menuScrollMax());
+      const float barH = std::max(4 * u, track * frac);
+      const float barY = menuView_.y + 0.5f * u + (track - barH) * (menuScroll_ / menuScrollMax());
+      fillRound(r, kDark, {lcd.x + lcd.w - 0.9f * u, barY, 0.6f * u, barH}, 0.3f * u);
+    }
+  }
+
+  // How far the open page can scroll (0: it fits).
+  float menuScrollMax() const { return std::max(0.0f, menuPageH_ - menuView_.h); }
+
+  // The open MENU page's controls, from y down (drawMenu clips and scrolls it).
+  void drawMenuPage(float lx, float lw, float& y) {
+    SDL_Renderer* r = renderer_;
+    const float u = unit_;
 
     auto heading = [&](const char* t) {
       text_.draw(pixelSmall_, t, kDark, {lx, y, lw, 3.5f * u});
@@ -2248,10 +2301,12 @@ class Pocket {
       y += 5.5f * u;
     }
     button({lx, y, lw, 5 * u}, "ABOUT", [this] { menuTab_ = 6; });
+    y += 6 * u;
     }
     if (menuTab_ == 6) {
       drawAboutPage(lx, lw, y);
     }
+    (void)r;
   }
 
   // ── MENU's six tiles, each with its live state (board: MENU) ──
@@ -6397,7 +6452,9 @@ class Pocket {
   // stretches only a band through the middle of the cue list, which holds
   // nothing but the bezel's straight sides.
 
-  struct ShellInfo { std::string slug, name; Ink ink; };
+  // bold: the face prints its legends heavier (index.txt "r g b bold"; Terrazzo,
+  // where thin type was lost in the speckle -- James 11-26)
+  struct ShellInfo { std::string slug, name; Ink ink; bool bold = false; };
 
   void loadShells() {
     size_t n = 0;
@@ -6416,6 +6473,7 @@ class Pocket {
       int cr = 46, cg = 46, cb = 70;
       std::sscanf(line.c_str() + b + 1, "%d %d %d", &cr, &cg, &cb);
       info.ink = {static_cast<Uint8>(cr), static_cast<Uint8>(cg), static_cast<Uint8>(cb)};
+      info.bold = line.find(" bold", b) != std::string::npos;
       shells_.push_back(info);
     }
     size_t m = 0;
@@ -6500,6 +6558,7 @@ class Pocket {
           shellH_ = h;
           shell_ = slug;
           shellInk_ = it->ink;
+          shellBold_ = it->bold;
           shellPal_ = samplePalette(rgba, w, h);
         }
       } else {
@@ -6650,8 +6709,12 @@ class Pocket {
     // the face leaves this pill unlabelled: it does what you chose
     // ...printed as the face prints MENU: the same type, size, ink and place
     // (centred 4.4 mm below the pill's centre)
-    text_.draw(printFont_ ? printFont_ : pixelSmall_, pillName(pill_), shellInk_,
-               {blackPill_.x - 4 * u, blackPill_.y + blackPill_.h / 2 + 4.4f * u - 1.5f * u, blackPill_.w + 8 * u, 3 * u}, true);
+    const SDL_FRect label {blackPill_.x - 4 * u, blackPill_.y + blackPill_.h / 2 + 4.4f * u - 1.5f * u, blackPill_.w + 8 * u, 3 * u};
+    text_.draw(printFont_ ? printFont_ : pixelSmall_, pillName(pill_), shellInk_, label, true);
+    if (shellBold_) {   // as heavy as the face's own MENU: drawn again a hair to the right
+      text_.draw(printFont_ ? printFont_ : pixelSmall_, pillName(pill_), shellInk_,
+                 {label.x + std::max(1.0f, 0.12f * u), label.y, label.w, label.h}, true);
+    }
   }
 
   // -- Adding media: the system picker --
@@ -8063,12 +8126,29 @@ class Pocket {
         return;
       }
     }
+    // A page that scrolls (drawMenu): its buttons answer when the finger
+    // lifts without moving, so a drag can scroll instead. A page that fits
+    // answers on the touch, as every other button does.
+    if (menuOpen_ && !calcOpen_ && menuTab_ >= 0 && menuScrollMax() > 0 && inside(menuView_, x, y)) {
+      menuPress_ = true;
+      menuDragged_ = false;
+      menuScrollFrom_ = menuScroll_;
+      return;
+    }
     // Holding the picture during a show (no sheet, no menu) opens PLACE for the live cue.
     if (sheet_ < 0 && !menuOpen_ && active_ >= 0 && inside(picRect_, x, y)) picHoldSince_ = SDL_GetTicks();
     // A finger is not a mouse: every button answers across at least Android's
     // 48 dp touch target (about 9 mm), even where it is drawn smaller. A touch
     // inside a button is that button; a touch near several goes to the
     // nearest one, so growing the targets never makes a neighbour unreachable.
+    if (pressHit(x, y)) return;
+    if (sheet_ >= 0) return;
+    if (menuOpen_) { tap(x, y); return; }
+    downRest(x, y);
+  }
+
+  // The button under (x, y), or the nearest one within a finger's reach.
+  bool pressHit(float x, float y) {
     {
       auto fire = [this](std::size_t k) {
         auto fn = hits_[k].fn;   // the handler may rebuild hits_
@@ -8076,7 +8156,7 @@ class Pocket {
         fn();
       };
       for (std::size_t k = hits_.size(); k-- > 0;) {
-        if (inside(hits_[k].rect, x, y)) { fire(k); return; }
+        if (inside(hits_[k].rect, x, y)) { fire(k); return true; }
       }
       const float minPx = 48.0f * std::max(1.0f, SDL_GetWindowDisplayScale(window_));
       std::size_t best = hits_.size();
@@ -8090,10 +8170,13 @@ class Pocket {
         const float d = dx * dx + dy * dy;
         if (d < bestD) { bestD = d; best = k; }
       }
-      if (best < hits_.size()) { fire(best); return; }
+      if (best < hits_.size()) { fire(best); return true; }
     }
-    if (sheet_ >= 0) return;
-    if (menuOpen_) { tap(x, y); return; }
+    return false;
+  }
+
+  // onDown's last part: the scrub, the list, the pad.
+  void downRest(float x, float y) {
     if (active_ >= 0 && cueHasTimeline(cues_[static_cast<std::size_t>(active_)]) && inside(grow(scrub_, unit_), x, y)) {
       drag_ = Drag::Scrub;
       onMove(x, y);
@@ -8113,6 +8196,11 @@ class Pocket {
   }
 
   void onMove(float x, float y) {
+    if (menuPress_) {
+      if (!menuDragged_ && std::fabs(y - downY_) > 2 * unit_) menuDragged_ = true;
+      if (menuDragged_) menuScroll_ = std::clamp(menuScrollFrom_ - (y - downY_), 0.0f, menuScrollMax());
+      return;
+    }
     if (trayDrag_ >= 0) {
       trayX_ = x;
       trayY_ = y;
@@ -9961,6 +10049,7 @@ class Pocket {
   TTF_Font* sans_ = nullptr;
   TTF_Font* mono_ = nullptr;
   TTF_Font* printFont_ = nullptr;
+  bool shellBold_ = false;   // the shell prints its legends heavier (ShellInfo::bold)
 
   std::vector<Cue> cues_;
   std::string mediaDir_;
@@ -9988,6 +10077,12 @@ class Pocket {
   Uint64 holdStart_ = 0;
   int sheet_ = -1;
   bool menuOpen_ = false;
+  // A MENU page taller than its sheet scrolls (drawMenu): the room it has,
+  // how tall it drew, how far it is scrolled, and a press waiting for the lift.
+  SDL_FRect menuView_ {};
+  float menuPageH_ = 0, menuScroll_ = 0, menuScrollFrom_ = 0;
+  int menuScrollTab_ = -2;
+  bool menuPress_ = false, menuDragged_ = false;
   int menuTab_ = -1;   // -1 the tiles; 0 SOURCES, 1 OUTPUT, 2 LIST, 3 SYNC, 4 PHONE, 5 SHOW
   bool phoneFull_ = false;
   bool testPattern_ = false;
