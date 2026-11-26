@@ -1124,6 +1124,8 @@ class Pocket {
       case SDL_EVENT_FINGER_UP:
       case SDL_EVENT_FINGER_CANCELED:
         fingers_.erase(e.tfinger.fingerID);
+        tbarDir_ = 0;   // the T-bar stays where it is (a quick GO tap was never held: it runs on)
+        tbarFromGo_ = false;
         if (menuPress_) {   // a scrolling page's button: it answers now, if the finger stayed put
           menuPress_ = false;
           if (!menuDragged_ && e.type == SDL_EVENT_FINGER_UP && menuOpen_) pressHit(downX_, downY_);
@@ -1194,6 +1196,7 @@ class Pocket {
     }
     pollRemote();
     pollFollow();
+    tbarService();
     serviceDirection();
     serviceStills();
     serviceMeter();
@@ -1299,6 +1302,7 @@ class Pocket {
     else if (shellWideTex_ && landscape_ && !editing_) drawShellWide();
     else fillRect(r, kShell, {0, 0, pxW_, pxH_});
     drawProgram();
+    drawTbar();
     if (hostEditing_) drawTextEditor("DESK ADDRESS", followHost_, "ENTER TO FOLLOW");
     if (passEditing_) drawTextEditor("REMOTE PASSPHRASE", passDraft_, "8 OR MORE CHARACTERS, ENTER TO KEEP");
     if (renameIndex_ >= 0) drawTextEditor("CUE NAME", renameText_, "ENTER TO KEEP, BACK TO LEAVE IT");
@@ -4697,6 +4701,7 @@ class Pocket {
              "SEEK <seconds|+s|-s> BLACK [ON|OFF] VOLUME <0-100> MUTE DECK 1 SKIP SKIPBACK\n"
              "SHUFFLE LOOP ENDAFTER [ON|OFF|TOGGLE] CROSSFADE <s> QUEUE <n>|CLEAR RENAME <n> <name>\n"
              "DIRECTION <n> FORWARD|REVERSE|BOUNCE SHELL <name>|FLAT SNAP <file.bmp>\n"
+             "TBAR [HOLD|MOVE <seconds>|RUN]\n"
              "SYNC FOLLOW <desk> SYNC STOP SYNC STATUS\n";
     }
     if (verb == "STATUS" || verb == "STATE") return remoteStatus();
@@ -5256,6 +5261,28 @@ class Pocket {
     if (verb == "PREV" || verb == "PREVIOUS") { select(selected_ - 1); return ok(); }
     if (verb == "PLAY") { if (active_ < 0) go(); else engine_->play(); return ok(); }
     if (verb == "PAUSE") { if (active_ >= 0) engine_->pause(); return ok(); }
+    if (verb == "TBAR") {   // TBAR | TBAR HOLD | TBAR MOVE <seconds> | TBAR RUN: the transition, by hand
+      std::istringstream args(rest);
+      std::string what;
+      double by = 0.0;
+      args >> what >> by;
+      for (char& ch : what) ch = static_cast<char>(std::toupper(static_cast<unsigned char>(ch)));
+      if (what == "HOLD") {
+        if (!engine_->transitionInProgress()) return err("TBAR: no transition is running");
+        engine_->holdTransition();
+      } else if (what == "MOVE") {
+        if (!engine_->transitionHeld()) return err("TBAR MOVE: hold it first (TBAR HOLD)");
+        if (engine_->moveTransition(by) <= 0.0 && by < 0) cancelTake();
+      } else if (what == "RUN") {
+        engine_->letTransitionRun();
+      } else if (!what.empty()) {
+        return err("TBAR [HOLD | MOVE <seconds> | RUN]");
+      }
+      char line[160];
+      std::snprintf(line, sizeof line, "OK TBAR held=%d progress=%.3f seconds=%.2f active=%d\n", engine_->transitionHeld() ? 1 : 0,
+                    engine_->transitionProgress01(), engine_->transitionSeconds(), active_ + 1);
+      return line;
+    }
     if (verb == "STOP" || verb == "CLEAR" || verb == "PANIC") {
       engine_->clear();
       active_ = -1;
@@ -9810,6 +9837,17 @@ class Pocket {
       const Pressed pad = std::fabs(dx) > std::fabs(dy) ? (dx > 0 ? Pressed::Right : Pressed::Left) : (dy > 0 ? Pressed::Down : Pressed::Up);
       if (codeKey(pad)) { press(pad); return; }
       if (std::fabs(dx) > std::fabs(dy)) {
+        const int dir = dx > 0 ? 1 : -1;
+        if (engine_->transitionInProgress() && !followLocked()) {
+          // THE T-BAR: a transition on its way is grabbed where it is, and
+          // moves while the arrow is held (RIGHT on, LEFT back).
+          press(dir > 0 ? Pressed::Right : Pressed::Left);
+          engine_->holdTransition();
+          tbarDir_ = dir;
+          tbarFromGo_ = false;
+          tbarLastNs_ = SDL_GetTicksNS();
+          return;
+        }
         const bool paused = active_ >= 0 && engine_->state() == TransportState::Paused &&
                             cueHasTimeline(cues_[static_cast<std::size_t>(active_)]);
         if (paused) {
@@ -9818,7 +9856,17 @@ class Pocket {
           const double f = cueFrame(c);
           press(dx > 0 ? Pressed::Right : Pressed::Left);
           engine_->seek(std::clamp(engine_->position() + (dx > 0 ? f : -f), cueIn(c), cueOut(c)));
-        } else if (dx > 0) { press(Pressed::Right); go(); } else { press(Pressed::Left); back(); }
+        } else if (dx > 0) {
+          press(Pressed::Right);
+          go();
+          // still held after kTbarHoldMs, this GO becomes the T-bar (tbarService)
+          if (engine_->transitionInProgress()) {
+            tbarDir_ = 1;
+            tbarFromGo_ = true;
+            tbarDownMs_ = SDL_GetTicks();
+            tbarLastNs_ = SDL_GetTicksNS();
+          }
+        } else { press(Pressed::Left); back(); }
       } else {
         if (dy > 0) { press(Pressed::Down); select(selected_ + 1); } else { press(Pressed::Up); select(selected_ - 1); }
       }
@@ -9850,9 +9898,94 @@ class Pocket {
 
   // GO takes the selected cue and moves the selection on (advanceFrom: the
   // queue, the shuffle, the next cue, the loop), as the desk does.
+  // -- THE T-BAR (James 11-26: "pocket has not way to stop in the middle of a
+  // transition. it needs something like a tbar") --
+  //
+  // HOLD TO MOVE on the pad: a tap of RIGHT is GO as always, but held past
+  // kTbarHoldMs the transition it started moves only while it is held, and
+  // stops where it is let go. Either arrow grabs a transition on its way;
+  // RIGHT moves it on, LEFT back, at the transition's own speed. Back at the
+  // start, the take is cancelled: the cue that was on air comes back where it
+  // was (playing or paused), with the list's selection, shuffle and queue as
+  // they were. GO finishes a held transition at its own speed.
+  static constexpr Uint64 kTbarHoldMs = 350;
+
+  void tbarService() {
+    if (!engine_) return;
+    const Uint64 nowNs = SDL_GetTicksNS();
+    const double dt = std::min(0.1, static_cast<double>(nowNs - tbarLastNs_) / 1e9);
+    tbarLastNs_ = nowNs;
+    if (tbarDir_ == 0) return;
+    if (!engine_->transitionInProgress() && !engine_->transitionHeld()) {   // it reached its end
+      tbarDir_ = 0;
+      tbarFromGo_ = false;
+      return;
+    }
+    if (tbarFromGo_ && !engine_->transitionHeld()) {
+      if (SDL_GetTicks() - tbarDownMs_ < kTbarHoldMs) return;   // a tap so far: GO as always
+      engine_->holdTransition();
+      tbarFromGo_ = false;
+    }
+    if (!engine_->transitionHeld()) return;
+    const double at = engine_->moveTransition(tbarDir_ * dt);
+    if (tbarDir_ < 0 && at <= 0.0) cancelTake();
+  }
+
+  // The bar pulled back to its start: the take did not happen.
+  void cancelTake() {
+    tbarDir_ = 0;
+    const TakeUndo u = takeUndo_;
+    takeUndo_.valid = false;
+    if (!u.valid || u.deck != showDeck_) return;   // another playlist's take (a song step): it stays held at the start
+    const int was = u.activeId.empty() ? -1 : indexOfCue(u.activeId);
+    if (was < 0) {
+      engine_->clear();
+      active_ = -1;
+      updatePixelHook();
+    } else {
+      tbarRestoring_ = true;
+      const Cue& c = cues_[static_cast<std::size_t>(was)];
+      active_ = was;
+      updatePixelHook();
+      fxState_.clear();
+      endHandled_ = false;
+      engine_->loadCue(&forEngine(c), !u.paused, 0.0, TransitionStyle::Cut);
+      if (cueHasTimeline(c)) engine_->seek(std::clamp(u.position, cueIn(c), cueOut(c)));
+      if (u.paused) engine_->pause();
+      tbarRestoring_ = false;
+    }
+    black_ = u.black;
+    selected_ = u.selected;
+    listEnded_ = u.listEnded;
+    shuffleBag_ = u.bag;
+    queueIds_ = u.queue;
+    notice_ = "Take cancelled";
+    noticeUntil_ = SDL_GetTicks() + 1500;
+    buzz("back");
+  }
+
+  // The bar along the bottom of the picture while it is held or moving.
+  void drawTbar() {
+    if (!engine_ || !(engine_->transitionHeld() || (tbarDir_ != 0 && !tbarFromGo_))) return;
+    if (picRect_.w <= 0) return;
+    SDL_Renderer* r = renderer_;
+    const float u = unit_;
+    const float p = static_cast<float>(engine_->transitionProgress01());
+    const SDL_FRect track {picRect_.x + 2 * u, picRect_.y + picRect_.h - 3.2f * u, picRect_.w - 4 * u, 1.6f * u};
+    fillRoundAlpha(r, Ink {0, 0, 0}, 0.55f, {track.x - 0.6f * u, track.y - 0.6f * u, track.w + 1.2f * u, track.h + 1.2f * u}, 1.1f * u);
+    fillRoundAlpha(r, Ink {235, 225, 160}, 0.9f, {track.x, track.y, track.w * p, track.h}, 0.8f * u);
+    const float kx = track.x + track.w * p;
+    fillRound(r, Ink {245, 240, 225}, {kx - 0.8f * u, track.y - 1.2f * u, 1.6f * u, track.h + 2.4f * u}, 0.5f * u);
+  }
+
   void go() {
     if (followLocked()) return;
     if (cues_.empty()) return;
+    if (engine_->transitionHeld()) {   // the T-bar left it partway: GO lets it finish
+      engine_->letTransitionRun();
+      takeUndo_.valid = false;
+      return;
+    }
     if (listEnded_ && selected_ == active_ && songAdvance()) return;   // a song: the next step
     if (listEnded_ && selected_ == active_) {
       notice_ = "End of the list. LOOP LIST in MENU > LIST plays it again.";
@@ -9891,6 +10024,20 @@ class Pocket {
     if (i < 0 || i >= static_cast<int>(cues_.size())) return;
     const bool leavingCamera = active_ >= 0 && active_ < static_cast<int>(cues_.size()) &&
                                isCameraCue(cues_[static_cast<std::size_t>(active_)]) && active_ != i;
+    if (!tbarRestoring_) {
+      takeUndo_ = {};
+      takeUndo_.valid = true;
+      takeUndo_.deck = showDeck_;
+      takeUndo_.active = active_;
+      takeUndo_.activeId = active_ >= 0 && active_ < static_cast<int>(cues_.size()) ? cues_[static_cast<std::size_t>(active_)].id : std::string();
+      takeUndo_.position = engine_->position();
+      takeUndo_.paused = engine_->state() == TransportState::Paused;
+      takeUndo_.black = black_;
+      takeUndo_.selected = selected_;
+      takeUndo_.listEnded = listEnded_;
+      takeUndo_.bag = shuffleBag_;
+      takeUndo_.queue = queueIds_;
+    }
     fxState_.clear();   // an effect that remembers starts fresh on each take
     {
       std::lock_guard<std::mutex> hold(genLock_);
@@ -10061,6 +10208,19 @@ class Pocket {
   // the open show (see currentShow)
   Project show_;
   int showDeck_ = 0;
+  // The T-bar (tbarService): which way a held arrow moves it (0 none), whether
+  // the hold began as a GO that is still a tap, and what the take replaced.
+  int tbarDir_ = 0;
+  bool tbarFromGo_ = false, tbarRestoring_ = false;
+  Uint64 tbarDownMs_ = 0, tbarLastNs_ = 0;
+  struct TakeUndo {
+    bool valid = false, paused = false, black = false, listEnded = false;
+    int deck = 0, active = -1, selected = 0;
+    std::string activeId;
+    double position = 0.0;
+    std::vector<std::string> bag, queue;
+  };
+  TakeUndo takeUndo_;
   std::string showFile_, showsDir_, lastAutosave_, confirmOpen_;
   bool confirmNew_ = false;
   Uint64 autosaveAt_ = 0;

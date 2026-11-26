@@ -2082,9 +2082,7 @@ const DecodedFrame* MediaEngine::currentFrame() const {
     // for the incoming cue to decode. A cue that never decodes at all must not
     // leave the previous picture up looking like it worked.
     const double limit = 1.0 + outgoingSeconds_;
-    const double held = std::chrono::duration<double>(
-      std::chrono::steady_clock::now() - heldFrameSince_).count();
-    if (held <= limit) {
+    if (tbarHeld_ || heldElapsed() <= limit) {
       return &(*heldFrame_);
     }
   }
@@ -6164,6 +6162,7 @@ void MediaEngine::beginTransition(double seconds, TransitionStyle style, float s
   transitionSourceGain_ = std::clamp(sourceGain, 0.0f, 1.0f);
   transitionActive_ = true;
   transitionWaitingForFirstFrame_ = true;  // timer starts when incoming cue provides first frame
+  tbarHeld_ = false;                       // a new take lets go of the T-bar
   ++transitionSeed_;
 }
 
@@ -6182,6 +6181,7 @@ void MediaEngine::clearTransitionTexture() {
   transitionTextureHeight_ = 0;
   transitionActive_ = false;
   transitionWaitingForFirstFrame_ = false;
+  tbarHeld_ = false;
   transitionDurationSeconds_ = 0.0;
   transitionStyle_ = TransitionStyle::Cut;
   transitionSourceGain_ = 1.0f;
@@ -6462,8 +6462,8 @@ void MediaEngine::drawTransitionOverlay(const SDL_Rect& target, bool drewCurrent
     }
   }
 
-  // Phase 2: transition is actively animating
-  double elapsed = std::chrono::duration<double>(std::chrono::steady_clock::now() - transitionStartedAt_).count();
+  // Phase 2: transition is actively animating (or held by the T-bar)
+  double elapsed = transitionElapsed();
   double progress = transitionDurationSeconds_ <= 0.0001 ? 1.0 : std::clamp(elapsed / transitionDurationSeconds_, 0.0, 1.0);
   if (progress >= 1.0) {
     clearTransitionTexture();  // transition complete — release snapshot
@@ -6529,7 +6529,7 @@ double MediaEngine::geometryLfoSwing(const deckboy::effects::ParamLfo& lfo) cons
 // both, a wipe shows each through its side of a travelling edge, an iris
 // shows the incoming picture through an opening circle.
 bool MediaEngine::drawGeometricTransition(const SDL_Rect& target) {
-  const double elapsed = std::chrono::duration<double>(std::chrono::steady_clock::now() - transitionStartedAt_).count();
+  const double elapsed = transitionElapsed();
   const double linear = transitionDurationSeconds_ <= 0.0001 ? 1.0 : std::clamp(elapsed / transitionDurationSeconds_, 0.0, 1.0);
   if (linear >= 1.0) {
     clearTransitionTexture();

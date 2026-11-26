@@ -899,6 +899,44 @@ class MediaEngine {
   // needs to be able to see this to know whether the two agree.
   bool transitionRunning() const { return transitionActive_; }
 
+  // ── THE T-BAR (Pocket: hold LEFT or RIGHT on the pad) ──────────────────
+  //
+  // A running transition can be HELD: its time then moves only when
+  // moveTransition moves it, so the two pictures stay mixed where it was
+  // stopped. letTransitionRun hands it back to the clock from where it
+  // stands (GO finishes it at its own speed). Moved to its end, it lets go
+  // by itself; a new take or clear() lets go too. Both clocks follow it:
+  // the engine's own drawing (transitionElapsed) and the held outgoing
+  // frame (heldElapsed), so the outgoing picture is never dropped while held.
+  bool transitionInProgress() const { return transitionActive_ && transitionProgress01() < 1.0; }
+  bool transitionHeld() const { return tbarHeld_; }
+  double transitionProgress01() const {
+    if (!transitionActive_ || transitionDurationSeconds_ <= 0.0001) return 1.0;
+    return std::clamp(transitionElapsed() / transitionDurationSeconds_, 0.0, 1.0);
+  }
+  double transitionSeconds() const { return transitionDurationSeconds_; }
+  void holdTransition() {
+    if (!transitionActive_ || tbarHeld_) return;
+    tbarElapsed_ = transitionElapsed();
+    tbarHeld_ = true;
+  }
+  // Seconds of the transition's own time, forward or back; the progress after.
+  double moveTransition(double seconds) {
+    if (!tbarHeld_) return transitionProgress01();
+    tbarElapsed_ = std::clamp(tbarElapsed_ + seconds, 0.0, transitionDurationSeconds_);
+    const double p = transitionProgress01();
+    if (p >= 1.0) letTransitionRun();   // at the end: nothing left to hold
+    return p;
+  }
+  void letTransitionRun() {
+    if (!tbarHeld_) return;
+    const auto now = std::chrono::steady_clock::now();
+    const auto back = std::chrono::duration_cast<std::chrono::steady_clock::duration>(std::chrono::duration<double>(tbarElapsed_));
+    transitionStartedAt_ = now - back;
+    heldFrameSince_ = now - back;
+    tbarHeld_ = false;
+  }
+
   // ── THE TRANSITION THE OUTPUT CAN ACTUALLY USE ──────────────────────────
   //
   // The state above belongs to render(), which nothing calls: the output
@@ -988,9 +1026,7 @@ class MediaEngine {
     if (!heldFrame_.has_value() || outgoingSeconds_ <= 0.0001) {
       return 1.0;
     }
-    const double elapsed = std::chrono::duration<double>(
-      std::chrono::steady_clock::now() - heldFrameSince_).count();
-    return std::clamp(elapsed / outgoingSeconds_, 0.0, 1.0);
+    return std::clamp(heldElapsed() / outgoingSeconds_, 0.0, 1.0);
   }
 
   // Let the outgoing frame go once it has nothing left to contribute. For a
@@ -1002,9 +1038,7 @@ class MediaEngine {
       heldFrame_.reset();
       return;
     }
-    const double elapsed = std::chrono::duration<double>(
-      std::chrono::steady_clock::now() - heldFrameSince_).count();
-    if (elapsed >= outgoingSeconds_) {
+    if (heldElapsed() >= outgoingSeconds_) {
       heldFrame_.reset();
     }
   }
@@ -1664,6 +1698,21 @@ class MediaEngine {
 
   // -- State: transition timing ------------------------------------------------
   std::chrono::steady_clock::time_point transitionStartedAt_ = std::chrono::steady_clock::now();
+  // The T-bar: held, and how far into the transition it was held (seconds).
+  bool tbarHeld_ = false;
+  double tbarElapsed_ = 0.0;
+  // Seconds into the engine's own transition (0 while it waits for the
+  // incoming picture), or where the T-bar holds it.
+  double transitionElapsed() const {
+    if (tbarHeld_) return tbarElapsed_;
+    if (transitionWaitingForFirstFrame_) return 0.0;
+    return std::chrono::duration<double>(std::chrono::steady_clock::now() - transitionStartedAt_).count();
+  }
+  // Seconds since the outgoing frame was held, or where the T-bar holds it.
+  double heldElapsed() const {
+    if (tbarHeld_) return tbarElapsed_;
+    return std::chrono::duration<double>(std::chrono::steady_clock::now() - heldFrameSince_).count();
+  }
 
   // -- State: audio ------------------------------------------------------------
   std::atomic<float> volume_ {1.0f};         // playback volume (0–1, thread-safe)
