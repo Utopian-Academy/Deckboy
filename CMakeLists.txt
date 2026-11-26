@@ -195,6 +195,15 @@ option(DECKBOY_INPROC_DECODE "Decode media in-process via libav (GPU zero-copy)"
 # A release build sets this: a missing libav is then a failed build, not a
 # warning nobody reads and a download without GPU decode or SRT sound.
 option(DECKBOY_REQUIRE_INPROC_DECODE "Fail the configure if libav is not found" OFF)
+# Symbols for an MSVC Release build: the same optimised code, a .pdb beside the
+# exe. CI turns it on so a test that hangs prints every thread's stack through
+# cdb (tools/deckboy_harness.py). Never packaged: package_windows.ps1 copies
+# the exe and the DLLs only.
+option(DECKBOY_RELEASE_PDB "Write a .pdb for MSVC Release builds" OFF)
+if(MSVC AND DECKBOY_RELEASE_PDB)
+  add_compile_options("$<$<CONFIG:Release>:/Zi>" "$<$<CONFIG:Release>:/FS>")
+  add_link_options("$<$<CONFIG:Release>:/DEBUG>" "$<$<CONFIG:Release>:/OPT:REF>" "$<$<CONFIG:Release>:/OPT:ICF>")
+endif()
 set(DECKBOY_INPROC_DECODE_ACTIVE OFF)
 if(DECKBOY_INPROC_DECODE)
   find_path(DECKBOY_AVCODEC_INCLUDE_DIR NAMES libavcodec/avcodec.h)

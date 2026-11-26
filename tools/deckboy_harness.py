@@ -171,6 +171,38 @@ class Deckboy:
             for line in tail:
                 sys.stderr.write("  | " + line + "\n")
 
+    def _print_stacks(self):
+        """A Deckboy that is running but not answering: every thread's stack,
+        once per run, so a CI log says WHERE it is stuck. On Windows through
+        cdb (GitHub's Windows image has it in the Windows Kits), attached
+        non-invasively; Deckboy's own .pdb sits beside the exe. Nothing on a
+        machine without cdb. (2026-11-26: check_programme_colour has had no
+        reply to its first command on every CI run since GitHub's windows-2022
+        image 20261116, and passes on a desk.)"""
+        if getattr(self, "_stacks_printed", False) or os.name != "nt":
+            return
+        self._stacks_printed = True
+        kits = os.path.join(os.environ.get("ProgramFiles(x86)", r"C:\Program Files (x86)"),
+                            "Windows Kits", "10", "Debuggers", "x64", "cdb.exe")
+        cdb = kits if os.path.isfile(kits) else shutil.which("cdb")
+        if not cdb:
+            sys.stderr.write("[harness] no cdb here: no stacks\n")
+            return
+        symbols = os.path.dirname(self.args.exe)
+        if os.environ.get("CI"):
+            symbols += r";srv*%s*https://msdl.microsoft.com/download/symbols" % os.path.join(tempfile.gettempdir(), "symbols")
+        try:
+            out = subprocess.run([cdb, "-pv", "-p", str(self.proc.pid), "-y", symbols,
+                                  "-c", ".reload /f Deckboy.exe; ~*kn 40; qd"],
+                                 capture_output=True, text=True, errors="replace", timeout=240).stdout
+        except (OSError, subprocess.TimeoutExpired) as e:
+            sys.stderr.write("[harness] cdb failed: %s\n" % e)
+            return
+        sys.stderr.write("[harness] every thread's stack (cdb):\n")
+        for line in out.splitlines():
+            if line.strip():
+                sys.stderr.write("  # " + line + "\n")
+
     def wait_ready(self, seconds=60.0):
         deadline = time.time() + seconds
         while time.time() < deadline:
@@ -199,6 +231,8 @@ class Deckboy:
                     sys.stderr.write("[harness] %r: no reply within %.0f s; Deckboy %s\n"
                                      % (command, timeout, "is still running" if alive
                                         else "exited with code %s" % self.proc.returncode))
+                    if alive and self.proc is not None:
+                        self._print_stacks()
                     return ""
         except OSError:
             # A refused connection mid-run is a dead app, not a network fault:

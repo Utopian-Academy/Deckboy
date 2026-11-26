@@ -1543,7 +1543,7 @@ jobs:
           - features: none
             cmake_args: "-DENABLE_DECKLINK=OFF -DDECKBOY_ENABLE_NDI=OFF -DENABLE_ASIO=OFF -DDECKBOY_INPROC_DECODE=OFF"
           - features: all
-            cmake_args: "-DENABLE_MIDI=ON -DENABLE_SPOUT=ON -DENABLE_WEBVIEW=ON -DDECKBOY_REQUIRE_INPROC_DECODE=ON"
+            cmake_args: "-DENABLE_MIDI=ON -DENABLE_SPOUT=ON -DENABLE_WEBVIEW=ON -DDECKBOY_REQUIRE_INPROC_DECODE=ON -DDECKBOY_RELEASE_PDB=ON"
     steps:
       - uses: actions/checkout@v4
 
