@@ -5110,3 +5110,8 @@ STOP SONG	PARA LA CANCIÓN
 PLAYLIST NAME	NOMBRE DE LA LISTA
 SONG  (PLAYING)  >	CANCIÓN  (SONANDO)  >
 Playlists in the order they play. Each plays to its end, as many times as you set, then the next.	Las listas en el orden en que tocan. Cada una toca hasta el final, tantas veces como definas, y después la siguiente.
+None yet.	Ninguno aún.
+live holds	pausas en candela
+goes on {1} after it ends	arranca {1} después de que termina
+goes on {1} after it starts	arranca {1} después de que empieza
+EDIT > a cue's TRIGGERS > key: press F1 to F8.	EDITAR > DISPARADORES de un cue > tecla: pulsar de F1 a F8.

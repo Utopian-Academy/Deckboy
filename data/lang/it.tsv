@@ -5105,3 +5105,8 @@ STOP SONG	FERMA BRANO
 PLAYLIST NAME	NOME SCALETTA
 SONG  (PLAYING)  >	BRANO  (IN PLAY)  >
 Playlists in the order they play. Each plays to its end, as many times as you set, then the next.	Scalette nell'ordine in cui suonano. Ognuna suona fino alla fine, quante volte imposti, poi la successiva.
+None yet.	Ancora nessuno.
+live holds	resta in onda
+goes on {1} after it ends	parte {1} dopo la fine
+goes on {1} after it starts	parte {1} dopo l'inizio
+EDIT > a cue's TRIGGERS > key: press F1 to F8.	MODIFICA > TRIGGER di un cue > tasto: premi da F1 a F8.

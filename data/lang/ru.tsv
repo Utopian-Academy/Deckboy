@@ -5143,3 +5143,8 @@ STOP SONG	СТОП ПЕСНЯ
 PLAYLIST NAME	ИМЯ ПЛЕЙЛИСТА
 SONG  (PLAYING)  >	ПЕСНЯ  (ИГРАЕТ)  >
 Playlists in the order they play. Each plays to its end, as many times as you set, then the next.	Плейлисты в порядке воспроизведения. Каждый играет до конца столько раз, сколько вы зададите, затем следующий.
+None yet.	Пока нет.
+live holds	в эфире остаётся
+goes on {1} after it ends	продолжает через {1} после окончания
+goes on {1} after it starts	продолжает через {1} после старта
+EDIT > a cue's TRIGGERS > key: press F1 to F8.	ПРАВКА > ТРИГГЕРЫ cue > клавиша: нажмите от F1 до F8.

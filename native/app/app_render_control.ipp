@@ -3270,13 +3270,27 @@
         // A SMALLER FACE BEFORE AN ELLIPSIS. At a small window's scale the
         // buttons narrow and "PATTERN" became "PAT..." in the pixel face while
         // the small one had room for the whole word.
+        //
+        // THE PIXEL FACE, SMALLER, BEFORE ANOTHER FACE. Falling straight to the
+        // sans drew PATTERN and TAKE ALL in a different font from the rest of
+        // the bar (the 430 usability audit). The pixel face at 85% and 70%
+        // is tried first; the sans only when even that will not fit.
         {
-          int titleW = 0;
-          if (titleFont && fontSmall_ && titleFont != fontSmall_ &&
-              textSizeShown(titleFont, shownLabel.c_str(), shownLabel.size(),
-                                &titleW, nullptr) &&
-              titleW > titleRoom) {
-            titleFont = fontSmall_;
+          auto fits = [&](TTF_Font* f) {
+            int w = 0;
+            return f && textSizeShown(f, shownLabel.c_str(), shownLabel.size(), &w, nullptr) && w <= titleRoom;
+          };
+          if (titleFont && !fits(titleFont)) {
+            TTF_Font* chosen = nullptr;
+            if (titleFont == fontPixelSmall_) {
+              const auto at = fontLadders_.find(fontPixelSmall_);
+              const int base = at != fontLadders_.end() ? at->second.baseSize : 0;
+              for (double share : {0.85, 0.7}) {
+                TTF_Font* smaller = base > 0 ? fontAtSize(fontPixelSmall_, std::max(6, static_cast<int>(std::lround(base * share)))) : nullptr;
+                if (fits(smaller)) { chosen = smaller; break; }
+              }
+            }
+            titleFont = chosen ? chosen : (fontSmall_ ? fontSmall_ : titleFont);
           }
         }
         std::string clipped = ellipsizeToPixelWidth(titleFont, shownLabel, titleRoom);

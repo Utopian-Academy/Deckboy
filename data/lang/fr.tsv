@@ -5075,3 +5075,8 @@ STOP SONG	ARRÊTER LA CHANSON
 PLAYLIST NAME	NOM DE LA LISTE
 SONG  (PLAYING)  >	CHANSON  (LECTURE)  >
 Playlists in the order they play. Each plays to its end, as many times as you set, then the next.	Les listes dans leur ordre de lecture. Chacune joue jusqu'à la fin, autant de fois que tu le définis, puis la suivante.
+None yet.	Aucun pour l'instant.
+live holds	pauses en direct
+goes on {1} after it ends	démarre {1} après sa fin
+goes on {1} after it starts	démarre {1} après son début
+EDIT > a cue's TRIGGERS > key: press F1 to F8.	MODIFIER > DÉCLENCHEURS d'un cue > touche : appui sur F1 à F8.

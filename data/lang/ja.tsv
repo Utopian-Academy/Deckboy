@@ -5143,3 +5143,8 @@ STOP SONG	曲を停止
 PLAYLIST NAME	プレイリスト名
 SONG  (PLAYING)  >	曲  (再生中)  >
 Playlists in the order they play. Each plays to its end, as many times as you set, then the next.	再生する順に並んだプレイリスト。それぞれ最後まで、設定した回数だけ再生してから次へ。
+None yet.	まだなし。
+live holds	ライブで保持
+goes on {1} after it ends	終了から{1}後に開始
+goes on {1} after it starts	開始から{1}後に開始
+EDIT > a cue's TRIGGERS > key: press F1 to F8.	編集 > キューのトリガー > キー：F1～F8を押す。

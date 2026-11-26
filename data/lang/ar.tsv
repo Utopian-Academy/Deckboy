@@ -5157,3 +5157,8 @@ STOP SONG	إيقاف الأغنية
 PLAYLIST NAME	اسم قائمة التشغيل
 SONG  (PLAYING)  >	أغنية  (قيد التشغيل)  >
 Playlists in the order they play. Each plays to its end, as many times as you set, then the next.	قوائم التشغيل بترتيب تشغيلها. تُشغَّل كلٌّ منها حتى نهايتها، بعدد المرات التي تعيّنها، ثم التالية.
+None yet.	لا شيء بعد.
+live holds	يبقى على الهواء
+goes on {1} after it ends	يبدأ بعد {1} من انتهائه
+goes on {1} after it starts	يبدأ بعد {1} من بدئه
+EDIT > a cue's TRIGGERS > key: press F1 to F8.	تحرير > المشغّلات في كيو > مفتاح: اضغط F1 حتى F8.

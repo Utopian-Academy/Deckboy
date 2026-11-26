@@ -5134,3 +5134,8 @@ STOP SONG	ŞARKIYI DURDUR
 PLAYLIST NAME	ÇALMA LİSTESİ ADI
 SONG  (PLAYING)  >	ŞARKI  (OYNATILIYOR)  >
 Playlists in the order they play. Each plays to its end, as many times as you set, then the next.	Çalma listeleri çalınacakları sırayla. Her biri ayarladığın sayıda sonuna kadar çalar, sonra sonraki gelir.
+None yet.	Henüz yok.
+live holds	canlı kalır
+goes on {1} after it ends	bittikten {1} sonra devam eder
+goes on {1} after it starts	başladıktan {1} sonra devam eder
+EDIT > a cue's TRIGGERS > key: press F1 to F8.	DÜZENLE > bir cue'nun TETİKLEYİCİLER'i > tuş: F1 ile F8 arasına bas.

@@ -5141,3 +5141,8 @@ STOP SONG	노래 정지
 PLAYLIST NAME	재생 목록 이름
 SONG  (PLAYING)  >	노래  (재생 중)  >
 Playlists in the order they play. Each plays to its end, as many times as you set, then the next.	재생 순서대로 놓인 플레이리스트. 각각 설정한 횟수만큼 끝까지 재생된 뒤 다음으로 넘어갑니다.
+None yet.	아직 없음.
+live holds	라이브 유지
+goes on {1} after it ends	종료 {1} 후 진행
+goes on {1} after it starts	시작 {1} 후 진행
+EDIT > a cue's TRIGGERS > key: press F1 to F8.	편집 > 큐의 트리거 > 키: F1~F8을 누르세요.

@@ -5137,3 +5137,8 @@ STOP SONG	ΣΤΟΠ ΤΡΑΓΟΥΔΙ
 PLAYLIST NAME	ΟΝΟΜΑ ΛΙΣΤΑΣ
 SONG  (PLAYING)  >	ΤΡΑΓΟΥΔΙ  (ΠΑΙΖΕΙ)  >
 Playlists in the order they play. Each plays to its end, as many times as you set, then the next.	Οι λίστες με τη σειρά που παίζουν. Η καθεμία παίζει ως το τέλος, όσες φορές ορίσεις, και μετά η επόμενη.
+None yet.	Κανένα ακόμη.
+live holds	μένει στον αέρα
+goes on {1} after it ends	ξεκινά {1} μετά το τέλος του
+goes on {1} after it starts	ξεκινά {1} μετά την έναρξή του
+EDIT > a cue's TRIGGERS > key: press F1 to F8.	ΕΠΕΞΕΡΓΑΣΙΑ > ΣΚΑΝΔΑΛΙΣΜΟΙ ενός cue > πλήκτρο: πατήστε F1 έως F8.

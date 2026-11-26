@@ -5116,3 +5116,8 @@ STOP SONG	STOP CANCION
 PLAYLIST NAME	NOMBER DI PLAYLIST
 SONG  (PLAYING)  >	CANCION  (TOCANDO)  >
 Playlists in the order they play. Each plays to its end, as many times as you set, then the next.	Playlistnan den e orden cu nan ta toca. Cada un ta toca te na su fin, tanto biaha cu bo pone, despues e siguiente.
+None yet.	Ainda ningun.
+live holds	bibu ta keda
+goes on {1} after it ends	ta sigui {1} despues cu e caba
+goes on {1} after it starts	ta sigui {1} despues cu e cuminsa
+EDIT > a cue's TRIGGERS > key: press F1 to F8.	EDITA > TRIGGER di un cue > tecla: primi F1 te F8.

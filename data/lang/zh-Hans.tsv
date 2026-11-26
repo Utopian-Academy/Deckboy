@@ -5141,3 +5141,8 @@ STOP SONG	停止歌曲
 PLAYLIST NAME	播放列表名称
 SONG  (PLAYING)  >	歌曲  (播放中)  >
 Playlists in the order they play. Each plays to its end, as many times as you set, then the next.	播放列表按播放顺序排列。每个播放列表播放到结尾，按你设置的次数重复，然后播放下一个。
+None yet.	暂无。
+live holds	直播保持
+goes on {1} after it ends	结束 {1} 后继续
+goes on {1} after it starts	开始 {1} 后继续
+EDIT > a cue's TRIGGERS > key: press F1 to F8.	编辑 > cue 的触发器 > 键：按下 F1 到 F8。

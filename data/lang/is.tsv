@@ -5135,3 +5135,8 @@ STOP SONG	STÖÐVA LAG
 PLAYLIST NAME	HEITI SPILUNARLISTA
 SONG  (PLAYING)  >	LAG  (SPILAR)  >
 Playlists in the order they play. Each plays to its end, as many times as you set, then the next.	Spilunarlistar í þeirri röð sem þeir spila. Hver spilar til enda, eins oft og þú stillir, svo sá næsti.
+None yet.	Ekkert enn.
+live holds	helst í beinni
+goes on {1} after it ends	fer af {1} eftir lok
+goes on {1} after it starts	fer af {1} eftir upphaf
+EDIT > a cue's TRIGGERS > key: press F1 to F8.	BREYTA > KVEIKJUR cue > lykill: ýttu á F1 til F8.

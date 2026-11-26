@@ -5143,3 +5143,8 @@ STOP SONG	СПРИ ПЕСЕНТА
 PLAYLIST NAME	ИМЕ НА СПИСЪКА
 SONG  (PLAYING)  >	ПЕСЕН  (ВЪЗПРОИЗВЕЖДА)  >
 Playlists in the order they play. Each plays to its end, as many times as you set, then the next.	Плейлистите в реда, в който се пускат. Всеки свири до края си толкова пъти, колкото зададеш, после следващият.
+None yet.	Още няма.
+live holds	остава на живо
+goes on {1} after it ends	тръгва {1} след края му
+goes on {1} after it starts	тръгва {1} след началото му
+EDIT > a cue's TRIGGERS > key: press F1 to F8.	РЕДАКТИРАЙ > СПУСЪЦИ на cue > клавиш: натисни F1 до F8.

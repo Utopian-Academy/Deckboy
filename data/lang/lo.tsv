@@ -5126,3 +5126,8 @@ STOP SONG	ຢຸດເພງ
 PLAYLIST NAME	ຊື່ PLAYLIST
 SONG  (PLAYING)  >	ເພງ  (ກຳລັງຫຼິ້ນ)  >
 Playlists in the order they play. Each plays to its end, as many times as you set, then the next.	playlist ຕາມລຳດັບທີ່ມັນຫຼິ້ນ. ແຕ່ລະອັນຫຼິ້ນຈົນຈົບ ຕາມຈຳນວນເທື່ອທີ່ເຈົ້າຕັ້ງ, ແລ້ວອັນຖັດໄປ.
+None yet.	ຍັງບໍ່ມີ.
+live holds	ສົດຄ້າງໄວ້
+goes on {1} after it ends	ໄປຕໍ່ {1} ຫຼັງຈົບ
+goes on {1} after it starts	ໄປຕໍ່ {1} ຫຼັງເລີ່ມ
+EDIT > a cue's TRIGGERS > key: press F1 to F8.	ແກ້ໄຂ > ຕົວເລີ່ມ ຂອງ cue > ປຸ່ມ: ກົດ F1 ຫາ F8.

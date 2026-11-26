@@ -5139,3 +5139,8 @@ STOP SONG	STAD AN T-ÒRAN
 PLAYLIST NAME	AINM NA LIOSTA
 SONG  (PLAYING)  >	ÒRAN  (A' CLUICH)  >
 Playlists in the order they play. Each plays to its end, as many times as you set, then the next.	Liostaichean san òrdugh sa chluicheas iad. Cluichidh gach tè gu a deireadh, uimhir de thursan 's a shuidhicheas tu, an uairsin an ath thè.
+None yet.	Gin fhathast.
+live holds	stadan beò
+goes on {1} after it ends	tòisichidh e {1} às dèidh dha crìochnachadh
+goes on {1} after it starts	tòisichidh e {1} às dèidh dha tòiseachadh
+EDIT > a cue's TRIGGERS > key: press F1 to F8.	DEASAICH > INNEALAN-TÒISEACHAIDH cue > iuchair: brùth F1 gu F8.

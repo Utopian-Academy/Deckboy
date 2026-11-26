@@ -5102,3 +5102,8 @@ STOP SONG	LIED STOPPEN
 PLAYLIST NAME	LISTENNAME
 SONG  (PLAYING)  >	LIED  (LÄUFT)  >
 Playlists in the order they play. Each plays to its end, as many times as you set, then the next.	Playlists in der Reihenfolge, in der sie laufen. Jede spielt bis zum Ende, so oft du es setzt, dann die nächste.
+None yet.	Noch keine.
+live holds	bleibt live
+goes on {1} after it ends	startet {1} nach dessen Ende
+goes on {1} after it starts	startet {1} nach dessen Start
+EDIT > a cue's TRIGGERS > key: press F1 to F8.	BEARBEITEN > AUSLÖSER eines Cues > Taste: F1 bis F8 drücken.

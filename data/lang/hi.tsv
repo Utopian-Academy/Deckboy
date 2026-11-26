@@ -5145,3 +5145,8 @@ STOP SONG	गाना रोकें
 PLAYLIST NAME	सूची नाम
 SONG  (PLAYING)  >	गाना  (चल रहा)  >
 Playlists in the order they play. Each plays to its end, as many times as you set, then the next.	प्लेलिस्ट उसी क्रम में जिसमें वे बजती हैं। हर एक अंत तक बजती है, जितनी बार आप तय करें, फिर अगली।
+None yet.	अभी कोई नहीं।
+live holds	लाइव पर रुका रहता है
+goes on {1} after it ends	समाप्त होने के {1} बाद चलता है
+goes on {1} after it starts	शुरू होने के {1} बाद चलता है
+EDIT > a cue's TRIGGERS > key: press F1 to F8.	संपादित करें > क्यू के ट्रिगर > कुंजी: F1 से F8 दबाएँ।

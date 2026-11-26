@@ -1900,9 +1900,11 @@
     // active. If you add or move a key binding, update this table in the same
     // commit.
     struct ShortcutEntry { const char* key; const char* desc; };
-    static const ShortcutEntry shortcuts[] = {
+    // Not static: the Space row follows SHOW FLOW's Space key setting.
+    const ShortcutEntry shortcuts[] = {
       {"Enter",           "Take selected cue live"},
-      {"Space",           "Play / Pause"},
+      {project_.spaceTakes ? "Space / Shift+Space" : "Space",
+       project_.spaceTakes ? "Take selected cue live / Play / Pause" : "Play / Pause"},
       {". / ,",           "Skip to next / previous cue"},
       {"PgDn / PgUp",     "Take next / previous with the transition, even from an output"},
       {"Right / Left",    "The same as PgDn / PgUp (a clicker set to arrows)"},

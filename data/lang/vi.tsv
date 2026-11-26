@@ -5126,3 +5126,8 @@ STOP SONG	DỪNG BÀI HÁT
 PLAYLIST NAME	TÊN PLAYLIST
 SONG  (PLAYING)  >	BÀI HÁT  (ĐANG PHÁT)  >
 Playlists in the order they play. Each plays to its end, as many times as you set, then the next.	Các playlist theo thứ tự phát. Mỗi playlist phát đến hết, bao nhiêu lần tùy bạn đặt, rồi tới playlist kế tiếp.
+None yet.	Chưa có.
+live holds	lệnh giữ đang TRỰC TIẾP
+goes on {1} after it ends	tiếp tục {1} sau khi kết thúc
+goes on {1} after it starts	tiếp tục {1} sau khi bắt đầu
+EDIT > a cue's TRIGGERS > key: press F1 to F8.	SỬA > KÍCH HOẠT của cue > phím: nhấn F1 đến F8.

@@ -5144,3 +5144,8 @@ STOP SONG	وەستاندنی گۆرانی
 PLAYLIST NAME	ناوی لیستی لێدان
 SONG  (PLAYING)  >	گۆرانی  (لێدەدرێت)  >
 Playlists in the order they play. Each plays to its end, as many times as you set, then the next.	لیستەکانی لێدان بەو ڕیزبەندییەی لێدەدرێن. هەریەکەیان تا کۆتایی لێدەدرێت، هێندەی جار کە دیاریت کردووە، پاشان دواتر.
+None yet.	هێشتا هیچ.
+live holds	ڕاستەوخۆ دەمێنێتەوە
+goes on {1} after it ends	{1} دوای کۆتایی هاتنی دەست پێ دەکات
+goes on {1} after it starts	{1} دوای دەستپێکردنی دەست پێ دەکات
+EDIT > a cue's TRIGGERS > key: press F1 to F8.	دەستکاری > هاندەرەکانی cue یەک > کلیل: F1 تا F8 دابگرە.

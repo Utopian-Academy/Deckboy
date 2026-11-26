@@ -5098,3 +5098,8 @@ STOP SONG	PARAR MÚSICA
 PLAYLIST NAME	NOME DA LISTA
 SONG  (PLAYING)  >	MÚSICA  (REPRODUZINDO)  >
 Playlists in the order they play. Each plays to its end, as many times as you set, then the next.	Playlists na ordem em que tocam. Cada uma toca até o fim, quantas vezes você definir, e depois a próxima.
+None yet.	Nenhum ainda.
+live holds	ao vivo permanece
+goes on {1} after it ends	segue {1} após terminar
+goes on {1} after it starts	segue {1} após começar
+EDIT > a cue's TRIGGERS > key: press F1 to F8.	EDITAR > GATILHOS de um cue > tecla: aperte de F1 a F8.

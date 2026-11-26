@@ -4225,3 +4225,8 @@ LOOP SONG: ON	KARTOTI DAINĄ: ĮJUNGTA
 PLAYLIST NAME	GROJARAŠČIO PAVADINIMAS
 SONG  (PLAYING)  >	DAINA  (ATKURIAMA)  >
 Playlists in the order they play. Each plays to its end, as many times as you set, then the next.	Grojaraščiai ta tvarka, kuria jie grojami. Kiekvienas grojamas iki pabaigos tiek kartų, kiek nustatysite, tada kitas.
+None yet.	Kol kas nėra.
+live holds	tiesiogiai laikoma
+goes on {1} after it ends	tęsiama {1} po pabaigos
+goes on {1} after it starts	tęsiama {1} po pradžios
+EDIT > a cue's TRIGGERS > key: press F1 to F8.	REDAGUOTI > ženklo PALEIDIKLIAI > klavišas: paspauskite F1–F8.

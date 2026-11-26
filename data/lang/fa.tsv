@@ -5157,3 +5157,8 @@ STOP SONG	توقف آهنگ
 PLAYLIST NAME	نام فهرست پخش
 SONG  (PLAYING)  >	آهنگ  (در حال پخش)  >
 Playlists in the order they play. Each plays to its end, as many times as you set, then the next.	فهرست‌های پخش به ترتیب نواختن. هر کدام تا پایانش می‌نوازد، به دفعاتی که تنظیم کنی، سپس بعدی.
+None yet.	هنوز هیچ.
+live holds	توقف‌های زنده
+goes on {1} after it ends	{1} پس از پایانش شروع می‌شود
+goes on {1} after it starts	{1} پس از شروعش شروع می‌شود
+EDIT > a cue's TRIGGERS > key: press F1 to F8.	ویرایش > محرک‌های یک کیو > کلید: F1 تا F8 را فشار دهید.

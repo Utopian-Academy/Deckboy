@@ -5142,3 +5142,8 @@ STOP SONG	PYSÄYTÄ KAPPALE
 PLAYLIST NAME	SOITTOLISTAN NIMI
 SONG  (PLAYING)  >	KAPPALE  (TOISTAA)  >
 Playlists in the order they play. Each plays to its end, as many times as you set, then the next.	Soittolistat soittojärjestyksessä. Kukin soittaa loppuunsa niin monta kertaa kuin asetat, sitten seuraava.
+None yet.	Ei vielä mitään.
+live holds	suorat tauot
+goes on {1} after it ends	käynnistyy {1} sen päättymisen jälkeen
+goes on {1} after it starts	käynnistyy {1} sen alkamisen jälkeen
+EDIT > a cue's TRIGGERS > key: press F1 to F8.	MUOKKAA > cuen LAUKAISIMET > näppäin: paina F1–F8.

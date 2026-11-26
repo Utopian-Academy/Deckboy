@@ -5085,3 +5085,8 @@ STOP SONG	STOP SANG
 PLAYLIST NAME	PLAYLISTENAVN
 SONG  (PLAYING)  >	SANG  (AFSPILLER)  >
 Playlists in the order they play. Each plays to its end, as many times as you set, then the next.	Playlister i den rækkefølge de spiller. Hver spiller til ende, så mange gange du indstiller, og så den næste.
+None yet.	Ingen endnu.
+live holds	forbliver live
+goes on {1} after it ends	starter {1} efter det slutter
+goes on {1} after it starts	starter {1} efter det starter
+EDIT > a cue's TRIGGERS > key: press F1 to F8.	REDIGER > et cues TRIGGERE > tast: tryk F1 til F8.

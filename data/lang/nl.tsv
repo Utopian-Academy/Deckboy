@@ -5074,3 +5074,8 @@ STOP SONG	STOP LIEDJE
 PLAYLIST NAME	AFSPEELLIJSTNAAM
 SONG  (PLAYING)  >	LIEDJE  (SPEELT)  >
 Playlists in the order they play. Each plays to its end, as many times as you set, then the next.	Afspeellijsten in de volgorde waarin ze spelen. Elke speelt tot het einde, zo vaak als je instelt, dan de volgende.
+None yet.	Nog geen.
+live holds	live blijft staan
+goes on {1} after it ends	gaat {1} na het einde verder
+goes on {1} after it starts	gaat {1} na de start verder
+EDIT > a cue's TRIGGERS > key: press F1 to F8.	BEWERKEN > TRIGGERS van een cue > toets: druk op F1 t/m F8.

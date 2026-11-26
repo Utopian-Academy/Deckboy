@@ -5130,3 +5130,8 @@ STOP SONG	MISA INGOMA
 PLAYLIST NAME	IGAMA LOHLU
 SONG  (PLAYING)  >	INGOMA  (KUYADLALA)  >
 Playlists in the order they play. Each plays to its end, as many times as you set, then the next.	Izinhlu ngokulandelana kwazo zidlala. Uhlu ngalunye ludlala luze luphele, izikhathi ozisethile, bese kudlala olulandelayo.
+None yet.	Akukho okwamanje.
+live holds	ukubamba okubukhoma
+goes on {1} after it ends	iqhubeka {1} ngemuva kokuphela
+goes on {1} after it starts	iqhubeka {1} ngemuva kokuqala
+EDIT > a cue's TRIGGERS > key: press F1 to F8.	HLELA > IZIQALISI ze-cue > inkinobho: cindezela u-F1 kuya ku-F8.

@@ -5155,3 +5155,8 @@ STOP SONG	HALI SONA
 PLAYLIST NAME	HOLA VEKAKU
 SONG  (PLAYING)  >	SONA  (LUMO)  >
 Playlists in the order they play. Each plays to its end, as many times as you set, then the next.	Vekaku kae ranaku. Ala soni go rana, tala tu seti, novtok novtoka.
+None yet.	Vana novtok.
+live holds	lumo hali
+goes on {1} after it ends	tiri {1} novtok hala
+goes on {1} after it starts	tiri {1} novtok lumakora
+EDIT > a cue's TRIGGERS > key: press F1 to F8.	SETI > veka SENIKU > bata: bati F1 dop F8.

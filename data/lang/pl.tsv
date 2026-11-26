@@ -5111,3 +5111,8 @@ STOP SONG	STOP UTWÓR
 PLAYLIST NAME	NAZWA PLAYLISTY
 SONG  (PLAYING)  >	UTWÓR  (ODTWARZA)  >
 Playlists in the order they play. Each plays to its end, as many times as you set, then the next.	Playlisty w kolejności, w jakiej grają. Każda gra do końca, tyle razy, ile ustawisz, potem następna.
+None yet.	Jeszcze brak.
+live holds	na żywo pozostaje
+goes on {1} after it ends	rusza dalej {1} po zakończeniu
+goes on {1} after it starts	rusza dalej {1} po starcie
+EDIT > a cue's TRIGGERS > key: press F1 to F8.	EDYTUJ > WYZWALACZE cue > klawisz: naciśnij od F1 do F8.
