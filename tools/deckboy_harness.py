@@ -138,7 +138,12 @@ class Deckboy:
         return self
 
     def __exit__(self, *exc):
-        """Stop the app and make sure it is gone, not just asked to go."""
+        """Stop the app and make sure it is gone, not just asked to go.
+        A check that failed keeps its folder and prints the end of the app's
+        log and any crash log, so CI shows why without an artifact."""
+        if exc and exc[0] is not None:
+            self.args.keep = True
+            self._print_tails()
         if self.proc.poll() is None:
             self.proc.terminate()
             try:
@@ -150,6 +155,21 @@ class Deckboy:
         if not self.args.keep:
             shutil.rmtree(self.root, ignore_errors=True)
         return False
+
+    def _print_tails(self, lines=40):
+        try:
+            self.log.flush()
+        except (OSError, ValueError):
+            pass
+        for name in ("app.log", os.path.join("data", "deckboy-crash.log")):
+            path = os.path.join(self.root, name)
+            if not os.path.isfile(path):
+                continue
+            with open(path, errors="replace") as f:
+                tail = f.read().splitlines()[-lines:]
+            sys.stderr.write("[harness] last %d lines of %s:\n" % (len(tail), path))
+            for line in tail:
+                sys.stderr.write("  | " + line + "\n")
 
     def wait_ready(self, seconds=60.0):
         deadline = time.time() + seconds
@@ -172,6 +192,13 @@ class Deckboy:
                 try:
                     return s.recv(65536).decode(errors="replace").strip()
                 except OSError:
+                    # NO REPLY is not a crash. Say which it was, so a CI log
+                    # that only shows "PAUSE -> " can tell a stalled app (still
+                    # running, busy past the timeout) from a dead one.
+                    alive = self.proc is None or self.proc.poll() is None
+                    sys.stderr.write("[harness] %r: no reply within %.0f s; Deckboy %s\n"
+                                     % (command, timeout, "is still running" if alive
+                                        else "exited with code %s" % self.proc.returncode))
                     return ""
         except OSError:
             # A refused connection mid-run is a dead app, not a network fault:
