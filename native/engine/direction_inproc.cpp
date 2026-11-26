@@ -121,6 +121,10 @@ bool decodeStills(const std::string& source, const std::vector<double>& times, i
               Still& s = out[k];
               s.width = w;
               s.height = h;
+              // Room past the end: sws_scale writes in whole SIMD blocks and
+              // can run up to 32 bytes past the last row (libav_decoder.cpp,
+              // kScalerSlack).
+              s.rgba.reserve(static_cast<std::size_t>(w) * h * 4 + 256);
               s.rgba.resize(static_cast<std::size_t>(w) * h * 4);
               uint8_t* dst[1] = {s.rgba.data()};
               int dstStride[1] = {w * 4};

@@ -64,6 +64,12 @@ extern "C" {
 
 namespace deckboy::libav {
 
+// SPARE BYTES PAST A SCALER'S DESTINATION. sws_scale writes in whole SIMD
+// blocks: converting a 200x120 JPEG to RGBA it wrote 32 bytes past the last
+// row (measured 2026-11-25). Every buffer it writes into keeps this much
+// capacity beyond its size, so those bytes land in memory the buffer owns.
+constexpr std::size_t kScalerSlack = 256;
+
 namespace {
 
 // Give up after this many consecutive failed packets/frames — a corrupt file
@@ -883,6 +889,7 @@ struct VideoPipeline::Impl {
                                      nullptr, nullptr, nullptr);
     if (!hdrSwsCtx) return false;
     const std::size_t plane = static_cast<std::size_t>(dstW) * dstH;
+    hdrPlanes.reserve(plane * 3 + kScalerSlack);   // see kScalerSlack
     hdrPlanes.resize(plane * 3);
     std::uint8_t* planes[4] = {reinterpret_cast<std::uint8_t*>(hdrPlanes.data()),
                                reinterpret_cast<std::uint8_t*>(hdrPlanes.data() + plane),
@@ -926,6 +933,7 @@ struct VideoPipeline::Impl {
     out.format = FramePixelFormat::RGBA32;
     out.colorspace = SDL_COLORSPACE_SRGB;
     out.pixels.resize(static_cast<std::size_t>(dstW) * dstH * 4);
+    turnScratch.reserve(static_cast<std::size_t>(sw) * sh * 4 + kScalerSlack);   // see kScalerSlack
     turnScratch.resize(static_cast<std::size_t>(sw) * sh * 4);
     swsCtx = sws_getCachedContext(swsCtx, src->width, src->height, srcFormat, sw, sh, AV_PIX_FMT_RGBA,
                                   SWS_FAST_BILINEAR, nullptr, nullptr, nullptr);
@@ -1125,6 +1133,7 @@ struct VideoPipeline::Impl {
     out.format = params.format;
     out.colorspace = params.format == FramePixelFormat::NV12 ? sourceColorspace() : SDL_COLORSPACE_SRGB;
     out.presentationSeconds = ptsSeconds;
+    out.pixels.reserve(bytes + kScalerSlack);   // see kScalerSlack
     out.pixels.resize(bytes);
 
     if (hdrSource) {
@@ -1954,10 +1963,17 @@ bool decodeImageRgba(const std::string& path, int& width, int& height,
                          frame->width, frame->height, AV_PIX_FMT_RGBA, SWS_POINT,
                          nullptr, nullptr, nullptr);
     if (!sws) break;
-    rgba.assign(static_cast<std::size_t>(bytes), 0);
+    // ROOM PAST THE END FOR THE SCALER. sws_scale writes in whole SIMD
+    // blocks, and on a width that is not a multiple of 16 it wrote 32 bytes
+    // beyond the last row (a 200x120 JPEG, measured 2026-11-25): a heap
+    // overrun that crashed the desk and Pocket the first time a Surf decoded
+    // a logo of that width. Padded here, trimmed after.
+    rgba.assign(static_cast<std::size_t>(bytes) + kScalerSlack, 0);
     std::uint8_t* dst[4] = {rgba.data(), nullptr, nullptr, nullptr};
     const int dstStride[4] = {frame->width * 4, 0, 0, 0};
-    if (sws_scale(sws, frame->data, frame->linesize, 0, frame->height, dst, dstStride) != frame->height) break;
+    const int rows = sws_scale(sws, frame->data, frame->linesize, 0, frame->height, dst, dstStride);
+    rgba.resize(static_cast<std::size_t>(bytes));
+    if (rows != frame->height) break;
     width = frame->width;
     height = frame->height;
 #if defined(__ANDROID__)
