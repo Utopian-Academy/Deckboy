@@ -5129,3 +5129,11 @@ Every so many seconds it throws something in by itself: one of what has been thr
 LIST	ΛΙΣΤΑ
 PLACE	ΤΟΠΟΘΕΤΗΣΗ
 NEW BEACH	ΝΕΑ ΠΑΡΑΛΙΑ
+SURE?	ΣΙΓΟΥΡΑ;
+Pocket	Τσέπη
+SONG  >	ΤΡΑΓΟΥΔΙ  >
+PLAY SONG	ΠΑΙΞΕ ΤΡΑΓΟΥΔΙ
+STOP SONG	ΣΤΟΠ ΤΡΑΓΟΥΔΙ
+PLAYLIST NAME	ΟΝΟΜΑ ΛΙΣΤΑΣ
+SONG  (PLAYING)  >	ΤΡΑΓΟΥΔΙ  (ΠΑΙΖΕΙ)  >
+Playlists in the order they play. Each plays to its end, as many times as you set, then the next.	Οι λίστες με τη σειρά που παίζουν. Η καθεμία παίζει ως το τέλος, όσες φορές ορίσεις, και μετά η επόμενη.

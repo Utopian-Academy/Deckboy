@@ -5128,3 +5128,10 @@ Every so many seconds it throws something in by itself: one of what has been thr
 LIST	LISTI
 PLACE	STAÐSETJA
 NEW BEACH	NÝ STRÖND
+SURE?	VISS?
+SONG  >	LAG  >
+PLAY SONG	SPILA LAG
+STOP SONG	STÖÐVA LAG
+PLAYLIST NAME	HEITI SPILUNARLISTA
+SONG  (PLAYING)  >	LAG  (SPILAR)  >
+Playlists in the order they play. Each plays to its end, as many times as you set, then the next.	Spilunarlistar í þeirri röð sem þeir spila. Hver spilar til enda, eins oft og þú stillir, svo sá næsti.

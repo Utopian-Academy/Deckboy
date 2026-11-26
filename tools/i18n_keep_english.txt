@@ -1682,3 +1682,10 @@ zgh	#clear
 zh-Hans	#clear
 zh-Hant	#clear
 zu	#clear
+Pocket
+haw	Pocket
+hi	Pocket
+is	Pocket
+it	Pocket
+ja	Pocket
+kab	Pocket

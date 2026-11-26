@@ -3419,6 +3419,17 @@ struct Project {
   // pauses, as always. On: Space is the operator's TAKE, as Enter is, and
   // Shift+Space plays and pauses.
   bool spaceTakes = false;
+  // A SONG (Pocket, James 2026-11-25: "make many playlists and chain them
+  // together like a song"): playlists in order, each played to its end
+  // `repeats` times, then the next; at the end it starts again when
+  // songLoops. `playlist` is a 0-based index into decks, kept right by the
+  // desk's remapDeckReferencesAfterRemoval and Pocket's own playlist delete.
+  struct SongStep {
+    int playlist = 0;
+    int repeats = 1;
+  };
+  std::vector<SongStep> song;
+  bool songLoops = true;
   // Panic button behavior (emergency stop):
   std::string panicProfile = "outputs_off"; // "outputs_off"|"fade_pause"|"fade_rewind"|"fade_load_next"
   double panicFadeSeconds = 0.9;            // panic fade-out duration

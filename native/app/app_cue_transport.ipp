@@ -6865,6 +6865,24 @@
       }
     }
 
+    // A song's steps name playlists: a step on the removed one goes, the rest follow.
+    {
+      std::vector<Project::SongStep> kept;
+      for (const Project::SongStep& step : project_.song) {
+        const int moved = shift(step.playlist);
+        if (moved >= 0 && moved < deckCount) kept.push_back({moved, step.repeats});
+      }
+      project_.song.swap(kept);
+    }
+    // A phone told to play playlist n (stored n + 1): the playlist it was given
+    // follows its move; a phone on the removed one goes dark rather than
+    // quietly showing the neighbour.
+    for (auto& plays : project_.phonePlays) {
+      if (plays.second < 1) continue;   // focus, dark, its own list
+      const int moved = shift(plays.second - 1);
+      plays.second = moved >= 0 && moved < deckCount ? moved + 1 : -1;
+    }
+
     const int a = shift(project_.vjDeckA);
     const int b = shift(project_.vjDeckB);
     project_.vjDeckA = std::clamp(a < 0 ? 0 : a, 0, std::max(0, deckCount - 1));

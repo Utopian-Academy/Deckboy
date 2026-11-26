@@ -447,6 +447,15 @@ void writeProjectScalars(std::ostream& output, const Project& project) {
   output << "jump_transition\t" << (project.jumpTransitionEnabled ? 1 : 0) << '\n';
   output << "take_selects_next\t" << (project.takeSelectsNext ? 1 : 0) << '\n';
   output << "space_takes\t" << (project.spaceTakes ? 1 : 0) << '\n';
+  // The song: "<playlist>x<repeats>" steps, 1-based playlists, space apart.
+  if (!project.song.empty()) {
+    output << "song";
+    for (std::size_t i = 0; i < project.song.size(); ++i) {
+      output << (i ? ' ' : '\t') << (project.song[i].playlist + 1) << 'x' << project.song[i].repeats;
+    }
+    output << '\n';
+  }
+  output << "song_loops\t" << (project.songLoops ? 1 : 0) << '\n';
   output << "panic_profile\t" << escapeField(project.panicProfile) << '\n';
   output << "panic_fade_seconds\t" << project.panicFadeSeconds << '\n';
   output << "panic_auto_restore\t" << (project.panicAutoRestore ? 1 : 0) << '\n';
@@ -1865,6 +1874,18 @@ bool applyProjectScalarLinePart2(Project& project, const std::vector<std::string
     project.jumpTransitionEnabled = safeBool(fields, 1, true);
   } else if (fields[0] == "take_selects_next") {
     project.takeSelectsNext = safeBool(fields, 1, true);
+  } else if (fields[0] == "song") {
+    project.song.clear();
+    std::istringstream steps(safeString(fields, 1));
+    std::string step;
+    while (steps >> step && project.song.size() < 99) {
+      const std::size_t x = step.find('x');
+      const int playlist = std::atoi(step.substr(0, x).c_str()) - 1;
+      const int repeats = x == std::string::npos ? 1 : std::atoi(step.substr(x + 1).c_str());
+      if (playlist >= 0) project.song.push_back({playlist, std::clamp(repeats, 1, 99)});
+    }
+  } else if (fields[0] == "song_loops") {
+    project.songLoops = safeBool(fields, 1, true);
   } else if (fields[0] == "space_takes") {
     project.spaceTakes = safeBool(fields, 1, false);
   } else if (fields[0] == "panic_profile") {

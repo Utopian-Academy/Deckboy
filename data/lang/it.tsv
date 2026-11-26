@@ -5098,3 +5098,10 @@ Every so many seconds it throws something in by itself: one of what has been thr
 LIST	LISTA
 PLACE	POSIZIONA
 NEW BEACH	NUOVA SPIAGGIA
+SURE?	CONFERMI?
+SONG  >	BRANO  >
+PLAY SONG	SUONA BRANO
+STOP SONG	FERMA BRANO
+PLAYLIST NAME	NOME SCALETTA
+SONG  (PLAYING)  >	BRANO  (IN PLAY)  >
+Playlists in the order they play. Each plays to its end, as many times as you set, then the next.	Scalette nell'ordine in cui suonano. Ognuna suona fino alla fine, quante volte imposti, poi la successiva.

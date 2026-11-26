@@ -5120,3 +5120,10 @@ Every so many seconds it throws something in by itself: one of what has been thr
 LIST	TABDART
 PLACE	SERS
 NEW BEACH	IRI N YILEL AMAYNUT
+SURE?	TETḤEQQEḌ?
+SONG  >	TIZLIT  >
+PLAY SONG	URAR TIZLIT
+STOP SONG	SEḤBES TIZLIT
+PLAYLIST NAME	ISEM N TBDART
+SONG  (PLAYING)  >	TIZLIT  (YETTWAURAR)  >
+Playlists in the order they play. Each plays to its end, as many times as you set, then the next.	Tibdarin s umyizwer ideg ttwaurarent. Yal yiwet tettwaurar alamma d taggara-s, acḥal n tikkal i tesbaduḍ, sakin tin i d-iteddun.

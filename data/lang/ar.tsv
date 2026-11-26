@@ -5149,3 +5149,11 @@ Every so many seconds it throws something in by itself: one of what has been thr
 LIST	قائمة
 PLACE	ضع
 NEW BEACH	شاطئ جديد
+SURE?	متأكد؟
+Pocket	جيب
+SONG  >	أغنية  >
+PLAY SONG	تشغيل الأغنية
+STOP SONG	إيقاف الأغنية
+PLAYLIST NAME	اسم قائمة التشغيل
+SONG  (PLAYING)  >	أغنية  (قيد التشغيل)  >
+Playlists in the order they play. Each plays to its end, as many times as you set, then the next.	قوائم التشغيل بترتيب تشغيلها. تُشغَّل كلٌّ منها حتى نهايتها، بعدد المرات التي تعيّنها، ثم التالية.

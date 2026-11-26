@@ -1287,6 +1287,7 @@ class Pocket {
     if (passEditing_) drawTextEditor("REMOTE PASSPHRASE", passDraft_, "8 OR MORE CHARACTERS, ENTER TO KEEP");
     if (renameIndex_ >= 0) drawTextEditor("CUE NAME", renameText_, "ENTER TO KEEP, BACK TO LEAVE IT");
     if (renameIndex_ == kNamingShow) drawTextEditor("SHOW NAME", renameText_, "ENTER TO SAVE, BACK TO LEAVE IT");
+    if (renameIndex_ == kNamingPlaylist) drawTextEditor("PLAYLIST NAME", renameText_, "ENTER TO KEEP, BACK TO LEAVE IT");
     if (sheet_ >= 0) {
       drawSheet();
     } else if (menuOpen_) {
@@ -2066,11 +2067,11 @@ class Pocket {
     }
     {
       // a page: its name at the top, back to the tiles and CLOSE along the bottom (thumb reach)
-      static const char* kNames[10] = {"SOURCES", "OUTPUT", "LIST", "SYNC", "PHONE", "SHOW", "ABOUT", "NEW CUES", "OPEN A SHOW", "MAP"};
-      text_.draw(pixel_, kNames[std::clamp(menuTab_, 0, 9)], kDark, {lx, y, lw, 5 * u});
+      static const char* kNames[11] = {"SOURCES", "OUTPUT", "LIST", "SYNC", "PHONE", "SHOW", "ABOUT", "NEW CUES", "OPEN A SHOW", "MAP", "SONG"};
+      text_.draw(pixel_, kNames[std::clamp(menuTab_, 0, 10)], kDark, {lx, y, lw, 5 * u});
       const float bh = 7 * u, by = lcd.y + lcd.h - bh - 0.5f * u;
       const float bw = (lw - u) / 2;
-      const int up = menuTab_ == 6 ? 4 : (menuTab_ == 7 || menuTab_ == 8) ? 5 : menuTab_ == 9 ? 1 : -1;
+      const int up = menuTab_ == 6 ? 4 : (menuTab_ == 7 || menuTab_ == 8 || menuTab_ == 10) ? 5 : menuTab_ == 9 ? 1 : -1;
       button({lx, by, bw, bh}, up == 4 ? "< PHONE" : up == 5 ? "< SHOW" : up == 1 ? "< OUTPUT" : "< MENU", [this, up] { menuTab_ = up; confirmOpen_.clear(); endHostEdit(); });
       button({lx + bw + u, by, bw, bh}, "CLOSE", [this] { menuOpen_ = false; endHostEdit(); });
     }
@@ -2164,6 +2165,9 @@ class Pocket {
     }
     if (menuTab_ == 9) {
       drawMapPage(lx, lw, y);
+    }
+    if (menuTab_ == 10) {
+      drawSongPage(lx, lw, y);
     }
     if (menuTab_ == 4) {
     heading("SHELL");
@@ -2434,6 +2438,7 @@ class Pocket {
   // and comes back when Pocket starts again.
 
   static constexpr int kNamingShow = -2;   // renameIndex_: the name editor is naming the show
+  static constexpr int kNamingPlaylist = -3;   // ... or the playlist on show
 
   std::string showName() const {
     if (showFile_.empty()) return cues_.empty() ? "New list" : "Unsaved list";
@@ -2522,7 +2527,7 @@ class Pocket {
   }
 
   // The playlist in hand becomes playlist `d` of the open show.
-  void takePlaylist(int d) {
+  void takePlaylist(int d, bool keepPicture = false) {
     if (show_.decks.empty()) show_.decks.resize(1);
     showDeck_ = std::clamp(d, 0, static_cast<int>(show_.decks.size()) - 1);
     cues_ = show_.decks[static_cast<std::size_t>(showDeck_)].cues;
@@ -2531,7 +2536,7 @@ class Pocket {
       if (c.id.empty()) c.id = "pocket-" + std::to_string(++nextId_);
       if (c.id.rfind("pocket-", 0) == 0) nextId_ = std::max(nextId_, std::atoi(c.id.c_str() + 7));
     }
-    engine_->clear();
+    if (!keepPicture) engine_->clear();
     active_ = -1;
     queueIds_.clear();
     listEnded_ = false;
@@ -2685,16 +2690,27 @@ class Pocket {
                           (showFile_.empty() ? std::string(", not saved yet") : std::string()),
                kDark, {lx, y, lw, 4.5f * u});
     y += 6 * u;
-    if (show_.decks.size() > 1) {
+    {
+      // PLAYLISTS: made here as well as on a desk (James 11-25), and chained into a SONG.
       text_.draw(pixelSmall_, "PLAYLIST", kDark, {lx, y, lw, 3.5f * u});
       y += 4.2f * u;
       const float bw = 9 * u;
-      button({lx, y, bw, 6 * u}, "<", [this] { switchPlaylist(-1); });
-      text_.drawName(mono_, std::to_string(showDeck_ + 1) + "/" + std::to_string(show_.decks.size()) + "  " +
-                            show_.decks[static_cast<std::size_t>(showDeck_)].name,
+      const bool several = show_.decks.size() > 1;
+      button({lx, y, bw, 6 * u}, "<", [this] { switchPlaylist(-1); }, several);
+      text_.drawName(mono_, std::to_string(showDeck_ + 1) + "/" + std::to_string(std::max<std::size_t>(1, show_.decks.size())) + "  " +
+                            playlistName(showDeck_),
                  kDeep, {lx + bw + u, y, lw - 2 * bw - 2 * u, 6 * u}, true);
-      button({lx + lw - bw, y, bw, 6 * u}, ">", [this] { switchPlaylist(1); });
-      y += 7.5f * u;
+      button({lx + lw - bw, y, bw, 6 * u}, ">", [this] { switchPlaylist(1); }, several);
+      y += 7 * u;
+      const float tw = (lw - 2 * u) / 3;
+      button({lx, y, tw, 6 * u}, "NEW", [this] { newPlaylist(); });
+      button({lx + tw + u, y, tw, 6 * u}, "RENAME", [this] { beginPlaylistRename(); });
+      button({lx + 2 * (tw + u), y, tw, 6 * u}, confirmDeletePlaylist_ ? "SURE?" : "DELETE",
+             [this] { if (confirmDeletePlaylist_) deletePlaylist(); else confirmDeletePlaylist_ = true; },
+             several, false, confirmDeletePlaylist_);
+      y += 7 * u;
+      button({lx, y, lw, 6 * u}, songPlaying_ ? "SONG  (PLAYING)  >" : "SONG  >", [this] { menuTab_ = 10; }, true, songPlaying_);
+      y += 8 * u;
     }
     const float bw = (lw - u) / 2;
     button({lx, y, bw, 7 * u}, "SAVE", [this] { saveShow(); });
@@ -3860,6 +3876,206 @@ class Pocket {
 #endif
   }
 
+  // ── PLAYLISTS AND THE SONG (James 2026-11-25) ───────────────────────────
+  //
+  // "a way to make many playlists, and chain them together like a song". A
+  // song is a list of playlists, each played to its end as many times as its
+  // step says, then the next; LOOP SONG starts it again at the end. A playlist
+  // ends when its last cue does (a cue set to NEXT), or when GO is pressed on
+  // its last cue (one that holds waits for GO, as always). Moving on is a take
+  // like any other, with the list's transition: the picture never drops to
+  // black between parts. Saved in the show (Project::song), so a desk keeps it.
+  std::string playlistName(int d) const {
+    if (d < 0 || d >= static_cast<int>(show_.decks.size())) return "Pocket";
+    const std::string& n = show_.decks[static_cast<std::size_t>(d)].name;
+    return n.empty() ? "Playlist " + std::to_string(d + 1) : n;
+  }
+
+  void newPlaylist() {
+    show_ = currentShow();   // keep what was done to this one
+    Deck d;
+    d.name = "Playlist " + std::to_string(show_.decks.size() + 1);
+    show_.decks.push_back(d);
+    takePlaylist(static_cast<int>(show_.decks.size()) - 1);
+    confirmDeletePlaylist_ = false;
+    notice_ = "New playlist: " + d.name;
+    noticeUntil_ = SDL_GetTicks() + 2500;
+    autosaveList();
+  }
+
+  void beginPlaylistRename() {
+    endHostEdit();
+    renameIndex_ = kNamingPlaylist;
+    renameText_ = playlistName(showDeck_);
+    SDL_StartTextInput(window_);
+  }
+
+  void renamePlaylist(const std::string& name) {
+    if (show_.decks.empty()) show_.decks.resize(1);
+    show_.decks[static_cast<std::size_t>(std::clamp(showDeck_, 0, static_cast<int>(show_.decks.size()) - 1))].name = name;
+    autosaveList();
+  }
+
+  // The playlist on show goes; a song step on it goes, the later ones follow.
+  void deletePlaylist() {
+    confirmDeletePlaylist_ = false;
+    if (show_.decks.size() < 2) return;
+    const int gone = showDeck_;
+    show_ = currentShow();
+    show_.decks.erase(show_.decks.begin() + gone);
+    std::vector<Project::SongStep> kept;
+    for (const auto& st : show_.song) {
+      if (st.playlist == gone) continue;
+      kept.push_back({st.playlist > gone ? st.playlist - 1 : st.playlist, st.repeats});
+    }
+    show_.song.swap(kept);
+    if (songPlaying_) stopSong(false);
+    takePlaylist(std::max(0, gone - 1));
+    notice_ = "Playlist deleted";
+    noticeUntil_ = SDL_GetTicks() + 2500;
+    autosaveList();
+  }
+
+  void songSteps() {   // steps naming a playlist that is not there are dropped
+    const int n = static_cast<int>(show_.decks.size());
+    show_.song.erase(std::remove_if(show_.song.begin(), show_.song.end(),
+                                    [n](const Project::SongStep& st) { return st.playlist < 0 || st.playlist >= n; }),
+                     show_.song.end());
+  }
+
+  // Into a step's playlist, from its first cue, with the list's transition.
+  void songEnterStep() {
+    const Project::SongStep st = show_.song[static_cast<std::size_t>(songAt_)];
+    if (st.playlist != showDeck_) {
+      show_ = currentShow();
+      takePlaylist(st.playlist, true);
+    }
+    if (cues_.empty()) return;
+    notice_ = "Song " + std::to_string(songAt_ + 1) + "/" + std::to_string(show_.song.size()) + ": " +
+              playlistName(st.playlist) + (st.repeats > 1 ? " (" + std::to_string(songRepeat_ + 1) + " of " + std::to_string(st.repeats) + ")" : "");
+    noticeUntil_ = SDL_GetTicks() + 2500;
+    take(0);
+    advanceFrom(0);
+  }
+
+  void playSong() {
+    songSteps();
+    if (show_.song.empty()) {
+      notice_ = "The song is empty: ADD THIS PLAYLIST first";
+      noticeUntil_ = SDL_GetTicks() + 2500;
+      return;
+    }
+    if (followLocked()) return;
+    songPlaying_ = true;
+    songAt_ = 0;
+    songRepeat_ = 0;
+    menuOpen_ = false;
+    buzz("go");
+    songEnterStep();
+  }
+
+  void stopSong(bool say = true) {
+    songPlaying_ = false;
+    if (say) {
+      notice_ = "Song stopped. What is on air stays.";
+      noticeUntil_ = SDL_GetTicks() + 2000;
+    }
+  }
+
+  // The playlist ran out: again, the next step, the top (LOOP SONG), or the end.
+  // False when no song is playing, so the caller does what it always did.
+  bool songAdvance() {
+    if (!songPlaying_) return false;
+    songSteps();
+    if (show_.song.empty()) { stopSong(false); return false; }
+    songAt_ = std::clamp(songAt_, 0, static_cast<int>(show_.song.size()) - 1);
+    if (++songRepeat_ < show_.song[static_cast<std::size_t>(songAt_)].repeats) {
+      songEnterStep();
+      return true;
+    }
+    songRepeat_ = 0;
+    if (++songAt_ >= static_cast<int>(show_.song.size())) {
+      if (!show_.songLoops) {
+        songPlaying_ = false;
+        songAt_ = 0;
+        notice_ = "End of the song";
+        noticeUntil_ = SDL_GetTicks() + 2500;
+        buzz("end");
+        return true;
+      }
+      songAt_ = 0;
+    }
+    songEnterStep();
+    return true;
+  }
+
+  void drawSongPage(float lx, float lw, float& y) {
+    const float u = unit_;
+    songSteps();
+    const float bottom = sheetRect_.y + sheetRect_.h - 12 * u;   // room left above < SHOW / CLOSE
+    if (show_.song.empty()) {
+      // One sentence, translated whole and then wrapped (fragments cannot be translated).
+      const std::string hint = deckboy::core::i18n::translate(
+          "Playlists in the order they play. Each plays to its end, as many times as you set, then the next.");
+      std::string row;
+      std::istringstream words(hint);
+      for (std::string word; words >> word;) {
+        const std::string tryRow = row.empty() ? word : row + " " + word;
+        int w = 0;
+        if (!row.empty() && deckboy::render::shaping::textSize(mono_, tryRow.c_str(), 0, &w, nullptr) && static_cast<float>(w) > lw) {
+          text_.drawName(mono_, row, kDark, {lx, y, lw, 4.5f * u});
+          y += 5 * u;
+          row = word;
+        } else {
+          row = tryRow;
+        }
+      }
+      if (!row.empty()) {
+        text_.drawName(mono_, row, kDark, {lx, y, lw, 4.5f * u});
+        y += 5 * u;
+      }
+      y += 1.5f * u;
+    }
+    const float bw = 7 * u;
+    for (std::size_t i = 0; i < show_.song.size(); ++i) {
+      if (y + 6 * u > bottom - 22 * u) {
+        text_.draw(mono_, "... and " + std::to_string(show_.song.size() - i) + " more", kDark, {lx, y, lw, 4.5f * u});
+        y += 6 * u;
+        break;
+      }
+      Project::SongStep& st = show_.song[i];
+      const bool now = songPlaying_ && static_cast<int>(i) == songAt_;
+      const SDL_FRect nameRect {lx, y, lw - 3 * bw - 4 * u - 8 * u, 6 * u};
+      if (now) fillRect(renderer_, kDeep, nameRect);
+      // read from the left, as a list does (the count beside it is centred in its own cell)
+      text_.drawName(mono_, std::to_string(i + 1) + " " + playlistName(st.playlist), now ? kLight : kDeep,
+                     {nameRect.x + u, nameRect.y, nameRect.w - 2 * u, nameRect.h});
+      text_.draw(mono_, "x" + std::to_string(st.repeats), kDeep, {nameRect.x + nameRect.w + u, y, 8 * u, 6 * u}, true);
+      const float bx = lx + lw - 3 * bw - 2 * u;
+      button({bx, y, bw, 6 * u}, "-", [this, i] { show_.song[i].repeats = std::max(1, show_.song[i].repeats - 1); autosaveList(); });
+      button({bx + bw + u, y, bw, 6 * u}, "+", [this, i] { show_.song[i].repeats = std::min(99, show_.song[i].repeats + 1); autosaveList(); });
+      button({bx + 2 * (bw + u), y, bw, 6 * u}, "X", [this, i] {
+        show_.song.erase(show_.song.begin() + static_cast<std::ptrdiff_t>(i));
+        if (songAt_ >= static_cast<int>(show_.song.size())) songAt_ = 0;
+        if (show_.song.empty() && songPlaying_) stopSong(false);
+        autosaveList();
+      });
+      y += 7 * u;
+    }
+    y += u;
+    button({lx, y, lw, 6 * u}, "ADD THIS PLAYLIST: " + playlistName(showDeck_), [this] {
+      if (show_.song.size() < 99) show_.song.push_back({showDeck_, 1});
+      autosaveList();
+    });
+    y += 7.5f * u;
+    const float hw = (lw - u) / 2;
+    button({lx, y, hw, 7 * u}, show_.songLoops ? "LOOP SONG: ON" : "LOOP SONG: OFF",
+           [this] { show_.songLoops = !show_.songLoops; autosaveList(); }, true, show_.songLoops);
+    button({lx + hw + u, y, hw, 7 * u}, songPlaying_ ? "STOP SONG" : "PLAY SONG",
+           [this] { if (songPlaying_) stopSong(); else playSong(); }, !show_.song.empty() || songPlaying_, songPlaying_);
+    y += 8.5f * u;
+  }
+
   // After any edit: the cue on air takes it now (trim without a restart).
   void cueEdited(int i, bool trim) {
     if (i != active_ || i < 0) return;
@@ -3882,7 +4098,10 @@ class Pocket {
       noticeUntil_ = SDL_GetTicks() + 2500;
       return;
     }
-    if (listEnded_ && selected_ == active_) return;   // the end of the list: hold here
+    if (listEnded_ && selected_ == active_) {   // the end of the list: the song goes on, or hold here
+      songAdvance();
+      return;
+    }
     take(selected_);
     advanceFrom(active_);
   }
@@ -4417,7 +4636,7 @@ class Pocket {
       else return false;
       return true;
     };
-    if (verb == "VIEW") {   // VIEW HOME | MENU <ADD|OUT|LIST|SYNC|SKIN> | SHEET <cue>: what the screen shows
+    if (verb == "VIEW") {   // VIEW HOME | MENU <ADD|OUT|LIST|SYNC|SKIN|SHOW|SONG> | SHEET <cue>: what the screen shows
       std::istringstream args(rest);
       std::string what, arg;
       args >> what >> arg;
@@ -4429,6 +4648,7 @@ class Pocket {
         const char* tabs[] = {"SOURCES", "OUTPUT", "LIST", "SYNC", "PHONE", "SHOW"};
         menuTab_ = -1;   // MENU alone: the tiles
         for (int t = 0; t < 6; ++t) if (arg == tabs[t]) menuTab_ = t;
+        if (arg == "SONG") menuTab_ = 10;
         if (arg == "ADD") menuTab_ = 0;
         if (arg == "OUT") menuTab_ = 1;
         if (arg == "SKIN") menuTab_ = 4;
@@ -4475,6 +4695,12 @@ class Pocket {
       }
       if (sub == "NEW") { newShow(); return ok(); }
       if (sub == "PLAYLIST") {
+        // SHOW PLAYLIST NEW [name] | RENAME <name> | DELETE | <n>
+        const std::string first = upper(arg.substr(0, arg.find(' ')));
+        const std::string rest2 = arg.find(' ') == std::string::npos ? std::string() : arg.substr(arg.find(' ') + 1);
+        if (first == "NEW") { newPlaylist(); if (!rest2.empty()) renamePlaylist(rest2); return ok(); }
+        if (first == "RENAME") { if (rest2.empty()) return err("SHOW PLAYLIST RENAME <name>"); renamePlaylist(rest2); return ok(); }
+        if (first == "DELETE") { if (show_.decks.size() < 2) return err("the last playlist stays"); deletePlaylist(); return ok(); }
         const int n = std::atoi(arg.c_str());
         if (n < 1 || n > static_cast<int>(show_.decks.size())) return err("SHOW PLAYLIST <1.." + std::to_string(show_.decks.size()) + ">");
         show_ = currentShow();
@@ -4570,6 +4796,20 @@ class Pocket {
       key = upper(key);
       if (key == "TYPE") {
         setSourceType(i, value);
+        return ok();
+      }
+      // SET <cue> END HOLD|LOOP|NEXT [seconds]: how it ends, as the sheet's PLAY page
+      // sets it; seconds is how long a still or a source runs before it ends.
+      if (key == "END") {
+        const std::string m = upper(value);
+        if (m != "HOLD" && m != "LOOP" && m != "NEXT") return err("SET <cue> END HOLD|LOOP|NEXT [seconds]");
+        setEndMode(c, m == "LOOP" ? EndMode::Loop : m == "NEXT" ? EndMode::Next : EndMode::Hold);
+        double seconds = -1;
+        if (a >> seconds) {
+          if (seconds < 0 || seconds > 86400) return err("seconds: 0 to 86400");
+          c.stillDurationSeconds = seconds;
+        }
+        cueEdited(i, false);
         return ok();
       }
       std::string out = "OK SET";
@@ -4838,6 +5078,49 @@ class Pocket {
     }
     // TRAY: where the picture is and, while Surf's THROW IN is open, each chip
     // (label@x,y,w,h), for the check that drags one onto the water.
+    // SONG | SONG ADD <playlist> [times] | SONG REMOVE <step> | SONG CLEAR |
+    // SONG PLAY | SONG STOP | SONG LOOP ON|OFF
+    if (verb == "SONG") {
+      std::istringstream args(rest);
+      std::string what;
+      args >> what;
+      what = upper(what);
+      if (what.empty()) {
+        songSteps();
+        std::ostringstream o;
+        o << "OK SONG steps=";
+        for (std::size_t i = 0; i < show_.song.size(); ++i) o << (i ? "," : "") << show_.song[i].playlist + 1 << 'x' << show_.song[i].repeats;
+        o << " loops=" << (show_.songLoops ? 1 : 0) << " playing=" << (songPlaying_ ? 1 : 0) << " at=" << songAt_ + 1
+          << " repeat=" << songRepeat_ + 1 << " playlist=" << showDeck_ + 1 << " cue=" << active_ + 1 << '\n';
+        return o.str();
+      }
+      if (what == "ADD") {
+        int n = 0, times = 1;
+        args >> n >> times;
+        if (n < 1 || n > static_cast<int>(show_.decks.size())) return err("SONG ADD <1.." + std::to_string(show_.decks.size()) + "> [times]");
+        show_.song.push_back({n - 1, std::clamp(times, 1, 99)});
+        return ok();
+      }
+      if (what == "REMOVE") {
+        int n = 0;
+        args >> n;
+        if (n < 1 || n > static_cast<int>(show_.song.size())) return err("SONG REMOVE <step>");
+        show_.song.erase(show_.song.begin() + (n - 1));
+        return ok();
+      }
+      if (what == "CLEAR") { show_.song.clear(); stopSong(false); return ok(); }
+      if (what == "PLAY") { playSong(); return songPlaying_ ? ok() : err(notice_); }
+      if (what == "STOP") { stopSong(); return ok(); }
+      if (what == "LOOP") {
+        std::string v;
+        args >> v;
+        v = upper(v);
+        if (v != "ON" && v != "OFF") return err("SONG LOOP ON|OFF");
+        show_.songLoops = v == "ON";
+        return ok();
+      }
+      return err("SONG [ADD <playlist> [times] | REMOVE <step> | CLEAR | PLAY | STOP | LOOP ON|OFF]");
+    }
     if (verb == "TRAY") {
       std::ostringstream out;
       out << "OK TRAY open=" << (surfTray_ ? 1 : 0) << " pic=" << static_cast<int>(picRect_.x) << ','
@@ -5938,6 +6221,12 @@ class Pocket {
       renameIndex_ = -1;
       SDL_StopTextInput(window_);
       if (keep && !name.empty()) saveShowAs(name);
+      return;
+    }
+    if (renameIndex_ == kNamingPlaylist) {
+      renameIndex_ = -1;
+      SDL_StopTextInput(window_);
+      if (keep && !name.empty()) renamePlaylist(name);
       return;
     }
     if (keep && !name.empty() && renameIndex_ < static_cast<int>(cues_.size())) {
@@ -9456,6 +9745,7 @@ class Pocket {
   void go() {
     if (followLocked()) return;
     if (cues_.empty()) return;
+    if (listEnded_ && selected_ == active_ && songAdvance()) return;   // a song: the next step
     if (listEnded_ && selected_ == active_) {
       notice_ = "End of the list. LOOP LIST in MENU > LIST plays it again.";
       noticeUntil_ = SDL_GetTicks() + 2500;
@@ -9589,7 +9879,7 @@ class Pocket {
     }
     if (shuffle_) {
       for (;;) {
-        if (shuffleBag_.empty() && loopList_) refillShuffle(took);
+        if (shuffleBag_.empty() && loopList_ && !songPlaying_) refillShuffle(took);
         if (shuffleBag_.empty()) break;
         const std::size_t k = static_cast<std::size_t>(SDL_rand(static_cast<Sint32>(shuffleBag_.size())));
         const int pick = indexOfCue(shuffleBag_[k]);
@@ -9599,7 +9889,7 @@ class Pocket {
     } else if (took + 1 < n) {
       selected_ = took + 1;
       return;
-    } else if (loopList_ && n > 0) {
+    } else if (loopList_ && n > 0 && !songPlaying_) {
       selected_ = 0;
       return;
     }
@@ -9788,6 +10078,11 @@ class Pocket {
   float gestureScale0_ = 1, gestureScaleY0_ = 1, gestureOffX0_ = 0, gestureOffY0_ = 0, gestureRot0_ = 0;
   Uint64 lastPicTap_ = 0;
   Uint64 picHoldSince_ = 0;
+  // The song (drawSongPage, songAdvance): playing, which step, which repeat of it.
+  bool songPlaying_ = false;
+  int songAt_ = 0;
+  int songRepeat_ = 0;
+  bool confirmDeletePlaylist_ = false;
   // SURF's THROW IN tray (drawSurfTray): open, its chips this frame, the one in hand.
   struct TrayChip { std::string label, what; SDL_FRect rect; };
   bool surfTray_ = false;

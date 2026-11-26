@@ -5136,3 +5136,10 @@ Every so many seconds it throws something in by itself: one of what has been thr
 LIST	リスト
 PLACE	配置
 NEW BEACH	新しい浜辺
+SURE?	よろしいですか？
+SONG  >	曲  >
+PLAY SONG	曲を再生
+STOP SONG	曲を停止
+PLAYLIST NAME	プレイリスト名
+SONG  (PLAYING)  >	曲  (再生中)  >
+Playlists in the order they play. Each plays to its end, as many times as you set, then the next.	再生する順に並んだプレイリスト。それぞれ最後まで、設定した回数だけ再生してから次へ。

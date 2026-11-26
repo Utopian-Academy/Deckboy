@@ -5147,3 +5147,11 @@ Every so many seconds it throws something in by itself: one of what has been thr
 LIST	RETA
 PLACE	LANI
 NEW BEACH	NOVO RANKAEA
+SURE?	TAMO?
+Pocket	Kiskara
+SONG  >	SONA  >
+PLAY SONG	LUMAKORI SONA
+STOP SONG	HALI SONA
+PLAYLIST NAME	HOLA VEKAKU
+SONG  (PLAYING)  >	SONA  (LUMO)  >
+Playlists in the order they play. Each plays to its end, as many times as you set, then the next.	Vekaku kae ranaku. Ala soni go rana, tala tu seti, novtok novtoka.

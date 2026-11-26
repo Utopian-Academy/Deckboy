@@ -5100,3 +5100,10 @@ Every so many seconds it throws something in by itself: one of what has been thr
 LIST	PAPA HELU
 PLACE	KAU
 NEW BEACH	KAHAKAI HOU
+SURE?	ʻOIAʻIʻO?
+SONG  >	MELE  >
+PLAY SONG	HOʻOKANI MELE
+STOP SONG	HOʻŌKI MELE
+PLAYLIST NAME	INOA PAPA HELU
+SONG  (PLAYING)  >	MELE  (KE HOʻOKANI NEI)  >
+Playlists in the order they play. Each plays to its end, as many times as you set, then the next.	Nā papa helu ma ke kaʻina e hoʻokani ai lākou. Hoʻokani kēlā me kēia a hiki i kona hopena, i ka nui o nā manawa āu e hoʻonoho ai, a laila ka mea aʻe.

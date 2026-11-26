@@ -5133,3 +5133,11 @@ Every so many seconds it throws something in by itself: one of what has been thr
 LIST	목록
 PLACE	배치
 NEW BEACH	새 해변
+SURE?	확실해요?
+Pocket	포켓
+SONG  >	노래  >
+PLAY SONG	노래 재생
+STOP SONG	노래 정지
+PLAYLIST NAME	재생 목록 이름
+SONG  (PLAYING)  >	노래  (재생 중)  >
+Playlists in the order they play. Each plays to its end, as many times as you set, then the next.	재생 순서대로 놓인 플레이리스트. 각각 설정한 횟수만큼 끝까지 재생된 뒤 다음으로 넘어갑니다.
