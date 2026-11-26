@@ -266,6 +266,10 @@ struct OutputRuntime {
   // Server end of the audio named pipe. Windows children get one piped
   // stdin and video already uses it, so audio needs its own channel.
   void* streamAudioPipeHandle = nullptr;
+  // Its name, and whether a connector thread (connectOutputAudioPipeAsync) owns
+  // it: then only that thread closes it, and stopping wakes it instead.
+  std::string streamAudioPipeName;
+  bool streamAudioPipeConnecting = false;
 #endif
   // Pixel buffer snapshot for streaming/NDI/DeckLink sinks.
   struct CapturedFrame {

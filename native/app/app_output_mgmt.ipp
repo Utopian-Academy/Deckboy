@@ -3390,18 +3390,6 @@
     // Linux recording stayed fragmented forever.
     const bool remuxThisTake = runtime.streamToFile && project_.recordingRemuxOnStop;
     const std::string remuxPath = lastRecordingPath_;
-#ifdef _WIN32
-    // Close the audio pipe's SERVER end. Once ffmpeg connected, the handle was
-    // adopted by a CRT fd and closing that fd closes it -- but if the encoder
-    // never connected (bad URL, instant exit) the handle is still ours, and
-    // leaking one per stream start would accumulate over a long show.
-    if (runtime.streamAudioPipeHandle &&
-        runtime.streamWriter &&
-        runtime.streamWriter->audioPipeFd.load(std::memory_order_acquire) < 0) {
-      CloseHandle(reinterpret_cast<HANDLE>(runtime.streamAudioPipeHandle));
-    }
-    runtime.streamAudioPipeHandle = nullptr;
-#endif
     auto writer = runtime.streamWriter;
     runtime.streamWriter.reset();
     if (writer) {
@@ -3415,6 +3403,26 @@
       writer->audioCv.notify_all();
     }
 #ifdef _WIN32
+    // THE AUDIO PIPE'S SERVER END. Once its connector thread is started that
+    // thread OWNS it: closing it here, while the thread sat in ConnectNamedPipe
+    // for an encoder that had died without opening it, froze the whole app
+    // (CloseHandle waits for synchronous I/O on the handle; CI, 2026-11-26),
+    // and the thread then closed it a second time. So: wake the connector by
+    // connecting a throwaway client -- ConnectNamedPipe returns, the thread sees
+    // the writer stopped and closes everything itself. (If ffmpeg is connected
+    // the open fails with the pipe busy, and the fd below is closed as before.)
+    // A pipe no connector was started for is still ours to close.
+    if (runtime.streamAudioPipeHandle) {
+      if (runtime.streamAudioPipeConnecting) {
+        HANDLE poke = CreateFileA(runtime.streamAudioPipeName.c_str(), GENERIC_READ, 0, nullptr, OPEN_EXISTING, 0, nullptr);
+        if (poke != INVALID_HANDLE_VALUE) CloseHandle(poke);
+      } else {
+        CloseHandle(reinterpret_cast<HANDLE>(runtime.streamAudioPipeHandle));
+      }
+    }
+    runtime.streamAudioPipeHandle = nullptr;
+    runtime.streamAudioPipeName.clear();
+    runtime.streamAudioPipeConnecting = false;
     // Close the write pipe first so ffmpeg gets EOF on stdin and exits gracefully
     if (runtime.streamProcess.writeFd >= 0) {
       _close(runtime.streamProcess.writeFd);
@@ -3639,6 +3647,8 @@
       return {};
     }
     runtime.streamAudioPipeHandle = reinterpret_cast<void*>(h);
+    runtime.streamAudioPipeName = name;
+    runtime.streamAudioPipeConnecting = false;
     return name;
   }
 
@@ -3649,12 +3659,20 @@
     HANDLE h = reinterpret_cast<HANDLE>(runtime.streamAudioPipeHandle);
     if (h == nullptr || h == INVALID_HANDLE_VALUE) return;
     auto writer = runtime.streamWriter;
+    runtime.streamAudioPipeConnecting = true;   // from here the thread owns h (stopOutputStreamRuntime)
     std::thread([h, writer]() {
       deckboyReleaseSdlStateAtThreadExit();
       const BOOL ok = ConnectNamedPipe(h, nullptr);
       if (!ok && GetLastError() != ERROR_PIPE_CONNECTED) {
         CloseHandle(h);
         return;
+      }
+      if (writer) {   // woken by the stop's throwaway client, not the encoder
+        std::lock_guard<std::mutex> lock(writer->mutex);
+        if (writer->stop) {
+          CloseHandle(h);
+          return;
+        }
       }
       const int fd = _open_osfhandle(reinterpret_cast<intptr_t>(h), 0);
       if (fd < 0) {
