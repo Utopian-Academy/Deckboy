@@ -5065,3 +5065,30 @@ Which critters: all of them changing together, each new stroke the next one, or 
 Space key	Space-näppäin
 Space plays and pauses	Space toistaa ja tauottaa
 Space takes (Shift+Space plays and pauses)	Space vie cuen lähetykseen (Shift+Space toistaa ja tauottaa)
+YOURS	OMAT
+STARTERS	VALMIIT
+keep both	säilytä molemmat
+load chain	lataa ketju
+save chain...	tallenna ketju...
+show in folder	näytä kansiossa
+load chain ({1})	lataa ketju ({1})
+Save Effect Chain	Tallenna tehosteketju
+(stack full at 12)	(pino täynnä, 12)
+Rename Effect Chain	Nimeä tehosteketju uudelleen
+No saved chains yet.	Ei vielä tallennettuja ketjuja.
+load chain: no targets	lataa ketju: ei kohteita
+load chain: select a cue	lataa ketju: valitse cue
+save chain: select a cue	tallenna ketju: valitse cue
+(+{1} need a newer Deckboy)	(+{1} vaatii uudemman Deckboyn)
+({1} skipped: newer Deckboy)	({1} ohitettu: uudempi Deckboy)
+save chain: a name is needed	tallenna ketju: nimi tarvitaan
+LOAD CHAIN onto {1} selected cue	LATAA KETJU {1} valittuun cueen
+load chain: this preset is empty	lataa ketju: tämä esiasetus on tyhjä
+FX SAVE: could not write the file	FX SAVE: tiedostoa ei voitu kirjoittaa
+LOAD CHAIN onto {1} selected cues	LATAA KETJU {1} valittuun cueen
+duplicate: could not write the file	monista: tiedostoa ei voitu kirjoittaa
+save chain: this cue has no effects	tallenna ketju: tällä cuella ei ole tehosteita
+save chain: select a cue with effects	tallenna ketju: valitse cue, jossa on tehosteita
+FX SAVE: select a cue that has effects	FX SAVE: valitse cue, jolla on tehosteita
+load chain: this preset needs a newer Deckboy	lataa ketju: tämä esiasetus vaatii uudemman Deckboyn
+save chain... keeps this cue's chain for any show.	tallenna ketju... säilyttää tämän cuen ketjun mihin tahansa esitykseen.

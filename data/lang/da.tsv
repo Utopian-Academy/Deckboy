@@ -5008,3 +5008,30 @@ Which critters: all of them changing together, each new stroke the next one, or 
 Space key	Space-tast
 Space plays and pauses	Space afspiller og pauser
 Space takes (Shift+Space plays and pauses)	Space laver TAKE (Shift+Space afspiller og pauser)
+YOURS	DINE
+STARTERS	STARTSÆT
+keep both	behold begge
+load chain	indlæs kæde
+save chain...	gem kæde...
+show in folder	vis i mappe
+load chain ({1})	indlæs kæde ({1})
+Save Effect Chain	Gem effektkæde
+(stack full at 12)	(stakken er fuld ved 12)
+Rename Effect Chain	Omdøb effektkæde
+No saved chains yet.	Ingen gemte kæder endnu.
+load chain: no targets	indlæs kæde: ingen mål
+load chain: select a cue	indlæs kæde: vælg en cue
+save chain: select a cue	gem kæde: vælg en cue
+(+{1} need a newer Deckboy)	(+{1} kræver en nyere Deckboy)
+({1} skipped: newer Deckboy)	({1} sprunget over: nyere Deckboy)
+save chain: a name is needed	gem kæde: der skal et navn til
+LOAD CHAIN onto {1} selected cue	INDLÆS KÆDE på {1} valgt cue
+load chain: this preset is empty	indlæs kæde: dette forvalg er tomt
+FX SAVE: could not write the file	FX SAVE: kunne ikke skrive filen
+LOAD CHAIN onto {1} selected cues	INDLÆS KÆDE på {1} valgte cues
+duplicate: could not write the file	dupliker: kunne ikke skrive filen
+save chain: this cue has no effects	gem kæde: denne cue har ingen effekter
+save chain: select a cue with effects	gem kæde: vælg en cue med effekter
+FX SAVE: select a cue that has effects	FX SAVE: vælg en cue med effekter
+load chain: this preset needs a newer Deckboy	indlæs kæde: dette forvalg kræver en nyere Deckboy
+save chain... keeps this cue's chain for any show.	gem kæde... gemmer denne cues kæde til ethvert show.

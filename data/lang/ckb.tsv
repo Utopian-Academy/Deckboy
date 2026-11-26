@@ -5067,3 +5067,30 @@ Which critters: all of them changing together, each new stroke the next one, or 
 Space key	کلیلی Space
 Space plays and pauses	Space لێ دەدات و دەوەستێنێت
 Space takes (Shift+Space plays and pauses)	Space TAKE دەکات (Shift+Space لێ دەدات و دەوەستێنێت)
+YOURS	هی تۆ
+STARTERS	سەرەتاییەکان
+keep both	هەردوو بهێڵەوە
+load chain	بارکردنی زنجیرە
+save chain...	پاشەکەوتکردنی زنجیرە...
+show in folder	پیشاندان لە بوخچەدا
+load chain ({1})	بارکردنی زنجیرە ({1})
+Save Effect Chain	پاشەکەوتکردنی زنجیرەی کاریگەری
+(stack full at 12)	(کۆگا لە 12 دا پڕە)
+Rename Effect Chain	ناوگۆڕینی زنجیرەی کاریگەری
+No saved chains yet.	هێشتا هیچ زنجیرەیەکی پاشەکەوتکراو نییە.
+load chain: no targets	بارکردنی زنجیرە: هیچ ئامانجێک نییە
+load chain: select a cue	بارکردنی زنجیرە: cue یەک هەڵبژێرە
+save chain: select a cue	پاشەکەوتکردنی زنجیرە: cue یەک هەڵبژێرە
+(+{1} need a newer Deckboy)	(+{1} پێویستیان بە Deckboy ی نوێترە)
+({1} skipped: newer Deckboy)	({1} تێپەڕێنران: Deckboy ی نوێتر)
+save chain: a name is needed	پاشەکەوتکردنی زنجیرە: ناوێک پێویستە
+LOAD CHAIN onto {1} selected cue	بارکردنی زنجیرە بۆ سەر {1} cue ی هەڵبژێردراو
+load chain: this preset is empty	بارکردنی زنجیرە: ئەم پێشڕێکخستنە بەتاڵە
+FX SAVE: could not write the file	FX SAVE: فایلەکە نەنووسرا
+LOAD CHAIN onto {1} selected cues	بارکردنی زنجیرە بۆ سەر {1} cue ی هەڵبژێردراو
+duplicate: could not write the file	دووبارەکردنەوە: فایلەکە نەنووسرا
+save chain: this cue has no effects	پاشەکەوتکردنی زنجیرە: ئەم cue یە کاریگەری نییە
+save chain: select a cue with effects	پاشەکەوتکردنی زنجیرە: cue یەک بە کاریگەرییەوە هەڵبژێرە
+FX SAVE: select a cue that has effects	FX SAVE: cue یەک هەڵبژێرە کە کاریگەری هەبێت
+load chain: this preset needs a newer Deckboy	بارکردنی زنجیرە: ئەم پێشڕێکخستنە پێویستی بە Deckboy ی نوێترە
+save chain... keeps this cue's chain for any show.	پاشەکەوتکردنی زنجیرە... زنجیرەی ئەم cue یە بۆ هەر نمایشێک دەهێڵێتەوە.

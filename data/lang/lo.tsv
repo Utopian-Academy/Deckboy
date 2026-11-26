@@ -5049,3 +5049,30 @@ Which critters: all of them changing together, each new stroke the next one, or 
 Space key	ປຸ່ມ Space
 Space plays and pauses	Space ຫຼິ້ນ ແລະ ຢຸດຊົ່ວຄາວ
 Space takes (Shift+Space plays and pauses)	Space ເຮັດ TAKE (Shift+Space ຫຼິ້ນ ແລະ ຢຸດຊົ່ວຄາວ)
+YOURS	ຂອງທ່ານ
+STARTERS	ຊຸດເລີ່ມຕົ້ນ
+keep both	ເກັບໄວ້ທັງສອງ
+load chain	ໂຫຼດສາຍ
+save chain...	ບັນທຶກສາຍ...
+show in folder	ສະແດງໃນໂຟນເດີ
+load chain ({1})	ໂຫຼດສາຍ ({1})
+Save Effect Chain	ບັນທຶກສາຍເອັບເຟັກ
+(stack full at 12)	(ເຕັມແລ້ວທີ່ 12)
+Rename Effect Chain	ປ່ຽນຊື່ສາຍເອັບເຟັກ
+No saved chains yet.	ຍັງບໍ່ມີສາຍທີ່ບັນທຶກໄວ້.
+load chain: no targets	ໂຫຼດສາຍ: ບໍ່ມີເປົ້າໝາຍ
+load chain: select a cue	ໂຫຼດສາຍ: ເລືອກ cue
+save chain: select a cue	ບັນທຶກສາຍ: ເລືອກ cue
+(+{1} need a newer Deckboy)	(+{1} ຕ້ອງການ Deckboy ລຸ້ນໃໝ່ກວ່າ)
+({1} skipped: newer Deckboy)	({1} ຂ້າມ: Deckboy ລຸ້ນໃໝ່ກວ່າ)
+save chain: a name is needed	ບັນທຶກສາຍ: ຕ້ອງມີຊື່
+LOAD CHAIN onto {1} selected cue	ໂຫຼດສາຍໃສ່ {1} CUE ທີ່ເລືອກ
+load chain: this preset is empty	ໂຫຼດສາຍ: PRESET ນີ້ຫວ່າງ
+FX SAVE: could not write the file	FX SAVE: ຂຽນໄຟລ໌ບໍ່ໄດ້
+LOAD CHAIN onto {1} selected cues	ໂຫຼດສາຍໃສ່ {1} CUE ທີ່ເລືອກ
+duplicate: could not write the file	ສຳເນົາ: ຂຽນໄຟລ໌ບໍ່ໄດ້
+save chain: this cue has no effects	ບັນທຶກສາຍ: cue ນີ້ບໍ່ມີເອັບເຟັກ
+save chain: select a cue with effects	ບັນທຶກສາຍ: ເລືອກ cue ທີ່ມີເອັບເຟັກ
+FX SAVE: select a cue that has effects	FX SAVE: ເລືອກ cue ທີ່ມີເອັບເຟັກ
+load chain: this preset needs a newer Deckboy	ໂຫຼດສາຍ: PRESET ນີ້ຕ້ອງການ Deckboy ລຸ້ນໃໝ່ກວ່າ
+save chain... keeps this cue's chain for any show.	ບັນທຶກສາຍ... ເກັບສາຍຂອງ cue ນີ້ໄວ້ສຳລັບໂຊໃດກໍໄດ້.

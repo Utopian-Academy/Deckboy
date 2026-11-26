@@ -5066,3 +5066,30 @@ Which critters: all of them changing together, each new stroke the next one, or 
 Space key	Клавіша Space
 Space plays and pauses	Space: пуск і пауза
 Space takes (Shift+Space plays and pauses)	Space виконує TAKE (Shift+Space: пуск і пауза)
+YOURS	ВАШІ
+STARTERS	СТАРТОВІ
+keep both	залишити обидва
+load chain	завантажити ланцюг
+save chain...	зберегти ланцюг...
+show in folder	показати в теці
+load chain ({1})	завантажити ланцюг ({1})
+Save Effect Chain	Зберегти ланцюг ефектів
+(stack full at 12)	(стек повний: 12)
+Rename Effect Chain	Перейменувати ланцюг ефектів
+No saved chains yet.	Збережених ланцюгів ще немає.
+load chain: no targets	завантажити ланцюг: немає цілей
+load chain: select a cue	завантажити ланцюг: виберіть cue
+save chain: select a cue	зберегти ланцюг: виберіть cue
+(+{1} need a newer Deckboy)	(+{1}: потрібен новіший Deckboy)
+({1} skipped: newer Deckboy)	(пропущено {1}: для новішого Deckboy)
+save chain: a name is needed	зберегти ланцюг: потрібна назва
+LOAD CHAIN onto {1} selected cue	ЗАВАНТАЖИТИ ЛАНЦЮГ у {1} вибраний cue
+load chain: this preset is empty	завантажити ланцюг: цей пресет порожній
+FX SAVE: could not write the file	FX SAVE: не вдалося записати файл
+LOAD CHAIN onto {1} selected cues	ЗАВАНТАЖИТИ ЛАНЦЮГ у {1} вибраних cue
+duplicate: could not write the file	дублювання: не вдалося записати файл
+save chain: this cue has no effects	зберегти ланцюг: цей cue не має ефектів
+save chain: select a cue with effects	зберегти ланцюг: виберіть cue з ефектами
+FX SAVE: select a cue that has effects	FX SAVE: виберіть cue, який має ефекти
+load chain: this preset needs a newer Deckboy	завантажити ланцюг: цьому пресету потрібен новіший Deckboy
+save chain... keeps this cue's chain for any show.	зберегти ланцюг... зберігає ланцюг цього cue для будь-якого шоу.

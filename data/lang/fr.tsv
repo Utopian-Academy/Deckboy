@@ -4998,3 +4998,30 @@ Which critters: all of them changing together, each new stroke the next one, or 
 Space key	Touche Space
 Space plays and pauses	Space lit et met en pause
 Space takes (Shift+Space plays and pauses)	Space envoie un cue en direct (Shift+Space lit et met en pause)
+YOURS	LES VÔTRES
+STARTERS	DE BASE
+keep both	garder les deux
+load chain	charger chaîne
+save chain...	enregistrer chaîne...
+show in folder	afficher dans le dossier
+load chain ({1})	charger chaîne ({1})
+Save Effect Chain	Enregistrer la chaîne d'effets
+(stack full at 12)	(pile pleine à 12)
+Rename Effect Chain	Renommer la chaîne d'effets
+No saved chains yet.	Aucune chaîne enregistrée pour l'instant.
+load chain: no targets	charger chaîne : aucune cible
+load chain: select a cue	charger chaîne : choisissez un cue
+save chain: select a cue	enregistrer chaîne : choisissez un cue
+(+{1} need a newer Deckboy)	(+{1} nécessitent un Deckboy plus récent)
+({1} skipped: newer Deckboy)	({1} ignorés : Deckboy plus récent)
+save chain: a name is needed	enregistrer chaîne : un nom est requis
+LOAD CHAIN onto {1} selected cue	CHARGER CHAÎNE sur {1} cue sélectionné
+load chain: this preset is empty	charger chaîne : ce préréglage est vide
+FX SAVE: could not write the file	FX SAVE : impossible d'écrire le fichier
+LOAD CHAIN onto {1} selected cues	CHARGER CHAÎNE sur {1} cues sélectionnés
+duplicate: could not write the file	dupliquer : impossible d'écrire le fichier
+save chain: this cue has no effects	enregistrer chaîne : ce cue n'a aucun effet
+save chain: select a cue with effects	enregistrer chaîne : choisissez un cue avec effets
+FX SAVE: select a cue that has effects	FX SAVE : choisissez un cue qui a des effets
+load chain: this preset needs a newer Deckboy	charger chaîne : ce préréglage nécessite un Deckboy plus récent
+save chain... keeps this cue's chain for any show.	enregistrer chaîne... garde la chaîne de ce cue pour tout spectacle.

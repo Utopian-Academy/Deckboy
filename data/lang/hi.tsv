@@ -5069,3 +5069,30 @@ Which critters: all of them changing together, each new stroke the next one, or 
 Space key	Space कुंजी
 Space plays and pauses	Space चलाता और रोकता है
 Space takes (Shift+Space plays and pauses)	Space take करता है (Shift+Space चलाता और रोकता है)
+YOURS	आपके
+STARTERS	शुरुआती
+keep both	दोनों रखें
+load chain	चेन लोड करें
+save chain...	चेन सहेजें...
+show in folder	फ़ोल्डर में दिखाएँ
+load chain ({1})	चेन लोड करें ({1})
+Save Effect Chain	प्रभाव चेन सहेजें
+(stack full at 12)	(स्टैक 12 पर पूर्ण)
+Rename Effect Chain	प्रभाव चेन का नाम बदलें
+No saved chains yet.	अभी कोई सहेजी चेन नहीं।
+load chain: no targets	चेन लोड करें: कोई लक्ष्य नहीं
+load chain: select a cue	चेन लोड करें: एक क्यू चुनें
+save chain: select a cue	चेन सहेजें: एक क्यू चुनें
+(+{1} need a newer Deckboy)	(+{1} को नया Deckboy चाहिए)
+({1} skipped: newer Deckboy)	({1} छोड़े गए: नया Deckboy चाहिए)
+save chain: a name is needed	चेन सहेजें: नाम आवश्यक है
+LOAD CHAIN onto {1} selected cue	{1} चुने गए क्यू पर चेन लोड करें
+load chain: this preset is empty	चेन लोड करें: यह प्रीसेट खाली है
+FX SAVE: could not write the file	FX SAVE: फ़ाइल लिख नहीं सके
+LOAD CHAIN onto {1} selected cues	{1} चुने गए क्यू पर चेन लोड करें
+duplicate: could not write the file	प्रतिलिपि: फ़ाइल लिख नहीं सके
+save chain: this cue has no effects	चेन सहेजें: इस क्यू में कोई प्रभाव नहीं
+save chain: select a cue with effects	चेन सहेजें: प्रभाव वाला क्यू चुनें
+FX SAVE: select a cue that has effects	FX SAVE: प्रभाव वाला क्यू चुनें
+load chain: this preset needs a newer Deckboy	चेन लोड करें: इस प्रीसेट को नया Deckboy चाहिए
+save chain... keeps this cue's chain for any show.	चेन सहेजें... इस क्यू की चेन किसी भी शो के लिए रखता है।

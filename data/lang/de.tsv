@@ -5026,3 +5026,30 @@ Which critters: all of them changing together, each new stroke the next one, or 
 Space key	Space-Taste
 Space plays and pauses	Space spielt ab und pausiert
 Space takes (Shift+Space plays and pauses)	Space führt TAKE aus (Shift+Space spielt ab und pausiert)
+YOURS	EIGENE
+STARTERS	MITGELIEFERT
+keep both	beide behalten
+load chain	Kette laden
+save chain...	Kette sichern...
+show in folder	im Ordner zeigen
+load chain ({1})	Kette laden ({1})
+Save Effect Chain	Effektkette sichern
+(stack full at 12)	(Stapel voll bei 12)
+Rename Effect Chain	Effektkette umbenennen
+No saved chains yet.	Noch keine gesicherten Ketten.
+load chain: no targets	Kette laden: keine Ziele
+load chain: select a cue	Kette laden: einen Cue wählen
+save chain: select a cue	Kette sichern: einen Cue wählen
+(+{1} need a newer Deckboy)	(+{1} brauchen ein neueres Deckboy)
+({1} skipped: newer Deckboy)	({1} übersprungen: neueres Deckboy)
+save chain: a name is needed	Kette sichern: ein Name ist nötig
+LOAD CHAIN onto {1} selected cue	KETTE LADEN auf {1} gewählten Cue
+load chain: this preset is empty	Kette laden: diese Vorlage ist leer
+FX SAVE: could not write the file	FX SAVE: Datei konnte nicht geschrieben werden
+LOAD CHAIN onto {1} selected cues	KETTE LADEN auf {1} gewählte Cues
+duplicate: could not write the file	Duplizieren: Datei konnte nicht geschrieben werden
+save chain: this cue has no effects	Kette sichern: dieser Cue hat keine Effekte
+save chain: select a cue with effects	Kette sichern: einen Cue mit Effekten wählen
+FX SAVE: select a cue that has effects	FX SAVE: einen Cue mit Effekten wählen
+load chain: this preset needs a newer Deckboy	Kette laden: diese Vorlage braucht ein neueres Deckboy
+save chain... keeps this cue's chain for any show.	Kette sichern... bewahrt die Kette dieses Cues für jede Show auf.

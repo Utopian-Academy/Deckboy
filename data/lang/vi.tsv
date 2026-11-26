@@ -5049,3 +5049,30 @@ Which critters: all of them changing together, each new stroke the next one, or 
 Space key	Phím Space
 Space plays and pauses	Space phát và tạm dừng
 Space takes (Shift+Space plays and pauses)	Space thực hiện TAKE (Shift+Space phát và tạm dừng)
+YOURS	CỦA BẠN
+STARTERS	MẪU CÓ SẴN
+keep both	giữ cả hai
+load chain	nạp chuỗi
+save chain...	lưu chuỗi...
+show in folder	hiện trong thư mục
+load chain ({1})	nạp chuỗi ({1})
+Save Effect Chain	Lưu chuỗi hiệu ứng
+(stack full at 12)	(ngăn xếp đầy ở 12)
+Rename Effect Chain	Đổi tên chuỗi hiệu ứng
+No saved chains yet.	Chưa có chuỗi nào được lưu.
+load chain: no targets	nạp chuỗi: không có đích
+load chain: select a cue	nạp chuỗi: hãy chọn một cue
+save chain: select a cue	lưu chuỗi: hãy chọn một cue
+(+{1} need a newer Deckboy)	(+{1} cần Deckboy mới hơn)
+({1} skipped: newer Deckboy)	({1} bỏ qua: cần Deckboy mới hơn)
+save chain: a name is needed	lưu chuỗi: cần có tên
+LOAD CHAIN onto {1} selected cue	NẠP CHUỖI vào {1} cue đang chọn
+load chain: this preset is empty	nạp chuỗi: preset này trống
+FX SAVE: could not write the file	FX SAVE: không ghi được tệp
+LOAD CHAIN onto {1} selected cues	NẠP CHUỖI vào {1} cue đang chọn
+duplicate: could not write the file	nhân bản: không ghi được tệp
+save chain: this cue has no effects	lưu chuỗi: cue này không có hiệu ứng
+save chain: select a cue with effects	lưu chuỗi: hãy chọn cue có hiệu ứng
+FX SAVE: select a cue that has effects	FX SAVE: hãy chọn cue có hiệu ứng
+load chain: this preset needs a newer Deckboy	nạp chuỗi: preset này cần Deckboy mới hơn
+save chain... keeps this cue's chain for any show.	lưu chuỗi... giữ chuỗi của cue này cho bất kỳ show nào.

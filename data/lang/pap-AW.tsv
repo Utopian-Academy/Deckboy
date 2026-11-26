@@ -5039,3 +5039,30 @@ Which critters: all of them changing together, each new stroke the next one, or 
 Space key	Tecla Space
 Space plays and pauses	Space ta toca y pausa
 Space takes (Shift+Space plays and pauses)	Space ta haci TAKE (Shift+Space ta toca y pausa)
+YOURS	DI BO
+STARTERS	PA CUMINSA
+keep both	warda tur dos
+load chain	carga cadena
+save chain...	warda cadena...
+show in folder	mustra den caha
+load chain ({1})	carga cadena ({1})
+Save Effect Chain	Warda Cadena di Efecto
+(stack full at 12)	(pila completo na 12)
+Rename Effect Chain	Renombra Cadena di Efecto
+No saved chains yet.	No tin cadena warda ainda.
+load chain: no targets	carga cadena: no tin destino
+load chain: select a cue	carga cadena: scogi un cue
+save chain: select a cue	warda cadena: scogi un cue
+(+{1} need a newer Deckboy)	(+{1} mester un Deckboy mas nobo)
+({1} skipped: newer Deckboy)	({1} salta: Deckboy mas nobo)
+save chain: a name is needed	warda cadena: mester un nomber
+LOAD CHAIN onto {1} selected cue	CARGA CADENA riba {1} cue scogi
+load chain: this preset is empty	carga cadena: e preset aki ta bashi
+FX SAVE: could not write the file	FX SAVE: no por skirbi e archivo
+LOAD CHAIN onto {1} selected cues	CARGA CADENA riba {1} cues scogi
+duplicate: could not write the file	duplica: no por skirbi e archivo
+save chain: this cue has no effects	warda cadena: e cue aki no tin efecto
+save chain: select a cue with effects	warda cadena: scogi un cue cu efecto
+FX SAVE: select a cue that has effects	FX SAVE: scogi un cue cu tin efecto
+load chain: this preset needs a newer Deckboy	carga cadena: e preset aki mester un Deckboy mas nobo
+save chain... keeps this cue's chain for any show.	warda cadena... ta warda e cadena di e cue aki pa cualkier show.

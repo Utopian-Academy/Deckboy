@@ -5066,3 +5066,30 @@ Which critters: all of them changing together, each new stroke the next one, or 
 Space key	Клавиш Space
 Space plays and pauses	Space пуска и паузира
 Space takes (Shift+Space plays and pauses)	Space прави TAKE (Shift+Space пуска и паузира)
+YOURS	ВАШИТЕ
+STARTERS	НАЧАЛНИ
+keep both	запази двете
+load chain	зареди верига
+save chain...	запази верига...
+show in folder	покажи в папка
+load chain ({1})	зареди верига ({1})
+Save Effect Chain	Запази верига от ефекти
+(stack full at 12)	(стекът е пълен при 12)
+Rename Effect Chain	Преименувай верига от ефекти
+No saved chains yet.	Още няма запазени вериги.
+load chain: no targets	зареди верига: няма цели
+load chain: select a cue	зареди верига: изберете cue
+save chain: select a cue	запази верига: изберете cue
+(+{1} need a newer Deckboy)	(+{1} изискват по-нов Deckboy)
+({1} skipped: newer Deckboy)	({1} пропуснати: по-нов Deckboy)
+save chain: a name is needed	запази верига: нужно е име
+LOAD CHAIN onto {1} selected cue	ЗАРЕДИ ВЕРИГА върху {1} избран cue
+load chain: this preset is empty	зареди верига: тази преднастройка е празна
+FX SAVE: could not write the file	FX SAVE: файлът не може да се запише
+LOAD CHAIN onto {1} selected cues	ЗАРЕДИ ВЕРИГА върху {1} избрани cue
+duplicate: could not write the file	дублиране: файлът не може да се запише
+save chain: this cue has no effects	запази верига: този cue няма ефекти
+save chain: select a cue with effects	запази верига: изберете cue с ефекти
+FX SAVE: select a cue that has effects	FX SAVE: изберете cue с ефекти
+load chain: this preset needs a newer Deckboy	зареди верига: тази преднастройка изисква по-нов Deckboy
+save chain... keeps this cue's chain for any show.	запази верига... пази веригата на този cue за всяко шоу.

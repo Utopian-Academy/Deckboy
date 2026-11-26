@@ -5064,3 +5064,30 @@ Which critters: all of them changing together, each new stroke the next one, or 
 Space key	Space 키
 Space plays and pauses	Space로 재생 및 일시정지
 Space takes (Shift+Space plays and pauses)	Space로 TAKE (Shift+Space로 재생 및 일시정지)
+YOURS	내 것
+STARTERS	기본 제공
+keep both	둘 다 유지
+load chain	체인 불러오기
+save chain...	체인 저장...
+show in folder	폴더에서 보기
+load chain ({1})	체인 불러오기 ({1})
+Save Effect Chain	효과 체인 저장
+(stack full at 12)	(최대 12개, 가득 참)
+Rename Effect Chain	효과 체인 이름 바꾸기
+No saved chains yet.	저장된 체인이 아직 없습니다.
+load chain: no targets	체인 불러오기: 대상 없음
+load chain: select a cue	체인 불러오기: 큐를 선택하세요
+save chain: select a cue	체인 저장: 큐를 선택하세요
+(+{1} need a newer Deckboy)	(+{1}개는 최신 Deckboy 필요)
+({1} skipped: newer Deckboy)	({1}개 건너뜀: 최신 Deckboy 필요)
+save chain: a name is needed	체인 저장: 이름이 필요합니다
+LOAD CHAIN onto {1} selected cue	선택된 큐 {1}개에 체인 불러오기
+load chain: this preset is empty	체인 불러오기: 이 프리셋은 비어 있음
+FX SAVE: could not write the file	FX SAVE: 파일을 쓸 수 없음
+LOAD CHAIN onto {1} selected cues	선택된 큐 {1}개에 체인 불러오기
+duplicate: could not write the file	복제: 파일을 쓸 수 없음
+save chain: this cue has no effects	체인 저장: 이 큐에 효과 없음
+save chain: select a cue with effects	체인 저장: 효과가 있는 큐를 선택하세요
+FX SAVE: select a cue that has effects	FX SAVE: 효과가 있는 큐를 선택하세요
+load chain: this preset needs a newer Deckboy	체인 불러오기: 이 프리셋은 최신 Deckboy가 필요함
+save chain... keeps this cue's chain for any show.	체인 저장...은 이 큐의 체인을 어느 쇼에서나 쓰도록 보관합니다.

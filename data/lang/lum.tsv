@@ -5078,3 +5078,30 @@ Which critters: all of them changing together, each new stroke the next one, or 
 Space key	Space bata
 Space plays and pauses	Space soni so tokispeni
 Space takes (Shift+Space plays and pauses)	Space seni (Shift+Space soni so tokispeni)
+YOURS	TUO
+STARTERS	MUNAKU
+keep both	hali dua
+load chain	tiri rana
+save chain...	guri rana...
+show in folder	veki dora kara
+load chain ({1})	tiri rana ({1})
+Save Effect Chain	Guri Setapatakarana
+(stack full at 12)	(setapataku tamo kae 12)
+Rename Effect Chain	Seti Hola Setapatakarana
+No saved chains yet.	Vana ranaku guro pen.
+load chain: no targets	tiri rana: vana dopaku
+load chain: select a cue	tiri rana: piki veka
+save chain: select a cue	guri rana: piki veka
+(+{1} need a newer Deckboy)	(+{1} peni Deckboy novo)
+({1} skipped: newer Deckboy)	({1} vatiro: Deckboy novo)
+save chain: a name is needed	guri rana: nama peni
+LOAD CHAIN onto {1} selected cue	TIRI RANA lan {1} VEKA MIRO
+load chain: this preset is empty	tiri rana: setagura nakae vano
+FX SAVE: could not write the file	FX SAVE: va pel grai gura
+LOAD CHAIN onto {1} selected cues	TIRI RANA lan {1} VEKAKU MIRO
+duplicate: could not write the file	veli: va pel grai gura
+save chain: this cue has no effects	guri rana: veka nakae vasetapataku
+save chain: select a cue with effects	guri rana: piki veka so setapataku
+FX SAVE: select a cue that has effects	FX SAVE: piki veka so setapataku
+load chain: this preset needs a newer Deckboy	tiri rana: setagura nakae peni Deckboy novo
+save chain... keeps this cue's chain for any show.	guri rana... hali rana veka nakae go ala piko vekarana.

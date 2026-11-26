@@ -5051,3 +5051,30 @@ Which critters: all of them changing together, each new stroke the next one, or 
 Space key	Tasarut Space
 Space plays and pauses	Space i urar d usteɛfu
 Space takes (Shift+Space plays and pauses)	Space yettawi ɣer usiɣel (Shift+Space i urar d usteɛfu)
+YOURS	TINEK
+STARTERS	TIZWIRIN
+keep both	eǧǧ-iten i sin
+load chain	sali tazrart
+save chain...	sekles tazrart...
+show in folder	sken deg ukaram
+load chain ({1})	sali tazrart ({1})
+Save Effect Chain	Sekles tazrart n yisemda
+(stack full at 12)	(yeččur ɣef 12)
+Rename Effect Chain	Snifel isem n tzrart n yisemda
+No saved chains yet.	Ulac yakan tizrarin yettwaseklesen.
+load chain: no targets	sali tazrart: ulac iswan
+load chain: select a cue	sali tazrart: fren cue
+save chain: select a cue	sekles tazrart: fren cue
+(+{1} need a newer Deckboy)	(+{1} ḥwaǧen Deckboy amaynut)
+({1} skipped: newer Deckboy)	({1} ttwazeglen: Deckboy amaynut)
+save chain: a name is needed	sekles tazrart: yesra isem
+LOAD CHAIN onto {1} selected cue	SALI TAZRART ɣef {1} cue yettwafernen
+load chain: this preset is empty	sali tazrart: aheggi-agi d ilem
+FX SAVE: could not write the file	FX SAVE: ur yezmir ara ad yaru afaylu
+LOAD CHAIN onto {1} selected cues	SALI TAZRART ɣef {1} cue yettwafernen
+duplicate: could not write the file	anɣal: ur yezmir ara ad yaru afaylu
+save chain: this cue has no effects	sekles tazrart: cue-agi ulac isemda
+save chain: select a cue with effects	sekles tazrart: fren cue yesɛan isemda
+FX SAVE: select a cue that has effects	FX SAVE: fren cue yesɛan isemda
+load chain: this preset needs a newer Deckboy	sali tazrart: aheggi-agi yesra Deckboy amaynut
+save chain... keeps this cue's chain for any show.	sekles tazrart... yeḥrez tazrart n cue-agi i yal askan.

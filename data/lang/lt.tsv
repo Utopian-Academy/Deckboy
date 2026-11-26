@@ -4147,3 +4147,30 @@ Which critters: all of them changing together, each new stroke the next one, or 
 Space key	Space klavišas
 Space plays and pauses	Space groja ir pristabdo
 Space takes (Shift+Space plays and pauses)	Space atlieka TAKE (Shift+Space groja ir pristabdo)
+YOURS	JŪSŲ
+STARTERS	PRADINIAI
+keep both	palikti abu
+load chain	įkelti grandinę
+save chain...	išsaugoti grandinę...
+show in folder	rodyti aplanke
+load chain ({1})	įkelti grandinę ({1})
+Save Effect Chain	Išsaugoti efektų grandinę
+(stack full at 12)	(rinkinys pilnas: 12)
+Rename Effect Chain	Pervadinti efektų grandinę
+No saved chains yet.	Išsaugotų grandinių dar nėra.
+load chain: no targets	įkelti grandinę: nėra tikslų
+load chain: select a cue	įkelti grandinę: pasirinkite ženklą
+save chain: select a cue	išsaugoti grandinę: pasirinkite ženklą
+(+{1} need a newer Deckboy)	(+{1} reikia naujesnės Deckboy versijos)
+({1} skipped: newer Deckboy)	({1} praleista: naujesnė Deckboy)
+save chain: a name is needed	išsaugoti grandinę: reikia pavadinimo
+LOAD CHAIN onto {1} selected cue	ĮKELTI GRANDINĘ į {1} pasirinktą ženklą
+load chain: this preset is empty	įkelti grandinę: šis šablonas tuščias
+FX SAVE: could not write the file	FX SAVE: nepavyko įrašyti failo
+LOAD CHAIN onto {1} selected cues	ĮKELTI GRANDINĘ į {1} pasirinktus ženklus
+duplicate: could not write the file	dubliavimas: nepavyko įrašyti failo
+save chain: this cue has no effects	išsaugoti grandinę: šis ženklas neturi efektų
+save chain: select a cue with effects	išsaugoti grandinę: pasirinkite ženklą su efektais
+FX SAVE: select a cue that has effects	FX SAVE: pasirinkite ženklą, kuris turi efektų
+load chain: this preset needs a newer Deckboy	įkelti grandinę: šiam šablonui reikia naujesnės Deckboy versijos
+save chain... keeps this cue's chain for any show.	išsaugoti grandinę... išsaugo šio ženklo grandinę bet kuriam šou.

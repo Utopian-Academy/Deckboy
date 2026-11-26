@@ -5064,3 +5064,30 @@ Which critters: all of them changing together, each new stroke the next one, or 
 Space key	Space 键
 Space plays and pauses	Space 播放和暂停
 Space takes (Shift+Space plays and pauses)	Space 执行 TAKE（Shift+Space 播放和暂停）
+YOURS	我的
+STARTERS	入门
+keep both	保留两者
+load chain	加载链
+save chain...	保存链...
+show in folder	在文件夹中显示
+load chain ({1})	加载链 ({1})
+Save Effect Chain	保存效果链
+(stack full at 12)	(效果栈已满，上限 12)
+Rename Effect Chain	重命名效果链
+No saved chains yet.	尚无已保存的链。
+load chain: no targets	加载链：没有目标
+load chain: select a cue	加载链：请选择一个 cue
+save chain: select a cue	保存链：请选择一个 cue
+(+{1} need a newer Deckboy)	(+{1} 个需要更新版本的 Deckboy)
+({1} skipped: newer Deckboy)	(已跳过 {1} 个：需要更新版本的 Deckboy)
+save chain: a name is needed	保存链：需要名称
+LOAD CHAIN onto {1} selected cue	加载链到 {1} 个选中的 cue
+load chain: this preset is empty	加载链：此预设为空
+FX SAVE: could not write the file	FX SAVE：无法写入文件
+LOAD CHAIN onto {1} selected cues	加载链到 {1} 个选中的 cue
+duplicate: could not write the file	复制：无法写入文件
+save chain: this cue has no effects	保存链：此 cue 没有效果
+save chain: select a cue with effects	保存链：请选择有效果的 cue
+FX SAVE: select a cue that has effects	FX SAVE：请选择有效果的 cue
+load chain: this preset needs a newer Deckboy	加载链：此预设需要更新版本的 Deckboy
+save chain... keeps this cue's chain for any show.	保存链... 会保留此 cue 的链，供任意演出使用。

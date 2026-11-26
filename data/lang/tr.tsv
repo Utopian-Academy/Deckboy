@@ -5057,3 +5057,30 @@ Which critters: all of them changing together, each new stroke the next one, or 
 Space key	Space tuşu
 Space plays and pauses	Space oynatır ve duraklatır
 Space takes (Shift+Space plays and pauses)	Space TAKE yapar (Shift+Space oynatır ve duraklatır)
+YOURS	SİZİNKİLER
+STARTERS	BAŞLANGIÇ
+keep both	ikisini de tut
+load chain	zincir yükle
+save chain...	zincir kaydet...
+show in folder	klasörde göster
+load chain ({1})	zincir yükle ({1})
+Save Effect Chain	Efekt Zincirini Kaydet
+(stack full at 12)	(yığın 12'de tam)
+Rename Effect Chain	Efekt Zincirini Yeniden Adlandır
+No saved chains yet.	Henüz kayıtlı zincir yok.
+load chain: no targets	zincir yükle: hedef yok
+load chain: select a cue	zincir yükle: bir cue seçin
+save chain: select a cue	zincir kaydet: bir cue seçin
+(+{1} need a newer Deckboy)	(+{1} daha yeni Deckboy gerektirir)
+({1} skipped: newer Deckboy)	({1} atlandı: daha yeni Deckboy)
+save chain: a name is needed	zincir kaydet: bir ad gerekli
+LOAD CHAIN onto {1} selected cue	{1} seçili cue'ya ZİNCİR YÜKLE
+load chain: this preset is empty	zincir yükle: bu önayar boş
+FX SAVE: could not write the file	FX SAVE: dosya yazılamadı
+LOAD CHAIN onto {1} selected cues	{1} seçili cue'ya ZİNCİR YÜKLE
+duplicate: could not write the file	çoğalt: dosya yazılamadı
+save chain: this cue has no effects	zincir kaydet: bu cue'da efekt yok
+save chain: select a cue with effects	zincir kaydet: efektli bir cue seçin
+FX SAVE: select a cue that has effects	FX SAVE: efekti olan bir cue seçin
+load chain: this preset needs a newer Deckboy	zincir yükle: bu önayar daha yeni bir Deckboy gerektirir
+save chain... keeps this cue's chain for any show.	zincir kaydet... bu cue'nun zincirini her gösteri için saklar.

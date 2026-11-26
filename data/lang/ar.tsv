@@ -5080,3 +5080,30 @@ Which critters: all of them changing together, each new stroke the next one, or 
 Space key	مفتاح Space
 Space plays and pauses	Space يشغّل ويوقف مؤقتًا
 Space takes (Shift+Space plays and pauses)	Space ينفّذ TAKE (Shift+Space يشغّل ويوقف مؤقتًا)
+YOURS	خاصتك
+STARTERS	الجاهزة
+keep both	احتفظ بكليهما
+load chain	تحميل السلسلة
+save chain...	حفظ السلسلة...
+show in folder	إظهار في المجلد
+load chain ({1})	تحميل السلسلة ({1})
+Save Effect Chain	حفظ سلسلة المؤثرات
+(stack full at 12)	(المكدس ممتلئ عند 12)
+Rename Effect Chain	إعادة تسمية سلسلة المؤثرات
+No saved chains yet.	لا سلاسل محفوظة بعد.
+load chain: no targets	تحميل السلسلة: لا أهداف
+load chain: select a cue	تحميل السلسلة: اختر كيو
+save chain: select a cue	حفظ السلسلة: اختر كيو
+(+{1} need a newer Deckboy)	(+{1} تحتاج إصدارًا أحدث من Deckboy)
+({1} skipped: newer Deckboy)	({1} تم تخطيها: Deckboy أحدث)
+save chain: a name is needed	حفظ السلسلة: يلزم اسم
+LOAD CHAIN onto {1} selected cue	تحميل السلسلة على {1} كيو محدد
+load chain: this preset is empty	تحميل السلسلة: هذا الإعداد المسبق فارغ
+FX SAVE: could not write the file	FX SAVE: تعذرت كتابة الملف
+LOAD CHAIN onto {1} selected cues	تحميل السلسلة على {1} كيوهات محددة
+duplicate: could not write the file	تكرار: تعذرت كتابة الملف
+save chain: this cue has no effects	حفظ السلسلة: لا مؤثرات في هذا الكيو
+save chain: select a cue with effects	حفظ السلسلة: اختر كيو فيه مؤثرات
+FX SAVE: select a cue that has effects	FX SAVE: اختر كيو فيه مؤثرات
+load chain: this preset needs a newer Deckboy	تحميل السلسلة: هذا الإعداد المسبق يحتاج إصدارًا أحدث من Deckboy
+save chain... keeps this cue's chain for any show.	حفظ السلسلة... يحفظ سلسلة هذا الكيو لأي عرض.

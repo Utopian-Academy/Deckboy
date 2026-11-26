@@ -5079,3 +5079,30 @@ Which critters: all of them changing together, each new stroke the next one, or 
 Space key	ⵜⴰⵙⴰⵔⵓⵜ Space
 Space plays and pauses	Space ⵉⵜⵜⵖⵔⴰ ⴷ ⵉⵙⴳⵓⵏⴼⵓ
 Space takes (Shift+Space plays and pauses)	Space ⵉⵙⴽⴰⵔ TAKE (Shift+Space ⵉⵜⵜⵖⵔⴰ ⴷ ⵉⵙⴳⵓⵏⴼⵓ)
+YOURS	ⵡⵉⵏⵏⴽ
+STARTERS	ⵉⵙⵏⵜⵉⵜⵏ
+keep both	ⵃⴹⵓ ⵉ ⵙⵉⵏ
+load chain	ⵙⴰⵍⵉ ⴰⵙⵎⵎⵏⴹ
+save chain...	ⵃⴹⵓ ⴰⵙⵎⵎⵏⴹ...
+show in folder	ⵙⵎⵍ ⵖ ⵓⴽⴰⵔⴰⵎ
+load chain ({1})	ⵙⴰⵍⵉ ⴰⵙⵎⵎⵏⴹ ({1})
+Save Effect Chain	ⵃⴹⵓ ⴰⵙⵎⵎⵏⴹ ⵏ ⵉⵙⵏⴼⴰⵍⵏ
+(stack full at 12)	(ⵉⵄⵎⵎⵔ ⴳ 12)
+Rename Effect Chain	ⵙⵏⴼⵍ ⵉⵙⵎ ⵏ ⵓⵙⵎⵎⵏⴹ ⵏ ⵉⵙⵏⴼⴰⵍⵏ
+No saved chains yet.	ⵓⵔ ⵍⵍⵉⵏ ⵖⵉⵍⴰ ⵉⵙⵎⵎⵏⴹⵏ ⵉⵜⵜⵓⵃⴹⴰⵏ.
+load chain: no targets	ⵙⴰⵍⵉ ⴰⵙⵎⵎⵏⴹ: ⵓⵔ ⵍⵍⵉⵏ ⵉⵙⵡⵉⵏ
+load chain: select a cue	ⵙⴰⵍⵉ ⴰⵙⵎⵎⵏⴹ: ⵙⵜⵉ ⴽⵔⴰ ⵏ cue
+save chain: select a cue	ⵃⴹⵓ ⴰⵙⵎⵎⵏⴹ: ⵙⵜⵉ ⴽⵔⴰ ⵏ cue
+(+{1} need a newer Deckboy)	(+{1} ⵉⵍⴰⵇ ⴰⵙⵏ Deckboy ⴰⵎⴰⵢⵏⵓ)
+({1} skipped: newer Deckboy)	({1} ⵜⵜⵓⵣⴳⵍⵏ: Deckboy ⴰⵎⴰⵢⵏⵓ)
+save chain: a name is needed	ⵃⴹⵓ ⴰⵙⵎⵎⵏⴹ: ⵉⵍⴰⵇ ⵉⵙⵎ
+LOAD CHAIN onto {1} selected cue	ⵙⴰⵍⵉ ⴰⵙⵎⵎⵏⴹ ⵖ {1} cue ⵉⵜⵜⵓⵙⵜⴰⵢⵏ
+load chain: this preset is empty	ⵙⴰⵍⵉ ⴰⵙⵎⵎⵏⴹ: ⴰⵎⵣⵡⴰⵔⵓ ⴰⴷ ⵉⵍⵎ
+FX SAVE: could not write the file	FX SAVE: ⵓⵔ ⵉⵣⵎⵉⵔ ⴰⴷ ⵢⴰⵔⵓ ⴰⴼⴰⵢⵍⵓ
+LOAD CHAIN onto {1} selected cues	ⵙⴰⵍⵉ ⴰⵙⵎⵎⵏⴹ ⵖ {1} cue ⵉⵜⵜⵓⵙⵜⴰⵢⵏ
+duplicate: could not write the file	ⵜⵓⵏⵖⵉⵍⵜ: ⵓⵔ ⵉⵣⵎⵉⵔ ⴰⴷ ⵢⴰⵔⵓ ⴰⴼⴰⵢⵍⵓ
+save chain: this cue has no effects	ⵃⴹⵓ ⴰⵙⵎⵎⵏⴹ: cue ⴰⴷ ⵓⵔ ⵖⵓⵔⵙ ⵉⵙⵏⴼⴰⵍⵏ
+save chain: select a cue with effects	ⵃⴹⵓ ⴰⵙⵎⵎⵏⴹ: ⵙⵜⵉ cue ⵖⵓⵔ ⵍⵍⴰⵏ ⵉⵙⵏⴼⴰⵍⵏ
+FX SAVE: select a cue that has effects	FX SAVE: ⵙⵜⵉ cue ⵖⵓⵔ ⵍⵍⴰⵏ ⵉⵙⵏⴼⴰⵍⵏ
+load chain: this preset needs a newer Deckboy	ⵙⴰⵍⵉ ⴰⵙⵎⵎⵏⴹ: ⴰⵎⵣⵡⴰⵔⵓ ⴰⴷ ⵉⵍⴰⵇ ⴰⵙ Deckboy ⴰⵎⴰⵢⵏⵓ
+save chain... keeps this cue's chain for any show.	ⵃⴹⵓ ⴰⵙⵎⵎⵏⴹ... ⴰⵔ ⵉⵃⴹⴰ ⴰⵙⵎⵎⵏⴹ ⵏ cue ⴰⴷ ⵉ ⴽⵔⴰ ⵏ ⵓⵙⵙⴽⴰⵏ.

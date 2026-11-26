@@ -5058,3 +5058,30 @@ Which critters: all of them changing together, each new stroke the next one, or 
 Space key	Bişkoka Space
 Space plays and pauses	Space lê dide û radiwestîne
 Space takes (Shift+Space plays and pauses)	Space TAKE dike (Shift+Space lê dide û radiwestîne)
+YOURS	YÊN TE
+STARTERS	YÊN DESTPÊKÊ
+keep both	herdu bihêle
+load chain	zincîrê bar bike
+save chain...	zincîrê tomar bike...
+show in folder	di peldankê de nîşan bide
+load chain ({1})	zincîrê bar bike ({1})
+Save Effect Chain	Zincîra Efektan Tomar Bike
+(stack full at 12)	(rêza efektan li 12 tije ye)
+Rename Effect Chain	Navê Zincîra Efektan Biguhere
+No saved chains yet.	Hêj zincîreke tomarkirî tune.
+load chain: no targets	zincîrê bar bike: armanc tune
+load chain: select a cue	zincîrê bar bike: cueyekê hilbijêre
+save chain: select a cue	zincîrê tomar bike: cueyekê hilbijêre
+(+{1} need a newer Deckboy)	(+{1} Deckboyê nûtir dixwazin)
+({1} skipped: newer Deckboy)	({1} hatin derbaskirin: Deckboyê nûtir)
+save chain: a name is needed	zincîrê tomar bike: nav pêwîst e
+LOAD CHAIN onto {1} selected cue	ZINCÎRÊ BAR BIKE li ser {1} cue ya hilbijartî
+load chain: this preset is empty	zincîrê bar bike: ev pêşsaz vala ye
+FX SAVE: could not write the file	FX SAVE: pel nehat nivîsandin
+LOAD CHAIN onto {1} selected cues	ZINCÎRÊ BAR BIKE li ser {1} cueyên hilbijartî
+duplicate: could not write the file	dubarekirin: pel nehat nivîsandin
+save chain: this cue has no effects	zincîrê tomar bike: ev cue efekt tune
+save chain: select a cue with effects	zincîrê tomar bike: cueyeke bi efektan hilbijêre
+FX SAVE: select a cue that has effects	FX SAVE: cueyeke ku efekt hene hilbijêre
+load chain: this preset needs a newer Deckboy	zincîrê bar bike: ev pêşsaz Deckboyê nûtir dixwaze
+save chain... keeps this cue's chain for any show.	zincîrê tomar bike... zincîra vê cueyê ji bo her pêşandanê diparêze.

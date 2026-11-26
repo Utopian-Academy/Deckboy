@@ -5059,3 +5059,30 @@ Which critters: all of them changing together, each new stroke the next one, or 
 Space key	Space-lykill
 Space plays and pauses	Space spilar og gerir hlé
 Space takes (Shift+Space plays and pauses)	Space setur í loftið (Shift+Space spilar og gerir hlé)
+YOURS	ÞÍNAR
+STARTERS	TILBÚNAR
+keep both	halda báðum
+load chain	hlaða keðju
+save chain...	vista keðju...
+show in folder	sýna í möppu
+load chain ({1})	hlaða keðju ({1})
+Save Effect Chain	Vista áhrifakeðju
+(stack full at 12)	(staflinn fullur við 12)
+Rename Effect Chain	Endurnefna áhrifakeðju
+No saved chains yet.	Engar vistaðar keðjur enn.
+load chain: no targets	hlaða keðju: ekkert til að hlaða á
+load chain: select a cue	hlaða keðju: veldu cue
+save chain: select a cue	vista keðju: veldu cue
+(+{1} need a newer Deckboy)	(+{1} þarf nýrri Deckboy)
+({1} skipped: newer Deckboy)	({1} sleppt: nýrri Deckboy)
+save chain: a name is needed	vista keðju: heiti vantar
+LOAD CHAIN onto {1} selected cue	HLAÐA KEÐJU á {1} valið cue
+load chain: this preset is empty	hlaða keðju: þessi forstilling er tóm
+FX SAVE: could not write the file	FX SAVE: gat ekki skrifað skrána
+LOAD CHAIN onto {1} selected cues	HLAÐA KEÐJU á {1} valin cue
+duplicate: could not write the file	afrit: gat ekki skrifað skrána
+save chain: this cue has no effects	vista keðju: þetta cue hefur engin áhrif
+save chain: select a cue with effects	vista keðju: veldu cue með áhrifum
+FX SAVE: select a cue that has effects	FX SAVE: veldu cue sem hefur áhrif
+load chain: this preset needs a newer Deckboy	hlaða keðju: þessi forstilling þarf nýrri Deckboy
+save chain... keeps this cue's chain for any show.	vista keðju... geymir keðju þessa cue fyrir hvaða sýningu sem er.

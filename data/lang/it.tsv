@@ -5029,3 +5029,30 @@ Which critters: all of them changing together, each new stroke the next one, or 
 Space key	Tasto Space
 Space plays and pauses	Space riproduce e mette in pausa
 Space takes (Shift+Space plays and pauses)	Space manda in diretta (Shift+Space riproduce e mette in pausa)
+YOURS	LE TUE
+STARTERS	DI BASE
+keep both	mantieni entrambi
+load chain	carica catena
+save chain...	salva catena...
+show in folder	mostra nella cartella
+load chain ({1})	carica catena ({1})
+Save Effect Chain	Salva catena effetti
+(stack full at 12)	(stack pieno a 12)
+Rename Effect Chain	Rinomina catena effetti
+No saved chains yet.	Nessuna catena salvata.
+load chain: no targets	carica catena: nessuna destinazione
+load chain: select a cue	carica catena: seleziona un cue
+save chain: select a cue	salva catena: seleziona un cue
+(+{1} need a newer Deckboy)	(+{1} richiedono un Deckboy più recente)
+({1} skipped: newer Deckboy)	({1} saltati: Deckboy più recente)
+save chain: a name is needed	salva catena: serve un nome
+LOAD CHAIN onto {1} selected cue	CARICA CATENA su {1} cue selezionato
+load chain: this preset is empty	carica catena: questo preset è vuoto
+FX SAVE: could not write the file	FX SAVE: impossibile scrivere il file
+LOAD CHAIN onto {1} selected cues	CARICA CATENA su {1} cue selezionati
+duplicate: could not write the file	duplicato: impossibile scrivere il file
+save chain: this cue has no effects	salva catena: questo cue non ha effetti
+save chain: select a cue with effects	salva catena: seleziona un cue con effetti
+FX SAVE: select a cue that has effects	FX SAVE: seleziona un cue che ha effetti
+load chain: this preset needs a newer Deckboy	carica catena: questo preset richiede un Deckboy più recente
+save chain... keeps this cue's chain for any show.	salva catena... conserva la catena di questo cue per qualsiasi show.

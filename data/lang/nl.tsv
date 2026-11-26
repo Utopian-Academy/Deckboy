@@ -4999,3 +4999,30 @@ Which critters: all of them changing together, each new stroke the next one, or 
 Space key	Space-toets
 Space plays and pauses	Space speelt af en pauzeert
 Space takes (Shift+Space plays and pauses)	Space doet een TAKE (Shift+Space speelt af en pauzeert)
+YOURS	EIGEN
+STARTERS	STANDAARD
+keep both	beide behouden
+load chain	keten laden
+save chain...	keten opslaan...
+show in folder	tonen in map
+load chain ({1})	keten laden ({1})
+Save Effect Chain	Effectketen opslaan
+(stack full at 12)	(stapel vol bij 12)
+Rename Effect Chain	Effectketen hernoemen
+No saved chains yet.	Nog geen opgeslagen ketens.
+load chain: no targets	keten laden: geen doelen
+load chain: select a cue	keten laden: kies een cue
+save chain: select a cue	keten opslaan: kies een cue
+(+{1} need a newer Deckboy)	(+{1} vereisen een nieuwere Deckboy)
+({1} skipped: newer Deckboy)	({1} overgeslagen: nieuwere Deckboy)
+save chain: a name is needed	keten opslaan: een naam is nodig
+LOAD CHAIN onto {1} selected cue	KETEN LADEN op {1} geselecteerde cue
+load chain: this preset is empty	keten laden: deze voorinstelling is leeg
+FX SAVE: could not write the file	FX SAVE: kon het bestand niet schrijven
+LOAD CHAIN onto {1} selected cues	KETEN LADEN op {1} geselecteerde cues
+duplicate: could not write the file	dupliceren: kon het bestand niet schrijven
+save chain: this cue has no effects	keten opslaan: deze cue heeft geen effecten
+save chain: select a cue with effects	keten opslaan: kies een cue met effecten
+FX SAVE: select a cue that has effects	FX SAVE: kies een cue die effecten heeft
+load chain: this preset needs a newer Deckboy	keten laden: deze voorinstelling vereist een nieuwere Deckboy
+save chain... keeps this cue's chain for any show.	keten opslaan... bewaart de keten van deze cue voor elke show.

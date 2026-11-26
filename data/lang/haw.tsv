@@ -5031,3 +5031,30 @@ Which critters: all of them changing together, each new stroke the next one, or 
 Space key	Kī Space
 Space plays and pauses	Hoʻokani a hoʻomaha ʻo Space
 Space takes (Shift+Space plays and pauses)	Lawe ʻo Space i ka lewa (hoʻokani a hoʻomaha ʻo Shift+Space)
+YOURS	KĀU
+STARTERS	NĀ HOʻOMAKA
+keep both	mālama ʻelua pū
+load chain	hoʻouka kaulahao
+save chain...	mālama kaulahao...
+show in folder	hōʻike ma ka waihona
+load chain ({1})	hoʻouka kaulahao ({1})
+Save Effect Chain	Mālama Kaulahao Hopena
+(stack full at 12)	(piha ka hōʻuluʻulu ma ka 12)
+Rename Effect Chain	Hoʻololi Inoa Kaulahao Hopena
+No saved chains yet.	ʻAʻohe kaulahao i mālama ʻia i kēia manawa.
+load chain: no targets	hoʻouka kaulahao: ʻaʻohe pahuhopu
+load chain: select a cue	hoʻouka kaulahao: koho i cue
+save chain: select a cue	mālama kaulahao: koho i cue
+(+{1} need a newer Deckboy)	(+{1} pono i Deckboy hou aʻe)
+({1} skipped: newer Deckboy)	({1} i lele ʻia: Deckboy hou aʻe)
+save chain: a name is needed	mālama kaulahao: pono he inoa
+LOAD CHAIN onto {1} selected cue	HOʻOUKA KAULAHAO ma {1} cue i koho ʻia
+load chain: this preset is empty	hoʻouka kaulahao: hakahaka kēia hoʻonoho mua
+FX SAVE: could not write the file	FX SAVE: ʻaʻole hiki ke kākau i ka waihona
+LOAD CHAIN onto {1} selected cues	HOʻOUKA KAULAHAO ma nā cue {1} i koho ʻia
+duplicate: could not write the file	kope: ʻaʻole hiki ke kākau i ka waihona
+save chain: this cue has no effects	mālama kaulahao: ʻaʻohe hopena o kēia cue
+save chain: select a cue with effects	mālama kaulahao: koho i cue me nā hopena
+FX SAVE: select a cue that has effects	FX SAVE: koho i cue he hopena kona
+load chain: this preset needs a newer Deckboy	hoʻouka kaulahao: pono kēia hoʻonoho mua i Deckboy hou aʻe
+save chain... keeps this cue's chain for any show.	mālama kaulahao... mālama i ke kaulahao o kēia cue no kekahi hōʻike.

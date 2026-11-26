@@ -5034,3 +5034,30 @@ Which critters: all of them changing together, each new stroke the next one, or 
 Space key	Klawisz Space
 Space plays and pauses	Space odtwarza i pauzuje
 Space takes (Shift+Space plays and pauses)	Space wykonuje TAKE (Shift+Space odtwarza i pauzuje)
+YOURS	TWOJE
+STARTERS	STARTOWE
+keep both	zachowaj oba
+load chain	wczytaj łańcuch
+save chain...	zapisz łańcuch...
+show in folder	pokaż w folderze
+load chain ({1})	wczytaj łańcuch ({1})
+Save Effect Chain	Zapisz łańcuch efektów
+(stack full at 12)	(stos pełny przy 12)
+Rename Effect Chain	Zmień nazwę łańcucha efektów
+No saved chains yet.	Brak zapisanych łańcuchów.
+load chain: no targets	wczytaj łańcuch: brak celów
+load chain: select a cue	wczytaj łańcuch: wybierz cue
+save chain: select a cue	zapisz łańcuch: wybierz cue
+(+{1} need a newer Deckboy)	(+{1} wymaga nowszego Deckboya)
+({1} skipped: newer Deckboy)	(pominięto {1}: nowszy Deckboy)
+save chain: a name is needed	zapisz łańcuch: podaj nazwę
+LOAD CHAIN onto {1} selected cue	WCZYTAJ ŁAŃCUCH do {1} wybranego cue
+load chain: this preset is empty	wczytaj łańcuch: to ustawienie jest puste
+FX SAVE: could not write the file	FX SAVE: nie można zapisać pliku
+LOAD CHAIN onto {1} selected cues	WCZYTAJ ŁAŃCUCH do {1} wybranych cue
+duplicate: could not write the file	duplikat: nie można zapisać pliku
+save chain: this cue has no effects	zapisz łańcuch: ten cue nie ma efektów
+save chain: select a cue with effects	zapisz łańcuch: wybierz cue z efektami
+FX SAVE: select a cue that has effects	FX SAVE: wybierz cue, który ma efekty
+load chain: this preset needs a newer Deckboy	wczytaj łańcuch: to ustawienie wymaga nowszego Deckboya
+save chain... keeps this cue's chain for any show.	zapisz łańcuch... zachowuje łańcuch tego cue dla dowolnego spektaklu.

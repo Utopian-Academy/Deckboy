@@ -5053,3 +5053,30 @@ Which critters: all of them changing together, each new stroke the next one, or 
 Space key	Inkinobho ye-Space
 Space plays and pauses	U-Space uyadlala futhi umisa kancane
 Space takes (Shift+Space plays and pauses)	U-Space wenza i-TAKE (u-Shift+Space uyadlala futhi umisa kancane)
+YOURS	OKWAKHO
+STARTERS	OKOKUQALA
+keep both	gcina kokubili
+load chain	layisha uchungechunge
+save chain...	londoloza uchungechunge...
+show in folder	bonisa kufolda
+load chain ({1})	layisha uchungechunge ({1})
+Save Effect Chain	Londoloza Uchungechunge Lwemiphumela
+(stack full at 12)	(isitaki sigcwele ku-12)
+Rename Effect Chain	Shintsha Igama Lochungechunge Lwemiphumela
+No saved chains yet.	Akukabikho uchungechunge olulondoloziwe.
+load chain: no targets	layisha uchungechunge: akukho okuqondiwe
+load chain: select a cue	layisha uchungechunge: khetha i-cue
+save chain: select a cue	londoloza uchungechunge: khetha i-cue
+(+{1} need a newer Deckboy)	(+{1} kudinga i-Deckboy entsha)
+({1} skipped: newer Deckboy)	({1} kweqiwe: kudinga i-Deckboy entsha)
+save chain: a name is needed	londoloza uchungechunge: kudingeka igama
+LOAD CHAIN onto {1} selected cue	LAYISHA UCHUNGECHUNGE ku-{1} cue ekhethiwe
+load chain: this preset is empty	layisha uchungechunge: lokhu okumisiwe akunalutho
+FX SAVE: could not write the file	FX SAVE: ayikwazanga ukubhala ifayela
+LOAD CHAIN onto {1} selected cues	LAYISHA UCHUNGECHUNGE kuma-cue angu-{1} akhethiwe
+duplicate: could not write the file	yenza ikhophi: ayikwazanga ukubhala ifayela
+save chain: this cue has no effects	londoloza uchungechunge: le cue ayinayo imiphumela
+save chain: select a cue with effects	londoloza uchungechunge: khetha i-cue enemiphumela
+FX SAVE: select a cue that has effects	FX SAVE: khetha i-cue enemiphumela
+load chain: this preset needs a newer Deckboy	layisha uchungechunge: lokhu okumisiwe kudinga i-Deckboy entsha
+save chain... keeps this cue's chain for any show.	londoloza uchungechunge... igcina uchungechunge lwale cue kunoma yimuphi umbukiso.

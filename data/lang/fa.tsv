@@ -5080,3 +5080,30 @@ Which critters: all of them changing together, each new stroke the next one, or 
 Space key	کلید Space
 Space plays and pauses	Space پخش و مکث می‌کند
 Space takes (Shift+Space plays and pauses)	Space کیو را زنده پخش می‌کند (Shift+Space پخش و مکث می‌کند)
+YOURS	مال شما
+STARTERS	آغازین
+keep both	نگه‌داشتن هردو
+load chain	بارگذاری زنجیره
+save chain...	ذخیرهٔ زنجیره...
+show in folder	نمایش در پوشه
+load chain ({1})	بارگذاری زنجیره ({1})
+Save Effect Chain	ذخیرهٔ زنجیرهٔ افکت
+(stack full at 12)	(پشته با 12 کامل است)
+Rename Effect Chain	تغییر نام زنجیرهٔ افکت
+No saved chains yet.	هنوز زنجیره‌ای ذخیره نشده است.
+load chain: no targets	بارگذاری زنجیره: مقصدی نیست
+load chain: select a cue	بارگذاری زنجیره: یک کیو انتخاب کنید
+save chain: select a cue	ذخیرهٔ زنجیره: یک کیو انتخاب کنید
+(+{1} need a newer Deckboy)	(+{1} به Deckboy جدیدتر نیاز دارند)
+({1} skipped: newer Deckboy)	({1} رد شد: Deckboy جدیدتر)
+save chain: a name is needed	ذخیرهٔ زنجیره: نام لازم است
+LOAD CHAIN onto {1} selected cue	بارگذاری زنجیره روی {1} کیوی انتخاب‌شده
+load chain: this preset is empty	بارگذاری زنجیره: این پیش‌تنظیم خالی است
+FX SAVE: could not write the file	FX SAVE: نوشتن فایل ممکن نشد
+LOAD CHAIN onto {1} selected cues	بارگذاری زنجیره روی {1} کیوی انتخاب‌شده
+duplicate: could not write the file	تکثیر: نوشتن فایل ممکن نشد
+save chain: this cue has no effects	ذخیرهٔ زنجیره: این cue بدون افکت است
+save chain: select a cue with effects	ذخیرهٔ زنجیره: یک کیوی دارای افکت انتخاب کنید
+FX SAVE: select a cue that has effects	FX SAVE: کیویی را انتخاب کنید که افکت دارد
+load chain: this preset needs a newer Deckboy	بارگذاری زنجیره: این پیش‌تنظیم به Deckboy جدیدتر نیاز دارد
+save chain... keeps this cue's chain for any show.	ذخیرهٔ زنجیره... زنجیرهٔ این کیو را برای هر نمایشی نگه می‌دارد.

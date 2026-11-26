@@ -5066,3 +5066,30 @@ Which critters: all of them changing together, each new stroke the next one, or 
 Space key	Клавиша Space
 Space plays and pauses	Space: пуск и пауза
 Space takes (Shift+Space plays and pauses)	Space выполняет TAKE (Shift+Space: пуск и пауза)
+YOURS	ВАШИ
+STARTERS	СТАРТОВЫЕ
+keep both	оставить оба
+load chain	загрузить цепочку
+save chain...	сохранить цепочку...
+show in folder	показать в папке
+load chain ({1})	загрузить цепочку ({1})
+Save Effect Chain	Сохранить цепочку эффектов
+(stack full at 12)	(стек полон: 12)
+Rename Effect Chain	Переименовать цепочку эффектов
+No saved chains yet.	Сохранённых цепочек пока нет.
+load chain: no targets	загрузить цепочку: нет целей
+load chain: select a cue	загрузить цепочку: выберите cue
+save chain: select a cue	сохранить цепочку: выберите cue
+(+{1} need a newer Deckboy)	(+{1}: нужен более новый Deckboy)
+({1} skipped: newer Deckboy)	(пропущено {1}: для новой версии Deckboy)
+save chain: a name is needed	сохранить цепочку: нужно имя
+LOAD CHAIN onto {1} selected cue	ЗАГРУЗИТЬ ЦЕПОЧКУ в {1} выбранный cue
+load chain: this preset is empty	загрузить цепочку: этот пресет пуст
+FX SAVE: could not write the file	FX SAVE: не удалось записать файл
+LOAD CHAIN onto {1} selected cues	ЗАГРУЗИТЬ ЦЕПОЧКУ в {1} выбранных cue
+duplicate: could not write the file	дублирование: не удалось записать файл
+save chain: this cue has no effects	сохранить цепочку: у этого cue нет эффектов
+save chain: select a cue with effects	сохранить цепочку: выберите cue с эффектами
+FX SAVE: select a cue that has effects	FX SAVE: выберите cue, у которого есть эффекты
+load chain: this preset needs a newer Deckboy	загрузить цепочку: этому пресету нужен более новый Deckboy
+save chain... keeps this cue's chain for any show.	сохранить цепочку... сохраняет цепочку этого cue для любого шоу.

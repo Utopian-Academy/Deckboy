@@ -5062,3 +5062,30 @@ Which critters: all of them changing together, each new stroke the next one, or 
 Space key	Iuchair Space
 Space plays and pauses	Cluichidh is stadaidh Space
 Space takes (Shift+Space plays and pauses)	Cuiridh Space cue air an èadhar (cluichidh is stadaidh Shift+Space)
+YOURS	LEATSA
+STARTERS	BUNASACH
+keep both	cùm an dà chuid
+load chain	luchdaich sreath
+save chain...	sàbhail sreath...
+show in folder	seall sa phasgan
+load chain ({1})	luchdaich sreath ({1})
+Save Effect Chain	Sàbhail sreath èifeachdan
+(stack full at 12)	(cruach làn aig 12)
+Rename Effect Chain	Ath-ainmich sreath èifeachdan
+No saved chains yet.	Chan eil sreath air a shàbhaladh fhathast.
+load chain: no targets	luchdaich sreath: gun targaid
+load chain: select a cue	luchdaich sreath: tagh cue
+save chain: select a cue	sàbhail sreath: tagh cue
+(+{1} need a newer Deckboy)	(+{1} feumach air Deckboy nas ùire)
+({1} skipped: newer Deckboy)	({1} air an leum: Deckboy nas ùire)
+save chain: a name is needed	sàbhail sreath: tha feum air ainm
+LOAD CHAIN onto {1} selected cue	LUCHDAICH SREATH air {1} cue taghte
+load chain: this preset is empty	luchdaich sreath: tha an ro-shuidheachadh seo falamh
+FX SAVE: could not write the file	FX SAVE: cha b' urrainn am faidhle a sgrìobhadh
+LOAD CHAIN onto {1} selected cues	LUCHDAICH SREATH air {1} cues taghte
+duplicate: could not write the file	dùblaich: cha b' urrainn am faidhle a sgrìobhadh
+save chain: this cue has no effects	sàbhail sreath: chan eil èifeachd sam bith aig an cue seo
+save chain: select a cue with effects	sàbhail sreath: tagh cue le èifeachdan
+FX SAVE: select a cue that has effects	FX SAVE: tagh cue aig a bheil èifeachdan
+load chain: this preset needs a newer Deckboy	luchdaich sreath: tha an ro-shuidheachadh seo feumach air Deckboy nas ùire
+save chain... keeps this cue's chain for any show.	sàbhail sreath... – cumaidh e sreath a' chue seo airson taisbeanadh sam bith.

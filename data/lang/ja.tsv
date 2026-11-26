@@ -5067,3 +5067,30 @@ Which critters: all of them changing together, each new stroke the next one, or 
 Space key	Spaceキー
 Space plays and pauses	Space で再生/一時停止
 Space takes (Shift+Space plays and pauses)	Space で TAKE (Shift+Space で再生/一時停止)
+YOURS	マイ
+STARTERS	スターター
+keep both	両方残す
+load chain	チェーン読込
+save chain...	チェーン保存...
+show in folder	フォルダーで表示
+load chain ({1})	チェーン読込 ({1})
+Save Effect Chain	エフェクトチェーンを保存
+(stack full at 12)	(スタック上限12)
+Rename Effect Chain	エフェクトチェーンの名前変更
+No saved chains yet.	保存済みのチェーンはまだありません。
+load chain: no targets	チェーン読込：対象がありません
+load chain: select a cue	チェーン読込：キューを選択
+save chain: select a cue	チェーン保存：キューを選択
+(+{1} need a newer Deckboy)	(+{1}件は新しいDeckboyが必要)
+({1} skipped: newer Deckboy)	({1}件スキップ：新しいDeckboyが必要)
+save chain: a name is needed	チェーン保存：名前が必要です
+LOAD CHAIN onto {1} selected cue	選択中のキュー{1}件にチェーン読込
+load chain: this preset is empty	チェーン読込：このプリセットは空です
+FX SAVE: could not write the file	FX SAVE：ファイルを書き込めません
+LOAD CHAIN onto {1} selected cues	選択中のキュー{1}件にチェーン読込
+duplicate: could not write the file	複製：ファイルを書き込めません
+save chain: this cue has no effects	チェーン保存：このキューにエフェクトなし
+save chain: select a cue with effects	チェーン保存：エフェクトのあるキューを選択
+FX SAVE: select a cue that has effects	FX SAVE：エフェクトのあるキューを選択
+load chain: this preset needs a newer Deckboy	チェーン読込：このプリセットには新しいDeckboyが必要です
+save chain... keeps this cue's chain for any show.	チェーン保存...で、このキューのチェーンをすべてのショーで使えるよう保存します。

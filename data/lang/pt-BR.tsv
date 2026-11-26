@@ -5021,3 +5021,30 @@ Which critters: all of them changing together, each new stroke the next one, or 
 Space key	Tecla Space
 Space plays and pauses	Space toca e pausa
 Space takes (Shift+Space plays and pauses)	Space faz o TAKE (Shift+Space toca e pausa)
+YOURS	SEUS
+STARTERS	INICIAIS
+keep both	manter ambos
+load chain	carregar cadeia
+save chain...	salvar cadeia...
+show in folder	mostrar na pasta
+load chain ({1})	carregar cadeia ({1})
+Save Effect Chain	Salvar cadeia de efeitos
+(stack full at 12)	(pilha cheia em 12)
+Rename Effect Chain	Renomear cadeia de efeitos
+No saved chains yet.	Nenhuma cadeia salva ainda.
+load chain: no targets	carregar cadeia: sem destinos
+load chain: select a cue	carregar cadeia: selecione um cue
+save chain: select a cue	salvar cadeia: selecione um cue
+(+{1} need a newer Deckboy)	(+{1} precisam de um Deckboy mais novo)
+({1} skipped: newer Deckboy)	({1} ignorados: Deckboy mais novo)
+save chain: a name is needed	salvar cadeia: é preciso um nome
+LOAD CHAIN onto {1} selected cue	CARREGAR CADEIA em {1} cue selecionado
+load chain: this preset is empty	carregar cadeia: esta predefinição está vazia
+FX SAVE: could not write the file	FX SAVE: não foi possível gravar o arquivo
+LOAD CHAIN onto {1} selected cues	CARREGAR CADEIA em {1} cues selecionados
+duplicate: could not write the file	duplicar: não foi possível gravar o arquivo
+save chain: this cue has no effects	salvar cadeia: este cue não tem efeitos
+save chain: select a cue with effects	salvar cadeia: selecione um cue com efeitos
+FX SAVE: select a cue that has effects	FX SAVE: selecione um cue que tenha efeitos
+load chain: this preset needs a newer Deckboy	carregar cadeia: esta predefinição precisa de um Deckboy mais novo
+save chain... keeps this cue's chain for any show.	salvar cadeia... guarda a cadeia deste cue para qualquer show.
