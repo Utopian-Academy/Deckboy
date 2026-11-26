@@ -4217,6 +4217,10 @@
     ctx.frameIndex = frame.index;
     ctx.seconds = lfoSeconds_;
     ctx.pixelScale = 1.0 / shrink;
+    // An effect that remembers (Mega Ripple's water) reads the deck's own
+    // slots and advances them once a frame, exactly as the CPU path does.
+    ctx.effectState = effectStateForDeck(deckIndex, stack.size());
+    ctx.stateHold = !claimDeckFeedbackAdvance(deckIndex);
     const auto began = std::chrono::steady_clock::now();
     SDL_Texture* done =
       fromDecoder ? deckboy::gpu::runGpuEffectsDecoded(runtime.gpuEffects, deckIndex, frame.gpuTexture,

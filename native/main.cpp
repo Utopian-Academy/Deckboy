@@ -12906,10 +12906,11 @@ int runDeckboyCliMode(const std::string& mode, const std::vector<std::string>& o
   }
   if (mode == "--gpu-effect-dump") {
     if (ops.size() < 3) {
-      return missing("<token[:amount[:a[:b]]]> <in.ppm> <out.ppm> [frame]");
+      return missing("<token[:amount[:a[:b]]]> <in.ppm> <out.ppm> [frame] [passes]");
     }
     const int dumpFrame = ops.size() > 3 ? std::atoi(ops[3].c_str()) : 0;
-    return App::runEffectDump(ops[0], ops[1], ops[2], dumpFrame, 1, true);
+    const int dumpPasses = ops.size() > 4 ? std::atoi(ops[4].c_str()) : 1;
+    return App::runEffectDump(ops[0], ops[1], ops[2], dumpFrame, dumpPasses, true);
   }
   // What notes Deckboy would take out of a slide deck, and which slide each
   // lands on. The mapping is the part worth checking: notesSlide7 is usually

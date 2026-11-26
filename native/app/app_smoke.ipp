@@ -6921,8 +6921,17 @@
       if (const char* scale = std::getenv("DECKBOY_FX_PIXEL_SCALE"); scale && *scale) {
         ctx.pixelScale = std::clamp(std::atof(scale), 0.05, 1.0);
       }
+      // [passes]: frames one after another from the same picture, the effect's
+      // state carried (an effect that remembers, Mega Ripple's water), as the
+      // CPU dump's passes are; the last frame is the one read back.
+      ctx.effectState = &effectState;
       const auto began = std::chrono::steady_clock::now();
-      SDL_Texture* result = deckboy::gpu::runGpuEffects(g, 0, pixels.data(), w, h, {fx}, ctx);
+      SDL_Texture* result = nullptr;
+      for (int pass = 0; pass < std::max(1, passes); ++pass) {
+        ctx.frameIndex = static_cast<std::uint64_t>(std::max(0, frameIndex) + pass);
+        result = deckboy::gpu::runGpuEffects(g, 0, pixels.data(), w, h, {fx}, ctx);
+        if (!result) break;
+      }
       int rw = 0, rh = 0;
       std::vector<std::uint8_t> back;
       const bool read = result && deckboy::gpu::readGpuEffectsResult(g, 0, back, rw, rh);

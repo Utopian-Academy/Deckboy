@@ -38,6 +38,11 @@ COMBINED BINDING(0, 0) Texture2D<float4> src : register(t0 SPACE(0));
 COMBINED BINDING(0, 0) SamplerState srcSampler : register(s0 SPACE(0));
 COMBINED BINDING(1, 0) Texture2D<float4> aux : register(t1 SPACE(0));
 COMBINED BINDING(1, 0) SamplerState auxSampler : register(s1 SPACE(0));
+// A THIRD sampled texture, for Mega Ripple's three kernels only (their
+// pipelines are made with three; every other kernel's with two, and never
+// reads it): the water grid, RGBA32F.
+COMBINED BINDING(2, 0) Texture2D<float4> table : register(t2 SPACE(0));
+COMBINED BINDING(2, 0) SamplerState tableSampler : register(s2 SPACE(0));
 RGBA8 BINDING(0, 1) RWTexture2D<unorm float4> dst : register(u0 SPACE(1));
 BINDING(0, 2) cbuffer Params : register(b0 SPACE(2)) {
   uint kind; uint width; uint height; uint frame;   // width/height: the OUTPUT
@@ -1344,4 +1349,88 @@ void illusionMain(uint3 id : SV_DispatchThreadID) {
     col += (grey - col) * mortarCover;
   }
   put(id.xy, float4(floor(clamp(col, 0.0, 255.0) + 0.5), 255.0));
+}
+
+// ---------------------------------------------------------------------------
+// MEGA RIPPLE (cue_effects.hpp applyMegaRipple). The water -- the wave
+// equation, the rain, RIPPLE DROP -- is the CPU's own megaRippleWater, run on
+// the CPU and handed over as `table`: i2 x i3 cells of (slope x, slope y,
+// light, glow). The pool (FLOW and MELT) is a kept picture (Pass::kept), at
+// half size, in 8 bits with Melt's dithered rounding where the CPU keeps 8.8.
+float4 mripCell(int x, int y) { return table.Load(int3(clamp(x, 0, i2 - 1), clamp(y, 0, i3 - 1), 0)); }
+float4 mripGrid(float gxf, float gyf) {   // the CPU's mix4
+  const int rx0 = int(gxf), ry0 = int(gyf);
+  const float rtx = gxf - rx0, rty = gyf - ry0;
+  const int rx1 = min(i2 - 1, rx0 + 1), ry1 = min(i3 - 1, ry0 + 1);
+  return (mripCell(rx0, ry0) * (1.0 - rtx) + mripCell(rx1, ry0) * rtx) * (1.0 - rty) +
+         (mripCell(rx0, ry1) * (1.0 - rtx) + mripCell(rx1, ry1) * rtx) * rty;
+}
+float3 mripPoolAt(float sx, float sy) {   // the kept pool (aux), bilinear, in bytes
+  const int x0 = int(sx), y0 = int(sy);
+  const float tx = sx - x0, ty = sy - y0;
+  const int x1 = min(int(auxW) - 1, x0 + 1), y1 = min(int(auxH) - 1, y0 + 1);
+  const float3 a = float3(auxTexel(x0, y0).rgb), b = float3(auxTexel(x1, y0).rgb);
+  const float3 c = float3(auxTexel(x0, y1).rgb), d = float3(auxTexel(x1, y1).rgb);
+  return (a * (1.0 - tx) + b * tx) * (1.0 - ty) + (c * (1.0 - tx) + d * tx) * ty;
+}
+// The pool's first frame: the picture, one pixel in four (as the CPU's "fresh").
+[numthreads(8, 8, 1)]
+void mripInitMain(uint3 id : SV_DispatchThreadID) {
+  if (id.x >= width || id.y >= height) return;
+  const int ix = min(int(srcW) - 1, int(id.x) * 2), iy = min(int(srcH) - 1, int(id.y) * 2);
+  put(id.xy, float4(float3(texel(ix, iy).rgb), 255.0));
+}
+// One frame of the pool: carried along a slow current plus the water's slope,
+// and kept (f1) against the live picture. f0 push, f2 FLOW, f5-f8 the
+// current's phases.
+[numthreads(8, 8, 1)]
+void mripStepMain(uint3 id : SV_DispatchThreadID) {
+  if (id.x >= width || id.y >= height) return;
+  const int x = int(id.x), y = int(id.y), PW = int(width), PH = int(height);
+  const float qx = float(x) / PW, qy = float(y) / PH;
+  const float4 cell = mripCell(min(i2 - 1, x * i2 / PW), min(i3 - 1, y * i3 / PH));
+  const float fxv = f0 * (sin(qy * 5.0 + f5) + sin((qx + qy) * 3.5 - f6)) * 0.5 + cell.r * 2.0 * f2;
+  const float fyv = f0 * (cos(qx * 5.0 - f7) + cos((qx - qy) * 4.0 + f8)) * 0.5 + cell.g * 2.0 * f2;
+  const float sx = clamp(x - fxv, 0.0, PW - 1.001), sy = clamp(y - fyv, 0.0, PH - 1.001);
+  const float3 old = mripPoolAt(sx, sy);
+  const int ix = min(int(srcW) - 1, x * 2), iy = min(int(srcH) - 1, y * 2);
+  const float3 here = float3(texel(ix, iy).rgb);
+  const float3 v = here * (1.0 - f1) + old * f1;
+  const float3 d = float3(meltDither(id.xy, 0u), meltDither(id.xy, 1u), meltDither(id.xy, 2u));
+  put(id.xy, float4(clamp(round(v + d), 0.0, 255.0), 255.0));
+}
+// The picture through the water: f0 the bend, f1 the pool's share, i0 the
+// colour (0 its own, 1 chrome, 2 gold), i1 whether the pool is used.
+[numthreads(8, 8, 1)]
+void mripShowMain(uint3 id : SV_DispatchThreadID) {
+  if (id.x >= width || id.y >= height) return;
+  const int x = int(id.x), y = int(id.y);
+  const float W = float(width), H = float(height);
+  const float gyf = clamp((y + 0.5) * i3 / H - 0.5, 0.0, i3 - 1.001);
+  const float gxf = clamp((x + 0.5) * i2 / W - 0.5, 0.0, i2 - 1.001);
+  const float4 g = mripGrid(gxf, gyf);
+  const float sx = clamp(x + g.r * f0, 0.0, W - 1.001), sy = clamp(y + g.g * f0, 0.0, H - 1.001);
+  const int x0 = int(sx), y0 = int(sy);
+  const float tx = sx - x0, ty = sy - y0;
+  const float4 p00 = float4(texel(x0, y0)), p10 = float4(texel(x0 + 1, y0));
+  const float4 p01 = float4(texel(x0, y0 + 1)), p11 = float4(texel(x0 + 1, y0 + 1));
+  const float4 pic = (p00 * (1.0 - tx) + p10 * tx) * (1.0 - ty) + (p01 * (1.0 - tx) + p11 * tx) * ty;
+  float3 c = pic.rgb;
+  if (i1 != 0) {
+    const float px = clamp(sx * 0.5 - 0.25, 0.0, float(auxW) - 1.001), py = clamp(sy * 0.5 - 0.25, 0.0, float(auxH) - 1.001);
+    c = c * (1.0 - f1) + mripPoolAt(px, py) * f1;
+  }
+  if (i0 != 0) {
+    const float lum = (0.3 * c.r + 0.55 * c.g + 0.15 * c.b) / 255.0;
+    if (i0 == 1) {
+      const float v = lum * lum * (3.0 - 2.0 * lum) * 255.0;
+      c = float3(v * 0.82, v * 0.88, v);
+    } else {
+      const float a = clamp(lum / 0.6, 0.0, 1.0), b = clamp((lum - 0.6) / 0.4, 0.0, 1.0);
+      c = float3((0.12 + (0.95 - 0.12) * a + (1.0 - 0.95) * b) * 255.0,
+                 (0.04 + (0.62 - 0.04) * a + (0.93 - 0.62) * b) * 255.0,
+                 (0.0 + 0.08 * a + (0.6 - 0.08) * b) * 255.0);
+    }
+  }
+  put(id.xy, float4(clamp8(c.r * g.b + g.a), clamp8(c.g * g.b + g.a), clamp8(c.b * g.b + g.a), floor(pic.a)));
 }

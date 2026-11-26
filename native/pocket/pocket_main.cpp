@@ -8673,6 +8673,7 @@ class Pocket {
     const double secs = static_cast<double>(SDL_GetTicksNS()) / 1e9;
     ctx.seconds = secs;
     ctx.pixelScale = scale;
+    ctx.effectState = &fxState_;   // an effect that remembers (Mega Ripple's water), as the CPU path
     std::vector<deckboy::effects::CueEffect> modulated;
     const bool moving = deckboy::effects::modulateCueEffectStack(c.effects, secs, secs * 2.0, modulated, engine_->programAudioLevel01());
     const Uint64 started = SDL_GetPerformanceCounter();

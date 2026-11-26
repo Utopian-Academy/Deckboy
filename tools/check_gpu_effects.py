@@ -30,7 +30,7 @@ EFFECTS = ["invert", "posterise", "solarise", "levels", "curves", "strobe", "sca
            "threshold", "colour", "colour_replace", "vignette", "grain", "channel_offset",
            "mirror", "luma_key", "edges", "polar_warp", "luma_displace", "relativistic",
            "ripple", "kaleidoscope", "mosaic", "blur", "glow", "sharpen", "stereogram", "tape", "melt",
-           "circuit_bend", "breath"]
+           "circuit_bend", "breath", "mega_ripple"]
 # amount:a:b:c:d
 SETTINGS = ["1", "0.7:0.2:0.6:0.4:0.3", "1:0.9:0.3:0.8:0.1", "0.4:0.05:1:0.2:0.9"]
 # An effect with a fifth and sixth slider or choices (amount:a:b:c:d:colour:e:f:choiceA:choiceB).
@@ -44,7 +44,14 @@ SETTINGS_FOR = {
              "0.8:0.7:0.4:0.3:0.0::0.3:0:2:1", "1:0.6:0.5:0.8:0.5::0.0:0:0:1",
              # liquid (choice B 2): the default since 2026-11-14
              "1:0.5:0.4:0.5:0.3::0.7:0:0:2", "0.8:0.9:0.9:1.0:0.6::1.0:0:2:2"],
+    # Mega Ripple: no pool, then FLOW and MELT (the kept pool), in its own
+    # colours, chrome and gold. Its water builds up over frames: PASSES_FOR.
+    "mega_ripple": ["1:0.5:0.3:0.4:0::0:0.5:0:0", "0.8:0.9:0.1:0.7:0.6::0.5:0.8:1:0",
+                    "1:0.3:0.6:0.2:0.9::0.9:0.3:2:0", "0.5:0.7:0.4:0.5:0.2::0.2:1:0:0"],
 }
+# Frames run one after another from the same picture, the effect's state
+# carried (both dumps' [passes]); the last is compared.
+PASSES_FOR = {"mega_ripple": 30}
 
 
 def read_ppm(path):
@@ -96,8 +103,9 @@ def main():
         for i, setting in enumerate(SETTINGS_FOR.get(token, SETTINGS)):
             spec = token + ":" + setting
             cpu, gpu = work / ("%s-%d-cpu.ppm" % (token, i)), work / ("%s-%d-gpu.ppm" % (token, i))
-            subprocess.run([args.exe, "--effect-dump", spec, str(src), str(cpu), "12"], capture_output=True)
-            r = subprocess.run([args.exe, "--gpu-effect-dump", spec, str(src), str(gpu), "12"],
+            passes = str(PASSES_FOR.get(token, 1))
+            subprocess.run([args.exe, "--effect-dump", spec, str(src), str(cpu), "12", passes], capture_output=True)
+            r = subprocess.run([args.exe, "--gpu-effect-dump", spec, str(src), str(gpu), "12", passes],
                                capture_output=True, text=True)
             if "on " in r.stdout and not backend:
                 backend = r.stdout.split("on ", 1)[1].split()[0]

@@ -1194,3 +1194,84 @@ kernel void illusionMain(LARGS) {
   }
   put(dst, id, float4(floor(clamp(col, 0.0f, 255.0f) + 0.5f), 255.0f));
 }
+
+// ---------------------------------------------------------------------------
+// MEGA RIPPLE: gpu_effects.hlsl's three, line for line. A third sampled
+// texture (the water grid) at texture(2), so the output moves to texture(3)
+// (SDL_GPU binds the sampled textures first, then the read-write ones).
+#define MRIP_ARGS SRC src [[texture(0)]], sampler srcSampler [[sampler(0)]], \
+                  SRC aux [[texture(1)]], sampler auxSampler [[sampler(1)]], \
+                  SRC table [[texture(2)]], sampler tableSampler [[sampler(2)]], \
+                  DST dst [[texture(3)]], constant Params& p [[buffer(0)]], \
+                  uint2 id [[thread_position_in_grid]]
+static float4 mripCell(SRC table, constant Params& p, int x, int y) {
+  return table.read(uint2(clamp(x, 0, p.i2 - 1), clamp(y, 0, p.i3 - 1)));
+}
+static float4 mripGrid(SRC table, constant Params& p, float gxf, float gyf) {
+  const int rx0 = int(gxf), ry0 = int(gyf);
+  const float rtx = gxf - rx0, rty = gyf - ry0;
+  const int rx1 = min(p.i2 - 1, rx0 + 1), ry1 = min(p.i3 - 1, ry0 + 1);
+  return (mripCell(table, p, rx0, ry0) * (1.0f - rtx) + mripCell(table, p, rx1, ry0) * rtx) * (1.0f - rty) +
+         (mripCell(table, p, rx0, ry1) * (1.0f - rtx) + mripCell(table, p, rx1, ry1) * rtx) * rty;
+}
+static float3 mripPoolAt(SRC aux, constant Params& p, float sx, float sy) {
+  const int x0 = int(sx), y0 = int(sy);
+  const float tx = sx - x0, ty = sy - y0;
+  const int x1 = min(int(p.auxW) - 1, x0 + 1), y1 = min(int(p.auxH) - 1, y0 + 1);
+  const float3 a = float3(texel(aux, x0, y0).rgb), b = float3(texel(aux, x1, y0).rgb);
+  const float3 c = float3(texel(aux, x0, y1).rgb), d = float3(texel(aux, x1, y1).rgb);
+  return (a * (1.0f - tx) + b * tx) * (1.0f - ty) + (c * (1.0f - tx) + d * tx) * ty;
+}
+kernel void mripInitMain(MRIP_ARGS) {
+  if (id.x >= p.width || id.y >= p.height) return;
+  const int ix = min(int(p.srcW) - 1, int(id.x) * 2), iy = min(int(p.srcH) - 1, int(id.y) * 2);
+  put(dst, id, float4(float3(texel(src, ix, iy).rgb), 255.0f));
+}
+kernel void mripStepMain(MRIP_ARGS) {
+  if (id.x >= p.width || id.y >= p.height) return;
+  const int x = int(id.x), y = int(id.y), PW = int(p.width), PH = int(p.height);
+  const float qx = float(x) / PW, qy = float(y) / PH;
+  const float4 cell = mripCell(table, p, min(p.i2 - 1, x * p.i2 / PW), min(p.i3 - 1, y * p.i3 / PH));
+  const float fxv = p.f0 * (sin(qy * 5.0f + p.f5) + sin((qx + qy) * 3.5f - p.f6)) * 0.5f + cell.r * 2.0f * p.f2;
+  const float fyv = p.f0 * (cos(qx * 5.0f - p.f7) + cos((qx - qy) * 4.0f + p.f8)) * 0.5f + cell.g * 2.0f * p.f2;
+  const float sx = clamp(x - fxv, 0.0f, PW - 1.001f), sy = clamp(y - fyv, 0.0f, PH - 1.001f);
+  const float3 old = mripPoolAt(aux, p, sx, sy);
+  const int ix = min(int(p.srcW) - 1, x * 2), iy = min(int(p.srcH) - 1, y * 2);
+  const float3 here = float3(texel(src, ix, iy).rgb);
+  const float3 v = here * (1.0f - p.f1) + old * p.f1;
+  const float3 d = float3(meltDither(id, p.frame, 0u), meltDither(id, p.frame, 1u), meltDither(id, p.frame, 2u));
+  put(dst, id, float4(clamp(round(v + d), float3(0.0f), float3(255.0f)), 255.0f));
+}
+kernel void mripShowMain(MRIP_ARGS) {
+  if (id.x >= p.width || id.y >= p.height) return;
+  const int x = int(id.x), y = int(id.y);
+  const float W = float(p.width), H = float(p.height);
+  const float gyf = clamp((y + 0.5f) * p.i3 / H - 0.5f, 0.0f, p.i3 - 1.001f);
+  const float gxf = clamp((x + 0.5f) * p.i2 / W - 0.5f, 0.0f, p.i2 - 1.001f);
+  const float4 g = mripGrid(table, p, gxf, gyf);
+  const float sx = clamp(x + g.r * p.f0, 0.0f, W - 1.001f), sy = clamp(y + g.g * p.f0, 0.0f, H - 1.001f);
+  const int x0 = int(sx), y0 = int(sy);
+  const float tx = sx - x0, ty = sy - y0;
+  const float4 p00 = float4(texel(src, x0, y0)), p10 = float4(texel(src, x0 + 1, y0));
+  const float4 p01 = float4(texel(src, x0, y0 + 1)), p11 = float4(texel(src, x0 + 1, y0 + 1));
+  const float4 pic = (p00 * (1.0f - tx) + p10 * tx) * (1.0f - ty) + (p01 * (1.0f - tx) + p11 * tx) * ty;
+  float3 c = pic.rgb;
+  if (p.i1 != 0) {
+    const float px = clamp(sx * 0.5f - 0.25f, 0.0f, float(p.auxW) - 1.001f), py = clamp(sy * 0.5f - 0.25f, 0.0f, float(p.auxH) - 1.001f);
+    c = c * (1.0f - p.f1) + mripPoolAt(aux, p, px, py) * p.f1;
+  }
+  if (p.i0 != 0) {
+    const float lum = (0.3f * c.r + 0.55f * c.g + 0.15f * c.b) / 255.0f;
+    if (p.i0 == 1) {
+      const float v = lum * lum * (3.0f - 2.0f * lum) * 255.0f;
+      c = float3(v * 0.82f, v * 0.88f, v);
+    } else {
+      const float a = clamp(lum / 0.6f, 0.0f, 1.0f), b = clamp((lum - 0.6f) / 0.4f, 0.0f, 1.0f);
+      c = float3((0.12f + (0.95f - 0.12f) * a + (1.0f - 0.95f) * b) * 255.0f,
+                 (0.04f + (0.62f - 0.04f) * a + (0.93f - 0.62f) * b) * 255.0f,
+                 (0.0f + 0.08f * a + (0.6f - 0.08f) * b) * 255.0f);
+    }
+  }
+  const float3 o = floor(clamp(c * g.b + g.a, float3(0.0f), float3(255.0f)));
+  put(dst, id, float4(o, floor(pic.a)));
+}

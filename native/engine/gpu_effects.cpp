@@ -3,6 +3,8 @@
 #include "gpu_effects.hpp"
 
 #include <algorithm>
+#include <memory>
+#include <atomic>
 #include <cmath>
 #include <cstdlib>
 #include <cstring>
@@ -49,12 +51,20 @@ enum GpuKind : std::uint32_t {
 enum Entry { E_POINT = 0, E_DOWN, E_BOX, E_STREAK, E_TILE, E_NV12, E_TRANS, E_STEREO, E_TAPE,
              E_MELT_INIT, E_MELT_STEP, E_MELT_SHOW, E_SOURCE,
              E_LUMIA_CLEAR, E_LUMIA_WATER, E_LUMIA_PRISM, E_LUMIA_RESOLVE, E_LUMIA_BLUR, E_LUMIA_TRAIL,
-             E_BEND, E_ILLUSION, E_COUNT };
+             E_BEND, E_ILLUSION,
+             // Mega Ripple's three, with a THIRD texture (its water grid). Built
+             // apart from the rest: their failure leaves Mega Ripple on the CPU and
+             // nothing else (kCoreEntries is where the shared build loops stop).
+             E_MRIP_INIT, E_MRIP_STEP, E_MRIP_SHOW, E_COUNT };
+constexpr int kCoreEntries = E_MRIP_INIT;
+// False once a device could not build the three: Mega Ripple then has no GPU version.
+std::atomic<bool> gMripGpuOk {true};
 const char* const kEntryNames[E_COUNT] = {"pointMain", "downMain", "boxMain", "streakMain", "tileMain", "nv12Main",
                                           "transMain", "stereoMain", "tapeMain", "meltInitMain", "meltStepMain",
                                           "meltShowMain", "sourceMain", "lumiaClearMain", "lumiaWaterMain",
                                           "lumiaPrismMain", "lumiaResolveMain", "lumiaBlurMain",
-                                          "lumiaTrailMain", "bendMain", "illusionMain"};
+                                          "lumiaTrailMain", "bendMain", "illusionMain",
+                                          "mripInitMain", "mripStepMain", "mripShowMain"};
 // Threads per group: 8 x 8 for every kernel but the stereogram's, which is
 // one row of 64 (stereoMain in gpu_effects.hlsl).
 constexpr int kStereoThreads = 64;
@@ -136,6 +146,14 @@ struct Pass {
   // for -- a different key starts it again.
   int kept = 0;
   std::uint32_t keptKey = 0;
+  // A kept pass's start kernel, and whether it steps on the frame it starts
+  // (Melt: start, then step; Mega Ripple: the pool starts as the picture).
+  Entry init = E_MELT_INIT;
+  bool stepAfterInit = true;
+  // A float table (RGBA32F, tableW x tableH) bound as the THIRD texture: Mega
+  // Ripple's water grid (slope x, slope y, light, glow), worked out on the CPU.
+  std::shared_ptr<const std::vector<float>> table;
+  int tableW = 0, tableH = 0;
 };
 
 // ---------------------------------------------------------------------------
@@ -264,7 +282,8 @@ Pass mix(int mode, int aux, int auxW, int auxH, int w, int h, double amt) {
 
 // One effect, appended to `plan`. False: no GPU version (the caller then
 // leaves the whole stack to the CPU).
-bool planEffect(std::vector<Pass>& plan, const fx::CueEffect& e, int w, int h, const fx::CueEffectContext& ctx) {
+bool planEffect(std::vector<Pass>& plan, const fx::CueEffect& e, int w, int h, const fx::CueEffectContext& ctx,
+                std::vector<std::uint8_t>* state) {
   const double amt = std::clamp(static_cast<double>(e.amount), 0.0, 1.0);
   if (e.kind == CueEffectKind::None || e.bypassed || amt <= 0.0005) return true;   // nothing to do
   const double pA = std::clamp(static_cast<double>(e.paramA), 0.0, 1.0);
@@ -596,6 +615,80 @@ bool planEffect(std::vector<Pass>& plan, const fx::CueEffect& e, int w, int h, c
       plan.push_back(point(p, w, h));
       return true;
     }
+    case CueEffectKind::MegaRipple: {
+      // MEGA RIPPLE (cue_effects.hpp). The water -- the wave equation, the
+      // rain, RIPPLE DROP, the slope and light per grid cell -- is the CPU
+      // effect's own code (megaRippleWater), run here on the same state, and
+      // handed to the card as a float table. The card does the per-pixel bend,
+      // the light, the colour and the kept FLOW/MELT pool.
+      if (!state || !gMripGpuOk.load()) return false;
+      const double pE = std::clamp(static_cast<double>(e.paramE), 0.0, 1.0);
+      const double pF = std::clamp(static_cast<double>(e.paramF), 0.0, 1.0);
+      fx::CueEffectContext c = ctx;
+      c.width = w;
+      c.height = h;
+      fx::MegaRippleWater water;
+      if (!fx::megaRippleWater(state, c, amt, pA, pB, pC, pF, water)) return false;
+      const int RW = water.RW, RH = water.RH, PW = water.PW, PH = water.PH;
+      auto table = std::make_shared<std::vector<float>>(static_cast<std::size_t>(RW) * RH * 4);
+      for (std::size_t k = 0; k < static_cast<std::size_t>(RW) * RH; ++k) {
+        (*table)[k * 4 + 0] = water.gx[k];
+        (*table)[k * 4 + 1] = water.gy[k];
+        (*table)[k * 4 + 2] = water.lit[k];
+        (*table)[k * 4 + 3] = water.glow[k];
+      }
+      const bool pooled = pD > 0.001 || pE > 0.001;
+      const double t = ctx.seconds >= 0.0 ? ctx.seconds : static_cast<double>(ctx.frameIndex) / 30.0;
+      const double kTau = 6.283185307179586;
+      if (pooled) {
+        Params s = p;
+        s.width = static_cast<std::uint32_t>(PW);
+        s.height = static_cast<std::uint32_t>(PH);
+        s.srcW = static_cast<std::uint32_t>(w);
+        s.srcH = static_cast<std::uint32_t>(h);
+        s.auxW = static_cast<std::uint32_t>(PW);
+        s.auxH = static_cast<std::uint32_t>(PH);
+        s.i2 = RW;
+        s.i3 = RH;
+        s.f0 = static_cast<float>(pD * 0.012 * PW);   // push
+        s.f1 = static_cast<float>(pE * 0.965);        // keep
+        s.f2 = static_cast<float>(pD);
+        s.f5 = static_cast<float>(std::fmod(t * 0.7, kTau));   // the current's phases, kept small for a float
+        s.f6 = static_cast<float>(std::fmod(t * 0.9, kTau));
+        s.f7 = static_cast<float>(std::fmod(t * 0.6, kTau));
+        s.f8 = static_cast<float>(std::fmod(t * 0.8, kTau));
+        Pass step;
+        step.entry = E_MRIP_STEP;
+        step.init = E_MRIP_INIT;
+        step.stepAfterInit = false;   // the CPU's first pooled frame: the pool IS the picture
+        step.params = s;
+        step.w = PW;
+        step.h = PH;
+        step.kept = 1;
+        step.keptKey = 0x80000000u | static_cast<std::uint32_t>(PW) | (static_cast<std::uint32_t>(PH) << 15);
+        step.table = table;
+        step.tableW = RW;
+        step.tableH = RH;
+        plan.push_back(step);
+      }
+      Params q = p;
+      q.auxW = static_cast<std::uint32_t>(PW);
+      q.auxH = static_cast<std::uint32_t>(PH);
+      q.i0 = std::clamp(e.choiceA, 0, 2);   // 0 the picture's own, 1 chrome, 2 gold
+      q.i1 = pooled ? 1 : 0;
+      q.i2 = RW;
+      q.i3 = RH;
+      q.f0 = static_cast<float>(amt * 0.05 * std::min(w, h));   // bend
+      q.f1 = static_cast<float>(std::min(1.0, pD * 0.6 + pE));   // the pool's share
+      Pass show = point(q, w, h);
+      show.entry = E_MRIP_SHOW;
+      show.kept = pooled ? 2 : 0;
+      show.table = table;
+      show.tableW = RW;
+      show.tableH = RH;
+      plan.push_back(show);
+      return true;
+    }
     case CueEffectKind::Mosaic: {
       const double shortSide = std::min(w, h);
       const int tile = std::max(2, static_cast<int>(std::lround(shortSide * (0.004 + pA * pA * 0.08))));
@@ -717,6 +810,8 @@ bool supportedKind(CueEffectKind k) {
     case CueEffectKind::Sharpen: case CueEffectKind::Stereogram: case CueEffectKind::Tape:
     case CueEffectKind::Melt: case CueEffectKind::CircuitBend: case CueEffectKind::Breath:
       return true;
+    case CueEffectKind::MegaRipple:
+      return gMripGpuOk.load();
     default:
       return false;
   }
@@ -744,8 +839,11 @@ bool gpuEffectsSupportStack(const std::vector<fx::CueEffect>& stack) {
   for (const auto& e : stack) {
     if (e.kind == CueEffectKind::None || e.bypassed || e.amount <= 0.0005f) continue;
     if (!supportedKind(e.kind)) return false;
-    // One kept picture per slot: a stack with two Melts stays on the CPU.
-    if (e.kind == CueEffectKind::Melt && ++melts > 1) return false;
+    // One kept picture per slot: a stack with two Melts, or a Melt and a
+    // flowing or melting Mega Ripple, stays on the CPU.
+    const bool keeps = e.kind == CueEffectKind::Melt ||
+                       (e.kind == CueEffectKind::MegaRipple && (e.paramD > 0.001f || e.paramE > 0.001f));
+    if (keeps && ++melts > 1) return false;
     any = true;
   }
   return any;
@@ -873,6 +971,10 @@ struct D3DSlot : SlotBase {
   // CUR holds.
   ID3D11Texture2D* auxTex = nullptr;
   ID3D11ShaderResourceView* auxSrv = nullptr;
+  // A pass's float table (Pass::table), RGBA32F.
+  ID3D11Texture2D* tableTex = nullptr;
+  ID3D11ShaderResourceView* tableSrv = nullptr;
+  int tableW = 0, tableH = 0;
   int auxW = 0, auxH = 0;
   std::vector<float> auxPad;
   std::uint64_t srcStamp = 0;
@@ -953,6 +1055,11 @@ struct GpuEffects {
     std::size_t auxUploadBytes = 0;
     std::vector<float> auxPad;
     std::uint64_t srcStamp = 0;
+    // A pass's float table (Pass::table), and its upload buffer.
+    SDL_GPUTexture* tableTex = nullptr;
+    int tableW = 0, tableH = 0;
+    SDL_GPUTransferBuffer* tableUpload = nullptr;
+    std::size_t tableUploadBytes = 0;
     // A generated source traced here (runGpuSource).
     SDL_GPUBuffer* lumiaBuf[5] = {};
     int lumiaW = 0, lumiaH = 0;
@@ -996,8 +1103,11 @@ std::vector<Pass> makePlan(const std::vector<fx::CueEffect>& stack, int w, int h
                            bool& ok) {
   std::vector<Pass> plan;
   ok = true;
-  for (const auto& e : stack) {
-    if (!planEffect(plan, e, w, h, ctx)) {
+  for (std::size_t i = 0; i < stack.size(); ++i) {
+    // the slot this effect remembers in, by its place in the stack (as the CPU's)
+    std::vector<std::uint8_t>* state =
+      ctx.effectState && i < ctx.effectState->size() ? &(*ctx.effectState)[i] : nullptr;
+    if (!planEffect(plan, stack[i], w, h, ctx, state)) {
       ok = false;
       break;
     }
@@ -1023,10 +1133,18 @@ bool d3d11Create(GpuEffects* g) {
     SDL_GetPointerProperty(SDL_GetRendererProperties(g->renderer), SDL_PROP_RENDERER_D3D11_DEVICE_POINTER, nullptr));
   if (!g->device) return false;
   g->device->GetImmediateContext(&g->context);
-  for (int e = 0; e < E_COUNT; ++e) {
+  for (int e = 0; e < kCoreEntries; ++e) {
     const auto& code = d3d11Bytecode(kEntryNames[e]);
     if (code.empty() || FAILED(g->device->CreateComputeShader(code.data(), code.size(), nullptr, &g->shaders[e]))) {
       return false;
+    }
+  }
+  for (int e = kCoreEntries; e < E_COUNT; ++e) {
+    const auto& code = d3d11Bytecode(kEntryNames[e]);
+    if (code.empty() || FAILED(g->device->CreateComputeShader(code.data(), code.size(), nullptr, &g->shaders[e]))) {
+      std::cerr << "gpu-effects: " << kEntryNames[e] << " did not build -- Mega Ripple stays on the CPU" << std::endl;
+      gMripGpuOk = false;
+      break;
     }
   }
   D3D11_BUFFER_DESC cb {};
@@ -1070,6 +1188,8 @@ void d3d11Destroy(GpuEffects* g) {
     releaseCom(s.staging);
     releaseCom(s.auxSrv);
     releaseCom(s.auxTex);
+    releaseCom(s.tableSrv);
+    releaseCom(s.tableTex);
     for (int b = 0; b < 5; ++b) {
       releaseCom(s.lumiaUav[b]);
       releaseCom(s.lumiaBuf[b]);
@@ -1186,21 +1306,53 @@ SDL_Texture* d3d11Run(GpuEffects* g, int slotIndex, const std::uint8_t* rgba, in
     g->context->UpdateSubresource(slot.buf[CUR].tex, 0, nullptr, rgba, static_cast<UINT>(w * 4), 0);
   }
   bool swapped = false;
-  auto dispatch = [&](Entry entry, const Params& params, int src, int aux, int dst, int gx, int gy) -> bool {
+  // A plan's float table (Mega Ripple's water), uploaded once for its passes.
+  for (const Pass& pass : plan) {
+    if (!pass.table) continue;
+    if (!slot.tableTex || slot.tableW != pass.tableW || slot.tableH != pass.tableH) {
+      releaseCom(slot.tableSrv);
+      releaseCom(slot.tableTex);
+      slot.tableW = slot.tableH = 0;
+      D3D11_TEXTURE2D_DESC desc {};
+      desc.Width = static_cast<UINT>(pass.tableW);
+      desc.Height = static_cast<UINT>(pass.tableH);
+      desc.MipLevels = 1;
+      desc.ArraySize = 1;
+      desc.Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
+      desc.SampleDesc.Count = 1;
+      desc.Usage = D3D11_USAGE_DEFAULT;
+      desc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
+      if (FAILED(g->device->CreateTexture2D(&desc, nullptr, &slot.tableTex)) ||
+          FAILED(g->device->CreateShaderResourceView(slot.tableTex, nullptr, &slot.tableSrv))) {
+        releaseCom(slot.tableSrv);
+        releaseCom(slot.tableTex);
+        return nullptr;
+      }
+      slot.tableW = pass.tableW;
+      slot.tableH = pass.tableH;
+    }
+    g->context->UpdateSubresource(slot.tableTex, 0, nullptr, pass.table->data(), static_cast<UINT>(pass.tableW * 16), 0);
+    break;
+  }
+  auto dispatch = [&](Entry entry, const Params& params, int src, int aux, int dst, int gx, int gy,
+                      bool withTable = false) -> bool {
+    if (!g->shaders[entry]) return false;
     D3D11_MAPPED_SUBRESOURCE mapped {};
     if (FAILED(g->context->Map(g->constants, 0, D3D11_MAP_WRITE_DISCARD, 0, &mapped))) return false;
     std::memcpy(mapped.pData, &params, sizeof(Params));
     g->context->Unmap(g->constants, 0);
-    ID3D11ShaderResourceView* views[2] = {slot.buf[src].srv, slot.buf[aux].srv};
+    // Two views, exactly as before, unless the pass reads a table as well.
+    ID3D11ShaderResourceView* views[3] = {slot.buf[src].srv, slot.buf[aux].srv, withTable ? slot.tableSrv : nullptr};
+    const UINT viewCount = withTable ? 3 : 2;
     ID3D11UnorderedAccessView* out = slot.buf[dst].uav;
     g->context->CSSetShader(g->shaders[entry], nullptr, 0);
-    g->context->CSSetShaderResources(0, 2, views);
+    g->context->CSSetShaderResources(0, viewCount, views);
     g->context->CSSetUnorderedAccessViews(0, 1, &out, nullptr);
     g->context->Dispatch(static_cast<UINT>(gx), static_cast<UINT>(gy), 1);
-    ID3D11ShaderResourceView* noViews[2] = {nullptr, nullptr};
+    ID3D11ShaderResourceView* noViews[3] = {nullptr, nullptr, nullptr};
     ID3D11UnorderedAccessView* noOut = nullptr;
     g->context->CSSetUnorderedAccessViews(0, 1, &noOut, nullptr);
-    g->context->CSSetShaderResources(0, 2, noViews);
+    g->context->CSSetShaderResources(0, viewCount, noViews);
     return true;
   };
   for (const Pass& pass : plan) {
@@ -1216,20 +1368,25 @@ SDL_Texture* d3d11Run(GpuEffects* g, int slotIndex, const std::uint8_t* rgba, in
       const bool fresh = !slot.keptValid || slot.keptKey != pass.keptKey || frame < slot.keptFrame ||
                          frame > slot.keptFrame + 120;
       if (fresh) {
-        if (!dispatch(E_MELT_INIT, pass.params, cur, cur, slot.keptCur, gx, gy)) return nullptr;
+        if (!dispatch(pass.init, pass.params, cur, cur, slot.keptCur, gx, gy, pass.table != nullptr)) return nullptr;
         slot.keptValid = true;
         slot.keptKey = pass.keptKey;
+        if (!pass.stepAfterInit) {
+          slot.keptFrame = frame;
+          continue;
+        }
       } else if (frame == slot.keptFrame) {
         continue;
       }
       const int next = slot.keptCur == K0 ? K1 : K0;
-      if (!dispatch(E_MELT_STEP, pass.params, cur, slot.keptCur, next, gx, gy)) return nullptr;
+      if (!dispatch(pass.entry, pass.params, cur, slot.keptCur, next, gx, gy, pass.table != nullptr)) return nullptr;
       slot.keptCur = next;
       slot.keptFrame = frame;
       continue;
     }
     const int aux = pass.kept == 2 ? slot.keptCur : physical(pass.aux, swapped);
-    if (!dispatch(pass.entry, pass.params, physical(pass.src, swapped), aux, physical(pass.dst, swapped), gx, gy)) {
+    if (!dispatch(pass.entry, pass.params, physical(pass.src, swapped), aux, physical(pass.dst, swapped), gx, gy,
+                  pass.table != nullptr)) {
       return nullptr;
     }
     if (pass.dst == ALT) swapped = !swapped;
@@ -1294,6 +1451,8 @@ bool sdlCreate(GpuEffects* g) {
   }
   const SDL_GPUShaderFormat formats = SDL_GetGPUShaderFormats(g->gpu);
   for (int e = 0; e < E_COUNT; ++e) {
+    const bool mrip = e >= kCoreEntries;   // built here too, but a failure only parks Mega Ripple
+    if (mrip && !gMripGpuOk.load()) break;
     SDL_GPUComputePipelineCreateInfo info {};
     info.entrypoint = kEntryNames[e];
     // Each kernel's code by name (tools/build_effects_shaders.py). One the
@@ -1310,6 +1469,10 @@ bool sdlCreate(GpuEffects* g) {
     } else if (!blob) {
       std::cerr << "gpu-effects: no embedded code for " << kEntryNames[e]
                 << " (run tools/build_effects_shaders.py) -- CPU effects" << std::endl;
+      if (mrip) {
+        gMripGpuOk = false;
+        break;
+      }
       return false;
     } else if ((formats & SDL_GPU_SHADERFORMAT_SPIRV) != 0 && !kEffectsPointSpirvMissing) {
       info.format = SDL_GPU_SHADERFORMAT_SPIRV;
@@ -1323,7 +1486,7 @@ bool sdlCreate(GpuEffects* g) {
       std::cerr << "gpu-effects: no shader this GPU device takes (formats " << formats << ") -- CPU effects" << std::endl;
       return false;
     }
-    info.num_samplers = 2;
+    info.num_samplers = mrip ? 3 : 2;   // Mega Ripple's water grid is a third texture
     info.num_readwrite_storage_textures = 1;
     // The generated sources' kernels also take Lumia's five buffers.
     info.num_readwrite_storage_buffers = e >= E_SOURCE ? 5 : 0;
@@ -1334,6 +1497,11 @@ bool sdlCreate(GpuEffects* g) {
     g->pipelines[e] = SDL_CreateGPUComputePipeline(g->gpu, &info);
     if (!g->pipelines[e]) {
       std::cerr << "gpu-effects: the " << info.entrypoint << " pipeline did not build: " << SDL_GetError() << std::endl;
+      if (mrip) {
+        std::cerr << "gpu-effects: Mega Ripple stays on the CPU" << std::endl;
+        gMripGpuOk = false;
+        break;
+      }
       return false;
     }
   }
@@ -1365,6 +1533,12 @@ void sdlReleaseSlot(GpuEffects* g, GpuEffects::SdlSlot& s) {
   if (s.auxUpload) SDL_ReleaseGPUTransferBuffer(g->gpu, s.auxUpload);
   s.auxUpload = nullptr;
   s.auxUploadBytes = 0;
+  if (s.tableTex) SDL_ReleaseGPUTexture(g->gpu, s.tableTex);
+  s.tableTex = nullptr;
+  s.tableW = s.tableH = 0;
+  if (s.tableUpload) SDL_ReleaseGPUTransferBuffer(g->gpu, s.tableUpload);
+  s.tableUpload = nullptr;
+  s.tableUploadBytes = 0;
   s.srcStamp = 0;
   for (auto*& b : s.lumiaBuf) {
     if (b) SDL_ReleaseGPUBuffer(g->gpu, b);
@@ -1456,16 +1630,68 @@ SDL_Texture* sdlRun(GpuEffects* g, int slotIndex, const std::uint8_t* rgba, int 
   to.h = static_cast<Uint32>(h);
   to.d = 1;
   SDL_UploadToGPUTexture(copy, &from, &to, false);
+  // A plan's float table (Mega Ripple's water), in the same copy pass.
+  bool tableReady = false;
+  for (const Pass& pass : plan) {
+    if (!pass.table) continue;
+    if (!slot.tableTex || slot.tableW != pass.tableW || slot.tableH != pass.tableH) {
+      if (slot.tableTex) SDL_ReleaseGPUTexture(g->gpu, slot.tableTex);
+      SDL_GPUTextureCreateInfo info {};
+      info.type = SDL_GPU_TEXTURETYPE_2D;
+      info.format = SDL_GPU_TEXTUREFORMAT_R32G32B32A32_FLOAT;
+      info.usage = SDL_GPU_TEXTUREUSAGE_SAMPLER;
+      info.width = static_cast<Uint32>(pass.tableW);
+      info.height = static_cast<Uint32>(pass.tableH);
+      info.layer_count_or_depth = 1;
+      info.num_levels = 1;
+      slot.tableTex = SDL_CreateGPUTexture(g->gpu, &info);
+      slot.tableW = slot.tableTex ? pass.tableW : 0;
+      slot.tableH = slot.tableTex ? pass.tableH : 0;
+      if (!slot.tableTex) break;
+    }
+    const std::size_t tableBytes = static_cast<std::size_t>(pass.tableW) * pass.tableH * 16;
+    if (!slot.tableUpload || slot.tableUploadBytes != tableBytes) {
+      if (slot.tableUpload) SDL_ReleaseGPUTransferBuffer(g->gpu, slot.tableUpload);
+      SDL_GPUTransferBufferCreateInfo info {};
+      info.usage = SDL_GPU_TRANSFERBUFFERUSAGE_UPLOAD;
+      info.size = static_cast<Uint32>(tableBytes);
+      slot.tableUpload = SDL_CreateGPUTransferBuffer(g->gpu, &info);
+      slot.tableUploadBytes = slot.tableUpload ? tableBytes : 0;
+      if (!slot.tableUpload) break;
+    }
+    void* into = SDL_MapGPUTransferBuffer(g->gpu, slot.tableUpload, true);
+    if (!into) break;
+    std::memcpy(into, pass.table->data(), tableBytes);
+    SDL_UnmapGPUTransferBuffer(g->gpu, slot.tableUpload);
+    SDL_GPUTextureTransferInfo tfrom {slot.tableUpload, 0, static_cast<Uint32>(pass.tableW), static_cast<Uint32>(pass.tableH)};
+    SDL_GPUTextureRegion tto {};
+    tto.texture = slot.tableTex;
+    tto.w = static_cast<Uint32>(pass.tableW);
+    tto.h = static_cast<Uint32>(pass.tableH);
+    tto.d = 1;
+    SDL_UploadToGPUTexture(copy, &tfrom, &tto, false);
+    tableReady = true;
+    break;
+  }
   SDL_EndGPUCopyPass(copy);
+  for (const Pass& pass : plan) {
+    if (pass.table && (!tableReady || !g->pipelines[pass.entry] || (pass.kept == 1 && !g->pipelines[pass.init]))) {
+      SDL_CancelGPUCommandBuffer(cmd);   // nothing drawn: the caller takes the CPU path
+      return nullptr;
+    }
+  }
   bool swapped = false;
-  auto dispatch = [&](Entry entry, const Params& params, int src, int aux, int dst, int gx, int gy) {
+  auto dispatch = [&](Entry entry, const Params& params, int src, int aux, int dst, int gx, int gy,
+                      bool withTable = false) {
     SDL_GPUStorageTextureReadWriteBinding out {};
     out.texture = slot.buf[dst];
     out.cycle = false;
     SDL_GPUComputePass* cp = SDL_BeginGPUComputePass(cmd, &out, 1, nullptr, 0);
     SDL_BindGPUComputePipeline(cp, g->pipelines[entry]);
-    const SDL_GPUTextureSamplerBinding views[2] = {{slot.buf[src], g->sampler}, {slot.buf[aux], g->sampler}};
-    SDL_BindGPUComputeSamplers(cp, 0, views, 2);
+    // Two samplers, exactly as before, unless the pass reads a table as well.
+    const SDL_GPUTextureSamplerBinding views[3] = {{slot.buf[src], g->sampler}, {slot.buf[aux], g->sampler},
+                                                   {slot.tableTex, g->sampler}};
+    SDL_BindGPUComputeSamplers(cp, 0, views, withTable ? 3 : 2);
     SDL_PushGPUComputeUniformData(cmd, 0, &params, sizeof(Params));
     SDL_DispatchGPUCompute(cp, static_cast<Uint32>(gx), static_cast<Uint32>(gy), 1);
     SDL_EndGPUComputePass(cp);
@@ -1483,20 +1709,25 @@ SDL_Texture* sdlRun(GpuEffects* g, int slotIndex, const std::uint8_t* rgba, int 
       const bool fresh = !slot.keptValid || slot.keptKey != pass.keptKey || frame < slot.keptFrame ||
                          frame > slot.keptFrame + 120;
       if (fresh) {
-        dispatch(E_MELT_INIT, pass.params, cur, cur, slot.keptCur, gx, gy);
+        dispatch(pass.init, pass.params, cur, cur, slot.keptCur, gx, gy, pass.table != nullptr);
         slot.keptValid = true;
         slot.keptKey = pass.keptKey;
+        if (!pass.stepAfterInit) {
+          slot.keptFrame = frame;
+          continue;
+        }
       } else if (frame == slot.keptFrame) {
         continue;
       }
       const int next = slot.keptCur == K0 ? K1 : K0;
-      dispatch(E_MELT_STEP, pass.params, cur, slot.keptCur, next, gx, gy);
+      dispatch(pass.entry, pass.params, cur, slot.keptCur, next, gx, gy, pass.table != nullptr);
       slot.keptCur = next;
       slot.keptFrame = frame;
       continue;
     }
     const int aux = pass.kept == 2 ? slot.keptCur : physical(pass.aux, swapped);
-    dispatch(pass.entry, pass.params, physical(pass.src, swapped), aux, physical(pass.dst, swapped), gx, gy);
+    dispatch(pass.entry, pass.params, physical(pass.src, swapped), aux, physical(pass.dst, swapped), gx, gy,
+             pass.table != nullptr);
     if (pass.dst == ALT) swapped = !swapped;
   }
   copy = SDL_BeginGPUCopyPass(cmd);
