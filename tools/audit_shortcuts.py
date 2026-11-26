@@ -92,7 +92,7 @@ def handled_chords(text):
 
 def listed_chords(text):
     """Every Ctrl chord the overlay's table names, as a set of labels."""
-    start = text.find("static const ShortcutEntry shortcuts[]")
+    start = text.find("ShortcutEntry shortcuts[]")   # static or not: its Space row follows a setting
     if start < 0:
         sys.exit("audit_shortcuts: could not find the shortcuts table")
     end = text.find("};", start)
@@ -112,11 +112,17 @@ def normalise(chord):
 
 def overlay_table(text):
     """Every (key, description) pair the overlay draws, in order."""
-    start = text.find("static const ShortcutEntry shortcuts[]")
+    start = text.find("ShortcutEntry shortcuts[]")   # static or not: its Space row follows a setting
     if start < 0:
         sys.exit("audit_shortcuts: could not find the shortcuts table")
     end = text.find("};", start)
-    return re.findall(r'\{\s*"([^"]+)"\s*,\s*"([^"]+)"\s*\}', text[start:end])
+    table = text[start:end]
+    # A row that follows a setting is two ternaries, {cond ? "A" : "B", cond ? "C" : "D"}
+    # (the Space row: SHOW FLOW's "Space takes"). It is read as the setting's
+    # default, the else branches, which is what MANUAL.md describes.
+    ternary = r'\?\s*"[^"]+"\s*:\s*"([^"]+)"'
+    rows = re.findall(r'\{\s*(?:"([^"]+)"|[^{}",]*' + ternary + r')\s*,\s*(?:"([^"]+)"|[^{}",]*' + ternary + r')\s*\}', table)
+    return [(a or b, c or d) for a, b, c, d in rows]
 
 
 def manual_table(text):
