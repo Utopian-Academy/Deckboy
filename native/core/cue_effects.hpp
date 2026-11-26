@@ -2763,24 +2763,21 @@ inline void shrinkRgbaBox(const std::uint8_t* src, int width, int height, int fa
 
 // MEGA RIPPLE, out of applyCueEffectStack: MSVC allows a function only so many
 // block-scope statics (C2603), and this effect keeps six scratch buffers.
-inline void applyMegaRipple(std::vector<std::uint8_t>& pixels, const CueEffect& fx, const CueEffectContext& ctx,
-                            std::vector<std::uint8_t>* state, double amt, double pA, double pB, double pC,
-                            double pD, double pE, double pF) {
-  // MEGA RIPPLE (board BBfda3Tf, James 2026-11-25; the name came off a
-  // physically simulated die, 6: even = MEGA). Real ripples: a wave
-  // equation on a grid a quarter of the picture's size, with rain, and
-  // RIPPLE DROP from Companion, MIDI or a cue, dropping rings into it.
-  // The rings spread, cross and bounce off the edges. The picture is seen
-  // through the water: bent by the slope of the surface, glinting where
-  // it faces the light, brighter where the rings focus it. Under the
-  // water the picture can FLOW and MELT: a kept pool at half size,
-  // pushed along a slow current and the ripples' own slope, as Melt
-  // keeps its drips. Everything is read bilinearly: the bend is a
-  // fraction of a pixel at the edge of a ring, and a whole-pixel step is
-  // what the eye catches.
-  if (!state) return;
+// MEGA RIPPLE'S WATER, shared by the CPU effect and the GPU plan
+// (gpu_effects.cpp), so the two can never disagree about the surface: the
+// state (heights, sizes, the drops seen) is advanced here once a frame unless
+// ctx.stateHold, and the grid's slope and light are worked out from it. The
+// four grids are RW x RH; false when there is no state or the picture is too
+// small. The pool (FLOW and MELT) stays the CPU effect's own.
+struct MegaRippleWater {
+  int RW = 0, RH = 0, PW = 0, PH = 0;
+  std::vector<float> gx, gy, lit, glow;
+};
+inline bool megaRippleWater(std::vector<std::uint8_t>* state, const CueEffectContext& ctx, double amt, double pA,
+                            double pB, double pC, double pF, MegaRippleWater& water) {
+  if (!state) return false;
   const int W = ctx.width, H = ctx.height;
-  if (W < 8 || H < 8) return;
+  if (W < 8 || H < 8) return false;
   const int RW = std::max(16, W / 4), RH = std::max(9, H / 4);
   const int PW = std::max(2, W / 2), PH = std::max(2, H / 2);
   const std::size_t rcount = static_cast<std::size_t>(RW) * RH;
@@ -2797,11 +2794,9 @@ inline void applyMegaRipple(std::vector<std::uint8_t>& pixels, const CueEffect& 
   }
   float* hA = reinterpret_cast<float*>(store.data() + kHead);
   float* hB = hA + rcount;
-  std::uint16_t* pool = reinterpret_cast<std::uint16_t*>(store.data() + kHead + rcount * 2 * sizeof(float));
   // header 5: which height buffer is "now"; 6: whether the pool holds a picture yet
   float* now = headerAt(5) ? hB : hA;
   float* before = headerAt(5) ? hA : hB;
-  const double t = ctx.seconds >= 0.0 ? ctx.seconds : static_cast<double>(ctx.frameIndex) / 30.0;
   if (!ctx.stateHold) {
     std::uint64_t rng = (ctx.frameIndex + 1) * 0x9E3779B97F4A7C15ull ^ static_cast<std::uint64_t>(RW) * 0xBF58476D1CE4E5B9ull;
     auto next01 = [&]() {
@@ -2845,7 +2840,11 @@ inline void applyMegaRipple(std::vector<std::uint8_t>& pixels, const CueEffect& 
     setHeader(5, now == hB ? 1 : 0);
   }
   // the water's slope and light, per grid cell
-  static thread_local std::vector<float> gx, gy, lit, glow;
+  water.RW = RW; water.RH = RH; water.PW = PW; water.PH = PH;
+  std::vector<float>& gx = water.gx;
+  std::vector<float>& gy = water.gy;
+  std::vector<float>& lit = water.lit;
+  std::vector<float>& glow = water.glow;
   gx.resize(rcount); gy.resize(rcount); lit.resize(rcount); glow.resize(rcount);
   const double shine = pF;
   const double lx = -0.4, ly = 0.5, lz = 0.75, ll = std::sqrt(lx * lx + ly * ly + lz * lz);
@@ -2867,6 +2866,41 @@ inline void applyMegaRipple(std::vector<std::uint8_t>& pixels, const CueEffect& 
       glow[k] = static_cast<float>(255.0 * shine * (spec * 1.2 + caustic));
     }
   }
+  return true;
+}
+
+inline void applyMegaRipple(std::vector<std::uint8_t>& pixels, const CueEffect& fx, const CueEffectContext& ctx,
+                            std::vector<std::uint8_t>* state, double amt, double pA, double pB, double pC,
+                            double pD, double pE, double pF) {
+  // MEGA RIPPLE (board BBfda3Tf, James 2026-11-25; the name came off a
+  // physically simulated die, 6: even = MEGA). Real ripples: a wave
+  // equation on a grid a quarter of the picture's size, with rain, and
+  // RIPPLE DROP from Companion, MIDI or a cue, dropping rings into it.
+  // The rings spread, cross and bounce off the edges. The picture is seen
+  // through the water: bent by the slope of the surface, glinting where
+  // it faces the light, brighter where the rings focus it. Under the
+  // water the picture can FLOW and MELT: a kept pool at half size,
+  // pushed along a slow current and the ripples' own slope, as Melt
+  // keeps its drips. Everything is read bilinearly: the bend is a
+  // fraction of a pixel at the edge of a ring, and a whole-pixel step is
+  // what the eye catches.
+  if (!state) return;
+  const int W = ctx.width, H = ctx.height;
+  static thread_local MegaRippleWater water;
+  if (!megaRippleWater(state, ctx, amt, pA, pB, pC, pF, water)) return;
+  const int RW = water.RW, RH = water.RH, PW = water.PW, PH = water.PH;
+  const std::size_t pcount = static_cast<std::size_t>(PW) * PH;
+  const std::size_t kHead = 32;
+  const std::size_t rcount = static_cast<std::size_t>(RW) * RH;
+  std::vector<std::uint8_t>& store = *state;
+  auto headerAt = [&](int i) { std::int32_t v; std::memcpy(&v, store.data() + i * 4, 4); return v; };
+  auto setHeader = [&](int i, std::int32_t v) { std::memcpy(store.data() + i * 4, &v, 4); };
+  std::uint16_t* pool = reinterpret_cast<std::uint16_t*>(store.data() + kHead + rcount * 2 * sizeof(float));
+  const double t = ctx.seconds >= 0.0 ? ctx.seconds : static_cast<double>(ctx.frameIndex) / 30.0;
+  const std::vector<float>& gx = water.gx;
+  const std::vector<float>& gy = water.gy;
+  const std::vector<float>& lit = water.lit;
+  const std::vector<float>& glow = water.glow;
   const std::size_t total = static_cast<std::size_t>(W) * H;
   static thread_local std::vector<std::uint8_t> src;
   src.assign(pixels.begin(), pixels.begin() + static_cast<std::ptrdiff_t>(total * 4));
