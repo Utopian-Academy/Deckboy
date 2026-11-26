@@ -6068,8 +6068,11 @@
   static dbfs::path effectPresetsUserDir() {
     return deckboy::core::Paths::stateDir() / "effect-chains";
   }
+  // Not "effect-chains": on a portable install stateDir() IS dataDir(), and
+  // the starters would land among your own chains (deletable, and stripped
+  // by the packagers as build-machine state).
   static dbfs::path effectPresetsStarterDir() {
-    return deckboy::core::Paths::dataDir() / "effect-chains";
+    return deckboy::core::Paths::dataDir() / "starter-chains";
   }
 
   static std::string effectPresetKey(const std::string& name) {
@@ -6107,6 +6110,12 @@
       start = bar + 1;
     }
     return n;
+  }
+
+  // A starter's name is our text and is shown in the desk's language; a
+  // chain you saved keeps the name you typed. FX LOAD matches either way.
+  static std::string effectPresetShownName(const EffectChainPreset& p) {
+    return p.starter ? deckboy::core::i18n::translate(p.name) : p.name;
   }
 
   static std::string effectChainSummary(const std::vector<deckboy::effects::CueEffect>& stack) {
@@ -6346,7 +6355,7 @@
     }
     syncDatamoshFromStack();
     refreshFocusedLiveCueRuntimeIfSelected();
-    std::string msg = deckboy::core::i18n::format(append ? "added \"{1}\"" : "loaded \"{1}\"", {preset.name});
+    std::string msg = deckboy::core::i18n::format(append ? "added \"{1}\"" : "loaded \"{1}\"", {effectPresetShownName(preset)});
     if (applied > 1) msg += " x" + std::to_string(applied);
     if (trimmed) msg += " " + deckboy::core::i18n::translate("(stack full at 12)");
     if (preset.unknown > 0) {
@@ -6386,7 +6395,7 @@
         const std::string url = (dir.rfind('/', 0) == 0 ? "file://" : "file:///") + dir;
         SDL_OpenURL(url.c_str());
       } else if (token == "duplicate") {
-        const std::string name = freshEffectPresetName(preset.name + " copy");
+        const std::string name = freshEffectPresetName(effectPresetShownName(preset) + " copy");
         if (writeEffectPresetFile(freshEffectPresetFile(name), name, preset.driver, preset.effects)) {
           readEffectPresets();
           triggerToastTranslated(deckboy::core::i18n::format("saved \"{1}\"", {name}));

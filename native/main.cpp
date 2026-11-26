@@ -4825,7 +4825,7 @@ class App {
       drawUIPanel(rowRect, pal.tile, pal.deep, pal.mid);
       drawTextSafe(controlRenderer_, ix.valueFont,
                    {rowRect.x + pad * 2, rowRect.y + 2, rowRect.w - pad * 4, ix.rowH - 4},
-                   p.name, pal.fg, false);
+                   effectPresetShownName(p), pal.fg, false);
       std::string summary = p.summary;
       if (p.unknown > 0) {
         summary += "  " + deckboy::core::i18n::format("(+{1} need a newer Deckboy)",

@@ -1,0 +1,3 @@
+deckboy-effect-chain 1
+name	Circuit trip
+effects	circuit_bend:1:0.8:0.9:0:0.8:0.8:::0.25:0|feedback_bloom:0.8:0.7:0:0:0:0|mirror:1:0.5:0:0:0:0

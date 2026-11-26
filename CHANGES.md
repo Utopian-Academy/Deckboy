@@ -5,6 +5,7 @@
 ### Saved effect chains
 - New: **save chain...** and **load chain** in the cue's EFFECTS section. Save a cue's effect chain (effects, settings, LFOs and motion driver) under a name, and load it onto the selected cues in any show. Click replaces the chain, **+ add** (or shift-click) adds it to the end, and either is one undo. Each chain's **...** menu renames, duplicates, deletes or shows it in its folder. Saving under a name already used asks whether to replace it or keep both.
 - Chains are small text files in Deckboy's settings folder (`effect-chains`), so they survive updates and can be copied to another machine. A chain from a newer Deckboy loads what this one knows and says how many effects it left out.
+- Ten starter chains come with Deckboy: Old TV, Sepia film, Dream, Underwater, Night vision, Glitch, Rain on glass, Circuit trip, Acid trails and Melting rainbow. Their names are shown in the desk's language. Duplicate one to make your own version.
 - Remote: `FX SAVE <name>`, `FX LOAD <name> [ADD]`, `FX PRESETS`.
 
 ### Deckboy Pocket (Android)

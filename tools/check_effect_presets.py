@@ -16,6 +16,7 @@ import time
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
+STARTERS = sorted((ROOT / "data/starter-chains").glob("*.chain"))
 sys.path.insert(0, str(ROOT / "tools"))
 from example_show_runtime import Runtime  # noqa: E402
 
@@ -109,6 +110,13 @@ def main():
         check("+ add button appends", listed.endswith("4:grain, 5:vignette"), listed)
         say(f"QUICK {quick['EffectChainPresetsToggle']}")  # open the list
 
+        # The starters ship in data/starter-chains and come after yours.
+        listed = say("FX PRESETS")
+        check("ten starters listed", listed.count("(starter)") == len(STARTERS), listed)
+        check("yours come first", listed.index("Soft dream") < listed.index("(starter)"), listed)
+        say("FX LOAD old tv")
+        check("a starter loads", say("FX LIST").endswith("1:tape, 2:scanlines, 3:vignette"))
+
         if args.out:
             out = Path(args.out)
             out.mkdir(parents=True, exist_ok=True)
@@ -118,6 +126,19 @@ def main():
             say("HOVER 1000 600")
             time.sleep(0.6)
             rt.snapshot(out / "presets-list.bmp")
+
+    # A portable install: no separate state dir, so stateDir() is data/. Your
+    # chains and the starters must still be told apart.
+    port = work / "portable"
+    with Runtime(Path(args.exe), port, show, env={"DECKBOY_STATE_DIR": None}) as rt:
+        rt.send("SELECT 2")
+        rt.send("FX ADD grain")
+        rt.send("FX SAVE Mine")
+        listed = rt.send("FX PRESETS")
+        check("portable: starters still starters", listed.count("(starter)") == len(STARTERS), listed)
+        check("portable: yours is yours", "Mine;" in listed or listed.endswith("Mine"), listed)
+        mine = list((port / "data" / "effect-chains").glob("*.chain"))
+        check("portable: saved beside, not among, the starters", len(mine) == 1, str(mine))
 
     shutil.rmtree(work, ignore_errors=True)
     print("FAILED: " + ", ".join(failures) if failures else "all passed")

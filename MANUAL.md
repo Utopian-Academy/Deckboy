@@ -1743,6 +1743,11 @@ undo. The **...** on each chain renames, duplicates, deletes or shows it in its
 folder. If you save under a name you already used, Deckboy asks whether to
 replace that chain or keep both.
 
+Deckboy comes with ten chains under **STARTERS**: Old TV, Sepia film, Dream,
+Underwater, Night vision, Glitch, Rain on glass, Circuit trip, Acid trails and
+Melting rainbow. Load them like your own. To change one, duplicate it from its
+**...** menu: the copy is yours to rename, change and delete.
+
 Each chain is one small text file in the `effect-chains` folder of Deckboy's
 settings folder, so you can back them up or copy them to another machine. A
 chain saved by a newer Deckboy loads every effect this one knows, and the list
