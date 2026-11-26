@@ -1573,7 +1573,8 @@ bool applyProjectScalarLine(Project& project, const std::vector<std::string>& fi
     project.syncBackupAtemInput = std::clamp(safeInt(fields, 4, 0), 0, 9999);
   } else if (fields[0] == "phone_plays") {
     const std::string name = safeString(fields, 1);
-    if (!name.empty()) project.phonePlays.emplace_back(name, std::max(-1, safeInt(fields, 2, 0)));
+    // -2 is its own list (kPhoneOwnList): kept, or a phone running its own list went dark on reopen.
+    if (!name.empty()) project.phonePlays.emplace_back(name, std::max(-2, safeInt(fields, 2, 0)));
   } else if (fields[0] == "mask") {
     deckboy::masks::Mask mask;
     std::string lfoText;

@@ -6769,19 +6769,52 @@ bool looksLikeHttpRequestLine(const std::string& line) {
     if (syncMediaSending_.load() >= 3) path = "busy";
     if (syncMediaStop_.load()) path.clear();
     ++syncMediaSending_;
+    {
+      // Listed so a closing desk can shut it (stopSyncMedia): a send() that a
+      // stalled phone has blocked returns at once instead of outliving the App.
+      std::lock_guard<std::mutex> hold(syncMediaSocketsLock_);
+      syncMediaSockets_.push_back(client);
+    }
     std::thread([this, client, path, cueId] {
       sendSyncMedia(client, path, cueId);
+      {
+        std::lock_guard<std::mutex> hold(syncMediaSocketsLock_);
+        syncMediaSockets_.erase(std::remove(syncMediaSockets_.begin(), syncMediaSockets_.end(), client), syncMediaSockets_.end());
+      }
       closeSocket(client);
-      --syncMediaSending_;
+      --syncMediaSending_;   // last: stopSyncMedia waits for this to reach 0
     }).detach();
+  }
+
+  // At exit: stop every media send, unblock the ones a phone has stalled, and
+  // wait for their threads to finish -- they reach into the App.
+  void stopSyncMedia() {
+    syncMediaStop_ = true;
+    {
+      std::lock_guard<std::mutex> hold(syncMediaSocketsLock_);
+      for (SocketHandle s : syncMediaSockets_) {
+#ifdef _WIN32
+        ::shutdown(static_cast<SOCKET>(s), SD_BOTH);   // the socket call, not App::shutdown
+#else
+        ::shutdown(s, SHUT_RDWR);
+#endif
+      }
+    }
+    for (int wait = 0; wait < 1000 && syncMediaSending_.load() > 0; ++wait) SDL_Delay(10);
+    if (syncMediaSending_.load() > 0) SDL_Log("sync: %d media sends still running at exit", syncMediaSending_.load());
   }
 
   void sendSyncMedia(SocketHandle client, const std::string& path, const std::string& cueId) {
 #ifdef _WIN32
     u_long off = 0;
     ioctlsocket(static_cast<SOCKET>(client), FIONBIO, &off);
+    // A phone that stops reading gives up the send after 15 s, not never.
+    DWORD sendTimeoutMs = 15000;
+    setsockopt(static_cast<SOCKET>(client), SOL_SOCKET, SO_SNDTIMEO, reinterpret_cast<const char*>(&sendTimeoutMs), sizeof(sendTimeoutMs));
 #else
     fcntl(client, F_SETFL, fcntl(client, F_GETFL, 0) & ~O_NONBLOCK);
+    timeval sendTimeout {15, 0};
+    setsockopt(client, SOL_SOCKET, SO_SNDTIMEO, &sendTimeout, sizeof(sendTimeout));
 #endif
     auto sendAll = [&](const char* data, std::size_t size) {
       while (size > 0) {
@@ -7511,6 +7544,15 @@ bool looksLikeHttpRequestLine(const std::string& line) {
         if (live) onDeck([&] { stopTransport(); });
         return;
       }
+      // DISARMED HERE: a take would only toast "disarmed" and return, and every
+      // sync line (four a second) would try again. Dark, said once, as a missing cue.
+      if (!deck.cues[static_cast<std::size_t>(local)].armed) {
+        const std::string why = deck.cues[static_cast<std::size_t>(local)].name + " (disarmed on this desk)";
+        if (fd.missing != why) showLog("SYNC", "playlist " + std::to_string(d + 1) + " will not play " + why);
+        fd.missing = why;
+        if (live) onDeck([&] { stopTransport(); });
+        return;
+      }
       fd.missing.clear();
       if (!live || live->id != deck.cues[static_cast<std::size_t>(local)].id) {
         onDeck([&] {
@@ -7574,6 +7616,7 @@ bool looksLikeHttpRequestLine(const std::string& line) {
 
   void backupRearm() {
     if (!backupLive_) return;
+    atemSwitcher_.cancelProgramCut();   // a takeover cut still waiting must not land on the primary
     backupLive_ = false;
     backupDrill_ = false;
     backupLiveWhy_.clear();

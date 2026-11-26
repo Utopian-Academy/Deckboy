@@ -1137,7 +1137,31 @@ struct VideoPipeline::Impl {
     out.pixels.resize(bytes);
 
     if (hdrSource) {
-      return convertHdrFrame(src, out, dstW, dstH);
+      if (quarterTurns == 0) return convertHdrFrame(src, out, dstW, dstH);
+      // A TURNED HDR FILE (a phone's portrait HDR10 or HLG clip): converted at
+      // its stored, sideways size, then turned upright as convertTurned turns
+      // an SDR one. Returning straight from the HDR path drew it sideways and
+      // squashed into the upright frame.
+      const bool sideways = (quarterTurns % 2) == 1;
+      const int sw = sideways ? dstH : dstW, sh = sideways ? dstW : dstH;
+      DecodedFrame flat;
+      if (!convertHdrFrame(src, flat, sw, sh) || flat.pixels.size() < static_cast<std::size_t>(sw) * sh * 4) return false;
+      out.format = flat.format;
+      out.colorspace = flat.colorspace;
+      out.pixels.assign(static_cast<std::size_t>(dstW) * dstH * 4, 0);
+      const auto* in = reinterpret_cast<const std::uint32_t*>(flat.pixels.data());
+      auto* o = reinterpret_cast<std::uint32_t*>(out.pixels.data());
+      for (int y = 0; y < sh; ++y) {
+        const std::uint32_t* row = in + static_cast<std::size_t>(y) * sw;
+        for (int x = 0; x < sw; ++x) {
+          int ox = x, oy = y;
+          if (quarterTurns == 1) { ox = sh - 1 - y; oy = x; }
+          else if (quarterTurns == 2) { ox = sw - 1 - x; oy = sh - 1 - y; }
+          else if (quarterTurns == 3) { ox = y; oy = sw - 1 - x; }
+          o[static_cast<std::size_t>(oy) * dstW + ox] = row[x];
+        }
+      }
+      return true;
     }
 
     const auto srcFormat = static_cast<AVPixelFormat>(src->format);

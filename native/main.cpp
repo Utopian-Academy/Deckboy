@@ -2693,8 +2693,7 @@ class App {
     stopHyperDeckServer();
     endSyncLead("the leading desk closed");
     // Phones fetching media: stop sending and give the threads a moment to close.
-    syncMediaStop_ = true;
-    for (int wait = 0; wait < 50 && syncMediaSending_.load() > 0; ++wait) SDL_Delay(10);
+    stopSyncMedia();
     stopDeskFollow();
     stopAtemSwitcherClient();
     stopMidiInput();
@@ -11735,6 +11734,8 @@ class App {
   std::uint64_t syncMediaPathsMs_ = 0;
   std::atomic<int> syncMediaSending_ {0};
   std::atomic<bool> syncMediaStop_ {false};
+  std::mutex syncMediaSocketsLock_;
+  std::vector<SocketHandle> syncMediaSockets_;   // media sends in flight (stopSyncMedia)
   // The Phones sub-tab's rows, by name, as last drawn (a click names its row).
   std::vector<std::string> settingsPhoneRows_;
   // SYNC follower (app_network.ipp): this desk following another desk.

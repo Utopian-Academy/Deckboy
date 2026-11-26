@@ -3066,7 +3066,8 @@ struct Project {
   // PHONES AS OUTPUTS (Settings > Video Outputs > Phones, OUTPUT PHONE): which
   // playlist each phone that follows this desk shows, by the phone's name.
   // 0 = the focused playlist (what every phone did before), -1 = dark,
-  // n = playlist n. A phone not listed shows the focused playlist.
+  // -2 = its own list (a phone as a deck), n = playlist n. A phone not listed
+  // shows the focused playlist.
   std::vector<std::pair<std::string, int>> phonePlays;
   // MEDIAMTX: the media router a show can share -- phones, cameras and OBS
   // publish into it, and Deckboy's programme goes out through it to any number

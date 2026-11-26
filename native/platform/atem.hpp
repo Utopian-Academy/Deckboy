@@ -27,6 +27,7 @@
 
 #include <array>
 #include <atomic>
+#include <chrono>
 #include <functional>
 #include <map>
 #include <mutex>
@@ -166,7 +167,19 @@ class AtemSwitcherClient {
   // has taken over may cut the switcher's programme to its own input, and
   // only to the input the operator set for exactly that. Sent once, on the
   // session thread, with the switcher's own acknowledged-packet flag.
-  void requestProgramCut(int input) { if (input > 0) pendingCut_.store(input); }
+  //
+  // GOOD FOR A MOMENT, NOT FOREVER. A cut asked for while the link is down
+  // used to wait and fire whenever the session came back -- after a re-arm,
+  // the primary back on air, it cut the live programme to the backup. Now it
+  // is dropped when the session ends, by cancelProgramCut (re-arm), or after
+  // kCutGoodForMs if it could not be sent.
+  static constexpr long long kCutGoodForMs = 3000;
+  void requestProgramCut(int input) {
+    if (input <= 0) return;
+    pendingCutAtMs_.store(nowMs());
+    pendingCut_.store(input);
+  }
+  void cancelProgramCut() { pendingCut_.store(0); }
 
   // ── Talking to an actual ATEM ───────────────────────────────────────────
   //
@@ -289,6 +302,7 @@ class AtemSwitcherClient {
     }
 
     unsigned session = atemFreshSessionId();
+    ourPacketId_ = 0;   // a new session counts its own packets from 1, as the switcher does
     unsigned char hello[20] {};
     atemWriteHeader(hello, 0x02, 20, session, 0, 0);
     hello[12] = 0x01;
@@ -377,6 +391,7 @@ class AtemSwitcherClient {
 
     closeSocket(sock);
     connected_.store(false);
+    pendingCut_.store(0);   // a cut not sent in this session is not sent in the next
     return greeted;
   }
 
@@ -396,6 +411,10 @@ class AtemSwitcherClient {
     if (!greeted) return;
     const int input = pendingCut_.exchange(0);
     if (input <= 0) return;
+    if (nowMs() - pendingCutAtMs_.load() > kCutGoodForMs) {
+      emit("ATEM cut to input " + std::to_string(input) + " dropped: asked for too long ago to be the takeover");
+      return;
+    }
     unsigned char pkt[24] {};
     const unsigned id = ++ourPacketId_ & 0x7FFFu;
     atemWriteHeader(pkt, 0x01, 24, session, 0, id);
@@ -525,6 +544,10 @@ class AtemSwitcherClient {
   std::atomic<bool> stopFlag_ {true};
   std::atomic<bool> connected_ {false};
   std::atomic<int> pendingCut_ {0};
+  std::atomic<long long> pendingCutAtMs_ {0};
+  static long long nowMs() {
+    return std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now().time_since_epoch()).count();
+  }
   unsigned ourPacketId_ = 0;
   std::atomic<int> programInput_ {-1};
   std::atomic<int> ourInput_ {0};

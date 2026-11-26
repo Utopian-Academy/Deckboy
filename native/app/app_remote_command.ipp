@@ -254,7 +254,16 @@
         failRemoteCommand("RIPPLE DROP [1-8]");
         return;
       }
-      const int n = parts.size() > 2 ? std::clamp(std::atoi(parts[2].c_str()), 1, 8) : 1;
+      int n = 1;
+      if (parts.size() > 2) {
+        // A count out of range is an error, never quietly clamped (CLAUDE.md, Remote Protocol).
+        const std::string& t = parts[2];
+        n = !t.empty() && t.find_first_not_of("0123456789") == std::string::npos && t.size() < 4 ? std::atoi(t.c_str()) : 0;
+        if (n < 1 || n > 8) {
+          failRemoteCommand("RIPPLE DROP: a count from 1 to 8, not \"" + t + "\"");
+          return;
+        }
+      }
       deckboy::effects::detail::gMegaRippleDrops.fetch_add(static_cast<std::uint32_t>(n));
       remoteCommandDetail_ = std::to_string(n) + (n == 1 ? " drop" : " drops");
       return;

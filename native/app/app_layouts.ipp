@@ -1154,7 +1154,7 @@
     }
     selectCueInDeck(deck, next, false, false);
     takeSelected(jumpTriggersPlayback(), false);
-    selectNextAfterTake();
+    selectNextAfterTake(next);
   }
 
   // A clock time from seconds since midnight, local.

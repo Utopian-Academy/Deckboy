@@ -29,6 +29,7 @@
 #include <array>
 #include <atomic>
 #include <algorithm>
+#include <chrono>
 #include <cmath>
 #include <cstdint>
 #include <climits>
@@ -1578,9 +1579,11 @@ struct LfoClockSample {
 // reader: nothing here is contended enough to matter.
 inline std::mutex& lfoClockMutex() { static std::mutex m; return m; }
 inline LfoClockSample& lfoClockSlot() { static LfoClockSample s; return s; }
+inline bool& lfoClockPublished() { static bool published = false; return published; }
 inline void publishLfoClock(double seconds, double beats, double audio01) {
   std::lock_guard<std::mutex> lock(lfoClockMutex());
   lfoClockSlot() = {seconds, beats, audio01};
+  lfoClockPublished() = true;
 }
 // A thread can take the clock for itself. RENDER TO FILE steps the show's time
 // by exact frames on its own worker thread, and the live loop keeps publishing
@@ -1590,10 +1593,17 @@ inline const LfoClockSample*& lfoClockThreadOverride() {
   static thread_local const LfoClockSample* clock = nullptr;
   return clock;
 }
+// An app that never publishes (a tool, or Pocket and Mini before they did)
+// gets wall time at a steady 120 beats a minute rather than a clock stuck at
+// zero, which froze every oscillator that read it.
 inline LfoClockSample readLfoClock() {
   if (const LfoClockSample* own = lfoClockThreadOverride()) return *own;
-  std::lock_guard<std::mutex> lock(lfoClockMutex());
-  return lfoClockSlot();
+  {
+    std::lock_guard<std::mutex> lock(lfoClockMutex());
+    if (lfoClockPublished()) return lfoClockSlot();
+  }
+  const double seconds = std::chrono::duration<double>(std::chrono::steady_clock::now().time_since_epoch()).count();
+  return {seconds, seconds * 2.0, 0.0};
 }
 
 struct CueEffect {

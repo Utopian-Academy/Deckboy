@@ -4243,7 +4243,9 @@ void MediaEngine::rebuildVideoSynthFrame(const Cue& cue, double wallSeconds,
   // Oscillators on its numbers: build from a copy with them applied.
   if (!cue.paramLfo.empty() && deckboy::params::paramLfosOn(cue)) {
     Cue moved = cue;
-    deckboy::params::applyParamLfos(moved, wallSeconds, wallSeconds * 2.0, audioLevel);
+    // The show's one LFO clock: its tempo (or Link) and its sound, as every other ~ reads.
+    const auto clock = deckboy::effects::readLfoClock();
+    deckboy::params::applyParamLfos(moved, clock.seconds, clock.beats, clock.audio01);
     moved.paramLfo.clear();
     rebuildVideoSynthFrame(moved, wallSeconds, audioLevel);
     return;
@@ -4853,7 +4855,8 @@ void buildLumiaAt(DecodedFrame& frame, double animTime, const LumiaSettings& bas
 void MediaEngine::rebuildPatternFrame(const Cue& cue, double wallSeconds) {
   if (!cue.paramLfo.empty() && deckboy::params::paramLfosOn(cue)) {
     Cue moved = cue;
-    deckboy::params::applyParamLfos(moved, wallSeconds, wallSeconds * 2.0, programAudioLevel01());
+    const auto clock = deckboy::effects::readLfoClock();   // tempo, Link and sound, as every ~ reads
+    deckboy::params::applyParamLfos(moved, clock.seconds, clock.beats, clock.audio01);
     moved.paramLfo.clear();
     rebuildPatternFrame(moved, wallSeconds);
     return;
@@ -6105,7 +6108,7 @@ void MediaEngine::beginTransition(double seconds, TransitionStyle style, float s
     return;
   }
   if (look && seconds > 0.001 && lookW > 0 && lookH > 0) {
-    if (SDL_Texture* copy = SDL_CreateTexture(outputRenderer_, SDL_PIXELFORMAT_RGBA32, SDL_TEXTUREACCESS_TARGET, lookW, lookH)) {
+    if (SDL_Texture* copy = deckboyCreateTexture(outputRenderer_, SDL_PIXELFORMAT_RGBA32, SDL_TEXTUREACCESS_TARGET, lookW, lookH)) {
       SDL_Texture* previous = SDL_GetRenderTarget(outputRenderer_);
       SDL_SetRenderTarget(outputRenderer_, copy);
       SDL_SetTextureBlendMode(look, SDL_BLENDMODE_NONE);
@@ -6509,12 +6512,13 @@ void MediaEngine::drawTransitionOverlay(const SDL_Rect& target, bool drewCurrent
 }
 
 // A geometry oscillator's swing now, as a share of its range: -depth/2 to
-// +depth/2, or 0 to depth for a one-sided shape (the sound). The clock is the
-// app's; the beat a steady 120 until the engine is told a tempo.
+// +depth/2, or 0 to depth for a one-sided shape (the sound). The show's one
+// LFO clock (its tempo or Link), as every other ~ reads; the sound is this
+// engine's own programme.
 double MediaEngine::geometryLfoSwing(const deckboy::effects::ParamLfo& lfo) const {
   if (!lfo.on) return 0.0;
-  const double seconds = static_cast<double>(SDL_GetTicksNS()) / 1e9;
-  const double unit = deckboy::effects::lfoUnitValue(lfo, seconds, seconds * 2.0, programAudioLevel01());
+  const auto clock = deckboy::effects::readLfoClock();
+  const double unit = deckboy::effects::lfoUnitValue(lfo, clock.seconds, clock.beats, programAudioLevel01());
   return deckboy::effects::lfoShapeIsOneSided(lfo.shape) ? unit * static_cast<double>(lfo.depth)
                                                          : (unit - 0.5) * static_cast<double>(lfo.depth);
 }
@@ -6570,7 +6574,7 @@ bool MediaEngine::drawGeometricTransition(const SDL_Rect& target) {
       // the incoming picture into a layer the size of the target, on black
       if (!transitionLayer_ || transitionLayerW_ != W || transitionLayerH_ != H) {
         if (transitionLayer_) SDL_DestroyTexture(transitionLayer_);
-        transitionLayer_ = SDL_CreateTexture(outputRenderer_, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, W, H);
+        transitionLayer_ = deckboyCreateTexture(outputRenderer_, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, W, H);
         transitionLayerW_ = W;
         transitionLayerH_ = H;
       }
@@ -7434,7 +7438,10 @@ void MediaEngine::queuePocketSyncAudio() {
   for (int chunk = 0; chunk < 8 && queuedSeconds <= 0.12; ++chunk) {
   const double wantedSeconds = static_cast<double>(SDL_GetTicks()) / 1000.0 + queuedSeconds;
   double startSeconds = syncPopNextSeconds_;
-  if (startSeconds < wantedSeconds - 0.002 || startSeconds > wantedSeconds + 0.25) startSeconds = wantedSeconds;
+  // A real gap is 30 ms or more behind: the queue drains in device periods
+  // (10-20 ms) and the clock ticks in whole milliseconds, so a 2 ms threshold
+  // re-anchored after every block and stepped the tone mid-wave (a click).
+  if (startSeconds < wantedSeconds - 0.03 || startSeconds > wantedSeconds + 0.25) startSeconds = wantedSeconds;
   syncPopNextSeconds_ = startSeconds + static_cast<double>(kChunkFrames) / kRate;
   queuedSeconds += static_cast<double>(kChunkFrames) / kRate;
   const double gain = static_cast<double>(volume_.load())
@@ -17777,7 +17784,9 @@ void MediaEngine::buildPatternFrameInto(DecodedFrame& frame, const Cue& cue, dou
                                         int fallbackWidth, int fallbackHeight) {
   if (!cue.paramLfo.empty() && deckboy::params::paramLfosOn(cue)) {
     Cue moved = cue;
-    deckboy::params::applyParamLfos(moved, animTime, animTime * 2.0, 0.0);
+    // The same clock as the output's copy, so the desk's picture is the same moment.
+    const auto clock = deckboy::effects::readLfoClock();
+    deckboy::params::applyParamLfos(moved, clock.seconds, clock.beats, clock.audio01);
     moved.paramLfo.clear();
     buildPatternFrameInto(frame, moved, animTime, fallbackWidth, fallbackHeight);
     return;

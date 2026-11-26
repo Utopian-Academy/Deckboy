@@ -1161,6 +1161,13 @@ class Pocket {
       splashUntil_ = SDL_GetTicks() + kSplashMs;
     }
     takePicks();
+    // The show's LFO clock, as the desk publishes its own: every ~ reads it
+    // (sources, effects, shaders, masks). Pocket has no tempo of its own yet,
+    // so the beat is a steady 120; the sound is the programme's.
+    if (engine_) {
+      const double now = static_cast<double>(SDL_GetTicksNS()) / 1e9;
+      deckboy::effects::publishLfoClock(now, now * 2.0, engine_->programAudioLevel01());
+    }
     {   // frames per second, for STATUS
       ++fpsFrames_;
       const Uint64 nowMs = SDL_GetTicks();

@@ -875,9 +875,23 @@
       }
       const int savedFocus = project_.focusedDeckIndex;
       project_.focusedDeckIndex = deckIndex;
+      // THE OPERATOR'S SELECTION SURVIVES. Firing selects the waiting cue to
+      // take it; afterwards whatever was selected before (the next cue, after a
+      // TAKE that selects next, or anything picked during the wait) is put
+      // back -- or the next TAKE would take the waiting cue a second time.
+      const int before = deck.selectedIndex;
+      const std::string beforeId =
+        before >= 0 && before < static_cast<int>(deck.cues.size()) ? deck.cues[static_cast<std::size_t>(before)].id : std::string();
       selectCueInDeck(deckIndex, cueIndex, false, false);
       // honourPreWait=false: the wait has already been served.
       takeSelected(true, useTransition, false, false);
+      if (!beforeId.empty() && before != cueIndex) {
+        const int back = findCueIndexById(deckIndex, beforeId);
+        if (back >= 0) {
+          selectOnlyCue(project_.decks[static_cast<std::size_t>(deckIndex)], back);
+          onSelectionChanged();
+        }
+      }
       project_.focusedDeckIndex = savedFocus;
     }
   }
@@ -5710,8 +5724,9 @@
         return;
       }
     }
+    const int taken = focusedDeck().selectedIndex;
     takeSelected(jumpTriggersPlayback(), project_.jumpTransitionEnabled);
-    if (operatorTakeAdvances_ || (vjTakeFiring_ && vjTakeAdvances_)) selectNextAfterTake();
+    if (operatorTakeAdvances_ || (vjTakeFiring_ && vjTakeAdvances_)) selectNextAfterTake(taken);
   }
 
   // THE OPERATOR'S TAKE: Enter, the TAKE button, Companion's TAKE, MSC GO.
@@ -5727,14 +5742,25 @@
   // The next armed cue below the one just taken. A standby, where one is set,
   // is the running order already, so the selection stays out of its way; and
   // at the end of the list the selection stays on the last cue.
-  void selectNextAfterTake() {
+  //
+  // FROM THE CUE THAT WAS TAKEN, and only when the take did something. The
+  // live cue was the starting point, but a take that does not change it -- a
+  // cue waiting out its pre-wait, a master, a disarmed cue -- then moved the
+  // selection BACK up the list (cue 3 live, cue 6 taken with a pre-wait: the
+  // selection went to 4, and the next TAKE played 4).
+  void selectNextAfterTake(int taken) {
     if (!project_.takeSelectsNext) return;
     const int di = project_.focusedDeckIndex;
     if (di < 0 || di >= static_cast<int>(project_.decks.size())) return;
     Deck& deck = project_.decks[static_cast<std::size_t>(di)];
     if (deck.standbyIndex >= 0) return;
-    const int from = deck.activeIndex >= 0 ? deck.activeIndex : deck.selectedIndex;
-    for (int k = from + 1; k < static_cast<int>(deck.cues.size()); ++k) {
+    if (taken < 0 || taken >= static_cast<int>(deck.cues.size())) return;
+    const Cue& was = deck.cues[static_cast<std::size_t>(taken)];
+    const PendingTake& waiting = pendingTakeFor(di);
+    const bool tookIt = was.armed && (deck.activeIndex == taken || was.kind == CueKind::Master ||
+                                      (waiting.armed && waiting.cueIndex == taken));
+    if (!tookIt) return;   // refused (disarmed): the selection stays where the operator put it
+    for (int k = taken + 1; k < static_cast<int>(deck.cues.size()); ++k) {
       if (!deck.cues[static_cast<std::size_t>(k)].armed) continue;
       selectOnlyCue(deck, k);
       onSelectionChanged();
