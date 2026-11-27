@@ -4816,7 +4816,6 @@ LAVA LAMP	LAVALAMPE
 PLAY NEXT	AFSPIL NÆSTE
 PLAY/PAUSE	AFSPIL/PAUSE
 STOP AFTER	STOP EFTER
-Pocket Test	Lommetest
 Unsaved list	Ikke-gemt liste
 SMPTE colour bars	SMPTE-farvebjælker
 A soft swell that drifts through the picture as it breathes. At the left it only swells and settles.	En blød dønning, der driver gennem billedet, mens den ånder. Til venstre svulmer den kun op og falder til ro.
@@ -5078,7 +5077,6 @@ LIST	LISTE
 PLACE	PLACÉR
 NEW BEACH	NY STRAND
 SURE?	SIKKER?
-Pocket	Lomme
 SONG  >	SANG  >
 PLAY SONG	AFSPIL SANG
 STOP SONG	STOP SANG
@@ -5134,6 +5132,7 @@ Twelve effects is the most a cue can have	Et cue kan højst have tolv effekter
 The song is empty: ADD THIS PLAYLIST first	Sangen er tom: brug TILFØJ DENNE AFSPILNINGSLISTE først
 The desk has GO while following. MENU > SYNC to stop.	Pulten har GO, mens den følger. MENU > SYNC for at stoppe.
 End of the list. LOOP LIST in MENU > LIST plays it again.	Slut på listen. LISTE I LØKKE i MENU > LISTE spiller den igen.
-Pocket may not use the camera. Allow it in the phone's settings.	Lomme må ikke bruge kameraet. Tillad det i telefonens indstillinger.
 haptics on	rysten til
 haptics off	rysten fra
+Pocket Test	Pocket-test
+Pocket may not use the camera. Allow it in the phone's settings.	Pocket må ikke bruge kameraet. Tillad det i telefonens indstillinger.

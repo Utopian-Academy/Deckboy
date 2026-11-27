@@ -4879,7 +4879,6 @@ LAVA LAMP	چراغ لاوا
 PLAY NEXT	پخش بعدی
 PLAY/PAUSE	پخش/مکث
 STOP AFTER	توقف پس از
-Pocket Test	آزمون جیبی
 Unsaved list	فهرست ذخیره‌نشده
 SMPTE colour bars	نوارهای رنگی SMPTE
 A soft swell that drifts through the picture as it breathes. At the left it only swells and settles.	موجی نرم که با نفس‌کشیدن در تصویر جابه‌جا می‌شود. در چپ فقط برمی‌آید و آرام می‌گیرد.
@@ -5150,7 +5149,6 @@ LIST	فهرست
 PLACE	جای‌گذاری
 NEW BEACH	ساحل جدید
 SURE?	مطمئنی؟
-Pocket	جیب
 SONG  >	آهنگ  >
 PLAY SONG	پخش آهنگ
 STOP SONG	توقف آهنگ
@@ -5207,6 +5205,7 @@ Twelve effects is the most a cue can have	هر کیو حداکثر دوازده 
 The song is empty: ADD THIS PLAYLIST first	آهنگ خالی است: اول افزودن این فهرست پخش
 The desk has GO while following. MENU > SYNC to stop.	میز هنگام دنبال‌کردن GO دارد. برای توقف: منو > SYNC.
 End of the list. LOOP LIST in MENU > LIST plays it again.	پایان فهرست. فهرست حلقه‌ای در منو > فهرست آن را دوباره می‌نوازد.
-Pocket may not use the camera. Allow it in the phone's settings.	جیب اجازهٔ استفاده از دوربین را ندارد. در تنظیمات تلفن اجازه بده.
 haptics on	لرزش روشن
 haptics off	لرزش خاموش
+Pocket Test	آزمون Pocket
+Pocket may not use the camera. Allow it in the phone's settings.	Pocket اجازهٔ استفاده از دوربین را ندارد. آن را در تنظیمات تلفن مجاز کنید.

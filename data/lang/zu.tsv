@@ -4852,7 +4852,6 @@ LAVA LAMP	ISIBANI SELAVA
 PLAY NEXT	DLALA OKULANDELAYO
 PLAY/PAUSE	DLALA/MISA KANCANE
 STOP AFTER	MISA NGEMUVA
-Pocket Test	Ukuhlola Kwephakethe
 Unsaved list	Uhlu olungagciniwe
 SMPTE colour bars	Imigoqo yemibala ye-SMPTE
 TAKE selects next	TAKE ikhetha okulandelayo
@@ -5123,7 +5122,6 @@ LIST	UHLU
 PLACE	BEKA
 NEW BEACH	IBHISHI ELISHA
 SURE?	UQINISEKILE?
-Pocket	Iphakethe
 SONG  >	INGOMA  >
 PLAY SONG	DLALA INGOMA
 STOP SONG	MISA INGOMA
@@ -5180,6 +5178,7 @@ Twelve effects is the most a cue can have	I-cue ingaba nemiphumela eyishumi namb
 The song is empty: ADD THIS PLAYLIST first	Ingoma ayinalutho: ENGEZA LOLU HLU kuqala
 The desk has GO while following. MENU > SYNC to stop.	Ideski liphethe i-GO ngesikhathi ilandela. IMENYU > SYNC ukuze umise.
 End of the list. LOOP LIST in MENU > LIST plays it again.	Isiphetho sohlu. PHINDA UHLU ku-IMENYU > UHLU iludlala futhi.
-Pocket may not use the camera. Allow it in the phone's settings.	Iphakethe alivunyelwe ukusebenzisa ikhamera. Livumele ezilungiselelweni zocingo.
 haptics on	ukudlidliza kuvuliwe
 haptics off	ukudlidliza kuvaliwe
+Pocket Test	Ukuhlolwa kwe-Pocket
+Pocket may not use the camera. Allow it in the phone's settings.	I-Pocket ayivunyelwe ukusebenzisa ikhamera. Kuvumele ezilungiselelweni zocingo.

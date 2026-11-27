@@ -4858,7 +4858,6 @@ LAVA LAMP	LAV LAMBASI
 PLAY NEXT	SONRAKİNİ ÇAL
 PLAY/PAUSE	ÇAL/DURAKLAT
 STOP AFTER	SONRA DUR
-Pocket Test	Cep Testi
 Unsaved list	Kaydedilmemiş liste
 SMPTE colour bars	SMPTE renk çubukları
 TAKE selects next	TAKE sonrakini seçer
@@ -5127,7 +5126,6 @@ LIST	LİSTE
 PLACE	YERLEŞTİR
 NEW BEACH	YENİ KIYI
 SURE?	EMİN MİSİN?
-Pocket	Cep
 SONG  >	ŞARKI  >
 PLAY SONG	ŞARKIYI ÇAL
 STOP SONG	ŞARKIYI DURDUR
@@ -5183,6 +5181,7 @@ Twelve effects is the most a cue can have	Bir cue en çok on iki efekt alabilir
 The song is empty: ADD THIS PLAYLIST first	Şarkı boş: önce BU ÇALMA LİSTESİNİ EKLE
 The desk has GO while following. MENU > SYNC to stop.	İzleme sırasında GO masada. Durdurmak için MENÜ > SYNC.
 End of the list. LOOP LIST in MENU > LIST plays it again.	Listenin sonu. MENÜ > LİSTE içindeki LİSTE DÖNGÜSÜ onu yeniden çalar.
-Pocket may not use the camera. Allow it in the phone's settings.	Cep kamerayı kullanamaz. Telefonun ayarlarından izin ver.
 haptics on	titreme açık
 haptics off	titreme kapalı
+Pocket Test	Pocket testi
+Pocket may not use the camera. Allow it in the phone's settings.	Pocket kamerayı kullanamıyor. Telefonun ayarlarından izin verin.

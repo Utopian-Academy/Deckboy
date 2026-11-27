@@ -4867,7 +4867,6 @@ LAVA LAMP	ЛАВОВА ЛАМПА
 PLAY NEXT	ГРАТИ НАСТУПНИЙ
 PLAY/PAUSE	ГРАТИ/ПАУЗА
 STOP AFTER	СТОП ПІСЛЯ
-Pocket Test	Кишеньковий тест
 Unsaved list	Незбережений список
 SMPTE colour bars	Кольорові смуги SMPTE
 TAKE selects next	TAKE вибирає наступний
@@ -5136,7 +5135,6 @@ LIST	СПИСОК
 PLACE	РОЗМІСТИТИ
 NEW BEACH	НОВИЙ БЕРЕГ
 SURE?	ВПЕВНЕНІ?
-Pocket	Кишеня
 SONG  >	ПІСНЯ  >
 PLAY SONG	ГРАТИ ПІСНЮ
 STOP SONG	СТОП ПІСНЯ
@@ -5193,6 +5191,7 @@ Twelve effects is the most a cue can have	Cue може мати щонайбіл
 The song is empty: ADD THIS PLAYLIST first	Пісня порожня: спершу ДОДАТИ ЦЕЙ ПЛЕЙЛИСТ
 The desk has GO while following. MENU > SYNC to stop.	Під час слідування GO має пульт. МЕНЮ > SYNC, щоб зупинити.
 End of the list. LOOP LIST in MENU > LIST plays it again.	Кінець списку. ЦИКЛ СПИСКУ в МЕНЮ > СПИСОК зіграє його знову.
-Pocket may not use the camera. Allow it in the phone's settings.	Кишеня не може використовувати камеру. Дозвольте це в налаштуваннях телефону.
 haptics on	тремтіння увім
 haptics off	тремтіння вим
+Pocket Test	Тест Pocket
+Pocket may not use the camera. Allow it in the phone's settings.	Pocket не може використовувати камеру. Дозвольте це в налаштуваннях телефона.

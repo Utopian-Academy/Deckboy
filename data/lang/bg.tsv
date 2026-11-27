@@ -4866,7 +4866,6 @@ LAVA LAMP	ЛАВА ЛАМПА
 PLAY NEXT	ПУСНИ СЛЕДВАЩ
 PLAY/PAUSE	ПУСНИ/ПАУЗА
 STOP AFTER	СТОП СЛЕД ТОВА
-Pocket Test	Джобен тест
 Unsaved list	Незапазен списък
 SMPTE colour bars	Цветни ленти SMPTE
 A soft swell that drifts through the picture as it breathes. At the left it only swells and settles.	Мека вълна, която се носи през картината, докато диша. Вляво само се надига и утихва.
@@ -5136,7 +5135,6 @@ LIST	СПИСЪК
 PLACE	ПОСТАВИ
 NEW BEACH	НОВ БРЯГ
 SURE?	СИГУРНО?
-Pocket	Джоб
 SONG  >	ПЕСЕН  >
 PLAY SONG	ПУСНИ ПЕСЕНТА
 STOP SONG	СПРИ ПЕСЕНТА
@@ -5193,6 +5191,7 @@ Twelve effects is the most a cue can have	Един cue може да има на
 The song is empty: ADD THIS PLAYLIST first	Песента е празна: първо ДОБАВИ ТОЗИ СПИСЪК
 The desk has GO while following. MENU > SYNC to stop.	Пултът има GO, докато следва. МЕНЮ > SYNC за спиране.
 End of the list. LOOP LIST in MENU > LIST plays it again.	Край на списъка. ЦИКЪЛ НА СПИСЪКА в МЕНЮ > СПИСЪК го пуска отново.
-Pocket may not use the camera. Allow it in the phone's settings.	Джоб няма разрешение за камерата. Разреши го в настройките на телефона.
 haptics on	трептене вкл.
 haptics off	трептене изкл.
+Pocket Test	Тест Pocket
+Pocket may not use the camera. Allow it in the phone's settings.	Pocket няма разрешение за камерата. Разреши го в настройките на телефона.

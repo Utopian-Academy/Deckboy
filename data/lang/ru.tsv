@@ -4867,7 +4867,6 @@ LAVA LAMP	ЛАВОВАЯ ЛАМПА
 PLAY NEXT	ИГРАТЬ СЛЕДУЮЩИЙ
 PLAY/PAUSE	ИГРАТЬ/ПАУЗА
 STOP AFTER	СТОП ПОСЛЕ
-Pocket Test	Карманный тест
 Unsaved list	Несохранённый список
 SMPTE colour bars	Цветные полосы SMPTE
 TAKE selects next	TAKE выбирает следующий
@@ -5136,7 +5135,6 @@ LIST	СПИСОК
 PLACE	РАЗМЕСТИТЬ
 NEW BEACH	НОВЫЙ БЕРЕГ
 SURE?	УВЕРЕНЫ?
-Pocket	Карман
 SONG  >	ПЕСНЯ  >
 PLAY SONG	ИГРАТЬ ПЕСНЮ
 STOP SONG	СТОП ПЕСНЯ
@@ -5193,6 +5191,7 @@ Twelve effects is the most a cue can have	У cue может быть не бол
 The song is empty: ADD THIS PLAYLIST first	Песня пуста: сначала ДОБАВИТЬ ЭТОТ ПЛЕЙЛИСТ
 The desk has GO while following. MENU > SYNC to stop.	Во время следования GO у пульта. МЕНЮ > SYNC, чтобы остановить.
 End of the list. LOOP LIST in MENU > LIST plays it again.	Конец списка. ЦИКЛ СПИСКА в МЕНЮ > СПИСОК сыграет его снова.
-Pocket may not use the camera. Allow it in the phone's settings.	Карману нельзя использовать камеру. Разрешите это в настройках телефона.
 haptics on	отклик вкл
 haptics off	отклик выкл
+Pocket Test	Тест Pocket
+Pocket may not use the camera. Allow it in the phone's settings.	Pocket не может использовать камеру. Разрешите это в настройках телефона.

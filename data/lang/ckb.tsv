@@ -4867,7 +4867,6 @@ LAVA LAMP	چرای لاڤا
 PLAY NEXT	لێدانی دواتر
 PLAY/PAUSE	لێدان/ڕاگرتن
 STOP AFTER	وەستاندن دوای ئەمە
-Pocket Test	تاقیکردنەوەی گیرفان
 Unsaved list	لیستی پاشەکەوتنەکراو
 SMPTE colour bars	شریتی ڕەنگی SMPTE
 A soft swell that drifts through the picture as it breathes. At the left it only swells and settles.	هەڵئاوسانێکی نەرم کە لەگەڵ هەناسەدانیدا بە وێنەکەدا دەڕوات. لە چەپ تەنها هەڵدەئاوسێت و هێور دەبێتەوە.
@@ -5137,7 +5136,6 @@ LIST	لیست
 PLACE	دایبنێ
 NEW BEACH	کەناری نوێ
 SURE?	دڵنیایت؟
-Pocket	گیرفان
 SONG  >	گۆرانی  >
 PLAY SONG	لێدانی گۆرانی
 STOP SONG	وەستاندنی گۆرانی
@@ -5194,6 +5192,7 @@ Twelve effects is the most a cue can have	cue یەک دەتوانێت زۆرتر
 The song is empty: ADD THIS PLAYLIST first	گۆرانییەکە بەتاڵە: سەرەتا زیادکردنی ئەم لیستی لێدانە
 The desk has GO while following. MENU > SYNC to stop.	مێز لەکاتی شوێنکەوتندا GO ی لایە. مێنیو > SYNC بۆ وەستاندن.
 End of the list. LOOP LIST in MENU > LIST plays it again.	کۆتایی لیست. دووبارەی لیست لە مێنیو > لیست جارێکی تر لێی دەدات.
-Pocket may not use the camera. Allow it in the phone's settings.	گیرفان ڕێگەی بەکارهێنانی کامێرای نییە. لە ڕێکخستنەکانی تەلەفۆنەکە ڕێگەی پێ بدە.
 haptics on	لەرزین هەڵکراو
 haptics off	لەرزین کوژاوە
+Pocket Test	تاقیکردنەوەی Pocket
+Pocket may not use the camera. Allow it in the phone's settings.	Pocket ڕێگەی پێنەدراوە کامێرا بەکاربهێنێت. لە ڕێکخستنەکانی تەلەفۆنەکەدا ڕێگەی پێ بدە.

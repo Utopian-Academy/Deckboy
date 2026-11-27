@@ -4827,7 +4827,6 @@ LAVA LAMP	LÂMPADA DE LAVA
 PLAY NEXT	TOCAR PRÓXIMO
 PLAY/PAUSE	TOCAR/PAUSA
 STOP AFTER	PARAR APÓS
-Pocket Test	Teste de bolso
 Unsaved list	Lista não salva
 SMPTE colour bars	Barras de cor SMPTE
 TAKE selects next	TAKE seleciona o próximo
@@ -5091,7 +5090,6 @@ LIST	LISTA
 PLACE	POSICIONAR
 NEW BEACH	NOVA PRAIA
 SURE?	CERTEZA?
-Pocket	Bolso
 SONG  >	MÚSICA  >
 PLAY SONG	TOCAR MÚSICA
 STOP SONG	PARAR MÚSICA
@@ -5147,6 +5145,7 @@ Twelve effects is the most a cue can have	Doze efeitos é o máximo que um cue p
 The song is empty: ADD THIS PLAYLIST first	A música está vazia: primeiro ADICIONAR ESTA LISTA
 The desk has GO while following. MENU > SYNC to stop.	A mesa tem o GO enquanto segue. MENU > SYNC para parar.
 End of the list. LOOP LIST in MENU > LIST plays it again.	Fim da lista. LOOP DA LISTA em MENU > LISTA toca de novo.
-Pocket may not use the camera. Allow it in the phone's settings.	Bolso não pode usar a câmera. Permita nos ajustes do telefone.
 haptics on	vibração ligada
 haptics off	vibração desligada
+Pocket Test	Teste Pocket
+Pocket may not use the camera. Allow it in the phone's settings.	O Pocket não tem permissão para usar a câmera. Permita nos ajustes do telefone.

@@ -1135,7 +1135,6 @@ OVERLAY BIN	PERDANGŲ SAUGYKLA
 Output name	Išvesties vardas
 Panel angle	Skydelio kampas
 Perspective	Perspektyva
-Pocket Test	Kišeninis testas
 RENUMBER...	PERNUMERUOTI...
 Region size	Srities dydis
 Replay hold	Pakartojimo sulaikymas
@@ -1792,7 +1791,6 @@ No longer leading	Nebevadovauja
 Palette turn, 0-1	Paletės pasukimas, 0-1
 Playlist Start TC	Grojaraščio pradžios TC
 Playlist Timebase	Grojaraščio laiko bazė
-Pocket Test (day)	Kišeninis testas (diena)
 RECORDING STOPPED	ĮRAŠYMAS SUSTABDYTAS
 RENDER TO FILE...	ATVAIZDUOTI Į FAILĄ...
 SAFETY / TIMECODE	SAUGA / LAIKO KODAS
@@ -1939,8 +1937,6 @@ OSC trigger cleared	OSC trigeris išvalytas
 PLUGE (black level)	PLUGE (juodos lygis)
 PTP domain: invalid	PTP domenas: netinkamas
 Passphrase (shared)	Slaptafrazė (bendra)
-Pocket Test (night)	Kišeninis testas (naktis)
-Pocket Test (storm)	Kišeninis testas (audra)
 ProRes 4444 (alpha)	ProRes 4444 (alfa)
 SAVE AS MY DEFAULTS	IŠSAUGOTI KAIP MANO NUMATYTUOSIUS
 SPOUT TEXTURE SHARE	SPOUT TEKSTŪROS BENDRINIMAS
@@ -2028,7 +2024,6 @@ OSC QUERY / FEEDBACK	OSC UŽKLAUSA / GRĮŽTAMASIS RYŠYS
 PLAYLIST PREFERENCES	GROJARAŠČIO NUOSTATOS
 Panel Map (animated)	Skydelių žemėlapis (animuotas)
 Pitch, in semitones.	Tonas, pustoniais.
-Pocket Test (sunset)	Kišeninis testas (saulėlydis)
 SYPHON TEXTURE SHARE	SYPHON TEKSTŪROS BENDRINIMAS
 Set browser URL/path	Nustatyti naršyklės URL/kelią
 Spiral strength, 0-4	Spiralės stiprumas, 0-4
@@ -2919,7 +2914,6 @@ MULTIVIEW: expected ON, OFF or TOGGLE	MULTIVIEW: tikėtasi ON, OFF arba TOGGLE
 Move the height on its own oscillator	Keisti aukštį atskiru osciliatoriumi
 NMOS: searching for a registry (mDNS)	NMOS: ieškoma registro (mDNS)
 OUTPUT HDR SIGNAL: expected PQ or HLG	OUTPUT HDR SIGNAL: tikėtasi PQ arba HLG
-Pocket Test (test card + scene cycle)	Kišeninis testas (testinė lentelė + scenų ciklas)
 PowerPoint could not export this file	PowerPoint nepavyko eksportuoti šio failo
 Put the brush's size on an oscillator	Teptuko dydį valdyti osciliatoriumi
 RENDER START: CUE, CUES a-b or OUTPUT	RENDER START: CUE, CUES a-b arba OUTPUT
@@ -4217,7 +4211,6 @@ LIST	SĄRAŠAS
 PLACE	PADĖTI
 NEW BEACH	NAUJAS KRANTAS
 SURE?	TIKRAI?
-Pocket	Kišenė
 SONG  >	DAINA  >
 PLAY SONG	GROTI DAINĄ
 STOP SONG	STABDYTI DAINĄ
@@ -4275,6 +4268,12 @@ Twelve effects is the most a cue can have	Ženklas gali turėti daugiausia dvyli
 The song is empty: ADD THIS PLAYLIST first	Daina tuščia: pirma PRIDĖTI ŠĮ GROJARAŠTĮ
 The desk has GO while following. MENU > SYNC to stop.	Pultas turi GO, kol sekama. Sustabdyti: MENIU > SYNC.
 End of the list. LOOP LIST in MENU > LIST plays it again.	Sąrašo pabaiga. SĄRAŠO CIKLAS skiltyje MENIU > SĄRAŠAS jį groja iš naujo.
-Pocket may not use the camera. Allow it in the phone's settings.	Kišenė negali naudoti kameros. Leiskite tai telefono nustatymuose.
 haptics on	haptika įj.
 haptics off	haptika išj.
+Pocket Test	Pocket testas
+Pocket Test (day)	Pocket testas (diena)
+Pocket Test (night)	Pocket testas (naktis)
+Pocket Test (storm)	Pocket testas (audra)
+Pocket Test (sunset)	Pocket testas (saulėlydis)
+Pocket Test (test card + scene cycle)	Pocket testas (testinė lentelė + scenų ciklas)
+Pocket may not use the camera. Allow it in the phone's settings.	Pocket negali naudoti kameros. Leiskite tai telefono nustatymuose.

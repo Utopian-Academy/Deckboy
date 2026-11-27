@@ -4833,7 +4833,6 @@ LAVA LAMP	LAVALAMPE
 PLAY NEXT	NÄCHSTEN ABSPIELEN
 PLAY/PAUSE	WIEDERGABE/PAUSE
 STOP AFTER	STOPP DANACH
-Pocket Test	Taschentest
 Unsaved list	Ungespeicherte Liste
 SMPTE colour bars	SMPTE-Farbbalken
 A soft swell that drifts through the picture as it breathes. At the left it only swells and settles.	Eine weiche Welle, die atmend durch das Bild treibt. Links schwillt sie nur an und legt sich.
@@ -5095,7 +5094,6 @@ LIST	LISTE
 PLACE	PLATZIEREN
 NEW BEACH	NEUER STRAND
 SURE?	SICHER?
-Pocket	Tasche
 SONG  >	LIED  >
 PLAY SONG	LIED ABSPIELEN
 STOP SONG	LIED STOPPEN
@@ -5150,6 +5148,7 @@ Twelve effects is the most a cue can have	Ein Cue kann höchstens zwölf Effekte
 The song is empty: ADD THIS PLAYLIST first	Der Song ist leer: zuerst DIESE LISTE HINZU
 The desk has GO while following. MENU > SYNC to stop.	Das Pult hat GO, während es folgt. MENÜ > SYNC zum Stoppen.
 End of the list. LOOP LIST in MENU > LIST plays it again.	Ende der Liste. LISTENSCHLEIFE in MENÜ > LISTE spielt sie erneut.
-Pocket may not use the camera. Allow it in the phone's settings.	Tasche darf die Kamera nicht nutzen. Erlaube es in den Einstellungen des Telefons.
 haptics on	Haptik ein
 haptics off	Haptik aus
+Pocket Test	Pocket-Test
+Pocket may not use the camera. Allow it in the phone's settings.	Pocket darf die Kamera nicht nutzen. Erlaube es in den Einstellungen des Telefons.

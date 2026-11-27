@@ -4880,7 +4880,6 @@ LAVA LAMP	مصباح الحمم
 PLAY NEXT	تشغيل التالي
 PLAY/PAUSE	تشغيل/إيقاف مؤقت
 STOP AFTER	إيقاف بعده
-Pocket Test	اختبار الجيب
 Unsaved list	قائمة غير محفوظة
 SMPTE colour bars	أشرطة ألوان SMPTE
 A soft swell that drifts through the picture as it breathes. At the left it only swells and settles.	انتفاخ ناعم ينساب عبر الصورة وهو يتنفس. يساراً ينتفخ ويهدأ فقط.
@@ -5150,7 +5149,6 @@ LIST	قائمة
 PLACE	ضع
 NEW BEACH	شاطئ جديد
 SURE?	متأكد؟
-Pocket	جيب
 SONG  >	أغنية  >
 PLAY SONG	تشغيل الأغنية
 STOP SONG	إيقاف الأغنية
@@ -5207,6 +5205,7 @@ Twelve effects is the most a cue can have	اثنا عشر مؤثرًا هو ال
 The song is empty: ADD THIS PLAYLIST first	الأغنية فارغة: أولًا إضافة قائمة التشغيل هذه
 The desk has GO while following. MENU > SYNC to stop.	الطاولة تملك GO أثناء المتابعة. القائمة > SYNC للإيقاف.
 End of the list. LOOP LIST in MENU > LIST plays it again.	نهاية القائمة. تكرار القائمة في القائمة > قائمة يشغّلها مجددًا.
-Pocket may not use the camera. Allow it in the phone's settings.	لا يملك جيب إذن استخدام الكاميرا. اسمح به في إعدادات الهاتف.
 haptics on	ارتعاش: تشغيل
 haptics off	ارتعاش: إيقاف
+Pocket Test	اختبار Pocket
+Pocket may not use the camera. Allow it in the phone's settings.	لا يُسمح لـ Pocket باستخدام الكاميرا. اسمح بذلك في إعدادات الهاتف.

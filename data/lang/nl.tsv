@@ -4805,7 +4805,6 @@ LAVA LAMP	LAVALAMP
 PLAY NEXT	SPEEL VOLGENDE
 PLAY/PAUSE	SPELEN/PAUZE
 STOP AFTER	STOP ERNA
-Pocket Test	Zaktest
 Unsaved list	Niet-opgeslagen lijst
 SMPTE colour bars	SMPTE kleurenbalken
 A soft swell that drifts through the picture as it breathes. At the left it only swells and settles.	Een zachte golf die door het beeld drijft terwijl het ademt. Links zwelt hij alleen op en komt tot rust.
@@ -5067,7 +5066,6 @@ LIST	LIJST
 PLACE	PLAATSEN
 NEW BEACH	NIEUW STRAND
 SURE?	ZEKER?
-Pocket	Zak
 SONG  >	LIEDJE  >
 PLAY SONG	SPEEL LIEDJE
 STOP SONG	STOP LIEDJE
@@ -5122,6 +5120,7 @@ Twelve effects is the most a cue can have	Twaalf effecten is het maximum per cue
 The song is empty: ADD THIS PLAYLIST first	Het nummer is leeg: eerst DEZE AFSPEELLIJST TOEVOEGEN
 The desk has GO while following. MENU > SYNC to stop.	De tafel heeft GO tijdens het volgen. MENU > SYNC om te stoppen.
 End of the list. LOOP LIST in MENU > LIST plays it again.	Einde van de lijst. LIJST IN LUS in MENU > LIJST speelt hem opnieuw.
-Pocket may not use the camera. Allow it in the phone's settings.	Zak mag de camera niet gebruiken. Sta het toe in de instellingen van de telefoon.
 haptics on	trilling aan
 haptics off	trilling uit
+Pocket Test	Pocket-test
+Pocket may not use the camera. Allow it in the phone's settings.	Pocket mag de camera niet gebruiken. Sta het toe in de instellingen van de telefoon.

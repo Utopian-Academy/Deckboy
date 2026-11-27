@@ -4835,7 +4835,6 @@ LAVA LAMP	LÁMPARA DE LAVA
 PLAY NEXT	REPRODUCIR SIGUIENTE
 PLAY/PAUSE	REPRODUCIR/PAUSA
 STOP AFTER	PARAR DESPUÉS
-Pocket Test	Prueba de bolsillo
 Unsaved list	Lista sin guardar
 SMPTE colour bars	barras de color SMPTE
 A soft swell that drifts through the picture as it breathes. At the left it only swells and settles.	Una suave ondulación que recorre la imagen al respirar. A la izquierda solo se hincha y se asienta.
@@ -5103,7 +5102,6 @@ LIST	LISTA
 PLACE	COLOCAR
 NEW BEACH	NUEVA PLAYA
 SURE?	¿SEGURO?
-Pocket	Bolsillo
 SONG  >	CANCIÓN  >
 PLAY SONG	TOCAR CANCIÓN
 STOP SONG	PARAR CANCIÓN
@@ -5159,6 +5157,7 @@ Twelve effects is the most a cue can have	Un cue puede tener doce efectos como m
 The song is empty: ADD THIS PLAYLIST first	La canción está vacía: primero AÑADIR ESTA LISTA
 The desk has GO while following. MENU > SYNC to stop.	La mesa tiene GO mientras sigue. MENÚ > SYNC para detener.
 End of the list. LOOP LIST in MENU > LIST plays it again.	Fin de la lista. LISTA EN BUCLE en MENÚ > LISTA la toca de nuevo.
-Pocket may not use the camera. Allow it in the phone's settings.	Bolsillo no tiene permiso para usar la cámara. Permítelo en los ajustes del teléfono.
 haptics on	vibración encendida
 haptics off	vibración apagada
+Pocket Test	Prueba Pocket
+Pocket may not use the camera. Allow it in the phone's settings.	Pocket no puede usar la cámara. Permítelo en los ajustes del teléfono.

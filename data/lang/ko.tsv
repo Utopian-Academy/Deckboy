@@ -4863,7 +4863,6 @@ LAVA LAMP	라바 램프
 PLAY NEXT	다음 재생
 PLAY/PAUSE	재생/일시 정지
 STOP AFTER	이후 정지
-Pocket Test	포켓 테스트
 Unsaved list	저장 안 된 목록
 SMPTE colour bars	SMPTE 컬러 바
 A soft swell that drifts through the picture as it breathes. At the left it only swells and settles.	숨 쉬듯 영상 속을 떠도는 부드러운 물결. 왼쪽에서는 부풀었다 가라앉기만 합니다.
@@ -5134,7 +5133,6 @@ LIST	목록
 PLACE	배치
 NEW BEACH	새 해변
 SURE?	확실해요?
-Pocket	포켓
 SONG  >	노래  >
 PLAY SONG	노래 재생
 STOP SONG	노래 정지
@@ -5191,6 +5189,7 @@ Twelve effects is the most a cue can have	큐 하나에 효과는 최대 12개�
 The song is empty: ADD THIS PLAYLIST first	곡이 비어 있음: 먼저 이 재생 목록 추가
 The desk has GO while following. MENU > SYNC to stop.	따르는 중에는 데스크가 GO를 가집니다. 멈추려면 메뉴 > SYNC.
 End of the list. LOOP LIST in MENU > LIST plays it again.	목록 끝. 메뉴 > 목록에서 목록 반복을 켜면 다시 재생됩니다.
-Pocket may not use the camera. Allow it in the phone's settings.	포켓이 카메라를 쓸 수 없습니다. 전화 설정에서 허용하세요.
 haptics on	햅틱 켜짐
 haptics off	햅틱 꺼짐
+Pocket Test	Pocket 테스트
+Pocket may not use the camera. Allow it in the phone's settings.	Pocket이 카메라를 사용할 수 없습니다. 전화 설정에서 허용하세요.

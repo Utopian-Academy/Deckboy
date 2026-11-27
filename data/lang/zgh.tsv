@@ -4878,7 +4878,6 @@ LAVA LAMP	ⵜⴰⴼⵜⵉⵍⵜ ⵏ ⵍⴰⴼⴰ
 PLAY NEXT	ⵖⵔ ⵡⵉⵏ ⴷ ⵉⴷⴷⵏ
 PLAY/PAUSE	ⵖⵔ/ⴰⵃⴱⴰⵙ
 STOP AFTER	ⵃⴱⵙ ⴷⴼⴼⵉⵔ
-Pocket Test	ⴰⵔⵎ ⵏ ⵜⵊⵉⴱⵜ
 Unsaved list	ⵜⴰⴱⴷⴰⵔⵜ ⵓⵔ ⵉⵜⵜⵓⵃⴹⴰⵏ
 SMPTE colour bars	ⵜⵉⴼⴳⴳⴰⴳⵉⵏ ⵏ ⵉⵏⵉ SMPTE
 TAKE selects next	TAKE ⵉⵙⵜⵜⴰ ⵡⵉⵏ ⴷ ⵉⴷⴷⵏ
@@ -5149,7 +5148,6 @@ LIST	ⵜⴰⴱⴷⴰⵔⵜ
 PLACE	ⵙⵔⵙ
 NEW BEACH	ⴰⵔⵉⴼ ⴰⵎⴰⵢⵏⵓ
 SURE?	ⵙ ⵜⵉⴷⵜ?
-Pocket	ⵜⴰⵊⵉⴱⵜ
 SONG  >	ⵜⴰⵣⵍⵉⵜ  >
 PLAY SONG	ⵖⵔ ⵜⴰⵣⵍⵉⵜ
 STOP SONG	ⵃⴱⵙ ⵜⴰⵣⵍⵉⵜ
@@ -5205,6 +5203,7 @@ Twelve effects is the most a cue can have	cue ⵓⵔ ⵉⵣⵎⵉⵔ ⴰⴷ ⵉ�
 The song is empty: ADD THIS PLAYLIST first	ⵉⵣⵍⵉ ⵉⵍⵎ: ⵔⵏⵓ ⵜⴰⴱⴷⴰⵔⵜ ⴰⴷ ⵣⵡⴰⵔ
 The desk has GO while following. MENU > SYNC to stop.	ⵜⴰⴼⵉⵍⵓⵜ ⴰⵔ ⵜⵟⵟⴰⴼ GO ⵎⵉ ⴰⵔ ⵜⵜⴹⴼⴰⵔ. ⵓⵎⵓⵖ > SYNC ⴰⴷ ⵜⵃⴱⵙⴷ.
 End of the list. LOOP LIST in MENU > LIST plays it again.	ⵜⵉⴳⵉⵔⴰ ⵏ ⵜⴱⴷⴰⵔⵜ. ⴰⵙⵙⵓⵖⵍ ⵏ ⵜⵍⴳⴰⵎⵜ ⵖ ⵓⵎⵓⵖ > ⵜⴰⴱⴷⴰⵔⵜ ⴰⵔ ⵜⵜ ⵉⵜⵜⵖⵔⴰ ⴷⴰⵖ.
-Pocket may not use the camera. Allow it in the phone's settings.	ⵜⴰⵊⵉⴱⵜ ⵓⵔ ⵜⵣⵎⵉⵔ ⴰⴷ ⵜⵙⵙⵎⵔⵙ ⵜⴰⴽⴰⵎⵉⵕⵜ. ⴰⵊⵊ ⵜ ⵖ ⵜⵙⵖⴰⵍ ⵏ ⵜⵉⵍⵉⵖⵔⵉ.
 haptics on	ⴰⵙⵎⵓⵙⵙⵓ ⵉⵔⵎⴷ
 haptics off	ⴰⵙⵎⵓⵙⵙⵓ ⵉⵅⵙⴰ
+Pocket Test	ⴰⵙⵎⵔⵙ Pocket
+Pocket may not use the camera. Allow it in the phone's settings.	Pocket ⵓⵔ ⵉⵣⵎⵉⵔ ⴰⴷ ⵉⵙⵙⵎⵔⵙ ⵜⴰⴽⴰⵎⵉⵕⵜ. ⴰⵊⵊ ⵜ ⵖ ⵜⵉⵙⵖⴰⵍ ⵏ ⵜⵉⵍⵉⵖⵔⵉ.

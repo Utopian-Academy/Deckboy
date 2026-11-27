@@ -4850,7 +4850,6 @@ LAVA LAMP	ໂຄມໄຟລາວາ
 PLAY NEXT	ຫຼິ້ນຖັດໄປ
 PLAY/PAUSE	ຫຼິ້ນ/ພັກ
 STOP AFTER	ຢຸດຫຼັງຈົບ
-Pocket Test	ທົດສອບກະເປົ໋າ
 Unsaved list	ລາຍການທີ່ຍັງບໍ່ບັນທຶກ
 SMPTE colour bars	ແຖບສີ SMPTE
 A soft swell that drifts through the picture as it breathes. At the left it only swells and settles.	ຄື້ນອ່ອນທີ່ລອຍຜ່ານຮູບຄືກັບກຳລັງຫາຍໃຈ. ຢູ່ຊ້າຍມັນພຽງແຕ່ພອງ ແລະ ຢຸດນິ່ງ.
@@ -5119,7 +5118,6 @@ LIST	ລາຍການ
 PLACE	ວາງ
 NEW BEACH	ຫາດໃໝ່
 SURE?	ແນ່ໃຈບໍ?
-Pocket	ກະເປົ໋າ
 SONG  >	ເພງ  >
 PLAY SONG	ຫຼິ້ນເພງ
 STOP SONG	ຢຸດເພງ
@@ -5176,6 +5174,7 @@ Twelve effects is the most a cue can have	Cue ໜຶ່ງມີເອັບເ�
 The song is empty: ADD THIS PLAYLIST first	ເພງຫວ່າງ: ເພີ່ມ PLAYLIST ນີ້ ກ່ອນ
 The desk has GO while following. MENU > SYNC to stop.	ໂຕະຖື GO ຂະນະກຳລັງຕາມ. ເມນູ > SYNC ເພື່ອຢຸດ.
 End of the list. LOOP LIST in MENU > LIST plays it again.	ສຸດລາຍການ. ວົນລາຍການ ໃນ ເມນູ > ລາຍການ ຫຼິ້ນມັນອີກຄັ້ງ.
-Pocket may not use the camera. Allow it in the phone's settings.	ກະເປົ໋າໃຊ້ກ້ອງບໍ່ໄດ້. ອະນຸຍາດໃນຕັ້ງຄ່າຂອງໂທລະສັບ.
 haptics on	ການສັ່ນ ເປີດ
 haptics off	ການສັ່ນ ປິດ
+Pocket Test	ທົດສອບ Pocket
+Pocket may not use the camera. Allow it in the phone's settings.	Pocket ບໍ່ໄດ້ຮັບອະນຸຍາດໃຫ້ໃຊ້ກ້ອງ. ອະນຸຍາດໃນການຕັ້ງຄ່າຂອງໂທລະສັບ.

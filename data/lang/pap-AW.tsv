@@ -4845,7 +4845,6 @@ LAVA LAMP	LAMPI DI LAVA
 PLAY NEXT	TOCA SIGUIENTE
 PLAY/PAUSE	TOCA/POUSA
 STOP AFTER	STOP DESPUES
-Pocket Test	Prueba di saku
 Unsaved list	Lista no warda
 SMPTE colour bars	Barranan di color SMPTE
 A soft swell that drifts through the picture as it breathes. At the left it only swells and settles.	Un ola suave cu ta drif den e portret mientras e ta rosea. Na robes e ta hincha i sosega so.
@@ -5109,7 +5108,6 @@ LIST	LISTA
 PLACE	PON
 NEW BEACH	PLAYA NOBO
 SURE?	SEGURO?
-Pocket	Saco
 SONG  >	CANCION  >
 PLAY SONG	TOCA CANCION
 STOP SONG	STOP CANCION
@@ -5165,6 +5163,7 @@ Twelve effects is the most a cue can have	Diesdos efecto ta e maximo cu un cue p
 The song is empty: ADD THIS PLAYLIST first	E cancion ta bashi: AGREGA E PLAYLIST AKI prome
 The desk has GO while following. MENU > SYNC to stop.	E mesa tin GO mientras e ta sigui. MENU > SYNC pa para.
 End of the list. LOOP LIST in MENU > LIST plays it again.	Fin di e lista. RIPITI LISTA den MENU > LISTA ta toca e atrobe.
-Pocket may not use the camera. Allow it in the phone's settings.	Saco no tin permiso pa usa e camara. Permiti esaki den configuracion di e telefon.
 haptics on	vibracion cende
 haptics off	vibracion paga
+Pocket Test	Prueba Pocket
+Pocket may not use the camera. Allow it in the phone's settings.	Pocket no tin permiso pa usa e camara. Permiti'é den configuracion di e telefon.

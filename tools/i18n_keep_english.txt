@@ -1714,3 +1714,33 @@ tr	Cue {1}: {2}
 vi	Cue {1}: {2}
 vi	Playlist {1}: {2}
 zgh	Cue {1}: {2}
+ar	Pocket
+bg	Pocket
+ckb	Pocket
+da	Pocket
+de	Pocket
+el	Pocket
+es-CU	Pocket
+es	Pocket
+fa	Pocket
+fi	Pocket
+fr	Pocket
+gd	Pocket
+haw	Pocket Test
+kmr	Pocket
+ko	Pocket
+lo	Pocket
+lum	Pocket
+nl	Pocket
+lt	Pocket
+pap-AW	Pocket
+pl	Pocket
+pt-BR	Pocket
+ru	Pocket
+tr	Pocket
+uk	Pocket
+vi	Pocket
+zgh	Pocket
+zh-Hans	Pocket
+zh-Hant	Pocket
+zu	Pocket

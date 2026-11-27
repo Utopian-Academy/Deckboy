@@ -4837,7 +4837,6 @@ LAVA LAMP	LAMPA LAWOWA
 PLAY NEXT	GRAJ NASTĘPNY
 PLAY/PAUSE	GRAJ/PAUZA
 STOP AFTER	STOP PO
-Pocket Test	Test kieszonkowy
 Unsaved list	Niezapisana lista
 SMPTE colour bars	Pasy barwne SMPTE
 TAKE selects next	TAKE wybiera następny
@@ -5104,7 +5103,6 @@ LIST	LISTA
 PLACE	UMIEŚĆ
 NEW BEACH	NOWA PLAŻA
 SURE?	NA PEWNO?
-Pocket	Kieszeń
 SONG  >	UTWÓR  >
 PLAY SONG	GRAJ UTWÓR
 STOP SONG	STOP UTWÓR
@@ -5160,6 +5158,7 @@ Twelve effects is the most a cue can have	Cue może mieć najwyżej dwanaście e
 The song is empty: ADD THIS PLAYLIST first	Utwór jest pusty: najpierw DODAJ TĘ PLAYLISTĘ
 The desk has GO while following. MENU > SYNC to stop.	Podczas śledzenia GO ma pulpit. MENU > SYNC, aby przerwać.
 End of the list. LOOP LIST in MENU > LIST plays it again.	Koniec listy. PĘTLA LISTY w MENU > LISTA zagra ją od nowa.
-Pocket may not use the camera. Allow it in the phone's settings.	Kieszeń nie może używać kamery. Zezwól na to w ustawieniach telefonu.
 haptics on	drgania wł.
 haptics off	drgania wył.
+Pocket Test	Test Pocket
+Pocket may not use the camera. Allow it in the phone's settings.	Pocket nie może używać kamery. Zezwól na to w ustawieniach telefonu.

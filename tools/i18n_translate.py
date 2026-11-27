@@ -62,7 +62,8 @@ TRADE = ["TAKE ALL", "TAKE", "PROGRAM", "NDI", "SRT", "RTMP", "OSC", "MIDI", "LT
          "TSL", "Art-Net", "DMX", "HAP", "DNxHR", "MXF", "MOV", "AVI", "GIF", "PNG", "WAV",
          "FFmpeg", "libav", "SDL", "FreeType", "GPL", "PTP", "Spout", "HDR", "VU", "dB",
          "Deckboy", "SUPER DECKBOY", "Companion", "Bug Swat", "Lower Third", "DeckLink",
-         "LICENSE", "NVENC", "ProRes", "H.264", "H.265", "ASIO", "Syphon", "SMPTE", "DASH"]
+         "LICENSE", "NVENC", "ProRes", "H.264", "H.265", "ASIO", "Syphon", "SMPTE", "DASH",
+         "Pocket"]   # Deckboy Pocket is a name: it was translated ("Poche") 2026-11-26
 KEY_NAMES = ["Enter", "Space", "Esc", "Tab", "Ctrl", "Shift", "Alt", "Cmd", "Del", "Ins",
              "PgUp", "PgDn", "Home", "End", "Backspace"] + [f"F{i}" for i in range(1, 13)]
 PLACEHOLDER = re.compile(r"\{(?:n|[1-9])\}|%[-0-9.]*[sdfxu]")

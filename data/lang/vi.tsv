@@ -4851,7 +4851,6 @@ LAVA LAMP	ĐÈN DUNG NHAM
 PLAY NEXT	PHÁT TIẾP
 PLAY/PAUSE	PHÁT/TẠM DỪNG
 STOP AFTER	DỪNG SAU
-Pocket Test	Kiểm tra bỏ túi
 Unsaved list	Danh sách chưa lưu
 SMPTE colour bars	Thanh màu SMPTE
 TAKE selects next	TAKE chọn mục tiếp theo
@@ -5119,7 +5118,6 @@ LIST	DANH SÁCH
 PLACE	ĐẶT
 NEW BEACH	BÃI BIỂN MỚI
 SURE?	CHẮC CHƯA?
-Pocket	Túi
 SONG  >	BÀI HÁT  >
 PLAY SONG	PHÁT BÀI HÁT
 STOP SONG	DỪNG BÀI HÁT
@@ -5175,6 +5173,7 @@ Twelve effects is the most a cue can have	Mỗi cue có tối đa mười hai hi
 The song is empty: ADD THIS PLAYLIST first	Bài hát trống: hãy THÊM PLAYLIST NÀY trước
 The desk has GO while following. MENU > SYNC to stop.	Bàn giữ GO khi đang theo. DANH MỤC > SYNC để dừng.
 End of the list. LOOP LIST in MENU > LIST plays it again.	Hết danh sách. LẶP DANH SÁCH trong DANH MỤC > DANH SÁCH sẽ phát lại.
-Pocket may not use the camera. Allow it in the phone's settings.	Túi không được dùng máy quay. Hãy cho phép trong cài đặt của điện thoại.
 haptics on	rung bật
 haptics off	rung tắt
+Pocket Test	Thử Pocket
+Pocket may not use the camera. Allow it in the phone's settings.	Pocket không được phép dùng máy quay. Hãy cho phép trong cài đặt của điện thoại.

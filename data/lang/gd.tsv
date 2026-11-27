@@ -4862,7 +4862,6 @@ LAVA LAMP	LAMPA LÀBHA
 PLAY NEXT	CLUICH AN ATH FHEAR
 PLAY/PAUSE	CLUICH/CUIR NA STAD
 STOP AFTER	STAD ÀS DÈIDH
-Pocket Test	Deuchainn pòcaid
 Unsaved list	Liosta gun sàbhaladh
 SMPTE colour bars	bàraichean dath SMPTE
 A soft swell that drifts through the picture as it breathes. At the left it only swells and settles.	Sùmaid bhog a ghluaiseas tron dhealbh fhad ’s a tha i a’ tarraing anail. Air a’ chlì cha dèan i ach èirigh is tuineachadh.
@@ -5132,7 +5131,6 @@ LIST	LIOSTA
 PLACE	SUIDHICH
 NEW BEACH	TRÀIGH ÙR
 SURE?	CINNTEACH?
-Pocket	Pòcaid
 SONG  >	ÒRAN  >
 PLAY SONG	CLUICH AN T-ÒRAN
 STOP SONG	STAD AN T-ÒRAN
@@ -5188,6 +5186,7 @@ Twelve effects is the most a cue can have	Chan fhaod barrachd air dà èifeachd 
 The song is empty: ADD THIS PLAYLIST first	Tha an t-òran falamh: CUIR RIS AN LIOSTA SEO an toiseach
 The desk has GO while following. MENU > SYNC to stop.	Tha GO aig an deasg fhad 's a tha e a' leantainn. CLÀR > SYNC gus stad.
 End of the list. LOOP LIST in MENU > LIST plays it again.	Deireadh an liosta. Cluichidh LÙB AN LIOSTA ann an CLÀR > LIOSTA a-rithist e.
-Pocket may not use the camera. Allow it in the phone's settings.	Chan fhaod Pòcaid an camara a chleachdadh. Ceadaich e ann an roghainnean an fhòn.
 haptics on	crith air
 haptics off	crith dheth
+Pocket Test	Deuchainn Pocket
+Pocket may not use the camera. Allow it in the phone's settings.	Chan fhaod Pocket an camara a chleachdadh. Ceadaich e ann an roghainnean an fhòn.

@@ -4860,7 +4860,6 @@ LAVA LAMP	ΛΑΜΠΑ ΛΑΒΑΣ
 PLAY NEXT	ΠΑΙΞΕ ΕΠΟΜΕΝΟ
 PLAY/PAUSE	ΠΑΙΞΕ/ΠΑΥΣΗ
 STOP AFTER	ΣΤΟΠ ΜΕΤΑ
-Pocket Test	Τεστ τσέπης
 Unsaved list	Μη αποθηκευμένη λίστα
 SMPTE colour bars	Χρωματικές μπάρες SMPTE
 A soft swell that drifts through the picture as it breathes. At the left it only swells and settles.	Ένα απαλό φούσκωμα που κυλά μέσα στην εικόνα καθώς ανασαίνει. Αριστερά απλώς φουσκώνει και κατακάθεται.
@@ -5130,7 +5129,6 @@ LIST	ΛΙΣΤΑ
 PLACE	ΤΟΠΟΘΕΤΗΣΗ
 NEW BEACH	ΝΕΑ ΠΑΡΑΛΙΑ
 SURE?	ΣΙΓΟΥΡΑ;
-Pocket	Τσέπη
 SONG  >	ΤΡΑΓΟΥΔΙ  >
 PLAY SONG	ΠΑΙΞΕ ΤΡΑΓΟΥΔΙ
 STOP SONG	ΣΤΟΠ ΤΡΑΓΟΥΔΙ
@@ -5186,6 +5184,7 @@ Twelve effects is the most a cue can have	Ένα cue μπορεί να έχει 
 The song is empty: ADD THIS PLAYLIST first	Το τραγούδι είναι κενό: πρώτα ΠΡΟΣΘΗΚΗ ΑΥΤΗΣ ΤΗΣ ΛΙΣΤΑΣ
 The desk has GO while following. MENU > SYNC to stop.	Η κονσόλα έχει το GO όσο ακολουθεί. ΜΕΝΟΥ > SYNC για διακοπή.
 End of the list. LOOP LIST in MENU > LIST plays it again.	Τέλος της λίστας. Το ΒΡΟΧΟΣ ΛΙΣΤΑΣ στο ΜΕΝΟΥ > ΛΙΣΤΑ την παίζει ξανά.
-Pocket may not use the camera. Allow it in the phone's settings.	Η Τσέπη δεν έχει άδεια για την κάμερα. Επίτρεψέ το στις ρυθμίσεις του τηλεφώνου.
 haptics on	τρέμουλο εντός
 haptics off	τρέμουλο εκτός
+Pocket Test	Τεστ Pocket
+Pocket may not use the camera. Allow it in the phone's settings.	Το Pocket δεν έχει άδεια για την κάμερα. Επίτρεψέ την στις ρυθμίσεις του τηλεφώνου.

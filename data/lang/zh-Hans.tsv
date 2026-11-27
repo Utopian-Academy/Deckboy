@@ -4864,7 +4864,6 @@ LAVA LAMP	熔岩灯
 PLAY NEXT	播放下一个
 PLAY/PAUSE	播放/暂停
 STOP AFTER	之后停止
-Pocket Test	口袋测试
 Unsaved list	未保存的列表
 SMPTE colour bars	SMPTE 彩条
 TAKE selects next	TAKE 选择下一个
@@ -5134,7 +5133,6 @@ LIST	列表
 PLACE	放置
 NEW BEACH	新建海滩
 SURE?	确定？
-Pocket	口袋
 SONG  >	歌曲  >
 PLAY SONG	播放歌曲
 STOP SONG	停止歌曲
@@ -5191,6 +5189,7 @@ Twelve effects is the most a cue can have	每个 cue 最多可有十二个效果
 The song is empty: ADD THIS PLAYLIST first	歌曲为空：请先添加此播放列表
 The desk has GO while following. MENU > SYNC to stop.	跟随时由控制台掌控 GO。菜单 > SYNC 可停止。
 End of the list. LOOP LIST in MENU > LIST plays it again.	列表已结束。菜单 > 列表 中的循环列表可再次播放。
-Pocket may not use the camera. Allow it in the phone's settings.	口袋无权使用摄像头。请在电话的设置中允许。
 haptics on	触感开
 haptics off	触感关
+Pocket Test	Pocket 测试
+Pocket may not use the camera. Allow it in the phone's settings.	Pocket 无权使用摄像头。请在电话的设置中允许。
