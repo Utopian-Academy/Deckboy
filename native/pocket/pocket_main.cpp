@@ -1322,6 +1322,7 @@ class Pocket {
     else fillRect(r, kShell, {0, 0, pxW_, pxH_});
     drawProgram();
     drawTbar();
+    drawPlaceHandles();
     if (hostEditing_) drawTextEditor("DESK ADDRESS", followHost_, "ENTER TO FOLLOW");
     if (passEditing_) drawTextEditor("REMOTE PASSPHRASE", passDraft_, "8 OR MORE CHARACTERS, ENTER TO KEEP");
     if (renameIndex_ >= 0) drawTextEditor("CUE NAME", renameText_, "ENTER TO KEEP, BACK TO LEAVE IT");
@@ -5151,7 +5152,7 @@ class Pocket {
              "SEEK <seconds|+s|-s> BLACK [ON|OFF] VOLUME <0-100> MUTE DECK 1 SKIP SKIPBACK\n"
              "SHUFFLE LOOP ENDAFTER [ON|OFF|TOGGLE] CROSSFADE <s> QUEUE <n>|CLEAR RENAME <n> <name>\n"
              "DIRECTION <n> FORWARD|REVERSE|BOUNCE SHELL <name>|FLAT SNAP <file.bmp>\n"
-             "TBAR [HOLD|MOVE <seconds>|RUN] LANGUAGE [<code>|PHONE]\n"
+             "TBAR [HOLD|MOVE <seconds>|RUN] LANGUAGE [<code>|PHONE] PLACE <cue> SHOW TOUR\n"
              "SYNC FOLLOW <desk> SYNC STOP SYNC STATUS\n";
     }
     if (verb == "STATUS" || verb == "STATE") return remoteStatus();
@@ -5202,7 +5203,15 @@ class Pocket {
         else if (pg == "LOOK") page_ = Page::Look;
         else if (pg == "SOUND") page_ = Page::Sound;
         else if (pg == "FX") page_ = Page::Fx;
-        else if (pg == "CALC" && !sliders_.empty()) openCalc(sliders_.front().spec);
+        else if (pg == "CALC" && !sliders_.empty()) {   // CALC [label]: that number's panel (the page drawn last), else the first
+          std::string which;
+          args >> which;
+          for (char& ch : which) ch = static_cast<char>(std::toupper(static_cast<unsigned char>(ch)));
+          const Slider* pick = &sliders_.front();
+          for (const auto& sl : sliders_) if (!which.empty() && sl.spec.label == which) pick = &sl;
+          if (!which.empty() && pick->spec.label != which) return err("no number " + which + " on this page");
+          openCalc(pick->spec);
+        }
         else if (pg == "LFO") { page_ = Page::Place; lfoSlot_ = kGeoLfoRotation; }
         return ok();
       }
@@ -5728,6 +5737,18 @@ class Pocket {
     if (verb == "PREV" || verb == "PREVIOUS") { select(selected_ - 1); return ok(); }
     if (verb == "PLAY") { if (active_ < 0) go(); else engine_->play(); return ok(); }
     if (verb == "PAUSE") { if (active_ >= 0) engine_->pause(); return ok(); }
+    if (verb == "PLACE") {   // PLACE <cue>: where a cue is placed (scale, position, turn, crop, flips, fit), read only
+      const int n = std::atoi(rest.c_str());
+      if (n < 1 || n > static_cast<int>(cues_.size())) return err("PLACE <cue 1.." + std::to_string(cues_.size()) + ">");
+      const Cue& c = cues_[static_cast<std::size_t>(n - 1)];
+      char line[320];
+      std::snprintf(line, sizeof line,
+                    "OK PLACE %d scale=%.4f,%.4f x=%.1f y=%.1f turn=%.2f crop=%.4f,%.4f,%.4f,%.4f flip=%d,%d fit=%s\n", n,
+                    c.outputScaleX, c.outputScaleY, c.outputOffsetX, c.outputOffsetY, c.outputRotationDegrees, c.cropLeft, c.cropTop,
+                    c.cropRight, c.cropBottom, c.flipHorizontal ? 1 : 0, c.flipVertical ? 1 : 0,
+                    c.scaleMode == ScaleMode::Fit ? "fit" : c.scaleMode == ScaleMode::Fill ? "fill" : c.scaleMode == ScaleMode::Stretch ? "stretch" : "1:1");
+      return line;
+    }
     if (verb == "TBAR") {   // TBAR | TBAR HOLD | TBAR MOVE <seconds> | TBAR RUN: the transition, by hand
       std::istringstream args(rest);
       std::string what;
@@ -8639,7 +8660,7 @@ class Pocket {
     if (on) buzz("go");
   }
 
-  enum class Drag { None, Scrub, TrimIn, TrimOut, Volume, Slider, MapCorner };
+  enum class Drag { None, Scrub, TrimIn, TrimOut, Volume, Slider, MapCorner, XYPad };
 
   void onDown(float x, float y) {
     downX_ = x;
@@ -8671,6 +8692,11 @@ class Pocket {
       }
     }
     if (mapDown(x, y)) return;
+    if (calcOpen_ && calcXY_ && inside(xyPad_, x, y)) {   // the XY pad: X and Y follow the finger
+      drag_ = Drag::XYPad;
+      xyPadAt(x, y);
+      return;
+    }
     // THROW IN: a chip is picked up (it goes in where it is let go over the picture).
     if (surfTray_ && sheet_ < 0 && !menuOpen_) {
       for (std::size_t k = 0; k < trayChips_.size(); ++k) {
@@ -8789,6 +8815,10 @@ class Pocket {
       }
     }
     if (picHoldSince_ && (std::fabs(x - downX_) > 2 * unit_ || std::fabs(y - downY_) > 2 * unit_)) picHoldSince_ = 0;
+    if (drag_ == Drag::XYPad) {
+      xyPadAt(x, y);
+      return;
+    }
     if (drag_ == Drag::MapCorner) {   // the corner moves with the finger, in output pixels
       const float k = 1.0f / std::max(0.0001f, mapScale_);
       moveMapCorner(mapCorner_, (x - mapLastX_) * k, (y - mapLastY_) * k);
@@ -8862,11 +8892,116 @@ class Pocket {
     gestureOffX0_ = c.outputOffsetX;
     gestureOffY0_ = c.outputOffsetY;
     gestureRot0_ = c.outputRotationDegrees;
+    // EDGE-DRAG CROP: one finger landing on an edge of the cue's picture crops
+    // that edge instead of moving it. Only while the cue sits level (0 or 180
+    // degrees): a turned cue's edges are not along the screen's.
+    cropEdge_ = -1;
+    if (fingers_.size() == 1 && cueLevel(c)) {
+      const SDL_FRect R = placedOnPicture(c);
+      const SDL_FPoint f = fingers_.begin()->second;
+      const float grab = std::max(3.0f * unit_, 0.5f * 48.0f * std::max(1.0f, SDL_GetWindowDisplayScale(window_)) / 2);
+      const bool inX = f.x > R.x - grab && f.x < R.x + R.w + grab, inY = f.y > R.y - grab && f.y < R.y + R.h + grab;
+      const float d[4] = {inY ? std::fabs(f.x - R.x) : 1e9f, inX ? std::fabs(f.y - R.y) : 1e9f,
+                          inY ? std::fabs(f.x - (R.x + R.w)) : 1e9f, inX ? std::fabs(f.y - (R.y + R.h)) : 1e9f};
+      int best = -1;
+      for (int k = 0; k < 4; ++k) if (d[k] < grab && (best < 0 || d[k] < d[best])) best = k;
+      if (best >= 0 && R.w > 4 * grab && R.h > 4 * grab) {   // a small picture is moved, not cropped
+        cropEdge_ = best;
+        cropRect0_ = R;
+        cropStart_[0] = c.cropLeft;
+        cropStart_[1] = c.cropTop;
+        cropStart_[2] = c.cropRight;
+        cropStart_[3] = c.cropBottom;
+      }
+    }
+  }
+
+  // Level: turned 0 or 180 degrees (within one), so its edges lie along the screen's.
+  static bool cueLevel(const Cue& c) {
+    const float a = std::fabs(std::fmod(c.outputRotationDegrees, 180.0f));
+    return a < 1.0f || a > 179.0f;
+  }
+
+  // Where cue c is drawn on the phone's picture (phone pixels), as the engine
+  // places it (MediaEngine::drawTextureFitted: crop, fit, scale, centre and
+  // offset), before any turn or oscillator.
+  SDL_FRect placedOnPicture(const Cue& c) const {
+    const SDL_FRect pr = fitProgram(picRect_);
+    const double PW = std::max(1, programW_), PH = std::max(1, programH_);
+    const double k = pr.w / PW;
+    const double w = c.width > 0 ? c.width : PW, h = c.height > 0 ? c.height : PH;
+    const double srcW = std::max(1.0, w * (1.0 - c.cropLeft - c.cropRight));
+    const double srcH = std::max(1.0, h * (1.0 - c.cropTop - c.cropBottom));
+    double drawW = srcW, drawH = srcH;
+    if (c.scaleMode == ScaleMode::Fit || c.scaleMode == ScaleMode::Fill) {
+      const double sc = c.scaleMode == ScaleMode::Fit ? std::min(PW / srcW, PH / srcH) : std::max(PW / srcW, PH / srcH);
+      drawW = srcW * sc;
+      drawH = srcH * sc;
+    } else if (c.scaleMode == ScaleMode::Stretch) {
+      drawW = PW;
+      drawH = PH;
+    }
+    const double sw = drawW * c.outputScaleX, sh = drawH * c.outputScaleY;
+    const double x = (PW - sw) / 2 + c.outputOffsetX, y = (PH - sh) / 2 + c.outputOffsetY;
+    return {pr.x + static_cast<float>(x * k), pr.y + static_cast<float>(y * k), static_cast<float>(sw * k), static_cast<float>(sh * k)};
+  }
+
+  // The edge being dragged: the finger moves it through the picture as shown
+  // (a quarter of the shown width crops a quarter of what is shown). A flip,
+  // or a half turn, puts the source's other edge on that side.
+  void moveCropEdge() {
+    Cue& c = cues_[static_cast<std::size_t>(sheet_)];
+    const SDL_FPoint f = fingers_.begin()->second;
+    const SDL_FPoint f0 = gestureC0_;
+    const bool half = std::fabs(std::fmod(c.outputRotationDegrees, 360.0f)) > 90.0f && std::fabs(std::fmod(c.outputRotationDegrees, 360.0f)) < 270.0f;
+    const bool mirrorX = c.flipHorizontal != half, mirrorY = c.flipVertical != half;
+    const float shownW = 1.0f - cropStart_[0] - cropStart_[2], shownH = 1.0f - cropStart_[1] - cropStart_[3];
+    const float dx = (f.x - f0.x) / std::max(1.0f, cropRect0_.w) * shownW;
+    const float dy = (f.y - f0.y) / std::max(1.0f, cropRect0_.h) * shownH;
+    float crop[4] = {cropStart_[0], cropStart_[1], cropStart_[2], cropStart_[3]};   // left top right bottom, of the source
+    int side = cropEdge_;   // the screen's edge: 0 left, 1 top, 2 right, 3 bottom
+    float push = side == 0 ? dx : side == 2 ? -dx : side == 1 ? dy : -dy;   // inward is positive
+    if ((side == 0 || side == 2) && mirrorX) side = 2 - side;
+    if ((side == 1 || side == 3) && mirrorY) side = 4 - side;
+    const int across = (side + 2) % 4;
+    const float keep = 0.05f;   // never less than a twentieth of the picture
+    crop[side] = std::clamp(cropStart_[side] + push, 0.0f, 1.0f - crop[across] - keep);
+    c.cropLeft = crop[0];
+    c.cropTop = crop[1];
+    c.cropRight = crop[2];
+    c.cropBottom = crop[3];
+    cueEdited(sheet_, false);
+  }
+
+  // PLACE: small handles at the middle of the cue's edges, where a finger crops.
+  void drawPlaceHandles() {
+    if (sheet_ < 0 || page_ != Page::Place || calcOpen_) return;
+    const Cue& c = cues_[static_cast<std::size_t>(sheet_)];
+    if (!cueLevel(c)) return;
+    const SDL_FRect R = placedOnPicture(c);
+    const float u = unit_, len = 4 * u, th = 0.9f * u;
+    SDL_Rect clip {static_cast<int>(picRect_.x), static_cast<int>(picRect_.y), static_cast<int>(picRect_.w), static_cast<int>(picRect_.h)};
+    SDL_SetRenderClipRect(renderer_, &clip);
+    const SDL_FRect bars[4] = {{R.x - th / 2, R.y + R.h / 2 - len / 2, th, len}, {R.x + R.w / 2 - len / 2, R.y - th / 2, len, th},
+                               {R.x + R.w - th / 2, R.y + R.h / 2 - len / 2, th, len}, {R.x + R.w / 2 - len / 2, R.y + R.h - th / 2, len, th}};
+    const SDL_FRect P = grow(picRect_, -0.4f * u);   // a handle sits wholly on the picture, its outline too
+    for (int k = 0; k < 4; ++k) {
+      SDL_FRect b = bars[k];
+      // an edge off the screen has no handle; one at the screen's edge is drawn just inside it
+      if (b.x + b.w < P.x - th || b.x > P.x + P.w + th || b.y + b.h < P.y - th || b.y > P.y + P.h + th) continue;
+      b.x = std::clamp(b.x, P.x, P.x + P.w - b.w);
+      b.y = std::clamp(b.y, P.y, P.y + P.h - b.h);
+      const bool held = gesture_ && cropEdge_ == k;
+      fillRound(renderer_, Ink {0, 0, 0}, grow(b, 0.35f * u), 0.4f * u);
+      fillRound(renderer_, held ? Ink {235, 225, 160} : Ink {245, 240, 225}, b, 0.3f * u);
+    }
+    SDL_SetRenderClipRect(renderer_, nullptr);
   }
 
   void moveGesture() {
     if (sheet_ < 0 || fingers_.empty()) return;
     if (fingers_.size() != gestureFingers_) { beginGesture(); return; }
+    if (cropEdge_ >= 0 && fingers_.size() == 1) { moveCropEdge(); return; }
     Cue& c = cues_[static_cast<std::size_t>(sheet_)];
     SDL_FPoint cn {0, 0};
     for (const auto& [id, p] : fingers_) { cn.x += p.x; cn.y += p.y; }
@@ -8936,6 +9071,12 @@ class Pocket {
     std::function<double()> get;
     std::function<void(double)> set;
     std::vector<std::pair<std::string, double>> presets;
+    // POSITION'S XY PAD: the other axis of a position (X's Y, Y's X); the
+    // panel then has an XY key. pairIsY: this spec is X and the pair is Y.
+    std::function<double()> pairGet;
+    std::function<void(double)> pairSet;
+    bool pairIsY = false;
+    double pairExtent = 0;   // the pair's own +/- range
   };
 
   struct Slider { SDL_FRect area, track; NumSpec spec; };
@@ -9669,6 +9810,15 @@ class Pocket {
           (horizontal ? cc.outputOffsetX : cc.outputOffsetY) = static_cast<float>(v);
           cueEdited(i, false);
         };
+        // the other axis, for the XY pad
+        n.pairIsY = horizontal;
+        n.pairExtent = horizontal ? static_cast<double>(programH_) : static_cast<double>(programW_);
+        n.pairGet = [this, i, horizontal] { const Cue& cc = cues_[static_cast<std::size_t>(i)]; return static_cast<double>(horizontal ? cc.outputOffsetY : cc.outputOffsetX); };
+        n.pairSet = [this, i, horizontal](double v) {
+          Cue& cc = cues_[static_cast<std::size_t>(i)];
+          (horizontal ? cc.outputOffsetY : cc.outputOffsetX) = static_cast<float>(v);
+          cueEdited(i, false);
+        };
         numberRow(row, n);
       };
     };
@@ -9908,9 +10058,60 @@ class Pocket {
   // the output for a position, else a hundredth), and the setting's presets.
   // The picture follows as you type; CANCEL puts the value back.
 
+  // The XY pad: the programme's shape, twice its size each way (a position
+  // runs from -width to +width), the programme itself outlined in the middle;
+  // the dot is the picture's centre. A finger sets X and Y together.
+  void drawXYPad(float lx, float lw, float top, float bottom) {
+    const float u = unit_, gap = 0.8f * u;
+    const float kh = std::max(6 * u, (bottom - top) / 7);
+    const float padBottom = bottom - kh - gap;
+    const float aspect = static_cast<float>(std::max(1, programW_)) / static_cast<float>(std::max(1, programH_));
+    float pw = lw, ph = pw / aspect;
+    if (ph > padBottom - top) { ph = padBottom - top; pw = ph * aspect; }
+    xyPad_ = {lx + (lw - pw) / 2, top + (padBottom - top - ph) / 2, pw, ph};
+    fillRect(renderer_, kDeep, xyPad_);
+    const SDL_FRect frame {xyPad_.x + pw / 4, xyPad_.y + ph / 4, pw / 2, ph / 2};
+    fillRect(renderer_, kDark, frame);
+    fillRect(renderer_, kMid, {xyPad_.x + pw / 2 - 0.15f * u, xyPad_.y, 0.3f * u, ph});
+    fillRect(renderer_, kMid, {xyPad_.x, xyPad_.y + ph / 2 - 0.15f * u, pw, 0.3f * u});
+    const double x = calcSpec_.pairIsY ? calcSpec_.get() : calcSpec_.pairGet();
+    const double y = calcSpec_.pairIsY ? calcSpec_.pairGet() : calcSpec_.get();
+    const float dx = xyPad_.x + pw / 2 + static_cast<float>(x / (2.0 * std::max(1, programW_))) * pw;
+    const float dy = xyPad_.y + ph / 2 + static_cast<float>(y / (2.0 * std::max(1, programH_))) * ph;
+    fillCircle(renderer_, kLight, {dx, dy}, 1.6f * u);
+    fillCircle(renderer_, kDeep, {dx, dy}, 0.7f * u);
+    const float tw = (lw - 3 * gap) / 4;
+    const float by = bottom - kh;
+    button({lx, by, tw, kh}, "KEYS", [this] { calcXY_ = false; });
+    button({lx + tw + gap, by, tw, kh}, "RESET", [this] { setXY(0, 0); });
+    button({lx + 2 * (tw + gap), by, tw, kh}, "CANCEL", [this] {
+      calcSpec_.set(calcBefore_);
+      calcSpec_.pairSet(calcPairBefore_);
+      calcOpen_ = false;
+    });
+    button({lx + 3 * (tw + gap), by, tw, kh}, "OK", [this] { calcOpen_ = false; buzz("tap"); }, true, true);
+  }
+
+  void setXY(double x, double y) {
+    const double X = std::clamp(x, -static_cast<double>(programW_), static_cast<double>(programW_));
+    const double Y = std::clamp(y, -static_cast<double>(programH_), static_cast<double>(programH_));
+    calcSpec_.set(calcSpec_.pairIsY ? std::round(X) : std::round(Y));
+    calcSpec_.pairSet(calcSpec_.pairIsY ? std::round(Y) : std::round(X));
+  }
+
+  // A finger on the pad: the picture's centre goes there.
+  void xyPadAt(float fx, float fy) {
+    if (xyPad_.w <= 0 || xyPad_.h <= 0) return;
+    setXY((fx - (xyPad_.x + xyPad_.w / 2)) / xyPad_.w * 2.0 * programW_,
+          (fy - (xyPad_.y + xyPad_.h / 2)) / xyPad_.h * 2.0 * programH_);
+  }
+
   void openCalc(const NumSpec& n) {
     calcSpec_ = n;
     calcBefore_ = n.get();
+    calcXY_ = false;
+    xyPad_ = {};
+    if (n.pairGet) calcPairBefore_ = n.pairGet();
     calcExpr_.clear();
     calcOpen_ = true;
   }
@@ -9951,6 +10152,16 @@ class Pocket {
     // the sum and its answer
     const SDL_FRect shown {lx, y, lw, 11 * u};
     fillRect(renderer_, kDeep, shown);
+    if (calcXY_ && calcSpec_.pairGet) {   // the XY pad: both numbers, live
+      const double px = calcSpec_.pairIsY ? calcSpec_.get() : calcSpec_.pairGet();
+      const double py = calcSpec_.pairIsY ? calcSpec_.pairGet() : calcSpec_.get();
+      text_.draw(pixelSmall_, "XY", kMid, {shown.x + u, shown.y + 0.5f * u, lw - 2 * u, 3 * u});
+      char both[96];
+      std::snprintf(both, sizeof both, "X %+.0f   Y %+.0f px", px, py);
+      text_.draw(mono_, both, kLight, {shown.x + u, shown.y + 3.5f * u, lw - 2 * u, 4 * u});
+      drawXYPad(lx, lw, y + 12 * u, lcd.y + lcd.h - u);
+      return;
+    }
     text_.draw(pixelSmall_, calcSpec_.label, kMid, {shown.x + u, shown.y + 0.5f * u, lw - 2 * u, 3 * u});
     text_.draw(mono_, calcExpr_.empty() ? std::string("type a value or a sum") : calcExpr_, kLight,
                {shown.x + u, shown.y + 3.5f * u, lw - 2 * u, 4 * u});
@@ -9978,13 +10189,16 @@ class Pocket {
     // presets and -X
     {
       const auto& ps = calcSpec_.presets;
-      const int count = static_cast<int>(std::min<std::size_t>(ps.size(), 3));
-      const float pw = (lw - kw - gap * static_cast<float>(count)) / std::max(1, count);
+      const bool xy = static_cast<bool>(calcSpec_.pairGet);   // a position: the XY key takes a preset's place
+      const int count = static_cast<int>(std::min<std::size_t>(ps.size(), xy ? 2 : 3));
+      const float right = xy ? 2 * kw + gap : kw;   // -X, and XY beside it
+      const float pw = (lw - right - gap * static_cast<float>(count)) / std::max(1, count);
       for (int k = 0; k < count; ++k) {
         const double pv = ps[static_cast<std::size_t>(k)].second;
         button({lx + static_cast<float>(k) * (pw + gap), y, pw, kh}, ps[static_cast<std::size_t>(k)].first,
                [this, pv] { calcExpr_ = numText({calcSpec_.label, "", 0, 0, 0, 0, 0, calcSpec_.decimals}, pv); setNum(calcSpec_, pv); });
       }
+      if (xy) button({lx + lw - 2 * kw - gap, y, kw, kh}, "XY", [this] { calcXY_ = true; });
       button({lx + lw - kw, y, kw, kh}, "-X", [this] { calcKey("-X"); });
       y += kh + gap;
     }
@@ -10931,6 +11145,15 @@ class Pocket {
   bool gesture_ = false;
   std::size_t gestureFingers_ = 0;
   SDL_FPoint gestureC0_ {};
+  // edge-drag crop: the screen edge held (0 left, 1 top, 2 right, 3 bottom;
+  // -1 none), where the picture sat and its crop when the finger landed
+  int cropEdge_ = -1;
+  // the number panel's XY pad (drawXYPad): shown, where, and the pair's value when it opened
+  bool calcXY_ = false;
+  SDL_FRect xyPad_ {};
+  double calcPairBefore_ = 0;
+  SDL_FRect cropRect0_ {};
+  float cropStart_[4] = {};
   float gestureD0_ = 0, gestureA0_ = 0;
   float gestureScale0_ = 1, gestureScaleY0_ = 1, gestureOffX0_ = 0, gestureOffY0_ = 0, gestureRot0_ = 0;
   Uint64 lastPicTap_ = 0;
