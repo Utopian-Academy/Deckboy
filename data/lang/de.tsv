@@ -5385,3 +5385,7 @@ a name for the section this row starts (empty: none)	Name für den Abschnitt, de
 Enter media path or browser:/window:/camera:/syphon: source	Medienpfad oder browser:/window:/camera:/syphon:-Quelle eingeben
 TOUR OF TRICKS	TOUR DER TRICKS
 THE LIST IS NOT SAVED. OPEN THE TOUR?	DIE LISTE IST NICHT GESPEICHERT. TOUR ÖFFNEN?
+SURF SKY DAY, SUNSET or NIGHT	SURF SKY DAY, SUNSET oder NIGHT
+SURF MUSIC ON or SURF MUSIC OFF	SURF MUSIC ON oder SURF MUSIC OFF
+select a Surf cue, or put one on air	einen Brandung-Cue wählen oder einen auf Sendung bringen
+SURF DROP <thing|cue> [x%], SURF CLEAR, SURF BEACH, SURF MUSIC ON|OFF, SURF SKY DAY|SUNSET|NIGHT or SURF THINGS	SURF DROP <thing|cue> [x%], SURF CLEAR, SURF BEACH, SURF MUSIC ON|OFF, SURF SKY DAY|SUNSET|NIGHT oder SURF THINGS

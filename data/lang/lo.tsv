@@ -5411,3 +5411,7 @@ a name for the section this row starts (empty: none)	ຊື່ຂອງພາກ
 Enter media path or browser:/window:/camera:/syphon: source	ປ້ອນເສັ້ນທາງສື່ ຫຼື ແຫຼ່ງ browser:/window:/camera:/syphon:
 TOUR OF TRICKS	ທົວເຄັດລັບ
 THE LIST IS NOT SAVED. OPEN THE TOUR?	ລາຍການຍັງບໍ່ໄດ້ບັນທຶກ. ເປີດທົວບໍ?
+SURF SKY DAY, SUNSET or NIGHT	SURF SKY DAY, SUNSET ຫຼື NIGHT
+SURF MUSIC ON or SURF MUSIC OFF	SURF MUSIC ON ຫຼື SURF MUSIC OFF
+select a Surf cue, or put one on air	ເລືອກ cue ຄື້ນ ຫຼື ເອົາອັນໜຶ່ງອອກສົດ
+SURF DROP <thing|cue> [x%], SURF CLEAR, SURF BEACH, SURF MUSIC ON|OFF, SURF SKY DAY|SUNSET|NIGHT or SURF THINGS	SURF DROP <ສິ່ງຂອງ|cue> [x%], SURF CLEAR, SURF BEACH, SURF MUSIC ON|OFF, SURF SKY DAY|SUNSET|NIGHT ຫຼື SURF THINGS

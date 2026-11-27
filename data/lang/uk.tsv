@@ -5428,3 +5428,7 @@ a name for the section this row starts (empty: none)	назва розділу, 
 Enter media path or browser:/window:/camera:/syphon: source	Введіть шлях до медіа або джерело browser:/window:/camera:/syphon:
 TOUR OF TRICKS	ОГЛЯД ТРЮКІВ
 THE LIST IS NOT SAVED. OPEN THE TOUR?	СПИСОК НЕ ЗБЕРЕЖЕНО. ВІДКРИТИ ОГЛЯД?
+SURF SKY DAY, SUNSET or NIGHT	SURF SKY DAY, SUNSET чи NIGHT
+SURF MUSIC ON or SURF MUSIC OFF	SURF MUSIC ON чи SURF MUSIC OFF
+select a Surf cue, or put one on air	виберіть cue Прибою чи виведіть один в ефір
+SURF DROP <thing|cue> [x%], SURF CLEAR, SURF BEACH, SURF MUSIC ON|OFF, SURF SKY DAY|SUNSET|NIGHT or SURF THINGS	SURF DROP <thing|cue> [x%], SURF CLEAR, SURF BEACH, SURF MUSIC ON|OFF, SURF SKY DAY|SUNSET|NIGHT чи SURF THINGS

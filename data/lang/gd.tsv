@@ -5423,3 +5423,7 @@ a name for the section this row starts (empty: none)	ainm don earrann a thòisic
 Enter media path or browser:/window:/camera:/syphon: source	Cuir a-steach slighe nam meadhanan no tùs browser:/window:/camera:/syphon:
 TOUR OF TRICKS	CUAIRT NAN CLEASAN
 THE LIST IS NOT SAVED. OPEN THE TOUR?	CHAN EIL AN LIOSTA AIR A SHÀBHALADH. FOSGAIL A' CHUAIRT?
+SURF SKY DAY, SUNSET or NIGHT	SURF SKY DAY, SUNSET no NIGHT
+SURF MUSIC ON or SURF MUSIC OFF	SURF MUSIC ON no SURF MUSIC OFF
+select a Surf cue, or put one on air	tagh cue Tonnan, no cuir fear air an adhar
+SURF DROP <thing|cue> [x%], SURF CLEAR, SURF BEACH, SURF MUSIC ON|OFF, SURF SKY DAY|SUNSET|NIGHT or SURF THINGS	SURF DROP <rud|cue> [x%], SURF CLEAR, SURF BEACH, SURF MUSIC ON|OFF, SURF SKY DAY|SUNSET|NIGHT no SURF THINGS

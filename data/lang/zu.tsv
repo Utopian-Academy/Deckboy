@@ -5415,3 +5415,7 @@ a name for the section this row starts (empty: none)	igama lesigaba esiqalwa ngu
 Enter media path or browser:/window:/camera:/syphon: source	Faka indlela yemidiya noma umthombo we-browser:/window:/camera:/syphon:
 TOUR OF TRICKS	UHAMBO LWAMACEBO
 THE LIST IS NOT SAVED. OPEN THE TOUR?	UHLU ALULONDOLOZIWE. VULA UHAMBO?
+SURF SKY DAY, SUNSET or NIGHT	SURF SKY DAY, SUNSET noma NIGHT
+SURF MUSIC ON or SURF MUSIC OFF	SURF MUSIC ON noma SURF MUSIC OFF
+select a Surf cue, or put one on air	khetha i-cue yamaGagasi, noma ufake eyodwa emoyeni
+SURF DROP <thing|cue> [x%], SURF CLEAR, SURF BEACH, SURF MUSIC ON|OFF, SURF SKY DAY|SUNSET|NIGHT or SURF THINGS	SURF DROP <into|cue> [x%], SURF CLEAR, SURF BEACH, SURF MUSIC ON|OFF, SURF SKY DAY|SUNSET|NIGHT noma SURF THINGS

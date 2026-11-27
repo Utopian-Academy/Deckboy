@@ -5389,3 +5389,7 @@ a name for the section this row starts (empty: none)	inoa no ka māhele e hoʻom
 Enter media path or browser:/window:/camera:/syphon: source	E hoʻokomo i ka ala media a i ʻole kumu browser:/window:/camera:/syphon:
 TOUR OF TRICKS	HUAKAʻI O NĀ MAʻALEA
 THE LIST IS NOT SAVED. OPEN THE TOUR?	ʻAʻOLE I MĀLAMA ʻIA KA PAPA HELU. E WEHE I KA HUAKAʻI?
+SURF SKY DAY, SUNSET or NIGHT	SURF SKY DAY, SUNSET a i ʻole NIGHT
+SURF MUSIC ON or SURF MUSIC OFF	SURF MUSIC ON a i ʻole SURF MUSIC OFF
+select a Surf cue, or put one on air	koho i cue Nalu, a i ʻole e hoʻokau i hoʻokahi ma ka lewa
+SURF DROP <thing|cue> [x%], SURF CLEAR, SURF BEACH, SURF MUSIC ON|OFF, SURF SKY DAY|SUNSET|NIGHT or SURF THINGS	SURF DROP <mea|cue> [x%], SURF CLEAR, SURF BEACH, SURF MUSIC ON|OFF, SURF SKY DAY|SUNSET|NIGHT a i ʻole SURF THINGS

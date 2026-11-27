@@ -5442,3 +5442,7 @@ a name for the section this row starts (empty: none)	اسم للقسم الذي 
 Enter media path or browser:/window:/camera:/syphon: source	أدخل مسار الوسائط أو مصدر browser:/window:/camera:/syphon:
 TOUR OF TRICKS	جولة الحيل
 THE LIST IS NOT SAVED. OPEN THE TOUR?	القائمة غير محفوظة. فتح الجولة؟
+SURF SKY DAY, SUNSET or NIGHT	SURF SKY DAY، SUNSET أو NIGHT
+SURF MUSIC ON or SURF MUSIC OFF	SURF MUSIC ON أو SURF MUSIC OFF
+select a Surf cue, or put one on air	اختر كيو موج، أو ضع واحداً على الهواء
+SURF DROP <thing|cue> [x%], SURF CLEAR, SURF BEACH, SURF MUSIC ON|OFF, SURF SKY DAY|SUNSET|NIGHT or SURF THINGS	SURF DROP <thing|cue> [x%]، SURF CLEAR، SURF BEACH، SURF MUSIC ON|OFF، SURF SKY DAY|SUNSET|NIGHT أو SURF THINGS

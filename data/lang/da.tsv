@@ -5369,3 +5369,7 @@ a name for the section this row starts (empty: none)	et navn til sektionen, som 
 Enter media path or browser:/window:/camera:/syphon: source	Angiv mediesti eller browser:/window:/camera:/syphon:-kilde
 TOUR OF TRICKS	RUNDTUR I TRICKS
 THE LIST IS NOT SAVED. OPEN THE TOUR?	LISTEN ER IKKE GEMT. ÅBN RUNDTUREN?
+SURF SKY DAY, SUNSET or NIGHT	SURF SKY DAY, SUNSET eller NIGHT
+SURF MUSIC ON or SURF MUSIC OFF	SURF MUSIC ON eller SURF MUSIC OFF
+select a Surf cue, or put one on air	vælg et Brænding-cue, eller sæt et på luften
+SURF DROP <thing|cue> [x%], SURF CLEAR, SURF BEACH, SURF MUSIC ON|OFF, SURF SKY DAY|SUNSET|NIGHT or SURF THINGS	SURF DROP <thing|cue> [x%], SURF CLEAR, SURF BEACH, SURF MUSIC ON|OFF, SURF SKY DAY|SUNSET|NIGHT eller SURF THINGS

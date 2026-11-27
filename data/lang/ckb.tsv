@@ -5429,3 +5429,7 @@ a name for the section this row starts (empty: none)	ناوێک بۆ ئەو بە
 Enter media path or browser:/window:/camera:/syphon: source	ڕێڕەوی میدیا یان سەرچاوەی browser:/window:/camera:/syphon: بنووسە
 TOUR OF TRICKS	گەشتی فێڵەکان
 THE LIST IS NOT SAVED. OPEN THE TOUR?	لیستەکە پاشەکەوت نەکراوە. کردنەوەی گەشتەکە؟
+SURF SKY DAY, SUNSET or NIGHT	SURF SKY DAY، SUNSET یان NIGHT
+SURF MUSIC ON or SURF MUSIC OFF	SURF MUSIC ON یان SURF MUSIC OFF
+select a Surf cue, or put one on air	cue ی شەپۆل هەڵبژێرە، یان یەکێک بخە سەر پەخش
+SURF DROP <thing|cue> [x%], SURF CLEAR, SURF BEACH, SURF MUSIC ON|OFF, SURF SKY DAY|SUNSET|NIGHT or SURF THINGS	SURF DROP <thing|cue> [x%]، SURF CLEAR، SURF BEACH، SURF MUSIC ON|OFF، SURF SKY DAY|SUNSET|NIGHT یان SURF THINGS

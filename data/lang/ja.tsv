@@ -5429,3 +5429,7 @@ a name for the section this row starts (empty: none)	この行から始まるセ
 Enter media path or browser:/window:/camera:/syphon: source	メディアのパスまたは browser:/window:/camera:/syphon: ソースを入力
 TOUR OF TRICKS	小技ツアー
 THE LIST IS NOT SAVED. OPEN THE TOUR?	リストは保存されていません。ツアーを開く？
+SURF SKY DAY, SUNSET or NIGHT	SURF SKY DAY、SUNSET、または NIGHT
+SURF MUSIC ON or SURF MUSIC OFF	SURF MUSIC ON または SURF MUSIC OFF
+select a Surf cue, or put one on air	サーフのキューを選択するか、1つをオンエアにしてください
+SURF DROP <thing|cue> [x%], SURF CLEAR, SURF BEACH, SURF MUSIC ON|OFF, SURF SKY DAY|SUNSET|NIGHT or SURF THINGS	SURF DROP <物|キュー> [x%]、SURF CLEAR、SURF BEACH、SURF MUSIC ON|OFF、SURF SKY DAY|SUNSET|NIGHT、または SURF THINGS

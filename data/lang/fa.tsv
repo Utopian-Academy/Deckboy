@@ -5442,3 +5442,7 @@ a name for the section this row starts (empty: none)	نامی برای بخشی 
 Enter media path or browser:/window:/camera:/syphon: source	مسیر رسانه یا منبع browser:/window:/camera:/syphon: را وارد کنید
 TOUR OF TRICKS	گشت ترفندها
 THE LIST IS NOT SAVED. OPEN THE TOUR?	فهرست ذخیره نشده است. باز کردن گشت؟
+SURF SKY DAY, SUNSET or NIGHT	SURF SKY DAY، SUNSET یا NIGHT
+SURF MUSIC ON or SURF MUSIC OFF	SURF MUSIC ON یا SURF MUSIC OFF
+select a Surf cue, or put one on air	یک کیوی خیزاب انتخاب کنید، یا یکی را روی آنتن ببرید
+SURF DROP <thing|cue> [x%], SURF CLEAR, SURF BEACH, SURF MUSIC ON|OFF, SURF SKY DAY|SUNSET|NIGHT or SURF THINGS	SURF DROP <چیز|کیو> [x%]، SURF CLEAR، SURF BEACH، SURF MUSIC ON|OFF، SURF SKY DAY|SUNSET|NIGHT یا SURF THINGS

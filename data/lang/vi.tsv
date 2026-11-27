@@ -5410,3 +5410,7 @@ a name for the section this row starts (empty: none)	tên cho phần mà hàng n
 Enter media path or browser:/window:/camera:/syphon: source	Nhập đường dẫn nội dung hoặc nguồn browser:/window:/camera:/syphon:
 TOUR OF TRICKS	THAM QUAN CÁC MẸO
 THE LIST IS NOT SAVED. OPEN THE TOUR?	DANH SÁCH CHƯA LƯU. MỞ CHUYẾN THAM QUAN?
+SURF SKY DAY, SUNSET or NIGHT	SURF SKY DAY, SUNSET hoặc NIGHT
+SURF MUSIC ON or SURF MUSIC OFF	SURF MUSIC ON hoặc SURF MUSIC OFF
+select a Surf cue, or put one on air	chọn một cue Sóng vỗ, hoặc đưa một cue lên sóng
+SURF DROP <thing|cue> [x%], SURF CLEAR, SURF BEACH, SURF MUSIC ON|OFF, SURF SKY DAY|SUNSET|NIGHT or SURF THINGS	SURF DROP <vật|cue> [x%], SURF CLEAR, SURF BEACH, SURF MUSIC ON|OFF, SURF SKY DAY|SUNSET|NIGHT hoặc SURF THINGS

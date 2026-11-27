@@ -5426,3 +5426,7 @@ a name for the section this row starts (empty: none)	이 행에서 시작하는 
 Enter media path or browser:/window:/camera:/syphon: source	미디어 경로 또는 browser:/window:/camera:/syphon: 소스 입력
 TOUR OF TRICKS	요령 투어
 THE LIST IS NOT SAVED. OPEN THE TOUR?	목록이 저장되지 않음. 투어를 열까요?
+SURF SKY DAY, SUNSET or NIGHT	SURF SKY DAY, SUNSET 또는 NIGHT
+SURF MUSIC ON or SURF MUSIC OFF	SURF MUSIC ON 또는 SURF MUSIC OFF
+select a Surf cue, or put one on air	파도 큐를 선택하거나 하나를 온에어하세요
+SURF DROP <thing|cue> [x%], SURF CLEAR, SURF BEACH, SURF MUSIC ON|OFF, SURF SKY DAY|SUNSET|NIGHT or SURF THINGS	SURF DROP <thing|cue> [x%], SURF CLEAR, SURF BEACH, SURF MUSIC ON|OFF, SURF SKY DAY|SUNSET|NIGHT 또는 SURF THINGS

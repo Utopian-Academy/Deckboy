@@ -5418,3 +5418,7 @@ a name for the section this row starts (empty: none)	bu satırın başlattığı
 Enter media path or browser:/window:/camera:/syphon: source	Medya yolunu veya browser:/window:/camera:/syphon: kaynağını girin
 TOUR OF TRICKS	PÜF NOKTALARI TURU
 THE LIST IS NOT SAVED. OPEN THE TOUR?	LİSTE KAYDEDİLMEDİ. TUR AÇILSIN MI?
+SURF SKY DAY, SUNSET or NIGHT	SURF SKY DAY, SUNSET veya NIGHT
+SURF MUSIC ON or SURF MUSIC OFF	SURF MUSIC ON veya SURF MUSIC OFF
+select a Surf cue, or put one on air	bir Dalga cue'su seçin veya birini yayına alın
+SURF DROP <thing|cue> [x%], SURF CLEAR, SURF BEACH, SURF MUSIC ON|OFF, SURF SKY DAY|SUNSET|NIGHT or SURF THINGS	SURF DROP <thing|cue> [x%], SURF CLEAR, SURF BEACH, SURF MUSIC ON|OFF, SURF SKY DAY|SUNSET|NIGHT veya SURF THINGS

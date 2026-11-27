@@ -5431,3 +5431,7 @@ a name for the section this row starts (empty: none)	इस पंक्ति �
 Enter media path or browser:/window:/camera:/syphon: source	मीडिया पथ या browser:/window:/camera:/syphon: स्रोत दर्ज करें
 TOUR OF TRICKS	तरकीबों का टूर
 THE LIST IS NOT SAVED. OPEN THE TOUR?	सूची सहेजी नहीं गई है। टूर खोलें?
+SURF SKY DAY, SUNSET or NIGHT	SURF SKY DAY, SUNSET या NIGHT
+SURF MUSIC ON or SURF MUSIC OFF	SURF MUSIC ON या SURF MUSIC OFF
+select a Surf cue, or put one on air	लहर क्यू चुनें, या एक को ऑन एयर करें
+SURF DROP <thing|cue> [x%], SURF CLEAR, SURF BEACH, SURF MUSIC ON|OFF, SURF SKY DAY|SUNSET|NIGHT or SURF THINGS	SURF DROP <चीज़|क्यू> [x%], SURF CLEAR, SURF BEACH, SURF MUSIC ON|OFF, SURF SKY DAY|SUNSET|NIGHT या SURF THINGS

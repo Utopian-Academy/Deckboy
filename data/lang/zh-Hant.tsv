@@ -5426,3 +5426,7 @@ a name for the section this row starts (empty: none)	此列開始的段落名稱
 Enter media path or browser:/window:/camera:/syphon: source	輸入媒體路徑或 browser:/window:/camera:/syphon: 訊號源
 TOUR OF TRICKS	技巧導覽
 THE LIST IS NOT SAVED. OPEN THE TOUR?	清單尚未儲存。開啟導覽？
+SURF SKY DAY, SUNSET or NIGHT	SURF SKY DAY、SUNSET 或 NIGHT
+SURF MUSIC ON or SURF MUSIC OFF	SURF MUSIC ON 或 SURF MUSIC OFF
+select a Surf cue, or put one on air	請選取一個海浪 cue，或將一個 cue 播出
+SURF DROP <thing|cue> [x%], SURF CLEAR, SURF BEACH, SURF MUSIC ON|OFF, SURF SKY DAY|SUNSET|NIGHT or SURF THINGS	SURF DROP <thing|cue> [x%]、SURF CLEAR、SURF BEACH、SURF MUSIC ON|OFF、SURF SKY DAY|SUNSET|NIGHT 或 SURF THINGS
