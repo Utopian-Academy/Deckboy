@@ -51,6 +51,7 @@ stay on the GPU and are composited there.
 23. [Reliability & Soak Testing](#23-reliability--soak-testing)
 24. [Keyboard Reference](#24-keyboard-reference)
 25. [Command-Line Flags](#25-command-line-flags)
+26. [Deckboy Pocket](#26-deckboy-pocket)
 
 ---
 
@@ -254,6 +255,37 @@ Two dividers rebalance the layout. The vertical splitter sits between the
 program area and the inspector. The horizontal grip sits in the gap under the
 program monitor: drag it up to shrink the preview and grow the timeline lanes,
 down to give the height back.
+
+### Desk layouts
+
+A **layout** decides where the desk's pieces go; the theme and skin decide how
+they look, so every theme works with every layout. Pick one in
+`Settings → System → APPEARANCE → Layout`. It is saved with the show.
+
+- **Classic**: the desk described above.
+- **Operator**: built for speed. LIVE and NEXT monitors, one running order
+  with the live, next and played rows marked, GO naming the cue it plays,
+  BACK / HOLD / SKIP, the transition time, and hot cues F1-F8.
+- **Showpiece**: the programme fills the window behind smoked-glass panels:
+  timecode, the beat, the playlists' faders, every moving oscillator drawn as
+  its wave, and GO as a dial that counts the live cue down.
+- **Rundown**: preview and programme, a multiview of the other playlists and
+  outputs, CUT, AUTO and FADE TO BLACK, and the rundown back-timed.
+- **Theatre**: GO and the cue standing by (pre-wait, action, post-wait, what
+  follows) with its notes; the cue list in dense rows; every cue running now.
+- **Clip Grid**: for VJs, laid out as DJ software is: deck A and deck B with
+  the mixer between them, and the clips as a grid.
+- **Cue Stack**: GO, the cue standing by and the running cue's countdown; big
+  rows with pre-wait, action, post-wait and continue; the stage manager's notes.
+- **Console**: a vision mixer: a PROGRAM bus that cuts, a PRESET bus that picks
+  what AUTO takes, CUT, AUTO and FTB, and an M/E bank per playlist.
+- **Compact**: for a 1366 x 768 laptop: one playlist, the live monitor, a tray
+  with INSPECT, NEXT and OUTPUTS, and GO along the bottom.
+
+Every layout but Classic has **SHOW** and **EDIT**: SHOW hides editing and the
+bottom bar, EDIT brings them back. Drag the dividers between a layout's main
+panels to resize them. Remote: `LAYOUT CLASSIC|OPERATOR|SHOWPIECE|RUNDOWN|THEATRE|CLIPGRID|CUESTACK|CONSOLE|COMPACT`
+and `LAYOUT SHOW|EDIT`.
 
 ---
 
@@ -633,7 +665,7 @@ to edit with `SYNTH SHAPE`, `SYNTH MIRROR`, and `SYNTH PALETTE`.
 | Action | Key |
 |--------|-----|
 | Take selected cue live | `Enter` |
-| Play / Pause | `Space` |
+| Play / Pause (or TAKE: Settings → System → SHOW FLOW → Space key; then `Shift+Space` plays and pauses) | `Space` |
 | Stop active cue | `S` |
 | Rerack (rewind to first frame, hold) | `Ctrl+R` |
 | Skip ±10 s | `Left` / `Right` |
@@ -1375,7 +1407,11 @@ the show. Each output is one of:
   Needs the NDI runtime on the machine (see *Running Deckboy*).
 
 Per output you can set alpha, delay, colour space, orientation (0/90/180/270),
-a test card, and a time overlay. `Blackout` (`B`) dims all outputs; panic
+a mirror, a test card, and a time overlay. **Mirror** (Settings → Video
+Outputs → Screen, under Orientation) reverses the output's picture:
+horizontal, vertical or both, for rear projection or a mirror in the light's
+path. Pocket's OUTPUT → AREA sets the same thing. Remote:
+`VIDEO OUTPUT FLIP OFF|H|V|BOTH|NEXT`; STATUS says `flip=`. `Blackout` (`B`) dims all outputs; panic
 profiles give a one-key safe state.
 
 #### Test card
@@ -1907,6 +1943,18 @@ bands of lines slip sideways for a moment. It runs on the graphics card. The shi
 **deckboy_circuit_bend** is the same bend as a SOURCE: it makes its own picture (colour bars, a ramp,
 drifting blobs or rolling noise) and bends it, with nothing plugged in.
 
+**Mega Ripple** puts the picture under real water. Rain drops rings that spread, cross and bounce off
+the edges. The picture is bent where the surface slopes, glints where it faces the light and is brighter
+where the rings focus it. Under the water the picture can **flow** on a slow current and **melt** as it
+goes. Its controls are **ripple** (how much the water bends the picture), **rain**, **calm**, **drop
+size**, **flow**, **melt** and **shine**, with the picture's own colours, chrome or gold. `RIPPLE DROP
+[n]` drops a bigger ring (or n of them, up to 8) on cue, from Companion, a MIDI map or a script cue. It
+runs on the graphics card.
+
+**Breath** makes the picture swell and settle on a slow, uneven breath, with a soft swell drifting
+through it. **Pace** sets a breath every 12 seconds to every 2.5; **flow** sets the drift. At its
+starting 35% it moves about two pixels at the edges of a 1080p picture. It runs on the graphics card.
+
 **Wavefront** solves the actual wave equation, seeded from the picture's own
 brightness — so unlike every sine-based ripple it has *inertia*. Waves leave
 their source and keep going, pass through each other and interfere, and reflect
@@ -1967,6 +2015,12 @@ depth on the line underneath.
 - The swing is **centred on the value you set**, so switching an LFO on never
   jumps the picture — it starts from where the parameter already was and
   averages back to it.
+- **Lowest** and **highest** keep it moving through only part of its swing.
+- Not only effects: every number of a pattern or synth has a `~` too (Swirl,
+  Portal, Fireside, Moire, Illusion, Lumia, Surf, the Video Synth and the test
+  signals), saved with the show. Pocket shows and moves them the same way, and
+  adds four sources only a phone has: **tilt**, **turn**, **shake** and
+  **mic** (see *Deckboy Pocket*).
 
 `FX LFO <n> <A-G> on|off|shape|rate|depth|phase|sync|beats|zone|listen [value]`
 does the same over the wire, where `E` is the amount.
@@ -2477,9 +2531,16 @@ all three platforms.
 
 The **DRAW** section in the inspector has:
 
-- **the tools**: brush, eraser, line, box, oval, and fill (the whole frame).
-  A line, box or oval shows as an outline while you drag and is drawn when
-  you let go;
+- **the tools**: brush, eraser, line, box, oval, fill (the whole frame) and
+  the **critter brush**. A line, box or oval shows as an outline while you
+  drag and is drawn when you let go. The critter brush lays a stroke down as
+  pixel critters that keep moving where they land: they bob, blink and flap.
+  There are 18 (a heart, a star, a slime, a fish, a mushroom, a potion, an
+  octopus, a flame, a ghost, a frog, a cat, a snail, a bat, a coin, a duck,
+  toast, a moth and a jellyfish). **CRITTER** sets them all changing together
+  (every 1 to 8 seconds), each new stroke the next one, or one you choose.
+  **WRITE WORDS** spells what you type in critters; **DOODLE** draws a loop by
+  itself. The brush's size is a critter's height;
 - **the colours**: eight on the palette, and **#** for any other, typed as
   `#rrggbb` or a name;
 - **size** (as a percentage of the picture's height) and **opacity**, each
@@ -2505,7 +2566,9 @@ Over the wire: `DRAW [EDITOR ON|OFF]`, `DRAW TOOL brush|erase|line|box|oval|fill
 `DRAW STROKE x,y[,pressure] ...` (percentages), `DRAW UNDO|CLEAR`,
 `DRAW FRAME ADD|DELETE|NEXT|PREV|<n>`, `DRAW ONION ON|OFF`,
 `DRAW PLAYBACK still|flipbook|replay`, `DRAW FPS <n>`, `DRAW HOLD <s>` and
-`DRAW SAVE STILL|ANIMATION [file]` (from this computer only).
+`DRAW SAVE STILL|ANIMATION [file]` (from this computer only). The critter
+brush: `DRAW CRITTER TOGETHER|ALTERNATE|<name>`, `DRAW EVERY <s>`,
+`DRAW WRITE <words>` and `DRAW DOODLE`.
 
 ---
 
@@ -3309,6 +3372,22 @@ inspector says "made by Deckboy" in place of a pattern picker.
   Lumia is drawn on the graphics card when every output can draw it there;
   the desk's preview then shows a smaller copy of the same picture. A grade,
   a key or an effect on the cue keeps it on the CPU.
+- **Surf** — the sea from the side. Sets of waves roll in, stand up over the
+  shallows and break into white water on the sand. Each Surf starts on a beach
+  of its own; **NEW BEACH** makes another. Its numbers are **wave height**,
+  **period**, **wind**, **sky** (day, sunset or night) and **throws in** (every
+  so many seconds it throws something in by itself), each with a ~.
+  - **Throw things in.** A duck, a beach ball, a rubber chicken, a toaster, a
+    watermelon, a traffic cone, a bottle, a surfboard, a critter, a surprise, or
+    one of your cues: a picture or logo, a video's first frame, or a text cue's
+    words. Use the SURF section's THROW IN buttons, drag a cue from the playlist
+    onto the monitor (it goes in where you let go), or set a Target cue to
+    "Throw into Surf". **CLEAR** takes everything out of the water.
+  - **Music.** **MUSIC ON** plays the surf's own tune under it. The tune
+    follows the sky: one take by day and at sunset, another at night. It plays
+    through the cue's level, pan and fades.
+  - Remote: `SURF DROP <thing|cue> [x%]`, `SURF CLEAR`, `SURF BEACH`,
+    `SURF THINGS`, `SURF MUSIC ON|OFF`, `SURF SKY DAY|SUNSET|NIGHT`.
 
   **Listens** makes the flow surge with the programme sound. Every number has a
   **~**, the same oscillator as an effect parameter. Over the wire:
@@ -3693,6 +3772,13 @@ Twenty ship with Deckboy: **Console HD**, **Studio**, **Brushed**,
 Pick one in `Settings → theme`. A skin scales with the UI scale, the same as
 the rest of the desk. The layout and every control stay where they are.
 
+**Rendered skins.** Listed first in the theme list: 24 skins in the materials of
+Pocket's shells. Their panels, recesses, key caps, the desk behind them and
+their holographic stickers were rendered in 3D with real light and shadow,
+then built to fit whatever size each piece is, so they work in every layout,
+at every UI scale and in any window. A key keeps its own colour: a lit tally
+is a lit cap.
+
 **Writing your own.** Add `style_` lines to a theme's `theme.txt`. Lengths are
 at 1x. A theme with no `style_` line draws as a plain theme.
 
@@ -3758,7 +3844,7 @@ every two minutes.
 ## 21a. Languages
 
 `Settings → Language` puts the whole desk into another language at once, with
-no restart. Thirty-seven languages ship with Deckboy, among them Arabic,
+no restart. Thirty-eight languages ship with Deckboy, among them Lithuanian, Arabic,
 Persian, Turkish, Kurdish, Kabyle and Tamazight, Chinese in both scripts,
 Japanese, Korean, Hindi and Zulu, along with a few constructed
 languages and six cyphers. The **Help!** button beside the
@@ -4073,6 +4159,35 @@ internet. The phone pairs, and works, exactly as on the local network.
 `PHONE ON|OFF|STATUS`, `PHONE HAPTICS ON|OFF`, `PHONE PAIR [ANYWHERE]` (shows
 the code, and answers with its address) and `PHONE FORGET`, all from this
 computer only. `WEBMONITOR CONTROL ON|OFF` still works.
+
+### Following a desk: a backup desk, and phones
+
+Another Deckboy, or Deckboy Pocket on a phone, can **follow** this desk and play
+in step with it (`Settings → Network → Follow a desk` on the follower; on
+Pocket, `MENU → SYNC`). Put the same media on both.
+
+**A backup desk.** Set the follower to **BACKUP**. It plays the show in step on
+every playlist, with every output black and its sound silent, and a frame round
+its window says so. If the primary goes quiet for 1 second (or 0.5, 2 or 4),
+the backup takes over where it is, already in step, and stays live until you
+press **RE-ARM**. It can cut an ATEM to its own input as it takes over.
+**DRILL** rehearses a takeover on purpose. When the primary stops leading or
+closes on purpose, the backup is told and does not take over.
+
+**Phones as outputs.** Every phone that follows is listed in
+`Settings → Video Outputs → Phones`, with its number, its name and how it is
+doing (in step, frames off, battery, MISSING). **PLAYS** chooses what it shows:
+the focused playlist, any playlist, or dark. The choice is saved with the show
+by the phone's name. **IDENTIFY** puts the phone's number up big on its screen.
+
+**A phone as a deck.** Set a phone's PLAYS to **Its own list** and its cue list
+appears on the desk as a playlist named after the phone. GO, TAKE, STOP, PLAY
+and PAUSE on that playlist run the phone, which plays its own media; the
+desk's BLACK blacks it out too. The playlist's monitor shows a small picture of
+the phone's screen with the live cue and its time left. Editing the list stays
+on the phone; until the phone joins again its rows are greyed.
+
+Remote: `FOLLOW`, `UNFOLLOW` and `SYNC STATUS` on the follower.
 
 ---
 
@@ -4423,3 +4538,117 @@ text that moves with the sound, with the last few events beneath it. Run as a
 service or with its output sent to a file, it writes one plain line per event
 instead, which is what a log wants; `--plain` and the `NO_COLOR` convention
 choose the same.
+
+---
+
+## 26. Deckboy Pocket
+
+**Deckboy Pocket** is Deckboy on an Android phone (Android 10 or newer, 64-bit).
+It runs the same engine as the desk: a cue list with GO and BACK, transitions,
+effects on the phone's graphics card, and the desk's show files, opened and
+saved. Install it from the APK on the release page.
+
+**The pocket guide.** Pocket has its own little manual, a zine:
+[read it online](https://utopian-academy.github.io/Deckboy/pocket-zine.html),
+or print it on one side of one sheet, fold it and make one cut, and it is an
+eight-page book that fits in a pocket. This chapter says the same things at
+more length.
+
+### The face
+
+- The **picture** at the top is what is on air. The **list** below it is what
+  comes next.
+- **GO** takes the next cue. **BACK** goes back one.
+- The **pad** moves through the list. While a transition runs, its arrows are a
+  T-bar (below).
+- The **left pill** is BLACK until you choose what it does
+  (`MENU → PHONE → LEFT BUTTON`): BLACK, PLAY/PAUSE, MUTE, PLAY NEXT, STOP AFTER,
+  SHUFFLE, FULL SCREEN or IDENTIFY. **MENU** opens everything else.
+- Turn the phone on its side for the wide face. On a small, nearly square
+  screen (a flip phone's cover screen) Pocket shows a **compact face**: the
+  picture large, ON and NEXT under it, and big BACK and GO buttons. The list
+  is under MENU there.
+- **MENU → PHONE → SHELL** dresses Pocket in one of the rendered shells.
+
+### Adding cues
+
+`MENU → SOURCES` adds a cue: **CLIPS, PICTURES, SOUND, PDF** from the phone,
+a **PATTERN** (colour bars and test cards), a **SYNTH** (Swirl, Surf, Lumia,
+Illusion and the rest, made by Deckboy with no file) or the **CAMERA**.
+`MENU → SHOW` keeps your lists: NEW, OPEN, SAVE, RENAME and DELETE. A new Pocket
+opens with the **Tour of tricks**, a list of what it can do, each cue going on
+by itself after 8 seconds; `MENU → SHOW → OPEN → TOUR OF TRICKS` brings it back.
+**SONG** chains lists: each step is a list and how many times it plays.
+
+### A cue's sheet
+
+Hold a cue in the list to open its **sheet**. Its pages run along the bottom:
+
+- **SET**: the source's own numbers.
+- **PLAY**: how long it shows, fade in and out, loop, and its transition.
+- **PLACE**: where the picture sits. On the picture itself, drag to move,
+  pinch to size and twist to turn. Small handles mark its edges: drag an edge
+  to crop it. Double-tap the picture to put everything back.
+- **LOOK**: colour. **FX**: effects. **SOUND**: level and pan.
+
+Tap a number to open its **panel**: type a value or a sum (`+10`, `x2`, `50%`),
+or press a preset. The X and Y panels have an **XY** key: a pad shaped like the
+output, where one finger sets both. Dragging a number's slider changes it by
+how far the finger moves; further from the row moves it more.
+
+### Mixing by hand: the T-bar
+
+The pad's **RIGHT** arrow is a T-bar. Tap it and it is GO. Hold it and the
+transition moves only while you hold it, and stops where you let go, the two
+pictures mixed. Press either arrow while a transition runs to stop it there;
+hold LEFT to move it back. All the way back cancels the take: the cue that was
+on air comes back where it was. **GO** finishes a stopped transition. A bar
+along the bottom of the picture shows where it stands. Remote: `TBAR`,
+`TBAR HOLD`, `TBAR MOVE <seconds>`, `TBAR RUN`.
+
+### On a big screen
+
+Plug a **USB-C to HDMI** adapter into the phone and Pocket plays to the screen.
+Choose an adapter that **also charges the phone** (one with a USB-C power port,
+"PD pass-through"): sending a picture uses the battery fast, and with power in,
+the phone lasts the whole show. Not every phone sends video over USB-C, so try
+yours before the show. `MENU → OUTPUT` has:
+
+- **TEST PATTERN** and **IDENTIFY**, and **PHONE FULL SCREEN** to show the
+  programme on the phone itself;
+- **MAP: CORNER PIN**: drag the picture's corners to fit a wall or a slanted
+  screen;
+- **AREA**: the part of the picture the output shows (drag its edges, or type
+  them in pixels), MIRROR H and V, TURN, a MATTE and a DELAY. It is the show's
+  own output setting, the same as the desk's.
+
+### Numbers that move
+
+Tap the **~** beside a number and it moves by itself: a wave, a ramp, the beat
+or the sound. Pocket adds four sources only a phone has: **TILT** (lean the
+phone left and right), **TURN** (turn it like a steering wheel), **SHAKE** (a
+jolt, then it settles) and **MIC** (how loud the room is). The sensors open only
+while a cue on air uses one, and the microphone is asked for the first time MIC
+is used. TILT and TURN swing around the number as set; SHAKE and MIC only push
+it up.
+
+With a **Surf** on air, hold the picture and **THROW IN** takes the list's
+place: drag a thing or one of your cues into the sea.
+
+### The phone's own settings
+
+`MENU → PHONE`: **SHELL**, **SCREEN COLOURS**, **LANGUAGE** (the phone's own,
+or any language Deckboy has, which Pocket remembers), **HAPTICS** and the
+**LEFT BUTTON**.
+
+### With a desk
+
+`MENU → SYNC` follows a Deckboy desk on the same network, and the phone plays in
+step. On the desk, the phone is an output you can point at any playlist, or a
+playlist of its own that the desk runs (see *Following a desk* in chapter 22).
+
+### Remote control
+
+Pocket answers the same kind of line commands as the desk, on port **5510**:
+`HELP` lists them, and the Companion module works with it. `STATUS` reports the
+deck, the output and the area.
