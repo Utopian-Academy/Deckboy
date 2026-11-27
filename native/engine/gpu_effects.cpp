@@ -1492,7 +1492,15 @@ bool sdlCreate(GpuEffects* g) {
     info.num_samplers = mrip ? 3 : 2;   // Mega Ripple's water grid is a third texture
     info.num_readwrite_storage_textures = 1;
     // The generated sources' kernels also take Lumia's five buffers.
-    info.num_readwrite_storage_buffers = e >= E_SOURCE ? 5 : 0;
+    // ONLY the kernels the source path runs (it binds the five buffers when it
+    // begins a pass). Bend and Mega Ripple are numbered after E_SOURCE but are
+    // effects: their passes begin with no buffers, and a pipeline declaring
+    // five made SDL's Vulkan backend write five null buffer descriptors --
+    // Samsung's driver read through one and crashed Pocket (2026-11-27, Mega
+    // Ripple as a fresh process's first effect; a reused command buffer held
+    // a Lumia source's old handles otherwise). Direct3D 12 tolerated it.
+    const bool sourceKernel = (e >= E_SOURCE && e <= E_LUMIA_TRAIL) || e == E_ILLUSION;
+    info.num_readwrite_storage_buffers = sourceKernel ? 5 : 0;
     info.num_uniform_buffers = 1;
     info.threadcount_x = e == E_STEREO ? kStereoThreads : 8;
     info.threadcount_y = e == E_STEREO ? 1 : 8;
