@@ -10189,23 +10189,24 @@ class Pocket {
     // presets and -X
     {
       const auto& ps = calcSpec_.presets;
-      const bool xy = static_cast<bool>(calcSpec_.pairGet);   // a position: the XY key takes a preset's place
-      const int count = static_cast<int>(std::min<std::size_t>(ps.size(), xy ? 2 : 3));
-      const float right = xy ? 2 * kw + gap : kw;   // -X, and XY beside it
-      const float pw = (lw - right - gap * static_cast<float>(count)) / std::max(1, count);
+      const int count = static_cast<int>(std::min<std::size_t>(ps.size(), 3));
+      const float pw = (lw - kw - gap * static_cast<float>(count)) / std::max(1, count);
       for (int k = 0; k < count; ++k) {
         const double pv = ps[static_cast<std::size_t>(k)].second;
         button({lx + static_cast<float>(k) * (pw + gap), y, pw, kh}, ps[static_cast<std::size_t>(k)].first,
                [this, pv] { calcExpr_ = numText({calcSpec_.label, "", 0, 0, 0, 0, 0, calcSpec_.decimals}, pv); setNum(calcSpec_, pv); });
       }
-      if (xy) button({lx + lw - 2 * kw - gap, y, kw, kh}, "XY", [this] { calcXY_ = true; });
       button({lx + lw - kw, y, kw, kh}, "-X", [this] { calcKey("-X"); });
       y += kh + gap;
     }
-    const float tw = (lw - 2 * gap) / 3;
+    // a position has a fourth key here, XY (the pad), where the pad has KEYS
+    const bool xy = static_cast<bool>(calcSpec_.pairGet);
+    const int answerKeys = xy ? 4 : 3;
+    const float tw = (lw - static_cast<float>(answerKeys - 1) * gap) / static_cast<float>(answerKeys);
     button({lx, y, tw, kh}, "RESET", [this] { setNum(calcSpec_, calcSpec_.reset); calcOpen_ = false; });
     button({lx + tw + gap, y, tw, kh}, "CANCEL", [this] { if (calcSpec_.live) calcSpec_.set(calcBefore_); calcOpen_ = false; });
-    button({lx + 2 * (tw + gap), y, tw, kh}, "OK", [this] {
+    if (xy) button({lx + 2 * (tw + gap), y, tw, kh}, "XY", [this] { calcXY_ = true; });
+    button({lx + static_cast<float>(answerKeys - 1) * (tw + gap), y, tw, kh}, "OK", [this] {
       if (const auto val = calcValue()) setNum(calcSpec_, *val);
       calcOpen_ = false;
       buzz("tap");
