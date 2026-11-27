@@ -410,6 +410,15 @@ importantly, what each feature deliberately does not do.
 
 ---
 
+## Bug squashers
+
+People whose reports made Deckboy better. Thank you.
+
+- [aestetiskdatabehandling](https://github.com/Utopian-Academy/Deckboy/discussions/13): on Windows,
+  command-line flags printed nothing. Fixed in 0.99.430.
+
+---
+
 ## Friends of Deckboy
 
 - [AV Tools Pro](https://avtoolspro.com/) — free AV design calculators:
