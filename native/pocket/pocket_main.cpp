@@ -1015,7 +1015,7 @@ class Pocket {
     deckboy::effects::publishPhoneLfo(0.5f, 0.5f, 0.0f, 0.0f);
     engine_.reset();
     text_.clear();
-    for (TTF_Font* f : {pixel_, pixelSmall_, pixelTiny_, sans_, mono_, printFont_, textCueFont_}) if (f) { deckboy::render::shaping::forgetFace(f); TTF_CloseFont(f); }
+    for (TTF_Font* f : {pixel_, pixelSmall_, pixelTiny_, sans_, mono_, printFont_, goFont_, backFont_, textCueFont_}) if (f) { deckboy::render::shaping::forgetFace(f); TTF_CloseFont(f); }
     if (audio_) SDL_DestroyAudioStream(audio_);
     if (renderer_) SDL_DestroyRenderer(renderer_);
     if (window_) SDL_DestroyWindow(window_);
@@ -1406,7 +1406,7 @@ class Pocket {
     const float u = unit_;
     const std::string data = std::string(SDL_getenv("DECKBOY_ROOT") ? SDL_getenv("DECKBOY_ROOT") : ".") + "/data/";
     text_.clear();
-    for (TTF_Font* f : {pixel_, pixelSmall_, pixelTiny_, sans_, mono_, printFont_}) if (f) { deckboy::render::shaping::forgetFace(f); TTF_CloseFont(f); }
+    for (TTF_Font* f : {pixel_, pixelSmall_, pixelTiny_, sans_, mono_, printFont_, goFont_, backFont_}) if (f) { deckboy::render::shaping::forgetFace(f); TTF_CloseFont(f); }
     pixel_ = TTF_OpenFont((data + "PressStart2P.ttf").c_str(), 2.6f * u);
     pixelSmall_ = TTF_OpenFont((data + "PressStart2P.ttf").c_str(), 1.6f * u);
     pixelTiny_ = TTF_OpenFont((data + "PressStart2P.ttf").c_str(), 1.25f * u);   // a button label that would not fit
@@ -1425,7 +1425,13 @@ class Pocket {
       applyLanguage(data, sans_, language_);
     }
     // the faces' own print: Liberation Mono at 2 mm (pocket-skins text size 2.0)
-    printFont_ = TTF_OpenFont((data + "fonts/LiberationMono-Regular.ttf").c_str(), 2.0f * u);
+    // The shell's legends, all printed by Pocket now (James 11-27: "i want
+    // deckboy to draw the menu and all other similar text, so we can swap
+    // fonts"); the pill labels larger than the 2.0 the shells printed ("the
+    // text for the bottom buttons is too small").
+    printFont_ = TTF_OpenFont((data + "fonts/LiberationSans-Regular.ttf").c_str(), 2.8f * u);
+    goFont_ = TTF_OpenFont((data + "fonts/LiberationSans-Regular.ttf").c_str(), 4.2f * u);
+    backFont_ = TTF_OpenFont((data + "fonts/LiberationSans-Regular.ttf").c_str(), 2.4f * u);
     {
       using deckboy::render::shaping::registerFace;
       if (pixel_) registerFace(pixel_, data + "PressStart2P.ttf", 2.6f * u);
@@ -1433,7 +1439,9 @@ class Pocket {
       if (pixelTiny_) registerFace(pixelTiny_, data + "PressStart2P.ttf", 1.25f * u);
       if (sans_) registerFace(sans_, data + "fonts/LiberationSans-Regular.ttf", 3.0f * u);
       if (mono_) registerFace(mono_, data + "fonts/LiberationMono-Regular.ttf", 2.9f * u);
-      if (printFont_) registerFace(printFont_, data + "fonts/LiberationMono-Regular.ttf", 2.0f * u);
+      if (printFont_) registerFace(printFont_, data + "fonts/LiberationSans-Regular.ttf", 2.8f * u);
+      if (goFont_) registerFace(goFont_, data + "fonts/LiberationSans-Regular.ttf", 4.2f * u);
+      if (backFont_) registerFace(backFont_, data + "fonts/LiberationSans-Regular.ttf", 2.4f * u);
     }
     if (!pixel_ || !mono_) SDL_Log("pocket: fonts missing under %s (%s)", data.c_str(), SDL_GetError());
   }
@@ -5296,6 +5304,7 @@ class Pocket {
         sensorOverride_ = false;
         sensorValues_ = {0.5f, 0.5f, 0.0f, 0.0f};
         sensorTurn_ = 0;
+        sensorTiltTarget_ = 0.5f;
       } else if (!source.empty()) {
         const int slot = source == "TILT" ? 0 : source == "TURN" ? 1 : source == "SHAKE" ? 2 : source == "MIC" ? 3 : -1;
         float value = 0;
@@ -7159,7 +7168,9 @@ class Pocket {
 
   // bold: the face prints its legends heavier (index.txt "r g b bold"; Terrazzo,
   // where thin type was lost in the speckle -- James 11-26)
-  struct ShellInfo { std::string slug, name; Ink ink; bool bold = false; };
+  // capInk: GO and BACK's legend colour (index.txt's fourth field; Pocket
+  // prints every button legend itself, James 11-27).
+  struct ShellInfo { std::string slug, name; Ink ink; bool bold = false; Ink capInk {230, 235, 235}; };
 
   void loadShells() {
     size_t n = 0;
@@ -7178,7 +7189,13 @@ class Pocket {
       int cr = 46, cg = 46, cb = 70;
       std::sscanf(line.c_str() + b + 1, "%d %d %d", &cr, &cg, &cb);
       info.ink = {static_cast<Uint8>(cr), static_cast<Uint8>(cg), static_cast<Uint8>(cb)};
-      info.bold = line.find(" bold", b) != std::string::npos;
+      const std::size_t c = line.find('\t', b + 1);
+      info.bold = line.find(" bold", b) != std::string::npos && (c == std::string::npos || line.find(" bold", b) < c);
+      if (c != std::string::npos) {
+        int kr = 230, kg = 235, kb = 235;
+        if (std::sscanf(line.c_str() + c + 1, "%d %d %d", &kr, &kg, &kb) == 3)
+          info.capInk = {static_cast<Uint8>(kr), static_cast<Uint8>(kg), static_cast<Uint8>(kb)};
+      }
       shells_.push_back(info);
     }
     size_t m = 0;
@@ -7264,6 +7281,7 @@ class Pocket {
           shell_ = slug;
           shellInk_ = it->ink;
           shellBold_ = it->bold;
+          shellCapInk_ = it->capInk;
           shellPal_ = samplePalette(rgba, w, h);
         }
       } else {
@@ -7393,12 +7411,25 @@ class Pocket {
     part(cutTop, cutBottom, cutTop, tall - below - cutTop);
   }
 
-  // The shell's buttons are in the picture; a press darkens the one pressed,
-  // and BLACK shows red while the output is blacked out.
+  // The shell's buttons are in the picture, their words are not: Pocket
+  // prints GO and BACK on the caps and the pills' labels under them, then a
+  // press darkens the one pressed, and BLACK shows red while the output is
+  // blacked out.
   void drawShellPresses() {
     SDL_Renderer* r = renderer_;
     const float u = unit_;
     SDL_SetRenderDrawBlendMode(r, SDL_BLENDMODE_BLEND);
+    auto print = [&](TTF_Font* font, const std::string& words, Ink ink, const SDL_FRect& box) {
+      if (!font) font = pixelSmall_;
+      text_.draw(font, words, ink, box, true);
+      if (shellBold_) text_.draw(font, words, ink, {box.x + std::max(1.0f, 0.12f * u), box.y, box.w, box.h}, true);   // heavier
+    };
+    print(goFont_, "GO", shellCapInk_, {goCentre_.x - 7 * u, goCentre_.y - 3 * u, 14 * u, 6 * u});
+    print(backFont_, "BACK", shellCapInk_, {backCentre_.x - 5.5f * u, backCentre_.y - 2 * u, 11 * u, 4 * u});
+    // the pills' labels, centred 4.8 mm below each pill's centre
+    auto under = [&](const SDL_FRect& pill) { return SDL_FRect {pill.x - 5 * u, pill.y + pill.h / 2 + 4.8f * u - 2.1f * u, pill.w + 10 * u, 4.2f * u}; };
+    print(printFont_, pillName(pill_), shellInk_, under(blackPill_));
+    print(printFont_, "MENU", shellInk_, under(menuPill_));
     auto dim = [&](const SDL_FRect& rect, float radius) { fillRoundAlpha(r, kBlack, 0.35f, rect, radius); };
     const float arm = 13 * u, half = 4.6f * u;
     const SDL_FPoint c = padCentre_;
@@ -7414,15 +7445,6 @@ class Pocket {
       default: break;
     }
     if (pillLit()) fillRoundAlpha(r, Ink {220, 30, 30}, 0.6f, blackPill_, 2 * u);
-    // the face leaves this pill unlabelled: it does what you chose
-    // ...printed as the face prints MENU: the same type, size, ink and place
-    // (centred 4.4 mm below the pill's centre)
-    const SDL_FRect label {blackPill_.x - 4 * u, blackPill_.y + blackPill_.h / 2 + 4.4f * u - 1.5f * u, blackPill_.w + 8 * u, 3 * u};
-    text_.draw(printFont_ ? printFont_ : pixelSmall_, pillName(pill_), shellInk_, label, true);
-    if (shellBold_) {   // as heavy as the face's own MENU: drawn again a hair to the right
-      text_.draw(printFont_ ? printFont_ : pixelSmall_, pillName(pill_), shellInk_,
-                 {label.x + std::max(1.0f, 0.12f * u), label.y, label.w, label.h}, true);
-    }
   }
 
   // -- Adding media: the system picker --
@@ -7938,13 +7960,49 @@ class Pocket {
     if (!sensorOverride_) {
       const bool moving = liveUsesPhoneSource(LfoShape::Tilt) || liveUsesPhoneSource(LfoShape::Turn) || liveUsesPhoneSource(LfoShape::Shake);
       if (moving) openPhoneSensors();
+      // James 11-27, tried on the phone: "it all seems quite erratic". The
+      // log showed why: tilt read the accelerometer raw, so moving the phone
+      // read as leaning (and a frame with no reading snapped it to the
+      // middle); shake fired on ordinary handling (0.5 m/s2); turn hit its
+      // +/-90 degree ends at once. Now: tilt is the ANGLE of gravity, taken
+      // only while the phone is not being flung about (within 12% of 1 g)
+      // and held otherwise, +/-45 degrees across the range; shake counts
+      // jolts beyond 3 m/s2; turn spans +/-180 degrees.
       const float blend = 1.0f - std::exp(-dt / 0.12f);
-      float tilt = 0.5f;
-      sensorValues_[2] *= std::exp(-dt / 0.3f);
+      const float tiltBlend = 1.0f - std::exp(-dt / 0.06f);   // the gravity estimate is smooth already: only a touch
+      sensorValues_[2] *= std::exp(-dt / 0.35f);
       if (moving) {
         SDL_UpdateSensors();
-        float a[3] {};
-        if (accel_ && SDL_GetSensorData(accel_, a, 3)) {
+        float a[3] {}, w[3] {};
+        const bool haveA = accel_ && SDL_GetSensorData(accel_, a, 3);
+        const bool haveW = gyro_ && SDL_GetSensorData(gyro_, w, 3);
+        // WHERE "DOWN" IS, carried by the gyroscope (James 11-27: "it could
+        // feel smoother and more fluid"). The accelerometer alone froze the
+        // lean while the phone moved and jumped when it stopped. Each frame
+        // the estimate turns with the phone (dg/dt = -w x g, in the phone's
+        // own axes), and the accelerometer pulls it back slowly -- firmly
+        // while the phone is steady, hardly at all while it is flung -- so it
+        // cannot drift and cannot jolt.
+        if (haveA && !gravSeeded_) {
+          grav_ = {a[0], a[1], a[2]};
+          gravSeeded_ = true;
+        }
+        if (haveW && gravSeeded_) {
+          const float gx = grav_[0], gy = grav_[1], gz = grav_[2];
+          grav_[0] -= (w[1] * gz - w[2] * gy) * dt;
+          grav_[1] -= (w[2] * gx - w[0] * gz) * dt;
+          grav_[2] -= (w[0] * gy - w[1] * gx) * dt;
+        }
+        if (haveA) {
+          const float magnitude = std::sqrt(a[0] * a[0] + a[1] * a[1] + a[2] * a[2]);
+          const bool steady = magnitude > 0.9f * SDL_STANDARD_GRAVITY && magnitude < 1.1f * SDL_STANDARD_GRAVITY;
+          const float pull = haveW ? 1.0f - std::exp(-dt / (steady ? 0.5f : 4.0f))
+                                   : (steady ? 1.0f - std::exp(-dt / 0.15f) : 0.0f);   // no gyroscope: as before
+          for (int k = 0; k < 3; ++k) grav_[static_cast<std::size_t>(k)] += (a[k] - grav_[static_cast<std::size_t>(k)]) * pull;
+          const float shake = std::clamp((std::abs(magnitude - SDL_STANDARD_GRAVITY) - 3.0f) / 12.0f, 0.0f, 1.0f);
+          sensorValues_[2] = std::max(sensorValues_[2], shake);
+        }
+        if (gravSeeded_) {
           // SDL axes stay in the device's natural orientation. Rotate gravity
           // into the displayed screen's axes before measuring left-right tilt.
           const SDL_DisplayID display = SDL_GetDisplayForWindow(window_);
@@ -7958,26 +8016,26 @@ class Pocket {
           };
           const int rotation = (quarterTurns(SDL_GetCurrentDisplayOrientation(display)) -
                                 quarterTurns(SDL_GetNaturalDisplayOrientation(display)) + 4) % 4;
-          float horizontal = a[0];
-          if (rotation == 1) horizontal = -a[1];
-          else if (rotation == 3) horizontal = a[1];
-          else if (rotation == 2) horizontal = -a[0];
-          tilt = std::clamp(0.5f + horizontal / (2.0f * SDL_STANDARD_GRAVITY), 0.0f, 1.0f);
-          const float magnitude = std::sqrt(a[0]*a[0] + a[1]*a[1] + a[2]*a[2]);
-          const float shake = std::clamp((std::abs(magnitude - SDL_STANDARD_GRAVITY) - 0.5f) / 15.0f, 0.0f, 1.0f);
-          sensorValues_[2] = std::max(sensorValues_[2], shake);
+          float horizontal = grav_[0];
+          if (rotation == 1) horizontal = -grav_[1];
+          else if (rotation == 3) horizontal = grav_[1];
+          else if (rotation == 2) horizontal = -grav_[0];
+          const float length = std::sqrt(grav_[0] * grav_[0] + grav_[1] * grav_[1] + grav_[2] * grav_[2]);
+          if (length > 0.1f) {
+            const float lean = std::asin(std::clamp(horizontal / length, -1.0f, 1.0f));   // radians, + to the right
+            sensorTiltTarget_ = std::clamp(0.5f + lean / 1.5707963f, 0.0f, 1.0f);        // +/-45 degrees end to end
+          }
         }
-        float g[3] {};
-        if (gyro_ && SDL_GetSensorData(gyro_, g, 3)) {
-          // Relative turn about the screen normal, +/- 90 degrees. Small
-          // gyro noise is ignored; stopping retains the current heading.
-          if (std::abs(g[2]) > 0.02f) sensorTurn_ = std::clamp(sensorTurn_ + g[2] * dt, -1.5707963f, 1.5707963f);
-        }
+        // Relative turn about the screen normal, +/- 180 degrees. Small gyro
+        // noise is ignored; stopping keeps the heading.
+        if (haveW && std::abs(w[2]) > 0.05f) sensorTurn_ = std::clamp(sensorTurn_ + w[2] * dt, -3.1415926f, 3.1415926f);
       } else {
         sensorTurn_ = 0.0f;
+        sensorTiltTarget_ = 0.5f;
+        gravSeeded_ = false;
       }
-      sensorValues_[0] += (tilt - sensorValues_[0]) * blend;
-      const float turn = 0.5f + sensorTurn_ / 3.1415926f;
+      sensorValues_[0] += (sensorTiltTarget_ - sensorValues_[0]) * tiltBlend;
+      const float turn = 0.5f + sensorTurn_ / 6.2831853f;
       sensorValues_[1] += (turn - sensorValues_[1]) * blend;
       const float mic = liveUsesPhoneSource(LfoShape::Mic) ? micPeak_ : 0.0f;
       const float micBlend = 1.0f - std::exp(-dt / (mic > sensorValues_[3] ? 0.025f : 0.2f));
@@ -11469,7 +11527,10 @@ class Pocket {
   TTF_Font* sans_ = nullptr;
   TTF_Font* mono_ = nullptr;
   TTF_Font* printFont_ = nullptr;
-  bool shellBold_ = false;   // the shell prints its legends heavier (ShellInfo::bold)
+  TTF_Font* goFont_ = nullptr;     // GO's legend on a shell's cap
+  TTF_Font* backFont_ = nullptr;   // BACK's
+  bool shellBold_ = false;
+  Ink shellCapInk_ {230, 235, 235};   // the shell's GO / BACK legend colour (ShellInfo::capInk)   // the shell prints its legends heavier (ShellInfo::bold)
 
   std::vector<Cue> cues_;
   std::string mediaDir_;
@@ -11762,6 +11823,9 @@ class Pocket {
   SDL_Sensor* gyro_ = nullptr;
   bool sensorOverride_ = false;
   std::array<float, 4> sensorValues_ {0.5f, 0.5f, 0.0f, 0.0f};
+  float sensorTiltTarget_ = 0.5f;   // the last steady reading of the lean (servicePhoneLfo)
+  std::array<float, 3> grav_ {0.0f, 9.8f, 0.0f};   // where "down" is, in the phone's axes (servicePhoneLfo)
+  bool gravSeeded_ = false;
   float sensorTurn_ = 0.0f;
   double sensorTime_ = 0.0;
   bool shakeTried_ = false;

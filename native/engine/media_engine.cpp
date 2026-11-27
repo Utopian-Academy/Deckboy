@@ -4337,7 +4337,14 @@ void MediaEngine::rebuildVideoSynthFrame(const Cue& cue, double wallSeconds,
   const double lvl = std::clamp(audioLevel, 0.0, 1.0);
   const double react = std::clamp(vs.audioReactivity, 0.0, 1.0);
   const double drive = 1.0 + lvl * react * 1.5;
-  const double t = wallSeconds * std::clamp(vs.speed, 0.01, 8.0);
+  // INTEGRATED time, not wallSeconds x speed: a speed on an oscillator (or a
+  // phone's tilt) moved the whole pattern each frame (see Swirl, 11-27).
+  {
+    const double step = (vsynthLastSeconds_ > 0.0) ? std::clamp(wallSeconds - vsynthLastSeconds_, 0.0, 0.25) : 0.0;
+    if (vsynthLastSeconds_ <= 0.0) vsynthTime_ = wallSeconds * std::clamp(vs.speed, 0.01, 8.0);
+    else vsynthTime_ += step * std::clamp(vs.speed, 0.01, 8.0);
+  }
+  const double t = vsynthTime_;
 
   const bool feedbackOn = vs.feedbackAmount > 0.01;
   const bool havePrev = feedbackOn && vsynthPrevW_ == W && vsynthPrevH_ == H &&
@@ -18239,8 +18246,16 @@ void MediaEngine::buildPatternFrameInto(DecodedFrame& frame, const Cue& cue, dou
     // Drop/duplicate + latency card -- always animated.
     buildFrameCount(frame, animTime, false);
   } else if (basePatternType == "swirl") {
-    // Always animated: the spiral turns and the bands melt.
-    buildSwirl(frame, animTime, cue.swirl);
+    // Always animated: the spiral turns and the bands melt. Its time is
+    // INTEGRATED, as Moire's and Illusion's are (moireFieldTime): seconds x
+    // speed jumped the whole field whenever the speed moved -- on Pocket a
+    // phone held at a slight tilt nudges it every frame, and James saw it as
+    // not smooth when slow (11-27). buildSwirl then runs at speed 1 on that
+    // clock; a constant speed gives exactly the old picture.
+    SwirlSettings swirl = cue.swirl;
+    const double swirlTime = moireFieldTime(cue.id + "#swirl", animTime, std::clamp(swirl.speed, -3.0, 3.0));
+    swirl.speed = 1.0;
+    buildSwirl(frame, swirlTime, swirl);
   } else if (basePatternType == "moire-field") {
     // Always animated: the bands scroll and the field drifts.
     buildMoireField(frame, animTime, cue.moire, cue.id);

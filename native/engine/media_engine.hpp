@@ -1545,6 +1545,7 @@ class MediaEngine {
   int vsynthPrevH_ = 0;
   double vsynthRotation_ = 0.0;
   double vsynthLastSeconds_ = 0.0;   // for a real dt, not a per-frame step
+  double vsynthTime_ = 0.0;          // its pattern's clock, speed x elapsed time added up (not wall x speed)
   double lastVideoSynthSeconds_ = 0.0;   // display-rate limiter
   ExternalAudioSink externalSink_;   // guarded by audioStreamMutex_
   // Audio the sink could not take yet. Carried rather than dropped or waited
