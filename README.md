@@ -39,24 +39,49 @@ operator finds it, and how you find it again.
 
 [Release notes and downloads](https://github.com/Utopian-Academy/Deckboy/releases/tag/v0.99.430)
 
-0.99.430 puts Deckboy in your pocket, rearranges the desk and fills the sea.
+**Deckboy Pocket (new)**
+- Deckboy Pocket runs a show from an Android phone (Android 10 or later, 64-bit). It uses the same engine and
+  show files as the desk.
+- The D-pad is a T-bar. Hold RIGHT to move a transition by hand. Release it to stop the transition between
+  the two pictures.
+- On a cue's PLACE page, drag the picture to move it, pinch to resize it and twist to turn it. Drag an edge
+  to crop it.
+- A value can follow the phone. Set its LFO to TILT, TURN, SHAKE or MIC.
+- Connect a USB-C to HDMI adapter to show the output on a screen. MENU > OUTPUT can fit the picture to a wall,
+  crop it and mirror it.
+- The Companion module controls Pocket over USB, on port 5510.
+- The guide is a [zine](https://utopian-academy.github.io/Deckboy/pocket-zine.html). Read it online, or
+  print it on one sheet and fold it.
 
-- **Deckboy Pocket.** Deckboy on an Android phone (Android 10 or newer): a cue list with GO and BACK,
-  transitions with a T-bar on the pad, effects on the phone's graphics card, the desk's show files, and
-  HDMI out over USB-C. Its numbers can follow the phone itself: tilt, turn, shake and the room's sound.
-  Its manual is a [zine](https://utopian-academy.github.io/Deckboy/pocket-zine.html): read it online, or
-  print one sheet and fold it.
-- **Phones and a backup desk.** A phone that follows the desk is an output you can point at any playlist,
-  or a playlist of its own that the desk runs. A second desk can follow as a backup, silent and dark, and
-  take over within a second if the first goes quiet.
-- **Desk layouts.** Nine ways to lay the desk out: Operator, Showpiece, Rundown, Theatre, Clip Grid, Cue
-  Stack, Console and Compact, beside Classic. And 24 **rendered skins**, lit in 3D.
-- **New pictures.** **Surf**, a sea you throw things into, with its own song; **Mega Ripple**, the picture
-  under real water; **Illusion**, pictures that trick the eye; **Breath**; and the **Critter Brush**,
-  which draws in pixel critters that keep moving.
-- **Every number can move.** Every number of a pattern or synth has an LFO now, with lowest and highest.
-- Saved effect chains, Lithuanian, Space as TAKE, an output Mirror, and streams and recordings that start
-  with ffmpeg 9.1.
+**Desk**
+- A second desk can follow the first as a backup (`Settings > Network > Follow a desk`). It plays in step
+  with no picture and no sound. If the first desk stops for 0.5 to 4 seconds, the backup takes over.
+- A phone that follows the desk is an output (`Settings > Video Outputs > Phones`). It can show a playlist, or
+  it can be a playlist that the desk runs.
+- Nine layouts arrange the desk for different jobs (`Settings > System > APPEARANCE > Layout`).
+- 24 new skins are rendered in 3D.
+- Mirror flips an output horizontally, vertically or both. Use it for rear projection.
+- You can save a cue's effects as a chain and load the chain on other cues (`FX SAVE`, `FX LOAD`).
+- The Space key can do TAKE (`Settings > System > SHOW FLOW`).
+
+**Sources and effects**
+- Surf is a sea that you can throw things into. It has its own music.
+- Illusion shows six optical illusions.
+- Mega Ripple puts the picture under moving water. Breath makes the picture swell and settle slowly.
+- The Critter Brush in Draw paints with small animated creatures.
+- Each value of a pattern or a synth can have an LFO.
+
+**Fixes**
+- Streams and recordings did not start with ffmpeg 9.1. They start now.
+- On Windows, command-line flags such as `--devices` showed nothing in Command Prompt or PowerShell. The
+  output now shows in that window.
+
+**Languages**
+- Deckboy is now in Lithuanian. That makes 38 languages.
+
+**Companion**
+- The Companion module is version 1.2.0. It adds actions for Surf, Mega Ripple, output Mirror, desk layouts
+  and playlist names.
 
 ### A closer look
 
