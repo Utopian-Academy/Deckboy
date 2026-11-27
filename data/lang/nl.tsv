@@ -5320,3 +5320,38 @@ Keep a candle in the window and a sandwich in the rack. The ship takes one. Pray
 Every full moon I hear oars in the ceiling. Your mother says it's the pipes. Pipes don't row, kiddo.	Elke volle maan hoor ik roeiriemen in het plafond. Je moeder zegt dat het de leidingen zijn. Leidingen roeien niet, kleintje.
 Kiddo. Sit down. Your great-grandfather sailed on a ship with no crew. He was the crew. He was a rat.	Kleintje. Ga zitten. Je overgrootvader voer op een schip zonder bemanning. Hij was de bemanning. Hij was een rat.
 I've seen things, kiddo. Dropped frames. Wrong inputs. A projector lens with a fingerprint on it. Shudder.	Ik heb dingen gezien, kleintje. Weggevallen beelden. Verkeerde ingangen. Een projectorlens met een vingerafdruk erop. Brr.
+LOCK: ON	SLOT: AAN
+LOCK: OFF	SLOT: UIT
+find: none	zoeken: geen
+LOOP SONG: ON	NUMMER IN LUS: AAN
+PHONE'S ({1})	VAN DE TELEFOON ({1})
+QUANTISE: off	KWANTISEREN: uit
+auto fade: on	automatische fade: aan
+cue audio: on	cue-audio: aan
+input: stereo	ingang: stereo
+FLASHLIGHT: ON	ZAKLAMP: AAN
+LOOP SONG: OFF	NUMMER IN LUS: UIT
+auto fade: off	automatische fade: uit
+cue audio: off	cue-audio: uit
+FLASHLIGHT: OFF	ZAKLAMP: UIT
+still dur: hold	duur stilstaand: vasthouden
+nmc: sending out	nmc: verzendt
+NMOS: not running	NMOS: loopt niet
+cue audio: stereo	cue-audio: stereo
+nmc: listening in	nmc: luistert mee
+glyphs: by density	tekens: op dichtheid
+pause at begin: on	pauze bij begin: aan
+SPLASH AT START: ON	STARTSCHERM BIJ STARTEN: AAN
+aoi: invalid number	aoi: ongeldig getal
+next transition: on	volgende overgang: aan
+pause at begin: off	pauze bij begin: uit
+pocket 3 preset: on	pocket 3-voorinstelling: aan
+SPLASH AT START: OFF	STARTSCHERM BIJ STARTEN: UIT
+next transition: off	volgende overgang: uit
+pocket 3 preset: off	pocket 3-voorinstelling: uit
+Ahoy hoy! I am Deckboy.	Ahoi ahoi! Ik ben Deckboy.
+output recovering: stream	uitgang herstellen: streamen
+click: replace the chain    + add: add to the end	klik: keten vervangen    + toevoegen: aan het eind toevoegen
+computer keyboard: PLAYING (letter keys are notes)	computertoetsenbord: SPEELT (lettertoetsen zijn noten)
+a name for the section this row starts (empty: none)	een naam voor de sectie die deze rij begint (leeg: geen)
+Enter media path or browser:/window:/camera:/syphon: source	Voer mediapad of browser:/window:/camera:/syphon:-bron in

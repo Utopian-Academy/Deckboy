@@ -5405,3 +5405,38 @@ Keep a candle in the window and a sandwich in the rack. The ship takes one. Pray
 Every full moon I hear oars in the ceiling. Your mother says it's the pipes. Pipes don't row, kiddo.	هر شب ماه کامل صدای پارو از سقف می‌شنوم. مادرت می‌گوید لوله‌هاست. لوله‌ها پارو نمی‌زنند، بچه‌جون.
 Kiddo. Sit down. Your great-grandfather sailed on a ship with no crew. He was the crew. He was a rat.	بچه‌جون. بنشین. پدرجدت با کشتی‌ای بی‌خدمه دریانوردی کرد. خدمه خودش بود. موش بود.
 I've seen things, kiddo. Dropped frames. Wrong inputs. A projector lens with a fingerprint on it. Shudder.	من چیزها دیده‌ام، بچه‌جون. فریم‌های افتاده. ورودی‌های اشتباه. عدسی پروژکتوری که رویش جای انگشت بود. برّ.
+LOCK: ON	قفل: روشن
+LOCK: OFF	قفل: خاموش
+find: none	جستجو: هیچ‌کدام
+LOOP SONG: ON	حلقهٔ آهنگ: روشن
+PHONE'S ({1})	متعلق به تلفن ({1})
+QUANTISE: off	کوانتیزه: خاموش
+auto fade: on	محو شدن خودکار: روشن
+cue audio: on	صدای کیو: روشن
+input: stereo	ورودی: استریو
+FLASHLIGHT: ON	چراغ‌قوه: روشن
+LOOP SONG: OFF	حلقهٔ آهنگ: خاموش
+auto fade: off	محو شدن خودکار: خاموش
+cue audio: off	صدای کیو: خاموش
+FLASHLIGHT: OFF	چراغ‌قوه: خاموش
+still dur: hold	مدت تصویر ثابت: نگه داشتن
+nmc: sending out	nmc: در حال ارسال
+NMOS: not running	NMOS: در حال اجرا نیست
+cue audio: stereo	صدای کیو: استریو
+nmc: listening in	nmc: در حال گوش دادن
+glyphs: by density	گلیف‌ها: بر اساس چگالی
+pause at begin: on	مکث در آغاز: روشن
+SPLASH AT START: ON	صفحهٔ آغاز هنگام شروع: روشن
+aoi: invalid number	aoi: عدد نامعتبر
+next transition: on	گذار بعدی: روشن
+pause at begin: off	مکث در آغاز: خاموش
+pocket 3 preset: on	پیش‌تنظیم pocket 3: روشن
+SPLASH AT START: OFF	صفحهٔ آغاز هنگام شروع: خاموش
+next transition: off	گذار بعدی: خاموش
+pocket 3 preset: off	پیش‌تنظیم pocket 3: خاموش
+Ahoy hoy! I am Deckboy.	سلام سلام! من Deckboy هستم.
+output recovering: stream	خروجی در حال بازیابی: استریم
+click: replace the chain    + add: add to the end	کلیک: جایگزینی زنجیره    + افزودن: افزودن به انتها
+computer keyboard: PLAYING (letter keys are notes)	صفحه‌کلید رایانه: در حال پخش (کلیدهای حروف نت هستند)
+a name for the section this row starts (empty: none)	نامی برای بخشی که این ردیف آغاز می‌کند (خالی: هیچ‌کدام)
+Enter media path or browser:/window:/camera:/syphon: source	مسیر رسانه یا منبع browser:/window:/camera:/syphon: را وارد کنید

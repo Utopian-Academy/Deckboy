@@ -5378,3 +5378,38 @@ Keep a candle in the window and a sandwich in the rack. The ship takes one. Pray
 Every full moon I hear oars in the ceiling. Your mother says it's the pipes. Pipes don't row, kiddo.	Njalo ngenyanga egcwele ngizwa izigwedlo esilingini. Umama wakho uthi ngamapayipi. Amapayipi awagwedli, mntwanami.
 Kiddo. Sit down. Your great-grandfather sailed on a ship with no crew. He was the crew. He was a rat.	Mntwanami. Hlala phansi. Ukhokho wakho wahamba ngomkhumbi ongenalo ithimba labasebenzi. Nguye owayeyithimba. Wayeyigundane.
 I've seen things, kiddo. Dropped frames. Wrong inputs. A projector lens with a fingerprint on it. Shudder.	Ngibone izinto, mntwanami. Ozimele abaweyo. Okokufaka okungalungile. Ilensi ye-projector enophawu lomunwe. Ngiyaqhaqhazela.
+LOCK: ON	UKUKHIYA: VULIWE
+LOCK: OFF	UKUKHIYA: VALIWE
+find: none	sesha: lutho
+LOOP SONG: ON	PHINDA INGOMA: VULIWE
+PHONE'S ({1})	OKOCINGO ({1})
+QUANTISE: off	LINGANISA: valiwe
+auto fade: on	fiphaza okuzenzakalelayo: vuliwe
+cue audio: on	umsindo we-cue: vuliwe
+input: stereo	okungenayo: i-stereo
+FLASHLIGHT: ON	ITOSHI: VULIWE
+LOOP SONG: OFF	PHINDA INGOMA: VALIWE
+auto fade: off	fiphaza okuzenzakalelayo: valiwe
+cue audio: off	umsindo we-cue: valiwe
+FLASHLIGHT: OFF	ITOSHI: VALIWE
+still dur: hold	isikhathi sesithombe: bamba
+nmc: sending out	nmc: iyathumela
+NMOS: not running	NMOS: ayisebenzi
+cue audio: stereo	umsindo we-cue: i-stereo
+nmc: listening in	nmc: iyalalela
+glyphs: by density	izinhlamvu: ngobuningi
+pause at begin: on	misa kancane ekuqaleni: vuliwe
+SPLASH AT START: ON	ISIKRINI SOKUVULA EKUQALENI: VULIWE
+aoi: invalid number	aoi: inombolo ayilungile
+next transition: on	ukuguqula okulandelayo: vuliwe
+pause at begin: off	misa kancane ekuqaleni: valiwe
+pocket 3 preset: on	okumisiwe kwe-pocket 3: vuliwe
+SPLASH AT START: OFF	ISIKRINI SOKUVULA EKUQALENI: VALIWE
+next transition: off	ukuguqula okulandelayo: valiwe
+pocket 3 preset: off	okumisiwe kwe-pocket 3: valiwe
+Ahoy hoy! I am Deckboy.	Sawubona bo! NginguDeckboy.
+output recovering: stream	okuphumayo kuyalulama: sakaza
+click: replace the chain    + add: add to the end	chofoza: shintsha uchungechunge    + engeza: engeza ekugcineni
+computer keyboard: PLAYING (letter keys are notes)	ikhibhodi yekhompyutha: KUYADLALA (okhiye bezinhlamvu ngamanothi)
+a name for the section this row starts (empty: none)	igama lesigaba esiqalwa ngulo mugqa (akunalutho: lutho)
+Enter media path or browser:/window:/camera:/syphon: source	Faka indlela yemidiya noma umthombo we-browser:/window:/camera:/syphon:

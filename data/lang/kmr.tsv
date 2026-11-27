@@ -5382,3 +5382,38 @@ Keep a candle in the window and a sandwich in the rack. The ship takes one. Pray
 Every full moon I hear oars in the ceiling. Your mother says it's the pipes. Pipes don't row, kiddo.	Her heyva tije ez dengê kurekan di banî de dibihîzim. Diya te dibêje boriyên avê ne. Borî kurekan nakişînin, zarok.
 Kiddo. Sit down. Your great-grandfather sailed on a ship with no crew. He was the crew. He was a rat.	Zarok. Rûne. Bavê bapîrê te li keştiyeke bê ekîb geriya. Ew bi xwe ekîb bû. Ew mişk bû.
 I've seen things, kiddo. Dropped frames. Wrong inputs. A projector lens with a fingerprint on it. Shudder.	Min tişt dîtine, zarok. Çarçoveyên winda. Têketinên şaş. Merceka projektorê bi şopa tiliyê li ser. Ez dilerizim.
+LOCK: ON	KILÎT: ÇALAK
+LOCK: OFF	KILÎT: GIRTÎ
+find: none	lêgerîn: tu yek
+LOOP SONG: ON	DUBAREYA STRANÊ: ÇALAK
+PHONE'S ({1})	YÊ TELEFONÊ ({1})
+QUANTISE: off	KUANTÎZE: girtî
+auto fade: on	hêdîbûna otomatîk: çalak
+cue audio: on	dengê cue: çalak
+input: stereo	têketin: stereo
+FLASHLIGHT: ON	FENER: ÇALAK
+LOOP SONG: OFF	DUBAREYA STRANÊ: GIRTÎ
+auto fade: off	hêdîbûna otomatîk: girtî
+cue audio: off	dengê cue: girtî
+FLASHLIGHT: OFF	FENER: GIRTÎ
+still dur: hold	dema wêneyê: bigire
+nmc: sending out	nmc: dişîne
+NMOS: not running	NMOS: naxebite
+cue audio: stereo	dengê cue: stereo
+nmc: listening in	nmc: guhdarî dike
+glyphs: by density	glîf: li gor tîrbûnê
+pause at begin: on	li destpêkê bisekinîne: çalak
+SPLASH AT START: ON	EKRANA DESTPÊKÊ LI VEKIRINÊ: ÇALAK
+aoi: invalid number	aoi: hejmara nederbasdar
+next transition: on	derbasbûna paştir: çalak
+pause at begin: off	li destpêkê bisekinîne: girtî
+pocket 3 preset: on	pocket 3 pêşsaz: çalak
+SPLASH AT START: OFF	EKRANA DESTPÊKÊ LI VEKIRINÊ: GIRTÎ
+next transition: off	derbasbûna paştir: girtî
+pocket 3 preset: off	pocket 3 pêşsaz: girtî
+Ahoy hoy! I am Deckboy.	Silav silav! Ez Deckboy im.
+output recovering: stream	derketin di vegerandinê de: weşan
+click: replace the chain    + add: add to the end	klîk: zincîrê biguherîne    + zêde bike: li dawiyê zêde bike
+computer keyboard: PLAYING (letter keys are notes)	klavyeya komputerê: TÊ LÊXISTIN (bişkokên tîpan nota ne)
+a name for the section this row starts (empty: none)	navê beşa ku ev rêz dest pê dike (vala: tu yek)
+Enter media path or browser:/window:/camera:/syphon: source	Rêya medyayê an çavkaniya browser:/window:/camera:/syphon: binivîse

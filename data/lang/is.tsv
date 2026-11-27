@@ -5383,3 +5383,38 @@ Keep a candle in the window and a sandwich in the rack. The ship takes one. Pray
 Every full moon I hear oars in the ceiling. Your mother says it's the pipes. Pipes don't row, kiddo.	Á hverju fullu tungli heyri ég áraglamur í loftinu. Mamma þín segir að það séu pípurnar. Pípur róa ekki, krakki.
 Kiddo. Sit down. Your great-grandfather sailed on a ship with no crew. He was the crew. He was a rat.	Krakki. Sestu niður. Langafi þinn sigldi á skipi án áhafnar. Hann var áhöfnin. Hann var rotta.
 I've seen things, kiddo. Dropped frames. Wrong inputs. A projector lens with a fingerprint on it. Shudder.	Ég hef séð ýmislegt, krakki. Tapaða ramma. Röng inntök. Skjávarpalinsu með fingrafari á. Hrollur.
+LOCK: ON	LÁS: Á
+LOCK: OFF	LÁS: AF
+find: none	leit: ekkert
+LOOP SONG: ON	LAG Í LYKKJU: Á
+PHONE'S ({1})	SÍMANS ({1})
+QUANTISE: off	TAKTJÖFNUN: af
+auto fade: on	sjálfv. deyfing: á
+cue audio: on	cue-hljóð: á
+input: stereo	inntak: stereó
+FLASHLIGHT: ON	VASALJÓS: Á
+LOOP SONG: OFF	LAG Í LYKKJU: AF
+auto fade: off	sjálfv. deyfing: af
+cue audio: off	cue-hljóð: af
+FLASHLIGHT: OFF	VASALJÓS: AF
+still dur: hold	lengd kyrrmyndar: halda
+nmc: sending out	nmc: sendir út
+NMOS: not running	NMOS: ekki í gangi
+cue audio: stereo	cue-hljóð: stereó
+nmc: listening in	nmc: hlustar
+glyphs: by density	stafmyndir: eftir þéttleika
+pause at begin: on	hlé í byrjun: á
+SPLASH AT START: ON	UPPHAFSSKJÁR VIÐ RÆSINGU: Á
+aoi: invalid number	aoi: ógild tala
+next transition: on	næstu umskipti: á
+pause at begin: off	hlé í byrjun: af
+pocket 3 preset: on	pocket 3 forstilling: á
+SPLASH AT START: OFF	UPPHAFSSKJÁR VIÐ RÆSINGU: AF
+next transition: off	næstu umskipti: af
+pocket 3 preset: off	pocket 3 forstilling: af
+Ahoy hoy! I am Deckboy.	Ahoj hoj! Ég er Deckboy.
+output recovering: stream	úttak endurheimtir: streyma út
+click: replace the chain    + add: add to the end	smella: skipta út keðjunni    + bæta við: bæta við aftast
+computer keyboard: PLAYING (letter keys are notes)	tölvulyklaborð: SPILAR (bókstafalyklar eru nótur)
+a name for the section this row starts (empty: none)	heiti hlutans sem þessi lína byrjar (tómt: ekkert)
+Enter media path or browser:/window:/camera:/syphon: source	Sláðu inn miðlaslóð eða browser:/window:/camera:/syphon:-uppsprettu

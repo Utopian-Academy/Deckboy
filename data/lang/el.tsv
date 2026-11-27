@@ -5384,3 +5384,38 @@ Keep a candle in the window and a sandwich in the rack. The ship takes one. Pray
 Every full moon I hear oars in the ceiling. Your mother says it's the pipes. Pipes don't row, kiddo.	Κάθε πανσέληνο ακούω κουπιά στην οροφή. Η μητέρα σου λέει ότι είναι οι σωλήνες. Οι σωλήνες δεν κάνουν κουπί, μικρέ.
 Kiddo. Sit down. Your great-grandfather sailed on a ship with no crew. He was the crew. He was a rat.	Μικρέ. Κάτσε. Ο προπάππους σου ταξίδεψε σε πλοίο χωρίς πλήρωμα. Αυτός ήταν το πλήρωμα. Ήταν αρουραίος.
 I've seen things, kiddo. Dropped frames. Wrong inputs. A projector lens with a fingerprint on it. Shudder.	Έχω δει πράγματα, μικρέ. Χαμένα καρέ. Λάθος εισόδους. Φακό προβολέα με δαχτυλιά. Ανατριχίλα.
+LOCK: ON	ΚΛΕΙΔΩΜΑ: ΝΑΙ
+LOCK: OFF	ΚΛΕΙΔΩΜΑ: ΟΧΙ
+find: none	εύρεση: κανένα
+LOOP SONG: ON	ΒΡΟΧΟΣ ΤΡΑΓΟΥΔΙΟΥ: ΝΑΙ
+PHONE'S ({1})	ΤΟΥ ΤΗΛΕΦΩΝΟΥ ({1})
+QUANTISE: off	ΚΒΑΝΤΙΣΗ: όχι
+auto fade: on	αυτόματο σβήσιμο: ναι
+cue audio: on	ήχος cue: ναι
+input: stereo	είσοδος: στέρεο
+FLASHLIGHT: ON	ΦΑΚΟΣ: ΝΑΙ
+LOOP SONG: OFF	ΒΡΟΧΟΣ ΤΡΑΓΟΥΔΙΟΥ: ΟΧΙ
+auto fade: off	αυτόματο σβήσιμο: όχι
+cue audio: off	ήχος cue: όχι
+FLASHLIGHT: OFF	ΦΑΚΟΣ: ΟΧΙ
+still dur: hold	διάρκ. ακίνητης εικόνας: κράτημα
+nmc: sending out	nmc: αποστέλλει
+NMOS: not running	NMOS: δεν τρέχει
+cue audio: stereo	ήχος cue: στέρεο
+nmc: listening in	nmc: ακούει
+glyphs: by density	γλύφοι: κατά πυκνότητα
+pause at begin: on	παύση στην αρχή: ναι
+SPLASH AT START: ON	ΟΘΟΝΗ ΕΚΚΙΝΗΣΗΣ ΣΤΗΝ ΕΝΑΡΞΗ: ΝΑΙ
+aoi: invalid number	aoi: μη έγκυρος αριθμός
+next transition: on	επόμενη μετάβαση: ναι
+pause at begin: off	παύση στην αρχή: όχι
+pocket 3 preset: on	προεπιλογή pocket 3: ναι
+SPLASH AT START: OFF	ΟΘΟΝΗ ΕΚΚΙΝΗΣΗΣ ΣΤΗΝ ΕΝΑΡΞΗ: ΟΧΙ
+next transition: off	επόμενη μετάβαση: όχι
+pocket 3 preset: off	προεπιλογή pocket 3: όχι
+Ahoy hoy! I am Deckboy.	Αχόι αχόι! Είμαι ο Deckboy.
+output recovering: stream	ανάκτηση εξόδου: μετάδοση
+click: replace the chain    + add: add to the end	κλικ: αντικατάσταση αλυσίδας    + προσθήκη: προσθήκη στο τέλος
+computer keyboard: PLAYING (letter keys are notes)	πληκτρολόγιο υπολογιστή: ΠΑΙΖΕΙ (τα πλήκτρα γραμμάτων είναι νότες)
+a name for the section this row starts (empty: none)	όνομα για την ενότητα που ξεκινά αυτή η γραμμή (κενό: κανένα)
+Enter media path or browser:/window:/camera:/syphon: source	Εισαγάγετε διαδρομή μέσων ή πηγή browser:/window:/camera:/syphon:

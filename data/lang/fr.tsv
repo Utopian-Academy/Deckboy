@@ -5323,3 +5323,38 @@ Keep a candle in the window and a sandwich in the rack. The ship takes one. Pray
 Every full moon I hear oars in the ceiling. Your mother says it's the pipes. Pipes don't row, kiddo.	À chaque pleine lune, j'entends des rames au plafond. Ta mère dit que ce sont les tuyaux. Les tuyaux ne rament pas, ma puce.
 Kiddo. Sit down. Your great-grandfather sailed on a ship with no crew. He was the crew. He was a rat.	Ma puce. Assieds-toi. Ton arrière-grand-père a navigué sur un navire sans équipage. L'équipage, c'était lui. C'était un rat.
 I've seen things, kiddo. Dropped frames. Wrong inputs. A projector lens with a fingerprint on it. Shudder.	J'en ai vu, des choses, ma puce. Des images perdues. De mauvaises entrées. Une lentille de projecteur avec une trace de doigt. Brr.
+LOCK: ON	VERROU : OUI
+LOCK: OFF	VERROU : NON
+find: none	recherche : aucun
+LOOP SONG: ON	BOUCLE DU MORCEAU : OUI
+PHONE'S ({1})	DU TÉLÉPHONE ({1})
+QUANTISE: off	QUANTIFICATION : non
+auto fade: on	fondu auto : oui
+cue audio: on	audio du cue : oui
+input: stereo	entrée : stéréo
+FLASHLIGHT: ON	LAMPE TORCHE : OUI
+LOOP SONG: OFF	BOUCLE DU MORCEAU : NON
+auto fade: off	fondu auto : non
+cue audio: off	audio du cue : non
+FLASHLIGHT: OFF	LAMPE TORCHE : NON
+still dur: hold	durée image fixe : maintien
+nmc: sending out	nmc : émission
+NMOS: not running	NMOS : arrêté
+cue audio: stereo	audio du cue : stéréo
+nmc: listening in	nmc : à l'écoute
+glyphs: by density	glyphes : par densité
+pause at begin: on	pause au début : oui
+SPLASH AT START: ON	ÉCRAN D'ACCUEIL AU DÉMARRAGE : OUI
+aoi: invalid number	aoi : nombre invalide
+next transition: on	transition suivante : oui
+pause at begin: off	pause au début : non
+pocket 3 preset: on	préréglage pocket 3 : oui
+SPLASH AT START: OFF	ÉCRAN D'ACCUEIL AU DÉMARRAGE : NON
+next transition: off	transition suivante : non
+pocket 3 preset: off	préréglage pocket 3 : non
+Ahoy hoy! I am Deckboy.	Ohé ohé ! Je suis Deckboy.
+output recovering: stream	récupération de la sortie : diffuser
+click: replace the chain    + add: add to the end	clic : remplacer la chaîne    + ajouter : ajouter à la fin
+computer keyboard: PLAYING (letter keys are notes)	clavier d'ordinateur : LECTURE (les touches lettres sont des notes)
+a name for the section this row starts (empty: none)	un nom pour la section que commence cette ligne (vide : aucun)
+Enter media path or browser:/window:/camera:/syphon: source	Saisissez le chemin du média ou une source browser:/window:/camera:/syphon:

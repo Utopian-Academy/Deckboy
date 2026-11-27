@@ -5375,3 +5375,38 @@ Keep a candle in the window and a sandwich in the rack. The ship takes one. Pray
 Every full moon I hear oars in the ceiling. Your mother says it's the pipes. Pipes don't row, kiddo.	Yal aggur ččuren sliɣ i yimqedfen deg usqif. Yemma-k tenna d ijeɛbuben. Ijeɛbuben ur qeddfen ara, a lɛezz.
 Kiddo. Sit down. Your great-grandfather sailed on a ship with no crew. He was the crew. He was a rat.	A lɛezz. Qqim. Jeddi n jeddi-k yinig deg uɣerrabu war tarbaɛt. D netta i d tarbaɛt. Yella d aɣerda.
 I've seen things, kiddo. Dropped frames. Wrong inputs. A projector lens with a fingerprint on it. Shudder.	Walaɣ aṭas, a lɛezz. Tugniwin yeɣlin. Inekcam ur nṣeḥḥa ara. Tamlalt n uprojektur s lateṛ n uḍad fell-as. Rgagiɣ.
+LOCK: ON	ASEKKER: YERMED
+LOCK: OFF	ASEKKER: INSA
+find: none	nadi: ulac
+LOOP SONG: ON	TINEḌT N TEZLIT: YERMED
+PHONE'S ({1})	N TILIƔRI ({1})
+QUANTISE: off	ASEMSAWI: insa
+auto fade: on	asader awurman: yermed
+cue audio: on	ameslaw n cue: yermed
+input: stereo	anekcum: steryu
+FLASHLIGHT: ON	TAFTILT N UFUS: YERMED
+LOOP SONG: OFF	TINEḌT N TEZLIT: INSA
+auto fade: off	asader awurman: insa
+cue audio: off	ameslaw n cue: insa
+FLASHLIGHT: OFF	TAFTILT N UFUS: INSA
+still dur: hold	tanzagt n tugna: aṭṭaf
+nmc: sending out	nmc: ittazen
+NMOS: not running	NMOS: ur yetteddu ara
+cue audio: stereo	ameslaw n cue: steryu
+nmc: listening in	nmc: asefli
+glyphs: by density	isekkilen: s tneẓẓa
+pause at begin: on	asteɛfu deg tazwara: yermed
+SPLASH AT START: ON	AGDIL N UBDU DEG TAZWARA: YERMED
+aoi: invalid number	aoi: uṭṭun ur ṣeḥḥ
+next transition: on	aɛeddi d-iteddun: yermed
+pause at begin: off	asteɛfu deg tazwara: insa
+pocket 3 preset: on	aheggi n pocket 3: yermed
+SPLASH AT START: OFF	AGDIL N UBDU DEG TAZWARA: INSA
+next transition: off	aɛeddi d-iteddun: insa
+pocket 3 preset: off	aheggi n pocket 3: insa
+Ahoy hoy! I am Deckboy.	Azul! Nekk d Deckboy.
+output recovering: stream	tuffɣa tettarra-d: siɣel
+click: replace the chain    + add: add to the end	ssit: beddel tazrart    + rnu: rnu ɣer taggara
+computer keyboard: PLAYING (letter keys are notes)	anasiw n uselkim: YETTWAURAR (tisura n yisekkilen d tizmilin n uẓawan)
+a name for the section this row starts (empty: none)	isem n tgezmi i yebdan s yizirig-agi (ilem: ulac)
+Enter media path or browser:/window:/camera:/syphon: source	Sekcem abrid n imidyaten neɣ aɣbalu browser:/window:/camera:/syphon:

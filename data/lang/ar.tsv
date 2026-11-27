@@ -5405,3 +5405,38 @@ Keep a candle in the window and a sandwich in the rack. The ship takes one. Pray
 Every full moon I hear oars in the ceiling. Your mother says it's the pipes. Pipes don't row, kiddo.	في كل ليلة بدر أسمع مجاذيف في السقف. أمك تقول إنها الأنابيب. الأنابيب لا تجدّف يا صغيري.
 Kiddo. Sit down. Your great-grandfather sailed on a ship with no crew. He was the crew. He was a rat.	يا صغيري. اجلس. جدّ أبيك أبحر على سفينة بلا طاقم. كان هو الطاقم. كان جرذًا.
 I've seen things, kiddo. Dropped frames. Wrong inputs. A projector lens with a fingerprint on it. Shudder.	لقد رأيت أشياء يا صغيري. إطارات مفقودة. مدخلات خاطئة. عدسة بروجكتور عليها بصمة إصبع. يا للرعب.
+LOCK: ON	القفل: تشغيل
+LOCK: OFF	القفل: إيقاف
+find: none	بحث: لا شيء
+LOOP SONG: ON	تكرار الأغنية: تشغيل
+PHONE'S ({1})	هاتف ({1})
+QUANTISE: off	التكميم: إيقاف
+auto fade: on	تلاشي تلقائي: تشغيل
+cue audio: on	صوت الكيو: تشغيل
+input: stereo	الدخل: ستيريو
+FLASHLIGHT: ON	الكشاف: تشغيل
+LOOP SONG: OFF	تكرار الأغنية: إيقاف
+auto fade: off	تلاشي تلقائي: إيقاف
+cue audio: off	صوت الكيو: إيقاف
+FLASHLIGHT: OFF	الكشاف: إيقاف
+still dur: hold	مدة الصورة الثابتة: تثبيت
+nmc: sending out	nmc: يُرسل
+NMOS: not running	NMOS: لا يعمل
+cue audio: stereo	صوت الكيو: ستيريو
+nmc: listening in	nmc: يستمع
+glyphs: by density	الرموز: حسب الكثافة
+pause at begin: on	إيقاف مؤقت عند البدء: تشغيل
+SPLASH AT START: ON	شاشة البداية عند البدء: تشغيل
+aoi: invalid number	aoi: رقم غير صالح
+next transition: on	الانتقال التالي: تشغيل
+pause at begin: off	إيقاف مؤقت عند البدء: إيقاف
+pocket 3 preset: on	إعداد مسبق لـ pocket 3: تشغيل
+SPLASH AT START: OFF	شاشة البداية عند البدء: إيقاف
+next transition: off	الانتقال التالي: إيقاف
+pocket 3 preset: off	إعداد مسبق لـ pocket 3: إيقاف
+Ahoy hoy! I am Deckboy.	أهلًا أهلًا! أنا Deckboy.
+output recovering: stream	استرداد الخرج: بث
+click: replace the chain    + add: add to the end	نقر: استبدال السلسلة    + إضافة: إضافة إلى النهاية
+computer keyboard: PLAYING (letter keys are notes)	لوحة مفاتيح الكمبيوتر: قيد التشغيل (مفاتيح الحروف نوتات)
+a name for the section this row starts (empty: none)	اسم للقسم الذي يبدأ به هذا الصف (فارغ: لا شيء)
+Enter media path or browser:/window:/camera:/syphon: source	أدخل مسار الوسائط أو مصدر browser:/window:/camera:/syphon:

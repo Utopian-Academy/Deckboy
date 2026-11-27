@@ -5391,3 +5391,38 @@ Keep a candle in the window and a sandwich in the rack. The ship takes one. Pray
 Every full moon I hear oars in the ceiling. Your mother says it's the pipes. Pipes don't row, kiddo.	Щоповні чую весла в стелі. Твоя мама каже, що це труби. Труби не веслують, малюку.
 Kiddo. Sit down. Your great-grandfather sailed on a ship with no crew. He was the crew. He was a rat.	Малюку. Сядь. Твій прадід плавав на кораблі без команди. Він і був командою. Він був щуром.
 I've seen things, kiddo. Dropped frames. Wrong inputs. A projector lens with a fingerprint on it. Shudder.	Я всяке бачив, малюку. Пропущені кадри. Не ті входи. Лінзу проєктора з відбитком пальця. Брр.
+LOCK: ON	БЛОКУВАННЯ: УВІМ
+LOCK: OFF	БЛОКУВАННЯ: ВИМ
+find: none	пошук: немає
+LOOP SONG: ON	ЦИКЛ ПІСНІ: УВІМ
+PHONE'S ({1})	ТЕЛЕФОНУ ({1})
+QUANTISE: off	КВАНТУВАННЯ: вим
+auto fade: on	автозгасання: увім
+cue audio: on	звук cue: увім
+input: stereo	вхід: стерео
+FLASHLIGHT: ON	ЛІХТАРИК: УВІМ
+LOOP SONG: OFF	ЦИКЛ ПІСНІ: ВИМ
+auto fade: off	автозгасання: вим
+cue audio: off	звук cue: вим
+FLASHLIGHT: OFF	ЛІХТАРИК: ВИМ
+still dur: hold	трив. стоп-кадру: утримання
+nmc: sending out	nmc: надсилає
+NMOS: not running	NMOS: не працює
+cue audio: stereo	звук cue: стерео
+nmc: listening in	nmc: слухає
+glyphs: by density	гліфи: за щільністю
+pause at begin: on	пауза на початку: увім
+SPLASH AT START: ON	ЗАСТАВКА ПРИ ЗАПУСКУ: УВІМ
+aoi: invalid number	aoi: хибне число
+next transition: on	наступний перехід: увім
+pause at begin: off	пауза на початку: вим
+pocket 3 preset: on	пресет pocket 3: увім
+SPLASH AT START: OFF	ЗАСТАВКА ПРИ ЗАПУСКУ: ВИМ
+next transition: off	наступний перехід: вим
+pocket 3 preset: off	пресет pocket 3: вим
+Ahoy hoy! I am Deckboy.	Агов-агов! Я Deckboy.
+output recovering: stream	відновлення виходу: трансляція
+click: replace the chain    + add: add to the end	клік: замінити ланцюг    + додати: додати в кінець
+computer keyboard: PLAYING (letter keys are notes)	клавіатура комп’ютера: ГРАЄ (літерні клавіші — ноти)
+a name for the section this row starts (empty: none)	назва розділу, який починає цей рядок (порожньо: немає)
+Enter media path or browser:/window:/camera:/syphon: source	Введіть шлях до медіа або джерело browser:/window:/camera:/syphon:

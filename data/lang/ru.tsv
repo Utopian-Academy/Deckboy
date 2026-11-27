@@ -5391,3 +5391,38 @@ Keep a candle in the window and a sandwich in the rack. The ship takes one. Pray
 Every full moon I hear oars in the ceiling. Your mother says it's the pipes. Pipes don't row, kiddo.	Каждое полнолуние слышу вёсла в потолке. Твоя мама говорит, что это трубы. Трубы не гребут, малыш.
 Kiddo. Sit down. Your great-grandfather sailed on a ship with no crew. He was the crew. He was a rat.	Малыш. Сядь. Твой прадед ходил на корабле без команды. Он и был командой. Он был крысой.
 I've seen things, kiddo. Dropped frames. Wrong inputs. A projector lens with a fingerprint on it. Shudder.	Я всякое видел, малыш. Пропущенные кадры. Не те входы. Линзу проектора с отпечатком пальца. Брр.
+LOCK: ON	БЛОКИРОВКА: ВКЛ
+LOCK: OFF	БЛОКИРОВКА: ВЫКЛ
+find: none	поиск: нет
+LOOP SONG: ON	ЦИКЛ ПЕСНИ: ВКЛ
+PHONE'S ({1})	ТЕЛЕФОНА ({1})
+QUANTISE: off	КВАНТОВАНИЕ: выкл
+auto fade: on	автозатухание: вкл
+cue audio: on	звук cue: вкл
+input: stereo	вход: стерео
+FLASHLIGHT: ON	ФОНАРИК: ВКЛ
+LOOP SONG: OFF	ЦИКЛ ПЕСНИ: ВЫКЛ
+auto fade: off	автозатухание: выкл
+cue audio: off	звук cue: выкл
+FLASHLIGHT: OFF	ФОНАРИК: ВЫКЛ
+still dur: hold	длит. стоп-кадра: удержание
+nmc: sending out	nmc: отправляет
+NMOS: not running	NMOS: не работает
+cue audio: stereo	звук cue: стерео
+nmc: listening in	nmc: слушает
+glyphs: by density	глифы: по плотности
+pause at begin: on	пауза в начале: вкл
+SPLASH AT START: ON	ЗАСТАВКА ПРИ СТАРТЕ: ВКЛ
+aoi: invalid number	aoi: неверное число
+next transition: on	следующий переход: вкл
+pause at begin: off	пауза в начале: выкл
+pocket 3 preset: on	пресет pocket 3: вкл
+SPLASH AT START: OFF	ЗАСТАВКА ПРИ СТАРТЕ: ВЫКЛ
+next transition: off	следующий переход: выкл
+pocket 3 preset: off	пресет pocket 3: выкл
+Ahoy hoy! I am Deckboy.	Ахой-хой! Я Deckboy.
+output recovering: stream	восстановление выхода: трансляция
+click: replace the chain    + add: add to the end	клик: заменить цепочку    + добавить: добавить в конец
+computer keyboard: PLAYING (letter keys are notes)	клавиатура компьютера: ИГРАЕТ (буквенные клавиши — ноты)
+a name for the section this row starts (empty: none)	имя раздела, который начинает эта строка (пусто: нет)
+Enter media path or browser:/window:/camera:/syphon: source	Введите путь к медиа или источник browser:/window:/camera:/syphon:

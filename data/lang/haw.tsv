@@ -5354,3 +5354,36 @@ Keep a candle in the window and a sandwich in the rack. The ship takes one. Pray
 Every full moon I hear oars in the ceiling. Your mother says it's the pipes. Pipes don't row, kiddo.	I kēlā me kēia mahina piha lohe au i nā hoe ma ke kaupoku. ʻŌlelo kou makuahine ʻo nā paipu ia. ʻAʻole hoe nā paipu, e kuʻu keiki.
 Kiddo. Sit down. Your great-grandfather sailed on a ship with no crew. He was the crew. He was a rat.	E kuʻu keiki. E noho i lalo. Ua holo kou kupuna kuakahi ma luna o kekahi moku ʻaʻohe ona luina. ʻO ia ka luina. He ʻiole ʻo ia.
 I've seen things, kiddo. Dropped frames. Wrong inputs. A projector lens with a fingerprint on it. Shudder.	Ua ʻike au i nā mea he nui, e kuʻu keiki. Nā mōlina i hāʻule. Nā komo hewa. He aniani o ka mīkini hoʻolele kiʻi me ka meheu manamana lima. Haʻalulu.
+LOCK: ON	LAKA: ʻĀ
+LOCK: OFF	LAKA: PIO
+find: none	huli: ʻaʻohe
+LOOP SONG: ON	PŌʻAI MELE: ʻĀ
+PHONE'S ({1})	KO KE KELEPONA ({1})
+QUANTISE: off	HOʻOPAʻA I KA PANA: pio
+auto fade: on	hala ʻakomi: ʻā
+cue audio: on	leo cue: ʻā
+FLASHLIGHT: ON	KUKUI PAʻALIMA: ʻĀ
+LOOP SONG: OFF	PŌʻAI MELE: PIO
+auto fade: off	hala ʻakomi: pio
+cue audio: off	leo cue: pio
+FLASHLIGHT: OFF	KUKUI PAʻALIMA: PIO
+still dur: hold	lōʻihi paʻa: paʻa
+nmc: sending out	nmc: ke hoʻouna nei
+NMOS: not running	NMOS: ʻaʻole e holo ana
+nmc: listening in	nmc: ke hoʻolohe nei
+glyphs: by density	nā hōʻailona: ma ka mānoanoa
+pause at begin: on	hoʻomaha ma ka hoʻomaka: ʻā
+SPLASH AT START: ON	PAKĪ MA KA HOʻOMAKA: ʻĀ
+aoi: invalid number	aoi: helu pono ʻole
+next transition: on	hoʻololi aʻe: ʻā
+pause at begin: off	hoʻomaha ma ka hoʻomaka: pio
+pocket 3 preset: on	hoʻonohonoho pocket 3: ʻā
+SPLASH AT START: OFF	PAKĪ MA KA HOʻOMAKA: PIO
+next transition: off	hoʻololi aʻe: pio
+pocket 3 preset: off	hoʻonohonoho pocket 3: pio
+Ahoy hoy! I am Deckboy.	Aloha mai! ʻO Deckboy au.
+output recovering: stream	ke hoʻihoʻi nei ka puka: kahe
+click: replace the chain    + add: add to the end	kaomi: pani i ke kaulahao    + hoʻohui: hoʻohui ma ka hope
+computer keyboard: PLAYING (letter keys are notes)	papa pihi kamepiula: KE HOʻOKANI NEI (he mau nota nā pihi huapalapala)
+a name for the section this row starts (empty: none)	inoa no ka māhele e hoʻomaka ai kēia lalani (hakahaka: ʻaʻohe)
+Enter media path or browser:/window:/camera:/syphon: source	E hoʻokomo i ka ala media a i ʻole kumu browser:/window:/camera:/syphon:

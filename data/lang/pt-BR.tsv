@@ -5345,3 +5345,38 @@ Keep a candle in the window and a sandwich in the rack. The ship takes one. Pray
 Every full moon I hear oars in the ceiling. Your mother says it's the pipes. Pipes don't row, kiddo.	Toda lua cheia eu ouço remos no teto. Sua mãe diz que são os canos. Cano não rema, filhote.
 Kiddo. Sit down. Your great-grandfather sailed on a ship with no crew. He was the crew. He was a rat.	Filhote. Senta aí. Seu bisavô navegou num navio sem tripulação. Ele era a tripulação. Ele era um rato.
 I've seen things, kiddo. Dropped frames. Wrong inputs. A projector lens with a fingerprint on it. Shudder.	Já vi coisas, filhote. Quadros perdidos. Entradas erradas. Uma lente de projetor com uma digital. Calafrio.
+LOCK: ON	BLOQUEIO: LIGADO
+LOCK: OFF	BLOQUEIO: DESLIGADO
+find: none	buscar: nenhum
+LOOP SONG: ON	LOOP DA MÚSICA: LIGADO
+PHONE'S ({1})	DO TELEFONE ({1})
+QUANTISE: off	QUANTIZAR: desligado
+auto fade: on	fade automático: ligado
+cue audio: on	áudio do cue: ligado
+input: stereo	entrada: estéreo
+FLASHLIGHT: ON	LANTERNA: LIGADO
+LOOP SONG: OFF	LOOP DA MÚSICA: DESLIGADO
+auto fade: off	fade automático: desligado
+cue audio: off	áudio do cue: desligado
+FLASHLIGHT: OFF	LANTERNA: DESLIGADO
+still dur: hold	dur. imagem fixa: segurar
+nmc: sending out	nmc: enviando
+NMOS: not running	NMOS: parado
+cue audio: stereo	áudio do cue: estéreo
+nmc: listening in	nmc: escutando
+glyphs: by density	glifos: por densidade
+pause at begin: on	pausa no início: ligado
+SPLASH AT START: ON	TELA DE ABERTURA: LIGADO
+aoi: invalid number	aoi: número inválido
+next transition: on	próxima transição: ligado
+pause at begin: off	pausa no início: desligado
+pocket 3 preset: on	predefinição pocket 3: ligado
+SPLASH AT START: OFF	TELA DE ABERTURA: DESLIGADO
+next transition: off	próxima transição: desligado
+pocket 3 preset: off	predefinição pocket 3: desligado
+Ahoy hoy! I am Deckboy.	Ahoy hoy! Eu sou o Deckboy.
+output recovering: stream	recuperando saída: transmissão
+click: replace the chain    + add: add to the end	clique: substituir a cadeia    + adicionar: adicionar ao final
+computer keyboard: PLAYING (letter keys are notes)	teclado do computador: REPRODUZINDO (teclas de letras são notas)
+a name for the section this row starts (empty: none)	um nome para a seção que esta linha inicia (vazio: nenhum)
+Enter media path or browser:/window:/camera:/syphon: source	Informe o caminho da mídia ou a fonte browser:/window:/camera:/syphon:

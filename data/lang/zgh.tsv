@@ -5403,3 +5403,38 @@ Keep a candle in the window and a sandwich in the rack. The ship takes one. Pray
 Every full moon I hear oars in the ceiling. Your mother says it's the pipes. Pipes don't row, kiddo.	ⴽⵓ ⴰⵢⵢⵓⵔ ⵉⵛⵛⵓⵔⵏ ⴰⵔ ⵙⵍⵍⴰⵖ ⵉ ⵉⵎⵇⴷⴰⴼⵏ ⵖ ⵓⵙⵇⵇⵉⴼ. ⵜⵏⵏⴰ ⵎⵎⴰⴽ ⵉⵙ ⴷ ⵜⵉⵇⵏⵓⵜⵉⵏ. ⵜⵉⵇⵏⵓⵜⵉⵏ ⵓⵔ ⵜⵜⵇⴷⴷⴰⴼⵏⵜ, ⴰ ⵉⵡⵉ.
 Kiddo. Sit down. Your great-grandfather sailed on a ship with no crew. He was the crew. He was a rat.	ⴰ ⵉⵡⵉ. ⵇⵇⵉⵎ. ⴱⴰⴱⴰ ⵏ ⴷⴰⴷⴷⴰ ⵏⵏⴽ ⵉⵎⵏⴰ ⵖ ⵢⴰⵏ ⵓⵖⵔⵔⴰⴱⵓ ⵓⵔ ⵖⵓⵔⵙ ⵜⴰⵔⴰⴱⴱⵓⵜ. ⵏⵜⵜⴰ ⴰⵢ ⵉⴳⴰⵏ ⵜⴰⵔⴰⴱⴱⵓⵜ. ⵉⴳⴰ ⴰⵖⵔⴷⴰ.
 I've seen things, kiddo. Dropped frames. Wrong inputs. A projector lens with a fingerprint on it. Shudder.	ⵥⵕⵉⵖ ⴽⵔⴰ ⵏ ⵜⵖⴰⵡⵙⵉⵡⵉⵏ, ⴰ ⵉⵡⵉ. ⵜⵓⴳⵏⵉⵡⵉⵏ ⵉⴹⵕⵏ. ⵉⵏⴽⵛⴰⵎⵏ ⵓⵔ ⵉⵚⵃⵉⵃⵏ. ⵜⴰⵎⵍⴰⵍⵜ ⵏ ⵓⵎⵙⵙⵓⴼⵖ ⵏ ⵜⵡⵍⴰⴼⵉⵏ ⴼⵍⵍⴰⵙ ⴰⵙⴽⴽⵉⵏ ⵏ ⵓⴹⵓⴹ. ⵜⵜⵔⴳⵉⴳⵉⵖ.
+LOCK: ON	ⴰⵇⴼⴰⵍ: ⵉⵔⵖⴰ
+LOCK: OFF	ⴰⵇⴼⴰⵍ: ⵉⵅⵙⴰ
+find: none	ⴰⵔⵣⵣⵓ: ⵡⴰⵍⵓ
+LOOP SONG: ON	ⴰⵙⵙⵓⵖⵍ ⵏ ⵢⵉⵣⵍⵉ: ⵉⵔⵖⴰ
+PHONE'S ({1})	ⵏ ⵜⵉⵍⵉⵖⵔⵉ ({1})
+QUANTISE: off	ⴰⵙⵎⵙⴰⵙⴰ: ⵉⵅⵙⴰ
+auto fade: on	ⴰⵙⴼⵙⵉ ⴰⵡⵓⵔⵎⴰⵏ: ⵉⵔⵖⴰ
+cue audio: on	ⵉⵎⵙⵍⵉ ⵏ cue: ⵉⵔⵖⴰ
+input: stereo	ⵜⵓⴽⵛⵎⴰ: ⵙⵏⴰⵜ ⵏ ⵉⴼⵔⴷⵉⵙⵏ
+FLASHLIGHT: ON	ⵜⴰⴼⴰⵡⵜ: ⵉⵔⵖⴰ
+LOOP SONG: OFF	ⴰⵙⵙⵓⵖⵍ ⵏ ⵢⵉⵣⵍⵉ: ⵉⵅⵙⴰ
+auto fade: off	ⴰⵙⴼⵙⵉ ⴰⵡⵓⵔⵎⴰⵏ: ⵉⵅⵙⴰ
+cue audio: off	ⵉⵎⵙⵍⵉ ⵏ cue: ⵉⵅⵙⴰ
+FLASHLIGHT: OFF	ⵜⴰⴼⴰⵡⵜ: ⵉⵅⵙⴰ
+still dur: hold	ⴰⵣⵎⵣ ⵏ ⵜⵡⵍⴰⴼⵜ: ⵟⵟⴼ
+nmc: sending out	nmc: ⴰⵔ ⵉⵜⵜⴰⵣⵏ
+NMOS: not running	NMOS: ⵓⵔ ⵉⵜⴷⴷⵓ
+cue audio: stereo	ⵉⵎⵙⵍⵉ ⵏ cue: ⵙⵏⴰⵜ ⵏ ⵉⴼⵔⴷⵉⵙⵏ
+nmc: listening in	nmc: ⴰⵔ ⵉⵙⴼⵍⵉⴷ ⵖ
+glyphs: by density	ⵉⵙⴽⴽⵉⵍⵏ: ⵙ ⵜⵊⵀⴷⵉ
+pause at begin: on	ⴰⵃⴱⴰⵙ ⴳ ⵓⴱⴷⵓ: ⵉⵔⵖⴰ
+SPLASH AT START: ON	ⵜⴰⵡⵍⴰⴼⵜ ⵏ ⵓⴱⴷⵓ: ⵉⵔⵖⴰ
+aoi: invalid number	aoi: ⵓⵏⵎⴰⵔ ⵓⵔ ⵉⵎⵙⴰⵡⴰⵏ
+next transition: on	ⴰⵎⵓⵜⵜⵉ ⵡⵉⵏ ⴷ ⵉⴷⴷⵏ: ⵉⵔⵖⴰ
+pause at begin: off	ⴰⵃⴱⴰⵙ ⴳ ⵓⴱⴷⵓ: ⵉⵅⵙⴰ
+pocket 3 preset: on	ⴰⵎⵣⵡⴰⵔⵓ pocket 3: ⵉⵔⵖⴰ
+SPLASH AT START: OFF	ⵜⴰⵡⵍⴰⴼⵜ ⵏ ⵓⴱⴷⵓ: ⵉⵅⵙⴰ
+next transition: off	ⴰⵎⵓⵜⵜⵉ ⵡⵉⵏ ⴷ ⵉⴷⴷⵏ: ⵉⵅⵙⴰ
+pocket 3 preset: off	ⴰⵎⵣⵡⴰⵔⵓ pocket 3: ⵉⵅⵙⴰ
+Ahoy hoy! I am Deckboy.	ⴰⵣⵓⵍ ⴰⵣⵓⵍ! ⵏⴽⴽ ⴷ Deckboy.
+output recovering: stream	ⵜⵓⴼⴼⵖⴰ ⵉⵜⵜⴰⵔⵔⴰ ⴷ: ⴰⵙⵓⴷⴷⵎ
+click: replace the chain    + add: add to the end	ⴰⴽⵍⵉⴽ: ⵙⵏⴼⵍ ⴰⵙⵎⵎⵏⴹ    + ⵔⵏⵓ: ⵔⵏⵓ ⵖⵔ ⵜⴳⵉⵔⴰ
+computer keyboard: PLAYING (letter keys are notes)	ⴰⵏⴰⵙⵉⵡ ⵏ ⵓⵙⵍⴽⵉⵎ: ⵉⵜⵜⵓⵔⴰⵔ (ⵜⵉⵙⵓⵔⴰ ⵏ ⵉⵙⴽⴽⵉⵍⵏ ⴷ ⵜⵉⵣⵎⵉⵍⵉⵏ ⵏ ⵓⵥⴰⵡⴰⵏ)
+a name for the section this row starts (empty: none)	ⵉⵙⵎ ⵏ ⵜⴳⵣⵎⵉ ⵏⵏⴰ ⵉⵙⵙⵏⵜⴰ ⵉⵣⵉⵔⵉⴳ ⴰⴷ (ⵉⵍⵎ: ⵡⴰⵍⵓ)
+Enter media path or browser:/window:/camera:/syphon: source	ⵙⴽⵛⵎ ⴰⴱⵔⵉⴷ ⵏ ⵓⵎⵉⴷⵢⴰ ⵏⵖ ⴰⵖⴱⴰⵍⵓ browser:/window:/camera:/syphon:

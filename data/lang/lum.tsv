@@ -5403,3 +5403,38 @@ Keep a candle in the window and a sandwich in the rack. The ship takes one. Pray
 Every full moon I hear oars in the ceiling. Your mother says it's the pipes. Pipes don't row, kiddo.	Ala tamo nirluma mi lisi remaku dora rana fella. Mama tu holi: tubaku. Tubaku va remi, kisa.
 Kiddo. Sit down. Your great-grandfather sailed on a ship with no crew. He was the crew. He was a rat.	Kisa. Kaei dopnira. Granpa tu granpa navi dora nava vapato. Na pata. Na rat.
 I've seen things, kiddo. Dropped frames. Wrong inputs. A projector lens with a fingerprint on it. Shudder.	Mi miri ala, kisa. Vekaku bra. Vamaro dorkanaku. Lumsenjana mirluma so digiveka. Ni.
+LOCK: ON	KLUA: PON
+LOCK: OFF	KLUA: VAP
+find: none	mira: vaala
+LOOP SONG: ON	NOVTOKI SONHOLA: PON
+PHONE'S ({1})	SONAJANA ({1})
+QUANTISE: off	TALSETA: vap
+auto fade: on	koro lum: pon
+cue audio: on	vekasona: pon
+input: stereo	lisadora: duasona
+FLASHLIGHT: ON	LUMAJANA: PON
+LOOP SONG: OFF	NOVTOKI SONHOLA: VAP
+auto fade: off	koro lum: vap
+cue audio: off	vekasona: vap
+FLASHLIGHT: OFF	LUMAJANA: VAP
+still dur: hold	halveka toka: hali
+nmc: sending out	nmc: seno
+NMOS: not running	NMOS: vazaro
+cue audio: stereo	vekasona: duasona
+nmc: listening in	nmc: liso
+glyphs: by density	holvekaku: sov tamka
+pause at begin: on	tokispeni go tiri: pon
+SPLASH AT START: ON	NOVAVEKA GO TIRI: PON
+aoi: invalid number	aoi: vapelo numa
+next transition: on	novtoka seta: pon
+pause at begin: off	tokispeni go tiri: vap
+pocket 3 preset: on	pocket 3 setagura: pon
+SPLASH AT START: OFF	NOVAVEKA GO TIRI: VAP
+next transition: off	novtoka seta: vap
+pocket 3 preset: off	pocket 3 setagura: vap
+Ahoy hoy! I am Deckboy.	Ahoy hoy! Mi Deckboy.
+output recovering: stream	senadora novguri: retaseni
+click: replace the chain    + add: add to the end	bati: novseti rana    + lani: lani go klurana
+computer keyboard: PLAYING (letter keys are notes)	taljana batku: LUMO (holbatku sonaku)
+a name for the section this row starts (empty: none)	patahola, rana tiri pata (vano: vaala)
+Enter media path or browser:/window:/camera:/syphon: source	Gri dor vekadora / munga browser:/window:/camera:/syphon:

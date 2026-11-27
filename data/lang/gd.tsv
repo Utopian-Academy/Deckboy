@@ -5386,3 +5386,38 @@ Keep a candle in the window and a sandwich in the rack. The ship takes one. Pray
 Every full moon I hear oars in the ceiling. Your mother says it's the pipes. Pipes don't row, kiddo.	Gach làn-ghealach cluinnidh mi ràimh sa mhullach. Tha do mhàthair ag ràdh gur e na pìoban a th' ann. Chan iomair pìoban, a ghràidh.
 Kiddo. Sit down. Your great-grandfather sailed on a ship with no crew. He was the crew. He was a rat.	A ghràidh. Suidh sìos. Sheòl do shinn-seanair air long gun sgioba. B' esan an sgioba. B' e radan a bh' ann.
 I've seen things, kiddo. Dropped frames. Wrong inputs. A projector lens with a fingerprint on it. Shudder.	Chunnaic mi rudan, a ghràidh. Frèamaichean air chall. Ion-chuir cheàrr. Lionsa proiseactair le lorg-meòir air. Gaoir.
+LOCK: ON	GLAS: AIR
+LOCK: OFF	GLAS: DHETH
+find: none	lorg: chan eil gin
+LOOP SONG: ON	LÙB ÒRAIN: AIR
+PHONE'S ({1})	LEIS AN FHÒN ({1})
+QUANTISE: off	CUANTACHADH: dheth
+auto fade: on	fad fèin-obrachail: air
+cue audio: on	fuaim a' cue: air
+input: stereo	cur a-steach: stèirio
+FLASHLIGHT: ON	LÒCHRAN: AIR
+LOOP SONG: OFF	LÙB ÒRAIN: DHETH
+auto fade: off	fad fèin-obrachail: dheth
+cue audio: off	fuaim a' cue: dheth
+FLASHLIGHT: OFF	LÒCHRAN: DHETH
+still dur: hold	ùine an deilbh: cùm
+nmc: sending out	nmc: a' cur a-mach
+NMOS: not running	NMOS: chan eil a' ruith
+cue audio: stereo	fuaim a' cue: stèirio
+nmc: listening in	nmc: ag èisteachd
+glyphs: by density	glifichean: a rèir dlùths
+pause at begin: on	cuir na stad aig an toiseach: air
+SPLASH AT START: ON	SGRÌN-FÀILTE AIG TÒISEACHADH: AIR
+aoi: invalid number	aoi: àireamh mì-dhligheach
+next transition: on	an ath ghluasad: air
+pause at begin: off	cuir na stad aig an toiseach: dheth
+pocket 3 preset: on	ro-shuidheachadh pocket 3: air
+SPLASH AT START: OFF	SGRÌN-FÀILTE AIG TÒISEACHADH: DHETH
+next transition: off	an ath ghluasad: dheth
+pocket 3 preset: off	ro-shuidheachadh pocket 3: dheth
+Ahoy hoy! I am Deckboy.	Halò halò! Is mise Deckboy.
+output recovering: stream	às-chur ag ath-bheothachadh: sruth a-mach
+click: replace the chain    + add: add to the end	briog: ath-chuir an t-sreath    + cuir ris: cuir ris aig an deireadh
+computer keyboard: PLAYING (letter keys are notes)	meur-chlàr a' choimpiutair: A' CLUICH (tha na h-iuchraichean litreach nan nòtaichean)
+a name for the section this row starts (empty: none)	ainm don earrann a thòisicheas an ràgh seo (falamh: chan eil gin)
+Enter media path or browser:/window:/camera:/syphon: source	Cuir a-steach slighe nam meadhanan no tùs browser:/window:/camera:/syphon:

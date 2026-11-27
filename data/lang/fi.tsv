@@ -5389,3 +5389,38 @@ Keep a candle in the window and a sandwich in the rack. The ship takes one. Pray
 Every full moon I hear oars in the ceiling. Your mother says it's the pipes. Pipes don't row, kiddo.	Joka täysikuu kuulen airoja katossa. Äitisi sanoo, että ne ovat putket. Putket eivät soua, pikkuinen.
 Kiddo. Sit down. Your great-grandfather sailed on a ship with no crew. He was the crew. He was a rat.	Pikkuinen. Istu alas. Isoisoisäsi purjehti laivalla, jolla ei ollut miehistöä. Hän oli miehistö. Hän oli rotta.
 I've seen things, kiddo. Dropped frames. Wrong inputs. A projector lens with a fingerprint on it. Shudder.	Olen nähnyt asioita, pikkuinen. Pudonneita ruutuja. Vääriä tuloja. Projektorin linssin, jossa oli sormenjälki. Hrr.
+LOCK: ON	LUKITUS: PÄÄLLÄ
+LOCK: OFF	LUKITUS: POIS
+find: none	haku: ei mitään
+LOOP SONG: ON	KAPPALEEN SILMUKKA: PÄÄLLÄ
+PHONE'S ({1})	PUHELIMEN ({1})
+QUANTISE: off	KVANTISOINTI: pois
+auto fade: on	autom. häivytys: päällä
+cue audio: on	cuen ääni: päällä
+input: stereo	tulo: stereo
+FLASHLIGHT: ON	TASKULAMPPU: PÄÄLLÄ
+LOOP SONG: OFF	KAPPALEEN SILMUKKA: POIS
+auto fade: off	autom. häivytys: pois
+cue audio: off	cuen ääni: pois
+FLASHLIGHT: OFF	TASKULAMPPU: POIS
+still dur: hold	pysäytyskuvan kesto: pidä
+nmc: sending out	nmc: lähettää
+NMOS: not running	NMOS: ei käynnissä
+cue audio: stereo	cuen ääni: stereo
+nmc: listening in	nmc: kuuntelee
+glyphs: by density	glyfit: tiheyden mukaan
+pause at begin: on	tauko alussa: päällä
+SPLASH AT START: ON	ALOITUSKUVA KÄYNNISTYKSESSÄ: PÄÄLLÄ
+aoi: invalid number	aoi: virheellinen luku
+next transition: on	seuraava siirtymä: päällä
+pause at begin: off	tauko alussa: pois
+pocket 3 preset: on	pocket 3 -esiasetus: päällä
+SPLASH AT START: OFF	ALOITUSKUVA KÄYNNISTYKSESSÄ: POIS
+next transition: off	seuraava siirtymä: pois
+pocket 3 preset: off	pocket 3 -esiasetus: pois
+Ahoy hoy! I am Deckboy.	Ahoy hoy! Olen Deckboy.
+output recovering: stream	ulostuloa palautetaan: lähetä
+click: replace the chain    + add: add to the end	napsautus: korvaa ketju    + lisää: lisää loppuun
+computer keyboard: PLAYING (letter keys are notes)	tietokoneen näppäimistö: TOISTAA (kirjainnäppäimet ovat säveliä)
+a name for the section this row starts (empty: none)	nimi osiolle, jonka tämä rivi aloittaa (tyhjä: ei mitään)
+Enter media path or browser:/window:/camera:/syphon: source	Anna median polku tai browser:/window:/camera:/syphon:-lähde

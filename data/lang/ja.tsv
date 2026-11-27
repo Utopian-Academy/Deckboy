@@ -5392,3 +5392,38 @@ Keep a candle in the window and a sandwich in the rack. The ship takes one. Pray
 Every full moon I hear oars in the ceiling. Your mother says it's the pipes. Pipes don't row, kiddo.	満月のたびに天井でオールの音がする。お母さんは配管だって言う。配管は漕がないぞ、チビ。
 Kiddo. Sit down. Your great-grandfather sailed on a ship with no crew. He was the crew. He was a rat.	チビ。座れ。お前のひいじいさんは乗組員のいない船に乗ってた。乗組員は彼だった。彼はネズミだった。
 I've seen things, kiddo. Dropped frames. Wrong inputs. A projector lens with a fingerprint on it. Shudder.	いろいろ見てきたんだ、チビ。落ちたフレーム。間違った入力。指紋のついたプロジェクターのレンズ。ゾッとする。
+LOCK: ON	ロック: オン
+LOCK: OFF	ロック: オフ
+find: none	検索: なし
+LOOP SONG: ON	曲のループ: オン
+PHONE'S ({1})	電話の ({1})
+QUANTISE: off	クオンタイズ: オフ
+auto fade: on	自動フェード: オン
+cue audio: on	キューオーディオ: オン
+input: stereo	入力: ステレオ
+FLASHLIGHT: ON	フラッシュライト: オン
+LOOP SONG: OFF	曲のループ: オフ
+auto fade: off	自動フェード: オフ
+cue audio: off	キューオーディオ: オフ
+FLASHLIGHT: OFF	フラッシュライト: オフ
+still dur: hold	静止画の長さ: 保持
+nmc: sending out	nmc: 送信中
+NMOS: not running	NMOS: 停止中
+cue audio: stereo	キューオーディオ: ステレオ
+nmc: listening in	nmc: 受信中
+glyphs: by density	グリフ: 密度順
+pause at begin: on	開始時に一時停止: オン
+SPLASH AT START: ON	起動画面の表示: オン
+aoi: invalid number	aoi: 無効な数値
+next transition: on	次のトランジション: オン
+pause at begin: off	開始時に一時停止: オフ
+pocket 3 preset: on	pocket 3 プリセット: オン
+SPLASH AT START: OFF	起動画面の表示: オフ
+next transition: off	次のトランジション: オフ
+pocket 3 preset: off	pocket 3 プリセット: オフ
+Ahoy hoy! I am Deckboy.	やあやあ！ぼくはDeckboyです。
+output recovering: stream	出力復旧中: 配信
+click: replace the chain    + add: add to the end	クリック: チェーンを置き換え    + 追加: 末尾に追加
+computer keyboard: PLAYING (letter keys are notes)	コンピューターキーボード: 再生中（文字キーが音符になります）
+a name for the section this row starts (empty: none)	この行から始まるセクションの名前（空: なし）
+Enter media path or browser:/window:/camera:/syphon: source	メディアのパスまたは browser:/window:/camera:/syphon: ソースを入力

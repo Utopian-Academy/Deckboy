@@ -5374,3 +5374,38 @@ Keep a candle in the window and a sandwich in the rack. The ship takes one. Pray
 Every full moon I hear oars in the ceiling. Your mother says it's the pipes. Pipes don't row, kiddo.	ທຸກຄືນເດືອນເຕັມ ຂ້ອຍໄດ້ຍິນສຽງພາຍເຮືອຢູ່ເພດານ. ແມ່ເຈົ້າເວົ້າວ່າແມ່ນທໍ່ນ້ຳ. ທໍ່ນ້ຳບໍ່ພາຍເຮືອດອກລູກ.
 Kiddo. Sit down. Your great-grandfather sailed on a ship with no crew. He was the crew. He was a rat.	ລູກ. ນັ່ງລົງ. ປູ່ທວດເຈົ້າເຄີຍລ່ອງເຮືອທີ່ບໍ່ມີລູກເຮືອ. ລາວເປັນລູກເຮືອເອງ. ລາວເປັນໜູ.
 I've seen things, kiddo. Dropped frames. Wrong inputs. A projector lens with a fingerprint on it. Shudder.	ຂ້ອຍເຫັນມາຫຼາຍແລ້ວລູກ. ເຟຣມຫຼຸດ. ອິນພຸດຜິດ. ເລນໂປຣເຈັກເຕີມີຮອຍນິ້ວມື. ຂົນລຸກ.
+LOCK: ON	ລັອກ: ເປີດ
+LOCK: OFF	ລັອກ: ປິດ
+find: none	ຊອກຫາ: ບໍ່ມີ
+LOOP SONG: ON	ວົນເພງ: ເປີດ
+PHONE'S ({1})	ຂອງໂທລະສັບ ({1})
+QUANTISE: off	ຈັດຈັງຫວະ: ປິດ
+auto fade: on	ຄ່ອຍໆອັດຕະໂນມັດ: ເປີດ
+cue audio: on	ສຽງ cue: ເປີດ
+input: stereo	ຂາເຂົ້າ: ສະເຕຣິໂອ
+FLASHLIGHT: ON	ໄຟສາຍ: ເປີດ
+LOOP SONG: OFF	ວົນເພງ: ປິດ
+auto fade: off	ຄ່ອຍໆອັດຕະໂນມັດ: ປິດ
+cue audio: off	ສຽງ cue: ປິດ
+FLASHLIGHT: OFF	ໄຟສາຍ: ປິດ
+still dur: hold	ເວລາຮູບນິ່ງ: ຄ້າງ
+nmc: sending out	nmc: ກຳລັງສົ່ງອອກ
+NMOS: not running	NMOS: ບໍ່ໄດ້ແລ່ນ
+cue audio: stereo	ສຽງ cue: ສະເຕຣິໂອ
+nmc: listening in	nmc: ກຳລັງຟັງຢູ່
+glyphs: by density	ຕົວອັກສອນ: ຕາມຄວາມໜາແໜ້ນ
+pause at begin: on	ພັກຕອນເລີ່ມ: ເປີດ
+SPLASH AT START: ON	ໜ້າຈໍເປີດຕອນເລີ່ມ: ເປີດ
+aoi: invalid number	aoi: ຕົວເລກບໍ່ຖືກຕ້ອງ
+next transition: on	ການປ່ຽນພາບຖັດໄປ: ເປີດ
+pause at begin: off	ພັກຕອນເລີ່ມ: ປິດ
+pocket 3 preset: on	pocket 3 preset: ເປີດ
+SPLASH AT START: OFF	ໜ້າຈໍເປີດຕອນເລີ່ມ: ປິດ
+next transition: off	ການປ່ຽນພາບຖັດໄປ: ປິດ
+pocket 3 preset: off	pocket 3 preset: ປິດ
+Ahoy hoy! I am Deckboy.	ສະບາຍດີ! ຂ້ອຍແມ່ນ Deckboy.
+output recovering: stream	output ກຳລັງຟື້ນຟູ: stream
+click: replace the chain    + add: add to the end	ຄລິກ: ແທນສາຍ    + ເພີ່ມ: ເພີ່ມໃສ່ທ້າຍ
+computer keyboard: PLAYING (letter keys are notes)	ແປ້ນພິມຄອມພິວເຕີ: ກຳລັງຫຼິ້ນ (ປຸ່ມຕົວອັກສອນເປັນໂນ້ດ)
+a name for the section this row starts (empty: none)	ຊື່ຂອງພາກທີ່ແຖວນີ້ເລີ່ມ (ຫວ່າງ: ບໍ່ມີ)
+Enter media path or browser:/window:/camera:/syphon: source	ປ້ອນເສັ້ນທາງສື່ ຫຼື ແຫຼ່ງ browser:/window:/camera:/syphon:

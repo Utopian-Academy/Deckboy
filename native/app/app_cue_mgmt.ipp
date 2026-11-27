@@ -8883,7 +8883,7 @@
     if (code == "en" || code.empty()) return "English again. Training wheels on.";
     const std::string own = deckboy::core::i18n::translate("@hello");
     if (!own.empty() && own != "@hello") return own;
-    return deckboy::core::i18n::translate("Hi! I am Deckboy.");
+    return deckboy::core::i18n::translate("Ahoy hoy! I am Deckboy.");   // James 11-26: as a telephone once greeted
   }
 
   // THE INTERFACE LANGUAGE, set the one way: from the settings list and from

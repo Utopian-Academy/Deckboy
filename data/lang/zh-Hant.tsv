@@ -5389,3 +5389,38 @@ Keep a candle in the window and a sandwich in the rack. The ship takes one. Pray
 Every full moon I hear oars in the ceiling. Your mother says it's the pipes. Pipes don't row, kiddo.	每逢滿月，我都聽見天花板裡有划槳聲。你媽媽說是水管。水管才不會划船，孩子。
 Kiddo. Sit down. Your great-grandfather sailed on a ship with no crew. He was the crew. He was a rat.	孩子。坐下。你曾祖父在一艘沒有船員的船上航行過。他就是船員。他是一隻老鼠。
 I've seen things, kiddo. Dropped frames. Wrong inputs. A projector lens with a fingerprint on it. Shudder.	我見過不少場面，孩子。掉影格。輸入接錯。投影機鏡頭上有一枚指紋。不寒而慄。
+LOCK: ON	鎖定：開
+LOCK: OFF	鎖定：關
+find: none	尋找：無
+LOOP SONG: ON	單曲循環：開
+PHONE'S ({1})	電話的 ({1})
+QUANTISE: off	量化：關
+auto fade: on	自動漸變：開
+cue audio: on	Cue音訊：開
+input: stereo	輸入：立體聲
+FLASHLIGHT: ON	手電筒：開
+LOOP SONG: OFF	單曲循環：關
+auto fade: off	自動漸變：關
+cue audio: off	Cue音訊：關
+FLASHLIGHT: OFF	手電筒：關
+still dur: hold	靜幀時長：保持
+nmc: sending out	nmc：正在傳送
+NMOS: not running	NMOS：未執行
+cue audio: stereo	Cue音訊：立體聲
+nmc: listening in	nmc：正在接收
+glyphs: by density	字形：依密度
+pause at begin: on	開始時暫停：開
+SPLASH AT START: ON	啟動畫面：開
+aoi: invalid number	aoi：數字無效
+next transition: on	下一個轉場：開
+pause at begin: off	開始時暫停：關
+pocket 3 preset: on	pocket 3 預設組：開
+SPLASH AT START: OFF	啟動畫面：關
+next transition: off	下一個轉場：關
+pocket 3 preset: off	pocket 3 預設組：關
+Ahoy hoy! I am Deckboy.	哈囉哈囉！我是Deckboy。
+output recovering: stream	輸出復原中：串流
+click: replace the chain    + add: add to the end	點擊：取代鏈    + 新增：新增到結尾
+computer keyboard: PLAYING (letter keys are notes)	電腦鍵盤：播放中（字母按鍵為音符）
+a name for the section this row starts (empty: none)	此列開始的段落名稱（空白：無）
+Enter media path or browser:/window:/camera:/syphon: source	輸入媒體路徑或 browser:/window:/camera:/syphon: 訊號源

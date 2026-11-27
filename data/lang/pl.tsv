@@ -5358,3 +5358,38 @@ Keep a candle in the window and a sandwich in the rack. The ship takes one. Pray
 Every full moon I hear oars in the ceiling. Your mother says it's the pipes. Pipes don't row, kiddo.	W każdą pełnię słyszę wiosła w suficie. Twoja matka mówi, że to rury. Rury nie wiosłują, dzieciaku.
 Kiddo. Sit down. Your great-grandfather sailed on a ship with no crew. He was the crew. He was a rat.	Dzieciaku. Siadaj. Twój pradziadek pływał na statku bez załogi. On był załogą. Był szczurem.
 I've seen things, kiddo. Dropped frames. Wrong inputs. A projector lens with a fingerprint on it. Shudder.	Widziałem różne rzeczy, dzieciaku. Zgubione klatki. Złe wejścia. Soczewkę projektora z odciskiem palca. Brr.
+LOCK: ON	BLOKADA: WL.
+LOCK: OFF	BLOKADA: WYŁ.
+find: none	szukaj: brak
+LOOP SONG: ON	PĘTLA UTWORU: WL.
+PHONE'S ({1})	TELEFONU ({1})
+QUANTISE: off	KWANTYZACJA: wył.
+auto fade: on	autowygaszenie: wł.
+cue audio: on	dźwięk cue: wł.
+input: stereo	wejście: stereo
+FLASHLIGHT: ON	LATARKA: WL.
+LOOP SONG: OFF	PĘTLA UTWORU: WYŁ.
+auto fade: off	autowygaszenie: wył.
+cue audio: off	dźwięk cue: wył.
+FLASHLIGHT: OFF	LATARKA: WYŁ.
+still dur: hold	czas stopklatki: przytrzymaj
+nmc: sending out	nmc: wysyła
+NMOS: not running	NMOS: nie działa
+cue audio: stereo	dźwięk cue: stereo
+nmc: listening in	nmc: nasłuchuje
+glyphs: by density	glify: według gęstości
+pause at begin: on	pauza na początku: wł.
+SPLASH AT START: ON	EKRAN STARTOWY: WL.
+aoi: invalid number	aoi: nieprawidłowa liczba
+next transition: on	następne przejście: wł.
+pause at begin: off	pauza na początku: wył.
+pocket 3 preset: on	ustawienie pocket 3: wł.
+SPLASH AT START: OFF	EKRAN STARTOWY: WYŁ.
+next transition: off	następne przejście: wył.
+pocket 3 preset: off	ustawienie pocket 3: wył.
+Ahoy hoy! I am Deckboy.	Ahoj hoj! Jestem Deckboy.
+output recovering: stream	odzyskiwanie wyjścia: transmisja
+click: replace the chain    + add: add to the end	klik: zastąp łańcuch    + dodaj: dodaj na końcu
+computer keyboard: PLAYING (letter keys are notes)	klawiatura komputera: ODTWARZA (klawisze liter to nuty)
+a name for the section this row starts (empty: none)	nazwa sekcji, którą zaczyna ten wiersz (puste: brak)
+Enter media path or browser:/window:/camera:/syphon: source	Podaj ścieżkę mediów lub źródło browser:/window:/camera:/syphon:

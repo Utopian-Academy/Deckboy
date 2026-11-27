@@ -5332,3 +5332,38 @@ Keep a candle in the window and a sandwich in the rack. The ship takes one. Pray
 Every full moon I hear oars in the ceiling. Your mother says it's the pipes. Pipes don't row, kiddo.	Hver fuldmåne hører jeg årer i loftet. Din mor siger, det er rørene. Rør ror ikke, knægt.
 Kiddo. Sit down. Your great-grandfather sailed on a ship with no crew. He was the crew. He was a rat.	Knægt. Sæt dig ned. Din oldefar sejlede på et skib uden besætning. Han var besætningen. Han var en rotte.
 I've seen things, kiddo. Dropped frames. Wrong inputs. A projector lens with a fingerprint on it. Shudder.	Jeg har set ting, knægt. Tabte billeder. Forkerte indgange. En projektorlinse med et fingeraftryk. Gys.
+LOCK: ON	LÅS: TIL
+LOCK: OFF	LÅS: FRA
+find: none	søg: ingen
+LOOP SONG: ON	SANGLØKKE: TIL
+PHONE'S ({1})	TELEFONENS ({1})
+QUANTISE: off	KVANTISER: fra
+auto fade: on	automatisk blænding: til
+cue audio: on	cue-lyd: til
+input: stereo	indgang: stereo
+FLASHLIGHT: ON	LOMMELYGTE: TIL
+LOOP SONG: OFF	SANGLØKKE: FRA
+auto fade: off	automatisk blænding: fra
+cue audio: off	cue-lyd: fra
+FLASHLIGHT: OFF	LOMMELYGTE: FRA
+still dur: hold	stillbilledvarighed: hold
+nmc: sending out	nmc: sender
+NMOS: not running	NMOS: kører ikke
+cue audio: stereo	cue-lyd: stereo
+nmc: listening in	nmc: lytter med
+glyphs: by density	glyffer: efter tæthed
+pause at begin: on	pause ved start: til
+SPLASH AT START: ON	STARTSKÆRM VED START: TIL
+aoi: invalid number	aoi: ugyldigt tal
+next transition: on	næste overgang: til
+pause at begin: off	pause ved start: fra
+pocket 3 preset: on	pocket 3-forvalg: til
+SPLASH AT START: OFF	STARTSKÆRM VED START: FRA
+next transition: off	næste overgang: fra
+pocket 3 preset: off	pocket 3-forvalg: fra
+Ahoy hoy! I am Deckboy.	Ohøj ohøj! Jeg er Deckboy.
+output recovering: stream	udgang gendanner: stream ud
+click: replace the chain    + add: add to the end	klik: erstat kæden    + tilføj: tilføj til slutningen
+computer keyboard: PLAYING (letter keys are notes)	computertastatur: AFSPILLER (bogstavtaster er toner)
+a name for the section this row starts (empty: none)	et navn til sektionen, som denne række starter (tom: ingen)
+Enter media path or browser:/window:/camera:/syphon: source	Angiv mediesti eller browser:/window:/camera:/syphon:-kilde

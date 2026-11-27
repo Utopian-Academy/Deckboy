@@ -828,7 +828,7 @@
   void drawStartupMascot(const SDL_Rect& area, Uint64 nowMs,
                          const char* overrideTip = nullptr) {
     static const char* kTips[] = {
-      "Hi! I am Deckboy.",
+      "Ahoy hoy! I am Deckboy.",
       "Press I to import a clip.",
       "Enter takes a cue live.",
       "S stops the live cue.",

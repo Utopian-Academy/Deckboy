@@ -5394,3 +5394,38 @@ Keep a candle in the window and a sandwich in the rack. The ship takes one. Pray
 Every full moon I hear oars in the ceiling. Your mother says it's the pipes. Pipes don't row, kiddo.	हर पूर्णिमा पर मुझे सीलिंग में चप्पुओं की आवाज़ सुनाई देती है। तुम्हारी माँ कहती हैं पाइप हैं। पाइप चप्पू नहीं चलाते, बेटा।
 Kiddo. Sit down. Your great-grandfather sailed on a ship with no crew. He was the crew. He was a rat.	बेटा। बैठ जाओ। तुम्हारे परदादा एक ऐसे जहाज़ पर चले थे जिसमें कोई क्रू नहीं था। वो ख़ुद क्रू थे। वो चूहा थे।
 I've seen things, kiddo. Dropped frames. Wrong inputs. A projector lens with a fingerprint on it. Shudder.	मैंने बहुत कुछ देखा है, बेटा। छूटे फ़्रेम। ग़लत इनपुट। उंगली के निशान वाला प्रोजेक्टर लेंस। सिहरन।
+LOCK: ON	लॉक: चालू
+LOCK: OFF	लॉक: बंद
+find: none	खोज: कोई नहीं
+LOOP SONG: ON	गीत लूप: चालू
+PHONE'S ({1})	फ़ोन का ({1})
+QUANTISE: off	क्वांटाइज़: बंद
+auto fade: on	स्वतः फेड: चालू
+cue audio: on	क्यू ऑडियो: चालू
+input: stereo	इनपुट: स्टीरियो
+FLASHLIGHT: ON	फ़्लैशलाइट: चालू
+LOOP SONG: OFF	गीत लूप: बंद
+auto fade: off	स्वतः फेड: बंद
+cue audio: off	क्यू ऑडियो: बंद
+FLASHLIGHT: OFF	फ़्लैशलाइट: बंद
+still dur: hold	स्थिर चित्र अवधि: रोकें
+nmc: sending out	nmc: भेज रहा है
+NMOS: not running	NMOS: नहीं चल रहा
+cue audio: stereo	क्यू ऑडियो: स्टीरियो
+nmc: listening in	nmc: सुन रहा है
+glyphs: by density	ग्लिफ़: घनत्व के अनुसार
+pause at begin: on	शुरू में विराम: चालू
+SPLASH AT START: ON	शुरुआत में आरंभ स्क्रीन: चालू
+aoi: invalid number	aoi: अमान्य संख्या
+next transition: on	अगला संक्रमण: चालू
+pause at begin: off	शुरू में विराम: बंद
+pocket 3 preset: on	pocket 3 प्रीसेट: चालू
+SPLASH AT START: OFF	शुरुआत में आरंभ स्क्रीन: बंद
+next transition: off	अगला संक्रमण: बंद
+pocket 3 preset: off	pocket 3 प्रीसेट: बंद
+Ahoy hoy! I am Deckboy.	अहोय होय! मैं Deckboy हूँ।
+output recovering: stream	आउटपुट पुनर्प्राप्ति: प्रसारित करें
+click: replace the chain    + add: add to the end	क्लिक: चेन बदलें    + जोड़ें: अंत में जोड़ें
+computer keyboard: PLAYING (letter keys are notes)	कंप्यूटर कीबोर्ड: चल रहा (अक्षर कुंजियाँ नोट्स हैं)
+a name for the section this row starts (empty: none)	इस पंक्ति से शुरू होने वाले अनुभाग का नाम (खाली: कोई नहीं)
+Enter media path or browser:/window:/camera:/syphon: source	मीडिया पथ या browser:/window:/camera:/syphon: स्रोत दर्ज करें

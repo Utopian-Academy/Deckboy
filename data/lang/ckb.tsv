@@ -5392,3 +5392,38 @@ Keep a candle in the window and a sandwich in the rack. The ship takes one. Pray
 Every full moon I hear oars in the ceiling. Your mother says it's the pipes. Pipes don't row, kiddo.	هەموو مانگی چواردەیەک دەنگی سەوڵ لە بنمیچەکەدا دەبیستم. دایکت دەڵێت بۆرییەکانە. بۆری سەوڵ لێ نادات، بچکۆلە.
 Kiddo. Sit down. Your great-grandfather sailed on a ship with no crew. He was the crew. He was a rat.	بچکۆلە. دانیشە. باپیرە گەورەت بە کەشتییەکی بێ دەستە دەریاوانی کرد. ئەو خۆی دەستەکە بوو. مشک بوو.
 I've seen things, kiddo. Dropped frames. Wrong inputs. A projector lens with a fingerprint on it. Shudder.	شتگەلێکم بینیوە، بچکۆلە. چوارچێوەکانی ونبوو. ئینپوتی هەڵە. لێنزی پرۆژێکتەرێک شوێنەپەنجەی پێوە بوو. لەرزین.
+LOCK: ON	قوفڵ: هەڵکراو
+LOCK: OFF	قوفڵ: کوژاوە
+find: none	دۆزینەوە: هیچ
+LOOP SONG: ON	دووبارەی گۆرانی: هەڵکراو
+PHONE'S ({1})	هی تەلەفۆن ({1})
+QUANTISE: off	کوانتایز: کوژاوە
+auto fade: on	کاڵبوونەوەی خۆکار: هەڵکراو
+cue audio: on	دەنگی cue: هەڵکراو
+input: stereo	تێخستن: ستێریۆ
+FLASHLIGHT: ON	چرای دەستی: هەڵکراو
+LOOP SONG: OFF	دووبارەی گۆرانی: کوژاوە
+auto fade: off	کاڵبوونەوەی خۆکار: کوژاوە
+cue audio: off	دەنگی cue: کوژاوە
+FLASHLIGHT: OFF	چرای دەستی: کوژاوە
+still dur: hold	ماوەی وێنەی جێگیر: ڕاگرتن
+nmc: sending out	nmc: دەینێرێت
+NMOS: not running	NMOS: لە کاردا نییە
+cue audio: stereo	دەنگی cue: ستێریۆ
+nmc: listening in	nmc: گوێ دەگرێت
+glyphs: by density	گلیفەکان: بەپێی چڕی
+pause at begin: on	ڕاگرتن لە سەرەتادا: هەڵکراو
+SPLASH AT START: ON	شاشەی سەرەتا لە دەستپێکردندا: هەڵکراو
+aoi: invalid number	aoi: ژمارەی نادروست
+next transition: on	گواستنەوەی دواتر: هەڵکراو
+pause at begin: off	ڕاگرتن لە سەرەتادا: کوژاوە
+pocket 3 preset: on	پێشڕێکخستنی pocket 3: هەڵکراو
+SPLASH AT START: OFF	شاشەی سەرەتا لە دەستپێکردندا: کوژاوە
+next transition: off	گواستنەوەی دواتر: کوژاوە
+pocket 3 preset: off	پێشڕێکخستنی pocket 3: کوژاوە
+Ahoy hoy! I am Deckboy.	سڵاو سڵاو! من Deckboyم.
+output recovering: stream	گەڕاندنەوەی دەرچوون: پەخش
+click: replace the chain    + add: add to the end	کلیک: گۆڕینی زنجیرە    + زیادکردن: زیادکردن بۆ کۆتایی
+computer keyboard: PLAYING (letter keys are notes)	تەختەکلیلی کۆمپیوتەر: لێدەدرێت (کلیلی پیتەکان نۆتەن)
+a name for the section this row starts (empty: none)	ناوێک بۆ ئەو بەشەی ئەم ڕیزە دەستی پێدەکات (بەتاڵ: هیچ)
+Enter media path or browser:/window:/camera:/syphon: source	ڕێڕەوی میدیا یان سەرچاوەی browser:/window:/camera:/syphon: بنووسە

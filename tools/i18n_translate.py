@@ -66,6 +66,9 @@ TRADE = ["TAKE ALL", "TAKE", "PROGRAM", "NDI", "SRT", "RTMP", "OSC", "MIDI", "LT
          "Pocket"]   # Deckboy Pocket is a name: it was translated ("Poche") 2026-11-26
 KEY_NAMES = ["Enter", "Space", "Esc", "Tab", "Ctrl", "Shift", "Alt", "Cmd", "Del", "Ins",
              "PgUp", "PgDn", "Home", "End", "Backspace"] + [f"F{i}" for i in range(1, 13)]
+# Lines where "Enter" is the verb (type in), not the key: no rule can tell
+# "Enter media path" from "Enter takes a cue live", so they are listed.
+ENTER_AS_A_WORD = {"Enter media path or browser:/window:/camera:/syphon: source"}
 PLACEHOLDER = re.compile(r"\{(?:n|[1-9])\}|%[-0-9.]*[sdfxu]")
 
 RULES = """You translate the interface of Deckboy, a cue deck for live events (video
@@ -173,6 +176,52 @@ def staged_filter(keys):
     return {k: v for k, v in keys.items() if written(k)}
 
 
+_SOURCES = None
+
+
+def string_source(k):
+    """The source file a drawn string comes from (audit_i18n's scan, once)."""
+    global _SOURCES
+    if _SOURCES is None:
+        _SOURCES = dict(audit_i18n.drawn_strings())
+        for s, where in audit_i18n.variable_strings().items():
+            _SOURCES.setdefault(s, where)
+    return str(_SOURCES.get(k, ""))
+
+
+_REMOTE_ERRORS = None
+
+
+def remote_errors():
+    """Every failRemoteCommand("...") literal, in any source file: a command's
+    own error, whose label is the command's name (English on purpose)."""
+    global _REMOTE_ERRORS
+    if _REMOTE_ERRORS is None:
+        _REMOTE_ERRORS = set()
+        pattern = re.compile(r'failRemoteCommand\(\s*"((?:[^"\\]|\\.)*)"')
+        for path in (ROOT / "native").rglob("*"):
+            if path.suffix in (".cpp", ".hpp", ".ipp") and "extras" not in path.parts:
+                _REMOTE_ERRORS.update(pattern.findall(path.read_text(encoding="utf-8", errors="replace")))
+    return _REMOTE_ERRORS
+
+
+def label_gap(k, cat, lowered, keep, code):
+    """A "LABEL: value" string whose LABEL has no line: translated by pieces
+    only in the value, so the label showed in English ("SPLASH AT START: OUI",
+    2026-11-26). Not a remote command's error ("MESH: no cue selected", from
+    app_remote_command.ipp): there the label is the command, English on purpose."""
+    if ": " not in k:
+        return False
+    label = k.split(": ", 1)[0]
+    if not label or not i18n_pieces.interesting(label) or "app_remote_command" in string_source(k):
+        return False
+    if k in remote_errors():
+        return False
+    if kept(keep, code, label) or audit_i18n.covered(label, cat, lowered):
+        return False
+    return not i18n_pieces.pieces(label, lowered, set())
+
+
 def missing_for(code, keys, keep):
     cat, _ = catalogue(code)
     lowered = {k.lower() for k in cat}
@@ -180,9 +229,11 @@ def missing_for(code, keys, keep):
     for k in keys:
         if kept(keep, code, k):
             continue
-        if audit_i18n.covered(k, cat, lowered) or i18n_pieces.pieces(k, lowered, set()):
+        if audit_i18n.covered(k, cat, lowered):
             continue
-        out.append(k)
+        if i18n_pieces.pieces(k, lowered, set()) and not label_gap(k, cat, lowered, keep, code):
+            continue
+        out.append(k)   # (a label gap: the whole line is translated, which covers it)
     return out
 
 
@@ -229,6 +280,8 @@ def problems(en, tr):
         return "placeholders changed"
     for word in TRADE + KEY_NAMES:
         pattern = r"(?<![A-Za-z])" + re.escape(word) + r"(?![A-Za-z])"
+        if word == "Enter" and en in ENTER_AS_A_WORD:
+            continue
         if word in ("Home", "End"):
             # Two key names that are also words: "End of the song", "Home
             # screen" are prose and translate (2026-11-26: every language was

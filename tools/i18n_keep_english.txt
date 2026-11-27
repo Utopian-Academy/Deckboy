@@ -1744,3 +1744,4 @@ zgh	Pocket
 zh-Hans	Pocket
 zh-Hant	Pocket
 zu	Pocket
+pap-AW	input: stereo

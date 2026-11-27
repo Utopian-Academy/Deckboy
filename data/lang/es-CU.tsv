@@ -5357,3 +5357,38 @@ Keep a candle in the window and a sandwich in the rack. The ship takes one. Pray
 Every full moon I hear oars in the ceiling. Your mother says it's the pipes. Pipes don't row, kiddo.	Cada luna llena oigo remos en el techo. Tu mamá dice que son las tuberías. Las tuberías no reman, chama.
 Kiddo. Sit down. Your great-grandfather sailed on a ship with no crew. He was the crew. He was a rat.	Chama. Siéntate. Tu bisabuelo navegó en un barco sin tripulación. Él era la tripulación. Era una rata.
 I've seen things, kiddo. Dropped frames. Wrong inputs. A projector lens with a fingerprint on it. Shudder.	He visto cosas, chama. Fotogramas perdidos. Entradas equivocadas. Un lente de proyector con una huella. Qué escalofrío.
+LOCK: ON	BLOQUEO: DALE
+LOCK: OFF	BLOQUEO: NADA
+find: none	buscar: ninguno
+LOOP SONG: ON	BUCLE DE CANCIÓN: DALE
+PHONE'S ({1})	DEL TELÉFONO ({1})
+QUANTISE: off	CUANTIZAR: nada
+auto fade: on	fundido automático: dale
+cue audio: on	audio del cue: dale
+input: stereo	entrada: estéreo
+FLASHLIGHT: ON	LINTERNA: DALE
+LOOP SONG: OFF	BUCLE DE CANCIÓN: NADA
+auto fade: off	fundido automático: nada
+cue audio: off	audio del cue: nada
+FLASHLIGHT: OFF	LINTERNA: NADA
+still dur: hold	dur. imagen fija: mantener
+nmc: sending out	nmc: emitiendo
+NMOS: not running	NMOS: no está en marcha
+cue audio: stereo	audio del cue: estéreo
+nmc: listening in	nmc: escuchando
+glyphs: by density	glifos: por densidad
+pause at begin: on	pausa al inicio: dale
+SPLASH AT START: ON	PANTALLA DE INICIO AL ARRANCAR: DALE
+aoi: invalid number	aoi: número no válido
+next transition: on	siguiente transición: dale
+pause at begin: off	pausa al inicio: nada
+pocket 3 preset: on	preajuste pocket 3: dale
+SPLASH AT START: OFF	PANTALLA DE INICIO AL ARRANCAR: NADA
+next transition: off	siguiente transición: nada
+pocket 3 preset: off	preajuste pocket 3: nada
+Ahoy hoy! I am Deckboy.	¡Qué volá! Soy Deckboy.
+output recovering: stream	recuperando salida: emitir
+click: replace the chain    + add: add to the end	clic: reemplazar la cadena    + añadir: añadir al final
+computer keyboard: PLAYING (letter keys are notes)	teclado de la computadora: SONANDO (las teclas de letras son notas)
+a name for the section this row starts (empty: none)	un nombre para la sección que empieza en esta fila (vacío: ninguno)
+Enter media path or browser:/window:/camera:/syphon: source	Escribe la ruta de medios o una fuente browser:/window:/camera:/syphon:

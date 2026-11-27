@@ -5389,3 +5389,38 @@ Keep a candle in the window and a sandwich in the rack. The ship takes one. Pray
 Every full moon I hear oars in the ceiling. Your mother says it's the pipes. Pipes don't row, kiddo.	보름달마다 천장에서 노 젓는 소리가 들려. 네 엄마는 배관이래. 배관은 노를 안 저어, 꼬마야.
 Kiddo. Sit down. Your great-grandfather sailed on a ship with no crew. He was the crew. He was a rat.	꼬마야. 앉아 봐. 네 증조할아버지는 선원 없는 배를 탔어. 본인이 선원이었지. 쥐였거든.
 I've seen things, kiddo. Dropped frames. Wrong inputs. A projector lens with a fingerprint on it. Shudder.	난 별걸 다 봤어, 꼬마야. 드롭된 프레임. 잘못된 입력. 지문 묻은 프로젝터 렌즈. 으으.
+LOCK: ON	잠금: 켜짐
+LOCK: OFF	잠금: 꺼짐
+find: none	찾기: 없음
+LOOP SONG: ON	노래 반복: 켜짐
+PHONE'S ({1})	전화 ({1})
+QUANTISE: off	퀀타이즈: 꺼짐
+auto fade: on	자동 페이드: 켜짐
+cue audio: on	큐 오디오: 켜짐
+input: stereo	입력: 스테레오
+FLASHLIGHT: ON	손전등: 켜짐
+LOOP SONG: OFF	노래 반복: 꺼짐
+auto fade: off	자동 페이드: 꺼짐
+cue audio: off	큐 오디오: 꺼짐
+FLASHLIGHT: OFF	손전등: 꺼짐
+still dur: hold	정지 화면 길이: 유지
+nmc: sending out	nmc: 전송 중
+NMOS: not running	NMOS: 실행 중 아님
+cue audio: stereo	큐 오디오: 스테레오
+nmc: listening in	nmc: 수신 중
+glyphs: by density	글리프: 밀도순
+pause at begin: on	시작 시 일시 정지: 켜짐
+SPLASH AT START: ON	시작 시 시작 화면: 켜짐
+aoi: invalid number	aoi: 잘못된 숫자
+next transition: on	다음 전환: 켜짐
+pause at begin: off	시작 시 일시 정지: 꺼짐
+pocket 3 preset: on	pocket 3 프리셋: 켜짐
+SPLASH AT START: OFF	시작 시 시작 화면: 꺼짐
+next transition: off	다음 전환: 꺼짐
+pocket 3 preset: off	pocket 3 프리셋: 꺼짐
+Ahoy hoy! I am Deckboy.	아호이! 저는 Deckboy예요.
+output recovering: stream	출력 복구 중: 스트리밍
+click: replace the chain    + add: add to the end	클릭: 체인 교체    + 추가: 끝에 추가
+computer keyboard: PLAYING (letter keys are notes)	컴퓨터 키보드: 재생 중 (글자 키로 음 연주)
+a name for the section this row starts (empty: none)	이 행에서 시작하는 섹션 이름 (비어 있음: 없음)
+Enter media path or browser:/window:/camera:/syphon: source	미디어 경로 또는 browser:/window:/camera:/syphon: 소스 입력

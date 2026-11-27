@@ -247,7 +247,9 @@ bool copyCatalogue(const std::string& data, const std::string& code) {
   return ok;
 }
 
-void applyPhoneLanguage(const std::string& data, TTF_Font* probeFont) {
+// `chosen`: a catalogue's code (MENU > PHONE > LANGUAGE), or empty for the
+// phone's own language. Also called again when the choice changes.
+void applyLanguage(const std::string& data, TTF_Font* probeFont, const std::string& chosen) {
   // Arabic, Persian and Kurdish need the shaper's right-to-left runs; say
   // whether this build has them, as the desk does, before choosing.
   if (probeFont) {
@@ -255,10 +257,14 @@ void applyPhoneLanguage(const std::string& data, TTF_Font* probeFont) {
     TTF_SetFontDirection(probeFont, TTF_DIRECTION_LTR);
     deckboy::core::i18n::noteShapingAvailable(can);
   }
-  const std::string code = phoneLanguageCode();
-  if (code == "en" || !copyCatalogue(data, code)) return;
-  if (code == "es-CU") copyCatalogue(data, "es");   // its catalogue fills its gaps from Spanish
+  const std::string code = chosen.empty() ? phoneLanguageCode() : chosen;
   std::string error;
+  if (code == "en" || !copyCatalogue(data, code)) {
+    deckboy::core::i18n::setLanguage("en", data, error);   // (back to English from another)
+    deckboy::render::shaping::setFallbackChain(deckboy::render::scriptFallbacks("en"));
+    return;
+  }
+  if (code == "es-CU") copyCatalogue(data, "es");   // its catalogue fills its gaps from Spanish
   if (!deckboy::core::i18n::setLanguage(code, data, error)) {
     SDL_Log("pocket: language %s: %s", code.c_str(), error.c_str());
     return;
@@ -1381,9 +1387,16 @@ class Pocket {
     sans_ = TTF_OpenFont((data + "fonts/LiberationSans-Regular.ttf").c_str(), 3.0f * u);
     mono_ = TTF_OpenFont((data + "fonts/LiberationMono-Regular.ttf").c_str(), 2.9f * u);
     static bool spoken = false;
+    dataDir_ = data;
     if (!spoken) {   // once: fonts reopen whenever the phone turns
       spoken = true;
-      applyPhoneLanguage(data, sans_);
+      size_t n = 0;
+      if (char* saved = static_cast<char*>(SDL_LoadFile(statePath("pocket_language.txt").c_str(), &n))) {
+        language_ = std::string(saved, n);
+        SDL_free(saved);
+        while (!language_.empty() && (language_.back() == '\n' || language_.back() == '\r' || language_.back() == ' ')) language_.pop_back();
+      }
+      applyLanguage(data, sans_, language_);
     }
     // the faces' own print: Liberation Mono at 2 mm (pocket-skins text size 2.0)
     printFont_ = TTF_OpenFont((data + "fonts/LiberationMono-Regular.ttf").c_str(), 2.0f * u);
@@ -2347,6 +2360,14 @@ class Pocket {
       y += 6.5f * u;
     }
 
+    heading("LANGUAGE");
+    {
+      const float bw = 9 * u;
+      button({lx, y, bw, 5 * u}, "<", [this] { stepLanguage(-1); });
+      text_.drawName(mono_, languageLabel(), kDeep, {lx + bw + u, y, lw - 2 * bw - 2 * u, 5 * u}, true);
+      button({lx + lw - bw, y, bw, 5 * u}, ">", [this] { stepLanguage(1); });
+      y += 6.5f * u;
+    }
     heading("LEFT BUTTON");
     {
       const float bw = 9 * u;
@@ -2628,6 +2649,77 @@ class Pocket {
     p.decks[d].selectedIndex = cues_.empty() ? -1 : selected_;
     p.focusedDeckIndex = static_cast<int>(d);
     return p;
+  }
+
+  // -- LANGUAGE (MENU > PHONE) --
+  //
+  // Every catalogue the build carries, by its own name. The APK's assets
+  // cannot be listed from native code, so the build writes lang/index.txt;
+  // a desktop build lists its data folder. Each catalogue's name is read
+  // from its first lines, not the whole file.
+  struct LanguageChoice { std::string code, name; };
+  const std::vector<LanguageChoice>& languages() {
+    if (!languages_.empty()) return languages_;
+    std::vector<std::string> codes;
+    size_t n = 0;
+    if (char* index = static_cast<char*>(SDL_LoadFile("data/lang/index.txt", &n))) {
+      std::istringstream in(std::string(index, n));
+      SDL_free(index);
+      std::string line;
+      while (std::getline(in, line)) {
+        while (!line.empty() && (line.back() == '\r' || line.back() == ' ')) line.pop_back();
+        if (!line.empty()) codes.push_back(line);
+      }
+    } else {
+      std::error_code ec;
+      for (const auto& f : std::filesystem::directory_iterator("data/lang", ec)) {
+        if (f.path().extension() == ".tsv") codes.push_back(f.path().stem().string());
+      }
+      std::sort(codes.begin(), codes.end());
+    }
+    languages_.push_back({"en", "English"});
+    for (const std::string& code : codes) {
+      if (code == "en") continue;
+      std::string name = code, english;
+      if (SDL_IOStream* io = SDL_IOFromFile(("data/lang/" + code + ".tsv").c_str(), "rb")) {
+        char head[600] = {};
+        const size_t got = SDL_ReadIO(io, head, sizeof head - 1);
+        SDL_CloseIO(io);
+        std::istringstream in(std::string(head, got));
+        std::string line;
+        while (std::getline(in, line)) {
+          if (line.rfind("#name ", 0) == 0) name = line.substr(6);
+          else if (line.rfind("#english ", 0) == 0) english = line.substr(9);
+          else if (!line.empty() && line[0] != '#') break;
+        }
+        while (!name.empty() && (name.back() == '\r' || name.back() == ' ')) name.pop_back();
+        while (!english.empty() && (english.back() == '\r' || english.back() == ' ')) english.pop_back();
+      }
+      // in its own words, and in English (a script this face cannot draw yet
+      // is read by its English name until it is chosen)
+      languages_.push_back({code, english.empty() || english == name ? name : name + "  " + english});
+    }
+    return languages_;
+  }
+
+  std::string languageLabel() {
+    const std::string code = language_.empty() ? phoneLanguageCode() : language_;
+    std::string name = code;
+    for (const LanguageChoice& l : languages()) if (l.code == code) name = l.name;
+    return language_.empty() ? deckboy::core::i18n::format("PHONE'S ({1})", {name}) : name;
+  }
+
+  // PHONE'S, then every language, round and round.
+  void stepLanguage(int by) {
+    const auto& list = languages();
+    const int count = static_cast<int>(list.size()) + 1;   // + PHONE'S
+    int at = 0;
+    for (int k = 0; k < static_cast<int>(list.size()); ++k) if (list[static_cast<std::size_t>(k)].code == language_) at = k + 1;
+    at = ((at + by) % count + count) % count;
+    language_ = at == 0 ? std::string() : list[static_cast<std::size_t>(at - 1)].code;
+    SDL_SaveFile(statePath("pocket_language.txt").c_str(), language_.data(), language_.size());
+    applyLanguage(dataDir_, sans_, language_);
+    text_.clear();   // every label drawn again in the new language
   }
 
   std::string statePath(const char* name) const {
@@ -4822,7 +4914,7 @@ class Pocket {
              "SEEK <seconds|+s|-s> BLACK [ON|OFF] VOLUME <0-100> MUTE DECK 1 SKIP SKIPBACK\n"
              "SHUFFLE LOOP ENDAFTER [ON|OFF|TOGGLE] CROSSFADE <s> QUEUE <n>|CLEAR RENAME <n> <name>\n"
              "DIRECTION <n> FORWARD|REVERSE|BOUNCE SHELL <name>|FLAT SNAP <file.bmp>\n"
-             "TBAR [HOLD|MOVE <seconds>|RUN]\n"
+             "TBAR [HOLD|MOVE <seconds>|RUN] LANGUAGE [<code>|PHONE]\n"
              "SYNC FOLLOW <desk> SYNC STOP SYNC STATUS\n";
     }
     if (verb == "STATUS" || verb == "STATE") return remoteStatus();
@@ -5221,6 +5313,22 @@ class Pocket {
       c.playDirection = k;
       cueEdited(n - 1, false);
       return ok();
+    }
+    if (verb == "LANGUAGE") {   // LANGUAGE [<code> | PHONE]: MENU > PHONE > LANGUAGE
+      std::string want = rest;
+      while (!want.empty() && want.back() == ' ') want.pop_back();
+      if (!want.empty()) {
+        if (upper(want) == "PHONE") want.clear();
+        const auto& list = languages();
+        if (!want.empty() && std::none_of(list.begin(), list.end(), [&](const LanguageChoice& l) { return l.code == want; })) {
+          return err("no catalogue " + want + " (LANGUAGE PHONE follows the phone)");
+        }
+        language_ = want;
+        SDL_SaveFile(statePath("pocket_language.txt").c_str(), language_.data(), language_.size());
+        applyLanguage(dataDir_, sans_, language_);
+        text_.clear();
+      }
+      return "OK LANGUAGE " + (language_.empty() ? std::string("PHONE ") + phoneLanguageCode() : language_) + "\n";
     }
     if (verb == "SHELL") {   // a rendered shell by its slug, or FLAT
       std::string want = rest;
@@ -7499,7 +7607,10 @@ class Pocket {
       std::shuffle(order.begin(), order.end(), std::mt19937(std::random_device {}()));
       return order;
     }();
-    full = turn == 0 ? std::string("Hi! I am Deckboy.")
+    // greeted as a telephone once was (James 11-26), or as the language's own
+    // catalogue greets (@hello), as the desk does
+    const std::string ownHello = deckboy::core::i18n::translate("@hello");
+    full = turn == 0 ? (!ownHello.empty() && ownHello != "@hello" ? ownHello : std::string("Ahoy hoy! I am Deckboy."))
                                  : deckboy::core::kPocketFaceLines[kOrder[static_cast<std::size_t>(faceDealt_ + turn - 1) % kOrder.size()]];
     if (turn > 0 && mood.level > 0.0 && (turn % 10) < static_cast<int>(2 + 6 * mood.level)) full = deckboy::face::moodLine(mood, turn / 10);
     return deckboy::face::typed(full, since % kLineMs, kMsPerChar, now);
@@ -10399,6 +10510,9 @@ class Pocket {
   // the open show (see currentShow)
   Project show_;
   int showDeck_ = 0;
+  // LANGUAGE: the chosen catalogue ("" = the phone's), the list, where data is
+  std::string language_, dataDir_;
+  std::vector<LanguageChoice> languages_;
   // The T-bar (tbarService): which way a held arrow moves it (0 none), whether
   // the hold began as a GO that is still a tap, and what the take replaced.
   int tbarDir_ = 0;

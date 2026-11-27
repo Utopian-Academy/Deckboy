@@ -5353,3 +5353,38 @@ Keep a candle in the window and a sandwich in the rack. The ship takes one. Pray
 Every full moon I hear oars in the ceiling. Your mother says it's the pipes. Pipes don't row, kiddo.	Ogni luna piena sento remi nel soffitto. Tua madre dice che sono i tubi. I tubi non remano, tesoro.
 Kiddo. Sit down. Your great-grandfather sailed on a ship with no crew. He was the crew. He was a rat.	Tesoro. Siediti. Il tuo bisnonno navigava su una nave senza equipaggio. L'equipaggio era lui. Era un ratto.
 I've seen things, kiddo. Dropped frames. Wrong inputs. A projector lens with a fingerprint on it. Shudder.	Ne ho viste di cose, tesoro. Fotogrammi persi. Ingressi sbagliati. Una lente del proiettore con un'impronta sopra. Brrr.
+LOCK: ON	BLOCCO: SI
+LOCK: OFF	BLOCCO: NO
+find: none	trova: nessuno
+LOOP SONG: ON	CICLO BRANO: SI
+PHONE'S ({1})	DEL TELEFONO ({1})
+QUANTISE: off	QUANTIZZA: no
+auto fade: on	dissolvenza automatica: sì
+cue audio: on	audio del cue: sì
+input: stereo	ingresso: stereo
+FLASHLIGHT: ON	TORCIA: SI
+LOOP SONG: OFF	CICLO BRANO: NO
+auto fade: off	dissolvenza automatica: no
+cue audio: off	audio del cue: no
+FLASHLIGHT: OFF	TORCIA: NO
+still dur: hold	durata fermo immagine: tieni
+nmc: sending out	nmc: in invio
+NMOS: not running	NMOS: non in corso
+cue audio: stereo	audio del cue: stereo
+nmc: listening in	nmc: in ascolto
+glyphs: by density	glifi: per densità
+pause at begin: on	pausa all'inizio: sì
+SPLASH AT START: ON	SCHERMATA INIZIALE ALL'AVVIO: SI
+aoi: invalid number	aoi: numero non valido
+next transition: on	prossima transizione: sì
+pause at begin: off	pausa all'inizio: no
+pocket 3 preset: on	preset pocket 3: sì
+SPLASH AT START: OFF	SCHERMATA INIZIALE ALL'AVVIO: NO
+next transition: off	prossima transizione: no
+pocket 3 preset: off	preset pocket 3: no
+Ahoy hoy! I am Deckboy.	Ehilà! Sono Deckboy.
+output recovering: stream	uscita in ripristino: trasmetti
+click: replace the chain    + add: add to the end	clic: sostituisci la catena    + aggiungi: aggiungi in fondo
+computer keyboard: PLAYING (letter keys are notes)	tastiera del computer: IN PLAY (i tasti lettera sono note)
+a name for the section this row starts (empty: none)	un nome per la sezione che inizia con questa riga (vuoto: nessuno)
+Enter media path or browser:/window:/camera:/syphon: source	Inserisci percorso media o sorgente browser:/window:/camera:/syphon:

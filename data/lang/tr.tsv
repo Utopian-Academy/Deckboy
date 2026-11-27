@@ -5381,3 +5381,38 @@ Keep a candle in the window and a sandwich in the rack. The ship takes one. Pray
 Every full moon I hear oars in the ceiling. Your mother says it's the pipes. Pipes don't row, kiddo.	Her dolunayda tavanda kürek sesleri duyuyorum. Annen borular diyor. Borular kürek çekmez evlat.
 Kiddo. Sit down. Your great-grandfather sailed on a ship with no crew. He was the crew. He was a rat.	Evlat. Otur. Büyük deden mürettebatı olmayan bir gemiyle denize açıldı. Mürettebat oydu. O bir fareydi.
 I've seen things, kiddo. Dropped frames. Wrong inputs. A projector lens with a fingerprint on it. Shudder.	Çok şey gördüm evlat. Düşen kareler. Yanlış girişler. Üstünde parmak izi olan bir projektör merceği. Brr.
+LOCK: ON	KİLİT: AÇIK
+LOCK: OFF	KİLİT: KAPALI
+find: none	bul: yok
+LOOP SONG: ON	ŞARKI DÖNGÜSÜ: AÇIK
+PHONE'S ({1})	TELEFONUN ({1})
+QUANTISE: off	NİCEMLEME: kapalı
+auto fade: on	otomatik solma: açık
+cue audio: on	cue sesi: açık
+input: stereo	giriş: stereo
+FLASHLIGHT: ON	FENER: AÇIK
+LOOP SONG: OFF	ŞARKI DÖNGÜSÜ: KAPALI
+auto fade: off	otomatik solma: kapalı
+cue audio: off	cue sesi: kapalı
+FLASHLIGHT: OFF	FENER: KAPALI
+still dur: hold	durağan süresi: bekle
+nmc: sending out	nmc: gönderiyor
+NMOS: not running	NMOS: çalışmıyor
+cue audio: stereo	cue sesi: stereo
+nmc: listening in	nmc: dinliyor
+glyphs: by density	glifler: yoğunluğa göre
+pause at begin: on	başta duraklat: açık
+SPLASH AT START: ON	AÇILIŞ EKRANI: AÇIK
+aoi: invalid number	aoi: geçersiz sayı
+next transition: on	sonraki geçiş: açık
+pause at begin: off	başta duraklat: kapalı
+pocket 3 preset: on	pocket 3 önayarı: açık
+SPLASH AT START: OFF	AÇILIŞ EKRANI: KAPALI
+next transition: off	sonraki geçiş: kapalı
+pocket 3 preset: off	pocket 3 önayarı: kapalı
+Ahoy hoy! I am Deckboy.	Ahoy hoy! Ben Deckboy.
+output recovering: stream	çıkış kurtarılıyor: yayın
+click: replace the chain    + add: add to the end	tıkla: zinciri değiştir    + ekle: sona ekle
+computer keyboard: PLAYING (letter keys are notes)	bilgisayar klavyesi: OYNATILIYOR (harf tuşları notalardır)
+a name for the section this row starts (empty: none)	bu satırın başlattığı bölüm için ad (boş: yok)
+Enter media path or browser:/window:/camera:/syphon: source	Medya yolunu veya browser:/window:/camera:/syphon: kaynağını girin

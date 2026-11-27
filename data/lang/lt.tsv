@@ -4473,3 +4473,14 @@ Keep a candle in the window and a sandwich in the rack. The ship takes one. Pray
 Every full moon I hear oars in the ceiling. Your mother says it's the pipes. Pipes don't row, kiddo.	Kiekvieną pilnatį girdžiu irklus lubose. Tavo mama sako, kad tai vamzdžiai. Vamzdžiai neirkluoja, vaikeli.
 Kiddo. Sit down. Your great-grandfather sailed on a ship with no crew. He was the crew. He was a rat.	Vaikeli. Sėskis. Tavo prosenelis plaukė laivu be įgulos. Jis buvo įgula. Jis buvo žiurkė.
 I've seen things, kiddo. Dropped frames. Wrong inputs. A projector lens with a fingerprint on it. Shudder.	Esu matęs visko, vaikeli. Prarastų kadrų. Netinkamų įvesčių. Projektoriaus objektyvo su piršto atspaudu. Šiurpu.
+LOCK: OFF	UŽRAKTAS: IŠJUNGTA
+PHONE'S ({1})	TELEFONO ({1})
+LOOP SONG: OFF	KARTOTI DAINĄ: IŠJUNGTA
+CORNER PIN: OFF	KAMPŲ KOREKCIJA: IŠJUNGTA
+FLASHLIGHT: OFF	ŽIBINTUVĖLIS: IŠJUNGTAS
+SPLASH AT START: OFF	PRADŽIOS LANGAS PALEIDUS: IŠJUNGTA
+Ahoy hoy! I am Deckboy.	Sveiki! Aš – Deckboy.
+click: replace the chain    + add: add to the end	spustelėti: pakeisti grandinę    + pridėti: pridėti į pabaigą
+the words this cue puts on screen  |  Shift+Enter: new line  |  Enter: apply	žodžiai, kuriuos šis signalas rodo ekrane  |  Shift+Enter: nauja eilutė  |  Enter: taikyti
+name values with  d = ...;  end with one expression, or three for red green blue  |  Shift+Enter: new line  |  Enter: apply	pavadinkite reikšmes  d = ...;  baikite viena išraiška arba trimis – raudona žalia mėlyna  |  Shift+Enter: nauja eilutė  |  Enter: taikyti
+Enter media path or browser:/window:/camera:/syphon: source	Įveskite medijos kelią arba browser:/window:/camera:/syphon: šaltinį

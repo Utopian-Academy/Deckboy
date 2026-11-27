@@ -5391,3 +5391,38 @@ Keep a candle in the window and a sandwich in the rack. The ship takes one. Pray
 Every full moon I hear oars in the ceiling. Your mother says it's the pipes. Pipes don't row, kiddo.	Всяко пълнолуние чувам гребла в тавана. Майка ти казва, че са тръбите. Тръбите не гребат, малкия.
 Kiddo. Sit down. Your great-grandfather sailed on a ship with no crew. He was the crew. He was a rat.	Малкия. Седни. Прадядо ти е плавал на кораб без екипаж. Той беше екипажът. Беше плъх.
 I've seen things, kiddo. Dropped frames. Wrong inputs. A projector lens with a fingerprint on it. Shudder.	Виждал съм неща, малкия. Изпуснати кадри. Грешни входове. Леща на проектор с отпечатък от пръст. Ужас.
+LOCK: ON	ЗАКЛЮЧВАНЕ: ВКЛ
+LOCK: OFF	ЗАКЛЮЧВАНЕ: ИЗКЛ
+find: none	търсене: няма
+LOOP SONG: ON	ЦИКЪЛ НА ПЕСЕНТА: ВКЛ
+PHONE'S ({1})	НА ТЕЛЕФОНА ({1})
+QUANTISE: off	КВАНТУВАНЕ: изкл
+auto fade: on	авто преливане: вкл
+cue audio: on	звук на cue: вкл
+input: stereo	вход: стерео
+FLASHLIGHT: ON	ФЕНЕРЧЕ: ВКЛ
+LOOP SONG: OFF	ЦИКЪЛ НА ПЕСЕНТА: ИЗКЛ
+auto fade: off	авто преливане: изкл
+cue audio: off	звук на cue: изкл
+FLASHLIGHT: OFF	ФЕНЕРЧЕ: ИЗКЛ
+still dur: hold	прод. на стоп кадър: задръж
+nmc: sending out	nmc: изпраща
+NMOS: not running	NMOS: не работи
+cue audio: stereo	звук на cue: стерео
+nmc: listening in	nmc: слуша
+glyphs: by density	глифове: по плътност
+pause at begin: on	пауза в началото: вкл
+SPLASH AT START: ON	НАЧАЛЕН ЕКРАН ПРИ СТАРТ: ВКЛ
+aoi: invalid number	aoi: невалидно число
+next transition: on	следващ преход: вкл
+pause at begin: off	пауза в началото: изкл
+pocket 3 preset: on	преднастройка pocket 3: вкл
+SPLASH AT START: OFF	НАЧАЛЕН ЕКРАН ПРИ СТАРТ: ИЗКЛ
+next transition: off	следващ преход: изкл
+pocket 3 preset: off	преднастройка pocket 3: изкл
+Ahoy hoy! I am Deckboy.	Ало-ало! Аз съм Deckboy.
+output recovering: stream	възстановяване на изхода: излъчвай
+click: replace the chain    + add: add to the end	клик: замени веригата    + добави: добави в края
+computer keyboard: PLAYING (letter keys are notes)	компютърна клавиатура: ВЪЗПРОИЗВЕЖДА (буквените клавиши са ноти)
+a name for the section this row starts (empty: none)	име на раздела, който започва този ред (празно: няма)
+Enter media path or browser:/window:/camera:/syphon: source	Въведете път до медия или източник browser:/window:/camera:/syphon:

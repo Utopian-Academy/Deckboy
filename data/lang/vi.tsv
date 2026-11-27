@@ -5373,3 +5373,38 @@ Keep a candle in the window and a sandwich in the rack. The ship takes one. Pray
 Every full moon I hear oars in the ceiling. Your mother says it's the pipes. Pipes don't row, kiddo.	Mỗi đêm trăng tròn tôi nghe tiếng mái chèo trên trần. Mẹ bạn nói đó là đường ống. Ống thì không chèo thuyền đâu, nhóc à.
 Kiddo. Sit down. Your great-grandfather sailed on a ship with no crew. He was the crew. He was a rat.	Nhóc à. Ngồi xuống. Cụ cố của bạn từng đi trên một con tàu không có thủy thủ. Ông ấy là thủy thủ đoàn. Ông ấy là một con chuột.
 I've seen things, kiddo. Dropped frames. Wrong inputs. A projector lens with a fingerprint on it. Shudder.	Tôi đã thấy nhiều thứ rồi, nhóc à. Rớt khung hình. Sai đầu vào. Một thấu kính máy chiếu dính dấu vân tay. Rùng mình.
+LOCK: ON	KHÓA: BẬT
+LOCK: OFF	KHÓA: TẮT
+find: none	tìm: không có
+LOOP SONG: ON	LẶP BÀI HÁT: BẬT
+PHONE'S ({1})	CỦA ĐIỆN THOẠI ({1})
+QUANTISE: off	LƯỢNG TỬ HÓA: tắt
+auto fade: on	tự động mờ dần: bật
+cue audio: on	âm thanh cue: bật
+input: stereo	đầu vào: stereo
+FLASHLIGHT: ON	ĐÈN PIN: BẬT
+LOOP SONG: OFF	LẶP BÀI HÁT: TẮT
+auto fade: off	tự động mờ dần: tắt
+cue audio: off	âm thanh cue: tắt
+FLASHLIGHT: OFF	ĐÈN PIN: TẮT
+still dur: hold	thời lượng ảnh tĩnh: giữ
+nmc: sending out	nmc: đang gửi ra
+NMOS: not running	NMOS: không chạy
+cue audio: stereo	âm thanh cue: stereo
+nmc: listening in	nmc: đang nghe trên
+glyphs: by density	ký tự: theo mật độ
+pause at begin: on	tạm dừng lúc bắt đầu: bật
+SPLASH AT START: ON	MÀN HÌNH CHÀO KHI BẮT ĐẦU: BẬT
+aoi: invalid number	aoi: số không hợp lệ
+next transition: on	chuyển cảnh tiếp: bật
+pause at begin: off	tạm dừng lúc bắt đầu: tắt
+pocket 3 preset: on	preset pocket 3: bật
+SPLASH AT START: OFF	MÀN HÌNH CHÀO KHI BẮT ĐẦU: TẮT
+next transition: off	chuyển cảnh tiếp: tắt
+pocket 3 preset: off	preset pocket 3: tắt
+Ahoy hoy! I am Deckboy.	Chào chào! Tôi là Deckboy.
+output recovering: stream	output đang phục hồi: stream
+click: replace the chain    + add: add to the end	nhấp: thay chuỗi    + thêm: thêm vào cuối
+computer keyboard: PLAYING (letter keys are notes)	bàn phím máy tính: ĐANG PHÁT (phím chữ là nốt nhạc)
+a name for the section this row starts (empty: none)	tên cho phần mà hàng này bắt đầu (trống: không có)
+Enter media path or browser:/window:/camera:/syphon: source	Nhập đường dẫn nội dung hoặc nguồn browser:/window:/camera:/syphon:

@@ -5348,3 +5348,38 @@ Keep a candle in the window and a sandwich in the rack. The ship takes one. Pray
 Every full moon I hear oars in the ceiling. Your mother says it's the pipes. Pipes don't row, kiddo.	Jeden Vollmond höre ich Ruder in der Decke. Deine Mutter sagt, das sind die Rohre. Rohre rudern nicht, Kleiner.
 Kiddo. Sit down. Your great-grandfather sailed on a ship with no crew. He was the crew. He was a rat.	Kleiner. Setz dich. Dein Urgroßvater fuhr auf einem Schiff ohne Crew. Er war die Crew. Er war eine Ratte.
 I've seen things, kiddo. Dropped frames. Wrong inputs. A projector lens with a fingerprint on it. Shudder.	Ich hab Dinge gesehen, Kleiner. Verlorene Bilder. Falsche Eingänge. Eine Projektorlinse mit Fingerabdruck. Schauder.
+LOCK: ON	SPERRE: EIN
+LOCK: OFF	SPERRE: AUS
+find: none	Suche: keine
+LOOP SONG: ON	SONG-SCHLEIFE: EIN
+PHONE'S ({1})	VOM TELEFON ({1})
+QUANTISE: off	QUANTISIEREN: aus
+auto fade: on	Automatik-Blende: ein
+cue audio: on	Cue-Audio: ein
+input: stereo	Eingang: Stereo
+FLASHLIGHT: ON	TASCHENLAMPE: EIN
+LOOP SONG: OFF	SONG-SCHLEIFE: AUS
+auto fade: off	Automatik-Blende: aus
+cue audio: off	Cue-Audio: aus
+FLASHLIGHT: OFF	TASCHENLAMPE: AUS
+still dur: hold	Standbilddauer: halten
+nmc: sending out	nmc: sendet
+NMOS: not running	NMOS: läuft nicht
+cue audio: stereo	Cue-Audio: Stereo
+nmc: listening in	nmc: empfängt
+glyphs: by density	Glyphen: nach Dichte
+pause at begin: on	Pause am Anfang: ein
+SPLASH AT START: ON	STARTBILD BEIM START: EIN
+aoi: invalid number	aoi: ungültige Zahl
+next transition: on	nächster Übergang: ein
+pause at begin: off	Pause am Anfang: aus
+pocket 3 preset: on	pocket 3-Vorlage: ein
+SPLASH AT START: OFF	STARTBILD BEIM START: AUS
+next transition: off	nächster Übergang: aus
+pocket 3 preset: off	pocket 3-Vorlage: aus
+Ahoy hoy! I am Deckboy.	Ahoi hoi! Ich bin Deckboy.
+output recovering: stream	Ausgangs-Wiederherstellung: streamen
+click: replace the chain    + add: add to the end	Klick: Kette ersetzen    + hinzu: ans Ende anfügen
+computer keyboard: PLAYING (letter keys are notes)	Computertastatur: LÄUFT (Buchstabentasten sind Noten)
+a name for the section this row starts (empty: none)	Name für den Abschnitt, den diese Zeile beginnt (leer: keine)
+Enter media path or browser:/window:/camera:/syphon: source	Medienpfad oder browser:/window:/camera:/syphon:-Quelle eingeben

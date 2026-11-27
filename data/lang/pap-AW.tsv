@@ -5363,3 +5363,37 @@ Keep a candle in the window and a sandwich in the rack. The ship takes one. Pray
 Every full moon I hear oars in the ceiling. Your mother says it's the pipes. Pipes don't row, kiddo.	Tur luna yen mi ta tende remo den plafon. Bo mama ta bisa cu ta e tubonan. Tubo no ta rema, mi yu.
 Kiddo. Sit down. Your great-grandfather sailed on a ship with no crew. He was the crew. He was a rat.	Mi yu. Sinta abou. Bo bisawelo a naviga riba un barcu sin crew. E tabata e crew. E tabata un raton.
 I've seen things, kiddo. Dropped frames. Wrong inputs. A projector lens with a fingerprint on it. Shudder.	Mi a mira cosnan, mi yu. Frame-nan perdi. Entrada robes. Un lente di proyector cu un marca di dede riba dje. Brr.
+LOCK: ON	SERA: CENDE
+LOCK: OFF	SERA: PAGA
+find: none	busca: ningun
+LOOP SONG: ON	RIPITI CANCION: CENDE
+PHONE'S ({1})	DI TELEFON ({1})
+QUANTISE: off	CUANTISA: paga
+auto fade: on	fade automatico: cende
+cue audio: on	audio di cue: cende
+FLASHLIGHT: ON	LINTERNA: CENDE
+LOOP SONG: OFF	RIPITI CANCION: PAGA
+auto fade: off	fade automatico: paga
+cue audio: off	audio di cue: paga
+FLASHLIGHT: OFF	LINTERNA: PAGA
+still dur: hold	dur. portret: tene
+nmc: sending out	nmc: mandando pafo
+NMOS: not running	NMOS: no ta corre
+cue audio: stereo	audio di cue: stereo
+nmc: listening in	nmc: scuchando riba
+glyphs: by density	glifonan: segun densidad
+pause at begin: on	pousa na cuminsamento: cende
+SPLASH AT START: ON	PANTAYA DI CUMINSAMENTO: CENDE
+aoi: invalid number	aoi: number invalido
+next transition: on	transicion siguiente: cende
+pause at begin: off	pousa na cuminsamento: paga
+pocket 3 preset: on	preset di pocket 3: cende
+SPLASH AT START: OFF	PANTAYA DI CUMINSAMENTO: PAGA
+next transition: off	transicion siguiente: paga
+pocket 3 preset: off	preset di pocket 3: paga
+Ahoy hoy! I am Deckboy.	Ahoy hoy! Mi ta Deckboy.
+output recovering: stream	output recuperando: stream
+click: replace the chain    + add: add to the end	clic: remplasa e cadena    + agrega: agrega na final
+computer keyboard: PLAYING (letter keys are notes)	teclado di computer: TOCANDO (teclanan di letra ta nota)
+a name for the section this row starts (empty: none)	un nomber pa e seccion cu e rij aki ta cuminsa (bashi: ningun)
+Enter media path or browser:/window:/camera:/syphon: source	Drenta caminda di media o fuente browser:/window:/camera:/syphon:
