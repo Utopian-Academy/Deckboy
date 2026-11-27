@@ -2065,6 +2065,109 @@ bool decodeImageRgba(const std::string& path, int& width, int& height,
 }
 
 // ---------------------------------------------------------------------------
+// decodeAudioS16Stereo - a whole (short) sound file, held in memory, to
+// interleaved 16-bit stereo at the given rate. Read from memory so a phone can
+// hand over an asset from inside its APK (SDL_LoadFile), where no path exists.
+// ---------------------------------------------------------------------------
+namespace {
+struct MemoryReader {
+  const std::uint8_t* data = nullptr;
+  std::size_t size = 0, at = 0;
+};
+int memoryRead(void* opaque, std::uint8_t* buf, int want) {
+  auto* r = static_cast<MemoryReader*>(opaque);
+  const std::size_t left = r->size - r->at;
+  if (left == 0) return AVERROR_EOF;
+  const std::size_t n = std::min<std::size_t>(left, static_cast<std::size_t>(std::max(0, want)));
+  std::memcpy(buf, r->data + r->at, n);
+  r->at += n;
+  return static_cast<int>(n);
+}
+std::int64_t memorySeek(void* opaque, std::int64_t offset, int whence) {
+  auto* r = static_cast<MemoryReader*>(opaque);
+  if (whence == AVSEEK_SIZE) return static_cast<std::int64_t>(r->size);
+  std::int64_t to = offset;
+  if ((whence & 3) == SEEK_CUR) to += static_cast<std::int64_t>(r->at);
+  else if ((whence & 3) == SEEK_END) to += static_cast<std::int64_t>(r->size);
+  if (to < 0 || to > static_cast<std::int64_t>(r->size)) return -1;
+  r->at = static_cast<std::size_t>(to);
+  return to;
+}
+}  // namespace
+
+bool decodeAudioS16Stereo(const std::uint8_t* data, std::size_t size, int rate,
+                          std::vector<std::int16_t>& out, std::size_t maxFrames) {
+  out.clear();
+  if (!data || size == 0 || rate <= 0) return false;
+  MemoryReader reader {data, size, 0};
+  constexpr int kIoBuffer = 32 * 1024;
+  auto* ioBuffer = static_cast<std::uint8_t*>(av_malloc(kIoBuffer));
+  if (!ioBuffer) return false;
+  AVIOContext* io = avio_alloc_context(ioBuffer, kIoBuffer, 0, &reader, &memoryRead, nullptr, &memorySeek);
+  if (!io) { av_free(ioBuffer); return false; }
+  AVFormatContext* fmt = avformat_alloc_context();
+  bool ok = false;
+  AVCodecContext* ctx = nullptr;
+  AVPacket* packet = av_packet_alloc();
+  AVFrame* frame = av_frame_alloc();
+  SwrContext* swr = nullptr;
+  if (fmt) {
+    fmt->pb = io;
+    if (avformat_open_input(&fmt, nullptr, nullptr, nullptr) < 0) fmt = nullptr;   // freed by the failed open
+  }
+  do {
+    if (!fmt || !packet || !frame || avformat_find_stream_info(fmt, nullptr) < 0) break;
+    const AVCodec* codec = nullptr;
+    const int stream = av_find_best_stream(fmt, AVMEDIA_TYPE_AUDIO, -1, -1, &codec, 0);
+    if (stream < 0 || !codec) break;
+    ctx = avcodec_alloc_context3(codec);
+    if (!ctx || avcodec_parameters_to_context(ctx, fmt->streams[stream]->codecpar) < 0 ||
+        avcodec_open2(ctx, codec, nullptr) < 0) {
+      break;
+    }
+    AVChannelLayout stereo = AV_CHANNEL_LAYOUT_STEREO;
+    if (swr_alloc_set_opts2(&swr, &stereo, AV_SAMPLE_FMT_S16, rate, &ctx->ch_layout, ctx->sample_fmt,
+                            ctx->sample_rate, 0, nullptr) < 0 || swr_init(swr) < 0) {
+      break;
+    }
+    bool failed = false;
+    auto take = [&](const AVFrame* f) {
+      const int room = swr_get_out_samples(swr, f ? f->nb_samples : 0);
+      if (room <= 0) return;
+      const std::size_t before = out.size();
+      out.resize(before + static_cast<std::size_t>(room) * 2);
+      std::uint8_t* dst[1] = {reinterpret_cast<std::uint8_t*>(out.data() + before)};
+      const int got = swr_convert(swr, dst, room, f ? const_cast<const std::uint8_t**>(f->extended_data) : nullptr,
+                                  f ? f->nb_samples : 0);
+      if (got < 0) { failed = true; out.resize(before); return; }
+      out.resize(before + static_cast<std::size_t>(got) * 2);
+      if (out.size() / 2 > maxFrames) failed = true;
+    };
+    auto drain = [&] {
+      while (!failed && avcodec_receive_frame(ctx, frame) == 0) { take(frame); av_frame_unref(frame); }
+    };
+    while (!failed && av_read_frame(fmt, packet) >= 0) {
+      if (packet->stream_index == stream && avcodec_send_packet(ctx, packet) >= 0) drain();
+      av_packet_unref(packet);
+    }
+    if (failed) break;
+    avcodec_send_packet(ctx, nullptr);
+    drain();
+    take(nullptr);   // what the resampler still holds
+    ok = !failed && !out.empty();
+  } while (false);
+  if (!ok) out.clear();
+  swr_free(&swr);
+  av_frame_free(&frame);
+  av_packet_free(&packet);
+  avcodec_free_context(&ctx);
+  if (fmt) avformat_close_input(&fmt);
+  av_freep(&io->buffer);
+  avio_context_free(&io);
+  return ok;
+}
+
+// ---------------------------------------------------------------------------
 // probeHapFile - demux HAP packets and decode them to blocks.
 //
 // Deliberately never calls avcodec_send_packet: letting ffmpeg decode HAP

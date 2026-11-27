@@ -5336,7 +5336,7 @@
     return nullptr;
   }
 
-  // SURF DROP <thing|cue> [x%] | SURF CLEAR | SURF BEACH | SURF THINGS
+  // SURF DROP <thing|cue> [x%] | SURF CLEAR | SURF BEACH | SURF MUSIC ON|OFF | SURF SKY DAY|SUNSET|NIGHT | SURF THINGS
   void handleSurfCommand(const std::vector<std::string>& parts) {
     const std::string sub = parts.size() > 1 ? toUpper(parts[1]) : std::string();
     if (sub == "THINGS") {
@@ -5347,6 +5347,40 @@
     }
     if (sub == "CLEAR") {
       deckboy::surf::pushDrop({std::string(), "#clear", -1.0f}, surfNowSeconds());
+      return;
+    }
+    // MUSIC and SKY change the selected cue when it is a Surf (what the
+    // inspector shows), else every Surf on air.
+    auto toSurfs = [this](const std::function<void(Cue&)>& apply) {
+      Cue* selected = selectedCueMutable();
+      if (selected && surfPatternCue(*selected)) {
+        apply(*selected);
+        markProjectDirty();
+        return true;
+      }
+      if (surfOnAirApply(apply)) return true;
+      failRemoteCommand("select a Surf cue, or put one on air");
+      return false;
+    };
+    if (sub == "MUSIC") {   // SURF MUSIC ON|OFF
+      const std::string to = parts.size() > 2 ? toUpper(parts[2]) : std::string();
+      if (to != "ON" && to != "OFF") { failRemoteCommand("SURF MUSIC ON or SURF MUSIC OFF"); return; }
+      const bool on = to == "ON";
+      if (!toSurfs([on](Cue& c) {
+            c.surf.music = on;
+            if (on) c.hasAudio = c.audioEnabled = true;   // ON is asking to hear it
+          })) {
+        return;
+      }
+      remoteCommandDetail_ = on ? "on" : "off";
+      return;
+    }
+    if (sub == "SKY") {   // SURF SKY DAY|SUNSET|NIGHT: the inspector's Sky row
+      const std::string to = parts.size() > 2 ? toUpper(parts[2]) : std::string();
+      const int sky = to == "DAY" ? 0 : to == "SUNSET" ? 1 : to == "NIGHT" ? 2 : -1;
+      if (sky < 0) { failRemoteCommand("SURF SKY DAY, SUNSET or NIGHT"); return; }
+      if (!toSurfs([sky](Cue& c) { c.surf.sky = sky; })) return;
+      remoteCommandDetail_ = toLower(to);
       return;
     }
     if (sub == "BEACH") {
@@ -5372,7 +5406,7 @@
       remoteCommandDetail_ = thing->name;
       return;
     }
-    failRemoteCommand("SURF DROP <thing|cue> [x%], SURF CLEAR, SURF BEACH or SURF THINGS");
+    failRemoteCommand("SURF DROP <thing|cue> [x%], SURF CLEAR, SURF BEACH, SURF MUSIC ON|OFF, SURF SKY DAY|SUNSET|NIGHT or SURF THINGS");
   }
 
   // One of the things Deckboy makes, from SOURCE > MADE BY DECKBOY.

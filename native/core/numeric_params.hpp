@@ -1739,6 +1739,15 @@ inline std::vector<ChoiceRow> choiceRowsForCue(const Cue& cue) {
       [](const Cue& c) { return static_cast<int>(c.videoSynth.palette); },
       [](Cue& c, int value) { if (value >= 0 && value < 11) c.videoSynth.palette = static_cast<VideoSynthPalette>(value); }});
   }
+  if (cue.kind == CueKind::Pattern && normalizePatternTypeId(cue.path) == "surf") {
+    // MUSIC (James 11-26: OFF / ON). Turning it on also unmutes the cue: on is
+    // asking to hear it (a new Surf on Pocket starts with its sound off).
+    rows.push_back({"music", {"off", "on"}, [](const Cue& c) { return c.surf.music ? 1 : 0; },
+      [](Cue& c, int value) {
+        c.surf.music = value == 1;
+        if (c.surf.music) c.hasAudio = c.audioEnabled = true;
+      }});
+  }
   if (cue.kind == CueKind::Pattern && normalizePatternTypeId(cue.path) == "fireside") {
     std::vector<std::string> options;
     for (int i = 0; i < kFiresideViewCount; ++i) options.push_back(firesideViewLabel(i));

@@ -207,6 +207,12 @@ bool decodeImageRgba(const std::string& path, int& width, int& height,
                      std::vector<std::uint8_t>& rgba, int maxBytes = 64 * 1024 * 1024,
                      int fitW = 0, int fitH = 0);
 
+// A whole short sound (a few MB: a music loop), held in memory, to
+// interleaved 16-bit stereo at `rate`. False if it cannot be decoded or
+// would come out longer than maxFrames.
+bool decodeAudioS16Stereo(const std::uint8_t* data, std::size_t size, int rate,
+                          std::vector<std::int16_t>& out, std::size_t maxFrames = 48000u * 600u);
+
 struct AudioOpenParams {
   std::string path;
   double startSeconds = 0.0;

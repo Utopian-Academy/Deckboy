@@ -1235,6 +1235,7 @@ class MediaEngine {
   // the two cannot disagree.
   void setOutputPaused(bool paused);
   void queuePocketSyncAudio();                             // synthesize the pocket-test A/V sync pop
+  void queueSurfMusic(const Cue& cue);                     // a Surf cue's song (MUSIC ON), the take chosen by its sky
   size_t queuedFrames();                                   // number of frames waiting in frameQueue_
   void stopDecoderThreads();                               // kill ffmpeg processes and join threads
   bool buildSourceCaptureArgs(const Cue& cue, int w, int h, std::vector<std::string>& args) const; // build ffmpeg args for source capture
@@ -1345,6 +1346,13 @@ class MediaEngine {
   // Where the Pocket Test sync pop's next chunk starts (wall seconds), so the
   // chunks join up; -1 until the first, and after the audio is cleared.
   double syncPopNextSeconds_ = -1.0;
+  // Surf's song (queueSurfMusic): the take playing (-1: not started), where
+  // each take has got to, and the take fading out under it with the frames
+  // left of that crossfade. Main thread only, like the sync pop.
+  int surfMusicTake_ = -1;
+  int surfMusicFadeFrom_ = -1;
+  int surfMusicFadeLeft_ = 0;
+  std::size_t surfMusicPos_[3] = {0, 0, 0};
   bool audioPrimePending_ = false;
   std::chrono::steady_clock::time_point audioPrimeStartedAt_ {};
 

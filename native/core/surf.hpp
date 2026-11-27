@@ -42,6 +42,10 @@ struct Settings {
   std::uint32_t seed = 1;    // which beach (NEW BEACH picks another)
   double throwEvery = 0.0;   // seconds; 0: it never throws anything in by itself
   std::vector<std::string> throwList;   // what it throws in by itself: names or "cue:<id>"
+  // MUSIC (James 11-26: OFF / ON). ON: the surf song, the take following the
+  // sky (day and sunset: the dub mix; night: the ghost take), and while the
+  // ship sails (shipSailingNow) its own take. MediaEngine::queueSurfMusic.
+  bool music = false;
 };
 
 inline std::string serialize(const Settings& s) {
@@ -53,6 +57,7 @@ inline std::string serialize(const Settings& s) {
     if (i) out += ',';
     for (char c : s.throwList[i]) if (c != ',' && c != '|' && c != '\t' && c != '\n') out += c;
   }
+  out += s.music ? "|1" : "|0";   // after the list: a show from before it reads as OFF
   return out;
 }
 
@@ -84,6 +89,7 @@ inline Settings parse(const std::string& text) {
       a = e + 1;
     }
   }
+  s.music = f.size() > 7 && f[7] == "1";
   return s;
 }
 

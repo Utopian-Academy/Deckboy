@@ -1471,10 +1471,12 @@ void MediaEngine::update() {
     // VISUAL being live (the card animates even while held/paused), not to
     // transport state — if the lamp is flashing on the output, it pops;
     // STOP-dark clears the frame and silences it.
+    // Surf's song the same way: while its picture is up, MUSIC ON.
     if (displayFrame_.has_value() && audioStream_ != nullptr &&
-        activeCue_->kind == CueKind::Pattern && activeCue_->audioEnabled &&
-        stripPatternMotionSuffix(normalizePatternTypeId(activeCue_->path)) == "pocket-test") {
-      queuePocketSyncAudio();
+        activeCue_->kind == CueKind::Pattern && activeCue_->audioEnabled) {
+      const std::string type = stripPatternMotionSuffix(normalizePatternTypeId(activeCue_->path));
+      if (type == "pocket-test") queuePocketSyncAudio();
+      else if (type == "surf" && activeCue_->surf.music) queueSurfMusic(*activeCue_);
     }
     serviceLoopSeam();
     if (duration_ > 0.0 && state_ == TransportState::Playing) {
@@ -7447,6 +7449,9 @@ void MediaEngine::clearAudio() {
   // and the sync pop runs on this (main) thread.
   audioDelayFifo_.clear();
   syncPopNextSeconds_ = -1.0;   // the sync pop starts again from the clock
+  surfMusicTake_ = -1;          // and Surf's song from the top of its take
+  surfMusicFadeLeft_ = 0;
+  surfMusicPos_[0] = surfMusicPos_[1] = surfMusicPos_[2] = 0;
   audioDelayHeldFrames_.store(0, std::memory_order_relaxed);
   // Open the limiter back up: a new cue must not start ducked by whatever
   // transient the previous one ended on.
@@ -7530,6 +7535,160 @@ void MediaEngine::queuePocketSyncAudio() {
   // the wall clock, so adjusting the audio delay visibly/audibly shifts the
   // pop against the flash — that's the dial-in workflow.
   queueDelayedAudio(samples);
+  }
+}
+
+// ---------------------------------------------------------------------------
+// SURF'S SONG. Three takes of one tune (data/surf, Opus, each a seamless
+// loop): 0 the dub mix (day and sunset; James's pick, "v3"), 1 the ghost take
+// (night), 2 the spookier take for while the ship sails. Decoded once at the
+// deck's rate, on a thread of their own (a phone takes a moment), and shared
+// by every deck as one published, never-changed set.
+// ---------------------------------------------------------------------------
+namespace {
+struct SurfTakes {
+  int rate = 0;
+  std::vector<std::int16_t> take[3];   // interleaved stereo
+};
+struct SurfSong {
+  std::mutex lock;
+  std::shared_ptr<const SurfTakes> takes;   // published once made
+  int making = 0;                           // the rate being made; 0: nothing is
+  int failedRate = 0;                       // a rate that could not be made: not tried again
+  std::thread worker;
+  ~SurfSong() {
+    if (worker.joinable()) worker.join();
+  }
+};
+SurfSong& surfSong() {
+  static SurfSong song;
+  return song;
+}
+
+// One take's file to stereo at `rate`. The bytes come by SDL_LoadFile, which
+// reads a phone's APK assets ("data/...") as well as a file on disk.
+bool loadSurfTake(const char* name, int rate, std::vector<std::int16_t>& out) {
+  const std::string onDisk = (deckboy::core::Paths::dataDir() / "surf" / name).string();
+  std::size_t size = 0;
+  void* bytes = SDL_LoadFile(onDisk.c_str(), &size);
+  if (!bytes) bytes = SDL_LoadFile((std::string("data/surf/") + name).c_str(), &size);
+  if (!bytes) return false;
+#if DECKBOY_INPROC_DECODE
+  const bool decoded = deckboy::libav::decodeAudioS16Stereo(static_cast<const std::uint8_t*>(bytes), size, rate, out);
+  SDL_free(bytes);
+  if (decoded) return true;
+#else
+  SDL_free(bytes);
+#endif
+  // A build without libav (or libav could not): the ffmpeg program, into a
+  // file, since its pipe output is merged with what it says.
+  const std::string pcm = (deckboy::core::Paths::stateDir() / (std::string("surf-") + name + "-" +
+                                                                std::to_string(rate) + ".pcm")).string();
+  const ProcessCapture run = runCaptured({"ffmpeg", "-hide_banner", "-loglevel", "error", "-y", "-i", onDisk,
+                                          "-f", "s16le", "-ac", "2", "-ar", std::to_string(rate), pcm}, 60000);
+  bool ok = false;
+  if (run.ok()) {
+    std::ifstream in(pcm, std::ios::binary | std::ios::ate);
+    const std::streamoff length = in ? static_cast<std::streamoff>(in.tellg()) : 0;
+    if (length >= 4) {
+      out.resize(static_cast<std::size_t>(length / 4) * 2);
+      in.seekg(0);
+      ok = static_cast<bool>(in.read(reinterpret_cast<char*>(out.data()), static_cast<std::streamsize>(out.size() * 2)));
+    }
+  }
+  std::remove(pcm.c_str());
+  if (!ok) out.clear();
+  return ok;
+}
+
+// The takes at `rate`, or null while they are being made (the first call
+// starts that) or when they cannot be.
+std::shared_ptr<const SurfTakes> surfTakesAt(int rate) {
+  SurfSong& song = surfSong();
+  std::lock_guard<std::mutex> guard(song.lock);
+  if (song.takes && song.takes->rate == rate) return song.takes;
+  if (song.making != 0 || song.failedRate == rate) return nullptr;
+  if (song.worker.joinable()) song.worker.join();   // a finished one (making is 0)
+  song.making = rate;
+  song.worker = std::thread([rate] {
+    static const char* const kFiles[3] = {"music-day.opus", "music-night.opus", "music-tide.opus"};
+    auto made = std::make_shared<SurfTakes>();
+    made->rate = rate;
+    bool ok = true;
+    for (int k = 0; k < 3 && ok; ++k) {
+      ok = loadSurfTake(kFiles[k], rate, made->take[k]) && made->take[k].size() >= 4;
+      if (!ok) SDL_Log("Surf: could not read the song's take data/surf/%s", kFiles[k]);
+    }
+    SurfSong& s = surfSong();
+    std::lock_guard<std::mutex> g(s.lock);
+    if (ok) s.takes = std::move(made);
+    else s.failedRate = rate;
+    s.making = 0;
+  });
+  return nullptr;
+}
+}  // namespace
+
+// The song under a Surf with MUSIC ON, topped up to ~150 ms like the sync pop
+// and through the same delay line, volume, master, fades and pan. The take
+// follows the sky; a change of take crossfades over two seconds (equal power)
+// with the new one starting from its top. Silent for the moment the takes are
+// being decoded, the first time.
+void MediaEngine::queueSurfMusic(const Cue& cue) {
+  const int kRate = audioRate_;
+  const std::shared_ptr<const SurfTakes> takes = surfTakesAt(kRate);
+  if (!takes) return;
+  int queuedBytes = std::max(0, queuedAudioBytes());
+  double queuedSeconds = static_cast<double>(queuedBytes) / (kRate * static_cast<double>(audioStreamBytesPerFrame()));
+  if (queuedSeconds > 0.15) return;
+  setOutputPaused(false);
+  const int kFade = kRate * 2;
+  const int want = deckboy::surf::shipSailingNow() ? 2 : cue.surf.sky == 2 ? 1 : 0;
+  if (surfMusicTake_ < 0) {
+    surfMusicTake_ = want;
+    surfMusicPos_[want] = 0;
+    surfMusicFadeLeft_ = 0;
+  } else if (want != surfMusicTake_) {
+    surfMusicFadeFrom_ = surfMusicTake_;
+    surfMusicFadeLeft_ = kFade;
+    surfMusicTake_ = want;
+    surfMusicPos_[want] = 0;
+  }
+  const double gain = static_cast<double>(volume_.load()) * static_cast<double>(masterGain_.load()) *
+                      audioCueGain_.load(std::memory_order_relaxed) * audioFadeGainAt(fadeRidePositionSeconds());
+  const double pan = static_cast<double>(audioCuePan_.load(std::memory_order_relaxed));
+  const double panL = pan > 0.0 ? 1.0 - pan : 1.0;
+  const double panR = pan < 0.0 ? 1.0 + pan : 1.0;
+  // The next frame of take k, wrapping at its end (each take is a loop).
+  auto next = [&](int k, double& l, double& r) {
+    const std::vector<std::int16_t>& t = takes->take[k];
+    std::size_t& p = surfMusicPos_[k];
+    if (p >= t.size() / 2) p = 0;
+    l = t[p * 2];
+    r = t[p * 2 + 1];
+    ++p;
+  };
+  auto clip = [](double v) { return static_cast<std::int16_t>(std::clamp(static_cast<int>(std::lround(v)), -32768, 32767)); };
+  constexpr int kChunkFrames = 1024;
+  std::vector<std::int16_t> samples(static_cast<std::size_t>(kChunkFrames) * 2);
+  for (int chunk = 0; chunk < 12 && queuedSeconds <= 0.15; ++chunk) {
+    for (int i = 0; i < kChunkFrames; ++i) {
+      double l = 0, r = 0;
+      next(surfMusicTake_, l, r);
+      if (surfMusicFadeLeft_ > 0) {
+        double ol = 0, orr = 0;
+        next(surfMusicFadeFrom_, ol, orr);
+        const double x = 1.0 - static_cast<double>(surfMusicFadeLeft_) / kFade;   // 0 -> 1
+        const double in = std::sin(x * kTau / 4), out = std::cos(x * kTau / 4);
+        l = l * in + ol * out;
+        r = r * in + orr * out;
+        --surfMusicFadeLeft_;
+      }
+      samples[static_cast<std::size_t>(i) * 2] = clip(l * gain * panL);
+      samples[static_cast<std::size_t>(i) * 2 + 1] = clip(r * gain * panR);
+    }
+    queueDelayedAudio(samples);
+    queuedSeconds += static_cast<double>(kChunkFrames) / kRate;
   }
 }
 

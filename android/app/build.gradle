@@ -97,7 +97,8 @@ tasks.register("copyPocketAssets", Copy) {
                 "fonts/NotoSansArabic-Regular.ttf", "fonts/NotoSansTifinagh-Regular.ttf",
                 "fonts/NotoSansLao-Regular.ttf", "fonts/NotoSansCherokee-Regular.ttf", "fonts/LICENSE-Noto.txt",
                 "pocket-shells/*.jpg", "pocket-shells/index.txt",   // the rendered shells (pocket-skins)
-                "pocket-splash/splash_*.jpg", "pocket-splash/logo.jpg", "pocket-splash/index.txt"   // the splash art (not the candidates beside it)
+                "pocket-splash/splash_*.jpg", "pocket-splash/logo.jpg", "pocket-splash/index.txt",   // the splash art (not the candidates beside it)
+                "surf/*.opus"   // Surf's song (MUSIC ON)
     }
     into pocketAssets.map { it.dir("data") }
     // The theme list the app reads (assets cannot be listed from native code).

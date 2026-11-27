@@ -5930,14 +5930,15 @@
           const int rowH = std::max(uiScaled(28), textLineHeight(fontSmall_) + uiScaled(8));
           const int gap = uiScaled(4);
           // A row of buttons, each running one SURF command.
-          auto buttons = [&](const std::vector<std::pair<std::string, std::string>>& row, const std::string& tip) {
+          // lit: the one shown as chosen (a choice row), -1 for none.
+          auto buttons = [&](const std::vector<std::pair<std::string, std::string>>& row, const std::string& tip, int lit = -1) {
             const int n = static_cast<int>(row.size());
             const int w = (width - gap * (n - 1)) / std::max(1, n);
             for (int k = 0; k < n; ++k) {
               SDL_Rect btn {x0 + k * (w + gap), suY, w, rowH};
-              drawUIPanel(btn, paletteToggleFill(false), pal.deep, pal.mid);
+              drawUIPanel(btn, paletteToggleFill(k == lit), pal.deep, pal.mid);
               drawCenteredTextSafe(controlRenderer_, fontSmall_, btn, row[static_cast<std::size_t>(k)].first,
-                                   paletteToggleInk(false));
+                                   paletteToggleInk(k == lit));
               QuickButton qb {btn, QuickAction::RunExtraDeskCommand, tip};
               qb.param = static_cast<int>(extraDeskCommands_.size());
               quickButtons_.push_back(qb);
@@ -5947,6 +5948,8 @@
           };
           buttons({{"NEW BEACH", "SURF BEACH"}, {"CLEAR", "SURF CLEAR"}},
                   "NEW BEACH: another beach, land and sky. CLEAR: everything out of the water");
+          buttons({{"MUSIC OFF", "SURF MUSIC OFF"}, {"MUSIC ON", "SURF MUSIC ON"}},
+                  "The surf's own song. ON: it follows the sky, and the night has its own take", su.music ? 1 : 0);
           const SDL_Rect head {x0, suY, width, textLineHeight(fontSmall_)};
           drawTextSafe(controlRenderer_, fontSmall_, head,
                        surfOnAirCount() ? "THROW IN" : "THROW IN (once it is on air)", pal.fgSoft);
