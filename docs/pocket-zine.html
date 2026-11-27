@@ -56,6 +56,13 @@
   .snap .tape.a { top: -6px; left: -14px; transform: rotate(-32deg); }
   .snap .tape.b { top: -6px; right: -14px; transform: rotate(28deg); }
   .pin { position: absolute; width: 30px; height: 12px; }
+  /* a drawing beside a real screen from Pocket, taped in like a Polaroid */
+  .duo { display: flex; align-items: center; justify-content: space-between; margin: 0 -4px 8px; }
+  .duo .snap { margin: 2px 0 0; }
+  .duo .snap img { height: 100px; }
+  .shot { background: #fff; padding: 4px 4px 11px; box-shadow: 1px 2px 3px rgba(0,0,0,0.35); transform: rotate(var(--tilt, 4deg)); position: relative; }
+  .shot img { display: block; width: 112px; height: auto; max-height: 128px; object-fit: cover; object-position: top; }
+  .shot::before { content: ""; position: absolute; top: -6px; left: 36px; width: 40px; height: 12px; background: rgba(245, 240, 200, 0.75); transform: rotate(-4deg); }
   /* a torn highlighter box for the thing you must not miss */
   .tip { background: var(--acid); padding: 7px 8px 8px; margin: 2px -4px 7px; transform: rotate(-1deg);
     clip-path: polygon(0 4%, 6% 0, 13% 5%, 21% 1%, 30% 4%, 41% 0, 52% 5%, 63% 1%, 74% 4%, 86% 0, 95% 4%, 100% 1%, 99% 94%, 92% 100%, 82% 96%, 71% 100%, 60% 95%, 48% 100%, 37% 96%, 26% 100%, 15% 95%, 6% 100%, 0 96%); }
@@ -135,7 +142,7 @@
 
   <section class="pg" data-page="2">
     <h2 class="ransom">THE FACE</h2>
-    <div class="snap" style="--tilt:2deg"><span class="tape a"></span><img src="images/zine/p2-face.png" alt="Dr. Pixel points at the GO button on a phone"></div>
+    <div class="duo"><div class="snap" style="--tilt:2deg"><span class="tape a"></span><img src="images/zine/p2-face.png" alt="Dr. Pixel points at the GO button on a phone"></div><div class="shot" style="--tilt:5deg"><img src="images/zine/shot-face.png" alt="Pocket on air: the picture, the list and the buttons"></div></div>
     <ul>
       <li>Big picture = <b>ON AIR</b>. The list = what's next.</li>
       <li><b>GO</b> takes it. <b>BACK</b> takes it back.</li>
@@ -148,11 +155,12 @@
 
   <section class="pg" data-page="3">
     <h2 class="ransom">ADD STUFF</h2>
-    <div class="snap pinkbg" style="--tilt:-2deg"><span class="tape b"></span><img src="images/zine/p3-add.png" alt="Prof. Video"></div>
+    <div class="duo"><div class="snap pinkbg" style="--tilt:-2deg"><span class="tape b"></span><img src="images/zine/p3-add.png" alt="Prof. Video"></div><div class="shot" style="--tilt:-4deg"><img src="images/zine/shot-sources.png" alt="MENU > SOURCES on Pocket"></div></div>
     <p><b>MENU &gt; SOURCES</b>, then grab:</p>
     <ul>
-      <li><b>MADE BY DECKBOY</b>: bars, Swirl, Surf, Lumia, Illusion. No files needed.</li>
-      <li>Photos + videos off the phone. The camera, pointed at anything.</li>
+      <li><b>CLIPS, PICTURES, SOUND, PDF</b> off the phone.</li>
+      <li><b>PATTERN</b> + <b>SYNTH</b>: bars, Swirl, Surf, Lumia, Illusion. Made by Deckboy, no files.</li>
+      <li><b>CAMERA</b>, pointed at anything.</li>
     </ul>
     <p>Lost? <b>MENU &gt; SHOW &gt; OPEN</b> &gt; <b>TOUR OF TRICKS</b>. <b>SONG</b> chains your lists into a set.</p>
     <span class="num">3</span>
@@ -160,7 +168,7 @@
 
   <section class="pg" data-page="4">
     <h2 class="ransom">ONE CUE UP CLOSE</h2>
-    <div class="snap" style="--tilt:3deg"><span class="tape a"></span><span class="tape b"></span><img src="images/zine/p4-sheet.png" alt="Dr. Pixel"></div>
+    <div class="duo"><div class="snap" style="--tilt:3deg"><span class="tape a"></span><span class="tape b"></span><img src="images/zine/p4-sheet.png" alt="Dr. Pixel"></div><div class="shot" style="--tilt:4deg"><img src="images/zine/shot-place.png" alt="A cue's PLACE page, with the crop handles on the picture"></div></div>
     <p><b>HOLD</b> a cue. Its sheet opens:</p>
     <ul>
       <li><b>SET</b> its guts. <b>PLAY</b> how long, fades, loops.</li>
@@ -172,7 +180,7 @@
 
   <section class="pg" data-page="5">
     <h2 class="ransom">MIX BY HAND</h2>
-    <div class="snap pinkbg" style="--tilt:-3deg"><span class="tape a"></span><img src="images/zine/p5-tbar.png" alt="Prof. Video"></div>
+    <div class="duo"><div class="snap pinkbg" style="--tilt:-3deg"><span class="tape a"></span><img src="images/zine/p5-tbar.png" alt="Prof. Video"></div><div class="shot" style="--tilt:-5deg"><img src="images/zine/shot-tbar.png" alt="A transition held part way, the T-bar across the picture"></div></div>
     <p>The pad's <b>RIGHT</b> is a T-bar.</p>
     <ul>
       <li><b>TAP</b> = GO.</li>
@@ -185,7 +193,7 @@
 
   <section class="pg" data-page="6">
     <h2 class="ransom">BIG SCREEN</h2>
-    <div class="snap" style="--tilt:2deg"><span class="tape b"></span><img src="images/zine/p6-screen.png" alt="Dr. Pixel"></div>
+    <div class="duo"><div class="snap" style="--tilt:2deg"><span class="tape b"></span><img src="images/zine/p6-screen.png" alt="Dr. Pixel"></div><div class="shot" style="--tilt:4deg"><img src="images/zine/shot-output.png" alt="MENU > OUTPUT on Pocket"></div></div>
     <p>Jam a <b>USB-C &gt; HDMI</b> dongle in. Pocket throws the show at the TV.</p>
     <p class="tip">Get a dongle that <b>CHARGES</b> too (a USB-C power port, "PD pass-through"). Video eats battery. Power in = the show goes on.</p>
     <p class="small">Not every phone does video over USB-C. Test yours before the gig.</p>
@@ -194,7 +202,7 @@
 
   <section class="pg" data-page="7">
     <h2 class="ransom">SHAKE IT</h2>
-    <div class="snap pinkbg" style="--tilt:-2deg"><span class="tape a"></span><span class="tape b"></span><img src="images/zine/p7-move.png" alt="Prof. Video"></div>
+    <div class="duo"><div class="snap pinkbg" style="--tilt:-2deg"><span class="tape a"></span><span class="tape b"></span><img src="images/zine/p7-move.png" alt="Prof. Video"></div><div class="shot" style="--tilt:-4deg"><img src="images/zine/shot-lfo.png" alt="An LFO on Swirl's speed, following TILT"></div></div>
     <p>Tap <b>~</b> by any number and it moves by itself. Or YOU move it:</p>
     <ul>
       <li><b>TILT</b> lean. <b>TURN</b> steer. <b>SHAKE</b> jolt. <b>MIC</b> make noise.</li>
@@ -206,7 +214,7 @@
 
   <section class="pg dark back" data-page="8">
     <h2 class="ransom">WITH A DESK</h2>
-    <div class="snap" style="--tilt:2deg"><span class="tape a"></span><img src="images/zine/back.png" alt="Dr. Pixel, Deckbot and Prof. Video wave"></div>
+    <div class="duo"><div class="snap" style="--tilt:2deg"><span class="tape a"></span><img src="images/zine/back.png" alt="Dr. Pixel, Deckbot and Prof. Video wave"></div><div class="shot" style="--tilt:4deg"><img src="images/zine/shot-sync.png" alt="MENU > SYNC on Pocket"></div></div>
     <p><b>MENU &gt; SYNC</b> follows a Deckboy desk on your network. The desk can use your phone as an <b>OUTPUT</b>, or run it as a <b>PLAYLIST</b>.</p>
     <p class="small">Companion + scripts: port 5510.</p>
     <div class="copyme">FREE SOFTWARE. COPY THIS ZINE.<br>PASS IT ON.</div>
