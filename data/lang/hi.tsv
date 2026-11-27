@@ -5440,3 +5440,16 @@ MIRROR V: ON	मिरर V: चालू
 MIRROR H: OFF	मिरर H: बंद
 MIRROR V: OFF	मिरर V: बंद
 VIDEO OUTPUT FLIP OFF, H, V, BOTH or NEXT	VIDEO OUTPUT FLIP OFF, H, V, BOTH या NEXT
+FAST	तेज़
+HALF	आधा
+SLOW	धीमा
+DOUBLE	दोगुना
+UP HALF	आधा ऊपर
+now {1}	अभी {1}
+90 RIGHT	90 दाएँ
+A LITTLE	थोड़ा
+UNTIL GO	GO तक
+DOWN HALF	आधा नीचे
+LEFT HALF	आधा बाएँ
+RIGHT HALF	आधा दाएँ
+not a sum yet	अभी योग नहीं बना

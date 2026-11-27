@@ -5435,3 +5435,16 @@ MIRROR V: ON	镜像 V：开
 MIRROR H: OFF	镜像 H：关
 MIRROR V: OFF	镜像 V：关
 VIDEO OUTPUT FLIP OFF, H, V, BOTH or NEXT	VIDEO OUTPUT FLIP OFF, H, V, BOTH 或 NEXT
+FAST	快
+HALF	一半
+SLOW	慢
+DOUBLE	双倍
+UP HALF	向上一半
+now {1}	当前 {1}
+90 RIGHT	向右 90
+A LITTLE	一点
+UNTIL GO	直到 GO
+DOWN HALF	向下一半
+LEFT HALF	向左一半
+RIGHT HALF	向右一半
+not a sum yet	尚未构成算式

@@ -1753,3 +1753,83 @@ fr	Vertical
 fr	Horizontal
 pt-BR	Vertical
 pt-BR	Horizontal
+ar	+6 DB
+ar	-12 DB
+bg	+6 DB
+bg	-12 DB
+ckb	+6 DB
+ckb	-12 DB
+da	+6 DB
+da	-12 DB
+da	NORMAL
+de	+6 DB
+de	-12 DB
+de	NORMAL
+el	+6 DB
+el	-12 DB
+es-CU	+6 DB
+es-CU	-12 DB
+es-CU	NORMAL
+es	+6 DB
+es	-12 DB
+es	NORMAL
+fa	+6 DB
+fa	-12 DB
+fi	+6 DB
+fi	-12 DB
+fr	+6 DB
+fr	-12 DB
+fr	DOUBLE
+fr	NORMAL
+gd	+6 DB
+gd	-12 DB
+haw	+6 DB
+haw	-12 DB
+hi	+6 DB
+hi	-12 DB
+is	+6 DB
+is	-12 DB
+it	+6 DB
+it	-12 DB
+ja	+6 DB
+ja	-12 DB
+kab	+6 DB
+kab	-12 DB
+kmr	+6 DB
+kmr	-12 DB
+ko	+6 DB
+ko	-12 DB
+lo	+6 DB
+lo	-12 DB
+lum	+6 DB
+lum	-12 DB
+nl	HALF
+nl	+6 DB
+nl	-12 DB
+lt	+6 DB
+lt	-12 DB
+pap-AW	+6 DB
+pap-AW	-12 DB
+pap-AW	NORMAL
+pl	+6 DB
+pl	-12 DB
+pt-BR	+6 DB
+pt-BR	-12 DB
+pt-BR	NORMAL
+ru	+6 DB
+ru	-12 DB
+tr	+6 DB
+tr	-12 DB
+tr	NORMAL
+uk	+6 DB
+uk	-12 DB
+vi	+6 DB
+vi	-12 DB
+zgh	+6 DB
+zgh	-12 DB
+zh-Hans	+6 DB
+zh-Hans	-12 DB
+zh-Hant	+6 DB
+zh-Hant	-12 DB
+zu	+6 DB
+zu	-12 DB

@@ -5451,3 +5451,16 @@ MIRROR V: ON	مرآة V: تشغيل
 MIRROR H: OFF	مرآة H: إيقاف
 MIRROR V: OFF	مرآة V: إيقاف
 VIDEO OUTPUT FLIP OFF, H, V, BOTH or NEXT	VIDEO OUTPUT FLIP OFF، H، V، BOTH أو NEXT
+FAST	سريع
+HALF	نصف
+SLOW	بطيء
+DOUBLE	مضاعف
+UP HALF	نصف للأعلى
+now {1}	الآن {1}
+90 RIGHT	90 لليمين
+A LITTLE	قليلاً
+UNTIL GO	حتى GO
+DOWN HALF	نصف للأسفل
+LEFT HALF	نصف لليسار
+RIGHT HALF	نصف لليمين
+not a sum yet	ليست عملية حسابية بعد

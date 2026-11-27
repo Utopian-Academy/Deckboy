@@ -5449,3 +5449,16 @@ MIRROR V: ON	ⵍⵎⵔⵉ V: ⵉⵔⵎⴷ
 MIRROR H: OFF	ⵍⵎⵔⵉ H: ⵉⵅⵙⴰ
 MIRROR V: OFF	ⵍⵎⵔⵉ V: ⵉⵅⵙⴰ
 VIDEO OUTPUT FLIP OFF, H, V, BOTH or NEXT	VIDEO OUTPUT FLIP OFF, H, V, BOTH ⵏⵖ NEXT
+FAST	ⴰⵖⴰⵡⵍ
+HALF	ⴰⵣⴳⵏ
+SLOW	ⴰⵥⵥⴰⵢ
+DOUBLE	ⵙⵏⴰⵜ ⵜⵉⴽⴽⴰⵍ
+UP HALF	ⴰⴼⵍⵍⴰ ⴰⵣⴳⵏ
+now {1}	ⵖⵉⵍⴰ {1}
+90 RIGHT	90 ⴰⴼⴰⵙⵙⵉ
+A LITTLE	ⵉⵎⵉⴽ
+UNTIL GO	ⴰⵔ GO
+DOWN HALF	ⴰⴷⴷⴰⵢ ⴰⵣⴳⵏ
+LEFT HALF	ⴰⵥⵍⵎⴰⴹ ⴰⵣⴳⵏ
+RIGHT HALF	ⴰⴼⴰⵙⵙⵉ ⴰⵣⴳⵏ
+not a sum yet	ⵓⵔ ⵉⴳⵉ ⴰⵙⵎⵓⵏ ⵖⵉⵍⴰ

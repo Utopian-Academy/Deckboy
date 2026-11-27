@@ -5437,3 +5437,16 @@ MIRROR V: ON	ОГЛЕДАЛО V: ВКЛ
 MIRROR H: OFF	ОГЛЕДАЛО H: ИЗКЛ
 MIRROR V: OFF	ОГЛЕДАЛО V: ИЗКЛ
 VIDEO OUTPUT FLIP OFF, H, V, BOTH or NEXT	VIDEO OUTPUT FLIP OFF, H, V, BOTH или NEXT
+FAST	БЪРЗО
+HALF	ПОЛОВИНА
+SLOW	БАВНО
+DOUBLE	ДВОЙНО
+UP HALF	НАПОЛОВИНА НАГОРЕ
+now {1}	сега {1}
+90 RIGHT	90 НАДЯСНО
+A LITTLE	МАЛКО
+UNTIL GO	ДО GO
+DOWN HALF	НАПОЛОВИНА НАДОЛУ
+LEFT HALF	НАПОЛОВИНА ВЛЯВО
+RIGHT HALF	НАПОЛОВИНА ВДЯСНО
+not a sum yet	още не е сметка

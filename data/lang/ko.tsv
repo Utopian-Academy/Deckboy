@@ -5435,3 +5435,16 @@ MIRROR V: ON	미러 V: 켜짐
 MIRROR H: OFF	미러 H: 꺼짐
 MIRROR V: OFF	미러 V: 꺼짐
 VIDEO OUTPUT FLIP OFF, H, V, BOTH or NEXT	VIDEO OUTPUT FLIP OFF, H, V, BOTH 또는 NEXT
+FAST	빠르게
+HALF	절반
+SLOW	느리게
+DOUBLE	두 배
+UP HALF	위로 절반
+now {1}	현재 {1}
+90 RIGHT	오른쪽 90
+A LITTLE	조금
+UNTIL GO	GO까지
+DOWN HALF	아래로 절반
+LEFT HALF	왼쪽 절반
+RIGHT HALF	오른쪽 절반
+not a sum yet	아직 수식이 아님

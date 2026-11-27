@@ -5437,3 +5437,16 @@ MIRROR V: ON	ДЗЕРКАЛО V: УВІМ
 MIRROR H: OFF	ДЗЕРКАЛО H: ВИМ
 MIRROR V: OFF	ДЗЕРКАЛО V: ВИМ
 VIDEO OUTPUT FLIP OFF, H, V, BOTH or NEXT	VIDEO OUTPUT FLIP OFF, H, V, BOTH або NEXT
+FAST	ШВИДКО
+HALF	ПОЛОВИНА
+SLOW	ПОВІЛЬНО
+DOUBLE	УДВІЧІ
+UP HALF	ПОЛОВИНА ЗГОРИ
+now {1}	зараз {1}
+90 RIGHT	90 ВПРАВО
+A LITTLE	ТРОХИ
+UNTIL GO	ДО GO
+DOWN HALF	ПОЛОВИНА ЗНИЗУ
+LEFT HALF	ПОЛОВИНА ЛІВОРУЧ
+RIGHT HALF	ПОЛОВИНА ПРАВОРУЧ
+not a sum yet	ще не сума

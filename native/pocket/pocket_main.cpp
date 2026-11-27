@@ -10685,9 +10685,12 @@ class Pocket {
     text_.draw(mono_, calcExpr_.empty() ? std::string("type a value or a sum") : calcExpr_, kLight,
                {shown.x + u, shown.y + 3.5f * u, lw - 2 * u, 4 * u});
     const auto v = calcValue();
-    const std::string answer = calcExpr_.empty() ? "now " + numText(calcSpec_, calcBefore_)
-                               : v ? "= " + numText(calcSpec_, std::clamp(*v, calcSpec_.min, calcSpec_.max)) + "   (was " + numText(calcSpec_, calcBefore_) + ")"
-                                   : std::string("not a sum yet");
+    // whole sentences, so they translate (a German panel read "now +0 px")
+    namespace i18n = deckboy::core::i18n;
+    const std::string answer = calcExpr_.empty() ? i18n::format("now {1}", {numText(calcSpec_, calcBefore_)})
+                               : v ? i18n::format("= {1}   (was {2})", {numText(calcSpec_, std::clamp(*v, calcSpec_.min, calcSpec_.max)),
+                                                                        numText(calcSpec_, calcBefore_)})
+                                   : i18n::translate("not a sum yet");
     text_.draw(mono_, answer, kMid, {shown.x + u, shown.y + 7 * u, lw - 2 * u, 3.6f * u});
     y += 12 * u;
     // the keys: 5 across, rows sharing the height; presets and the answer keys last

@@ -86,6 +86,10 @@ POCKET_HELPERS = ["button", "heading", "line", "drawTextEditor"]
 # (text_.draw translates it). Not counted until 2026-11-26, so all 37 stayed
 # English in every language.
 POCKET_NOTICE = re.compile(r'\b(?:notice_|camNotice_)\s*=\s*([^;]*);')
+# ...and a number panel's preset keys (NumSpec::presets, drawn by button()):
+# {{"CENTRE", 0}, {horizontal ? "LEFT HALF" : "UP HALF", -extent / 4}, ...}.
+# Not counted until 2026-11-27: a German panel read "LEFT HALF".
+POCKET_PRESETS = re.compile(r'\bpresets\s*=\s*\{(.*?)\};', re.S)
 
 SOURCE_DIRS = [os.path.join(ROOT, "native")]
 
@@ -156,6 +160,12 @@ def drawn_strings():
                 path = os.path.join(dirpath, name)
                 text = open(path, encoding="utf-8", errors="replace").read()
                 if name == "pocket_main.cpp":
+                    for m in POCKET_PRESETS.finditer(text):
+                        for lit in literal.finditer(m.group(1)):
+                            s = lit.group(1)
+                            if len(s) < 2 or TOKENISH.match(s) or FORMATTY.search(s) or not is_prose(s):
+                                continue
+                            found.setdefault(s, os.path.relpath(path, ROOT).replace("\\", "/"))
                     for m in POCKET_NOTICE.finditer(text):
                         for lit in literal.finditer(m.group(1)):
                             s = lit.group(1)

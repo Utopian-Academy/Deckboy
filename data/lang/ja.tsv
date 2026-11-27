@@ -5438,3 +5438,16 @@ MIRROR V: ON	ミラー V: オン
 MIRROR H: OFF	ミラー H: オフ
 MIRROR V: OFF	ミラー V: オフ
 VIDEO OUTPUT FLIP OFF, H, V, BOTH or NEXT	VIDEO OUTPUT FLIP OFF, H, V, BOTH または NEXT
+FAST	高速
+HALF	半分
+SLOW	低速
+DOUBLE	2倍
+UP HALF	上へ半分
+now {1}	現在 {1}
+90 RIGHT	右へ90
+A LITTLE	少し
+UNTIL GO	GOまで
+DOWN HALF	下へ半分
+LEFT HALF	左へ半分
+RIGHT HALF	右へ半分
+not a sum yet	まだ式になっていません

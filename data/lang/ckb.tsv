@@ -5438,3 +5438,16 @@ MIRROR V: ON	ئاوێنە V: هەڵکراو
 MIRROR H: OFF	ئاوێنە H: کوژاوە
 MIRROR V: OFF	ئاوێنە V: کوژاوە
 VIDEO OUTPUT FLIP OFF, H, V, BOTH or NEXT	VIDEO OUTPUT FLIP OFF، H، V، BOTH یان NEXT
+FAST	خێرا
+HALF	نیوە
+SLOW	هێواش
+DOUBLE	دووقات
+UP HALF	نیوە بۆ سەرەوە
+now {1}	ئێستا {1}
+90 RIGHT	90 بۆ ڕاست
+A LITTLE	کەمێک
+UNTIL GO	تا GO
+DOWN HALF	نیوە بۆ خوارەوە
+LEFT HALF	نیوە بۆ چەپ
+RIGHT HALF	نیوە بۆ ڕاست
+not a sum yet	هێشتا حیساب نییە

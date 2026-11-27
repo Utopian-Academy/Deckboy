@@ -5451,3 +5451,16 @@ MIRROR V: ON	آینه V: روشن
 MIRROR H: OFF	آینه H: خاموش
 MIRROR V: OFF	آینه V: خاموش
 VIDEO OUTPUT FLIP OFF, H, V, BOTH or NEXT	VIDEO OUTPUT FLIP OFF، H، V، BOTH یا NEXT
+FAST	تند
+HALF	نیم
+SLOW	آرام
+DOUBLE	دوبرابر
+UP HALF	نیمهٔ بالا
+now {1}	اکنون {1}
+90 RIGHT	90 به راست
+A LITTLE	کمی
+UNTIL GO	تا GO
+DOWN HALF	نیمهٔ پایین
+LEFT HALF	نیمهٔ چپ
+RIGHT HALF	نیمهٔ راست
+not a sum yet	هنوز جمع نیست

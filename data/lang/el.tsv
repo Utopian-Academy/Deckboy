@@ -5430,3 +5430,16 @@ MIRROR V: ON	ΚΑΘΡΕΦΤΗΣ V: ΝΑΙ
 MIRROR H: OFF	ΚΑΘΡΕΦΤΗΣ H: ΟΧΙ
 MIRROR V: OFF	ΚΑΘΡΕΦΤΗΣ V: ΟΧΙ
 VIDEO OUTPUT FLIP OFF, H, V, BOTH or NEXT	VIDEO OUTPUT FLIP OFF, H, V, BOTH ή NEXT
+FAST	ΓΡΗΓΟΡΑ
+HALF	ΜΙΣΟ
+SLOW	ΑΡΓΑ
+DOUBLE	ΔΙΠΛΟ
+UP HALF	ΜΙΣΟ ΠΑΝΩ
+now {1}	τώρα {1}
+90 RIGHT	90 ΔΕΞΙΑ
+A LITTLE	ΛΙΓΟ
+UNTIL GO	ΜΕΧΡΙ ΤΟ GO
+DOWN HALF	ΜΙΣΟ ΚΑΤΩ
+LEFT HALF	ΜΙΣΟ ΑΡΙΣΤΕΡΑ
+RIGHT HALF	ΜΙΣΟ ΔΕΞΙΑ
+not a sum yet	δεν είναι ακόμη πράξη

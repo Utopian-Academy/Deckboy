@@ -5420,3 +5420,16 @@ MIRROR V: ON	ກະຈົກ V: ເປີດ
 MIRROR H: OFF	ກະຈົກ H: ປິດ
 MIRROR V: OFF	ກະຈົກ V: ປິດ
 VIDEO OUTPUT FLIP OFF, H, V, BOTH or NEXT	VIDEO OUTPUT FLIP OFF, H, V, BOTH ຫຼື NEXT
+FAST	ໄວ
+HALF	ເຄິ່ງ
+SLOW	ຊ້າ
+DOUBLE	ສອງເທົ່າ
+UP HALF	ຂຶ້ນເຄິ່ງ
+now {1}	ດຽວນີ້ {1}
+90 RIGHT	ຂວາ 90
+A LITTLE	ເລັກນ້ອຍ
+UNTIL GO	ຈົນກວ່າ GO
+DOWN HALF	ລົງເຄິ່ງ
+LEFT HALF	ຊ້າຍເຄິ່ງ
+RIGHT HALF	ຂວາເຄິ່ງ
+not a sum yet	ຍັງບໍ່ແມ່ນການຄິດໄລ່
