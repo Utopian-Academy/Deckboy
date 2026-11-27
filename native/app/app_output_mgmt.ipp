@@ -3314,11 +3314,18 @@
     if (!writer) {
       return {};
     }
-    std::lock_guard<std::mutex> lock(writer->mutex);
-    if (!writer->failed) {
-      return {};
+    std::string reason;
+    {
+      std::lock_guard<std::mutex> lock(writer->mutex);
+      if (!writer->failed) {
+        return {};
+      }
+      reason = writer->failureReason.empty() ? "stream write failed" : writer->failureReason;
     }
-    return writer->failureReason.empty() ? "stream write failed" : writer->failureReason;
+    // and WHY, from the encoder itself (streamEncoderSaid)
+    const std::string said = streamEncoderSaid(runtime);
+    if (!said.empty()) reason += " -- the encoder said: " + said;
+    return reason;
   }
 
   // TAKES FINISHING IN THE BACKGROUND. A stopped stream's last waits -- its
@@ -3615,6 +3622,39 @@
     stopOutputStreamRuntime(*runtime);
   }
 
+  // The encoder's stderr for output n, in the state folder (never the data
+  // folder: a Mac bundle's is read-only).
+  std::string outputStreamLogPath(int outputIndex) const {
+    std::error_code ec;
+    const fs::path dir = Paths::stateDir() / "logs";
+    fs::create_directories(dir, ec);
+    return (dir / ("stream-" + std::to_string(outputIndex + 1) + ".log")).string();
+  }
+
+  // The last two things the encoder said (it runs at -loglevel error, so only
+  // errors), on one line; empty when it said nothing.
+  static std::string streamEncoderSaid(const OutputRuntime& runtime) {
+    if (runtime.streamLogPath.empty()) return {};
+    std::ifstream in(runtime.streamLogPath, std::ios::binary);
+    if (!in) return {};
+    std::vector<std::string> lines;
+    std::string line;
+    while (std::getline(in, line)) {
+      while (!line.empty() && (line.back() == '\r' || line.back() == ' ')) line.pop_back();
+      if (!line.empty()) lines.push_back(line);
+    }
+    std::string said;
+    for (std::size_t k = lines.size() > 2 ? lines.size() - 2 : 0; k < lines.size(); ++k) {
+      if (!said.empty()) said += " / ";
+      said += lines[k];
+    }
+    if (said.size() > 240) said = said.substr(0, 237) + "...";
+    // STATUS quotes its values ("health_reason=..."): a quote inside would end
+    // the field there for Companion and every script reading it
+    std::replace(said.begin(), said.end(), '"', '\'');
+    return said;
+  }
+
 #ifdef _WIN32
   // Windows: spawn ffmpeg with stdin pipe for video input.
   // The args should use "pipe:0" or "-" as the input path for reading from stdin.
@@ -3701,7 +3741,12 @@
       return false;
     }
     runtime.streamProcess.stop();
-    if (!spawnProcess(runtime.streamProcess, args, SpawnOptions::pipedStdin())) {
+    SpawnOptions options = SpawnOptions::pipedStdin();
+    if (!runtime.streamLogPath.empty()) {   // what the encoder says, kept (streamEncoderSaid)
+      options.stderrMode = StdioMode::File;
+      options.stderrPath = runtime.streamLogPath;
+    }
+    if (!spawnProcess(runtime.streamProcess, args, options)) {
       return false;
     }
     return runtime.streamProcess.writeFd >= 0;
@@ -3755,6 +3800,7 @@
       return false;
     }
 
+    const std::string logPath = runtime.streamLogPath;   // read before the fork
     pid_t pid = fork();
     if (pid < 0) {
       unlink(videoInputPath.c_str());
@@ -3762,6 +3808,13 @@
     }
 
     if (pid == 0) {
+      if (!logPath.empty()) {   // what the encoder says, kept (streamEncoderSaid)
+        int errFd = open(logPath.c_str(), O_WRONLY | O_CREAT | O_TRUNC, 0644);
+        if (errFd >= 0) {
+          dup2(errFd, STDERR_FILENO);
+          close(errFd);
+        }
+      }
       int stdinFd = open("/dev/null", O_RDONLY);
       if (stdinFd >= 0) {
         dup2(stdinFd, STDIN_FILENO);
@@ -4120,6 +4173,7 @@
       setOutputHealthState(outputIndex, OutputHealthState::Error, "stream command invalid");
       return false;
     }
+    runtime->streamLogPath = outputStreamLogPath(outputIndex);
 #ifdef _WIN32
     if (!spawnOutputStreamProcess(*runtime, args)) {
 #else
@@ -5484,6 +5538,9 @@
 
     std::string writerFailure = outputStreamWriterFailure(*runtime);
     if (!writerFailure.empty()) {
+      if (writerFailure != runtime->streamFailureReason) {   // once per reason, not every retry
+        std::cerr << "stream: output " << (outputIndex + 1) << ": " << writerFailure << std::endl;
+      }
       runtime->streamStartFailed = true;
       runtime->streamRestartBlockedUntilMs = SDL_GetTicks() + 1500;
       setOutputHealthState(outputIndex, OutputHealthState::Error, writerFailure);
@@ -5918,10 +5975,15 @@
     if (writerFailed) {
       runtime->streamStartFailed = true;
       runtime->streamRestartBlockedUntilMs = SDL_GetTicks() + 1500;
-      setOutputHealthState(
-        outputIndex,
-        OutputHealthState::Error,
-        writerFailureReason.empty() ? "stream write failed" : writerFailureReason);
+      // WHY, from the encoder itself: "stream video stopped" alone could not
+      // tell a bad address from a missing codec (CI, 2026-11-26).
+      std::string reason = writerFailureReason.empty() ? "stream write failed" : writerFailureReason;
+      const std::string said = streamEncoderSaid(*runtime);
+      if (!said.empty()) reason += " -- the encoder said: " + said;
+      if (reason != runtime->streamFailureReason) {   // once per reason, not every retry
+        std::cerr << "stream: output " << (outputIndex + 1) << ": " << reason << std::endl;
+      }
+      setOutputHealthState(outputIndex, OutputHealthState::Error, reason);
       stopOutputStreamRuntime(*runtime);
       if (outputIndex == project_.focusedOutputIndex) {
         triggerToast("stream stopped");

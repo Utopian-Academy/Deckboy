@@ -161,6 +161,7 @@ enum class StdioMode {
   Null,       // redirect to /dev/null (NUL on Windows)
   Pipe,       // create a pipe; parent gets the read end (stdout only)
   Merge,      // merge stderr into stdout (stderr only)
+  File,       // write to SpawnOptions::stderrPath, emptied at start (stderr only)
 };
 
 // ---------------------------------------------------------------------------
@@ -170,6 +171,9 @@ struct SpawnOptions {
   StdioMode stdinMode  = StdioMode::Null;
   StdioMode stdoutMode = StdioMode::Pipe;
   StdioMode stderrMode = StdioMode::Null;
+  // StdioMode::File: where stderr goes (a stream encoder's own log, so the
+  // reason it stopped can be read and shown).
+  std::string stderrPath;
 
   // If true, child is placed in its own process group / session so it
   // survives if the parent dies (and can be killed as a group).

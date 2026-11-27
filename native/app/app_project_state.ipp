@@ -597,6 +597,9 @@
       std::string ndiKeySource = trim(out.ndiKeySourceName).empty() ? defaultOutputNdiKeySourceName(out, outputIndex) : out.ndiKeySourceName;
       std::string health = outputHealthLabel(outputIndex);
       std::string healthReason = outputHealthReason(outputIndex);
+      // quoted below: a quote inside (an encoder's own words) would end the
+      // field there for Companion and every script reading STATUS
+      std::replace(healthReason.begin(), healthReason.end(), '"', '\'');
       std::string outputFps = outputFpsLabel(outputIndex);
       std::string streamFps = outputStreamFpsLabel(outputIndex);
       std::uint64_t streamQueued = 0;

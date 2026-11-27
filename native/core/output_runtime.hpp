@@ -604,6 +604,7 @@ struct OutputRuntime {
   int streamFrameHeight = 0;
   bool streamStartFailed = false;
   std::string streamFailureReason;   // why the last start failed, shown while retrying
+  std::string streamLogPath;         // the encoder's stderr (logs/stream-<n>.log in the state folder)
   // A file sink has to FINALIZE — flush the muxer and write its trailer. A
   // network sink has nothing to finalize, so the two get different shutdown
   // budgets; see stopOutputStreamRuntime.

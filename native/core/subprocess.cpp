@@ -471,6 +471,17 @@ bool spawnProcess(ChildProcess& process,
                        nullptr);
   }
 
+  // --- a file for stderr (StdioMode::File) ---
+  HANDLE hErrFile = INVALID_HANDLE_VALUE;
+  if (options.stderrMode == StdioMode::File && !options.stderrPath.empty()) {
+    SECURITY_ATTRIBUTES sa {};
+    sa.nLength = sizeof(sa);
+    sa.bInheritHandle = TRUE;
+    hErrFile = CreateFileW(utf8ToWide(options.stderrPath).c_str(), GENERIC_WRITE,
+                           FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE, &sa, CREATE_ALWAYS,
+                           FILE_ATTRIBUTE_NORMAL, nullptr);
+  }
+
   // --- STARTUPINFO ---
   STARTUPINFOW si {};
   si.cb = sizeof(si);
@@ -499,6 +510,10 @@ bool spawnProcess(ChildProcess& process,
     si.hStdError = si.hStdOutput;  // merge into stdout
   } else if (options.stderrMode == StdioMode::Null && hNul != INVALID_HANDLE_VALUE) {
     si.hStdError = hNul;
+  } else if (options.stderrMode == StdioMode::File && hErrFile != INVALID_HANDLE_VALUE) {
+    si.hStdError = hErrFile;
+  } else if (options.stderrMode == StdioMode::File && hNul != INVALID_HANDLE_VALUE) {
+    si.hStdError = hNul;   // the file could not be made: nowhere, as before
   } else {
     si.hStdError = GetStdHandle(STD_ERROR_HANDLE);
   }
@@ -595,6 +610,7 @@ bool spawnProcess(ChildProcess& process,
   if (hWritePipe != INVALID_HANDLE_VALUE) CloseHandle(hWritePipe);
   if (hStdinReadPipe != INVALID_HANDLE_VALUE) CloseHandle(hStdinReadPipe);
   if (hNul != INVALID_HANDLE_VALUE)       CloseHandle(hNul);
+  if (hErrFile != INVALID_HANDLE_VALUE)   CloseHandle(hErrFile);   // the child has its own
 
   if (!ok) {
     if (hReadPipe != INVALID_HANDLE_VALUE) CloseHandle(hReadPipe);
@@ -718,6 +734,9 @@ bool spawnProcess(ChildProcess& process,
       if (fd >= 0) { dup2(fd, STDERR_FILENO); close(fd); }
     } else if (options.stderrMode == StdioMode::Merge) {
       dup2(STDOUT_FILENO, STDERR_FILENO);
+    } else if (options.stderrMode == StdioMode::File && !options.stderrPath.empty()) {
+      int fd = open(options.stderrPath.c_str(), O_WRONLY | O_CREAT | O_TRUNC, 0644);
+      if (fd >= 0) { dup2(fd, STDERR_FILENO); close(fd); }
     }
     // StdioMode::Inherit → leave as-is
 
