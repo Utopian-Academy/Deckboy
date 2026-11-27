@@ -1015,7 +1015,7 @@ class Pocket {
     deckboy::effects::publishPhoneLfo(0.5f, 0.5f, 0.0f, 0.0f);
     engine_.reset();
     text_.clear();
-    for (TTF_Font* f : {pixel_, pixelSmall_, pixelTiny_, sans_, mono_, printFont_, goFont_, backFont_, textCueFont_}) if (f) { deckboy::render::shaping::forgetFace(f); TTF_CloseFont(f); }
+    for (TTF_Font* f : {pixel_, pixelSmall_, pixelTiny_, sans_, mono_, printFont_, textCueFont_}) if (f) { deckboy::render::shaping::forgetFace(f); TTF_CloseFont(f); }
     if (audio_) SDL_DestroyAudioStream(audio_);
     if (renderer_) SDL_DestroyRenderer(renderer_);
     if (window_) SDL_DestroyWindow(window_);
@@ -1406,7 +1406,7 @@ class Pocket {
     const float u = unit_;
     const std::string data = std::string(SDL_getenv("DECKBOY_ROOT") ? SDL_getenv("DECKBOY_ROOT") : ".") + "/data/";
     text_.clear();
-    for (TTF_Font* f : {pixel_, pixelSmall_, pixelTiny_, sans_, mono_, printFont_, goFont_, backFont_}) if (f) { deckboy::render::shaping::forgetFace(f); TTF_CloseFont(f); }
+    for (TTF_Font* f : {pixel_, pixelSmall_, pixelTiny_, sans_, mono_, printFont_}) if (f) { deckboy::render::shaping::forgetFace(f); TTF_CloseFont(f); }
     pixel_ = TTF_OpenFont((data + "PressStart2P.ttf").c_str(), 2.6f * u);
     pixelSmall_ = TTF_OpenFont((data + "PressStart2P.ttf").c_str(), 1.6f * u);
     pixelTiny_ = TTF_OpenFont((data + "PressStart2P.ttf").c_str(), 1.25f * u);   // a button label that would not fit
@@ -1425,13 +1425,7 @@ class Pocket {
       applyLanguage(data, sans_, language_);
     }
     // the faces' own print: Liberation Mono at 2 mm (pocket-skins text size 2.0)
-    // The shell's legends, all printed by Pocket now (James 11-27: "i want
-    // deckboy to draw the menu and all other similar text, so we can swap
-    // fonts"); the pill labels larger than the 2.0 the shells printed ("the
-    // text for the bottom buttons is too small").
-    printFont_ = TTF_OpenFont((data + "fonts/LiberationSans-Regular.ttf").c_str(), 2.8f * u);
-    goFont_ = TTF_OpenFont((data + "fonts/LiberationSans-Regular.ttf").c_str(), 4.2f * u);
-    backFont_ = TTF_OpenFont((data + "fonts/LiberationSans-Regular.ttf").c_str(), 2.4f * u);
+    printFont_ = TTF_OpenFont((data + "fonts/LiberationMono-Regular.ttf").c_str(), 2.0f * u);
     {
       using deckboy::render::shaping::registerFace;
       if (pixel_) registerFace(pixel_, data + "PressStart2P.ttf", 2.6f * u);
@@ -1439,9 +1433,7 @@ class Pocket {
       if (pixelTiny_) registerFace(pixelTiny_, data + "PressStart2P.ttf", 1.25f * u);
       if (sans_) registerFace(sans_, data + "fonts/LiberationSans-Regular.ttf", 3.0f * u);
       if (mono_) registerFace(mono_, data + "fonts/LiberationMono-Regular.ttf", 2.9f * u);
-      if (printFont_) registerFace(printFont_, data + "fonts/LiberationSans-Regular.ttf", 2.8f * u);
-      if (goFont_) registerFace(goFont_, data + "fonts/LiberationSans-Regular.ttf", 4.2f * u);
-      if (backFont_) registerFace(backFont_, data + "fonts/LiberationSans-Regular.ttf", 2.4f * u);
+      if (printFont_) registerFace(printFont_, data + "fonts/LiberationMono-Regular.ttf", 2.0f * u);
     }
     if (!pixel_ || !mono_) SDL_Log("pocket: fonts missing under %s (%s)", data.c_str(), SDL_GetError());
   }
@@ -7168,9 +7160,7 @@ class Pocket {
 
   // bold: the face prints its legends heavier (index.txt "r g b bold"; Terrazzo,
   // where thin type was lost in the speckle -- James 11-26)
-  // capInk: GO and BACK's legend colour (index.txt's fourth field; Pocket
-  // prints every button legend itself, James 11-27).
-  struct ShellInfo { std::string slug, name; Ink ink; bool bold = false; Ink capInk {230, 235, 235}; };
+  struct ShellInfo { std::string slug, name; Ink ink; bool bold = false; };
 
   void loadShells() {
     size_t n = 0;
@@ -7189,13 +7179,7 @@ class Pocket {
       int cr = 46, cg = 46, cb = 70;
       std::sscanf(line.c_str() + b + 1, "%d %d %d", &cr, &cg, &cb);
       info.ink = {static_cast<Uint8>(cr), static_cast<Uint8>(cg), static_cast<Uint8>(cb)};
-      const std::size_t c = line.find('\t', b + 1);
-      info.bold = line.find(" bold", b) != std::string::npos && (c == std::string::npos || line.find(" bold", b) < c);
-      if (c != std::string::npos) {
-        int kr = 230, kg = 235, kb = 235;
-        if (std::sscanf(line.c_str() + c + 1, "%d %d %d", &kr, &kg, &kb) == 3)
-          info.capInk = {static_cast<Uint8>(kr), static_cast<Uint8>(kg), static_cast<Uint8>(kb)};
-      }
+      info.bold = line.find(" bold", b) != std::string::npos;
       shells_.push_back(info);
     }
     size_t m = 0;
@@ -7281,7 +7265,6 @@ class Pocket {
           shell_ = slug;
           shellInk_ = it->ink;
           shellBold_ = it->bold;
-          shellCapInk_ = it->capInk;
           shellPal_ = samplePalette(rgba, w, h);
         }
       } else {
@@ -7411,25 +7394,12 @@ class Pocket {
     part(cutTop, cutBottom, cutTop, tall - below - cutTop);
   }
 
-  // The shell's buttons are in the picture, their words are not: Pocket
-  // prints GO and BACK on the caps and the pills' labels under them, then a
-  // press darkens the one pressed, and BLACK shows red while the output is
-  // blacked out.
+  // The shell's buttons are in the picture; a press darkens the one pressed,
+  // and BLACK shows red while the output is blacked out.
   void drawShellPresses() {
     SDL_Renderer* r = renderer_;
     const float u = unit_;
     SDL_SetRenderDrawBlendMode(r, SDL_BLENDMODE_BLEND);
-    auto print = [&](TTF_Font* font, const std::string& words, Ink ink, const SDL_FRect& box) {
-      if (!font) font = pixelSmall_;
-      text_.draw(font, words, ink, box, true);
-      if (shellBold_) text_.draw(font, words, ink, {box.x + std::max(1.0f, 0.12f * u), box.y, box.w, box.h}, true);   // heavier
-    };
-    print(goFont_, "GO", shellCapInk_, {goCentre_.x - 7 * u, goCentre_.y - 3 * u, 14 * u, 6 * u});
-    print(backFont_, "BACK", shellCapInk_, {backCentre_.x - 5.5f * u, backCentre_.y - 2 * u, 11 * u, 4 * u});
-    // the pills' labels, centred 4.8 mm below each pill's centre
-    auto under = [&](const SDL_FRect& pill) { return SDL_FRect {pill.x - 5 * u, pill.y + pill.h / 2 + 4.8f * u - 2.1f * u, pill.w + 10 * u, 4.2f * u}; };
-    print(printFont_, pillName(pill_), shellInk_, under(blackPill_));
-    print(printFont_, "MENU", shellInk_, under(menuPill_));
     auto dim = [&](const SDL_FRect& rect, float radius) { fillRoundAlpha(r, kBlack, 0.35f, rect, radius); };
     const float arm = 13 * u, half = 4.6f * u;
     const SDL_FPoint c = padCentre_;
@@ -7445,6 +7415,15 @@ class Pocket {
       default: break;
     }
     if (pillLit()) fillRoundAlpha(r, Ink {220, 30, 30}, 0.6f, blackPill_, 2 * u);
+    // the face leaves this pill unlabelled: it does what you chose
+    // ...printed as the face prints MENU: the same type, size, ink and place
+    // (centred 4.4 mm below the pill's centre)
+    const SDL_FRect label {blackPill_.x - 4 * u, blackPill_.y + blackPill_.h / 2 + 4.4f * u - 1.5f * u, blackPill_.w + 8 * u, 3 * u};
+    text_.draw(printFont_ ? printFont_ : pixelSmall_, pillName(pill_), shellInk_, label, true);
+    if (shellBold_) {   // as heavy as the face's own MENU: drawn again a hair to the right
+      text_.draw(printFont_ ? printFont_ : pixelSmall_, pillName(pill_), shellInk_,
+                 {label.x + std::max(1.0f, 0.12f * u), label.y, label.w, label.h}, true);
+    }
   }
 
   // -- Adding media: the system picker --
@@ -11527,10 +11506,7 @@ class Pocket {
   TTF_Font* sans_ = nullptr;
   TTF_Font* mono_ = nullptr;
   TTF_Font* printFont_ = nullptr;
-  TTF_Font* goFont_ = nullptr;     // GO's legend on a shell's cap
-  TTF_Font* backFont_ = nullptr;   // BACK's
-  bool shellBold_ = false;
-  Ink shellCapInk_ {230, 235, 235};   // the shell's GO / BACK legend colour (ShellInfo::capInk)   // the shell prints its legends heavier (ShellInfo::bold)
+  bool shellBold_ = false;   // the shell prints its legends heavier (ShellInfo::bold)
 
   std::vector<Cue> cues_;
   std::string mediaDir_;
