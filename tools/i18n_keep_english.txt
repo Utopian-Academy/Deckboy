@@ -1745,3 +1745,11 @@ zh-Hans	Pocket
 zh-Hant	Pocket
 zu	Pocket
 pap-AW	input: stereo
+es-CU	Vertical
+es-CU	Horizontal
+es	Vertical
+es	Horizontal
+fr	Vertical
+fr	Horizontal
+pt-BR	Vertical
+pt-BR	Horizontal
