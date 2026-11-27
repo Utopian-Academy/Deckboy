@@ -2350,7 +2350,7 @@ class Pocket {
     heading("PHONE");
     {
       // one a row: side by side, the longer label was cut off (James 11-23: "squished")
-      button({lx, y, lw, 5 * u}, haptics_ ? "BUTTONS YOU CAN FEEL: ON" : "BUTTONS YOU CAN FEEL: OFF",
+      button({lx, y, lw, 5 * u}, haptics_ ? "HAPTICS: ON" : "HAPTICS: OFF",   // James 11-26: "should just be Haptics"
              [this] { setHaptics(!haptics_); }, true, haptics_);
       y += 6 * u;
       button({lx, y, lw, 5 * u}, splashOn_ ? "SPLASH AT START: ON" : "SPLASH AT START: OFF",
@@ -2497,7 +2497,7 @@ class Pocket {
       case 4: {  // PHONE
         line(shellName());
         line(std::string("left: ") + pillName(pill_));
-        line(std::string("feel ") + (haptics_ ? "on" : "off"));
+        line(haptics_ ? "haptics on" : "haptics off");
         const std::string health = healthLabel();
         if (!health.empty()) line(health);
         break;
