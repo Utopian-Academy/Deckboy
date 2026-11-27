@@ -13480,11 +13480,47 @@ int main(int argc, char** argv) {
 }
 
 #ifdef _WIN32
+// Deckboy is a GUI-subsystem program on Windows, so Windows gives it no
+// console: a flag typed in Command Prompt or PowerShell (--devices, --help,
+// --version...) printed into nothing, and the window did not open either, so
+// it looked as if nothing happened (a user looking for their MIDI devices,
+// 2026-11-27). For a command-line mode, print to the console it was started
+// from. Output that is already piped or sent to a file is left alone: that
+// always worked, and is how the checks and CI read it.
+static void attachParentConsoleForCliMode(const std::vector<std::string>& args) {
+  bool cli = false;
+  for (std::size_t i = 1; i < args.size() && !cli; ++i) {
+    const std::string& a = args[i];
+    cli = isCliModeFlag(a) || a == "--help" || a == "-h" || a == "-?" || a == "/?";
+  }
+  if (!cli) return;
+  // A pipe or a file is redirected; a console handle, or none, is not.
+  const auto redirected = [](DWORD which) {
+    const HANDLE h = GetStdHandle(which);
+    if (h == nullptr || h == INVALID_HANDLE_VALUE) return false;
+    const DWORD type = GetFileType(h);
+    return type == FILE_TYPE_DISK || type == FILE_TYPE_PIPE;
+  };
+  const bool outRedirected = redirected(STD_OUTPUT_HANDLE);
+  const bool errRedirected = redirected(STD_ERROR_HANDLE);
+  if (outRedirected && errRedirected) return;
+  if (!AttachConsole(ATTACH_PARENT_PROCESS)) return;   // started from Explorer: no console to print to
+  FILE* stream = nullptr;
+  if (!outRedirected) freopen_s(&stream, "CONOUT$", "w", stdout);
+  if (!errRedirected) freopen_s(&stream, "CONOUT$", "w", stderr);
+  std::cout.clear();
+  std::cerr.clear();
+  // The shell does not wait for a GUI program, so its prompt is already on
+  // the line: start the report on a fresh one.
+  std::cout << '\n';
+}
+
 int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
   auto argvStorage = windowsCommandLineArgsUtf8();
   if (argvStorage.empty()) {
     argvStorage.emplace_back("Deckboy");
   }
+  attachParentConsoleForCliMode(argvStorage);
 
   std::vector<char*> argv;
   argv.reserve(argvStorage.size());

@@ -4278,6 +4278,18 @@ This table is generated from the list the app itself draws on **Ctrl+/**, and
 Deckboy runs with no arguments. These are for the times it does not do what you
 expect, or you want to prove it will before the doors open.
 
+Type them after the program's path in a terminal: Command Prompt or PowerShell on
+Windows, Terminal on the Mac or Linux. On Windows, for example:
+
+```
+"C:\Users\<you>\AppData\Local\Programs\Deckboy\Deckboy.exe" --devices
+```
+
+The report prints in the same window, and the app does not open. On Windows the
+prompt comes back before the report does (the shell does not wait for Deckboy),
+so press Enter once it is done. To keep a report, send it to a file:
+`... --devices > devices.txt`.
+
 ### Before a show
 
 ```

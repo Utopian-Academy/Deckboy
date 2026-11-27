@@ -2,6 +2,8 @@
 
 ## 2026-11-27 - v0.99.430 (Deckboy Pocket on Android; phones as outputs and a backup desk; desk layouts and rendered skins; Surf, Mega Ripple, Illusion, Breath, the Critter Brush)
 
+- Fixed: on Windows, a command-line flag typed in Command Prompt or PowerShell (`--devices`, `--version`, `--help` and the rest) printed nothing, so it looked as if nothing happened. The report now prints in that window. Output piped or sent to a file works as before. Asked in Deckboy's Discussions.
+
 ### Saved effect chains
 - New: **save chain...** and **load chain** in the cue's EFFECTS section. Save a cue's effect chain (effects, settings, LFOs and motion driver) under a name, and load it onto the selected cues in any show. Click replaces the chain, **+ add** (or shift-click) adds it to the end, and either is one undo. Each chain's **...** menu renames, duplicates, deletes or shows it in its folder. Saving under a name already used asks whether to replace it or keep both.
 - Chains are small text files in Deckboy's settings folder (`effect-chains`), so they survive updates and can be copied to another machine. A chain from a newer Deckboy loads what this one knows and says how many effects it left out.
