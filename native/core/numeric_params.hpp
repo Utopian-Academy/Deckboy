@@ -1513,7 +1513,9 @@ inline void applyParamLfos(Cue& cue, double seconds, double beats, double audio0
     double value = 0;
     if (!spec || !readNumericParam(cue, id, value)) continue;
     const double unit = deckboy::effects::lfoUnitValue(lfo, seconds, beats, audio01);
-    double out = value + (unit - 0.5) * static_cast<double>(lfo.depth) * (spec->hi - spec->lo);
+    const double swing = deckboy::effects::lfoShapeIsPhone(lfo.shape) && deckboy::effects::lfoShapeIsOneSided(lfo.shape)
+                             ? unit : unit - 0.5;
+    double out = value + swing * static_cast<double>(lfo.depth) * (spec->hi - spec->lo);
     out = std::clamp(out, spec->lo, spec->hi);
     if (spec->integral) out = std::round(out);
     writeNumericParam(cue, id, out);

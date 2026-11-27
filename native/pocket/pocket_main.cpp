@@ -1009,6 +1009,10 @@ class Pocket {
     if (shellTex_) SDL_DestroyTexture(shellTex_);
     for (RemoteClient& c : clients_) closeSocket(c.socket);
     if (listen_ != kInvalidSocket) closeSocket(listen_);
+    if (mic_) { SDL_DestroyAudioStream(mic_); mic_ = nullptr; }
+    if (accel_) { SDL_CloseSensor(accel_); accel_ = nullptr; }
+    if (gyro_) { SDL_CloseSensor(gyro_); gyro_ = nullptr; }
+    deckboy::effects::publishPhoneLfo(0.5f, 0.5f, 0.0f, 0.0f);
     engine_.reset();
     text_.clear();
     for (TTF_Font* f : {pixel_, pixelSmall_, pixelTiny_, sans_, mono_, printFont_, textCueFont_}) if (f) { deckboy::render::shaping::forgetFace(f); TTF_CloseFont(f); }
@@ -1254,6 +1258,7 @@ class Pocket {
     serviceShake();
     serviceCamera();
     serviceMic();
+    servicePhoneLfo();
     engine_->update();
     // Animated generators (Swirl, Fireside, Lumia...) are redrawn every tick
     // from the wall clock, as the desk's update loop does; without this they
@@ -4070,15 +4075,24 @@ class Pocket {
 
   // ── The camera's sound: the phone's microphone ──
   //
-  // Open only while a camera cue with SOUND FROM THE MIC is on air; what it
-  // hears goes into the engine as the cue's sound (queueExternalAudio), so
+  // Open while camera sound or a live MIC LFO needs it. Camera audio
+  // goes into the engine as the cue's sound (queueExternalAudio), so
   // the cue's level, fades, audio effects, mute and meters all apply. With
   // no TV connected the phone's own speaker is next to its microphone and
   // can howl: the cue's level is the first thing to turn down.
 
+  void reportMicUnavailable(const std::string& message) {
+    if (micNotice_ != message && liveUsesPhoneSource(deckboy::effects::LfoShape::Mic)) {
+      notice_ = message;
+      noticeUntil_ = SDL_GetTicks() + 4000;
+    }
+    micNotice_ = message;
+  }
+
   void serviceMic() {
     const Cue* c = active_ >= 0 && active_ < static_cast<int>(cues_.size()) ? &cues_[static_cast<std::size_t>(active_)] : nullptr;
-    const bool want = c && isCameraCue(*c) && !black_ && camSettings(*c).mic && (c->audioEnabled || !c->hasAudio);   // cues made before sound count as on
+    const bool cameraSound = c && isCameraCue(*c) && !black_ && camSettings(*c).mic && (c->audioEnabled || !c->hasAudio);   // cues made before sound count as on
+    const bool want = cameraSound || (!sensorOverride_ && liveUsesPhoneSource(deckboy::effects::LfoShape::Mic));
     if (!want) {
       if (mic_) {
         SDL_DestroyAudioStream(mic_);
@@ -4090,11 +4104,12 @@ class Pocket {
 #if defined(SDL_PLATFORM_ANDROID)
     if (micAllowed_ == -2) {
       micAllowed_ = 0;
-      SDL_RequestAndroidPermission("android.permission.RECORD_AUDIO",
-                                   [](void* self, const char*, bool granted) { static_cast<Pocket*>(self)->micAllowed_ = granted ? 1 : -1; }, this);
+      if (!SDL_RequestAndroidPermission("android.permission.RECORD_AUDIO",
+                                   [](void*, const char*, bool granted) { micPermission().store(granted ? 1 : -1); }, nullptr))
+        micAllowed_ = -1;
     }
     if (micAllowed_ < 0) {
-      micNotice_ = "Pocket may not use the microphone. Allow it in the phone's settings.";
+      reportMicUnavailable("Pocket may not use the microphone. Allow it in the phone's settings.");
       return;
     }
     if (micAllowed_ == 0) return;
@@ -4103,13 +4118,15 @@ class Pocket {
       const SDL_AudioSpec spec {SDL_AUDIO_S16, 2, engine_->audioRate()};
       mic_ = SDL_OpenAudioDeviceStream(SDL_AUDIO_DEVICE_DEFAULT_RECORDING, &spec, nullptr, nullptr);
       if (!mic_) {
-        micNotice_ = std::string("The microphone did not open: ") + SDL_GetError();
+        reportMicUnavailable(std::string("The microphone did not open: ") + SDL_GetError());
         return;
       }
       SDL_ResumeAudioStreamDevice(mic_);
       micNotice_.clear();
     }
-    const int ready = SDL_GetAudioStreamAvailable(mic_);
+    const double micNow = static_cast<double>(SDL_GetTicksNS()) / 1e9;
+    micPeak_ *= static_cast<float>(std::exp(-std::clamp(micNow - sensorTime_, 0.0, 0.1) / 0.16));
+    const int ready = std::min(SDL_GetAudioStreamAvailable(mic_), engine_->audioRate() * 4);
     if (ready < 4) return;
     micBuf_.resize(static_cast<std::size_t>(ready) / sizeof(std::int16_t));
     const int got = SDL_GetAudioStreamData(mic_, micBuf_.data(), ready);
@@ -4117,9 +4134,9 @@ class Pocket {
     micBuf_.resize(static_cast<std::size_t>(got) / sizeof(std::int16_t) & ~std::size_t {1});
     int peak = 0;
     for (std::int16_t v : micBuf_) peak = std::max(peak, std::abs(static_cast<int>(v)));
-    micPeak_ = std::max(micPeak_ * 0.9f, static_cast<float>(peak) / 32768.0f);
+    micPeak_ = std::max(micPeak_, static_cast<float>(peak) / 32768.0f);
     micFrames_ += micBuf_.size() / 2;
-    engine_->queueExternalAudio(micBuf_);
+    if (cameraSound) engine_->queueExternalAudio(micBuf_);
   }
 
   // A tap on the picture while a phone camera is on air: focus there.
@@ -5264,7 +5281,59 @@ class Pocket {
              "DIRECTION <n> FORWARD|REVERSE|BOUNCE SHELL <name>|FLAT SNAP <file.bmp>\n"
              "TBAR [HOLD|MOVE <seconds>|RUN] LANGUAGE [<code>|PHONE] PLACE <cue> SHOW TOUR\n"
              "AREA [L T R B | MIRROR H|V ON|OFF | TURN 0|90|180|270 | MATTE OFF|16:9|4:3|2.39:1|1.85:1|1:1|9:16 [opacity 0-1] | DELAY 0-5000 | RESET]\n"
-             "SYNC FOLLOW <desk> SYNC STOP SYNC STATUS\n";
+             "SYNC FOLLOW <desk> SYNC STOP SYNC STATUS\n"
+             "SENSORS [TILT|TURN|SHAKE|MIC <0..1> | LIVE] VALUE <cue> <number>\n"
+             "LFO <cue> <number> ON|OFF [sine|tri|saw|ramp|square|steps|sound|tilt|turn|shake|mic] [Hz] [depth %]\n";
+    }
+    if (verb == "SENSORS") {
+      if (!remoteCallerLocal_) return err("local connections only");
+      std::istringstream args(rest);
+      std::string source, extra;
+      args >> source;
+      source = upper(source);
+      if (source == "LIVE") {
+        if (args >> extra) return err("SENSORS LIVE");
+        sensorOverride_ = false;
+        sensorValues_ = {0.5f, 0.5f, 0.0f, 0.0f};
+        sensorTurn_ = 0;
+      } else if (!source.empty()) {
+        const int slot = source == "TILT" ? 0 : source == "TURN" ? 1 : source == "SHAKE" ? 2 : source == "MIC" ? 3 : -1;
+        float value = 0;
+        if (slot < 0 || !(args >> value) || !std::isfinite(value) || value < 0 || value > 1 || (args >> extra))
+          return err("SENSORS [TILT|TURN|SHAKE|MIC <0..1> | LIVE]");
+        sensorOverride_ = true;
+        sensorValues_[static_cast<std::size_t>(slot)] = value;
+      }
+      if (!source.empty()) deckboy::effects::publishPhoneLfo(sensorValues_[0], sensorValues_[1], sensorValues_[2], sensorValues_[3]);
+      std::ostringstream out;
+      out << "OK SENSORS mode=" << (sensorOverride_ ? "test" : "live")
+          << " tilt=" << sensorValues_[0] << " turn=" << sensorValues_[1]
+          << " shake=" << sensorValues_[2] << " mic=" << sensorValues_[3]
+          << " recording=" << (mic_ ? 1 : 0) << "\n";
+      return out.str();
+    }
+    // Read a source number after the same modulation used by its renderer.
+    if (verb == "VALUE") {
+      std::istringstream args(rest);
+      int n = 0;
+      std::string key, extra;
+      if (!(args >> n >> key) || n < 1 || n > count || (args >> extra)) return err("VALUE <cue> <number>");
+      const Cue& base = cues_[static_cast<std::size_t>(n - 1)];
+      if (!deckboy::params::generalParamLfoKind(base)) return err("VALUE supports general source numbers");
+      Cue evaluated = base;
+      const auto clockSample = deckboy::effects::readLfoClock();
+      deckboy::params::applyParamLfos(evaluated, clockSample.seconds, clockSample.beats, clockSample.audio01);
+      for (const auto& row : deckboy::params::paramRowsForCue(base)) {
+        std::string name = upper(row.key);
+        for (char& ch : name) if (ch == ' ') ch = '_';
+        if (name != upper(key)) continue;
+        double value = 0;
+        if (!deckboy::params::readNumericParam(evaluated, row.id, value)) break;
+        std::ostringstream out;
+        out << "OK VALUE " << name << "=" << value << "\n";
+        return out.str();
+      }
+      return err("unknown source number");
     }
     if (verb == "STATUS" || verb == "STATE") return remoteStatus();
     if (verb == "DECK") return rest.empty() || rest == "1" ? ok() : err("Pocket has one deck");
@@ -5652,7 +5721,8 @@ class Pocket {
       if (!shape.empty()) {
         l.shape = shape == "tri" ? LfoShape::Triangle : shape == "saw" ? LfoShape::Saw : shape == "ramp" ? LfoShape::Ramp
                 : shape == "square" ? LfoShape::Square : shape == "steps" ? LfoShape::Sample : shape == "sound" ? LfoShape::Audio
-                : LfoShape::Sine;
+                : shape == "tilt" ? LfoShape::Tilt : shape == "turn" ? LfoShape::Turn
+                : shape == "shake" ? LfoShape::Shake : shape == "mic" ? LfoShape::Mic : LfoShape::Sine;
       }
       if (rate > 0) l.rateHz = static_cast<float>(std::min(rate, 8.0));
       if (depth >= 0) l.depth = static_cast<float>(std::min(depth, 100.0) / 100.0);
@@ -7838,21 +7908,104 @@ class Pocket {
   // read only while the face is up, and by polling once a tick (its events
   // are switched off), so it never wakes an idle phone by itself.
 
-  void serviceShake() {
-    if (!faceShown()) return;
+  bool liveUsesPhoneSource(deckboy::effects::LfoShape shape) const {
+    if (black_ || active_ < 0 || active_ >= static_cast<int>(cues_.size())) return false;
+    const Cue& cue = cues_[static_cast<std::size_t>(active_)];
+    auto uses = [shape](const auto& list) {
+      for (const auto& lfo : list) if (lfo.on && lfo.shape == shape) return true;
+      return false;
+    };
+    if (uses(cue.geometryLfo)) return true;
+    if (cue.kind == CueKind::Pattern) {
+      const std::string type = normalizePatternTypeId(cue.path);
+      if (type == "moire-field" && uses(cue.moire.lfo)) return true;
+      if (type == "illusion" && uses(cue.illusion.lfo)) return true;
+      if (type == "lumia" && uses(cue.lumia.lfo)) return true;
+    }
+    if (deckboy::params::generalParamLfoKind(cue))
+      for (const auto& entry : cue.paramLfo) if (entry.second.on && entry.second.shape == shape) return true;
+    for (const auto& fx : cue.effects) if (!fx.bypassed && uses(fx.lfo)) return true;
+    if (cue.kind == CueKind::Pattern && normalizePatternTypeId(cue.path) == "isf")
+      for (const auto& setting : cue.isf) if (setting.lfo.on && setting.lfo.shape == shape) return true;
+    return false;
+  }
+
+  void servicePhoneLfo() {
+    using deckboy::effects::LfoShape;
+    const double now = static_cast<double>(SDL_GetTicksNS()) / 1e9;
+    const float dt = static_cast<float>(std::clamp(now - sensorTime_, 0.0, 0.1));
+    sensorTime_ = now;
+    if (!sensorOverride_) {
+      const bool moving = liveUsesPhoneSource(LfoShape::Tilt) || liveUsesPhoneSource(LfoShape::Turn) || liveUsesPhoneSource(LfoShape::Shake);
+      if (moving) openPhoneSensors();
+      const float blend = 1.0f - std::exp(-dt / 0.12f);
+      float tilt = 0.5f;
+      sensorValues_[2] *= std::exp(-dt / 0.3f);
+      if (moving) {
+        SDL_UpdateSensors();
+        float a[3] {};
+        if (accel_ && SDL_GetSensorData(accel_, a, 3)) {
+          // SDL axes stay in the device's natural orientation. Rotate gravity
+          // into the displayed screen's axes before measuring left-right tilt.
+          const SDL_DisplayID display = SDL_GetDisplayForWindow(window_);
+          auto quarterTurns = [](SDL_DisplayOrientation orientation) {
+            switch (orientation) {
+              case SDL_ORIENTATION_LANDSCAPE: return 1;
+              case SDL_ORIENTATION_PORTRAIT_FLIPPED: return 2;
+              case SDL_ORIENTATION_LANDSCAPE_FLIPPED: return 3;
+              default: return 0;
+            }
+          };
+          const int rotation = (quarterTurns(SDL_GetCurrentDisplayOrientation(display)) -
+                                quarterTurns(SDL_GetNaturalDisplayOrientation(display)) + 4) % 4;
+          float horizontal = a[0];
+          if (rotation == 1) horizontal = -a[1];
+          else if (rotation == 3) horizontal = a[1];
+          else if (rotation == 2) horizontal = -a[0];
+          tilt = std::clamp(0.5f + horizontal / (2.0f * SDL_STANDARD_GRAVITY), 0.0f, 1.0f);
+          const float magnitude = std::sqrt(a[0]*a[0] + a[1]*a[1] + a[2]*a[2]);
+          const float shake = std::clamp((std::abs(magnitude - SDL_STANDARD_GRAVITY) - 0.5f) / 15.0f, 0.0f, 1.0f);
+          sensorValues_[2] = std::max(sensorValues_[2], shake);
+        }
+        float g[3] {};
+        if (gyro_ && SDL_GetSensorData(gyro_, g, 3)) {
+          // Relative turn about the screen normal, +/- 90 degrees. Small
+          // gyro noise is ignored; stopping retains the current heading.
+          if (std::abs(g[2]) > 0.02f) sensorTurn_ = std::clamp(sensorTurn_ + g[2] * dt, -1.5707963f, 1.5707963f);
+        }
+      } else {
+        sensorTurn_ = 0.0f;
+      }
+      sensorValues_[0] += (tilt - sensorValues_[0]) * blend;
+      const float turn = 0.5f + sensorTurn_ / 3.1415926f;
+      sensorValues_[1] += (turn - sensorValues_[1]) * blend;
+      const float mic = liveUsesPhoneSource(LfoShape::Mic) ? micPeak_ : 0.0f;
+      const float micBlend = 1.0f - std::exp(-dt / (mic > sensorValues_[3] ? 0.025f : 0.2f));
+      sensorValues_[3] += (mic - sensorValues_[3]) * micBlend;
+    }
+    deckboy::effects::publishPhoneLfo(sensorValues_[0], sensorValues_[1], sensorValues_[2], sensorValues_[3]);
+  }
+
+  void openPhoneSensors() {
     if (!shakeTried_) {
       shakeTried_ = true;
       if (SDL_InitSubSystem(SDL_INIT_SENSOR)) {
         SDL_SetEventEnabled(SDL_EVENT_SENSOR_UPDATE, false);
         int n = 0;
         if (SDL_SensorID* ids = SDL_GetSensors(&n)) {
-          for (int i = 0; i < n && !accel_; ++i) {
-            if (SDL_GetSensorTypeForID(ids[i]) == SDL_SENSOR_ACCEL) accel_ = SDL_OpenSensor(ids[i]);
+          for (int i = 0; i < n; ++i) {
+            if (!accel_ && SDL_GetSensorTypeForID(ids[i]) == SDL_SENSOR_ACCEL) accel_ = SDL_OpenSensor(ids[i]);
+            if (!gyro_ && SDL_GetSensorTypeForID(ids[i]) == SDL_SENSOR_GYRO) gyro_ = SDL_OpenSensor(ids[i]);
           }
           SDL_free(ids);
         }
       }
     }
+  }
+
+  void serviceShake() {
+    if (!faceShown()) return;
+    openPhoneSensors();
     if (!accel_) return;
     SDL_UpdateSensors();
     float a[3] = {0, 0, 0};
@@ -10606,7 +10759,7 @@ class Pocket {
       y += 9 * u;
     }
     const float bottom = lcd.y + lcd.h - u;
-    const float rowH = std::min(9.0f * u, (bottom - y) / (slot == kGeoLfoRotation ? 9.4f : 8.4f));
+    const float rowH = std::min(9.0f * u, (bottom - y) / (slot == kGeoLfoRotation ? 10.4f : 9.4f));
     auto row = [&](float weight) { const SDL_FRect rr {lx, y, lw, rowH * weight}; y += rowH * weight; return rr; };
     chipRow(row(1), {{L.on ? "MOVING" : "STILL", [this, i, slot] {
                         auto& l = *lfoRef_();
@@ -10615,11 +10768,12 @@ class Pocket {
                       }}}, {L.on});
     const std::vector<std::pair<const char*, LfoShape>> shapes = {
         {"SINE", LfoShape::Sine}, {"TRI", LfoShape::Triangle}, {"SAW", LfoShape::Saw}, {"RAMP", LfoShape::Ramp},
-        {"SQUARE", LfoShape::Square}, {"STEPS", LfoShape::Sample}, {"SOUND", LfoShape::Audio}};
-    for (int line = 0; line < 2; ++line) {
+        {"SQUARE", LfoShape::Square}, {"STEPS", LfoShape::Sample}, {"SOUND", LfoShape::Audio}, {"TILT", LfoShape::Tilt},
+        {"TURN", LfoShape::Turn}, {"SHAKE", LfoShape::Shake}, {"MIC", LfoShape::Mic}};
+    for (int line = 0; line < 3; ++line) {
       std::vector<std::pair<std::string, std::function<void()>>> chips;
       std::vector<bool> on;
-      for (std::size_t k = line ? 4 : 0; k < (line ? shapes.size() : 4); ++k) {
+      for (std::size_t k = static_cast<std::size_t>(line * 4); k < std::min(shapes.size(), static_cast<std::size_t>((line + 1) * 4)); ++k) {
         const LfoShape sh = shapes[k].second;
         chips.push_back({shapes[k].first, [this, i, slot, sh] {
                            auto& l = *lfoRef_();
@@ -10646,37 +10800,39 @@ class Pocket {
       chipRow(row(1), {{"SPIN RIGHT", spin(true)}, {"SPIN LEFT", spin(false)}},
               {spinning && L.shape == deckboy::effects::LfoShape::Saw, spinning && L.shape == deckboy::effects::LfoShape::Ramp});
     }
-    chipRow(row(1), {{"FREE", [this, i, slot] { (*lfoRef_()).beatSync = false; }},
-                     {"ON THE BEAT", [this, i, slot] { (*lfoRef_()).beatSync = true; }}},
-            {!L.beatSync, L.beatSync});
-    {
-      NumSpec n;
-      if (L.beatSync) {
-        n.label = "EVERY";
-        n.unit = "beats";
-        n.decimals = 2;
-        n.min = 0.25;
-        n.max = 32;
-        n.step = 0.25;
-        n.reset = 4;
-        n.presets = {{"1 BEAT", 1}, {"1 BAR", 4}, {"4 BARS", 16}};
-        n.get = [this, i, slot] { return static_cast<double>((*lfoRef_()).beats); };
-        n.set = [this, i, slot](double v) { (*lfoRef_()).beats = static_cast<float>(v); };
-      } else {
-        const bool spinning = slot == kGeoLfoRotation && L.depth >= 0.999f &&
-                              (L.shape == deckboy::effects::LfoShape::Saw || L.shape == deckboy::effects::LfoShape::Ramp);
-        n.label = spinning ? "TURNS" : "RATE";
-        n.unit = spinning ? "/ s" : "Hz";
-        n.decimals = 2;
-        n.min = 0.01;
-        n.max = 8;
-        n.step = 0.01;
-        n.reset = 0.25;
-        n.presets = {{"SLOW", 0.1}, {"BREATH", 0.25}, {"FAST", 2}};
-        n.get = [this, i, slot] { return static_cast<double>((*lfoRef_()).rateHz); };
-        n.set = [this, i, slot](double v) { (*lfoRef_()).rateHz = static_cast<float>(v); };
+    if (!deckboy::effects::lfoShapeIsPhone(L.shape)) {
+      chipRow(row(1), {{"FREE", [this, i, slot] { (*lfoRef_()).beatSync = false; }},
+                       {"ON THE BEAT", [this, i, slot] { (*lfoRef_()).beatSync = true; }}},
+              {!L.beatSync, L.beatSync});
+      {
+        NumSpec n;
+        if (L.beatSync) {
+          n.label = "EVERY";
+          n.unit = "beats";
+          n.decimals = 2;
+          n.min = 0.25;
+          n.max = 32;
+          n.step = 0.25;
+          n.reset = 4;
+          n.presets = {{"1 BEAT", 1}, {"1 BAR", 4}, {"4 BARS", 16}};
+          n.get = [this, i, slot] { return static_cast<double>((*lfoRef_()).beats); };
+          n.set = [this, i, slot](double v) { (*lfoRef_()).beats = static_cast<float>(v); };
+        } else {
+          const bool spinning = slot == kGeoLfoRotation && L.depth >= 0.999f &&
+                                (L.shape == deckboy::effects::LfoShape::Saw || L.shape == deckboy::effects::LfoShape::Ramp);
+          n.label = spinning ? "TURNS" : "RATE";
+          n.unit = spinning ? "/ s" : "Hz";
+          n.decimals = 2;
+          n.min = 0.01;
+          n.max = 8;
+          n.step = 0.01;
+          n.reset = 0.25;
+          n.presets = {{"SLOW", 0.1}, {"BREATH", 0.25}, {"FAST", 2}};
+          n.get = [this, i, slot] { return static_cast<double>((*lfoRef_()).rateHz); };
+          n.set = [this, i, slot](double v) { (*lfoRef_()).rateHz = static_cast<float>(v); };
+        }
+        numberRow(row(1.3f), n);
       }
-      numberRow(row(1.3f), n);
     }
     {
       NumSpec n;
@@ -11589,6 +11745,11 @@ class Pocket {
   Uint64 faceLastPokeMs_ = 0, faceSince_ = 0;
   int faceDealt_ = 0;   // lines already said in earlier appearances
   SDL_Sensor* accel_ = nullptr;
+  SDL_Sensor* gyro_ = nullptr;
+  bool sensorOverride_ = false;
+  std::array<float, 4> sensorValues_ {0.5f, 0.5f, 0.0f, 0.0f};
+  float sensorTurn_ = 0.0f;
+  double sensorTime_ = 0.0;
   bool shakeTried_ = false;
   std::vector<Uint64> jolts_;
   Uint64 lastJolt_ = 0, faceShakeAt_ = 0;
@@ -11599,9 +11760,10 @@ class Pocket {
   std::string camNotice_;
   std::uint64_t camFrames_ = 0;
   int camFrameW_ = 0, camFrameH_ = 0;   // the last camera frame, upright
-  SDL_AudioStream* mic_ = nullptr;      // the microphone, while a camera cue with sound is on air
+  SDL_AudioStream* mic_ = nullptr;      // shared by camera sound and live MIC LFOs
   std::vector<std::int16_t> micBuf_;
-  std::atomic<int> micAllowed_ {-2};    // Android: -2 never asked, 0 asked, 1 yes, -1 no
+  static std::atomic<int>& micPermission() { static std::atomic<int> allowed {-2}; return allowed; }
+  std::atomic<int>& micAllowed_ = micPermission();    // Android: -2 never asked, 0 asked, 1 yes, -1 no
   std::string micNotice_;
   float micPeak_ = 0;
   std::uint64_t micFrames_ = 0;

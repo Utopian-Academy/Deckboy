@@ -1142,8 +1142,31 @@ enum class LfoShape : std::uint8_t {
   AudioLow,
   AudioMid,
   AudioHigh,
+  // Phone inputs are appended so saved shape indices keep their meaning.
+  Tilt,
+  Turn,
+  Shake,
+  Mic,
   Count
 };
+
+// Pocket publishes these once per frame. Other hosts keep neutral readings.
+// Future XY pad sources belong here too, with their own appended shape indices.
+inline bool lfoShapeIsPhone(LfoShape shape) {
+  return shape >= LfoShape::Tilt && shape <= LfoShape::Mic;
+}
+struct LfoPhoneSignals {
+  std::atomic<float> tilt {0.5f}, turn {0.5f}, shake {0.0f}, mic {0.0f};
+};
+inline LfoPhoneSignals& lfoPhoneSignals() { static LfoPhoneSignals signals; return signals; }
+inline void publishPhoneLfo(float tilt, float turn, float shake, float mic) {
+  auto clean = [](float v, float neutral) { return std::isfinite(v) ? std::clamp(v, 0.0f, 1.0f) : neutral; };
+  auto& s = lfoPhoneSignals();
+  s.tilt.store(clean(tilt, 0.5f), std::memory_order_relaxed);
+  s.turn.store(clean(turn, 0.5f), std::memory_order_relaxed);
+  s.shake.store(clean(shake, 0.0f), std::memory_order_relaxed);
+  s.mic.store(clean(mic, 0.0f), std::memory_order_relaxed);
+}
 
 inline bool lfoShapeIsMidi(LfoShape shape) {
   return shape == LfoShape::MidiNote || shape == LfoShape::MidiVelocity ||
@@ -1168,6 +1191,7 @@ inline bool lfoShapeIsAudio(LfoShape shape) {
 // silence leave the control alone.
 inline bool lfoShapeIsOneSided(LfoShape shape) {
   return shape == LfoShape::Audio || shape == LfoShape::Motion ||
+         shape == LfoShape::Shake || shape == LfoShape::Mic ||
          shape == LfoShape::MidiVelocity || shape == LfoShape::MidiPressure ||
          lfoShapeIsAudioBand(shape);
 }
@@ -1343,6 +1367,10 @@ inline const char* lfoShapeToken(LfoShape shape) {
     case LfoShape::AudioLow:     return "audio-low";
     case LfoShape::AudioMid:     return "audio-mid";
     case LfoShape::AudioHigh:    return "audio-high";
+    case LfoShape::Tilt: return "phone-tilt";
+    case LfoShape::Turn: return "phone-turn";
+    case LfoShape::Shake: return "phone-shake";
+    case LfoShape::Mic: return "phone-mic";
     default:                 return "sine";
   }
 }
@@ -1438,6 +1466,12 @@ inline int lfoAudioSource(const ParamLfo& lfo) {
 
 inline double lfoUnitValueRaw(const ParamLfo& lfo, double seconds, double beats01,
                               double audio01 = 0.0) {
+  if (lfoShapeIsPhone(lfo.shape)) {
+    const auto& s = lfoPhoneSignals();
+    const auto& signal = lfo.shape == LfoShape::Tilt ? s.tilt : lfo.shape == LfoShape::Turn ? s.turn
+                       : lfo.shape == LfoShape::Shake ? s.shake : s.mic;
+    return signal.load(std::memory_order_relaxed);
+  }
   if (lfo.shape == LfoShape::Audio) {
     // Rate, phase and tempo mean nothing here: the value is the sound. AUTO
     // takes the level it was handed (the reactive level, which has always
