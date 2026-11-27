@@ -1648,6 +1648,98 @@ export function buildActions(self) {
 			},
 		},
 
+		// 0.99.430's remote verbs.
+		surf_drop: {
+			name: 'Surf: throw something in',
+			description: 'A beach thing (duck, ball, chicken, toaster, melon, cone, bottle, board, critter, surprise) or a cue by number or name, into every Surf on air.',
+			options: [{ type: 'textinput', label: 'Thing or cue', id: 'what', default: 'duck', useVariables: true }],
+			callback: async ({ options }) => {
+				const what = String(options.what ?? '').trim()
+				if (what.length > 0) send(`SURF DROP ${what}`)
+			},
+		},
+		surf_beach: { name: 'Surf: a new beach', options: [], callback: () => send('SURF BEACH') },
+		surf_clear: { name: 'Surf: clear the water', options: [], callback: () => send('SURF CLEAR') },
+		surf_music: {
+			name: 'Surf: music on / off',
+			description: 'The selected Surf cue, else every Surf on air.',
+			options: [
+				{
+					type: 'dropdown',
+					disableAutoExpression: true,
+					label: 'Music',
+					id: 'music',
+					default: 'on',
+					choices: [
+						{ id: 'on', label: 'On' },
+						{ id: 'off', label: 'Off' },
+					],
+				},
+			],
+			callback: ({ options }) => send(`SURF MUSIC ${options.music ?? 'on'}`),
+		},
+		surf_sky: {
+			name: 'Surf: sky',
+			description: 'The selected Surf cue, else every Surf on air.',
+			options: [
+				{
+					type: 'dropdown',
+					disableAutoExpression: true,
+					label: 'Sky',
+					id: 'sky',
+					default: 'day',
+					choices: [
+						{ id: 'day', label: 'Day' },
+						{ id: 'sunset', label: 'Sunset' },
+						{ id: 'night', label: 'Night' },
+					],
+				},
+			],
+			callback: ({ options }) => send(`SURF SKY ${options.sky ?? 'day'}`),
+		},
+		ripple_drop: {
+			name: 'Mega Ripple: drop rings',
+			description: 'Drops rings into every Mega Ripple on air.',
+			options: [{ type: 'number', label: 'Rings', id: 'count', default: 1, min: 1, max: 8 }],
+			callback: ({ options }) => send(`RIPPLE DROP ${Math.min(8, Math.max(1, Number(options.count) || 1))}`),
+		},
+		output_flip: {
+			name: 'Output mirror',
+			description: 'Mirrors the focused output (rear projection, a mirror in the path).',
+			options: [
+				{
+					type: 'dropdown',
+					disableAutoExpression: true,
+					label: 'Mirror',
+					id: 'flip',
+					default: 'next',
+					choices: [
+						{ id: 'off', label: 'Off' },
+						{ id: 'h', label: 'Horizontal' },
+						{ id: 'v', label: 'Vertical' },
+						{ id: 'both', label: 'Both' },
+						{ id: 'next', label: 'Next' },
+					],
+				},
+			],
+			callback: ({ options }) => send(`VIDEO OUTPUT FLIP ${options.flip ?? 'next'}`),
+		},
+		layout: {
+			name: 'Desk layout',
+			description: 'Switches the desk to a saved layout by name; SHOW or EDIT is Operator mode.',
+			options: [{ type: 'textinput', label: 'Layout', id: 'name', default: '', useVariables: true }],
+			callback: async ({ options }) => {
+				const name = String(options.name ?? '').trim()
+				if (name.length > 0) send(`LAYOUT ${name}`)
+			},
+		},
+		playlist_name: {
+			name: 'Rename the focused playlist',
+			description: 'Blank gives the default name back.',
+			options: [{ type: 'textinput', label: 'Name', id: 'name', default: '', useVariables: true }],
+			callback: async ({ options }) => send(`NAME ${String(options.name ?? '').trim()}`.trim()),
+		},
+
 		custom: {
 			name: 'Custom command',
 			description: 'Any Deckboy remote command, sent verbatim. See MANUAL.md section 22 for the full vocabulary.',

@@ -68,6 +68,10 @@ New for Deckboy 0.99.428:
 - **Pad:** the phone's X/Y pad. Put it at a point, let go, hold or latch, and set which controls it moves.
 - **Render to file:** open or close the Render window, or cancel a running render. Deckboy starts a render only from its own computer, so there is no Start action.
 - **Edge blend:** set a whole row of projectors in one press.
+- **Surf:** throw a beach thing or a cue in, a new beach, clear the water, music on or off, and the sky (day, sunset, night).
+- **Mega Ripple:** drop rings into every Mega Ripple on air.
+- **Output mirror:** mirror the focused output horizontally, vertically, both, or off.
+- **Desk layout:** switch to a saved layout by name. **Rename playlist:** name the focused playlist.
 
 Some commands work only on the Deckboy computer itself, for safety: `RENDER START`, `SUBTITLE CONVERT`, `SHADER LOAD`, and the test commands (`CLICK`, `KEY`, `TYPE`, and others). The **Custom command** action cannot run them from another computer.
 
