@@ -7830,7 +7830,7 @@ class Pocket {
     }
     // Rows close up (to 3.2 units) before a row is lost: the longest line is
     // two rows on the narrowest box, and a short box has about seven units.
-    const std::vector<std::string> lines = wrapWords(mono_, std::string(line) + "...", textW);
+    const std::vector<std::string> lines = wrapWords(mono_, deckboy::core::i18n::translate(line) + "...", textW);   // translated before the dots go on and the wrap
     const float space = quipBottom - quipTop;
     const float rowH = std::clamp(space / static_cast<float>(std::max<std::size_t>(1, lines.size())), 3.2f * u, lineH);
     const int rows = std::max(1, static_cast<int>(space / rowH + 0.01f));

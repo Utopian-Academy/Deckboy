@@ -404,7 +404,10 @@
 
     if (!talking || !fontSmall_) return;
     // What he says, in a bubble above him, inside the empty space.
-    const std::string said = ratDadSays();
+    // Translated WHOLE, then wrapped: wrapped first, each line was looked up
+    // on its own and none was ever found (James, 2026-11-26: "rat dad aint
+    // translated?"). The lines are then drawn as they are.
+    const std::string said = deckboy::core::i18n::translate(ratDadSays());
     const int pad = uiScaled(6);
     const int maxW = std::max(uiScaled(120), std::min(area.w - uiScaled(16), uiScaled(300)));
     const auto lines = codeWrapText(fontSmall_, said, maxW - pad * 2);
@@ -426,7 +429,7 @@
     for (std::size_t i = 0; i < lines.size(); ++i) {
       drawTextSafe(controlRenderer_, fontSmall_,
                    SDL_Rect {bx + pad, by + pad + static_cast<int>(i) * lineH, bubbleW - pad * 2, lineH},
-                   lines[i], ink);
+                   lines[i], ink, false);
     }
   }
 

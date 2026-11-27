@@ -449,10 +449,39 @@ def shader_strings():
     return found
 
 
+# Lists of lines the app SAYS, drawn one at a time through a variable: the
+# loading screens' lines (desk and Pocket) and Rat Dad's jokes and sea tales.
+# None of them reached a catalogue until 2026-11-26 (James: "rat dad aint
+# translated?"), because no draw call names them.
+SPOKEN_LISTS = [
+    ("native/core/loading_quips.hpp", r"kLoadingQuips\[\]\s*=\s*\{"),
+    ("native/core/loading_quips.hpp", r"kPocketLoadingQuips\[\]\s*=\s*\{"),
+    ("native/app/app_rat_dad.ipp", r"kJokes\s*=\s*\{"),
+    ("native/app/app_rat_dad.ipp", r"kTales\s*=\s*\{"),
+]
+
+
+def spoken_strings():
+    found = {}
+    for rel, opener in SPOKEN_LISTS:
+        path = os.path.join(ROOT, rel)
+        if not os.path.exists(path):
+            continue
+        text = strip_comments(open(path, encoding="utf-8").read())
+        m = re.search(opener, text)
+        if not m:
+            continue
+        body = text[m.end():text.find("};", m.end())]
+        for lit in LITERAL.finditer(body):
+            if lit.group(1).strip():
+                found.setdefault(lit.group(1), rel)
+    return found
+
+
 def variable_strings():
     """Every string that reaches the screen through a variable, not a draw call."""
     found = {}
-    for part in (table_strings(), error_strings(), spec_strings(), shader_strings()):
+    for part in (table_strings(), error_strings(), spec_strings(), shader_strings(), spoken_strings()):
         for s, where in part.items():
             found.setdefault(s, where)
     return found
