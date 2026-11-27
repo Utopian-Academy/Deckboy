@@ -1,0 +1,390 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Deckboy Pocket zine</title>
+<meta name="description" content="The pocket guide to Deckboy Pocket: read it here, or print it on one sheet and fold it into a little book.">
+<!--
+  THE POCKET GUIDE, as a zine. The eight pages below are written ONCE, in
+  reading order, at the size of a folded page (264 x 408 px = 2.75 x 4.25 in).
+  On screen they are a little book you turn page by page; printed, the same
+  pages are laid out on one landscape sheet in the standard mini-zine order
+  (top row upside down 5 4 3 2, bottom row 6 7 back cover, front cover), to
+  fold into eight pages with one cut.
+-->
+<style>
+  @font-face { font-family: "Pixel"; src: url("fonts/PressStart2P.ttf"); }
+  @font-face { font-family: "Mono"; src: url("fonts/LiberationMono-Regular.ttf"); }
+  :root {
+    --ink: #111; --paper: #efebe0; --pink: #ff2e88; --acid: #eaff2e; --lcd: #b6d36a;
+    --bg: #2a2a2a; --text: #f1eee6; --btn: #eaff2e; --btnText: #111;
+  }
+  @media (prefers-color-scheme: light) {
+    :root:not([data-theme="dark"]) { --bg: #d9d4c6; --text: #111; --btn: #111; --btnText: #eaff2e; }
+  }
+  :root[data-theme="light"] { --bg: #d9d4c6; --text: #111; --btn: #111; --btnText: #eaff2e; }
+  html, body { margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--text); font-family: "Mono", "Courier New", monospace; }
+
+  /* ── a page, at its folded size: photocopied paper ──────────────────── */
+  .pg {
+    width: 264px; height: 408px; box-sizing: border-box; padding: 16px 15px 14px;
+    color: var(--ink); position: relative; overflow: hidden;
+    font: 10.8px/1.36 "Mono", "Courier New", monospace;
+    background-color: var(--paper);
+    /* toner speckle and a copier's uneven edge */
+    background-image:
+      url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 0.55 -0.28'/></filter><rect width='160' height='160' filter='url(%23n)'/></svg>"),
+      radial-gradient(ellipse at 50% 45%, rgba(0,0,0,0) 62%, rgba(0,0,0,0.13) 100%);
+  }
+  .pg p { margin: 0 0 6px; }
+  .pg ul { margin: 0 0 6px; padding-left: 0; list-style: none; }
+  .pg li { margin-bottom: 4px; padding-left: 13px; position: relative; }
+  .pg li::before { content: "X"; position: absolute; left: 0; font: 8px "Pixel", monospace; color: var(--pink); top: 2px; }
+  .pg b { font: 8px "Pixel", monospace; letter-spacing: 0.02em; background: var(--ink); color: var(--paper); padding: 0 2px; }
+  /* headlines cut out of other people's magazines (see the script) */
+  .ransom { margin: 0 0 9px; line-height: 1.9; }
+  .ransom span { display: inline-block; padding: 1px 3px; margin: 0 1px; }
+  /* the pictures, taped in at an angle, in a black frame, with a halftone */
+  .snap { position: relative; width: max-content; max-width: 100%; margin: 2px auto 9px; transform: rotate(var(--tilt, -2deg)); }
+  .snap img { display: block; height: 128px; width: auto; max-width: 100%; image-rendering: pixelated; background: var(--acid); border: 3px solid var(--ink); }
+  .snap.pinkbg img { background: var(--pink); }
+  .snap::after { content: ""; position: absolute; inset: 3px; pointer-events: none; opacity: 0.18;
+    background: radial-gradient(circle, #000 0.9px, transparent 1.1px) 0 0 / 4px 4px; }
+  .snap .tape { position: absolute; width: 46px; height: 13px; background: rgba(245, 240, 200, 0.72); box-shadow: 0 0 2px rgba(0,0,0,0.25); }
+  .snap .tape.a { top: -6px; left: -14px; transform: rotate(-32deg); }
+  .snap .tape.b { top: -6px; right: -14px; transform: rotate(28deg); }
+  .pin { position: absolute; width: 30px; height: 12px; }
+  /* a torn highlighter box for the thing you must not miss */
+  .tip { background: var(--acid); padding: 7px 8px 8px; margin: 2px -4px 7px; transform: rotate(-1deg);
+    clip-path: polygon(0 4%, 6% 0, 13% 5%, 21% 1%, 30% 4%, 41% 0, 52% 5%, 63% 1%, 74% 4%, 86% 0, 95% 4%, 100% 1%, 99% 94%, 92% 100%, 82% 96%, 71% 100%, 60% 95%, 48% 100%, 37% 96%, 26% 100%, 15% 95%, 6% 100%, 0 96%); }
+  .scrawl { font: 9px/1.5 "Pixel", monospace; color: var(--pink); transform: rotate(-4deg); display: inline-block; }
+  .small { font-size: 9.4px; }
+  .num { position: absolute; bottom: 9px; right: 12px; font: 8px "Pixel", monospace; color: var(--paper); background: var(--ink);
+    width: 21px; height: 21px; line-height: 21px; text-align: center; border-radius: 50%; transform: rotate(-8deg); }
+  .stencil { font: 12px "Pixel", monospace; letter-spacing: 0.08em; }
+  /* the cover and the back: black toner */
+  .pg.dark { background-color: #151515; color: var(--paper); }
+  .pg.dark b { background: var(--acid); color: var(--ink); }
+  .cover { text-align: center; padding-top: 14px; }
+  .cover .issue { font: 7px "Pixel", monospace; color: var(--acid); letter-spacing: 0.1em; margin-bottom: 8px; }
+  .cover .snap img { height: 150px; }
+  .sticker { position: absolute; right: 8px; top: 142px; width: 66px; height: 66px; border-radius: 50%; background: var(--pink); color: #fff;
+    font: 8px/1.5 "Pixel", monospace; display: flex; align-items: center; justify-content: center; text-align: center; transform: rotate(14deg);
+    box-shadow: 2px 2px 0 var(--ink); }
+  .back { text-align: center; }
+  .back .snap img { height: 96px; }
+  .copyme { font: 9px/1.6 "Pixel", monospace; color: var(--ink); background: var(--acid); display: inline-block; padding: 4px 6px; transform: rotate(2deg); margin: 4px 0 6px; }
+
+  /* ── on screen: a little book ───────────────────────────────────────── */
+  .reader { min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 16px; box-sizing: border-box; }
+  .stage { position: relative; perspective: 2200px; }
+  .book { position: relative; width: 528px; height: 408px; transform-origin: 0 0; }
+  .book.ready { transition: transform 0.6s ease; }   /* no animation on the first draw */
+  .leaf {
+    position: absolute; top: 0; left: 264px; width: 264px; height: 408px;
+    transform-style: preserve-3d; transform-origin: left center;
+    cursor: pointer;
+  }
+  .book.ready .leaf { transition: transform 0.8s cubic-bezier(.3,.7,.3,1); }
+  .leaf.turned { transform: rotateY(-180deg); }
+  .face { position: absolute; inset: 0; backface-visibility: hidden; -webkit-backface-visibility: hidden; box-shadow: 0 6px 18px rgba(0,0,0,0.25); }
+  .face.backside { transform: rotateY(180deg); }
+  .face::after { content: ""; position: absolute; inset: 0; pointer-events: none; }
+  .face.frontside::after { background: linear-gradient(to right, rgba(0,0,0,0.13), rgba(0,0,0,0) 12%); }
+  .face.backside::after { background: linear-gradient(to left, rgba(0,0,0,0.13), rgba(0,0,0,0) 12%); }
+  .controls { display: flex; gap: 10px; align-items: center; justify-content: center; margin-top: 18px; flex-wrap: wrap; }
+  .controls button, .controls a {
+    font: 12px/1 "Pixel", monospace; background: var(--btn); color: var(--btnText); border: 0; border-radius: 4px;
+    padding: 11px 14px; cursor: pointer; text-decoration: none;
+  }
+  .controls .where { font: 11px "Pixel", monospace; min-width: 90px; text-align: center; }
+  .note { max-width: 560px; text-align: center; font-size: 14px; margin: 14px auto 0; opacity: 0.85; }
+
+  /* ── printed: one sheet ─────────────────────────────────────────────── */
+  .sheet { display: none; }
+  /* ?sheet shows the sheet on screen, as it will print (Letter size) */
+  body.preview .reader { display: none; }
+  body.preview .sheet { display: grid; grid-template-columns: repeat(4, 264px); grid-template-rows: repeat(2, 408px); width: 1056px; margin: 16px auto; background: #fff; }
+  body.preview .cell { position: relative; overflow: hidden; outline: 0.5px dashed #c9c2a8; }
+  body.preview .cell > .pg { position: absolute; left: 50%; top: 50%; transform-origin: center; }
+  @media print {
+    @page { margin: 0; }
+    html, body { background: #fff; }
+    .reader { display: none; }
+    .sheet { display: grid; grid-template-columns: repeat(4, 1fr); grid-template-rows: repeat(2, 1fr); width: 100vw; height: 100vh; }
+    .cell { position: relative; overflow: hidden; outline: 0.5px dashed #c9c2a8; }
+    .cell > .pg { position: absolute; left: 50%; top: 50%; transform-origin: center; }
+  }
+</style>
+<style id="paper">@page { size: letter landscape; }</style>
+</head>
+<body>
+
+<!-- THE EIGHT PAGES, in reading order. The book and the sheet are made from these. -->
+<template id="pages">
+  <section class="pg dark cover" data-page="1">
+    <div class="issue">ISSUE #430 // FREE // DIY</div>
+    <h1 class="ransom big">DECKBOY POCKET</h1>
+    <div class="snap" style="--tilt:-3deg"><span class="tape a"></span><span class="tape b"></span><img src="images/zine/cover.png" alt="Dr. Pixel and Prof. Video hold up a phone with Deckbot standing on it"></div>
+    <div class="sticker">FREE!<br>COPY<br>ME!</div>
+    <p class="stencil">NO LAPTOP.<br>NO RENTAL.<br>NO PERMISSION.</p>
+    <p class="small">A whole video show, run from your phone. Android 10+.</p>
+  </section>
+
+  <section class="pg" data-page="2">
+    <h2 class="ransom">THE FACE</h2>
+    <div class="snap" style="--tilt:2deg"><span class="tape a"></span><img src="images/zine/p2-face.png" alt="Dr. Pixel points at the GO button on a phone"></div>
+    <ul>
+      <li>Big picture = <b>ON AIR</b>. The list = what's next.</li>
+      <li><b>GO</b> takes it. <b>BACK</b> takes it back.</li>
+      <li>The <b>PAD</b> steers the list.</li>
+      <li>Left pill = <b>BLACK</b>, till you teach it a new trick. <b>MENU</b> = everything else.</li>
+    </ul>
+    <span class="scrawl">a video desk. in your pocket.</span>
+    <span class="num">2</span>
+  </section>
+
+  <section class="pg" data-page="3">
+    <h2 class="ransom">ADD STUFF</h2>
+    <div class="snap pinkbg" style="--tilt:-2deg"><span class="tape b"></span><img src="images/zine/p3-add.png" alt="Prof. Video"></div>
+    <p><b>MENU &gt; SOURCES</b>, then grab:</p>
+    <ul>
+      <li><b>MADE BY DECKBOY</b>: bars, Swirl, Surf, Lumia, Illusion. No files needed.</li>
+      <li>Photos + videos off the phone. The camera, pointed at anything.</li>
+    </ul>
+    <p>Lost? <b>MENU &gt; SHOW &gt; OPEN</b> &gt; <b>TOUR OF TRICKS</b>. <b>SONG</b> chains your lists into a set.</p>
+    <span class="num">3</span>
+  </section>
+
+  <section class="pg" data-page="4">
+    <h2 class="ransom">ONE CUE UP CLOSE</h2>
+    <div class="snap" style="--tilt:3deg"><span class="tape a"></span><span class="tape b"></span><img src="images/zine/p4-sheet.png" alt="Dr. Pixel"></div>
+    <p><b>HOLD</b> a cue. Its sheet opens:</p>
+    <ul>
+      <li><b>SET</b> its guts. <b>PLAY</b> how long, fades, loops.</li>
+      <li><b>PLACE</b> drag it, pinch it, twist it. Drag an <b>EDGE</b> to crop. Double-tap = undo all that.</li>
+      <li><b>LOOK</b> colour. <b>FX</b> wreck it. <b>SOUND</b> crank it.</li>
+    </ul>
+    <span class="num">4</span>
+  </section>
+
+  <section class="pg" data-page="5">
+    <h2 class="ransom">MIX BY HAND</h2>
+    <div class="snap pinkbg" style="--tilt:-3deg"><span class="tape a"></span><img src="images/zine/p5-tbar.png" alt="Prof. Video"></div>
+    <p>The pad's <b>RIGHT</b> is a T-bar.</p>
+    <ul>
+      <li><b>TAP</b> = GO.</li>
+      <li><b>HOLD</b> = the mix moves while you hold. Let go: it freezes.</li>
+      <li><b>LEFT</b> drags it back. All the way back = it never happened.</li>
+      <li><b>GO</b> finishes the job.</li>
+    </ul>
+    <span class="num">5</span>
+  </section>
+
+  <section class="pg" data-page="6">
+    <h2 class="ransom">BIG SCREEN</h2>
+    <div class="snap" style="--tilt:2deg"><span class="tape b"></span><img src="images/zine/p6-screen.png" alt="Dr. Pixel"></div>
+    <p>Jam a <b>USB-C &gt; HDMI</b> dongle in. Pocket throws the show at the TV.</p>
+    <p class="tip">Get a dongle that <b>CHARGES</b> too (a USB-C power port, "PD pass-through"). Video eats battery. Power in = the show goes on.</p>
+    <p class="small">Not every phone does video over USB-C. Test yours before the gig.</p>
+    <span class="num">6</span>
+  </section>
+
+  <section class="pg" data-page="7">
+    <h2 class="ransom">SHAKE IT</h2>
+    <div class="snap pinkbg" style="--tilt:-2deg"><span class="tape a"></span><span class="tape b"></span><img src="images/zine/p7-move.png" alt="Prof. Video"></div>
+    <p>Tap <b>~</b> by any number and it moves by itself. Or YOU move it:</p>
+    <ul>
+      <li><b>TILT</b> lean. <b>TURN</b> steer. <b>SHAKE</b> jolt. <b>MIC</b> make noise.</li>
+    </ul>
+    <p>Surf on air? <b>HOLD</b> the picture and chuck stuff in the sea.</p>
+    <p><b>MENU &gt; OUTPUT</b>: test card, <b>MAP</b> a wall, <b>AREA</b> crop + mirror.</p>
+    <span class="num">7</span>
+  </section>
+
+  <section class="pg dark back" data-page="8">
+    <h2 class="ransom">WITH A DESK</h2>
+    <div class="snap" style="--tilt:2deg"><span class="tape a"></span><img src="images/zine/back.png" alt="Dr. Pixel, Deckbot and Prof. Video wave"></div>
+    <p><b>MENU &gt; SYNC</b> follows a Deckboy desk on your network. The desk can use your phone as an <b>OUTPUT</b>, or run it as a <b>PLAYLIST</b>.</p>
+    <p class="small">Companion + scripts: port 5510.</p>
+    <div class="copyme">FREE SOFTWARE. COPY THIS ZINE.<br>PASS IT ON.</div>
+    <p class="small">GPL-3.0 // github.com/Utopian-Academy/Deckboy</p>
+  </section>
+</template>
+
+<main class="reader">
+  <div class="stage" id="stage"><div class="book" id="book"></div></div>
+  <div class="controls">
+    <button type="button" id="prev" aria-label="Previous page">&lt;</button>
+    <span class="where" id="where">COVER</span>
+    <button type="button" id="next" aria-label="Next page">&gt;</button>
+  </div>
+  <div class="controls">
+    <button type="button" id="printLetter">PRINT: LETTER</button>
+    <button type="button" id="printA4">PRINT: A4</button>
+  </div>
+  <p class="note">Print it on one side of one sheet, at 100%. Fold it in half three ways, cut the middle of the long fold, and fold it into an eight-page book that fits in a pocket.</p>
+</main>
+
+<div class="sheet" id="sheet" aria-hidden="true"></div>
+
+<script>
+(() => {
+  // RANSOM HEADLINES: every letter cut from a different "magazine": a font,
+  // ink, paper and tilt chosen from its place in the zine, so the screen and
+  // every printed copy show the same cut-outs.
+  const scraps = [
+    ['Pixel', '#111', '#eaff2e'], ['Mono', '#fff', '#111'], ['Georgia', '#111', '#efebe0'],
+    ['Pixel', '#fff', '#ff2e88'], ['Impact', '#111', '#fff'], ['Mono', '#111', '#b6d36a'],
+    ['Georgia', '#fff', '#111'], ['Pixel', '#111', '#fff'], ['Impact', '#ff2e88', '#111'],
+  ];
+  let k = 0;
+  for (const h of document.getElementById('pages').content.querySelectorAll('.ransom')) {
+    const big = h.classList.contains('big');
+    const words = h.textContent.trim().split(/\s+/);
+    h.textContent = '';
+    words.forEach((word, w) => {
+      if (w) h.appendChild(document.createTextNode(' '));
+      if (big && w) h.appendChild(document.createElement('br'));
+      const group = document.createElement('span');   // a word's letters stay on one line
+      group.style.cssText = 'display:inline-block;white-space:nowrap;padding:0;margin:0';
+      h.appendChild(group);
+      for (const ch of word) {
+        const [font, ink, paper] = scraps[(k * 7 + 3) % scraps.length];
+        const span = document.createElement('span');
+        span.textContent = ch;
+        const size = (big ? 22 : 13) + ((k * 5) % 4) * (big ? 2 : 1.5);
+        span.style.cssText = 'font-family:"' + font + '",monospace;color:' + ink + ';background:' + paper +
+          ';font-size:' + size + 'px;transform:rotate(' + (((k * 37) % 13) - 6) + 'deg)' + (font === 'Georgia' ? ';font-style:italic' : '');
+        group.appendChild(span);
+        k++;
+      }
+    });
+  }
+  const pages = [...document.getElementById('pages').content.querySelectorAll('.pg')];
+  const book = document.getElementById('book');
+
+  // THE BOOK: four leaves, each a page on its front and the next on its back.
+  const leaves = [];
+  for (let i = 0; i < 4; i++) {
+    const leaf = document.createElement('div');
+    leaf.className = 'leaf';
+    const front = document.createElement('div');
+    front.className = 'face frontside';
+    front.appendChild(pages[i * 2].cloneNode(true));
+    const back = document.createElement('div');
+    back.className = 'face backside';
+    back.appendChild(pages[i * 2 + 1].cloneNode(true));
+    leaf.append(front, back);
+    book.appendChild(leaf);
+    leaves.push(leaf);
+  }
+  // WHERE THE READER IS: the page they look at, 1 (cover) to 8 (back). The
+  // leaves turned over follow from it: page p shows after floor(p / 2) turns.
+  // A wide window shows the open spread; a narrow one (a phone) one page,
+  // sliding to the other page of a spread and turning a leaf between spreads.
+  let page = 1;
+  let scale = 1;
+  let single = false;
+  function turned() { return Math.floor(page / 2); }
+  function show() {
+    const t = turned();
+    leaves.forEach((leaf, i) => {
+      leaf.classList.toggle('turned', i < t);
+      // the leaf on top: unturned ones stack first-on-top, turned ones last-on-top
+      leaf.style.zIndex = i < t ? String(10 + i) : String(10 - i);
+    });
+    let off;
+    if (single) off = page % 2 === 1 ? -264 : 0;          // a right page sits at 264..528 of the spread
+    else off = t === 0 ? -132 : t === 4 ? 132 : 0;        // shut: centre the one page; open: the spread
+    book.style.transform = 'scale(' + scale + ') translateX(' + off + 'px)';
+    const where = page === 1 ? 'COVER' : page === 8 ? 'BACK'
+                : single ? String(page) : (2 * t) + ' - ' + (2 * t + 1);
+    document.getElementById('where').textContent = where;
+  }
+  function go(d) {
+    if (single) page = Math.max(1, Math.min(8, page + d));
+    else page = Math.max(1, Math.min(8, d > 0 ? 2 * (turned() + 1) : 2 * (turned() - 1)));   // spread to spread; 0 is the cover (1)
+    show();
+  }
+  document.getElementById('next').onclick = () => go(1);
+  document.getElementById('prev').onclick = () => go(-1);
+  leaves.forEach((leaf, i) => leaf.addEventListener('click', () => go(i < turned() ? -1 : 1)));
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'ArrowRight' || e.key === 'PageDown' || e.key === ' ') { go(1); e.preventDefault(); }
+    if (e.key === 'ArrowLeft' || e.key === 'PageUp') { go(-1); e.preventDefault(); }
+  });
+  let x0 = null;
+  book.addEventListener('touchstart', (e) => { x0 = e.touches[0].clientX; }, { passive: true });
+  book.addEventListener('touchend', (e) => {
+    if (x0 === null) return;
+    const dx = e.changedTouches[0].clientX - x0;
+    if (Math.abs(dx) > 30) go(dx < 0 ? 1 : -1);
+    x0 = null;
+  });
+
+  // Fit the book to the window, never larger than 1.6 x.
+  function fit() {
+    single = window.innerWidth < 640;
+    const across = single ? 264 : 528;
+    scale = Math.max(0.3, Math.min(1.6, (window.innerWidth - 32) / across, (window.innerHeight - 190) / 408));
+    const stage = document.getElementById('stage');
+    stage.style.width = (across * scale) + 'px';
+    stage.style.height = (408 * scale) + 'px';
+    stage.style.overflow = single ? 'hidden' : 'visible';
+    show();
+  }
+  // a link can open the book at a page: pocket-zine.html#5 (1 cover .. 8 back)
+  const asked = parseInt(location.hash.slice(1), 10);
+  if (asked >= 1 && asked <= 8) page = asked;
+  window.addEventListener('resize', fit);
+  fit();
+  requestAnimationFrame(() => requestAnimationFrame(() => book.classList.add('ready')));
+
+  // THE SHEET: the standard one-sheet zine order.
+  const sheet = document.getElementById('sheet');
+  const order = [[5, true], [4, true], [3, true], [2, true], [6, false], [7, false], [8, false], [1, false]];
+  for (const [n, flip] of order) {
+    const cell = document.createElement('div');
+    cell.className = 'cell';
+    const page = pages[n - 1].cloneNode(true);
+    page.dataset.flip = flip ? '1' : '0';
+    cell.appendChild(page);
+    sheet.appendChild(cell);
+  }
+  // Each page is scaled to its cell (Letter cells are exactly a page; A4's
+  // are a little wider and shorter) and the top row turned upside down.
+  // A cell is a quarter of the sheet's width and half its height: on Letter
+  // (11 x 8.5 in) exactly a page; on A4 (297 x 210 mm) a little wider and
+  // shorter, so the page is scaled to fit it (the sheet is hidden on screen,
+  // so it cannot be measured).
+  let paper = 'letter';
+  function placeOnSheet() {
+    const cellW = paper === 'A4' ? 297 / 25.4 * 96 / 4 : 264, cellH = paper === 'A4' ? 210 / 25.4 * 96 / 2 : 408;
+    const s = Math.min(cellW / 264, cellH / 408);
+    for (const cell of sheet.children) {
+      const page = cell.firstChild;
+      page.style.transform = 'translate(-50%, -50%) scale(' + s + ')' + (page.dataset.flip === '1' ? ' rotate(180deg)' : '');
+    }
+  }
+  window.addEventListener('beforeprint', placeOnSheet);
+  if (/[?&]sheet/.test(location.search)) { document.body.classList.add('preview'); placeOnSheet(); }
+  function printOn(size) {
+    paper = size;
+    document.getElementById('paper').textContent = '@page { size: ' + size + ' landscape; }';
+    placeOnSheet();
+    window.print();
+  }
+  if (/[?&]paper=a4/i.test(location.search)) {   // ?paper=a4: start on A4
+    paper = 'A4';
+    document.getElementById('paper').textContent = '@page { size: A4 landscape; }';
+    placeOnSheet();
+  }
+  document.getElementById('printLetter').onclick = () => printOn('letter');
+  document.getElementById('printA4').onclick = () => printOn('A4');
+})();
+</script>
+</body>
+</html>
