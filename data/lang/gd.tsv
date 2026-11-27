@@ -5144,3 +5144,48 @@ live holds	stadan beò
 goes on {1} after it ends	tòisichidh e {1} às dèidh dha crìochnachadh
 goes on {1} after it starts	tòisichidh e {1} às dèidh dha tòiseachadh
 EDIT > a cue's TRIGGERS > key: press F1 to F8.	DEASAICH > INNEALAN-TÒISEACHAIDH cue > iuchair: brùth F1 gu F8.
+IN {1}	A-STEACH {1}
+OUT {1}	A-MACH {1}
+Saved {1}	Chaidh {1} a shàbhaladh
+A new list	Liosta ùr
+Opened {1}	Chaidh {1} fhosgladh
+Saved as {1}	Air a shàbhaladh mar {1}
+Off the queue	Far na ciudha
+Take cancelled	Take air a sgur dheth
+Plays next: {1}	Cluichidh e às dèidh seo: {1}
+No camera found.	Cha deach camara a lorg.
+Playlist deleted	Liosta air a sguabadh às
+Added Video Synth	Chaidh Synth bhidio a chur ris
+Bounce ready: {1}	Ping-pong deiseil: {1}
+New playlist: {1}	Liosta ùr: {1}
+Song {1}/{2}: {3}	Òran {1}/{2}: {3}
+TABLETOP UNLOCKED	MULLACH-BÙIRD FOSGAILTE
+Into the surf: {1}	Dha na tonnan: {1}
+Reverse ready: {1}	Air ais deiseil: {1}
+TERRARIUM UNLOCKED	TEARÀRIUM FOSGAILTE
+There is no cue {1}	Chan eil cue {1} ann
+Starting the camera...	A' tòiseachadh a' chamara...
+Added {1} cues from {2}	Chaidh {1} cue a chur ris bho {2}
+Could not save the show	Cha b' urrainn an taisbeanadh a shàbhaladh
+{1} is not a Deckboy show	Chan e taisbeanadh Deckboy a th' ann an {1}
+Could not open the PDF {1}	Cha b' urrainn am PDF {1} fhosgladh
+Opened {1} ({2} playlists)	Chaidh {1} fhosgladh ({2} liostaichean)
+The camera did not open: {1}	Cha do dh'fhosgail an camara: {1}
+Tabletop is in MENU > SOURCES	Tha Mullach-bùird ann an CLÀR > TÙSAN
+Something mellow is in SOURCES	Tha rudeigin socair ann an TÙSAN
+Song {1}/{2}: {3} ({4} of {5})	Òran {1}/{2}: {3} ({4} de {5})
+That show is not there any more	Chan eil an taisbeanadh sin ann tuilleadh
+Choose what the left button does	Tagh dè nì am putan clì
+PDF decks open on the phone: {1}	Fosglaidh decks PDF air an fhòn: {1}
+Stopped after that cue, as asked	Stad às dèidh a' chue sin, mar a dh'iarr thu
+Song stopped. What is on air stays.	Stad an t-òran. Fanaidh na tha air an èadhar.
+The camera has not sent a picture yet.	Cha do chuir an camara dealbh fhathast.
+Waiting for you to allow the camera...	A' feitheamh riut an camara a cheadachadh...
+End of the song	Deireadh an òrain
+Every cue now starts as the defaults say	Tòisichidh gach cue a-nis mar a tha na bun-roghainnean ag ràdh
+The passphrase needs 8 or more characters	Feumaidh 8 caractaran no barrachd a bhith san fhacal-fhaire
+Twelve effects is the most a cue can have	Chan fhaod barrachd air dà èifeachd dheug a bhith aig cue
+The song is empty: ADD THIS PLAYLIST first	Tha an t-òran falamh: CUIR RIS AN LIOSTA SEO an toiseach
+The desk has GO while following. MENU > SYNC to stop.	Tha GO aig an deasg fhad 's a tha e a' leantainn. CLÀR > SYNC gus stad.
+End of the list. LOOP LIST in MENU > LIST plays it again.	Deireadh an liosta. Cluichidh LÙB AN LIOSTA ann an CLÀR > LIOSTA a-rithist e.
+Pocket may not use the camera. Allow it in the phone's settings.	Chan fhaod Pòcaid an camara a chleachdadh. Ceadaich e ann an roghainnean an fhòn.

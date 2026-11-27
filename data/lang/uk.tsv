@@ -5148,3 +5148,49 @@ live holds	в ефірі залишається
 goes on {1} after it ends	продовжує через {1} після завершення
 goes on {1} after it starts	продовжує через {1} після старту
 EDIT > a cue's TRIGGERS > key: press F1 to F8.	РЕДАГУВАТИ > ТРИГЕРИ cue > клавіша: натисніть від F1 до F8.
+IN {1}	ВХ. {1}
+OUT {1}	ВИХ. {1}
+Saved {1}	Збережено: {1}
+A new list	Новий список
+Opened {1}	Відкрито: {1}
+Cue {1}: {2}	Кью {1}: {2}
+Saved as {1}	Збережено як {1}
+Off the queue	Прибрано з черги
+Take cancelled	TAKE скасовано
+Plays next: {1}	Наступним грає: {1}
+No camera found.	Камеру не знайдено.
+Playlist deleted	Плейлист видалено
+Added Video Synth	Додано: Відеосинтезатор
+Bounce ready: {1}	Туди-сюди готово: {1}
+New playlist: {1}	Новий плейлист: {1}
+Song {1}/{2}: {3}	Пісня {1}/{2}: {3}
+TABLETOP UNLOCKED	СТІЛЬНИЦЮ РОЗБЛОКОВАНО
+Into the surf: {1}	У прибій: {1}
+Reverse ready: {1}	Зворотно готово: {1}
+TERRARIUM UNLOCKED	ТЕРАРІУМ РОЗБЛОКОВАНО
+There is no cue {1}	Немає кью {1}
+Starting the camera...	Запуск камери...
+Added {1} cues from {2}	Додано кью з {2}: {1}
+Could not save the show	Не вдалося зберегти шоу
+{1} is not a Deckboy show	{1} — не шоу Deckboy
+Could not open the PDF {1}	Не вдалося відкрити PDF {1}
+Opened {1} ({2} playlists)	Відкрито: {1} (плейлистів: {2})
+The camera did not open: {1}	Камера не відкрилася: {1}
+Tabletop is in MENU > SOURCES	Стільниця — у МЕНЮ > ДЖЕРЕЛА
+Something mellow is in SOURCES	Щось спокійне є в розділі ДЖЕРЕЛА
+Song {1}/{2}: {3} ({4} of {5})	Пісня {1}/{2}: {3} ({4} з {5})
+That show is not there any more	Цього шоу там більше немає
+Choose what the left button does	Вибрати дію лівої кнопки
+PDF decks open on the phone: {1}	PDF-деки відкриваються на телефоні: {1}
+Stopped after that cue, as asked	Зупинено після цього кью, як просили
+Song stopped. What is on air stays.	Пісню зупинено. Те, що в ефірі, лишається.
+The camera has not sent a picture yet.	Камера ще не надіслала зображення.
+Waiting for you to allow the camera...	Чекаємо дозволу на камеру...
+End of the song	Кінець пісні
+Every cue now starts as the defaults say	Тепер кожен cue стартує за типовими налаштуваннями
+The passphrase needs 8 or more characters	Парольна фраза має містити щонайменше 8 символів
+Twelve effects is the most a cue can have	Cue може мати щонайбільше дванадцять ефектів
+The song is empty: ADD THIS PLAYLIST first	Пісня порожня: спершу ДОДАТИ ЦЕЙ ПЛЕЙЛИСТ
+The desk has GO while following. MENU > SYNC to stop.	Під час слідування GO має пульт. МЕНЮ > SYNC, щоб зупинити.
+End of the list. LOOP LIST in MENU > LIST plays it again.	Кінець списку. ЦИКЛ СПИСКУ в МЕНЮ > СПИСОК зіграє його знову.
+Pocket may not use the camera. Allow it in the phone's settings.	Кишеня не може використовувати камеру. Дозвольте це в налаштуваннях телефону.

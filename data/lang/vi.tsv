@@ -5131,3 +5131,48 @@ live holds	lệnh giữ đang TRỰC TIẾP
 goes on {1} after it ends	tiếp tục {1} sau khi kết thúc
 goes on {1} after it starts	tiếp tục {1} sau khi bắt đầu
 EDIT > a cue's TRIGGERS > key: press F1 to F8.	SỬA > KÍCH HOẠT của cue > phím: nhấn F1 đến F8.
+IN {1}	VÀO {1}
+OUT {1}	RA {1}
+Saved {1}	Đã lưu {1}
+A new list	Một danh sách mới
+Opened {1}	Đã mở {1}
+Saved as {1}	Đã lưu thành {1}
+Off the queue	Đã rời hàng đợi
+Take cancelled	Đã hủy TAKE
+End of the song	Hết bài hát
+Plays next: {1}	Chơi tiếp theo: {1}
+No camera found.	Không tìm thấy máy quay.
+Playlist deleted	Đã xóa playlist
+Added Video Synth	Đã thêm Bộ tổng hợp video
+Bounce ready: {1}	Qua lại đã sẵn sàng: {1}
+New playlist: {1}	Playlist mới: {1}
+Song {1}/{2}: {3}	Bài {1}/{2}: {3}
+TABLETOP UNLOCKED	ĐÃ MỞ KHÓA MẶT BÀN
+Into the surf: {1}	Vào Sóng vỗ: {1}
+Reverse ready: {1}	Đảo ngược đã sẵn sàng: {1}
+TERRARIUM UNLOCKED	ĐÃ MỞ KHÓA BỂ SINH CẢNH
+There is no cue {1}	Không có cue {1}
+Starting the camera...	Đang khởi động máy quay...
+Added {1} cues from {2}	Đã thêm {1} cue từ {2}
+Could not save the show	Không lưu được show
+{1} is not a Deckboy show	{1} không phải show Deckboy
+Could not open the PDF {1}	Không mở được PDF {1}
+Opened {1} ({2} playlists)	Đã mở {1} ({2} playlist)
+The camera did not open: {1}	Máy quay không mở được: {1}
+Tabletop is in MENU > SOURCES	Mặt bàn có trong DANH MỤC > NGUỒN
+Something mellow is in SOURCES	Một thứ êm dịu có trong NGUỒN
+Song {1}/{2}: {3} ({4} of {5})	Bài {1}/{2}: {3} ({4} trên {5})
+That show is not there any more	Show đó không còn nữa
+Choose what the left button does	Chọn hành động của nút trái
+PDF decks open on the phone: {1}	Deck PDF mở trên điện thoại: {1}
+Stopped after that cue, as asked	Đã dừng sau cue đó, như yêu cầu
+Song stopped. What is on air stays.	Bài hát đã dừng. Thứ đang lên sóng vẫn giữ nguyên.
+The camera has not sent a picture yet.	Máy quay chưa gửi hình ảnh nào.
+Waiting for you to allow the camera...	Đang chờ bạn cho phép máy quay...
+Every cue now starts as the defaults say	Mọi cue giờ bắt đầu theo mặc định
+The passphrase needs 8 or more characters	Cụm mật khẩu cần từ 8 ký tự trở lên
+Twelve effects is the most a cue can have	Mỗi cue có tối đa mười hai hiệu ứng
+The song is empty: ADD THIS PLAYLIST first	Bài hát trống: hãy THÊM PLAYLIST NÀY trước
+The desk has GO while following. MENU > SYNC to stop.	Bàn giữ GO khi đang theo. DANH MỤC > SYNC để dừng.
+End of the list. LOOP LIST in MENU > LIST plays it again.	Hết danh sách. LẶP DANH SÁCH trong DANH MỤC > DANH SÁCH sẽ phát lại.
+Pocket may not use the camera. Allow it in the phone's settings.	Túi không được dùng máy quay. Hãy cho phép trong cài đặt của điện thoại.

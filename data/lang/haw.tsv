@@ -5112,3 +5112,48 @@ live holds	paʻa ma ka ola
 goes on {1} after it ends	hoʻomaka {1} ma hope o kona pau ʻana
 goes on {1} after it starts	hoʻomaka {1} ma hope o kona hoʻomaka ʻana
 EDIT > a cue's TRIGGERS > key: press F1 to F8.	HOʻOPONOPONO > NĀ HOʻOMAKA o ka cue > kī: kaomi i F1 a F8.
+IN {1}	KOMO {1}
+OUT {1}	PUKA {1}
+Saved {1}	Ua mālama ʻia {1}
+A new list	He papa hou
+Opened {1}	Ua wehe ʻia {1}
+Saved as {1}	Mālama ʻia ma ka inoa {1}
+Off the queue	Ma waho o ka laina kali
+Take cancelled	Ua kāpae ʻia ka TAKE
+Plays next: {1}	Hoʻokani aʻe: {1}
+No camera found.	ʻAʻohe Pahupaʻikiʻi i loaʻa.
+Playlist deleted	Ua holoi ʻia ka papa helu
+Added Video Synth	Hoʻohui ʻia Synth wikiō
+Bounce ready: {1}	Holo a hoʻi mākaukau: {1}
+New playlist: {1}	Papa helu hou: {1}
+Song {1}/{2}: {3}	Mele {1}/{2}: {3}
+TABLETOP UNLOCKED	UA WEHE ʻIA KA LUNA PĀKAUKAU
+Into the surf: {1}	I loko o ka nalu: {1}
+Reverse ready: {1}	Hoʻohuli mākaukau: {1}
+TERRARIUM UNLOCKED	UA WEHE ʻIA KA MĀLA ANIANI
+There is no cue {1}	ʻAʻohe cue {1}
+Starting the camera...	Ke hoʻomaka nei ka Pahupaʻikiʻi...
+Added {1} cues from {2}	Hoʻohui ʻia {1} cue mai {2}
+Could not save the show	ʻAʻole i mālama ʻia ka hōʻike
+{1} is not a Deckboy show	ʻAʻole he hōʻike Deckboy ʻo {1}
+Could not open the PDF {1}	ʻAʻole hiki ke wehe i ka PDF {1}
+Opened {1} ({2} playlists)	Ua wehe ʻia {1} ({2} papa helu)
+The camera did not open: {1}	ʻAʻole i wehe ka Pahupaʻikiʻi: {1}
+Tabletop is in MENU > SOURCES	Aia ka Luna pākaukau ma PAPA KUHIKUHI > NĀ KUMU
+Something mellow is in SOURCES	Aia kekahi mea mālie ma NĀ KUMU
+Song {1}/{2}: {3} ({4} of {5})	Mele {1}/{2}: {3} ({4} o {5})
+That show is not there any more	ʻAʻole i laila kēlā hōʻike
+Choose what the left button does	E koho i ka hana a ka pihi hema
+PDF decks open on the phone: {1}	Nā papa PDF i wehe ʻia ma ke kelepona: {1}
+Stopped after that cue, as asked	Hoʻōki ʻia ma hope o kēlā cue, e like me ke noi
+Song stopped. What is on air stays.	Hoʻōki ʻia ke mele. Noho ka mea ma ka lewa.
+The camera has not sent a picture yet.	ʻAʻole i hoʻouna ka Pahupaʻikiʻi i kekahi kiʻi.
+Waiting for you to allow the camera...	Ke kali nei e ʻae ʻoe i ka Pahupaʻikiʻi...
+End of the song	Ka hope o ke mele
+Every cue now starts as the defaults say	Ano, hoʻomaka kēlā me kēia cue e like me nā maʻamau
+The passphrase needs 8 or more characters	Pono ka huaʻōlelo hūnā he 8 huapalapala a ʻoi aku
+Twelve effects is the most a cue can have	ʻO ʻumikūmālua hopena ka nui loa no hoʻokahi cue
+The song is empty: ADD THIS PLAYLIST first	Hakahaka ke mele: HOʻOHUI I KĒIA PAPA HELU ma mua
+The desk has GO while following. MENU > SYNC to stop.	Loaʻa i ka papa ka GO i ka wā e hahai ana. PAPA KUHIKUHI > SYNC no ka hoʻōki.
+End of the list. LOOP LIST in MENU > LIST plays it again.	Pau ka papa helu. Hoʻokani hou ʻo PŌʻAI I KA PAPA HELU ma PAPA KUHIKUHI > PAPA HELU.
+Pocket may not use the camera. Allow it in the phone's settings.	ʻAʻole hiki iā Pocket ke hoʻohana i ka Pahupaʻikiʻi. E ʻae ma nā hoʻonohonoho o ke kelepona.

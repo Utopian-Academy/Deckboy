@@ -5142,3 +5142,48 @@ live holds	μένει στον αέρα
 goes on {1} after it ends	ξεκινά {1} μετά το τέλος του
 goes on {1} after it starts	ξεκινά {1} μετά την έναρξή του
 EDIT > a cue's TRIGGERS > key: press F1 to F8.	ΕΠΕΞΕΡΓΑΣΙΑ > ΣΚΑΝΔΑΛΙΣΜΟΙ ενός cue > πλήκτρο: πατήστε F1 έως F8.
+IN {1}	ΕΙΣ. {1}
+OUT {1}	ΕΞ. {1}
+Saved {1}	Αποθηκεύτηκε {1}
+A new list	Νέα λίστα
+Opened {1}	Άνοιξε {1}
+Saved as {1}	Αποθηκεύτηκε ως {1}
+Off the queue	Εκτός ουράς
+Take cancelled	Το TAKE ακυρώθηκε
+Plays next: {1}	Παίζει επόμενο: {1}
+No camera found.	Δεν βρέθηκε κάμερα.
+Playlist deleted	Η λίστα διαγράφηκε
+Added Video Synth	Προστέθηκε Συνθεσάιζερ βίντεο
+Bounce ready: {1}	Μπρος-πίσω έτοιμο: {1}
+New playlist: {1}	Νέα λίστα: {1}
+Song {1}/{2}: {3}	Τραγούδι {1}/{2}: {3}
+TABLETOP UNLOCKED	ΕΠΙΤΡΑΠΕΖΙΟ ΞΕΚΛΕΙΔΩΘΗΚΕ
+Into the surf: {1}	Στο κύμα: {1}
+Reverse ready: {1}	Αντίστροφα έτοιμο: {1}
+TERRARIUM UNLOCKED	ΤΕΡΑΡΙΟΥΜ ΞΕΚΛΕΙΔΩΘΗΚΕ
+There is no cue {1}	Δεν υπάρχει cue {1}
+Starting the camera...	Εκκίνηση κάμερας...
+Added {1} cues from {2}	Προστέθηκαν {1} cue από {2}
+Could not save the show	Η παράσταση δεν αποθηκεύτηκε
+{1} is not a Deckboy show	Το {1} δεν είναι παράσταση Deckboy
+Could not open the PDF {1}	Αδυναμία ανοίγματος του PDF {1}
+Opened {1} ({2} playlists)	Άνοιξε {1} ({2} λίστες)
+The camera did not open: {1}	Η κάμερα δεν άνοιξε: {1}
+Tabletop is in MENU > SOURCES	Το Επιτραπέζιο είναι στο ΜΕΝΟΥ > ΠΗΓΕΣ
+Something mellow is in SOURCES	Κάτι ήρεμο υπάρχει στις ΠΗΓΕΣ
+Song {1}/{2}: {3} ({4} of {5})	Τραγούδι {1}/{2}: {3} ({4} από {5})
+That show is not there any more	Αυτή η παράσταση δεν υπάρχει πια
+Choose what the left button does	Διάλεξε τι κάνει το αριστερό κουμπί
+PDF decks open on the phone: {1}	Οι κονσόλες PDF ανοίγουν στο τηλέφωνο: {1}
+Stopped after that cue, as asked	Σταμάτησε μετά από αυτό το cue, όπως ζητήθηκε
+Song stopped. What is on air stays.	Το τραγούδι σταμάτησε. Ό,τι είναι στον αέρα μένει.
+The camera has not sent a picture yet.	Η κάμερα δεν έχει στείλει ακόμα εικόνα.
+Waiting for you to allow the camera...	Αναμονή για να επιτρέψεις την κάμερα...
+End of the song	Τέλος του τραγουδιού
+Every cue now starts as the defaults say	Κάθε cue ξεκινά πλέον σύμφωνα με τις προεπιλογές
+The passphrase needs 8 or more characters	Η φράση πρόσβασης χρειάζεται 8 ή περισσότερους χαρακτήρες
+Twelve effects is the most a cue can have	Ένα cue μπορεί να έχει έως δώδεκα εφέ
+The song is empty: ADD THIS PLAYLIST first	Το τραγούδι είναι κενό: πρώτα ΠΡΟΣΘΗΚΗ ΑΥΤΗΣ ΤΗΣ ΛΙΣΤΑΣ
+The desk has GO while following. MENU > SYNC to stop.	Η κονσόλα έχει το GO όσο ακολουθεί. ΜΕΝΟΥ > SYNC για διακοπή.
+End of the list. LOOP LIST in MENU > LIST plays it again.	Τέλος της λίστας. Το ΒΡΟΧΟΣ ΛΙΣΤΑΣ στο ΜΕΝΟΥ > ΛΙΣΤΑ την παίζει ξανά.
+Pocket may not use the camera. Allow it in the phone's settings.	Η Τσέπη δεν έχει άδεια για την κάμερα. Επίτρεψέ το στις ρυθμίσεις του τηλεφώνου.

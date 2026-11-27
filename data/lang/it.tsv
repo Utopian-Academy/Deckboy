@@ -5110,3 +5110,48 @@ live holds	resta in onda
 goes on {1} after it ends	parte {1} dopo la fine
 goes on {1} after it starts	parte {1} dopo l'inizio
 EDIT > a cue's TRIGGERS > key: press F1 to F8.	MODIFICA > TRIGGER di un cue > tasto: premi da F1 a F8.
+IN {1}	INGR. {1}
+OUT {1}	USC. {1}
+Saved {1}	Salvato {1}
+A new list	Una nuova lista
+Opened {1}	Aperto {1}
+Saved as {1}	Salvato come {1}
+Off the queue	Fuori dalla coda
+Take cancelled	TAKE annullato
+Plays next: {1}	Suona dopo: {1}
+No camera found.	Nessuna videocamera trovata.
+Playlist deleted	Scaletta eliminata
+Added Video Synth	Aggiunto Sintetizzatore video
+Bounce ready: {1}	Ping-pong pronto: {1}
+New playlist: {1}	Nuova scaletta: {1}
+Song {1}/{2}: {3}	Brano {1}/{2}: {3}
+TABLETOP UNLOCKED	SUL TAVOLO SBLOCCATO
+Into the surf: {1}	Nella risacca: {1}
+Reverse ready: {1}	Inverso pronto: {1}
+TERRARIUM UNLOCKED	TERRARIO SBLOCCATO
+There is no cue {1}	Non esiste il cue {1}
+Starting the camera...	Avvio della videocamera...
+Added {1} cues from {2}	Aggiunti {1} cue da {2}
+Could not save the show	Impossibile salvare lo show
+{1} is not a Deckboy show	{1} non è uno show Deckboy
+Could not open the PDF {1}	Impossibile aprire il PDF {1}
+Opened {1} ({2} playlists)	Aperto {1} ({2} scalette)
+The camera did not open: {1}	La videocamera non si è aperta: {1}
+Tabletop is in MENU > SOURCES	Sul tavolo è in MENU > SORGENTI
+Something mellow is in SOURCES	Qualcosa di tranquillo è in SORGENTI
+Song {1}/{2}: {3} ({4} of {5})	Brano {1}/{2}: {3} ({4} di {5})
+That show is not there any more	Quello show non c'è più
+Choose what the left button does	Scegli cosa fa il tasto sinistro
+PDF decks open on the phone: {1}	Deck PDF aperti sul telefono: {1}
+Stopped after that cue, as asked	Fermo dopo quel cue, come richiesto
+Song stopped. What is on air stays.	Brano fermo. Ciò che è in onda resta.
+The camera has not sent a picture yet.	La videocamera non ha ancora inviato un'immagine.
+Waiting for you to allow the camera...	In attesa che tu autorizzi la videocamera...
+End of the song	Fine del brano
+Every cue now starts as the defaults say	Ora ogni cue parte secondo i predefiniti
+The passphrase needs 8 or more characters	La frase di accesso richiede almeno 8 caratteri
+Twelve effects is the most a cue can have	Dodici effetti sono il massimo per un cue
+The song is empty: ADD THIS PLAYLIST first	Il brano è vuoto: prima AGGIUNGI QUESTA SCALETTA
+The desk has GO while following. MENU > SYNC to stop.	Il banco ha il GO mentre segue. MENU > SYNC per fermare.
+End of the list. LOOP LIST in MENU > LIST plays it again.	Fine della lista. CICLO LISTA in MENU > LISTA la suona di nuovo.
+Pocket may not use the camera. Allow it in the phone's settings.	Pocket non può usare la videocamera. Consentilo nelle impostazioni del telefono.

@@ -5135,3 +5135,49 @@ live holds	ukubamba okubukhoma
 goes on {1} after it ends	iqhubeka {1} ngemuva kokuphela
 goes on {1} after it starts	iqhubeka {1} ngemuva kokuqala
 EDIT > a cue's TRIGGERS > key: press F1 to F8.	HLELA > IZIQALISI ze-cue > inkinobho: cindezela u-F1 kuya ku-F8.
+IN {1}	NGAPHAKATHI {1}
+OUT {1}	NGAPHANDLE {1}
+Saved {1}	Kulondolozwe {1}
+A new list	Uhlu olusha
+Opened {1}	Kuvulwe {1}
+Cue {1}: {2}	I-cue {1}: {2}
+Saved as {1}	Kulondolozwe njenge-{1}
+Off the queue	Kukhishwe olayinini
+Take cancelled	TAKE kukhanseliwe
+End of the song	Ukuphela kwengoma
+Plays next: {1}	Idlala elandelayo: {1}
+No camera found.	Ayikho ikhamera etholakele.
+Playlist deleted	Uhlu lususiwe
+Added Video Synth	Kungeziwe i-synth yevidiyo
+Bounce ready: {1}	Iya ubuye kulungile: {1}
+New playlist: {1}	Uhlu olusha: {1}
+Song {1}/{2}: {3}	Ingoma {1}/{2}: {3}
+TABLETOP UNLOCKED	PHEZU KWETAFULA KUVULIWE
+Into the surf: {1}	Emagagasini: {1}
+Reverse ready: {1}	Hlehla kulungile: {1}
+TERRARIUM UNLOCKED	INGADI YENGILAZI IVULIWE
+There is no cue {1}	Ayikho i-cue {1}
+Starting the camera...	Kuqaliswa ikhamera...
+Added {1} cues from {2}	Kungeziwe ama-cue angu-{1} kusuka ku-{2}
+Could not save the show	Ayikwazanga ukulondoloza umbukiso
+{1} is not a Deckboy show	{1} akuwona umbukiso we-Deckboy
+Could not open the PDF {1}	Ayikwazanga ukuvula i-PDF {1}
+Opened {1} ({2} playlists)	Kuvulwe {1} (izinhlu ezingu-{2})
+The camera did not open: {1}	Ikhamera ayivulekanga: {1}
+Tabletop is in MENU > SOURCES	Phezu kwetafula itholakala ku-IMENYU > IMITHOMBO
+Something mellow is in SOURCES	Okuthile okuthambile kutholakala ku-IMITHOMBO
+Song {1}/{2}: {3} ({4} of {5})	Ingoma {1}/{2}: {3} ({4} kwe-{5})
+That show is not there any more	Lowo mbukiso awusekho
+Choose what the left button does	Khetha ukuthi inkinobho yesobunxele yenzani
+PDF decks open on the phone: {1}	Ama-deck e-PDF avuleka ocingweni: {1}
+Stopped after that cue, as asked	Kumisiwe ngemva kwaleyo cue, njengoba ucelile
+Song stopped. What is on air stays.	Ingoma imisiwe. Okusemoyeni kuhlala kunjalo.
+The camera has not sent a picture yet.	Ikhamera ayikathumeli isithombe.
+Waiting for you to allow the camera...	Silindele ukuthi uvumele ikhamera...
+Every cue now starts as the defaults say	Manje wonke ama-cue aqala ngokwalokho okushiwo okujwayelekile
+The passphrase needs 8 or more characters	Iphasiwedi idinga izinhlamvu ezi-8 noma ngaphezulu
+Twelve effects is the most a cue can have	I-cue ingaba nemiphumela eyishumi nambili kuphela
+The song is empty: ADD THIS PLAYLIST first	Ingoma ayinalutho: ENGEZA LOLU HLU kuqala
+The desk has GO while following. MENU > SYNC to stop.	Ideski liphethe i-GO ngesikhathi ilandela. IMENYU > SYNC ukuze umise.
+End of the list. LOOP LIST in MENU > LIST plays it again.	Isiphetho sohlu. PHINDA UHLU ku-IMENYU > UHLU iludlala futhi.
+Pocket may not use the camera. Allow it in the phone's settings.	Iphakethe alivunyelwe ukusebenzisa ikhamera. Livumele ezilungiselelweni zocingo.

@@ -5161,3 +5161,48 @@ live holds	ⵉⵃⴱⴰⵙⵏ ⵙ ⵜⵓⴷⵔⵜ
 goes on {1} after it ends	ⵉⴽⵎⵎⵍ {1} ⴷⴼⴼⵉⵔ ⵜⴳⴳⵉⵔⴰ ⵏⵏⵙ
 goes on {1} after it starts	ⵉⴽⵎⵎⵍ {1} ⴷⴼⴼⵉⵔ ⵓⴱⴷⵓ ⵏⵏⵙ
 EDIT > a cue's TRIGGERS > key: press F1 to F8.	ⵙⵏⴼⵍ > ⵉⵙⵏⵇⴰⵔⵏ ⵏ cue > ⵜⴰⵙⴰⵔⵓⵜ: ⵙⵉⵜ F1 ⴰⵔ F8.
+IN {1}	ⵖ {1}
+OUT {1}	ⴱⵔⵔⴰ {1}
+Saved {1}	ⵉⵜⵜⵓⵃⴹⴰ {1}
+A new list	ⵢⴰⵜ ⵜⴱⴷⴰⵔⵜ ⵜⴰⵎⴰⵢⵏⵓⵜ
+Opened {1}	ⵉⵜⵜⵓⵕⵥⵎ {1}
+Saved as {1}	ⵉⵜⵜⵓⵃⴹⴰ ⵙ ⵢⵉⵙⵎ {1}
+Off the queue	ⵉⵜⵜⵓⴽⴽⴰⵙ ⵣⵖ ⵜⴱⴷⴰⵔⵜ ⵏ ⵓⵔⴰⵊⵓ
+Take cancelled	TAKE ⵉⵜⵜⵓⵙⴼⵙⵅ
+End of the song	ⵜⴰⴳⴰⵔⴰ ⵏ ⵜⵣⵍⵉⵜ
+Plays next: {1}	ⵉⵜⵜⵖⵔⴰ ⵡⵉⵏ ⴷ ⵉⴷⴷⵏ: {1}
+No camera found.	ⵓⵔ ⵜⵍⵍⵉ ⴽⵔⴰ ⵏ ⵜⴽⴰⵎⵉⵕⵜ.
+Playlist deleted	ⵜⴰⴱⴷⴰⵔⵜ ⵜⵜⵓⴽⴽⴰⵙ
+Added Video Synth	ⵉⵜⵜⵓⵔⵏⴰ ⵓⵙⵏⴼⵍⵓⵍ ⵏ ⵜⴼⵉⴷⵢⵓⵜ
+Bounce ready: {1}	ⴷⴷⵓ-ⴷ ⵓⵖⵓⵍ ⵢⵓⵊⴰⴷ: {1}
+New playlist: {1}	ⵜⴰⴱⴷⴰⵔⵜ ⵜⴰⵎⴰⵢⵏⵓⵜ: {1}
+Song {1}/{2}: {3}	ⵜⴰⵣⵍⵉⵜ {1}/{2}: {3}
+TABLETOP UNLOCKED	ⴰⴼⵍⵍⴰ ⵏ ⵜⴷⴰⴱⵓⵜ ⵉⵜⵜⵓⵕⵥⵎ
+Into the surf: {1}	ⵖ ⵉⵎⵓⵊⵏ: {1}
+Reverse ready: {1}	ⵜⵜⵉ ⵢⵓⵊⴰⴷ: {1}
+TERRARIUM UNLOCKED	ⴰⵙⵏⴷⵓⵇ ⵏ ⵜⴰⴳⴰⵏⵜ ⵉⵜⵜⵓⵕⵥⵎ
+There is no cue {1}	ⵓⵔ ⵉⵍⵍⵉ cue {1}
+Starting the camera...	ⴰⵙⵏⵜⵉ ⵏ ⵜⴽⴰⵎⵉⵕⵜ...
+Added {1} cues from {2}	ⵉⵜⵜⵓⵔⵏⴰ {1} cue ⵣⵖ {2}
+Could not save the show	ⵓⵔ ⵉⵣⵎⵉⵔ ⴰⴷ ⵉⵃⴹⵓ ⴰⵙⵙⴽⴰⵏ
+{1} is not a Deckboy show	{1} ⵓⵔ ⵉⴳⵉ ⴰⵙⵙⴽⴰⵏ ⵏ Deckboy
+Could not open the PDF {1}	ⵓⵔ ⵉⵣⵎⵉⵔ ⴰⴷ ⵉⵕⵥⵎ PDF {1}
+Opened {1} ({2} playlists)	ⵉⵜⵜⵓⵕⵥⵎ {1} ({2} ⵜⴱⴷⴰⵔⵉⵏ)
+The camera did not open: {1}	ⵜⴰⴽⴰⵎⵉⵕⵜ ⵓⵔ ⵜⵜⵓⵕⵥⵎ: {1}
+Tabletop is in MENU > SOURCES	ⴰⴼⵍⵍⴰ ⵏ ⵜⴷⴰⴱⵓⵜ ⵉⵍⵍⴰ ⵖ ⵓⵎⵓⵖ > ⵉⵙⴰⴳⵎⵏ
+Something mellow is in SOURCES	ⴽⵔⴰ ⵉⵍⵡⴰⵏ ⵉⵍⵍⴰ ⵖ ⵉⵙⴰⴳⵎⵏ
+Song {1}/{2}: {3} ({4} of {5})	ⵜⴰⵣⵍⵉⵜ {1}/{2}: {3} ({4} ⵙⴳ {5})
+That show is not there any more	ⴰⵙⵙⴽⴰⵏ ⴰⵏⵏ ⵓⵔ ⵙⵓⵍ ⵉⵍⵍⵉ
+Choose what the left button does	ⵙⵜⵉ ⵎⴰⴷ ⴰⵔ ⵉⵙⴽⴰⵔ ⵓⵙⵉⵍ ⴰⵥⵍⵎⴰⴹ
+PDF decks open on the phone: {1}	Deck PDF ⴰⵔ ⵜⵜⵕⵥⵎⵏ ⵖ ⵜⵉⵍⵉⵖⵔⵉ: {1}
+Stopped after that cue, as asked	ⵉⴱⴷⴷ ⴷⴼⴼⵉⵔ cue ⴰⵏⵏ, ⵎⴽ ⵜⵙⵙⵓⵜⵔⴷ
+Song stopped. What is on air stays.	ⵜⴱⴷⴷ ⵜⵣⵍⵉⵜ. ⵎⴰ ⵉⵍⵍⴰⵏ ⵖ ⵓⵀⵉⵍ ⵉⵇⵇⵉⵎ.
+The camera has not sent a picture yet.	ⵜⴰⴽⴰⵎⵉⵕⵜ ⵓⵔ ⵜⵙⵙⵉⴼⴹ ⴽⵔⴰ ⵏ ⵜⵡⵍⴰⴼⵜ ⴰⵔ ⴷⵖⵉ.
+Waiting for you to allow the camera...	ⴰⵔ ⵏⵜⵜⵔⴰⵊⵓ ⴰⴷ ⵜⴰⵊⵊⴷ ⵜⴰⴽⴰⵎⵉⵕⵜ...
+Every cue now starts as the defaults say	ⵖⵉⵍⴰ ⴽⵓ cue ⴰⵔ ⵉⵜⵜⴱⴷⴰ ⵙ ⵉⵎⵣⵡⵓⵔⴰ
+The passphrase needs 8 or more characters	ⵜⴰⵡⴰⵍⵜ ⵏ ⵓⵣⵔⵉ ⵜⵔⴰ 8 ⵏ ⵉⵙⴽⴽⵉⵍⵏ ⵏⵖ ⵓⴳⴳⴰⵔ
+Twelve effects is the most a cue can have	cue ⵓⵔ ⵉⵣⵎⵉⵔ ⴰⴷ ⵉⵍⵉⵏ ⵖⵓⵔⵙ ⵓⴳⴳⴰⵔ ⵏ ⵎⵔⴰⵡ ⴷ ⵙⵉⵏ ⵏ ⵉⵙⵏⴼⴰⵍⵏ
+The song is empty: ADD THIS PLAYLIST first	ⵉⵣⵍⵉ ⵉⵍⵎ: ⵔⵏⵓ ⵜⴰⴱⴷⴰⵔⵜ ⴰⴷ ⵣⵡⴰⵔ
+The desk has GO while following. MENU > SYNC to stop.	ⵜⴰⴼⵉⵍⵓⵜ ⴰⵔ ⵜⵟⵟⴰⴼ GO ⵎⵉ ⴰⵔ ⵜⵜⴹⴼⴰⵔ. ⵓⵎⵓⵖ > SYNC ⴰⴷ ⵜⵃⴱⵙⴷ.
+End of the list. LOOP LIST in MENU > LIST plays it again.	ⵜⵉⴳⵉⵔⴰ ⵏ ⵜⴱⴷⴰⵔⵜ. ⴰⵙⵙⵓⵖⵍ ⵏ ⵜⵍⴳⴰⵎⵜ ⵖ ⵓⵎⵓⵖ > ⵜⴰⴱⴷⴰⵔⵜ ⴰⵔ ⵜⵜ ⵉⵜⵜⵖⵔⴰ ⴷⴰⵖ.
+Pocket may not use the camera. Allow it in the phone's settings.	ⵜⴰⵊⵉⴱⵜ ⵓⵔ ⵜⵣⵎⵉⵔ ⴰⴷ ⵜⵙⵙⵎⵔⵙ ⵜⴰⴽⴰⵎⵉⵕⵜ. ⴰⵊⵊ ⵜ ⵖ ⵜⵙⵖⴰⵍ ⵏ ⵜⵉⵍⵉⵖⵔⵉ.

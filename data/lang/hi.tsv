@@ -5150,3 +5150,49 @@ live holds	लाइव पर रुका रहता है
 goes on {1} after it ends	समाप्त होने के {1} बाद चलता है
 goes on {1} after it starts	शुरू होने के {1} बाद चलता है
 EDIT > a cue's TRIGGERS > key: press F1 to F8.	संपादित करें > क्यू के ट्रिगर > कुंजी: F1 से F8 दबाएँ।
+IN {1}	इन {1}
+OUT {1}	आउट {1}
+Saved {1}	{1} सहेजा गया
+A new list	एक नई सूची
+Opened {1}	{1} खोला गया
+Cue {1}: {2}	क्यू {1}: {2}
+Saved as {1}	{1} के रूप में सहेजा गया
+Off the queue	कतार से हटाया गया
+Take cancelled	TAKE रद्द
+Plays next: {1}	अगला बजेगा: {1}
+No camera found.	कोई कैमरा नहीं मिला।
+Playlist deleted	प्लेलिस्ट हटाई गई
+Added Video Synth	वीडियो सिंथ जोड़ा गया
+Bounce ready: {1}	आगे-पीछे तैयार: {1}
+New playlist: {1}	नई प्लेलिस्ट: {1}
+Song {1}/{2}: {3}	गाना {1}/{2}: {3}
+TABLETOP UNLOCKED	टेबलटॉप अनलॉक
+Into the surf: {1}	लहर में: {1}
+Reverse ready: {1}	उलटा तैयार: {1}
+TERRARIUM UNLOCKED	काँच उद्यान अनलॉक
+There is no cue {1}	क्यू {1} मौजूद नहीं है
+Starting the camera...	कैमरा शुरू हो रहा है...
+Added {1} cues from {2}	{2} से {1} क्यू जोड़े गए
+Could not save the show	शो सहेजा नहीं जा सका
+{1} is not a Deckboy show	{1} Deckboy शो नहीं है
+Could not open the PDF {1}	PDF {1} खुल नहीं सकी
+Opened {1} ({2} playlists)	{1} खोला गया ({2} प्लेलिस्ट)
+The camera did not open: {1}	कैमरा नहीं खुला: {1}
+Tabletop is in MENU > SOURCES	टेबलटॉप मेनू > स्रोत में है
+Something mellow is in SOURCES	स्रोत में कुछ सुकून भरा है
+Song {1}/{2}: {3} ({4} of {5})	गाना {1}/{2}: {3} ({5} में से {4})
+That show is not there any more	वह शो अब वहाँ नहीं है
+Choose what the left button does	चुनें कि बायाँ बटन क्या करता है
+PDF decks open on the phone: {1}	फ़ोन पर खुले PDF डेक: {1}
+Stopped after that cue, as asked	कहे अनुसार उस क्यू के बाद रुका
+Song stopped. What is on air stays.	गाना रुका। जो ऑन एयर है, वह रहेगा।
+The camera has not sent a picture yet.	कैमरा ने अभी तक कोई चित्र नहीं भेजा।
+Waiting for you to allow the camera...	कैमरा की अनुमति का इंतज़ार...
+End of the song	गाने का अंत
+Every cue now starts as the defaults say	अब हर क्यू डिफ़ॉल्ट के अनुसार शुरू होता है
+The passphrase needs 8 or more characters	पासफ़्रेज़ में कम से कम 8 अक्षर चाहिए
+Twelve effects is the most a cue can have	एक क्यू में अधिकतम बारह प्रभाव हो सकते हैं
+The song is empty: ADD THIS PLAYLIST first	गाना खाली है: पहले यह सूची जोड़ें
+The desk has GO while following. MENU > SYNC to stop.	अनुसरण के दौरान डेस्क के पास GO है। रोकने के लिए मेनू > SYNC।
+End of the list. LOOP LIST in MENU > LIST plays it again.	सूची का अंत। मेनू > सूची में सूची लूप करें इसे फिर से बजाता है।
+Pocket may not use the camera. Allow it in the phone's settings.	Pocket कैमरा इस्तेमाल नहीं कर सकता। फ़ोन की सेटिंग्स में अनुमति दें।

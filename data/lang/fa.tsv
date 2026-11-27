@@ -5162,3 +5162,49 @@ live holds	توقف‌های زنده
 goes on {1} after it ends	{1} پس از پایانش شروع می‌شود
 goes on {1} after it starts	{1} پس از شروعش شروع می‌شود
 EDIT > a cue's TRIGGERS > key: press F1 to F8.	ویرایش > محرک‌های یک کیو > کلید: F1 تا F8 را فشار دهید.
+IN {1}	ورودی {1}
+OUT {1}	خروجی {1}
+Saved {1}	{1} ذخیره شد
+A new list	یک فهرست جدید
+Opened {1}	{1} باز شد
+Cue {1}: {2}	کیو {1}: {2}
+Saved as {1}	با نام {1} ذخیره شد
+Off the queue	از صف خارج شد
+Take cancelled	Take لغو شد
+Plays next: {1}	پخش بعدی: {1}
+No camera found.	هیچ دوربینی پیدا نشد.
+Playlist deleted	فهرست پخش حذف شد
+Added Video Synth	سینت ویدئو افزوده شد
+Bounce ready: {1}	رفت‌وبرگشت آماده: {1}
+New playlist: {1}	فهرست پخش جدید: {1}
+Song {1}/{2}: {3}	آهنگ {1}/{2}: {3}
+TABLETOP UNLOCKED	رومیزی باز شد
+Into the surf: {1}	به خیزاب: {1}
+Reverse ready: {1}	معکوس آماده: {1}
+TERRARIUM UNLOCKED	تراریوم باز شد
+There is no cue {1}	کیوی {1} وجود ندارد
+Starting the camera...	در حال راه‌اندازی دوربین...
+Added {1} cues from {2}	{1} کیو از {2} افزوده شد
+Could not save the show	ذخیرهٔ نمایش ممکن نشد
+{1} is not a Deckboy show	{1} نمایش Deckboy نیست
+Could not open the PDF {1}	باز کردن PDF {1} ممکن نشد
+Opened {1} ({2} playlists)	{1} باز شد ({2} فهرست پخش)
+The camera did not open: {1}	دوربین باز نشد: {1}
+Tabletop is in MENU > SOURCES	رومیزی در منو > منابع است
+Something mellow is in SOURCES	چیزی آرام در منابع است
+Song {1}/{2}: {3} ({4} of {5})	آهنگ {1}/{2}: {3} ({4} از {5})
+That show is not there any more	آن نمایش دیگر آنجا نیست
+Choose what the left button does	انتخاب کن دکمه چپ چه کند
+PDF decks open on the phone: {1}	دک‌های PDF روی تلفن باز می‌شوند: {1}
+Stopped after that cue, as asked	طبق درخواست، پس از آن کیو متوقف شد
+Song stopped. What is on air stays.	آهنگ متوقف شد. آنچه روی آنتن است می‌ماند.
+The camera has not sent a picture yet.	دوربین هنوز تصویری نفرستاده است.
+Waiting for you to allow the camera...	در انتظار اجازهٔ تو برای دوربین...
+End of the song	پایان آهنگ
+Every cue now starts as the defaults say	اکنون هر کیو طبق پیش‌فرض‌ها شروع می‌شود
+The passphrase needs 8 or more characters	گذرعبارت باید دست‌کم 8 نویسه داشته باشد
+Twelve effects is the most a cue can have	هر کیو حداکثر دوازده افکت می‌تواند داشته باشد
+The song is empty: ADD THIS PLAYLIST first	آهنگ خالی است: اول افزودن این فهرست پخش
+The desk has GO while following. MENU > SYNC to stop.	میز هنگام دنبال‌کردن GO دارد. برای توقف: منو > SYNC.
+End of the list. LOOP LIST in MENU > LIST plays it again.	پایان فهرست. فهرست حلقه‌ای در منو > فهرست آن را دوباره می‌نوازد.
+Pocket may not use the camera. Allow it in the phone's settings.	جیب اجازهٔ استفاده از دوربین را ندارد. در تنظیمات تلفن اجازه بده.

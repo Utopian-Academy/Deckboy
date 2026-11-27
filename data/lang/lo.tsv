@@ -5131,3 +5131,49 @@ live holds	ສົດຄ້າງໄວ້
 goes on {1} after it ends	ໄປຕໍ່ {1} ຫຼັງຈົບ
 goes on {1} after it starts	ໄປຕໍ່ {1} ຫຼັງເລີ່ມ
 EDIT > a cue's TRIGGERS > key: press F1 to F8.	ແກ້ໄຂ > ຕົວເລີ່ມ ຂອງ cue > ປຸ່ມ: ກົດ F1 ຫາ F8.
+IN {1}	ເຂົ້າ {1}
+OUT {1}	ອອກ {1}
+Saved {1}	ບັນທຶກ {1} ແລ້ວ
+A new list	ລາຍການໃໝ່
+Opened {1}	ເປີດ {1} ແລ້ວ
+Cue {1}: {2}	ຄິວ {1}: {2}
+Saved as {1}	ບັນທຶກເປັນ {1} ແລ້ວ
+Off the queue	ອອກຈາກແຖວລໍຖ້າແລ້ວ
+Take cancelled	ຍົກເລີກ Take ແລ້ວ
+Plays next: {1}	ຫຼິ້ນຖັດໄປ: {1}
+No camera found.	ບໍ່ພົບກ້ອງ.
+Playlist deleted	ລຶບ playlist ແລ້ວ
+Added Video Synth	ເພີ່ມ synth ວິດີໂອ ແລ້ວ
+Bounce ready: {1}	ໄປກັບ ພ້ອມ: {1}
+New playlist: {1}	playlist ໃໝ່: {1}
+Song {1}/{2}: {3}	ເພງ {1}/{2}: {3}
+TABLETOP UNLOCKED	ປົດລັອກ ເທິງໂຕະ ແລ້ວ
+Into the surf: {1}	ລົງຄື້ນ: {1}
+Reverse ready: {1}	ປີ້ນກັບ ພ້ອມ: {1}
+TERRARIUM UNLOCKED	ປົດລັອກ ຕູ້ສວນ ແລ້ວ
+There is no cue {1}	ບໍ່ມີຄິວ {1}
+Starting the camera...	ກຳລັງເປີດກ້ອງ...
+Added {1} cues from {2}	ເພີ່ມ {1} ຄິວ ຈາກ {2} ແລ້ວ
+Could not save the show	ບັນທຶກໂຊບໍ່ໄດ້
+{1} is not a Deckboy show	{1} ບໍ່ແມ່ນໂຊ Deckboy
+Could not open the PDF {1}	ເປີດ PDF {1} ບໍ່ໄດ້
+Opened {1} ({2} playlists)	ເປີດ {1} ແລ້ວ ({2} playlist)
+The camera did not open: {1}	ກ້ອງບໍ່ເປີດ: {1}
+Tabletop is in MENU > SOURCES	ເທິງໂຕະ ຢູ່ໃນ ເມນູ > ແຫຼ່ງ
+Something mellow is in SOURCES	ມີສິ່ງນຸ່ມນວນຢູ່ໃນ ແຫຼ່ງ
+Song {1}/{2}: {3} ({4} of {5})	ເພງ {1}/{2}: {3} ({4} ຈາກ {5})
+That show is not there any more	ໂຊນັ້ນບໍ່ມີແລ້ວ
+Choose what the left button does	ເລືອກວ່າປຸ່ມຊ້າຍເຮັດຫຍັງ
+PDF decks open on the phone: {1}	DECK PDF ເປີດໃນໂທລະສັບ: {1}
+Stopped after that cue, as asked	ຢຸດແລ້ວຫຼັງຄິວນັ້ນ ຕາມທີ່ຂໍ
+Song stopped. What is on air stays.	ເພງຢຸດແລ້ວ. ສິ່ງທີ່ກຳລັງຖ່າຍທອດຍັງຢູ່.
+The camera has not sent a picture yet.	ກ້ອງຍັງບໍ່ໄດ້ສົ່ງຮູບມາ.
+Waiting for you to allow the camera...	ລໍຖ້າເຈົ້າອະນຸຍາດກ້ອງ...
+End of the song	ຈົບເພງ
+Every cue now starts as the defaults say	ດຽວນີ້ ທຸກ cue ເລີ່ມຕາມຄ່າເລີ່ມຕົ້ນ
+The passphrase needs 8 or more characters	ວະລີລະຫັດຕ້ອງມີ 8 ຕົວອັກສອນຂຶ້ນໄປ
+Twelve effects is the most a cue can have	Cue ໜຶ່ງມີເອັບເຟັກໄດ້ຫຼາຍສຸດ 12 ອັນ
+The song is empty: ADD THIS PLAYLIST first	ເພງຫວ່າງ: ເພີ່ມ PLAYLIST ນີ້ ກ່ອນ
+The desk has GO while following. MENU > SYNC to stop.	ໂຕະຖື GO ຂະນະກຳລັງຕາມ. ເມນູ > SYNC ເພື່ອຢຸດ.
+End of the list. LOOP LIST in MENU > LIST plays it again.	ສຸດລາຍການ. ວົນລາຍການ ໃນ ເມນູ > ລາຍການ ຫຼິ້ນມັນອີກຄັ້ງ.
+Pocket may not use the camera. Allow it in the phone's settings.	ກະເປົ໋າໃຊ້ກ້ອງບໍ່ໄດ້. ອະນຸຍາດໃນຕັ້ງຄ່າຂອງໂທລະສັບ.

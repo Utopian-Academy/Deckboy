@@ -996,7 +996,7 @@ class Pocket {
     if (listen_ != kInvalidSocket) closeSocket(listen_);
     engine_.reset();
     text_.clear();
-    for (TTF_Font* f : {pixel_, pixelSmall_, sans_, mono_, printFont_}) if (f) { deckboy::render::shaping::forgetFace(f); TTF_CloseFont(f); }
+    for (TTF_Font* f : {pixel_, pixelSmall_, pixelTiny_, sans_, mono_, printFont_}) if (f) { deckboy::render::shaping::forgetFace(f); TTF_CloseFont(f); }
     if (audio_) SDL_DestroyAudioStream(audio_);
     if (renderer_) SDL_DestroyRenderer(renderer_);
     if (window_) SDL_DestroyWindow(window_);
@@ -1343,13 +1343,33 @@ class Pocket {
     const float sx = ww > 0 ? pxW_ / static_cast<float>(ww) : 1.0f;
     const float sy = wh > 0 ? pxH_ / static_cast<float>(wh) : 1.0f;
     safe_ = {safe.x * sx, safe.y * sy, safe.w * sx, safe.h * sy};
-    unit_ = std::min(safe_.w, safe_.h) / 72.0f;   // the short side is 72 units, turned either way
+    // THE LAYOUT'S OWN RECTANGLE. Pocket is drawn 72 units across its short
+    // side and needs at least kLayoutLong along its long one (the 16:9 phone:
+    // 72 x 128; the shells' plates are 72 x 156 with a band that gives way).
+    // The unit was the short side over 72 and nothing else, so a screen near
+    // square -- a flip phone's cover screen (720 x 748), a fold's inner one
+    // (2160 x 1856), a tablet -- ran the layout off its long side: the pad over
+    // the picture, rows on rows (James 11-26). Now the unit fits BOTH ways, the
+    // way up (upright or on its side) that gives the larger unit wins, and the
+    // layout takes that rectangle (layoutRect, every frame); safe_ becomes it,
+    // so everything placed from safe_ follows. A phone's usual shape gets
+    // exactly what it had: there the short side was already the limit.
+    {
+      constexpr float kLayoutLong = 128.0f;
+      screenSafe_ = safe_;
+      const float uTall = std::min(safe_.w / 72.0f, safe_.h / kLayoutLong);
+      const float uWide = std::min(safe_.h / 72.0f, safe_.w / kLayoutLong);
+      wideWay_ = uWide > uTall || (uWide == uTall && safe_.w > safe_.h);
+      unit_ = wideWay_ ? uWide : uTall;
+      layoutRect();
+    }
     const float u = unit_;
     const std::string data = std::string(SDL_getenv("DECKBOY_ROOT") ? SDL_getenv("DECKBOY_ROOT") : ".") + "/data/";
     text_.clear();
-    for (TTF_Font* f : {pixel_, pixelSmall_, sans_, mono_, printFont_}) if (f) { deckboy::render::shaping::forgetFace(f); TTF_CloseFont(f); }
+    for (TTF_Font* f : {pixel_, pixelSmall_, pixelTiny_, sans_, mono_, printFont_}) if (f) { deckboy::render::shaping::forgetFace(f); TTF_CloseFont(f); }
     pixel_ = TTF_OpenFont((data + "PressStart2P.ttf").c_str(), 2.6f * u);
     pixelSmall_ = TTF_OpenFont((data + "PressStart2P.ttf").c_str(), 1.6f * u);
+    pixelTiny_ = TTF_OpenFont((data + "PressStart2P.ttf").c_str(), 1.25f * u);   // a button label that would not fit
     sans_ = TTF_OpenFont((data + "fonts/LiberationSans-Regular.ttf").c_str(), 3.0f * u);
     mono_ = TTF_OpenFont((data + "fonts/LiberationMono-Regular.ttf").c_str(), 2.9f * u);
     static bool spoken = false;
@@ -1363,6 +1383,7 @@ class Pocket {
       using deckboy::render::shaping::registerFace;
       if (pixel_) registerFace(pixel_, data + "PressStart2P.ttf", 2.6f * u);
       if (pixelSmall_) registerFace(pixelSmall_, data + "PressStart2P.ttf", 1.6f * u);
+      if (pixelTiny_) registerFace(pixelTiny_, data + "PressStart2P.ttf", 1.25f * u);
       if (sans_) registerFace(sans_, data + "fonts/LiberationSans-Regular.ttf", 3.0f * u);
       if (mono_) registerFace(mono_, data + "fonts/LiberationMono-Regular.ttf", 2.9f * u);
       if (printFont_) registerFace(printFont_, data + "fonts/LiberationMono-Regular.ttf", 2.0f * u);
@@ -1401,7 +1422,27 @@ class Pocket {
   // MENU > PHONE > ABOUT, upright: the buttons below it do nothing but listen.
   bool aboutPage() const { return menuOpen_ && menuTab_ == 6 && !landscape_; }
 
+  // The layout's rectangle in the screen's safe area (see loadFonts). Upright:
+  // 72 units wide, centred, the whole height (the cue list takes what is
+  // spare). On its side: the whole width, and the whole height too -- the
+  // picture and the list grow into it -- except under a rendered shell's
+  // sideways face, a fixed 72-unit picture whose frames the layout must sit
+  // in: then a 72-unit band, centred, its plastic carried over the rest.
+  void layoutRect() {
+    const float u = unit_;
+    if (!wideWay_) {
+      const float layW = 72.0f * u;
+      safe_ = {screenSafe_.x + (screenSafe_.w - layW) / 2, screenSafe_.y, layW, screenSafe_.h};
+    } else if (shellWideTex_ && sheet_ < 0 && !menuOpen_) {
+      const float layH = 72.0f * u;
+      safe_ = {screenSafe_.x, screenSafe_.y + (screenSafe_.h - layH) / 2, screenSafe_.w, layH};
+    } else {
+      safe_ = screenSafe_;
+    }
+  }
+
   void layout() {
+    layoutRect();
     const float u = unit_, x0 = safe_.x, y0 = safe_.y;
     landscape_ = safe_.w > safe_.h;
     editing_ = sheet_ >= 0 || menuOpen_;
@@ -1428,7 +1469,7 @@ class Pocket {
     } else {
       if (editing_) {
         // the picture on the left at the height's use, the page on the right
-        const float pw = std::min(W * 0.48f, (H - 12) * 16.0f / 9.0f + 7);
+        const float pw = std::max(30.0f, std::min({W * 0.48f, (H - 12) * 16.0f / 9.0f + 7, W - 72.5f}));   // the page keeps 68
         const float picW = pw - 7, picH = picW * 9.0f / 16.0f;
         program_ = {x0 + 1.5f * u, y0 + 1.5f * u, pw * u, (5 + 1 + picH + 1 + 2.5f) * u};
         picRect_ = {program_.x + 3.5f * u, program_.y + 6 * u, picW * u, picH * u};
@@ -1449,19 +1490,32 @@ class Pocket {
         // The frame stays where the shells have it; inside it the picture
         // takes the frame's whole height, the transport stands in a column to
         // its right, and the cue's name and time go up into the title strip.
+        // On a phone 128 units across (16:9) the column left the picture 44
+        // wide with 14 units of empty screen above and below it (James 11-26:
+        // "the negative space on the wide ones is a bit weird"): there the
+        // transport goes in a row under the picture instead, as upright.
+        // Whichever shows the larger picture is used.
         {
-          float bigH = chrome + picH - 6 - 2.5f;
-          float bigW = bigH * 16.0f / 9.0f;
-          const float roomW = cw - 5 - 2 - 1 - 16;   // the LCD, its margins, a gap, the button column
-          if (bigW > roomW) { bigW = roomW; bigH = bigW * 9.0f / 16.0f; }
-          picRect_ = {program_.x + 3.5f * u, program_.y + 6 * u + (chrome + picH - 8.5f - bigH) / 2 * u, bigW * u, bigH * u};
+          const float lcdH = chrome + picH - 6 - 2.5f;   // the LCD's room below the title
+          const float colW = std::min(lcdH * 16.0f / 9.0f, cw - 5 - 2 - 1 - 16);   // the LCD, its margins, a gap, the column
+          const float colH = colW * 9.0f / 16.0f;
+          const float rowH = std::min(lcdH - 6.2f, (cw - 7) * 9.0f / 16.0f);   // a gap and the 5-unit row below
+          const float rowW = rowH * 16.0f / 9.0f;
+          columnTransport_ = colW * colH >= rowW * rowH;
+          if (columnTransport_) {
+            picRect_ = {program_.x + 3.5f * u, program_.y + 6 * u + (lcdH - colH) / 2 * u, colW * u, colH * u};
+          } else {
+            picRect_ = {program_.x + 3.5f * u + (cw - 7 - rowW) / 2 * u, program_.y + 6 * u + (lcdH - 6.2f - rowH) / 2 * u,
+                        rowW * u, rowH * u};
+          }
         }
         list_ = {x0 + side * u, program_.y + program_.h + 1.5f * u, cw * u, 0};
         list_.h = y0 + safe_.h - 1.5f * u - list_.y;
         strip_ = {};
         padCentre_ = at(side / 2, H * 0.40f);
-        blackPill_ = {x0 + 2 * u, y0 + (H - 9) * u, (side - 5) / 2 * u, 4 * u};
-        menuPill_ = {x0 + (3 + (side - 5) / 2) * u, y0 + (H - 9) * u, (side - 5) / 2 * u, 4 * u};
+        // labels under them end 2 units above the edge, clear of a gesture bar
+        blackPill_ = {x0 + 2 * u, y0 + (H - 11) * u, (side - 5) / 2 * u, 4 * u};
+        menuPill_ = {x0 + (3 + (side - 5) / 2) * u, y0 + (H - 11) * u, (side - 5) / 2 * u, 4 * u};
         goCentre_ = at(W - side / 2, H * 0.34f);
         backCentre_ = at(W - side / 2 - 4, H * 0.64f);
       }
@@ -1540,6 +1594,22 @@ class Pocket {
     }
     int cw = 0, ch = 0;
     if (mono_ && !clockText.empty()) deckboy::render::shaping::textSize(mono_, clockText.c_str(), 0, &cw, &ch);
+    if (landscape_ && !columnTransport_) {
+      // on its side and narrow: the transport as a row under the picture (the
+      // name and time are in the title, the scrub stays upright's)
+      scrub_ = {};
+      const bool pausedNow = onAir && engine_->state() == TransportState::Paused;
+      const bool trim = onAir && cueHasTimeline(*onAir);
+      const float gap = 0.8f * u, rowX = lcd.x + u, rowW = lcd.w - 2 * u;
+      const float small = (rowW - 4 * gap) * 0.17f, wide = rowW - 4 * gap - 4 * small;
+      float bx = rowX;
+      button({bx, y, small, 5 * u}, "-10", [this] { skipBy(-10); }, trim); bx += small + gap;
+      button({bx, y, wide, 5 * u}, pausedNow ? "PLAY" : "PAUSE", [this, pausedNow] { pausedNow ? engine_->play() : engine_->pause(); }, onAir != nullptr); bx += wide + gap;
+      button({bx, y, small, 5 * u}, "+10", [this] { skipBy(10); }, trim); bx += small + gap;
+      button({bx, y, small, 5 * u}, "IN", [this] { setInOut(true); }, trim); bx += small + gap;
+      button({bx, y, small, 5 * u}, "OUT", [this] { setInOut(false); }, trim);
+      return;
+    }
     if (landscape_) {
       // the transport as a column beside the picture (name and time are in the title)
       scrub_ = {};
@@ -2125,6 +2195,19 @@ class Pocket {
       else { b.y = top; b.h = bottom - top; }
     }
     if (menuScrollMax() > 0) {
+      // a row cut by the edge is the page going on, not text cut off: the
+      // screen fades into it, at whichever edge there is more past
+      const int steps = 8;
+      const float band = 3 * u;
+      for (int k = 0; k < steps; ++k) {
+        const float a = 0.9f * (1.0f - static_cast<float>(k) / steps), hk = band / steps;
+        if (menuScroll_ < menuScrollMax() - 0.5f) {
+          fillRoundAlpha(r, kLight, a, {menuView_.x, menuView_.y + menuView_.h - hk * (k + 1), menuView_.w, hk}, 0);
+        }
+        if (menuScroll_ > 0.5f) {
+          fillRoundAlpha(r, kLight, a, {menuView_.x, menuView_.y + hk * k, menuView_.w, hk}, 0);
+        }
+      }
       // where you are on the page: a bar down the right edge
       const float track = menuView_.h - u, frac = menuView_.h / (menuView_.h + menuScrollMax());
       const float barH = std::max(4 * u, track * frac);
@@ -2320,7 +2403,11 @@ class Pocket {
     const float gap = u;
     const float bh = 7 * u;
     const float area = lcd.h - bh - 2.5f * u;
-    const int cols = landscape_ ? 3 : 2, rows = landscape_ ? 2 : 3;
+    // three across only where each is as wide as an upright tile (30 units);
+    // on a phone on its side the page is narrower than that and three cut
+    // every tile's text short
+    const bool three = (lcd.w - 2 * u - 2 * gap) / 3 >= 30 * u;
+    const int cols = three ? 3 : 2, rows = three ? 2 : 3;
     const float tw = (lcd.w - 2 * u - gap * static_cast<float>(cols - 1)) / static_cast<float>(cols);
     const float th = (area - gap * static_cast<float>(rows - 1)) / static_cast<float>(rows);
     struct Tile { int page; const char* name; };
@@ -2345,9 +2432,20 @@ class Pocket {
     float y = b.y;
     auto line = [&](const std::string& t, bool strong = false) {
       if (y + lh > b.y + b.h) return;
-      if (strong) fillRect(r, kDeep, {b.x, y, b.w, lh - 0.4f * u});
-      text_.draw(mono_, t, strong ? kLight : kDeep, {b.x + 0.5f * u, y, b.w - u, lh});
-      y += lh;
+      if (strong) {   // a name, highlighted: one row (a long one ends in ...)
+        fillRect(r, kDeep, {b.x, y, b.w, lh - 0.4f * u});
+        text_.draw(mono_, t, kLight, {b.x + 0.5f * u, y, b.w - u, lh});
+        y += lh;
+        return;
+      }
+      // anything else WRAPS onto the tile's next row ("files from t..." on
+      // every upright phone): translated whole, then wrapped, so the line is
+      // still looked up as the sentence it is
+      for (const std::string& row : wrapWords(mono_, deckboy::core::i18n::translate(t), b.w - u)) {
+        if (y + lh > b.y + b.h) return;
+        text_.drawName(mono_, row, kDeep, {b.x + 0.5f * u, y, b.w - u, lh});
+        y += lh;
+      }
     };
     switch (page) {
       case 5:   // SHOW
@@ -2621,7 +2719,7 @@ class Pocket {
     show_ = currentShow();   // keep what was done to this one
     const int n = static_cast<int>(show_.decks.size());
     takePlaylist(((showDeck_ + by) % n + n) % n);
-    notice_ = "Playlist " + std::to_string(showDeck_ + 1) + ": " + show_.decks[static_cast<std::size_t>(showDeck_)].name;
+    notice_ = deckboy::core::i18n::format("Playlist {1}: {2}", {std::to_string(showDeck_ + 1), show_.decks[static_cast<std::size_t>(showDeck_)].name});
     noticeUntil_ = SDL_GetTicks() + 2500;
   }
 
@@ -2641,7 +2739,7 @@ class Pocket {
   void saveShow() {
     if (showFile_.empty()) { beginSaveAs(); return; }
     if (saveShowTo(showFile_)) {
-      notice_ = "Saved " + showName();
+      notice_ = deckboy::core::i18n::format("Saved {1}", {showName()});
       noticeUntil_ = SDL_GetTicks() + 2500;
       buzz("go");
     }
@@ -2659,7 +2757,7 @@ class Pocket {
     const std::string path = joinPath(showsDir_, name + ".deckboy");
     show_.title = name;
     if (saveShowTo(path)) {
-      notice_ = "Saved as " + name;
+      notice_ = deckboy::core::i18n::format("Saved as {1}", {name});
       noticeUntil_ = SDL_GetTicks() + 2500;
       buzz("go");
     }
@@ -2680,7 +2778,8 @@ class Pocket {
     takePlaylist(show_.focusedDeckIndex);
     confirmOpen_.clear();
     menuOpen_ = false;
-    notice_ = "Opened " + showName() + (show_.decks.size() > 1 ? " (" + std::to_string(show_.decks.size()) + " playlists)" : "");
+    notice_ = show_.decks.size() > 1 ? deckboy::core::i18n::format("Opened {1} ({2} playlists)", {showName(), std::to_string(show_.decks.size())})
+                                     : deckboy::core::i18n::format("Opened {1}", {showName()});
     noticeUntil_ = SDL_GetTicks() + 3000;
     buzz("go");
     autosaveList();
@@ -2721,14 +2820,14 @@ class Pocket {
 #endif
     if (name.empty()) name = uri.substr(uri.find_last_of("/\\") + 1);
     if (!endsWithNoCase(name, ".deckboy")) {
-      notice_ = name + " is not a Deckboy show";
+      notice_ = deckboy::core::i18n::format("{1} is not a Deckboy show", {name});
       noticeUntil_ = SDL_GetTicks() + 3500;
       return;
     }
     size_t n = 0;
     char* bytes = static_cast<char*>(SDL_LoadFile(uri.c_str(), &n));
     if (!bytes) {
-      notice_ = "Could not read " + name;
+      notice_ = deckboy::core::i18n::format("Could not read {1}", {name});
       noticeUntil_ = SDL_GetTicks() + 3500;
       return;
     }
@@ -3494,7 +3593,7 @@ class Pocket {
       cam_ = SDL_OpenCamera(id, found ? &spec : nullptr);
       camId_ = id;
       if (!cam_) {
-        camNotice_ = std::string("The camera did not open: ") + SDL_GetError();
+        camNotice_ = deckboy::core::i18n::format("The camera did not open: {1}", {SDL_GetError()});
         return;
       }
     }
@@ -3739,7 +3838,7 @@ class Pocket {
     cues_.insert(cues_.begin() + at, cue);
     if (active_ >= at) ++active_;
     select(at);
-    notice_ = "Added " + cue.name;
+    notice_ = deckboy::core::i18n::format("Added {1}", {cue.name});
     noticeUntil_ = SDL_GetTicks() + 2500;
     landOnAdded(cue.id);
   }
@@ -3763,26 +3862,37 @@ class Pocket {
     cues_.insert(cues_.begin() + at, cue);
     if (active_ >= at) ++active_;
     select(at);
-    notice_ = "Added " + cue.name;
+    notice_ = deckboy::core::i18n::format("Added {1}", {cue.name});
     landOnAdded(cue.id);
     noticeUntil_ = SDL_GetTicks() + 2500;
   }
 
   // A button on the LCD: drawn, and registered for this frame's taps.
+  // A button's label in its own type, or a size down when that would not fit
+  // the button (a narrow screen, a long translation), before it is ever cut.
+  TTF_Font* labelFont(const std::string& label, float room) const {
+    if (!pixelSmall_ || !pixelTiny_) return pixelSmall_;
+    int w = 0, h = 0;
+    const std::string shown = deckboy::core::i18n::translate(label);
+    deckboy::render::shaping::textSize(pixelSmall_, shown.c_str(), 0, &w, &h);
+    return static_cast<float>(w) <= room ? pixelSmall_ : pixelTiny_;
+  }
+
   void button(const SDL_FRect& b, const std::string& label, std::function<void()> fn, bool enabled = true,
               bool on = false, bool warn = false) {
     SDL_Renderer* r = renderer_;
+    TTF_Font* const face = labelFont(label, b.w - 0.8f * unit_);
     // ON reads as lit: the button turns light with a heavy dark frame, the
     // opposite of its neighbours, rather than a shade that is hard to tell.
     if (on && enabled) {
       fillRound(r, kDeep, b, 0.8f * unit_);
       const float t = 0.5f * unit_;
       fillRound(r, kLight, {b.x + t, b.y + t, b.w - 2 * t, b.h - 2 * t}, 0.5f * unit_);
-      text_.draw(pixelSmall_, label, kDeep, b, true);
+      text_.draw(face, label, kDeep, b, true);
     } else {
-      const Ink face = !enabled ? kMid : warn ? Ink {122, 46, 46} : kDeep;
-      fillRound(r, face, b, 0.8f * unit_);
-      text_.draw(pixelSmall_, label, enabled ? kLight : kDark, b, true);
+      const Ink fill = !enabled ? kMid : warn ? Ink {122, 46, 46} : kDeep;
+      fillRound(r, fill, b, 0.8f * unit_);
+      text_.draw(face, label, enabled ? kLight : kDark, b, true);
     }
     if (enabled) hits_.push_back({b, std::move(fn)});
   }
@@ -3800,7 +3910,7 @@ class Pocket {
       c.outPointSeconds = std::clamp(at, cueIn(c) + f, c.duration);
     }
     cueEdited(active_, true);
-    notice_ = (in ? "IN " : "OUT ") + timecode(at, c.fps);
+    notice_ = deckboy::core::i18n::format(in ? "IN {1}" : "OUT {1}", {timecode(at, c.fps)});
     noticeUntil_ = SDL_GetTicks() + 2000;
   }
 
@@ -3907,7 +4017,7 @@ class Pocket {
 
   // A thing by name, or one of this list's cues ("cue:<id>"): its picture made once.
   void surfThrow(const std::string& what, float x01, const std::string& label) {
-    notice_ = "Into the surf: " + label;
+    notice_ = deckboy::core::i18n::format("Into the surf: {1}", {label});
     noticeUntil_ = SDL_GetTicks() + 1500;
     buzz("tap");
     if (what.rfind("cue:", 0) != 0 || deckboy::surf::hasPicture(what)) {
@@ -3977,7 +4087,7 @@ class Pocket {
     show_.decks.push_back(d);
     takePlaylist(static_cast<int>(show_.decks.size()) - 1);
     confirmDeletePlaylist_ = false;
-    notice_ = "New playlist: " + d.name;
+    notice_ = deckboy::core::i18n::format("New playlist: {1}", {d.name});
     noticeUntil_ = SDL_GetTicks() + 2500;
     autosaveList();
   }
@@ -4030,8 +4140,10 @@ class Pocket {
       takePlaylist(st.playlist, true);
     }
     if (cues_.empty()) return;
-    notice_ = "Song " + std::to_string(songAt_ + 1) + "/" + std::to_string(show_.song.size()) + ": " +
-              playlistName(st.playlist) + (st.repeats > 1 ? " (" + std::to_string(songRepeat_ + 1) + " of " + std::to_string(st.repeats) + ")" : "");
+    notice_ = st.repeats > 1
+                ? deckboy::core::i18n::format("Song {1}/{2}: {3} ({4} of {5})", {std::to_string(songAt_ + 1), std::to_string(show_.song.size()),
+                                                             playlistName(st.playlist), std::to_string(songRepeat_ + 1), std::to_string(st.repeats)})
+                : deckboy::core::i18n::format("Song {1}/{2}: {3}", {std::to_string(songAt_ + 1), std::to_string(show_.song.size()), playlistName(st.playlist)});
     noticeUntil_ = SDL_GetTicks() + 2500;
     take(0);
     advanceFrom(0);
@@ -5267,6 +5379,9 @@ class Pocket {
       double by = 0.0;
       args >> what >> by;
       for (char& ch : what) ch = static_cast<char>(std::toupper(static_cast<unsigned char>(ch)));
+      if (!what.empty() && follow_ != Follow::Off) {   // as GO and BACK: the desk runs the takes
+        return err("following the desk at " + followHost_ + " (SYNC STOP first)");
+      }
       if (what == "HOLD") {
         if (!engine_->transitionInProgress()) return err("TBAR: no transition is running");
         engine_->holdTransition();
@@ -6173,7 +6288,7 @@ class Pocket {
     if (n >= 1 && n <= static_cast<int>(cues_.size())) {
       select(n - 1);
       menuOpen_ = false;
-      notice_ = "Cue " + std::to_string(n) + ": " + cues_[static_cast<std::size_t>(n - 1)].name;
+      notice_ = deckboy::core::i18n::format("Cue {1}: {2}", {std::to_string(n), cues_[static_cast<std::size_t>(n - 1)].name});
       noticeUntil_ = SDL_GetTicks() + 2500;
       return;
     }
@@ -6185,7 +6300,7 @@ class Pocket {
       buzz("go");
       return;
     }
-    notice_ = "There is no cue " + std::to_string(n);
+    notice_ = deckboy::core::i18n::format("There is no cue {1}", {std::to_string(n)});
     noticeUntil_ = SDL_GetTicks() + 2500;
   }
 
@@ -6400,7 +6515,7 @@ class Pocket {
           c.directionPath = dirJob_.dest;
           c.directionKey = dirJob_.key;
           c.directionSeconds = dirMade_.seconds;
-          notice_ = (c.playDirection == kCueBounce ? "Bounce ready: " : "Reverse ready: ") + c.name;
+          notice_ = deckboy::core::i18n::format(c.playDirection == kCueBounce ? "Bounce ready: {1}" : "Reverse ready: {1}", {c.name});
           noticeUntil_ = SDL_GetTicks() + 2500;
           // On air: start the copy now, from its beginning, with a short mix.
           if (static_cast<int>(i) == active_) engine_->loadCue(&forEngine(c), engine_->state() == TransportState::Playing, 0.2,
@@ -6814,12 +6929,12 @@ class Pocket {
       cues_.push_back(std::move(cue));
     } else {
       SDL_Log("pocket: could not read %s (%s)", name.c_str(), uri.c_str());
-      notice_ = "Could not read " + name;
+      notice_ = deckboy::core::i18n::format("Could not read {1}", {name});
       noticeUntil_ = SDL_GetTicks() + 4000;
     }
     if (cues_.size() > before) {
-      notice_ = cues_.size() - before == 1 ? "Added " + stem
-                                          : "Added " + std::to_string(cues_.size() - before) + " cues from " + stem;
+      notice_ = cues_.size() - before == 1 ? deckboy::core::i18n::format("Added {1}", {stem})
+                                          : deckboy::core::i18n::format("Added {1} cues from {2}", {std::to_string(cues_.size() - before), stem});
       noticeUntil_ = SDL_GetTicks() + 3000;
       select(static_cast<int>(before));
     }
@@ -6833,7 +6948,7 @@ class Pocket {
     const std::string dir = joinPath(root ? root : ".", "slides/deck-" + std::to_string(++nextId_));
     const int pages = bridgeRenderPdf(uri, dir, 1920);
     if (pages <= 0) {
-      notice_ = "Could not open the PDF " + stem;
+      notice_ = deckboy::core::i18n::format("Could not open the PDF {1}", {stem});
       noticeUntil_ = SDL_GetTicks() + 4000;
       return;
     }
@@ -6854,7 +6969,7 @@ class Pocket {
     }
 #else
     (void) uri;
-    notice_ = "PDF decks open on the phone: " + stem;
+    notice_ = deckboy::core::i18n::format("PDF decks open on the phone: {1}", {stem});
     noticeUntil_ = SDL_GetTicks() + 3000;
 #endif
   }
@@ -7648,18 +7763,72 @@ class Pocket {
     SDL_SetRenderClipRect(renderer_, nullptr);
   }
 
+  // Words into rows no wider than `width` in `font` (a word longer than a row
+  // gets one to itself, and is cut there).
+  static std::vector<std::string> wrapWords(TTF_Font* font, const std::string& text, float width) {
+    std::vector<std::string> rows;
+    std::string row, word;
+    auto fits = [&](const std::string& t) {
+      int w = 0, h = 0;
+      if (font) deckboy::render::shaping::textSize(font, t.c_str(), 0, &w, &h);
+      return static_cast<float>(w) <= width;
+    };
+    std::istringstream in(text);
+    while (in >> word) {
+      const std::string tried = row.empty() ? word : row + " " + word;
+      if (row.empty() || fits(tried)) {
+        row = tried;
+      } else {
+        rows.push_back(row);
+        row = word;
+      }
+    }
+    if (!row.empty()) rows.push_back(row);
+    return rows;
+  }
+
   void drawSplashList(const SDL_FRect& lcd) {
     const float u = unit_;
     const Uint64 now = SDL_GetTicks();
     const Uint64 started = splashUntil_ - kSplashMs;
-    text_.draw(pixel_, "DECKBOY POCKET", kDeep, {lcd.x + 2 * u, lcd.y + 2 * u, lcd.w - 4 * u, 5 * u});
-    text_.draw(mono_, deckboy::core::version::kVersion, kDark, {lcd.x + 2 * u, lcd.y + 7.5f * u, lcd.w - 4 * u, 4.5f * u});
     // Pocket's own lines and the desk's, alternating.
     const int step = splashQuip_ + static_cast<int>((now - started) / 1400);
     const char* line = step % 2 == 0 ? deckboy::core::kPocketLoadingQuips[(step / 2) % deckboy::core::kPocketLoadingQuipCount]
                                      : deckboy::core::kLoadingQuips[(step / 2) % deckboy::core::kLoadingQuipCount];
-    text_.draw(mono_, std::string(line) + "...", kDeep, {lcd.x + 2 * u, lcd.y + 13 * u, lcd.w - 4 * u, 4.5f * u});
-    const SDL_FRect bar {lcd.x + 2 * u, lcd.y + lcd.h - 4 * u, lcd.w - 4 * u, 1.2f * u};
+    // The line WRAPS (it was one row, cut short: "the ghosts want a word with
+    // th..."), and in a short box -- the list on a phone on its side -- the
+    // version joins the title and the bar goes under them, so the line has
+    // two rows instead of sitting under the box's edge (James 11-26: "its the
+    // loading text that is getting cutoff on the bottom on several").
+    const float textW = lcd.w - 4 * u, lineH = 4 * u;
+    const bool roomy = lcd.h >= 26 * u;
+    text_.draw(pixel_, "DECKBOY POCKET", kDeep, {lcd.x + 2 * u, lcd.y + (roomy ? 2.0f : 1.2f) * u, textW, 5 * u});
+    float quipTop = 0, quipBottom = 0;
+    SDL_FRect bar {};
+    if (roomy) {
+      text_.draw(mono_, deckboy::core::version::kVersion, kDark, {lcd.x + 2 * u, lcd.y + 7.5f * u, textW, 4.5f * u});
+      bar = {lcd.x + 2 * u, lcd.y + lcd.h - 4 * u, textW, 1.2f * u};
+      quipTop = lcd.y + 13 * u;
+      quipBottom = bar.y - u;
+    } else {
+      int vw = 0, vh = 0;
+      if (mono_) deckboy::render::shaping::textSize(mono_, deckboy::core::version::kVersion, 0, &vw, &vh);
+      text_.drawName(mono_, deckboy::core::version::kVersion, kDark,
+                     {lcd.x + lcd.w - 2 * u - static_cast<float>(vw) - 1, lcd.y + 1.4f * u, static_cast<float>(vw) + 1, 4.5f * u});
+      bar = {lcd.x + 2 * u, lcd.y + 6.8f * u, textW, 1.0f * u};
+      quipTop = bar.y + bar.h + 0.6f * u;
+      quipBottom = lcd.y + lcd.h - 0.6f * u;
+    }
+    // Rows close up (to 3.2 units) before a row is lost: the longest line is
+    // two rows on the narrowest box, and a short box has about seven units.
+    const std::vector<std::string> lines = wrapWords(mono_, std::string(line) + "...", textW);
+    const float space = quipBottom - quipTop;
+    const float rowH = std::clamp(space / static_cast<float>(std::max<std::size_t>(1, lines.size())), 3.2f * u, lineH);
+    const int rows = std::max(1, static_cast<int>(space / rowH + 0.01f));
+    for (int k = 0; k < rows && k < static_cast<int>(lines.size()); ++k) {
+      // as written: a loading line is not looked up piece by piece
+      text_.drawName(mono_, lines[static_cast<std::size_t>(k)], kDeep, {lcd.x + 2 * u, quipTop + static_cast<float>(k) * rowH, textW, rowH});
+    }
     fillRect(renderer_, kMid, bar);
     const float f = std::clamp(static_cast<float>(now - started) / static_cast<float>(kSplashMs), 0.0f, 1.0f);
     fillRect(renderer_, kDeep, {bar.x, bar.y, bar.w * f, bar.h});
@@ -8052,7 +8221,7 @@ class Pocket {
       case Pill::Mute: setMuted(!muted_); break;
       case Pill::PlayNext:
         toggleQueued(selected_);
-        notice_ = queuePlace(cues_[static_cast<std::size_t>(selected_)]) ? "Plays next: " + cues_[static_cast<std::size_t>(selected_)].name : "Off the queue";
+        notice_ = queuePlace(cues_[static_cast<std::size_t>(selected_)]) ? deckboy::core::i18n::format("Plays next: {1}", {cues_[static_cast<std::size_t>(selected_)].name}) : "Off the queue";
         noticeUntil_ = SDL_GetTicks() + 2000;
         break;
       case Pill::StopAfter: endAfter_ = !endAfter_; break;
@@ -8786,7 +8955,7 @@ class Pocket {
     c.effects.push_back(fx);
     fxShown_ = static_cast<int>(c.effects.size()) - 1;
     fxPicking_ = false;
-    notice_ = "Added " + upper(deckboy::effects::cueEffectLabel(kind));
+    notice_ = deckboy::core::i18n::format("Added {1}", {upper(deckboy::core::i18n::translate(deckboy::effects::cueEffectLabel(kind)))});
     noticeUntil_ = SDL_GetTicks() + 2000;
     lookChanged(i);
   }
@@ -9010,9 +9179,15 @@ class Pocket {
     items.push_back({1.0f, secondsRow("FADE OUT", &Cue::fadeOutSeconds)});
     items.push_back({1.0f, [this, &c, i](const SDL_FRect& row) {
       const float uu = unit_;
-      text_.draw(pixelSmall_, "TRANSITION", kDark, {row.x, row.y, 20 * uu, row.h});
-      const float bw = 8 * uu;
-      button({row.x + 21 * uu, row.y + 0.5f * uu, bw, row.h - uu}, "<", [this] { stepCueStyle(-1); });
+      // the label as wide as it is (in the phone's language), not 20 units:
+      // that cut the style short ("Dissol...") on a narrow screen
+      int hw = 0, hh = 0;
+      const std::string heading = deckboy::core::i18n::translate("TRANSITION");
+      if (pixelSmall_) deckboy::render::shaping::textSize(pixelSmall_, heading.c_str(), 0, &hw, &hh);
+      const float headW = std::min(row.w * 0.4f, static_cast<float>(hw) + uu);
+      text_.draw(pixelSmall_, "TRANSITION", kDark, {row.x, row.y, headW, row.h});
+      const float bw = 7 * uu;
+      button({row.x + headW, row.y + 0.5f * uu, bw, row.h - uu}, "<", [this] { stepCueStyle(-1); });
       const std::string label = (c.cueTransitionStyle.empty() ? styleName(listStyle_) : styleName(cueStyle(c))) + ", " +
                                 (c.cueTransitionSeconds < 0 ? std::to_string(listGlide()).substr(0, 3) : std::to_string(c.cueTransitionSeconds).substr(0, 3)) + " s";
       NumSpec n;
@@ -9025,19 +9200,23 @@ class Pocket {
       n.presets = {{"CUT", 0}, {"HALF", 0.5}, {"1 S", 1}};
       n.get = [this, i] { const Cue& cc = cues_[static_cast<std::size_t>(i)]; return cc.cueTransitionSeconds < 0 ? listGlide() : cc.cueTransitionSeconds; };
       n.set = [this, i](double v) { cues_[static_cast<std::size_t>(i)].cueTransitionSeconds = v; };
-      button({row.x + 22 * uu + bw, row.y + 0.5f * uu, row.w - 23 * uu - 2 * bw - uu, row.h - uu}, label, [this, n] { openCalc(n); });
+      button({row.x + headW + bw + 0.8f * uu, row.y + 0.5f * uu, row.w - headW - 2 * bw - 1.6f * uu, row.h - uu}, label, [this, n] { openCalc(n); });
       button({row.x + row.w - bw, row.y + 0.5f * uu, bw, row.h - uu}, ">", [this] { stepCueStyle(1); });
     }});
     // what you do with the cue itself
+    // (two rows of three: six in one row cut "PLAY NEXT" short on every phone)
     items.push_back({1.0f, [this, i](const SDL_FRect& row) {
       const int qp = queuePlace(cues_[static_cast<std::size_t>(i)]);
       chipRow(row, {{qp ? "NEXT " + std::to_string(qp) : std::string("PLAY NEXT"), [this, i] { toggleQueued(i); }},
                     {"RENAME", [this, i] { beginRename(i); }},
-                    {"COPY", [this] { duplicateSheetCue(); }},
-                    {"UP", [this] { moveSheetCue(-1); }},
+                    {"COPY", [this] { duplicateSheetCue(); }}},
+              {qp > 0, false, false});
+    }});
+    items.push_back({1.0f, [this](const SDL_FRect& row) {
+      chipRow(row, {{"UP", [this] { moveSheetCue(-1); }},
                     {"DOWN", [this] { moveSheetCue(1); }},
                     {confirmDelete_ ? "ON AIR. SURE?" : "DELETE", [this] { deleteSheetCue(); }}},
-              {qp > 0, false, false, false, false, confirmDelete_});
+              {false, false, confirmDelete_});
     }});
     (void)u;
   }
@@ -9860,8 +10039,9 @@ class Pocket {
         } else if (dx > 0) {
           press(Pressed::Right);
           go();
-          // still held after kTbarHoldMs, this GO becomes the T-bar (tbarService)
-          if (engine_->transitionInProgress()) {
+          // still held after kTbarHoldMs, this GO becomes the T-bar (tbarService);
+          // not while following, where the transition is the desk's
+          if (!followLocked() && engine_->transitionInProgress()) {
             tbarDir_ = 1;
             tbarFromGo_ = true;
             tbarDownMs_ = SDL_GetTicks();
@@ -10194,6 +10374,7 @@ class Pocket {
   Text text_;
   TTF_Font* pixel_ = nullptr;
   TTF_Font* pixelSmall_ = nullptr;
+  TTF_Font* pixelTiny_ = nullptr;   // a button's label when pixelSmall_'s does not fit (labelFont)
   TTF_Font* sans_ = nullptr;
   TTF_Font* mono_ = nullptr;
   TTF_Font* printFont_ = nullptr;
@@ -10505,6 +10686,12 @@ class Pocket {
   Uint64 pressedUntil_ = 0;
 
   float pxW_ = 0, pxH_ = 0, unit_ = 1, rowH_ = 0;
+  // The screen's safe area, and whether the layout runs on its side
+  // (loadFonts); safe_ is the layout's rectangle in it (layoutRect).
+  SDL_FRect screenSafe_ {};
+  bool wideWay_ = false;
+  // On its side: the transport beside the picture (true) or under it.
+  bool columnTransport_ = true;
   SDL_FRect safe_ {}, header_ {}, program_ {}, list_ {}, listLcd_ {}, strip_ {}, blackPill_ {}, menuPill_ {};
   SDL_FPoint padCentre_ {}, goCentre_ {}, backCentre_ {};
 };

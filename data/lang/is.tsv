@@ -5140,3 +5140,48 @@ live holds	helst í beinni
 goes on {1} after it ends	fer af {1} eftir lok
 goes on {1} after it starts	fer af {1} eftir upphaf
 EDIT > a cue's TRIGGERS > key: press F1 to F8.	BREYTA > KVEIKJUR cue > lykill: ýttu á F1 til F8.
+IN {1}	INN {1}
+OUT {1}	ÚT {1}
+Saved {1}	Vistaði {1}
+A new list	Nýr listi
+Opened {1}	Opnaði {1}
+Saved as {1}	Vistað sem {1}
+Off the queue	Úr biðröðinni
+Take cancelled	Hætt við TAKE
+End of the song	Endir lagsins
+Plays next: {1}	Spilar næst: {1}
+No camera found.	Engin myndavél fannst.
+Playlist deleted	Spilunarlista eytt
+Added Video Synth	Bætti við myndgervli
+Bounce ready: {1}	Sveifla tilbúin: {1}
+New playlist: {1}	Nýr spilunarlisti: {1}
+Song {1}/{2}: {3}	Lag {1}/{2}: {3}
+TABLETOP UNLOCKED	BORÐPLATA OPNUÐ
+Into the surf: {1}	Út í brimið: {1}
+Reverse ready: {1}	Öfugt tilbúið: {1}
+TERRARIUM UNLOCKED	TERRARÍUM OPNAÐ
+There is no cue {1}	Ekkert cue {1} er til
+Starting the camera...	Ræsi myndavélina...
+Added {1} cues from {2}	Bætti við {1} cue úr {2}
+Could not save the show	Ekki tókst að vista sýninguna
+{1} is not a Deckboy show	{1} er ekki Deckboy-sýning
+Could not open the PDF {1}	Ekki tókst að opna PDF {1}
+Opened {1} ({2} playlists)	Opnaði {1} ({2} spilunarlistar)
+The camera did not open: {1}	Myndavélin opnaðist ekki: {1}
+Tabletop is in MENU > SOURCES	Borðplata er í VALMYND > HEIMILDIR
+Something mellow is in SOURCES	Eitthvað rólegt er í HEIMILDIR
+Song {1}/{2}: {3} ({4} of {5})	Lag {1}/{2}: {3} ({4} af {5})
+That show is not there any more	Sú sýning er ekki lengur til
+Choose what the left button does	Veldu hvað vinstri hnappur gerir
+PDF decks open on the phone: {1}	PDF-dekk opin í símanum: {1}
+Stopped after that cue, as asked	Stöðvað eftir þetta cue, eins og beðið var um
+Song stopped. What is on air stays.	Lagið stöðvað. Það sem er í loftinu helst.
+The camera has not sent a picture yet.	Myndavélin hefur ekki sent mynd enn.
+Waiting for you to allow the camera...	Bíð eftir að þú leyfir myndavélina...
+Every cue now starts as the defaults say	Núna byrjar hvert cue eins og sjálfgefin gildi segja til um
+The passphrase needs 8 or more characters	Aðgangsfrasinn þarf 8 stafi eða fleiri
+Twelve effects is the most a cue can have	Tólf áhrif eru hámark á hvert cue
+The song is empty: ADD THIS PLAYLIST first	Lagið er tómt: BÆTA VIÐ ÞESSUM SPILUNARLISTA fyrst
+The desk has GO while following. MENU > SYNC to stop.	Borðið hefur GO meðan það fylgir. VALMYND > SYNC til að stöðva.
+End of the list. LOOP LIST in MENU > LIST plays it again.	Endir listans. LISTI Í LYKKJU í VALMYND > LISTI spilar hann aftur.
+Pocket may not use the camera. Allow it in the phone's settings.	Pocket má ekki nota myndavélina. Leyfðu það í stillingum símans.

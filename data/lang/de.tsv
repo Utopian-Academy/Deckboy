@@ -5107,3 +5107,47 @@ live holds	bleibt live
 goes on {1} after it ends	startet {1} nach dessen Ende
 goes on {1} after it starts	startet {1} nach dessen Start
 EDIT > a cue's TRIGGERS > key: press F1 to F8.	BEARBEITEN > AUSLÖSER eines Cues > Taste: F1 bis F8 drücken.
+IN {1}	EIN {1}
+OUT {1}	AUS {1}
+Saved {1}	{1} gesichert
+A new list	Neue Liste
+Opened {1}	{1} geöffnet
+Saved as {1}	Gesichert als {1}
+Off the queue	Aus der Warteschlange
+Take cancelled	TAKE abgebrochen
+End of the song	Ende des Songs
+Plays next: {1}	Spielt als Nächstes: {1}
+No camera found.	Keine Kamera gefunden.
+Playlist deleted	Playlist gelöscht
+Added Video Synth	Videosynth hinzugefügt
+Bounce ready: {1}	Pendeln bereit: {1}
+New playlist: {1}	Neue Playlist: {1}
+TABLETOP UNLOCKED	TISCHPLATTE FREIGESCHALTET
+Into the surf: {1}	In die Brandung: {1}
+Reverse ready: {1}	Rückwärts bereit: {1}
+TERRARIUM UNLOCKED	TERRARIUM FREIGESCHALTET
+There is no cue {1}	Es gibt keinen Cue {1}
+Starting the camera...	Kamera wird gestartet...
+Added {1} cues from {2}	{1} Cues aus {2} hinzugefügt
+Could not save the show	Show konnte nicht gesichert werden
+{1} is not a Deckboy show	{1} ist keine Deckboy-Show
+Could not open the PDF {1}	PDF {1} konnte nicht geöffnet werden
+Opened {1} ({2} playlists)	{1} geöffnet ({2} Playlists)
+The camera did not open: {1}	Kamera ließ sich nicht öffnen: {1}
+Tabletop is in MENU > SOURCES	Tischplatte liegt unter MENÜ > QUELLEN
+Something mellow is in SOURCES	Etwas Ruhiges liegt unter QUELLEN
+Song {1}/{2}: {3} ({4} of {5})	Song {1}/{2}: {3} ({4} von {5})
+That show is not there any more	Diese Show gibt es nicht mehr
+Choose what the left button does	Wähle, was die linke Taste tut
+PDF decks open on the phone: {1}	PDF-Decks öffnen sich auf dem Telefon: {1}
+Stopped after that cue, as asked	Nach diesem Cue gestoppt, wie gewünscht
+Song stopped. What is on air stays.	Song gestoppt. Was auf Sendung ist, bleibt.
+The camera has not sent a picture yet.	Die Kamera hat noch kein Bild gesendet.
+Waiting for you to allow the camera...	Warte, bis du die Kamera erlaubst...
+Every cue now starts as the defaults say	Jeder Cue startet jetzt nach den Vorgaben
+The passphrase needs 8 or more characters	Die Passphrase braucht 8 oder mehr Zeichen
+Twelve effects is the most a cue can have	Ein Cue kann höchstens zwölf Effekte haben
+The song is empty: ADD THIS PLAYLIST first	Der Song ist leer: zuerst DIESE LISTE HINZU
+The desk has GO while following. MENU > SYNC to stop.	Das Pult hat GO, während es folgt. MENÜ > SYNC zum Stoppen.
+End of the list. LOOP LIST in MENU > LIST plays it again.	Ende der Liste. LISTENSCHLEIFE in MENÜ > LISTE spielt sie erneut.
+Pocket may not use the camera. Allow it in the phone's settings.	Tasche darf die Kamera nicht nutzen. Erlaube es in den Einstellungen des Telefons.

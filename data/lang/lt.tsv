@@ -4230,3 +4230,49 @@ live holds	tiesiogiai laikoma
 goes on {1} after it ends	tęsiama {1} po pabaigos
 goes on {1} after it starts	tęsiama {1} po pradžios
 EDIT > a cue's TRIGGERS > key: press F1 to F8.	REDAGUOTI > ženklo PALEIDIKLIAI > klavišas: paspauskite F1–F8.
+IN {1}	PRADŽIA {1}
+OUT {1}	PABAIGA {1}
+Saved {1}	Išsaugota {1}
+A new list	Naujas sąrašas
+Opened {1}	Atidaryta {1}
+Cue {1}: {2}	Ženklas {1}: {2}
+Saved as {1}	Išsaugota kaip {1}
+Off the queue	Pašalinta iš eilės
+Take cancelled	Take atšauktas
+Plays next: {1}	Toliau groja: {1}
+No camera found.	Kamera nerasta.
+Playlist deleted	Grojaraštis ištrintas
+Added Video Synth	Pridėtas vaizdo sintezatorius
+Bounce ready: {1}	Atšokimas parengtas: {1}
+New playlist: {1}	Naujas grojaraštis: {1}
+Song {1}/{2}: {3}	Daina {1}/{2}: {3}
+TABLETOP UNLOCKED	STALVIRŠIS ATRAKINTAS
+Into the surf: {1}	Į mūšą: {1}
+Reverse ready: {1}	Atbulai parengta: {1}
+TERRARIUM UNLOCKED	TERARIUMAS ATRAKINTAS
+There is no cue {1}	Ženklo {1} nėra
+Starting the camera...	Paleidžiama kamera...
+Added {1} cues from {2}	Pridėta ženklų iš {2}: {1}
+Could not save the show	Nepavyko išsaugoti šou
+{1} is not a Deckboy show	{1} nėra Deckboy šou
+Could not open the PDF {1}	Nepavyko atidaryti PDF {1}
+Opened {1} ({2} playlists)	Atidaryta {1} (grojaraščių: {2})
+The camera did not open: {1}	Kamera neatsidarė: {1}
+Tabletop is in MENU > SOURCES	Stalviršis yra skiltyje MENIU > ŠALTINIAI
+Something mellow is in SOURCES	Kažkas ramaus yra skiltyje ŠALTINIAI
+Song {1}/{2}: {3} ({4} of {5})	Daina {1}/{2}: {3} ({4} iš {5})
+That show is not there any more	To šou nebėra
+Choose what the left button does	Pasirinkite, ką daro kairysis mygtukas
+PDF decks open on the phone: {1}	PDF rinkiniai atidaromi telefone: {1}
+Stopped after that cue, as asked	Sustabdyta po to ženklo, kaip prašyta
+Song stopped. What is on air stays.	Daina sustabdyta. Kas eteryje, lieka.
+The camera has not sent a picture yet.	Kamera dar neatsiuntė vaizdo.
+Waiting for you to allow the camera...	Laukiama, kol leisite naudoti kamerą...
+End of the song	Dainos pabaiga
+Every cue now starts as the defaults say	Dabar kiekvienas ženklas prasideda pagal numatytuosius
+The passphrase needs 8 or more characters	Slaptafrazei reikia 8 ar daugiau simbolių
+Twelve effects is the most a cue can have	Ženklas gali turėti daugiausia dvylika efektų
+The song is empty: ADD THIS PLAYLIST first	Daina tuščia: pirma PRIDĖTI ŠĮ GROJARAŠTĮ
+The desk has GO while following. MENU > SYNC to stop.	Pultas turi GO, kol sekama. Sustabdyti: MENIU > SYNC.
+End of the list. LOOP LIST in MENU > LIST plays it again.	Sąrašo pabaiga. SĄRAŠO CIKLAS skiltyje MENIU > SĄRAŠAS jį groja iš naujo.
+Pocket may not use the camera. Allow it in the phone's settings.	Kišenė negali naudoti kameros. Leiskite tai telefono nustatymuose.

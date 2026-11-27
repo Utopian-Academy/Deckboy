@@ -1689,3 +1689,28 @@ is	Pocket
 it	Pocket
 ja	Pocket
 kab	Pocket
+da	Cue {1}: {2}
+de	Cue {1}: {2}
+de	Playlist {1}: {2}
+de	Song {1}/{2}: {3}
+el	Cue {1}: {2}
+es-CU	Cue {1}: {2}
+es	Cue {1}: {2}
+fi	Cue {1}: {2}
+gd	Cue {1}: {2}
+haw	Cue {1}: {2}
+is	Cue {1}: {2}
+it	Cue {1}: {2}
+kab	Cue {1}: {2}
+kmr	Cue {1}: {2}
+lo	Playlist {1}: {2}
+nl	IN {1}
+nl	Cue {1}: {2}
+pap-AW	Cue {1}: {2}
+pap-AW	Playlist {1}: {2}
+pl	Cue {1}: {2}
+pt-BR	Cue {1}: {2}
+tr	Cue {1}: {2}
+vi	Cue {1}: {2}
+vi	Playlist {1}: {2}
+zgh	Cue {1}: {2}

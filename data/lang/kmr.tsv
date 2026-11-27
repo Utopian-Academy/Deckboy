@@ -5140,3 +5140,48 @@ live holds	zindî dimîne
 goes on {1} after it ends	{1} piştî ku diqede didome
 goes on {1} after it starts	{1} piştî ku dest pê dike didome
 EDIT > a cue's TRIGGERS > key: press F1 to F8.	BIGUHERÎNE > TETIK ya cueyekê > bişkok: F1 heta F8 bitikîne.
+IN {1}	KETIN {1}
+OUT {1}	DERKETIN {1}
+Saved {1}	{1} hat tomarkirin
+A new list	Lîsteyeke nû
+Opened {1}	{1} hat vekirin
+Saved as {1}	Wekî {1} hat tomarkirin
+Off the queue	Ji rêzê derket
+Take cancelled	Take betal bû
+Plays next: {1}	Paştir lê dide: {1}
+No camera found.	Kamera nehat dîtin.
+Playlist deleted	Lîsteya lêxistinê hat jêbirin
+Added Video Synth	Synth a vîdyoyê hat zêdekirin
+Bounce ready: {1}	Çûn û hatin amade ye: {1}
+New playlist: {1}	Lîsteya lêxistinê ya nû: {1}
+Song {1}/{2}: {3}	Stran {1}/{2}: {3}
+TABLETOP UNLOCKED	SER MASÊ VEKIRÎ
+Into the surf: {1}	Nav Pêlê: {1}
+Reverse ready: {1}	Berevajî amade ye: {1}
+TERRARIUM UNLOCKED	BAXÇEYA CAMÊ VEKIRÎ
+There is no cue {1}	Cue {1} tune
+Starting the camera...	Kamera dest pê dike...
+Added {1} cues from {2}	{1} cue ji {2} hatin zêdekirin
+Could not save the show	Pêşandan nehat tomarkirin
+{1} is not a Deckboy show	{1} ne pêşandaneke Deckboy e
+Could not open the PDF {1}	PDF {1} venebû
+Opened {1} ({2} playlists)	{1} hat vekirin ({2} lîsteyên lêxistinê)
+The camera did not open: {1}	Kamera venebû: {1}
+Tabletop is in MENU > SOURCES	Ser masê di MENÛ > ÇAVKANÎ de ye
+Something mellow is in SOURCES	Tiştekî nerm di ÇAVKANÎ de ye
+Song {1}/{2}: {3} ({4} of {5})	Stran {1}/{2}: {3} ({4} ji {5})
+That show is not there any more	Ew pêşandan êdî ne li wir e
+Choose what the left button does	Hilbijêre ka bişkoka çep çi dike
+PDF decks open on the phone: {1}	DECK ên PDF li ser telefonê vedibin: {1}
+Stopped after that cue, as asked	Wek ku hat xwestin, piştî wê cueyê rawestiya
+Song stopped. What is on air stays.	Stran rawestiya. Ya ku tê weşandin dimîne.
+The camera has not sent a picture yet.	Kamerayê hê wêne neşandiye.
+Waiting for you to allow the camera...	Li benda destûra te ji bo kamerayê...
+End of the song	Dawiya stranê
+Every cue now starts as the defaults say	Niha her cue li gorî pêşdanasînan dest pê dike
+The passphrase needs 8 or more characters	Hevoka şîfreyê 8 an zêdetir tîpan dixwaze
+Twelve effects is the most a cue can have	Li ser cueyekê herî zêde diwanzdeh efekt dikarin hebin
+The song is empty: ADD THIS PLAYLIST first	Stran vala ye: pêşî VÊ LÎSTEYA LÊXISTINÊ ZÊDE BIKE
+The desk has GO while following. MENU > SYNC to stop.	Dema dişopîne, GO li ba maseyê ye. Ji bo rawestandinê: MENÛ > SYNC.
+End of the list. LOOP LIST in MENU > LIST plays it again.	Dawiya lîsteyê. DUBAREYA LÎSTEYÊ di MENÛ > LÎSTE de wê dîsa lê dide.
+Pocket may not use the camera. Allow it in the phone's settings.	Berîk nikare kamerayê bikar bîne. Di mîhengên telefonê de destûrê bide.

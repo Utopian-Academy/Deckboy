@@ -5139,3 +5139,48 @@ live holds	canlı kalır
 goes on {1} after it ends	bittikten {1} sonra devam eder
 goes on {1} after it starts	başladıktan {1} sonra devam eder
 EDIT > a cue's TRIGGERS > key: press F1 to F8.	DÜZENLE > bir cue'nun TETİKLEYİCİLER'i > tuş: F1 ile F8 arasına bas.
+IN {1}	GİRİŞ {1}
+OUT {1}	ÇIKIŞ {1}
+Saved {1}	Kaydedildi: {1}
+A new list	Yeni bir liste
+Opened {1}	Açıldı: {1}
+Saved as {1}	{1} olarak kaydedildi
+Off the queue	Sıradan çıkarıldı
+Take cancelled	TAKE iptal edildi
+Plays next: {1}	Sonraki çalar: {1}
+No camera found.	Kamera bulunamadı.
+Playlist deleted	Çalma listesi silindi
+Added Video Synth	Eklendi: Video sentezleyici
+Bounce ready: {1}	Git-gel hazır: {1}
+New playlist: {1}	Yeni çalma listesi: {1}
+Song {1}/{2}: {3}	Şarkı {1}/{2}: {3}
+TABLETOP UNLOCKED	MASA ÜSTÜ AÇILDI
+Into the surf: {1}	Dalgaya: {1}
+Reverse ready: {1}	Ters hazır: {1}
+TERRARIUM UNLOCKED	TERARYUM AÇILDI
+There is no cue {1}	Cue {1} yok
+Starting the camera...	Kamera başlatılıyor...
+Added {1} cues from {2}	{2} içinden {1} cue eklendi
+Could not save the show	Gösteri kaydedilemedi
+{1} is not a Deckboy show	{1} bir Deckboy gösterisi değil
+Could not open the PDF {1}	PDF açılamadı: {1}
+Opened {1} ({2} playlists)	Açıldı: {1} ({2} çalma listesi)
+The camera did not open: {1}	Kamera açılmadı: {1}
+Tabletop is in MENU > SOURCES	Masa üstü MENÜ > KAYNAKLAR içinde
+Something mellow is in SOURCES	Sakin bir şey KAYNAKLAR içinde
+Song {1}/{2}: {3} ({4} of {5})	Şarkı {1}/{2}: {3} ({4}/{5})
+That show is not there any more	O gösteri artık orada değil
+Choose what the left button does	Sol düğmenin eylemini seç
+PDF decks open on the phone: {1}	PDF deck'leri telefonda açılır: {1}
+Stopped after that cue, as asked	İstendiği gibi o cue'dan sonra durdu
+Song stopped. What is on air stays.	Şarkı durdu. Yayında olan kalır.
+The camera has not sent a picture yet.	Kamera henüz resim göndermedi.
+Waiting for you to allow the camera...	Kameraya izin vermeniz bekleniyor...
+End of the song	Şarkının sonu
+Every cue now starts as the defaults say	Artık her cue varsayılanlara göre başlar
+The passphrase needs 8 or more characters	Parola en az 8 karakter olmalı
+Twelve effects is the most a cue can have	Bir cue en çok on iki efekt alabilir
+The song is empty: ADD THIS PLAYLIST first	Şarkı boş: önce BU ÇALMA LİSTESİNİ EKLE
+The desk has GO while following. MENU > SYNC to stop.	İzleme sırasında GO masada. Durdurmak için MENÜ > SYNC.
+End of the list. LOOP LIST in MENU > LIST plays it again.	Listenin sonu. MENÜ > LİSTE içindeki LİSTE DÖNGÜSÜ onu yeniden çalar.
+Pocket may not use the camera. Allow it in the phone's settings.	Cep kamerayı kullanamaz. Telefonun ayarlarından izin ver.

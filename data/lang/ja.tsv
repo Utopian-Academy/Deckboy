@@ -5148,3 +5148,49 @@ live holds	ライブで保持
 goes on {1} after it ends	終了から{1}後に開始
 goes on {1} after it starts	開始から{1}後に開始
 EDIT > a cue's TRIGGERS > key: press F1 to F8.	編集 > キューのトリガー > キー：F1～F8を押す。
+IN {1}	イン {1}
+OUT {1}	アウト {1}
+Saved {1}	{1} を保存しました
+A new list	新規リスト
+Opened {1}	{1} を開きました
+Cue {1}: {2}	キュー {1}: {2}
+Saved as {1}	{1} として保存しました
+Off the queue	待機列から外しました
+Take cancelled	TAKE キャンセル済み
+Plays next: {1}	次に演奏: {1}
+No camera found.	カメラが見つかりません。
+Playlist deleted	プレイリストを削除しました
+Added Video Synth	ビデオシンセを追加
+Bounce ready: {1}	往復 準備完了: {1}
+New playlist: {1}	新規プレイリスト: {1}
+Song {1}/{2}: {3}	曲 {1}/{2}: {3}
+TABLETOP UNLOCKED	テーブルトップ解放
+Into the surf: {1}	サーフへ: {1}
+Reverse ready: {1}	逆方向 準備完了: {1}
+TERRARIUM UNLOCKED	テラリウム解放
+There is no cue {1}	キュー {1} はありません
+Starting the camera...	カメラを起動中...
+Added {1} cues from {2}	{2} から {1} 個のキューを追加
+Could not save the show	ショーを保存できません
+{1} is not a Deckboy show	{1} は Deckboy のショーではありません
+Could not open the PDF {1}	PDF {1} を開けません
+Opened {1} ({2} playlists)	{1} を開きました（プレイリスト {2} 個）
+The camera did not open: {1}	カメラを開けません: {1}
+Tabletop is in MENU > SOURCES	テーブルトップは メニュー > ソース にあります
+Something mellow is in SOURCES	ソース にまったりしたものがあります
+Song {1}/{2}: {3} ({4} of {5})	曲 {1}/{2}: {3}（{5} 中 {4}）
+That show is not there any more	そのショーはもうありません
+Choose what the left button does	左ボタンの動作を選択
+PDF decks open on the phone: {1}	電話で開いている PDF デッキ: {1}
+Stopped after that cue, as asked	指示どおり、そのキューの後で停止しました
+Song stopped. What is on air stays.	曲を停止。オンエア中のものはそのまま。
+The camera has not sent a picture yet.	カメラからまだ映像が届いていません。
+Waiting for you to allow the camera...	カメラの許可を待っています...
+End of the song	曲の終わり
+Every cue now starts as the defaults say	現在、すべてのキューは既定値どおりに開始します
+The passphrase needs 8 or more characters	パスフレーズは8文字以上必要です
+Twelve effects is the most a cue can have	1つのキューに付けられるエフェクトは最大12個です
+The song is empty: ADD THIS PLAYLIST first	曲が空です: 先に このプレイリストを追加 を実行
+The desk has GO while following. MENU > SYNC to stop.	連動中もデスクは GO を保持します。停止するには メニュー > SYNC。
+End of the list. LOOP LIST in MENU > LIST plays it again.	リストの終わり。メニュー > リスト の リストをループ で再び演奏します。
+Pocket may not use the camera. Allow it in the phone's settings.	Pocket はカメラを使用できません。電話の設定で許可してください。

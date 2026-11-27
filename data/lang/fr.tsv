@@ -5080,3 +5080,49 @@ live holds	pauses en direct
 goes on {1} after it ends	démarre {1} après sa fin
 goes on {1} after it starts	démarre {1} après son début
 EDIT > a cue's TRIGGERS > key: press F1 to F8.	MODIFIER > DÉCLENCHEURS d'un cue > touche : appui sur F1 à F8.
+IN {1}	ENTRÉE {1}
+OUT {1}	SORTIE {1}
+Saved {1}	{1} enregistré
+A new list	Une nouvelle liste
+Opened {1}	{1} ouvert
+Cue {1}: {2}	Cue {1} : {2}
+Saved as {1}	Enregistré sous {1}
+Off the queue	Retiré de la file
+Take cancelled	Take annulé
+Plays next: {1}	Joue ensuite : {1}
+No camera found.	Aucune caméra trouvée.
+Playlist deleted	Liste supprimée
+Added Video Synth	Synthé vidéo ajouté
+Bounce ready: {1}	Va-et-vient prêt : {1}
+New playlist: {1}	Nouvelle liste : {1}
+Song {1}/{2}: {3}	Chanson {1}/{2} : {3}
+TABLETOP UNLOCKED	SUR TABLE DÉBLOQUÉ
+Into the surf: {1}	Dans le ressac : {1}
+Reverse ready: {1}	Inverse prêt : {1}
+TERRARIUM UNLOCKED	TERRARIUM DÉBLOQUÉ
+There is no cue {1}	Il n'y a pas de cue {1}
+Starting the camera...	Démarrage de la caméra...
+Added {1} cues from {2}	{1} cues ajoutés depuis {2}
+Could not save the show	Impossible d'enregistrer le spectacle
+{1} is not a Deckboy show	{1} n'est pas un spectacle Deckboy
+Could not open the PDF {1}	Impossible d'ouvrir le PDF {1}
+Opened {1} ({2} playlists)	{1} ouvert ({2} listes)
+The camera did not open: {1}	La caméra ne s'est pas ouverte : {1}
+Tabletop is in MENU > SOURCES	Sur table se trouve dans MENU > SOURCES
+Something mellow is in SOURCES	Il y a quelque chose de doux dans SOURCES
+Song {1}/{2}: {3} ({4} of {5})	Chanson {1}/{2} : {3} ({4} sur {5})
+That show is not there any more	Ce spectacle n'est plus là
+Choose what the left button does	Choisis ce que fait le bouton gauche
+PDF decks open on the phone: {1}	Les decks PDF s'ouvrent sur le téléphone : {1}
+Stopped after that cue, as asked	Arrêté après ce cue, comme demandé
+Song stopped. What is on air stays.	Chanson arrêtée. Ce qui est à l'antenne reste.
+The camera has not sent a picture yet.	La caméra n'a pas encore envoyé d'image.
+Waiting for you to allow the camera...	En attente de ton autorisation pour la caméra...
+End of the song	Fin de la chanson
+Every cue now starts as the defaults say	Chaque cue démarre maintenant selon les valeurs par défaut
+The passphrase needs 8 or more characters	La phrase secrète doit compter au moins 8 caractères
+Twelve effects is the most a cue can have	Un cue peut avoir douze effets au maximum
+The song is empty: ADD THIS PLAYLIST first	La chanson est vide : d'abord AJOUTER CETTE LISTE
+The desk has GO while following. MENU > SYNC to stop.	La régie a GO pendant le suivi. MENU > SYNC pour arrêter.
+End of the list. LOOP LIST in MENU > LIST plays it again.	Fin de la liste. LISTE EN BOUCLE dans MENU > LISTE la joue à nouveau.
+Pocket may not use the camera. Allow it in the phone's settings.	Poche n'a pas accès à la caméra. Autorisez-le dans les réglages du téléphone.

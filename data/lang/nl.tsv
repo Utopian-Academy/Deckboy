@@ -5079,3 +5079,47 @@ live holds	live blijft staan
 goes on {1} after it ends	gaat {1} na het einde verder
 goes on {1} after it starts	gaat {1} na de start verder
 EDIT > a cue's TRIGGERS > key: press F1 to F8.	BEWERKEN > TRIGGERS van een cue > toets: druk op F1 t/m F8.
+OUT {1}	UIT {1}
+Saved {1}	{1} opgeslagen
+A new list	Een nieuwe lijst
+Opened {1}	{1} geopend
+Saved as {1}	Opgeslagen als {1}
+Off the queue	Uit de wachtrij
+Take cancelled	Take geannuleerd
+Plays next: {1}	Speelt hierna: {1}
+No camera found.	Geen camera gevonden.
+Playlist deleted	Afspeellijst verwijderd
+Added Video Synth	Videosynth toegevoegd
+Bounce ready: {1}	Pendelen gereed: {1}
+New playlist: {1}	Nieuwe afspeellijst: {1}
+Song {1}/{2}: {3}	Nummer {1}/{2}: {3}
+TABLETOP UNLOCKED	TAFELBLAD ONTGRENDELD
+Into the surf: {1}	De branding in: {1}
+Reverse ready: {1}	Omgekeerd gereed: {1}
+TERRARIUM UNLOCKED	TERRARIUM ONTGRENDELD
+There is no cue {1}	Er is geen cue {1}
+Starting the camera...	Camera wordt gestart...
+Added {1} cues from {2}	{1} cues toegevoegd uit {2}
+Could not save the show	Kon de show niet opslaan
+{1} is not a Deckboy show	{1} is geen Deckboy-show
+Could not open the PDF {1}	Kon de PDF {1} niet openen
+Opened {1} ({2} playlists)	{1} geopend ({2} afspeellijsten)
+The camera did not open: {1}	De camera ging niet open: {1}
+Tabletop is in MENU > SOURCES	Tafelblad staat in MENU > BRONNEN
+Something mellow is in SOURCES	Iets rustigs staat in BRONNEN
+Song {1}/{2}: {3} ({4} of {5})	Nummer {1}/{2}: {3} ({4} van {5})
+That show is not there any more	Die show is er niet meer
+Choose what the left button does	Kies wat de linkerknop doet
+PDF decks open on the phone: {1}	PDF-decks openen op de telefoon: {1}
+Stopped after that cue, as asked	Gestopt na die cue, zoals gevraagd
+Song stopped. What is on air stays.	Nummer gestopt. Wat in de uitzending is, blijft.
+The camera has not sent a picture yet.	De camera heeft nog geen beeld gestuurd.
+Waiting for you to allow the camera...	Wachten tot je de camera toestaat...
+End of the song	Einde van het nummer
+Every cue now starts as the defaults say	Elke cue start nu zoals de standaarden aangeven
+The passphrase needs 8 or more characters	De wachtwoordzin heeft 8 of meer tekens nodig
+Twelve effects is the most a cue can have	Twaalf effecten is het maximum per cue
+The song is empty: ADD THIS PLAYLIST first	Het nummer is leeg: eerst DEZE AFSPEELLIJST TOEVOEGEN
+The desk has GO while following. MENU > SYNC to stop.	De tafel heeft GO tijdens het volgen. MENU > SYNC om te stoppen.
+End of the list. LOOP LIST in MENU > LIST plays it again.	Einde van de lijst. LIJST IN LUS in MENU > LIJST speelt hem opnieuw.
+Pocket may not use the camera. Allow it in the phone's settings.	Zak mag de camera niet gebruiken. Sta het toe in de instellingen van de telefoon.

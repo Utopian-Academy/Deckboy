@@ -5147,3 +5147,48 @@ live holds	suorat tauot
 goes on {1} after it ends	käynnistyy {1} sen päättymisen jälkeen
 goes on {1} after it starts	käynnistyy {1} sen alkamisen jälkeen
 EDIT > a cue's TRIGGERS > key: press F1 to F8.	MUOKKAA > cuen LAUKAISIMET > näppäin: paina F1–F8.
+IN {1}	SISÄÄN {1}
+OUT {1}	ULOS {1}
+Saved {1}	Tallennettu {1}
+A new list	Uusi lista
+Opened {1}	Avattu {1}
+Saved as {1}	Tallennettu nimellä {1}
+Off the queue	Pois jonosta
+Take cancelled	Take peruttu
+Plays next: {1}	Soittaa seuraavaksi: {1}
+No camera found.	Kameraa ei löytynyt.
+Playlist deleted	Soittolista poistettu
+Added Video Synth	Videosyntetisaattori lisätty
+Bounce ready: {1}	Edestakaisin valmis: {1}
+New playlist: {1}	Uusi soittolista: {1}
+Song {1}/{2}: {3}	Kappale {1}/{2}: {3}
+TABLETOP UNLOCKED	PÖYTÄ AVATTU
+Into the surf: {1}	Tyrskyyn: {1}
+Reverse ready: {1}	Käänteinen valmis: {1}
+TERRARIUM UNLOCKED	TERRAARIO AVATTU
+There is no cue {1}	Cuea {1} ei ole
+Starting the camera...	Käynnistetään kameraa...
+Added {1} cues from {2}	Lisätty {1} cuea lähteestä {2}
+Could not save the show	Esitystä ei voitu tallentaa
+{1} is not a Deckboy show	{1} ei ole Deckboy-esitys
+Could not open the PDF {1}	PDF:ää {1} ei voitu avata
+Opened {1} ({2} playlists)	Avattu {1} ({2} soittolistaa)
+The camera did not open: {1}	Kamera ei auennut: {1}
+Tabletop is in MENU > SOURCES	Pöytä on kohdassa VALIKKO > LÄHTEET
+Something mellow is in SOURCES	LÄHTEISSÄ on jotain rauhallista
+Song {1}/{2}: {3} ({4} of {5})	Kappale {1}/{2}: {3} ({4}/{5})
+That show is not there any more	Sitä esitystä ei ole enää
+Choose what the left button does	Valitse, mitä vasen painike tekee
+PDF decks open on the phone: {1}	PDF-deckit aukeavat puhelimessa: {1}
+Stopped after that cue, as asked	Pysäytetty sen cuen jälkeen, kuten pyysit
+Song stopped. What is on air stays.	Kappale pysäytetty. Lähetyksessä oleva jää.
+The camera has not sent a picture yet.	Kamera ei ole vielä lähettänyt kuvaa.
+Waiting for you to allow the camera...	Odotetaan, että sallit kameran...
+End of the song	Kappaleen loppu
+Every cue now starts as the defaults say	Jokainen cue alkaa nyt oletusten mukaan
+The passphrase needs 8 or more characters	Tunnuslauseessa on oltava vähintään 8 merkkiä
+Twelve effects is the most a cue can have	Cuella voi olla enintään kaksitoista tehostetta
+The song is empty: ADD THIS PLAYLIST first	Kappale on tyhjä: ensin LISÄÄ TÄMÄ SOITTOLISTA
+The desk has GO while following. MENU > SYNC to stop.	Pöydällä on GO seuratessa. VALIKKO > SYNC lopettaa.
+End of the list. LOOP LIST in MENU > LIST plays it again.	Listan loppu. LISTA SILMUKKANA kohdassa VALIKKO > LISTA soittaa sen uudelleen.
+Pocket may not use the camera. Allow it in the phone's settings.	Taskulla ei ole lupaa käyttää kameraa. Salli se puhelimen asetuksista.

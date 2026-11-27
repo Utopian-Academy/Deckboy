@@ -5160,3 +5160,49 @@ live holds	lumo hali
 goes on {1} after it ends	tiri {1} novtok hala
 goes on {1} after it starts	tiri {1} novtok lumakora
 EDIT > a cue's TRIGGERS > key: press F1 to F8.	SETI > veka SENIKU > bata: bati F1 dop F8.
+IN {1}	DORA {1}
+OUT {1}	BRA {1}
+Saved {1}	{1} guro
+A new list	Una novo reta
+Opened {1}	{1} feso
+Cue {1}: {2}	Veka {1}: {2}
+Saved as {1}	Guro go {1}
+Off the queue	Bra penreta
+Take cancelled	Take vapataki
+Plays next: {1}	Novtok soni: {1}
+No camera found.	Vekagrajana vamiro.
+Playlist deleted	Vekaku vagro
+Added Video Synth	Synth veka lano
+Bounce ready: {1}	Dorvadori pono: {1}
+New playlist: {1}	Novo vekaku: {1}
+Song {1}/{2}: {3}	Sona {1}/{2}: {3}
+TABLETOP UNLOCKED	LANKARA VAKLUO
+Into the surf: {1}	Dora ransea: {1}
+Reverse ready: {1}	Vadori pono: {1}
+TERRARIUM UNLOCKED	GARDAKARA VAKLUO
+There is no cue {1}	Va veka {1}
+Starting the camera...	Vekagrajana fesi...
+Added {1} cues from {2}	{1} vekaku mun {2} lano
+Could not save the show	Vapel guri vekarana
+{1} is not a Deckboy show	{1} va esa Deckboy vekarana
+Could not open the PDF {1}	Vapel fesi PDF {1}
+Opened {1} ({2} playlists)	{1} feso ({2} vekaku)
+The camera did not open: {1}	Vekagrajana vafesi: {1}
+Tabletop is in MENU > SOURCES	Lankara dora PIKRETA > MUNAKU
+Something mellow is in SOURCES	Una vazaro dora MUNAKU
+Song {1}/{2}: {3} ({4} of {5})	Sona {1}/{2}: {3} ({4} mun {5})
+That show is not there any more	Vekarana vakaeo
+Choose what the left button does	Piki patakora doparan bata
+PDF decks open on the phone: {1}	PDF dekaku feso kae sonajana: {1}
+Stopped after that cue, as asked	Halo novtok veka; tu piki
+Song stopped. What is on air stays.	Sona halo. Veka lumo guri.
+The camera has not sent a picture yet.	Vekagrajana va seni veka.
+Waiting for you to allow the camera...	Peni tu fesi vekagrajana...
+End of the song	Sonarana
+Every cue now starts as the defaults say	Ala veka fesi nakaetoka sov koro setaku
+The passphrase needs 8 or more characters	Holkora vapel hali kiso 8 grakisaku
+Twelve effects is the most a cue can have	Veka pel hali 12 setapataku, va novtok
+The song is empty: ADD THIS PLAYLIST first	Sonahola vano: LANI VEKAKU NAKAE muna
+The desk has GO while following. MENU > SYNC to stop.	Dekapata guri GO kae novtoki. MENU > SYNC go hali.
+End of the list. LOOP LIST in MENU > LIST plays it again.	Reta klutoka. NOVTOKI DEKA dora MENU > RETA soni ta novtok.
+Pocket may not use the camera. Allow it in the phone's settings.	Kiskara vapel fesi vekagrajana. Fesi ta dora sonajana setaku.

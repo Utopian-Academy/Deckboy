@@ -82,6 +82,10 @@ DRAW_HELPERS = [
 # every label through these, and until 2026-11-25 none was counted: a phone in
 # German showed German titles over English buttons.
 POCKET_HELPERS = ["button", "heading", "line", "drawTextEditor"]
+# ...and its notices: a literal assigned to notice_ or camNotice_ is drawn
+# (text_.draw translates it). Not counted until 2026-11-26, so all 37 stayed
+# English in every language.
+POCKET_NOTICE = re.compile(r'\b(?:notice_|camNotice_)\s*=\s*([^;]*);')
 
 SOURCE_DIRS = [os.path.join(ROOT, "native")]
 
@@ -151,6 +155,13 @@ def drawn_strings():
                                   # "spare (also spare)" broke the check that it stays as written
                 path = os.path.join(dirpath, name)
                 text = open(path, encoding="utf-8", errors="replace").read()
+                if name == "pocket_main.cpp":
+                    for m in POCKET_NOTICE.finditer(text):
+                        for lit in literal.finditer(m.group(1)):
+                            s = lit.group(1)
+                            if len(s) < 2 or TOKENISH.match(s) or FORMATTY.search(s) or not is_prose(s):
+                                continue
+                            found.setdefault(s, os.path.relpath(path, ROOT).replace("\\", "/"))
                 for m in (pocket_call if name == "pocket_main.cpp" else call).finditer(text):
                     # Take the call's argument list by matching brackets, so a
                     # nested call's literals are still seen but a following

@@ -5132,3 +5132,48 @@ live holds	yeqqim s tidet
 goes on {1} after it ends	yettnerni {1} deffir taggara
 goes on {1} after it starts	yettnerni {1} deffir tazwara
 EDIT > a cue's TRIGGERS > key: press F1 to F8.	ẒREG > IMSENKAREN n cue > tasarut: sit ɣef F1 ar F8.
+IN {1}	ANEKCUM {1}
+OUT {1}	TUFFƔA {1}
+Saved {1}	Yettwasekles {1}
+A new list	Tabdart tamaynut
+Opened {1}	Yettwaldi {1}
+Saved as {1}	Yettwasekles am {1}
+Off the queue	Yettwakkes seg uraǧu
+Take cancelled	TAKE yettwasefsex
+Plays next: {1}	Win i d-iteddun: {1}
+No camera found.	Ulac takamirat i yettwafen.
+Playlist deleted	Tabdart tettwakkes
+Added Video Synth	Yettwarna Asinti n tvidyut
+Bounce ready: {1}	Aṛuḥ-tuɣal ihegga: {1}
+New playlist: {1}	Tabdart tamaynut: {1}
+Song {1}/{2}: {3}	Tizlit {1}/{2}: {3}
+TABLETOP UNLOCKED	AFELLA N TDABUT YETTWALDI
+Into the surf: {1}	Ɣer lemwaj: {1}
+Reverse ready: {1}	Tti ihegga: {1}
+TERRARIUM UNLOCKED	AQERRAB N TEẒGI YETTWALDI
+There is no cue {1}	Ulac cue {1}
+Starting the camera...	Asekker n tkamirat...
+Added {1} cues from {2}	Ttwarnan {1} cue seg {2}
+Could not save the show	Ur yezmir ara ad yeskles askan
+{1} is not a Deckboy show	{1} mačči d askan n Deckboy
+Could not open the PDF {1}	Ur yezmir ara ad yeldi PDF {1}
+Opened {1} ({2} playlists)	Yettwaldi {1} ({2} tebdarin)
+The camera did not open: {1}	Takamirat ur teldi ara: {1}
+Tabletop is in MENU > SOURCES	Afella n tdabut atan deg UMUƔ > TIƔBULA
+Something mellow is in SOURCES	Kra n wayen ihennan atan deg TIƔBULA
+Song {1}/{2}: {3} ({4} of {5})	Tizlit {1}/{2}: {3} ({4} seg {5})
+That show is not there any more	Askan-nni ulac-it tura
+Choose what the left button does	Fren ayen ara txeddem taqeffalt tazelmaḍt
+PDF decks open on the phone: {1}	Deck PDF yeldin deg tiliɣri: {1}
+Stopped after that cue, as asked	Yeḥbes deffir cue-nni, akken i d-yettwasuter
+Song stopped. What is on air stays.	Tizlit teḥbes. Ayen yellan s tidet ad yeqqim.
+The camera has not sent a picture yet.	Takamirat mazal ur d-tuzen ara tugna.
+Waiting for you to allow the camera...	Araǧu ad tsirgeḍ i tkamirat...
+End of the song	Taggara n tezlit
+Every cue now starts as the defaults say	Tura yal cue ad yebdu akken i d-qqaren imezwura
+The passphrase needs 8 or more characters	Tafyirt n uɛessi tesra 8 n yisekkilen neɣ ugar
+Twelve effects is the most a cue can have	Cue ur yezmir ara ad yesɛu ugar n tnac n yisemda
+The song is empty: ADD THIS PLAYLIST first	Tizlit d tilemt: RNU TABDART-AGI di tazwara
+The desk has GO while following. MENU > SYNC to stop.	Ṭṭabla tesɛa GO mi ara teṭṭafar. UMUƔ > SYNC i usḥbes.
+End of the list. LOOP LIST in MENU > LIST plays it again.	Taggara n tebdart. S TINEḌT N TEBDART deg UMUƔ > TABDART, tettwaurar tikkelt nniḍen.
+Pocket may not use the camera. Allow it in the phone's settings.	Pocket ur yezmir ara ad yesseqdec takamirat. Sireg-it deg yiɣewwaren n tiliɣri.

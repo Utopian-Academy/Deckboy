@@ -5148,3 +5148,49 @@ live holds	в эфире остаётся
 goes on {1} after it ends	продолжает через {1} после окончания
 goes on {1} after it starts	продолжает через {1} после старта
 EDIT > a cue's TRIGGERS > key: press F1 to F8.	ПРАВКА > ТРИГГЕРЫ cue > клавиша: нажмите от F1 до F8.
+IN {1}	ВХ. {1}
+OUT {1}	ВЫХ. {1}
+Saved {1}	Сохранено: {1}
+A new list	Новый список
+Opened {1}	Открыто: {1}
+Cue {1}: {2}	Кью {1}: {2}
+Saved as {1}	Сохранено как {1}
+Off the queue	Убрано из очереди
+Take cancelled	TAKE отменено
+Plays next: {1}	Следующим играет: {1}
+No camera found.	Камера не найдена.
+Playlist deleted	Плейлист удалён
+Added Video Synth	Добавлено: Видеосинтезатор
+Bounce ready: {1}	Туда-сюда готово: {1}
+New playlist: {1}	Новый плейлист: {1}
+Song {1}/{2}: {3}	Песня {1}/{2}: {3}
+TABLETOP UNLOCKED	СТОЛЕШНИЦА РАЗБЛОКИРОВАНА
+Into the surf: {1}	В прибой: {1}
+Reverse ready: {1}	Обратно готово: {1}
+TERRARIUM UNLOCKED	ТЕРРАРИУМ РАЗБЛОКИРОВАН
+There is no cue {1}	Нет кью {1}
+Starting the camera...	Запуск камеры...
+Added {1} cues from {2}	Добавлено кью из {2}: {1}
+Could not save the show	Не удалось сохранить шоу
+{1} is not a Deckboy show	{1} — не шоу Deckboy
+Could not open the PDF {1}	Не удалось открыть PDF {1}
+Opened {1} ({2} playlists)	Открыто: {1} (плейлистов: {2})
+The camera did not open: {1}	Камера не открылась: {1}
+Tabletop is in MENU > SOURCES	Столешница — в МЕНЮ > ИСТОЧНИКИ
+Something mellow is in SOURCES	Что-то спокойное есть в разделе ИСТОЧНИКИ
+Song {1}/{2}: {3} ({4} of {5})	Песня {1}/{2}: {3} ({4} из {5})
+That show is not there any more	Этого шоу там больше нет
+Choose what the left button does	Выбрать действие левой кнопки
+PDF decks open on the phone: {1}	PDF-деки открываются на телефоне: {1}
+Stopped after that cue, as asked	Остановлено после этого кью, как просили
+Song stopped. What is on air stays.	Песня остановлена. То, что в эфире, остаётся.
+The camera has not sent a picture yet.	Камера ещё не прислала изображение.
+Waiting for you to allow the camera...	Ждём разрешения на камеру...
+End of the song	Конец песни
+Every cue now starts as the defaults say	Теперь каждый cue стартует согласно настройкам по умолчанию
+The passphrase needs 8 or more characters	Пароль должен содержать не менее 8 символов
+Twelve effects is the most a cue can have	У cue может быть не больше двенадцати эффектов
+The song is empty: ADD THIS PLAYLIST first	Песня пуста: сначала ДОБАВИТЬ ЭТОТ ПЛЕЙЛИСТ
+The desk has GO while following. MENU > SYNC to stop.	Во время следования GO у пульта. МЕНЮ > SYNC, чтобы остановить.
+End of the list. LOOP LIST in MENU > LIST plays it again.	Конец списка. ЦИКЛ СПИСКА в МЕНЮ > СПИСОК сыграет его снова.
+Pocket may not use the camera. Allow it in the phone's settings.	Карману нельзя использовать камеру. Разрешите это в настройках телефона.

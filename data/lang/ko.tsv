@@ -5146,3 +5146,49 @@ live holds	라이브 유지
 goes on {1} after it ends	종료 {1} 후 진행
 goes on {1} after it starts	시작 {1} 후 진행
 EDIT > a cue's TRIGGERS > key: press F1 to F8.	편집 > 큐의 트리거 > 키: F1~F8을 누르세요.
+IN {1}	인 {1}
+OUT {1}	아웃 {1}
+Saved {1}	{1} 저장됨
+A new list	새 목록
+Opened {1}	{1} 열림
+Cue {1}: {2}	큐 {1}: {2}
+Saved as {1}	{1}(으)로 저장됨
+Off the queue	대기열에서 빠짐
+Take cancelled	Take 취소됨
+Plays next: {1}	다음 재생: {1}
+No camera found.	카메라를 찾을 수 없음.
+Playlist deleted	플레이리스트 삭제됨
+Added Video Synth	비디오 신시사이저 추가됨
+Bounce ready: {1}	왕복 준비됨: {1}
+New playlist: {1}	새 플레이리스트: {1}
+Song {1}/{2}: {3}	노래 {1}/{2}: {3}
+TABLETOP UNLOCKED	테이블 위 잠금 해제
+Into the surf: {1}	파도 속으로: {1}
+Reverse ready: {1}	반전 준비됨: {1}
+TERRARIUM UNLOCKED	테라리움 잠금 해제
+There is no cue {1}	큐 {1}이(가) 없음
+Starting the camera...	카메라 시작 중...
+Added {1} cues from {2}	{2}에서 큐 {1}개 추가됨
+Could not save the show	쇼를 저장할 수 없음
+{1} is not a Deckboy show	{1}은(는) Deckboy 쇼가 아님
+Could not open the PDF {1}	PDF {1}을(를) 열 수 없음
+Opened {1} ({2} playlists)	{1} 열림 (플레이리스트 {2}개)
+The camera did not open: {1}	카메라가 열리지 않음: {1}
+Tabletop is in MENU > SOURCES	테이블 위는 메뉴 > 소스에 있음
+Something mellow is in SOURCES	잔잔한 것이 소스에 있음
+Song {1}/{2}: {3} ({4} of {5})	노래 {1}/{2}: {3} ({5} 중 {4})
+That show is not there any more	그 쇼는 이제 없음
+Choose what the left button does	왼쪽 버튼 동작 선택
+PDF decks open on the phone: {1}	PDF 데크가 전화에서 열림: {1}
+Stopped after that cue, as asked	요청대로 그 큐 다음에 정지됨
+Song stopped. What is on air stays.	노래 정지됨. 방송 중인 것은 유지됨.
+The camera has not sent a picture yet.	카메라가 아직 영상을 보내지 않음.
+Waiting for you to allow the camera...	카메라 허용을 기다리는 중...
+End of the song	노래 끝
+Every cue now starts as the defaults say	이제 모든 큐가 기본값대로 시작됩니다
+The passphrase needs 8 or more characters	암호문은 8자 이상이어야 합니다
+Twelve effects is the most a cue can have	큐 하나에 효과는 최대 12개입니다
+The song is empty: ADD THIS PLAYLIST first	곡이 비어 있음: 먼저 이 재생 목록 추가
+The desk has GO while following. MENU > SYNC to stop.	따르는 중에는 데스크가 GO를 가집니다. 멈추려면 메뉴 > SYNC.
+End of the list. LOOP LIST in MENU > LIST plays it again.	목록 끝. 메뉴 > 목록에서 목록 반복을 켜면 다시 재생됩니다.
+Pocket may not use the camera. Allow it in the phone's settings.	포켓이 카메라를 쓸 수 없습니다. 전화 설정에서 허용하세요.

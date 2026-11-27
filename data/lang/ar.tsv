@@ -5162,3 +5162,49 @@ live holds	يبقى على الهواء
 goes on {1} after it ends	يبدأ بعد {1} من انتهائه
 goes on {1} after it starts	يبدأ بعد {1} من بدئه
 EDIT > a cue's TRIGGERS > key: press F1 to F8.	تحرير > المشغّلات في كيو > مفتاح: اضغط F1 حتى F8.
+IN {1}	دخول {1}
+OUT {1}	خروج {1}
+Saved {1}	حُفظ {1}
+A new list	قائمة جديدة
+Opened {1}	فُتح {1}
+Cue {1}: {2}	كيو {1}: {2}
+Saved as {1}	حُفظ باسم {1}
+Off the queue	أُزيل من الانتظار
+Take cancelled	ألغي TAKE
+Plays next: {1}	يعزف تالياً: {1}
+No camera found.	لم يُعثر على كاميرا.
+Playlist deleted	حُذفت قائمة التشغيل
+Added Video Synth	أُضيف مركّب فيديو
+Bounce ready: {1}	ذهاب وإياب جاهز: {1}
+New playlist: {1}	قائمة تشغيل جديدة: {1}
+Song {1}/{2}: {3}	الأغنية {1}/{2}: {3}
+TABLETOP UNLOCKED	فُتح سطح الطاولة
+Into the surf: {1}	إلى الموج: {1}
+Reverse ready: {1}	عكس جاهز: {1}
+TERRARIUM UNLOCKED	فُتحت الحديقة الزجاجية
+There is no cue {1}	لا يوجد كيو {1}
+Starting the camera...	جارٍ تشغيل الكاميرا...
+Added {1} cues from {2}	أُضيف {1} كيو من {2}
+Could not save the show	تعذر حفظ العرض
+{1} is not a Deckboy show	{1} ليس عرض Deckboy
+Could not open the PDF {1}	تعذر فتح PDF {1}
+Opened {1} ({2} playlists)	فُتح {1} ({2} قوائم تشغيل)
+The camera did not open: {1}	لم تُفتح الكاميرا: {1}
+Tabletop is in MENU > SOURCES	سطح الطاولة في القائمة > المصادر
+Something mellow is in SOURCES	شيء هادئ في المصادر
+Song {1}/{2}: {3} ({4} of {5})	الأغنية {1}/{2}: {3} ({4} من {5})
+That show is not there any more	ذلك العرض لم يعد موجوداً
+Choose what the left button does	اختر إجراء الزر الأيسر
+PDF decks open on the phone: {1}	تُفتح اللوحات PDF على الهاتف: {1}
+Stopped after that cue, as asked	توقف بعد ذلك الكيو، كما طُلب
+Song stopped. What is on air stays.	توقفت الأغنية. ما هو على الهواء يبقى.
+The camera has not sent a picture yet.	لم ترسل الكاميرا صورة بعد.
+Waiting for you to allow the camera...	بانتظار سماحك بالكاميرا...
+End of the song	نهاية الأغنية
+Every cue now starts as the defaults say	كل كيو يبدأ الآن وفق الافتراضيات
+The passphrase needs 8 or more characters	تحتاج عبارة المرور إلى 8 أحرف أو أكثر
+Twelve effects is the most a cue can have	اثنا عشر مؤثرًا هو الحد الأقصى للكيو الواحد
+The song is empty: ADD THIS PLAYLIST first	الأغنية فارغة: أولًا إضافة قائمة التشغيل هذه
+The desk has GO while following. MENU > SYNC to stop.	الطاولة تملك GO أثناء المتابعة. القائمة > SYNC للإيقاف.
+End of the list. LOOP LIST in MENU > LIST plays it again.	نهاية القائمة. تكرار القائمة في القائمة > قائمة يشغّلها مجددًا.
+Pocket may not use the camera. Allow it in the phone's settings.	لا يملك جيب إذن استخدام الكاميرا. اسمح به في إعدادات الهاتف.

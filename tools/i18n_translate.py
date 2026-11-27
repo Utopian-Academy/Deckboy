@@ -227,7 +227,14 @@ def problems(en, tr):
     if sorted(PLACEHOLDER.findall(en)) != sorted(PLACEHOLDER.findall(tr)):
         return "placeholders changed"
     for word in TRADE + KEY_NAMES:
-        if re.search(r"(?<![A-Za-z])" + re.escape(word) + r"(?![A-Za-z])", en) and word not in tr:
+        pattern = r"(?<![A-Za-z])" + re.escape(word) + r"(?![A-Za-z])"
+        if word in ("Home", "End"):
+            # Two key names that are also words: "End of the song", "Home
+            # screen" are prose and translate (2026-11-26: every language was
+            # refused for "End of the list..."). Still a key: "End key", a
+            # chord ("Ctrl+End"), a pair ("Home / End"), or the word alone.
+            pattern += r"(?! (?!keys?\b)[a-z])"
+        if re.search(pattern, en) and word not in tr:
             return f"lost {word!r}"
     if "  " in en and "  " not in tr:
         return "column spacing lost"

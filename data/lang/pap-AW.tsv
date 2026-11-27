@@ -5121,3 +5121,48 @@ live holds	bibu ta keda
 goes on {1} after it ends	ta sigui {1} despues cu e caba
 goes on {1} after it starts	ta sigui {1} despues cu e cuminsa
 EDIT > a cue's TRIGGERS > key: press F1 to F8.	EDITA > TRIGGER di un cue > tecla: primi F1 te F8.
+IN {1}	PADEN {1}
+OUT {1}	PAFO {1}
+Saved {1}	{1} warda
+A new list	Un lista nobo
+Opened {1}	{1} habri
+Saved as {1}	Warda como {1}
+Off the queue	Kita for di e fila
+Take cancelled	TAKE cancela
+Plays next: {1}	Ta toca siguiente: {1}
+No camera found.	No a haña ningun camara.
+Playlist deleted	Playlist borra
+Added Video Synth	Synth di video agrega
+Bounce ready: {1}	Bai bin ta cla: {1}
+New playlist: {1}	Playlist nobo: {1}
+Song {1}/{2}: {3}	Cancion {1}/{2}: {3}
+TABLETOP UNLOCKED	RIBA MESA DESBLOKIA
+Into the surf: {1}	Den e ola: {1}
+Reverse ready: {1}	Reversa ta cla: {1}
+TERRARIUM UNLOCKED	TERARIO DESBLOKIA
+There is no cue {1}	No tin cue {1}
+Starting the camera...	Ta cuminsa e camara...
+Added {1} cues from {2}	{1} cue agrega di {2}
+Could not save the show	No a por warda e show
+{1} is not a Deckboy show	{1} no ta un show di Deckboy
+Could not open the PDF {1}	No por habri e PDF {1}
+Opened {1} ({2} playlists)	{1} habri ({2} playlist)
+The camera did not open: {1}	E camara no a habri: {1}
+Tabletop is in MENU > SOURCES	Riba mesa ta den MENU > FUENTE
+Something mellow is in SOURCES	Algo trankil ta den FUENTE
+Song {1}/{2}: {3} ({4} of {5})	Cancion {1}/{2}: {3} ({4} di {5})
+That show is not there any more	E show ei no ta einan mas
+Choose what the left button does	Cohe loke e boton robes ta hasi
+PDF decks open on the phone: {1}	Deck PDF ta habri riba e telefon: {1}
+Stopped after that cue, as asked	Para despues di e cue ei, manera pidi
+Song stopped. What is on air stays.	Cancion para. Loke ta bibu ta keda.
+The camera has not sent a picture yet.	E camara no a manda un portret ainda.
+Waiting for you to allow the camera...	Ta warda pa bo permiti e camara...
+End of the song	Fin di e cancion
+Every cue now starts as the defaults say	Awor tur cue ta cuminsa manera e valor standard ta bisa
+The passphrase needs 8 or more characters	E frase di entrada mester tin 8 of mas caracter
+Twelve effects is the most a cue can have	Diesdos efecto ta e maximo cu un cue por tin
+The song is empty: ADD THIS PLAYLIST first	E cancion ta bashi: AGREGA E PLAYLIST AKI prome
+The desk has GO while following. MENU > SYNC to stop.	E mesa tin GO mientras e ta sigui. MENU > SYNC pa para.
+End of the list. LOOP LIST in MENU > LIST plays it again.	Fin di e lista. RIPITI LISTA den MENU > LISTA ta toca e atrobe.
+Pocket may not use the camera. Allow it in the phone's settings.	Saco no tin permiso pa usa e camara. Permiti esaki den configuracion di e telefon.

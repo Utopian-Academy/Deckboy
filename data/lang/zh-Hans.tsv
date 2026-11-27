@@ -5146,3 +5146,49 @@ live holds	直播保持
 goes on {1} after it ends	结束 {1} 后继续
 goes on {1} after it starts	开始 {1} 后继续
 EDIT > a cue's TRIGGERS > key: press F1 to F8.	编辑 > cue 的触发器 > 键：按下 F1 到 F8。
+IN {1}	入点 {1}
+OUT {1}	出点 {1}
+Saved {1}	已保存 {1}
+A new list	一个新列表
+Opened {1}	已打开 {1}
+Cue {1}: {2}	Cue {1}：{2}
+Saved as {1}	已另存为 {1}
+Off the queue	已移出队列
+Take cancelled	TAKE 已取消
+End of the song	歌曲结束
+Plays next: {1}	下一个演奏：{1}
+No camera found.	未找到摄像头。
+Playlist deleted	播放列表已删除
+Added Video Synth	已添加视频合成器
+Bounce ready: {1}	往返已就绪：{1}
+New playlist: {1}	新建播放列表：{1}
+Song {1}/{2}: {3}	歌曲 {1}/{2}：{3}
+TABLETOP UNLOCKED	桌面已解锁
+Into the surf: {1}	进入海浪：{1}
+Reverse ready: {1}	反向已就绪：{1}
+TERRARIUM UNLOCKED	生态缸已解锁
+There is no cue {1}	没有 cue {1}
+Starting the camera...	正在启动摄像头...
+Added {1} cues from {2}	已从 {2} 添加 {1} 个 cue
+Could not save the show	无法保存演出
+{1} is not a Deckboy show	{1} 不是 Deckboy 演出
+Could not open the PDF {1}	无法打开 PDF {1}
+Opened {1} ({2} playlists)	已打开 {1}（{2} 个播放列表）
+The camera did not open: {1}	摄像头未能打开：{1}
+Tabletop is in MENU > SOURCES	桌面在 菜单 > 信号源 中
+Something mellow is in SOURCES	一段舒缓的内容已在 信号源 中
+Song {1}/{2}: {3} ({4} of {5})	歌曲 {1}/{2}：{3}（{4}/{5}）
+That show is not there any more	那个演出已不存在
+Choose what the left button does	选择左键的动作
+PDF decks open on the phone: {1}	PDF 播放器在电话上打开：{1}
+Stopped after that cue, as asked	已按要求在该 cue 之后停止
+Song stopped. What is on air stays.	歌曲已停止。正在播出的内容保持不变。
+The camera has not sent a picture yet.	摄像头尚未发送画面。
+Waiting for you to allow the camera...	正在等待你允许使用摄像头...
+Every cue now starts as the defaults say	现在每个 cue 都按默认值开始
+The passphrase needs 8 or more characters	口令至少需要 8 个字符
+Twelve effects is the most a cue can have	每个 cue 最多可有十二个效果
+The song is empty: ADD THIS PLAYLIST first	歌曲为空：请先添加此播放列表
+The desk has GO while following. MENU > SYNC to stop.	跟随时由控制台掌控 GO。菜单 > SYNC 可停止。
+End of the list. LOOP LIST in MENU > LIST plays it again.	列表已结束。菜单 > 列表 中的循环列表可再次播放。
+Pocket may not use the camera. Allow it in the phone's settings.	口袋无权使用摄像头。请在电话的设置中允许。

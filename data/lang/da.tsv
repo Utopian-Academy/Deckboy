@@ -5090,3 +5090,48 @@ live holds	forbliver live
 goes on {1} after it ends	starter {1} efter det slutter
 goes on {1} after it starts	starter {1} efter det starter
 EDIT > a cue's TRIGGERS > key: press F1 to F8.	REDIGER > et cues TRIGGERE > tast: tryk F1 til F8.
+IN {1}	IND {1}
+OUT {1}	UD {1}
+Saved {1}	Gemte {1}
+A new list	Ny liste
+Opened {1}	Åbnede {1}
+Saved as {1}	Gemt som {1}
+Off the queue	Ude af køen
+Take cancelled	TAKE annulleret
+Plays next: {1}	Spiller som næste: {1}
+No camera found.	Intet kamera fundet.
+Playlist deleted	Playliste slettet
+Added Video Synth	Tilføjede Videosynth
+Bounce ready: {1}	Pendul klar: {1}
+New playlist: {1}	Ny playliste: {1}
+Song {1}/{2}: {3}	Sang {1}/{2}: {3}
+TABLETOP UNLOCKED	BORDPLADE LÅST OP
+Into the surf: {1}	Ud i brændingen: {1}
+Reverse ready: {1}	Omvendt klar: {1}
+TERRARIUM UNLOCKED	TERRARIUM LÅST OP
+There is no cue {1}	Der er intet cue {1}
+Starting the camera...	Starter kameraet...
+Added {1} cues from {2}	Tilføjede {1} cues fra {2}
+Could not save the show	Kunne ikke gemme showet
+{1} is not a Deckboy show	{1} er ikke et Deckboy-show
+Could not open the PDF {1}	Kunne ikke åbne PDF'en {1}
+Opened {1} ({2} playlists)	Åbnede {1} ({2} playlister)
+The camera did not open: {1}	Kameraet åbnede ikke: {1}
+Tabletop is in MENU > SOURCES	Bordplade findes i MENU > KILDER
+Something mellow is in SOURCES	Noget roligt ligger i KILDER
+Song {1}/{2}: {3} ({4} of {5})	Sang {1}/{2}: {3} ({4} af {5})
+That show is not there any more	Det show findes ikke længere
+Choose what the left button does	Vælg, hvad venstre knap gør
+PDF decks open on the phone: {1}	PDF-decks åbner på telefonen: {1}
+Stopped after that cue, as asked	Stoppet efter det cue, som ønsket
+Song stopped. What is on air stays.	Sangen stoppet. Det, der er i luften, bliver.
+The camera has not sent a picture yet.	Kameraet har ikke sendt et billede endnu.
+Waiting for you to allow the camera...	Venter på, at du tillader kameraet...
+End of the song	Slut på sangen
+Every cue now starts as the defaults say	Hvert cue starter nu efter standarderne
+The passphrase needs 8 or more characters	Adgangsfrasen skal have 8 eller flere tegn
+Twelve effects is the most a cue can have	Et cue kan højst have tolv effekter
+The song is empty: ADD THIS PLAYLIST first	Sangen er tom: brug TILFØJ DENNE AFSPILNINGSLISTE først
+The desk has GO while following. MENU > SYNC to stop.	Pulten har GO, mens den følger. MENU > SYNC for at stoppe.
+End of the list. LOOP LIST in MENU > LIST plays it again.	Slut på listen. LISTE I LØKKE i MENU > LISTE spiller den igen.
+Pocket may not use the camera. Allow it in the phone's settings.	Lomme må ikke bruge kameraet. Tillad det i telefonens indstillinger.

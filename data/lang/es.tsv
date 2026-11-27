@@ -5115,3 +5115,48 @@ live holds	pausas en vivo
 goes on {1} after it ends	arranca {1} después de terminar
 goes on {1} after it starts	arranca {1} después de empezar
 EDIT > a cue's TRIGGERS > key: press F1 to F8.	EDITAR > DISPARADORES de un cue > tecla: pulsar de F1 a F8.
+IN {1}	ENTRADA {1}
+OUT {1}	SALIDA {1}
+Saved {1}	Guardado {1}
+A new list	Una nueva lista
+Opened {1}	Abierto {1}
+Saved as {1}	Guardado como {1}
+Off the queue	Fuera de la cola
+Take cancelled	Take cancelado
+Plays next: {1}	Toca después: {1}
+No camera found.	No se encontró ninguna cámara.
+Playlist deleted	Lista eliminada
+Added Video Synth	Sintetizador de vídeo añadido
+Bounce ready: {1}	Vaivén listo: {1}
+New playlist: {1}	Nueva lista: {1}
+Song {1}/{2}: {3}	Canción {1}/{2}: {3}
+TABLETOP UNLOCKED	MESA DESBLOQUEADA
+Into the surf: {1}	Al oleaje: {1}
+Reverse ready: {1}	Inverso listo: {1}
+TERRARIUM UNLOCKED	TERRARIO DESBLOQUEADO
+There is no cue {1}	No hay cue {1}
+Starting the camera...	Iniciando la cámara...
+Added {1} cues from {2}	Añadidos {1} cues desde {2}
+Could not save the show	No se pudo guardar el show
+{1} is not a Deckboy show	{1} no es un show de Deckboy
+Could not open the PDF {1}	No se pudo abrir el PDF {1}
+Opened {1} ({2} playlists)	Abierto {1} ({2} listas)
+The camera did not open: {1}	La cámara no se abrió: {1}
+Tabletop is in MENU > SOURCES	Mesa está en MENÚ > FUENTES
+Something mellow is in SOURCES	Hay algo tranquilo en FUENTES
+Song {1}/{2}: {3} ({4} of {5})	Canción {1}/{2}: {3} ({4} de {5})
+That show is not there any more	Ese show ya no está ahí
+Choose what the left button does	Elige qué hace el botón izquierdo
+PDF decks open on the phone: {1}	Los decks PDF se abren en el teléfono: {1}
+Stopped after that cue, as asked	Parado tras ese cue, como pediste
+Song stopped. What is on air stays.	Canción parada. Lo que está al aire se queda.
+The camera has not sent a picture yet.	La cámara aún no ha enviado imagen.
+Waiting for you to allow the camera...	Esperando a que permitas la cámara...
+End of the song	Fin de la canción
+Every cue now starts as the defaults say	Cada cue empieza ahora según los predeterminados
+The passphrase needs 8 or more characters	La frase de paso necesita 8 caracteres o más
+Twelve effects is the most a cue can have	Un cue puede tener doce efectos como máximo
+The song is empty: ADD THIS PLAYLIST first	La canción está vacía: primero AÑADIR ESTA LISTA
+The desk has GO while following. MENU > SYNC to stop.	La mesa tiene GO mientras sigue. MENÚ > SYNC para detener.
+End of the list. LOOP LIST in MENU > LIST plays it again.	Fin de la lista. LISTA EN BUCLE en MENÚ > LISTA la toca de nuevo.
+Pocket may not use the camera. Allow it in the phone's settings.	Bolsillo no tiene permiso para usar la cámara. Permítelo en los ajustes del teléfono.

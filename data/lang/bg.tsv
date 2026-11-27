@@ -5148,3 +5148,49 @@ live holds	остава на живо
 goes on {1} after it ends	тръгва {1} след края му
 goes on {1} after it starts	тръгва {1} след началото му
 EDIT > a cue's TRIGGERS > key: press F1 to F8.	РЕДАКТИРАЙ > СПУСЪЦИ на cue > клавиш: натисни F1 до F8.
+IN {1}	ВХ. {1}
+OUT {1}	ИЗХ. {1}
+Saved {1}	Запазено {1}
+A new list	Нов списък
+Opened {1}	Отворено {1}
+Cue {1}: {2}	Реплика {1}: {2}
+Saved as {1}	Запазено като {1}
+Off the queue	Извадено от опашката
+Take cancelled	TAKE отменено
+Plays next: {1}	Свири следващо: {1}
+No camera found.	Не е намерена камера.
+Playlist deleted	Плейлистът е изтрит
+Added Video Synth	Добавен Видео синтезатор
+Bounce ready: {1}	Напред-назад готово: {1}
+New playlist: {1}	Нов плейлист: {1}
+Song {1}/{2}: {3}	Песен {1}/{2}: {3}
+TABLETOP UNLOCKED	НА МАСАТА ОТКЛЮЧЕНО
+Into the surf: {1}	Към прибоя: {1}
+Reverse ready: {1}	Обратно готово: {1}
+TERRARIUM UNLOCKED	ТЕРАРИУМ ОТКЛЮЧЕН
+There is no cue {1}	Няма реплика {1}
+Starting the camera...	Камерата се стартира...
+Added {1} cues from {2}	Добавени {1} реплики от {2}
+Could not save the show	Шоуто не може да се запази
+{1} is not a Deckboy show	{1} не е шоу на Deckboy
+Could not open the PDF {1}	PDF {1} не може да се отвори
+Opened {1} ({2} playlists)	Отворено {1} ({2} плейлиста)
+The camera did not open: {1}	Камерата не се отвори: {1}
+Tabletop is in MENU > SOURCES	На масата: МЕНЮ > ИЗТОЧНИЦИ
+Something mellow is in SOURCES	Нещо спокойно има в ИЗТОЧНИЦИ
+Song {1}/{2}: {3} ({4} of {5})	Песен {1}/{2}: {3} ({4} от {5})
+That show is not there any more	Това шоу вече го няма
+Choose what the left button does	Избери действие за левия бутон
+PDF decks open on the phone: {1}	PDF пултовете се отварят на телефона: {1}
+Stopped after that cue, as asked	Спрян след тази реплика, както е поискано
+Song stopped. What is on air stays.	Песента спря. Каквото е в ефир, остава.
+The camera has not sent a picture yet.	Камерата още не е изпратила картина.
+Waiting for you to allow the camera...	Изчаква се да разрешиш камерата...
+End of the song	Край на песента
+Every cue now starts as the defaults say	Всеки cue вече започва според настройките по подразбиране
+The passphrase needs 8 or more characters	Паролата трябва да има 8 или повече знака
+Twelve effects is the most a cue can have	Един cue може да има най-много дванадесет ефекта
+The song is empty: ADD THIS PLAYLIST first	Песента е празна: първо ДОБАВИ ТОЗИ СПИСЪК
+The desk has GO while following. MENU > SYNC to stop.	Пултът има GO, докато следва. МЕНЮ > SYNC за спиране.
+End of the list. LOOP LIST in MENU > LIST plays it again.	Край на списъка. ЦИКЪЛ НА СПИСЪКА в МЕНЮ > СПИСЪК го пуска отново.
+Pocket may not use the camera. Allow it in the phone's settings.	Джоб няма разрешение за камерата. Разреши го в настройките на телефона.

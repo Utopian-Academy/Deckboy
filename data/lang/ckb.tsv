@@ -5149,3 +5149,49 @@ live holds	ڕاستەوخۆ دەمێنێتەوە
 goes on {1} after it ends	{1} دوای کۆتایی هاتنی دەست پێ دەکات
 goes on {1} after it starts	{1} دوای دەستپێکردنی دەست پێ دەکات
 EDIT > a cue's TRIGGERS > key: press F1 to F8.	دەستکاری > هاندەرەکانی cue یەک > کلیل: F1 تا F8 دابگرە.
+IN {1}	هاتن {1}
+OUT {1}	دەرچوون {1}
+Saved {1}	{1} پاشەکەوت کرا
+A new list	لیستی نوێ
+Opened {1}	{1} کرایەوە
+Cue {1}: {2}	کیو {1}: {2}
+Saved as {1}	وەک {1} پاشەکەوت کرا
+Off the queue	لە ڕیز لابرا
+Take cancelled	TAKE هەڵوەشایەوە
+Plays next: {1}	دواتر لێ دەدات: {1}
+No camera found.	هیچ کامێرایەک نەدۆزرایەوە.
+Playlist deleted	لیستی لێدان سڕایەوە
+Added Video Synth	synth ی ڤیدیۆ زیادکرا
+Bounce ready: {1}	چوون و هاتنەوە ئامادەیە: {1}
+New playlist: {1}	لیستی لێدانی نوێ: {1}
+Song {1}/{2}: {3}	گۆرانی {1}/{2}: {3}
+TABLETOP UNLOCKED	سەر مێز کرایەوە
+Into the surf: {1}	بۆ ناو شەپۆل: {1}
+Reverse ready: {1}	پێچەوانە ئامادەیە: {1}
+TERRARIUM UNLOCKED	باخچەی شووشەیی کرایەوە
+There is no cue {1}	کیوی {1} نییە
+Starting the camera...	کامێرا دەکرێتەوە...
+Added {1} cues from {2}	{1} کیو لە {2} زیادکرا
+Could not save the show	نمایشەکە پاشەکەوت نەکرا
+{1} is not a Deckboy show	{1} نمایشی Deckboy نییە
+Could not open the PDF {1}	PDF ی {1} نەکرایەوە
+Opened {1} ({2} playlists)	{1} کرایەوە ({2} لیستی لێدان)
+The camera did not open: {1}	کامێرا نەکرایەوە: {1}
+Tabletop is in MENU > SOURCES	سەر مێز لە مێنیو > سەرچاوەکان دایە
+Something mellow is in SOURCES	شتێکی ئارام لە سەرچاوەکان دایە
+Song {1}/{2}: {3} ({4} of {5})	گۆرانی {1}/{2}: {3} ({4} لە {5})
+That show is not there any more	ئەو نمایشە چیتر لەوێ نییە
+Choose what the left button does	هەڵبژێرە دوگمەی چەپ چی دەکات
+PDF decks open on the phone: {1}	دێکەکانی PDF لەسەر تەلەفۆن دەکرێنەوە: {1}
+Stopped after that cue, as asked	دوای ئەو کیوە وەستا، وەک داوا کرابوو
+Song stopped. What is on air stays.	گۆرانی وەستا. ئەوەی پەخش دەکرێت دەمێنێتەوە.
+The camera has not sent a picture yet.	کامێرا هێشتا وێنەی نەناردووە.
+Waiting for you to allow the camera...	چاوەڕێی ڕێگەپێدانت بۆ کامێرا...
+End of the song	کۆتایی گۆرانی
+Every cue now starts as the defaults say	ئێستا هەموو cue یەک بەپێی بنەڕەتەکان دەست پێ دەکات
+The passphrase needs 8 or more characters	دەستەواژەی نهێنی پێویستی بە 8 پیت یان زیاترە
+Twelve effects is the most a cue can have	cue یەک دەتوانێت زۆرترین دوازدە کاریگەری هەبێت
+The song is empty: ADD THIS PLAYLIST first	گۆرانییەکە بەتاڵە: سەرەتا زیادکردنی ئەم لیستی لێدانە
+The desk has GO while following. MENU > SYNC to stop.	مێز لەکاتی شوێنکەوتندا GO ی لایە. مێنیو > SYNC بۆ وەستاندن.
+End of the list. LOOP LIST in MENU > LIST plays it again.	کۆتایی لیست. دووبارەی لیست لە مێنیو > لیست جارێکی تر لێی دەدات.
+Pocket may not use the camera. Allow it in the phone's settings.	گیرفان ڕێگەی بەکارهێنانی کامێرای نییە. لە ڕێکخستنەکانی تەلەفۆنەکە ڕێگەی پێ بدە.
