@@ -441,10 +441,21 @@
 
       {"picture",   "Mesh warp",       "MESH toggle",      "~"},
       {"picture",   "Clear effects",   "FX CLEAR",         "c"},
+      {"picture",   "Ripple drop",     "RIPPLE DROP",      "o"},
+
+      // A Surf on air (0.99.430): the selected Surf, else every one on air.
+      {"surf",      "Throw in a duck", "SURF DROP duck",   "d"},
+      {"surf",      "New beach",       "SURF BEACH",       "b"},
+      {"surf",      "Clear the water", "SURF CLEAR",       "c"},
+      {"surf",      "Music on",        "SURF MUSIC ON",    "m"},
+      {"surf",      "Music off",       "SURF MUSIC OFF",   "-"},
+      {"surf",      "Day",             "SURF SKY DAY",     "*"},
+      {"surf",      "Night",           "SURF SKY NIGHT",   "."},
 
       {"output",    "Output on/off",   "OUTPUT TOGGLE",    "O"},
       {"output",    "Fullscreen",      "FULLSCREEN",       "F"},
       {"output",    "Record",          "RECORD toggle",    "R"},
+      {"output",    "Mirror (next)",   "VIDEO OUTPUT FLIP NEXT", "|"},
       // The master sequence, so a row of tiles can be its transport.
       {"tracker",   "Next step",       "TRACKER GO",       ">"},
       {"tracker",   "Previous step",   "TRACKER BACK",     "<"},
