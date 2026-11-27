@@ -832,7 +832,12 @@ class Pocket {
         return deckboy::gpu::runGpuTransition(gpuFx_, kTransitionSlot, source, plan);
       });
     }
-    if (!demoList) restoreList();
+    if (!demoList) {
+      std::error_code ec;
+      const bool firstRun = !dbfs::exists(dbfs::path(statePath("pocket_list.deckboy")), ec);
+      restoreList();
+      if (firstRun && cues_.empty()) loadTour();   // a new Pocket opens with the Tour of tricks
+    }
     loadThemes();
     loadFonts();
     loadSyncSettings();
@@ -1002,7 +1007,7 @@ class Pocket {
     if (listen_ != kInvalidSocket) closeSocket(listen_);
     engine_.reset();
     text_.clear();
-    for (TTF_Font* f : {pixel_, pixelSmall_, pixelTiny_, sans_, mono_, printFont_}) if (f) { deckboy::render::shaping::forgetFace(f); TTF_CloseFont(f); }
+    for (TTF_Font* f : {pixel_, pixelSmall_, pixelTiny_, sans_, mono_, printFont_, textCueFont_}) if (f) { deckboy::render::shaping::forgetFace(f); TTF_CloseFont(f); }
     if (audio_) SDL_DestroyAudioStream(audio_);
     if (renderer_) SDL_DestroyRenderer(renderer_);
     if (window_) SDL_DestroyWindow(window_);
@@ -1544,6 +1549,16 @@ class Pocket {
     header_ = {program_.x + 5 * u, program_.y + 1.2f * u, program_.w - 21 * u, 3.2f * u};
   }
 
+  // A still, a generator or a text cue: "holds until GO" only when it does.
+  // One that goes on by itself (shown for so many seconds) counts like a clip:
+  // the engine's clock runs for it (initStillTimer).
+  std::string timedStillClock(const Cue& c, const char* gap) const {
+    const double length = engine_->duration();
+    if (c.stillDurationSeconds <= 0.0 || length <= 0.0) return "holds until GO";
+    const double at = std::clamp(engine_->position(), 0.0, length);
+    return timecode(at, 25.0) + gap + timecode(length - at, 25.0);
+  }
+
   void drawProgram() {
     SDL_Renderer* r = renderer_;
     const float u = unit_;
@@ -1573,7 +1588,7 @@ class Pocket {
     } else if (landscape_ && !editing_ && active_ >= 0) {
       // landscape: the name and time live up here (the picture has the room below)
       const Cue& onAirCue = cues_[static_cast<std::size_t>(active_)];
-      std::string clock = "holds until GO";
+      std::string clock = timedStillClock(onAirCue, " -");
       if (cueHasTimeline(onAirCue)) {
         const double at = engine_->position();
         clock = timecode(std::max(0.0, at - cueIn(onAirCue)), onAirCue.fps) + " -" + timecode(std::max(0.0, cueOut(onAirCue) - at), onAirCue.fps);
@@ -1608,7 +1623,7 @@ class Pocket {
     float y = pic.y + pic.h + 1.2f * u;
     const Cue* onAir = active_ >= 0 ? &cues_[static_cast<std::size_t>(active_)] : nullptr;
     const double pos = onAir ? engine_->position() : 0.0;
-    std::string clockText = onAir ? "holds until GO" : "";
+    std::string clockText = onAir ? timedStillClock(*onAir, "  -") : "";
     if (onAir && cueHasTimeline(*onAir)) {
       clockText = timecode(std::max(0.0, pos - cueIn(*onAir)), onAir->fps) + "  -" +
                   timecode(std::max(0.0, cueOut(*onAir) - pos), onAir->fps);
@@ -2886,6 +2901,76 @@ class Pocket {
     autosaveList();
   }
 
+  // -- THE TOUR OF TRICKS (James 11-26) --
+  //
+  // What a new Pocket opens with, and MENU > SHOW > OPEN offers: one playlist
+  // of highlights, made by Deckboy (nothing to download). Each cue goes on by
+  // itself after 8 seconds, with a different transition, and the list stops at
+  // the end (LOOP LIST stays off).
+  std::vector<Cue> tourCues() {
+    std::vector<Cue> out;
+    auto generator = [&](const char* type, const char* style) {
+      Cue cue;
+      cue.kind = CueKind::Pattern;
+      cue.path = std::string("pattern://") + type;
+      cue.name = sourceName(type);
+      cue.width = programW_ > 0 ? programW_ : 1920;
+      cue.height = programH_ > 0 ? programH_ : 1080;
+      cue.formatName = "generated";
+      cue.pauseOnLastFrame = true;
+      cue.hasAudio = cue.audioEnabled = (std::string(type) == "pocket-test");
+      if (std::string(type) == "surf") cue.surf.seed = static_cast<std::uint32_t>(SDL_GetTicksNS() * 2654435761ull) | 1u;
+      cue.cueTransitionStyle = style;
+      cue.cueTransitionSeconds = 1.0;
+      out.push_back(cue);
+    };
+    {
+      Cue hello;   // the greeting, big
+      hello.kind = CueKind::Text;
+      hello.name = "Ahoy hoy";
+      hello.textBody = "Ahoy hoy!";
+      hello.textSizePct = 18.0;
+      hello.width = programW_ > 0 ? programW_ : 1920;
+      hello.height = programH_ > 0 ? programH_ : 1080;
+      hello.cueTransitionStyle = "crossfade";
+      hello.cueTransitionSeconds = 1.0;
+      out.push_back(hello);
+    }
+    generator("smpte-bars", "crossfade");
+    generator("surf", "iris");
+    generator("lumia", "pushleft");
+    generator("illusion", "clouds");
+    generator("pocket-test", "crossfade");
+    generator("swirl", "wipeleft");
+    {   // with an effect on top
+      deckboy::effects::CueEffect fx;
+      fx.kind = deckboy::effects::CueEffectKind::MegaRipple;
+      fx.amount = 1.0f;
+      deckboy::effects::applyCueEffectArrivalDefaults(fx);
+      out.back().effects.push_back(fx);
+    }
+    generator("fireside", "dipblack");
+    for (Cue& cue : out) {
+      cue.id = "pocket-" + std::to_string(++nextId_);
+      setEndMode(cue, EndMode::Next);
+      cue.stillDurationSeconds = 8.0;
+    }
+    return out;
+  }
+
+  void loadTour() {
+    show_ = Project {};
+    show_.decks.resize(1);
+    show_.decks[0].name = "Tour of tricks";
+    showFile_.clear();
+    takePlaylist(0);
+    cues_ = tourCues();
+    loopList_ = false;
+    select(0);
+    confirmNew_ = false;
+    autosaveList();
+  }
+
   void newShow() {
     if (!showFile_.empty()) saveShowTo(showFile_);
     show_ = Project {};
@@ -2991,10 +3076,28 @@ class Pocket {
     y += 8 * u;
   }
 
+  static constexpr const char* kAskTour = "#tour";   // confirmOpen_ while the tour asks first (not a label)
+
   void drawOpenPage(float lx, float lw, float& y) {
     const float u = unit_;
     button({lx, y, lw, 7 * u}, "FROM THE PHONE'S FILES", [this] { openShowPicker(); });
     y += 8.5f * u;
+    {   // the demo; a list not saved asks first, as opening a show does
+      const bool unsavedList = showFile_.empty() && !cues_.empty();
+      const bool asking = confirmOpen_ == kAskTour;
+      button({lx, y, lw, 6 * u}, asking ? "THE LIST IS NOT SAVED. OPEN THE TOUR?" : "TOUR OF TRICKS",
+             [this, unsavedList] {
+               if (!unsavedList || confirmOpen_ == kAskTour) {
+                 if (!showFile_.empty()) saveShowTo(showFile_);
+                 loadTour();
+                 confirmOpen_.clear();
+                 menuOpen_ = false;
+               } else {
+                 confirmOpen_ = kAskTour;
+               }
+             }, true, false, asking);
+      y += 7.5f * u;
+    }
     text_.draw(pixelSmall_, "IN POCKET", kDark, {lx, y, lw, 3.5f * u});
     y += 4.5f * u;
     const std::vector<std::string> shows = savedShows();
@@ -3506,11 +3609,99 @@ class Pocket {
   static bool isCameraCue(const Cue& c) { return c.kind == CueKind::Camera; }
 
   const Cue& forEngine(const Cue& c) {
+    if (c.kind == CueKind::Text) {   // drawn here (textCueFrame), shown by showTextCue
+      engineTextCue_ = c;
+      engineTextCue_.kind = CueKind::Pattern;
+      engineTextCue_.path = "pattern://full-black";
+      return engineTextCue_;
+    }
     if (!isCameraCue(c)) return c;
     engineCamCue_ = c;
     engineCamCue_.kind = CueKind::Pattern;
     engineCamCue_.path = "pattern://full-black";
     return engineCamCue_;
+  }
+
+  // -- TEXT CUES --
+  //
+  // The desk's outputs draw a text cue's words; Pocket's engine only decodes,
+  // so one played black here (a desk show's title card, the demo's greeting).
+  // The words are drawn into a picture at the programme's size -- the cue's
+  // lines, its size (a share of the height), alignment, ink and card -- and
+  // handed to the engine as the camera's frames are, right after the take, so
+  // a transition goes to them. Still: the desk's typewriter, fades and crawls
+  // are not drawn here yet.
+  void showTextCue(const Cue& c) {
+    if (c.kind != CueKind::Text) return;
+    DecodedFrame f = textCueFrame(c);
+    if (f.width > 0) engine_->showBuiltFrame(f);
+  }
+
+  DecodedFrame textCueFrame(const Cue& c) {
+    DecodedFrame f;
+    const int W = std::max(16, programW_), H = std::max(16, programH_);
+    const int lineH = std::max(8, static_cast<int>(H * std::clamp(c.textSizePct, 1.0, 100.0) / 100.0));
+    if (!textCueFont_ || textCueFontPx_ != lineH) {
+      if (textCueFont_) {
+        deckboy::render::shaping::forgetFace(textCueFont_);
+        TTF_CloseFont(textCueFont_);
+      }
+      const std::string face = dataDir_ + "fonts/LiberationSans-Regular.ttf";
+      textCueFont_ = TTF_OpenFont(face.c_str(), lineH * 0.78f);   // the cap and descender inside the line
+      textCueFontPx_ = lineH;
+      if (textCueFont_) deckboy::render::shaping::registerFace(textCueFont_, face, lineH * 0.78f);
+    }
+    if (!textCueFont_) return f;
+    f.width = W;
+    f.height = H;
+    f.format = FramePixelFormat::RGBA32;
+    f.pixels.assign(static_cast<std::size_t>(W) * H * 4, 0);
+    // nothing else is under it on the phone: "over the picture" is over black
+    const std::uint8_t card = 0;
+    for (std::size_t k = 0; k < f.pixels.size(); k += 4) {
+      f.pixels[k] = f.pixels[k + 1] = f.pixels[k + 2] = card;
+      f.pixels[k + 3] = 255;
+    }
+    std::vector<std::string> lines;
+    {
+      std::size_t at = 0;
+      const std::string& body = c.textBody;
+      while (at <= body.size()) {
+        std::size_t nl = body.find('\n', at);
+        if (nl == std::string::npos) nl = body.size();
+        std::string line = body.substr(at, nl - at);
+        if (!line.empty() && line.back() == '\r') line.pop_back();
+        lines.push_back(line);
+        at = nl + 1;
+      }
+    }
+    const double step = lineH * 1.18;
+    const double top = (H - step * static_cast<double>(lines.size())) / 2.0;
+    const SDL_Color ink = c.textColor;
+    for (std::size_t li = 0; li < lines.size(); ++li) {
+      if (lines[li].empty()) continue;
+      SDL_Surface* rendered = deckboy::render::shaping::renderText(textCueFont_, lines[li].c_str(), 0, ink);
+      SDL_Surface* rgba = rendered ? SDL_ConvertSurface(rendered, SDL_PIXELFORMAT_RGBA32) : nullptr;
+      if (rendered) SDL_DestroySurface(rendered);
+      if (!rgba) continue;
+      const int x0 = c.textAlign == 0 ? W / 20 : c.textAlign == 2 ? W - W / 20 - rgba->w : (W - rgba->w) / 2;
+      const int y0 = static_cast<int>(top + step * static_cast<double>(li) + (step - rgba->h) / 2.0);
+      for (int y = 0; y < rgba->h; ++y) {
+        const int py = y0 + y;
+        if (py < 0 || py >= H) continue;
+        const auto* srow = static_cast<const std::uint8_t*>(rgba->pixels) + static_cast<std::size_t>(y) * rgba->pitch;
+        for (int x = 0; x < rgba->w; ++x) {
+          const int px = x0 + x;
+          if (px < 0 || px >= W) continue;
+          const std::uint8_t* sp = srow + x * 4;
+          std::uint8_t* dp = f.pixels.data() + (static_cast<std::size_t>(py) * W + px) * 4;
+          const int a = sp[3];
+          for (int ch = 0; ch < 3; ++ch) dp[ch] = static_cast<std::uint8_t>((sp[ch] * a + dp[ch] * (255 - a)) / 255);
+        }
+      }
+      SDL_DestroySurface(rgba);
+    }
+    return f;
   }
 
   std::vector<CamInfo> cameras() {
@@ -4987,6 +5178,7 @@ class Pocket {
         return ok();
       }
       if (sub == "NEW") { newShow(); return ok(); }
+      if (sub == "TOUR") { loadTour(); return ok(); }   // the demo (MENU > SHOW > OPEN > TOUR OF TRICKS)
       if (sub == "PLAYLIST") {
         // SHOW PLAYLIST NEW [name] | RENAME <name> | DELETE | <n>
         const std::string first = upper(arg.substr(0, arg.find(' ')));
@@ -6086,6 +6278,7 @@ class Pocket {
       const double fade = style == TransitionStyle::Cut ? 0.0 : std::max(0.0, sync.transSeconds);
       engine_->loadCue(&forEngine(c), sync.state == "playing" || sync.state == "black", fade,
                        fade > 0 ? drawableStyle(style) : TransitionStyle::Cut);
+      showTextCue(c);
       selected_ = std::min(local + 1, static_cast<int>(cues_.size()) - 1);
       seekHoldUntil_ = 0;
     }
@@ -6635,8 +6828,10 @@ class Pocket {
           notice_ = deckboy::core::i18n::format(c.playDirection == kCueBounce ? "Bounce ready: {1}" : "Reverse ready: {1}", {c.name});
           noticeUntil_ = SDL_GetTicks() + 2500;
           // On air: start the copy now, from its beginning, with a short mix.
-          if (static_cast<int>(i) == active_) engine_->loadCue(&forEngine(c), engine_->state() == TransportState::Playing, 0.2,
-                                                                TransitionStyle::Crossfade);
+          if (static_cast<int>(i) == active_) {
+            engine_->loadCue(&forEngine(c), engine_->state() == TransportState::Playing, 0.2, TransitionStyle::Crossfade);
+            showTextCue(c);
+          }
         } else if (dirResult_ != deckboy::engine::RemuxResult::Done && dirResult_ != deckboy::engine::RemuxResult::Cancelled) {
           dirFailed_ = dirWhy_;
           dirFailedKey_ = c.id + "|" + dirJob_.key;
@@ -8108,10 +8303,18 @@ class Pocket {
     const auto q = pinnedCorners(mapBox_, mapScale_);
     if (programTex_ && !mapConvex()) SDL_RenderTexture(renderer_, programTex_, nullptr, &mapBox_);   // folded: flat, drag a corner back
     if (programTex_ && mapConvex()) {
-      const SDL_Rect clip {static_cast<int>(mapBox_.x - 2 * u), static_cast<int>(mapBox_.y - 2 * u), static_cast<int>(mapBox_.w + 4 * u), static_cast<int>(mapBox_.h + 4 * u)};
+      // inside the scrolling page's own clip, and that clip put back after:
+      // this turned clipping off for the rest of the page (Codex review 11-26)
+      SDL_Rect had {};
+      const bool clipped = SDL_RenderClipEnabled(renderer_);
+      if (clipped) SDL_GetRenderClipRect(renderer_, &had);
+      SDL_Rect clip {static_cast<int>(mapBox_.x - 2 * u), static_cast<int>(mapBox_.y - 2 * u), static_cast<int>(mapBox_.w + 4 * u), static_cast<int>(mapBox_.h + 4 * u)};
+      SDL_Rect inPage {};
+      if (clipped && SDL_GetRectIntersection(&clip, &had, &inPage)) clip = inPage;
+      else if (clipped) clip = {0, 0, 0, 0};
       SDL_SetRenderClipRect(renderer_, &clip);
       drawPinned(programTex_, q);
-      SDL_SetRenderClipRect(renderer_, nullptr);
+      SDL_SetRenderClipRect(renderer_, clipped ? &had : nullptr);
     }
     static const char* kNames[4] = {"TL", "TR", "BR", "BL"};
     for (int k = 0; k < 4; ++k) {
@@ -8153,6 +8356,7 @@ class Pocket {
   // A finger on the MAP page's picture: the nearest corner follows it.
   bool mapDown(float x, float y) {
     if (!menuOpen_ || menuTab_ != 9 || mapBox_.w <= 0) return false;
+    if (menuView_.w > 0 && !inside(menuView_, x, y)) return false;   // a corner scrolled out of sight is not grabbed
     const auto q = pinnedCorners(mapBox_, mapScale_);
     int best = -1;
     float bestD = 1e9f;
@@ -8865,8 +9069,13 @@ class Pocket {
     if (!genThread_.joinable()) genThread_ = std::thread([this] { generatorLoop(); });
     std::lock_guard<std::mutex> hold(genLock_);
     if (genReady_) {
-      if (genLookOnGpu_) gpuLook(genOut_.pixels.data(), genOut_.width, genOut_.height, c, ++genFrames_, genScale_);
-      else engine_->setLookTexture(nullptr, 0, 0);
+      // a GPU look that fails hands the effects back to the worker from the next
+      // frame, never a run of frames shown without them
+      if (genLookOnGpu_ && !gpuLook(genOut_.pixels.data(), genOut_.width, genOut_.height, c, ++genFrames_, genScale_)) {
+        genGpuRefused_ = true;
+      } else if (!genLookOnGpu_) {
+        engine_->setLookTexture(nullptr, 0, 0);
+      }
       engine_->showBuiltFrame(genOut_);   // genOut_ now holds the old buffer
       genReady_ = false;
       ++genShown_;
@@ -8880,7 +9089,8 @@ class Pocket {
       genH_ = h;
       genScale_ = static_cast<double>(w) / std::max(1, programW_);
       genAudio_ = engine_->programAudioLevel01();
-      genLookOnGpu_ = gpuFx_ && gpuOn_ && deckboy::effects::cueEffectStackActive(c.effects) && deckboy::gpu::gpuEffectsSupportStack(c.effects);
+      genLookOnGpu_ = gpuFx_ && gpuOn_ && !genGpuRefused_ && deckboy::effects::cueEffectStackActive(c.effects) &&
+                      deckboy::gpu::gpuEffectsSupportStack(c.effects);
       genEffectsHere_ = !genLookOnGpu_;
       genHaveJob_ = true;
       genBusy_ = true;
@@ -8962,7 +9172,10 @@ class Pocket {
     const double secs = static_cast<double>(SDL_GetTicksNS()) / 1e9;
     ctx.seconds = secs;
     ctx.pixelScale = scale;
-    ctx.effectState = &fxState_;   // an effect that remembers (Mega Ripple's water), as the CPU path
+    // an effect that remembers (Mega Ripple's water), as the CPU path -- sized
+    // here too: a take empties it, and an unsized slot made the plan refuse
+    if (fxState_.size() < c.effects.size()) fxState_.resize(c.effects.size());
+    ctx.effectState = &fxState_;
     std::vector<deckboy::effects::CueEffect> modulated;
     const bool moving = deckboy::effects::modulateCueEffectStack(c.effects, secs, secs * 2.0, modulated, engine_->programAudioLevel01());
     const Uint64 started = SDL_GetPerformanceCounter();
@@ -10245,12 +10458,14 @@ class Pocket {
       updatePixelHook();
     } else {
       tbarRestoring_ = true;
+      dropGeneratorWork();   // the cancelled cue's frame must not show as the old one's
       const Cue& c = cues_[static_cast<std::size_t>(was)];
       active_ = was;
       updatePixelHook();
       fxState_.clear();
       endHandled_ = false;
       engine_->loadCue(&forEngine(c), !u.paused, 0.0, TransitionStyle::Cut);
+      showTextCue(c);
       if (cueHasTimeline(c)) engine_->seek(std::clamp(u.position, cueIn(c), cueOut(c)));
       if (u.paused) engine_->pause();
       tbarRestoring_ = false;
@@ -10284,7 +10499,8 @@ class Pocket {
     if (cues_.empty()) return;
     if (engine_->transitionHeld()) {   // the T-bar left it partway: GO lets it finish
       engine_->letTransitionRun();
-      takeUndo_.valid = false;
+      // the undo stays: grabbed again before it ends, it can still go back
+      // (only the next take replaces it, and a finished one cannot be grabbed)
       return;
     }
     if (listEnded_ && selected_ == active_ && songAdvance()) return;   // a song: the next step
@@ -10321,6 +10537,15 @@ class Pocket {
     doTake(i);
   }
 
+  // A frame still being built for the cue being left is dropped, and the GPU
+  // gets another chance at the look: a take, and a take put back (cancelTake).
+  void dropGeneratorWork() {
+    std::lock_guard<std::mutex> hold(genLock_);
+    ++genTake_;
+    genReady_ = false;
+    genGpuRefused_ = false;
+  }
+
   void doTake(int i) {
     if (i < 0 || i >= static_cast<int>(cues_.size())) return;
     const bool leavingCamera = active_ >= 0 && active_ < static_cast<int>(cues_.size()) &&
@@ -10340,11 +10565,7 @@ class Pocket {
       takeUndo_.queue = queueIds_;
     }
     fxState_.clear();   // an effect that remembers starts fresh on each take
-    {
-      std::lock_guard<std::mutex> hold(genLock_);
-      ++genTake_;          // a frame still being built for the last cue is dropped
-      genReady_ = false;
-    }
+    dropGeneratorWork();
     active_ = i;
     updatePixelHook();
     black_ = false;
@@ -10353,6 +10574,7 @@ class Pocket {
     const double fade = c.cueTransitionSeconds >= 0 ? c.cueTransitionSeconds : listGlide();
     const TransitionStyle style = cueStyle(c);
     engine_->loadCue(&forEngine(c), true, style == TransitionStyle::Cut ? 0.0 : fade, fade > 0 ? style : TransitionStyle::Cut);
+    showTextCue(c);   // a text cue's words are the picture the transition goes to
     // Into a camera: its newest frame is the picture the transition goes to.
     if (isCameraCue(c) && camPrerollHas_ && camPrerollPath_ == c.path) {
       DecodedFrame first = camPreroll_;
@@ -10510,6 +10732,11 @@ class Pocket {
   // the open show (see currentShow)
   Project show_;
   int showDeck_ = 0;
+  // Text cues (textCueFrame): what the engine is given in their place, and
+  // the face at the size last drawn.
+  Cue engineTextCue_;
+  TTF_Font* textCueFont_ = nullptr;
+  int textCueFontPx_ = 0;
   // LANGUAGE: the chosen catalogue ("" = the phone's), the list, where data is
   std::string language_, dataDir_;
   std::vector<LanguageChoice> languages_;
@@ -10718,6 +10945,7 @@ class Pocket {
   std::uint64_t genTake_ = 0, genFrames_ = 0;
   DecodedFrame genOut_, genSpare_;
   bool genLookOnGpu_ = false, genEffectsHere_ = true;
+  bool genGpuRefused_ = false;   // the GPU look failed for this cue: the worker runs the effects (until the next take)
   deckboy::gpu::GpuEffects* gpuFx_ = nullptr;
   bool gpuOn_ = true;   // FXGPU OFF: the CPU only, for measuring
   int genShown_ = 0;

@@ -3628,7 +3628,12 @@
     std::error_code ec;
     const fs::path dir = Paths::stateDir() / "logs";
     fs::create_directories(dir, ec);
-    return (dir / ("stream-" + std::to_string(outputIndex + 1) + ".log")).string();
+    // Each launch its own file, four kept in turn: an encoder still finishing
+    // (a rolled segment, a restart) wrote into the next one's truncated log,
+    // and its words were reported as the new stream's (Codex review 11-26).
+    static std::atomic<unsigned> launches {0};
+    const char slot = static_cast<char>('a' + launches.fetch_add(1, std::memory_order_relaxed) % 4);
+    return (dir / ("stream-" + std::to_string(outputIndex + 1) + "-" + slot + ".log")).string();
   }
 
   // The last two things the encoder said (it runs at -loglevel error, so only

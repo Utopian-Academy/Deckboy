@@ -835,7 +835,7 @@ bool gpuEffectKindSupported(CueEffectKind kind) { return supportedKind(kind); }
 bool gpuEffectsSupportStack(const std::vector<fx::CueEffect>& stack) {
   if (cpuForced()) return false;
   bool any = false;
-  int melts = 0;
+  int melts = 0, ripples = 0;
   for (const auto& e : stack) {
     if (e.kind == CueEffectKind::None || e.bypassed || e.amount <= 0.0005f) continue;
     if (!supportedKind(e.kind)) return false;
@@ -844,6 +844,9 @@ bool gpuEffectsSupportStack(const std::vector<fx::CueEffect>& stack) {
     const bool keeps = e.kind == CueEffectKind::Melt ||
                        (e.kind == CueEffectKind::MegaRipple && (e.paramD > 0.001f || e.paramE > 0.001f));
     if (keeps && ++melts > 1) return false;
+    // One water table per run (Pass::table, uploaded once): a second Mega
+    // Ripple would have drawn with the first one's water. Two stay on the CPU.
+    if (e.kind == CueEffectKind::MegaRipple && ++ripples > 1) return false;
     any = true;
   }
   return any;
