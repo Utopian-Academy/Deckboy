@@ -410,6 +410,7 @@ class LinuxCameraCaptureBackend final : public SourceCaptureBackend {
       "-pix_fmt", "rgba",
       "pipe:1"
     };
+    dropInputThreadQueueIfRefused(plan.ffmpegArgs);   // ffmpeg 9.1 refuses it on an input
 #else
     (void) request;
     plan.supported = false;

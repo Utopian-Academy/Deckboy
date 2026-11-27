@@ -893,6 +893,27 @@ bool ffmpegHasFilter(const std::string& name) {
   return listing && listing->find(" " + name + " ") != std::string::npos;
 }
 
+bool ffmpegTakesInputThreadQueue() {
+  static std::mutex mutex;
+  static bool asked = false, takes = true;
+  std::lock_guard<std::mutex> lock(mutex);
+  if (!asked) {
+    asked = true;
+    // Ask by trying it: an input with the option, one frame to nowhere. ffmpeg
+    // 9.1 made -thread_queue_size a muxer option and refuses it on an input
+    // ("cannot be applied to input url ... Error parsing options for input
+    // file"), which stopped every stream and recording the 9.1 builds ran.
+    // Only that refusal counts: no ffmpeg, or any other failure, keeps the
+    // option, as before.
+    const ProcessCapture probe = runCaptured({"ffmpeg", "-hide_banner", "-nostdin", "-loglevel", "error",
+                                              "-thread_queue_size", "8", "-f", "lavfi", "-i",
+                                              "nullsrc=s=16x16:d=0.04", "-f", "null", "-"}, 15000);
+    takes = !(probe.ran && probe.output.find("thread_queue_size") != std::string::npos &&
+              probe.output.find("cannot be applied to input") != std::string::npos);
+  }
+  return takes;
+}
+
 // ===========================================================================
 // Legacy convenience wrappers
 // ===========================================================================

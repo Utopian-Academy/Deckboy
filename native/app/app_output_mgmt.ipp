@@ -2771,6 +2771,9 @@
       // reads those buffers directly.
       "-f", audioInputPath.empty() ? "lavfi" : "s16le"
     };
+    // ffmpeg 9.1 refuses -thread_queue_size on an input and bounds that queue
+    // itself; with it there every stream and recording failed to start.
+    dropInputThreadQueueIfRefused(args);
     if (hdrRecord) {
       // The INPUT says what it is: P010, BT.2020 NCL limited, in the output's
       // transfer -- the writer thread made it so (HdrEncoder::convertHalfToP010).

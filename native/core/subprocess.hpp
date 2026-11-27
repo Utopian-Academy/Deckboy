@@ -281,6 +281,25 @@ std::optional<std::string> readAllText(const std::vector<std::string>& args);
 // and remembered; false when there is no ffmpeg at all.
 bool ffmpegHasFilter(const std::string& name);
 
+// Does the ffmpeg on PATH take -thread_queue_size on an INPUT? Up to 9.0 it
+// sized the queue from the demuxer; 9.1 made it a muxer option and refuses it
+// before an -i (the input queue is bounded by its own scheduler there). Asked
+// once by trying it, and remembered; true when there is no ffmpeg to ask.
+bool ffmpegTakesInputThreadQueue();
+
+// Takes "-thread_queue_size <n>" out of an ffmpeg command line where it sits
+// before the first "-i" (an input option), when this ffmpeg refuses that.
+inline void dropInputThreadQueueIfRefused(std::vector<std::string>& args) {
+  if (ffmpegTakesInputThreadQueue()) return;
+  for (std::size_t i = 0; i + 1 < args.size(); ++i) {
+    if (args[i] == "-i") return;
+    if (args[i] == "-thread_queue_size") {
+      args.erase(args.begin() + static_cast<std::ptrdiff_t>(i), args.begin() + static_cast<std::ptrdiff_t>(i) + 2);
+      return;
+    }
+  }
+}
+
 // ---------------------------------------------------------------------------
 // Legacy convenience wrappers — thin forwards to spawnProcess()
 // ---------------------------------------------------------------------------
