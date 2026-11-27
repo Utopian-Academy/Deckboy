@@ -4546,7 +4546,20 @@ choose the same.
 **Deckboy Pocket** is Deckboy on an Android phone (Android 10 or newer, 64-bit).
 It runs the same engine as the desk: a cue list with GO and BACK, transitions,
 effects on the phone's graphics card, and the desk's show files, opened and
-saved. Install it from the APK on the release page.
+saved.
+
+**Installing it.** Pocket is not in the Play Store; you install it yourself:
+
+1. On the phone, open the [release page](https://github.com/Utopian-Academy/Deckboy/releases/latest)
+   and tap the file that ends in `.apk` (`Deckboy-Pocket-<version>-android-arm64.apk`) to download it.
+2. Open the download. Android asks whether your browser (or Files) may install apps: tap **Settings**,
+   switch on **Allow from this source**, and go back.
+3. Tap **Install**. If Play Protect says it does not know the app, tap **More details**, then
+   **Install anyway**. It does not know it only because it is not from the store.
+4. Open **Deckboy Pocket**. The Tour of tricks is waiting.
+
+To update, download the new APK and install it over the old one; your shows stay. Every
+version is signed with the same key, so Android accepts it as the same app.
 
 **The pocket guide.** Pocket has its own little manual, a zine:
 [read it online](https://utopian-academy.github.io/Deckboy/pocket-zine.html),

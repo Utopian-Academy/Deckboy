@@ -109,6 +109,19 @@
   .controls .where { font: 11px "Pixel", monospace; min-width: 90px; text-align: center; }
   .note { max-width: 560px; text-align: center; font-size: 14px; margin: 14px auto 0; opacity: 0.85; }
 
+  /* ── under the book: how to get Pocket, from the two teachers ─────── */
+  .install { max-width: 620px; margin: 28px auto 40px; padding: 0 16px; color: var(--text); }
+  .install h2 { font: 15px/1.5 "Pixel", monospace; color: var(--acid); background: #111; display: inline-block; padding: 6px 10px; transform: rotate(-1.5deg); margin: 0 0 18px; }
+  .say { display: flex; gap: 12px; align-items: flex-start; margin: 0 0 14px; }
+  .say.prof { flex-direction: row-reverse; }
+  .say img { width: 76px; height: 76px; image-rendering: pixelated; flex: none; background: var(--acid); border: 3px solid #111; transform: rotate(-3deg); }
+  .say.prof img { background: var(--pink); transform: rotate(3deg); }
+  .bubble { position: relative; background: #f4f1e6; color: #111; padding: 10px 12px; border: 3px solid #111; font: 14px/1.45 "Mono", monospace; box-shadow: 3px 3px 0 #111; }
+  .bubble .who { display: block; font: bold 12px "Mono", monospace; letter-spacing: 1px; color: var(--pink); margin-bottom: 4px; }
+  .bubble b { font: 11px "Pixel", monospace; background: #111; color: #f4f1e6; padding: 0 3px; }
+  .bubble a { color: #111; font-weight: bold; }
+  .install .fine { font-size: 13px; opacity: 0.85; margin-top: 18px; }
+
   /* ── printed: one sheet ─────────────────────────────────────────────── */
   .sheet { display: none; }
   /* ?sheet shows the sheet on screen, as it will print (Letter size) */
@@ -217,6 +230,7 @@
     <div class="duo"><div class="snap" style="--tilt:2deg"><span class="tape a"></span><img src="images/zine/back.png" alt="Dr. Pixel, Deckbot and Prof. Video wave"></div><div class="shot" style="--tilt:4deg"><img src="images/zine/shot-sync.png" alt="MENU > SYNC on Pocket"></div></div>
     <p><b>MENU &gt; SYNC</b> follows a Deckboy desk on your network. The desk can use your phone as an <b>OUTPUT</b>, or run it as a <b>PLAYLIST</b>.</p>
     <p class="small">Companion + scripts: port 5510.</p>
+    <p class="small"><b>GET IT</b> github.com/Utopian-Academy/Deckboy/releases: the .APK, then allow it.</p>
     <div class="copyme">FREE SOFTWARE. COPY THIS ZINE.<br>PASS IT ON.</div>
     <p class="small">GPL-3.0 // github.com/Utopian-Academy/Deckboy</p>
   </section>
@@ -234,7 +248,28 @@
     <button type="button" id="printA4">PRINT: A4</button>
   </div>
   <p class="note">Print it on one side of one sheet, at 100%. Fold it in half three ways, cut the middle of the long fold, and fold it into an eight-page book that fits in a pocket.</p>
+  <p class="note"><a href="#install" style="color:inherit">How to get Pocket on your phone &darr;</a></p>
 </main>
+<section class="install" id="install" aria-labelledby="install-title">
+  <h2 id="install-title">GET POCKET ON YOUR PHONE</h2>
+  <div class="say"><img src="images/zine/dr-pixel-talking.png" alt="Dr. Pixel">
+    <div class="bubble"><span class="who">DR. PIXEL</span>Pocket isn't in the Play Store. You put it on your phone yourself. Four steps. Punk, right?</div></div>
+  <div class="say prof"><img src="images/zine/prof-video-explaining.png" alt="Prof. Video">
+    <div class="bubble"><span class="who">PROF. VIDEO</span><b>1</b> On the phone, open <a href="https://github.com/Utopian-Academy/Deckboy/releases/latest">github.com/Utopian-Academy/Deckboy/releases</a>
+      and tap the file that ends in <b>.APK</b> (Deckboy-Pocket-...-android-arm64.apk) to download it.</div></div>
+  <div class="say"><img src="images/zine/dr-pixel-talking.png" alt="Dr. Pixel">
+    <div class="bubble"><span class="who">DR. PIXEL</span><b>2</b> Open the download. Android asks if your browser (or Files) may install apps. Tap <b>SETTINGS</b>,
+      switch on <b>ALLOW FROM THIS SOURCE</b>, then go back.</div></div>
+  <div class="say prof"><img src="images/zine/prof-video-explaining.png" alt="Prof. Video">
+    <div class="bubble"><span class="who">PROF. VIDEO</span><b>3</b> Tap <b>INSTALL</b>. If Play Protect says it does not know the app, tap <b>MORE DETAILS</b>, then
+      <b>INSTALL ANYWAY</b>. It does not know it because it is not from the store.</div></div>
+  <div class="say"><img src="images/zine/dr-pixel-talking.png" alt="Dr. Pixel">
+    <div class="bubble"><span class="who">DR. PIXEL</span><b>4</b> Open <b>DECKBOY POCKET</b>. The Tour of tricks is waiting. Press GO!</div></div>
+  <div class="say prof"><img src="images/zine/prof-video-explaining.png" alt="Prof. Video">
+    <div class="bubble"><span class="who">PROF. VIDEO</span>You need Android 10 or newer on a 64-bit phone: nearly every phone since 2019. A new version?
+      Download it and install it over the old one. Your shows stay.</div></div>
+</section>
+
 
 <div class="sheet" id="sheet" aria-hidden="true"></div>
 

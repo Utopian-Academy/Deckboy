@@ -1,6 +1,6 @@
 # CHANGES - Incremental Updates (March-October 2026)
 
-## Unreleased
+## 2026-11-27 - v0.99.430 (Deckboy Pocket on Android; phones as outputs and a backup desk; desk layouts and rendered skins; Surf, Mega Ripple, Illusion, Breath, the Critter Brush)
 
 ### Saved effect chains
 - New: **save chain...** and **load chain** in the cue's EFFECTS section. Save a cue's effect chain (effects, settings, LFOs and motion driver) under a name, and load it onto the selected cues in any show. Click replaces the chain, **+ add** (or shift-click) adds it to the end, and either is one undo. Each chain's **...** menu renames, duplicates, deletes or shows it in its folder. Saving under a name already used asks whether to replace it or keep both.
