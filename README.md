@@ -40,6 +40,9 @@ operator finds it, and how you find it again.
 [Release notes and downloads](https://github.com/Utopian-Academy/Deckboy/releases/tag/v0.99.430)
 
 **Deckboy Pocket (new)**
+
+<a href="https://utopian-academy.github.io/Deckboy/pocket-zine.html"><img src="docs/images/zine/cover.png" width="200" align="right" alt="Deckboy stands on a phone held by Dr. Pixel and Prof. Video: the cover of the Pocket zine"></a>
+
 - Deckboy Pocket runs a show from an Android phone (Android 10 or later, 64-bit). It uses the same engine and
   show files as the desk.
 - The D-pad is a T-bar. Hold RIGHT to move a transition by hand. Release it to stop the transition between
