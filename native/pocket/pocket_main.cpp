@@ -1317,7 +1317,7 @@ class Pocket {
       kShell = shellPal_.shell; kShellShade = shellPal_.shade; kBezel = shellPal_.bezel; kPad = shellPal_.pad;
       kButton = shellPal_.button; kButtonLit = shellPal_.buttonLit; kPill = shellPal_.pill; kPrint = shellPal_.print;
     }
-    if (shellTex_ && !landscape_) drawShell();
+    if (shellTex_ && !landscape_ && !compact_) drawShell();
     else if (shellWideTex_ && landscape_ && !editing_) drawShellWide();
     else fillRect(r, kShell, {0, 0, pxW_, pxH_});
     drawProgram();
@@ -1333,7 +1333,7 @@ class Pocket {
       drawMenu();
       if (aboutPage()) drawControls();
     } else {
-      drawCueList();
+      if (!compact_) drawCueList();   // the compact face: ON and NEXT under the picture instead
       drawControls();
     }
     if (shellColours) {
@@ -1380,6 +1380,16 @@ class Pocket {
       const float uWide = std::min(safe_.h / 72.0f, safe_.w / kLayoutLong);
       wideWay_ = uWide > uTall || (uWide == uTall && safe_.w > safe_.h);
       unit_ = wideWay_ ? uWide : uTall;
+      // THE COMPACT FACE (James 11-26): upright on a small screen near square
+      // (a flip phone's cover screen), a unit came out under 4 dp and every
+      // word too small to read. There the list and the pad step behind MENU,
+      // and what is left -- the picture, ON and NEXT, BACK and GO -- is drawn
+      // 84 units tall instead of 128, so larger. DECKBOY_POCKET_DISPLAY_SCALE
+      // stands in for the phone's density on a desktop build (tests).
+      float density = std::max(1.0f, SDL_GetWindowDisplayScale(window_));
+      if (const char* forced = SDL_getenv("DECKBOY_POCKET_DISPLAY_SCALE")) density = std::max(0.5f, static_cast<float>(std::atof(forced)));
+      compact_ = !wideWay_ && unit_ / density < 4.0f && safe_.h < safe_.w * 1.6f;
+      if (compact_) unit_ = std::min(safe_.w / 72.0f, safe_.h / 84.0f);
       layoutRect();
     }
     const float u = unit_;
@@ -1474,7 +1484,30 @@ class Pocket {
     editing_ = sheet_ >= 0 || menuOpen_;
     const float W = safe_.w / u, H = safe_.h / u;   // the layout's size, in units
     auto at = [&](float x, float y) { return SDL_FPoint {x0 + x * u, y0 + y * u}; };
-    if (!landscape_) {
+    if (!landscape_ && compact_) {
+      if (editing_) {
+        // a smaller picture on top (PLACE still has it to touch), the page below
+        const float picW = 40, picH = picW * 9.0f / 16.0f;
+        program_ = {x0 + (72 - picW - 7) / 2 * u, y0 + u, (picW + 7) * u, (5 + 1 + picH + 1 + 2) * u};
+        picRect_ = {program_.x + 3.5f * u, program_.y + 6 * u, picW * u, picH * u};
+        sheetRect_ = {x0 + 2 * u, program_.y + program_.h + u, 68 * u, 0};
+        sheetRect_.h = y0 + safe_.h - u - sheetRect_.y;
+      } else {
+        const float picH = (68 - 7) * 9.0f / 16.0f;
+        // title 5, picture, ON and NEXT (two rows), margins
+        program_ = {x0 + 2 * u, y0 + u, 68 * u, (5 + 1 + picH + 1 + 2 * 4.6f + 2.5f) * u};
+        picRect_ = {program_.x + 3.5f * u, program_.y + 6 * u, 61 * u, picH * u};
+        list_ = {};
+        listLcd_ = {};
+        strip_ = {};
+        const float row = (program_.y + program_.h - y0) / u + 10;   // the buttons' centre line, in units
+        backCentre_ = at(22, row);
+        goCentre_ = at(50, row);
+        padCentre_ = {-100000.0f, -100000.0f};   // no pad: the arrow keys still work
+        blackPill_ = {x0 + 10 * u, y0 + (H - 8.5f) * u, 12 * u, 4 * u};
+        menuPill_ = {x0 + 50 * u, y0 + (H - 8.5f) * u, 12 * u, 4 * u};
+      }
+    } else if (!landscape_) {
       if (editing_) {
         const float picH = (68 - 7) * 9.0f / 16.0f;
         program_ = {x0 + 2 * u, y0 + 1.5f * u, 68 * u, (5 + 1 + picH + 1 + 2.5f) * u};
@@ -1619,6 +1652,19 @@ class Pocket {
     drawSplashArt(pic);
     drawHelpers(pic);
     if (editing_) return;   // editing: the picture alone
+    if (compact_) {   // the compact face: what is on air and what GO takes, nothing else
+      const float rowY = pic.y + pic.h + 1.2f * u;
+      auto row = [&](float y, const char* label, int index, const std::string& none) {
+        text_.draw(pixelSmall_, label, kDark, {lcd.x + u, y, 11 * u, 4.2f * u});
+        const std::string name = index >= 0 && index < static_cast<int>(cues_.size())
+                                   ? std::to_string(index + 1) + " " + cues_[static_cast<std::size_t>(index)].name
+                                   : none;
+        text_.drawName(mono_, name, kDeep, {lcd.x + 12 * u, y, lcd.w - 13 * u, 4.2f * u});
+      };
+      row(rowY, "ON", active_, deckboy::core::i18n::translate("Nothing on air"));
+      row(rowY + 4.6f * u, "NEXT", selected_ != active_ ? selected_ : -1, std::string());   // none: nothing after it
+      return;
+    }
     // the name and the time on one line, the scrub bar (portrait), the buttons
     float y = pic.y + pic.h + 1.2f * u;
     const Cue* onAir = active_ >= 0 ? &cues_[static_cast<std::size_t>(active_)] : nullptr;
@@ -7058,7 +7104,10 @@ class Pocket {
   // The rendered face covers the portrait show screen; editing pages and
   // landscape have their own shapes and draw the flat chrome.
   // a rendered face for the way the phone is held: TALLAPP upright, WIDEAPP on its side
-  bool platePresent() const { return landscape_ ? shellWideTex_ != nullptr : shellTex_ != nullptr; }
+  bool platePresent() const {
+    if (compact_) return false;   // the compact face is drawn flat
+    return landscape_ ? shellWideTex_ != nullptr : shellTex_ != nullptr;
+  }
   bool shellFace() const { return platePresent() && !editing_; }
 
   // WIDEAPP (pocket-skins devices.py --wideplate): Pocket's landscape show
@@ -10877,6 +10926,7 @@ class Pocket {
   SDL_FRect picRect_ {};
   SDL_FRect sheetRect_ {};
   bool landscape_ = false, editing_ = false;
+  bool compact_ = false;   // the compact face (loadFonts): a small screen near square, upright
   std::map<SDL_FingerID, SDL_FPoint> fingers_;
   bool gesture_ = false;
   std::size_t gestureFingers_ = 0;
