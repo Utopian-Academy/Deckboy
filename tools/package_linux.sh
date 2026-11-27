@@ -185,7 +185,7 @@ if [ -d "$REPO_ROOT/data" ]; then
   # recent_projects.txt (v0.99.331) is the splash's recent-shows list: one
   # absolute path per show opened on this machine. Same class as the rest.
   for stale in last_project.txt opening_show.txt recent_projects.txt default.deckboy defaults.deckboy \
-               deckboy-first-run found-sources tabletop effect-chains deckboy-crash.log deckboy-soak.log \
+               deckboy-first-run found-sources tabletop effect-chains logs deckboy-crash.log deckboy-soak.log \
                deckboy-render.log deckboy-show.log deckboy-live-frame.bmp paired-phones.txt \
                tutorial-practice.deckboy tutorial-progress.txt lessons.txt midi_map.tsv \
                lesson-road lesson-road-bundle bugswat-highscore.txt bugswat-practice.deckboy sealed; do
