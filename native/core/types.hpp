@@ -2722,6 +2722,8 @@ struct OutputTarget {
   // it -- what an LED processor expects, mapping a 256x256 tile from the
   // corner of its input. Appended last (field 108) so old shows read false.
   bool aoiPixelForPixel = false;
+  bool outputFlipHorizontal = false;
+  bool outputFlipVertical = false;
 };
 
 

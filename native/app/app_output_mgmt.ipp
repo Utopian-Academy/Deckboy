@@ -531,6 +531,32 @@
     return setFocusedOutputOrientationDegrees(kOrientations[next]);
   }
 
+  // MIRROR (OutputTarget::outputFlipHorizontal/Vertical, shared with Pocket's
+  // OUTPUT > AREA): the output's picture reversed, for rear projection or a
+  // mirror in the path. Drawn with the orientation in app_render_output.ipp.
+  // flips: bit 1 horizontal, bit 2 vertical.
+  static const char* outputFlipLabel(int flips) {
+    return flips == 3 ? "both" : flips == 1 ? "horizontal" : flips == 2 ? "vertical" : "off";
+  }
+  void setFocusedOutputFlips(int flips) {
+    normalizeProject(project_);
+    OutputTarget& output = focusedOutputMutable();
+    output.outputFlipHorizontal = (flips & 1) != 0;
+    output.outputFlipVertical = (flips & 2) != 0;
+    if (auto* runtime = runtimeForOutput(project_.focusedOutputIndex)) {
+      runtime->delayFrames.clear();
+      runtime->latestCapturedFrame = {};
+    }
+    triggerToast(std::string("mirror: ") + outputFlipLabel(flips & 3));
+    playUiSound(UiSoundEffect::Toggle);
+    markProjectDirty();
+  }
+  void cycleFocusedOutputFlips() {
+    const OutputTarget& output = focusedOutput();
+    const int now = (output.outputFlipHorizontal ? 1 : 0) | (output.outputFlipVertical ? 2 : 0);
+    setFocusedOutputFlips((now + 1) % 4);
+  }
+
   bool setFocusedOutputTestCardEnabled(bool enabled) {
     normalizeProject(project_);
     OutputTarget& output = focusedOutputMutable();

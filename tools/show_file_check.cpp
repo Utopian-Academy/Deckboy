@@ -77,10 +77,28 @@ int main(int argc, char** argv) {
         cue.textBody = "First\tline\nSecond \\ line";
       }
     }
+    project.outputs.resize(1);
+    auto& output = project.outputs[0];
+    output.aoiLeft = 0.125f;
+    output.aoiTop = 0.25f;
+    output.aoiRight = 0.0625f;
+    output.aoiBottom = 0.125f;
+    output.outputFlipHorizontal = true;
+    output.outputFlipVertical = true;
+    output.outputOrientationDegrees = 270;
+    output.matteAspect = "2.39:1";
+    output.matteOpacity = 0.5;
+    output.outputDelayMs = 321;
     const auto first = dir / "synthetic.deckboy";
     require(deckboy::showfile::save(first.string(), project), "synthetic save");
     const auto loaded = roundTrip(first, dir / "synthetic-again.deckboy");
     require(loaded.title == project.title && loaded.decks.size() == 2, "title/decks preserved");
+    const auto& loadedOutput = loaded.outputs.at(0);
+    require(loadedOutput.aoiLeft == output.aoiLeft && loadedOutput.aoiTop == output.aoiTop &&
+            loadedOutput.aoiRight == output.aoiRight && loadedOutput.aoiBottom == output.aoiBottom &&
+            loadedOutput.outputFlipHorizontal && loadedOutput.outputFlipVertical &&
+            loadedOutput.outputOrientationDegrees == 270 && loadedOutput.matteAspect == "2.39:1" &&
+            loadedOutput.matteOpacity == 0.5 && loadedOutput.outputDelayMs == 321, "output AREA fields preserved");
     for (std::size_t d = 0; d < 2; ++d) {
       require(loaded.decks[d].cues.size() == 3, "three cue kinds preserved");
       for (std::size_t c = 0; c < 3; ++c) {

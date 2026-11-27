@@ -119,7 +119,7 @@
     bool hasOrientation = orientationDegrees != 0;
 
 #if SDL_VERSION_ATLEAST(2, 0, 18)
-    if (hasWarp || hasBlend || hasOrientation) {
+    if (hasWarp || hasBlend || hasOrientation || output.outputFlipHorizontal || output.outputFlipVertical) {
       // A WARPED PICTURE IS SAMPLED SMOOTHLY. Nearest-neighbour is Deckboy's
       // pixel look on a flat screen, but pinned at an angle it stair-steps
       // every thin line and makes moving ones crawl -- the opposite of a clean
@@ -139,6 +139,8 @@
       float v0 = static_cast<float>(src.y) / static_cast<float>(texH);
       float u1 = static_cast<float>(src.x + src.w) / static_cast<float>(texW);
       float v1 = static_cast<float>(src.y + src.h) / static_cast<float>(texH);
+      if (output.outputFlipHorizontal) std::swap(u0, u1);
+      if (output.outputFlipVertical) std::swap(v0, v1);
 
       SDL_FPoint uvTL {u0, v0};
       SDL_FPoint uvTR {u1, v0};

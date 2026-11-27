@@ -642,6 +642,8 @@
              << " color_space=" << normalizeOutputColorSpace(out.outputColorSpace)
              << " layout=" << normalizeOutputLayoutMode(out.outputLayoutMode)
              << " orientation=" << normalizeOutputOrientationDegrees(out.outputOrientationDegrees)
+             << " flip=" << (out.outputFlipHorizontal && out.outputFlipVertical ? "hv" : out.outputFlipHorizontal ? "h"
+                             : out.outputFlipVertical ? "v" : "off")
              << " test_card=" << (out.outputTestCardEnabled ? "on" : "off")
              << " output_fps=" << outputFps
              << " presents=" << (runtimeForOutput(outputIndex)

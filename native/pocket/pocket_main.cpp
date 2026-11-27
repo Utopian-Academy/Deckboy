@@ -63,6 +63,7 @@ using namespace deckboy::platform;   // the remote port (sockets)
 #include <memory>
 #include <string>
 #include <vector>
+#include <deque>
 
 #include <cctype>
 #include <cerrno>
@@ -987,6 +988,9 @@ class Pocket {
   }
 
   void shutdown() {
+    clearAreaDelay();
+    if (areaBase_) SDL_DestroyTexture(areaBase_);
+    if (areaTexture_) SDL_DestroyTexture(areaTexture_);
     {
       std::lock_guard<std::mutex> hold(genLock_);
       genQuit_ = true;
@@ -1289,6 +1293,7 @@ class Pocket {
       holdRow_ = -1;
     }
     drawProgramTexture();
+    prepareAreaPicture();
     const Uint64 t2 = SDL_GetPerformanceCounter();
     drawOutputScreen();
     const Uint64 t3 = SDL_GetPerformanceCounter();
@@ -1754,8 +1759,8 @@ class Pocket {
   // the flat picture, as the desk's program monitor does.
   void drawProgramIn(const SDL_FRect& fitted, bool turn = false) {
     if (!warpOn() || !outputLabel_.empty() || !mapConvex()) {   // folded: the flat picture
-      if (turn) SDL_RenderTextureRotated(renderer_, programTex_, nullptr, &fitted, 90.0, nullptr, SDL_FLIP_NONE);
-      else SDL_RenderTexture(renderer_, programTex_, nullptr, &fitted);
+      if (turn) SDL_RenderTextureRotated(renderer_, areaPicture(), nullptr, &fitted, 90.0, nullptr, SDL_FLIP_NONE);
+      else SDL_RenderTexture(renderer_, areaPicture(), nullptr, &fitted);
       return;
     }
     auto q = pinnedCorners(fitted, fitted.w / static_cast<float>(std::max(1, programW_)));
@@ -1774,7 +1779,7 @@ class Pocket {
     if (clipped && SDL_GetRectIntersection(&clip, &had, &inPage)) clip = inPage;   // a scrolled MENU page's room
     else if (clipped) clip = {0, 0, 0, 0};
     SDL_SetRenderClipRect(renderer_, &clip);
-    if (mapConvex()) drawPinned(programTex_, q);
+    if (mapConvex()) drawPinned(areaPicture(), q);
     SDL_SetRenderClipRect(renderer_, clipped ? &had : nullptr);
   }
 
@@ -2243,11 +2248,11 @@ class Pocket {
     }
     {
       // a page: its name at the top, back to the tiles and CLOSE along the bottom (thumb reach)
-      static const char* kNames[11] = {"SOURCES", "OUTPUT", "LIST", "SYNC", "PHONE", "SHOW", "ABOUT", "NEW CUES", "OPEN A SHOW", "MAP", "SONG"};
-      text_.draw(pixel_, kNames[std::clamp(menuTab_, 0, 10)], kDark, {lx, y, lw, 5 * u});
+      static const char* kNames[12] = {"SOURCES", "OUTPUT", "LIST", "SYNC", "PHONE", "SHOW", "ABOUT", "NEW CUES", "OPEN A SHOW", "MAP", "SONG", "AREA"};
+      text_.draw(pixel_, kNames[std::clamp(menuTab_, 0, 11)], kDark, {lx, y, lw, 5 * u});
       const float bh = 7 * u, by = lcd.y + lcd.h - bh - 0.5f * u;
       const float bw = (lw - u) / 2;
-      const int up = menuTab_ == 6 ? 4 : (menuTab_ == 7 || menuTab_ == 8 || menuTab_ == 10) ? 5 : menuTab_ == 9 ? 1 : -1;
+      const int up = menuTab_ == 6 ? 4 : (menuTab_ == 7 || menuTab_ == 8 || menuTab_ == 10) ? 5 : (menuTab_ == 9 || menuTab_ == 11) ? 1 : -1;
       button({lx, by, bw, bh}, up == 4 ? "< PHONE" : up == 5 ? "< SHOW" : up == 1 ? "< OUTPUT" : "< MENU", [this, up] { menuTab_ = up; confirmOpen_.clear(); endHostEdit(); });
       button({lx + bw + u, by, bw, bh}, "CLOSE", [this] { menuOpen_ = false; endHostEdit(); });
       // THE PAGE between its title and that row, never over it. A page
@@ -2375,6 +2380,7 @@ class Pocket {
       y += 6.5f * u;
       item("PHONE FULL SCREEN", [this] { menuOpen_ = false; phoneFull_ = true; ghostUntil_ = SDL_GetTicks() + 3500; });
       item(warpOn() ? "MAP: CORNER PIN ON  >" : "MAP: CORNER PIN  >", [this] { menuTab_ = 9; }, warpOn());
+      item("AREA  >", [this] { menuTab_ = 11; });
     }
 
     }
@@ -2396,6 +2402,7 @@ class Pocket {
     if (menuTab_ == 9) {
       drawMapPage(lx, lw, y);
     }
+    if (menuTab_ == 11) drawAreaPage(lx, lw, y);
     if (menuTab_ == 10) {
       drawSongPage(lx, lw, y);
     }
@@ -2929,6 +2936,7 @@ class Pocket {
   // Opening replaces the list in hand: a saved show is saved first, and an
   // unsaved list asks (OPEN pressed twice).
   void openShow(const std::string& path) {
+    clearAreaDelay();
     std::error_code ec;
     if (!dbfs::exists(dbfs::path(path), ec)) {
       notice_ = "That show is not there any more";
@@ -3019,6 +3027,7 @@ class Pocket {
   }
 
   void newShow() {
+    clearAreaDelay();
     if (!showFile_.empty()) saveShowTo(showFile_);
     show_ = Project {};
     show_.decks.resize(1);
@@ -4804,6 +4813,7 @@ class Pocket {
     programW_ = w;
     programH_ = h;
     programHz_ = hz;
+    clearAreaDelay();
     if (programTex_) {
       SDL_DestroyTexture(programTex_);
       programTex_ = nullptr;
@@ -4824,7 +4834,7 @@ class Pocket {
       programTex_ = SDL_CreateTexture(renderer_, SDL_PIXELFORMAT_RGBA32, SDL_TEXTUREACCESS_TARGET, programW_, programH_);
       if (programTex_) SDL_SetTextureScaleMode(programTex_, SDL_SCALEMODE_LINEAR);
     }
-    if (!programTex_) return;
+    if (!programTex_) { areaPresented_ = nullptr; return; }
     SDL_SetRenderTarget(renderer_, programTex_);
     SDL_SetRenderViewport(renderer_, nullptr);
     SDL_SetRenderClipRect(renderer_, nullptr);
@@ -4833,6 +4843,106 @@ class Pocket {
     if (active_ >= 0 && !black_) engine_->render(SDL_Rect {0, 0, programW_, programH_});
     SDL_SetRenderTarget(renderer_, nullptr);
     // Whatever the engine left set must not reach the phone's own drawing.
+    SDL_SetRenderViewport(renderer_, nullptr);
+    SDL_SetRenderClipRect(renderer_, nullptr);
+    SDL_SetRenderDrawBlendMode(renderer_, SDL_BLENDMODE_BLEND);
+  }
+
+  void clearAreaDelay() {
+    for (auto& frame : areaFrames_) SDL_DestroyTexture(frame.texture);
+    areaFrames_.clear();
+    areaPresented_ = nullptr;
+  }
+
+  SDL_Texture* areaPicture() const { return areaPresented_ ? areaPresented_ : programTex_; }
+
+  void prepareAreaPicture() {
+    if (!programTex_) return;
+    const OutputTarget* output = mapOutputC();
+    const int delay = output ? std::clamp(output->outputDelayMs, 0, 5000) : 0;
+    if (!output || (output->aoiLeft == 0 && output->aoiTop == 0 && output->aoiRight == 0 && output->aoiBottom == 0 &&
+        !output->outputFlipHorizontal && !output->outputFlipVertical && output->outputOrientationDegrees == 0 &&
+        (output->matteAspect.empty() || upper(output->matteAspect) == "OFF" || output->matteOpacity <= 0.001) && delay == 0)) {
+      if (!areaFrames_.empty()) clearAreaDelay();
+      areaPresented_ = programTex_;
+      areaDelayFailed_ = false;
+      return;
+    }
+    if (areaWidth_ != programW_ || areaHeight_ != programH_ || delay != areaDelayMs_) {
+      clearAreaDelay();
+      for (SDL_Texture* texture : {areaBase_, areaTexture_}) if (texture) SDL_DestroyTexture(texture);
+      areaBase_ = areaTexture_ = nullptr;
+      areaWidth_ = programW_; areaHeight_ = programH_; areaDelayMs_ = delay;
+    }
+    if (!areaBase_) areaBase_ = deckboyCreateTexture(renderer_, SDL_PIXELFORMAT_RGBA32, SDL_TEXTUREACCESS_TARGET, programW_, programH_);
+    if (!areaTexture_) areaTexture_ = deckboyCreateTexture(renderer_, SDL_PIXELFORMAT_RGBA32, SDL_TEXTUREACCESS_TARGET, programW_, programH_);
+    areaPresented_ = programTex_;
+    areaDelayFailed_ = false;
+    if (!areaBase_ || !areaTexture_) { areaDelayFailed_ = true; return; }
+    SDL_SetRenderTarget(renderer_, areaBase_);
+    SDL_SetRenderViewport(renderer_, nullptr);
+    SDL_SetRenderClipRect(renderer_, nullptr);
+    SDL_SetRenderDrawColor(renderer_, 0, 0, 0, 255);
+    SDL_RenderClear(renderer_);
+    SDL_RenderTexture(renderer_, programTex_, static_cast<const SDL_FRect*>(nullptr), static_cast<const SDL_FRect*>(nullptr));
+    // The desk puts matte bars into the composite before AOI and turn.
+    if (output && output->matteOpacity > 0.001) {
+      double numerator = 0, denominator = 0;
+      char colon = 0;
+      std::istringstream ratio(output->matteAspect);
+      if ((ratio >> numerator >> colon >> denominator) && colon == ':' && numerator > 0 && denominator > 0 &&
+          std::isfinite(numerator) && std::isfinite(denominator)) {
+        int contentW = programW_, contentH = programH_;
+        const double want = numerator / denominator;
+        if (want > static_cast<double>(programW_) / programH_) contentH = std::max(1, static_cast<int>(std::lround(programW_ / want)));
+        else contentW = std::max(1, static_cast<int>(std::lround(programH_ * want)));
+        const int marginX = (programW_ - contentW) / 2, marginY = (programH_ - contentH) / 2;
+        const SDL_Rect bars[] {{0, 0, programW_, marginY}, {0, marginY + contentH, programW_, programH_ - marginY - contentH},
+          {0, marginY, marginX, contentH}, {marginX + contentW, marginY, programW_ - marginX - contentW, contentH}};
+        SDL_SetRenderDrawBlendMode(renderer_, SDL_BLENDMODE_BLEND);
+        SDL_SetRenderDrawColor(renderer_, 0, 0, 0, static_cast<Uint8>(std::clamp(output->matteOpacity, 0.0, 1.0) * 255));
+        for (const auto& bar : bars) if (bar.w > 0 && bar.h > 0) SDL_RenderFillRect(renderer_, &bar);
+      }
+    }
+    SDL_SetRenderTarget(renderer_, areaTexture_);
+    SDL_SetRenderDrawColor(renderer_, 0, 0, 0, 255);
+    SDL_RenderClear(renderer_);
+    float width = static_cast<float>(programW_), height = static_cast<float>(programH_);
+    if (output && output->aoiPixelForPixel) {
+      width *= std::max(0.0f, 1 - output->aoiLeft - output->aoiRight);
+      height *= std::max(0.0f, 1 - output->aoiTop - output->aoiBottom);
+    }
+    const std::array<SDL_FPoint, 4> corners {SDL_FPoint{0, 0}, SDL_FPoint{width, 0}, SDL_FPoint{width, height}, SDL_FPoint{0, height}};
+    drawPinned(areaBase_, corners, true);
+    areaPresented_ = areaTexture_;
+    if (delay > 0 && !black_) {
+      const Uint64 now = SDL_GetTicks();
+      // A five-second buffer stays below 144 MiB at 640 x 360 and 30 fps.
+      const float shrink = std::min(1.0f, std::min(640.0f / static_cast<float>(programW_), 360.0f / static_cast<float>(programH_)));
+      const int widthPx = std::max(1, static_cast<int>(static_cast<float>(programW_) * shrink));
+      const int heightPx = std::max(1, static_cast<int>(static_cast<float>(programH_) * shrink));
+      SDL_Texture* recycle = nullptr;
+      while (areaFrames_.size() > 1 && areaFrames_[1].at + static_cast<Uint64>(delay) <= now) {
+        if (recycle) SDL_DestroyTexture(recycle);
+        recycle = areaFrames_.front().texture;
+        areaFrames_.pop_front();
+      }
+      if (areaFrames_.empty() || now >= areaFrames_.back().at + 34) {
+        SDL_Texture* frame = recycle ? recycle : deckboyCreateTexture(renderer_, SDL_PIXELFORMAT_RGBA32, SDL_TEXTUREACCESS_TARGET, widthPx, heightPx);
+        recycle = nullptr;
+        if (frame) {
+          SDL_SetRenderTarget(renderer_, frame);
+          SDL_RenderTexture(renderer_, areaTexture_, static_cast<const SDL_FRect*>(nullptr), static_cast<const SDL_FRect*>(nullptr));
+          areaFrames_.push_back({now, frame});
+        } else areaDelayFailed_ = true;
+      }
+      if (recycle) SDL_DestroyTexture(recycle);
+      if (!areaFrames_.empty() && areaFrames_.front().at + static_cast<Uint64>(delay) <= now) areaPresented_ = areaFrames_.front().texture;
+    } else if (!areaFrames_.empty()) {
+      clearAreaDelay();
+      areaPresented_ = areaTexture_;
+    }
+    SDL_SetRenderTarget(renderer_, nullptr);
     SDL_SetRenderViewport(renderer_, nullptr);
     SDL_SetRenderClipRect(renderer_, nullptr);
     SDL_SetRenderDrawBlendMode(renderer_, SDL_BLENDMODE_BLEND);
@@ -4895,10 +5005,10 @@ class Pocket {
       SDL_SetRenderDrawColor(renderer_, 255, 255, 255, 255);
       const SDL_FRect edge {1, 1, static_cast<float>(bw) - 2, static_cast<float>(bh) - 2};
       SDL_RenderRect(renderer_, &edge);
-    } else if (programTex_) {
+    } else if (areaPicture()) {
       // The program has the screen's own shape, so this fills it.
       const SDL_FRect dst = fitProgram({0, 0, static_cast<float>(bw), static_cast<float>(bh)});
-      SDL_RenderTexture(renderer_, programTex_, nullptr, &dst);
+      SDL_RenderTexture(renderer_, areaPicture(), nullptr, &dst);
     }
     if (testPattern_ || SDL_GetTicks() < identifyUntil_) {
       char id[160];
@@ -5153,6 +5263,7 @@ class Pocket {
              "SHUFFLE LOOP ENDAFTER [ON|OFF|TOGGLE] CROSSFADE <s> QUEUE <n>|CLEAR RENAME <n> <name>\n"
              "DIRECTION <n> FORWARD|REVERSE|BOUNCE SHELL <name>|FLAT SNAP <file.bmp>\n"
              "TBAR [HOLD|MOVE <seconds>|RUN] LANGUAGE [<code>|PHONE] PLACE <cue> SHOW TOUR\n"
+             "AREA [L T R B | MIRROR H|V ON|OFF | TURN 0|90|180|270 | MATTE OFF|16:9|4:3|2.39:1|1.85:1|1:1|9:16 [opacity 0-1] | DELAY 0-5000 | RESET]\n"
              "SYNC FOLLOW <desk> SYNC STOP SYNC STATUS\n";
     }
     if (verb == "STATUS" || verb == "STATE") return remoteStatus();
@@ -5185,6 +5296,7 @@ class Pocket {
         if (arg == "SKIN") menuTab_ = 4;
         if (arg == "ABOUT") menuTab_ = 6;
         if (arg == "MAP") menuTab_ = 9;
+        if (arg == "AREA") menuTab_ = 11;
         menuOpen_ = true;
         sheet_ = -1;
         phoneFull_ = false;
@@ -5254,6 +5366,7 @@ class Pocket {
       }
       return err("SHOW SAVE|OPEN|NEW|PLAYLIST|LIST");
     }
+    if (verb == "AREA") return remoteArea(rest);
     if (verb == "MAP") {   // MAP ON|OFF|RESET | MAP TL|TR|BR|BL <dx> <dy> (output pixels)
       std::istringstream a(rest);
       std::string what;
@@ -5828,6 +5941,7 @@ class Pocket {
       << static_cast<int>(stageMs_[2] * 10 + 0.5) / 10.0 << "/" << static_cast<int>(stageMs_[3] * 10 + 0.5) / 10.0 << "\n";
     o << "OUTPUT 1 name=\""<< (outputLabel_.empty() ? "phone" : outputLabel_) << "\" enabled=" << (black_ ? "off" : "on")
       << " raster=" << programW_ << "x" << programH_ << "\n";
+    o << areaStatus() << "\n";
     o << "SYNC " << syncStatusFields() << "\n";
     o << "SHOW name=\"" << showName() << "\" file=\"" << showFile_ << "\" playlist=" << showDeck_ + 1 << "/" << std::max<std::size_t>(1, show_.decks.size())
       << "\n";
@@ -8233,6 +8347,188 @@ class Pocket {
   }
   const OutputTarget* mapOutputC() const { return show_.outputs.empty() ? nullptr : &show_.outputs[0]; }
 
+  float& areaEdge(int edge) {
+    OutputTarget& output = mapOutput();
+    if (edge == 0) return output.aoiLeft;
+    if (edge == 1) return output.aoiTop;
+    if (edge == 2) return output.aoiRight;
+    return output.aoiBottom;
+  }
+
+  std::string areaStatus() const {
+    const OutputTarget defaults;
+    const auto& output = mapOutputC() ? *mapOutputC() : defaults;
+    const auto [width, height] = mapOutputSize();
+    std::ostringstream result;
+    result << std::setprecision(9) << "AREA left=" << output.aoiLeft * width << " top=" << output.aoiTop * height
+      << " right=" << output.aoiRight * width << " bottom=" << output.aoiBottom * height
+      << " width=" << width << " height=" << height
+      << " mirror_h=" << (output.outputFlipHorizontal ? "on" : "off") << " mirror_v=" << (output.outputFlipVertical ? "on" : "off")
+      << " turn=" << output.outputOrientationDegrees << " matte=" << output.matteAspect << " opacity=" << output.matteOpacity
+      << " delay_ms=" << output.outputDelayMs << " delay_frames=" << areaFrames_.size()
+      << " delay_error=" << (areaDelayFailed_ ? "on" : "off");
+    return result.str();
+  }
+
+  std::string remoteArea(const std::string& arguments) {
+    std::istringstream input(arguments);
+    std::string command;
+    if (!(input >> command)) return "OK " + areaStatus() + "\n";
+    command = upper(command);
+    auto end = [&] { input >> std::ws; return input.eof(); };
+    auto error = [](const std::string& reason) { return "ERR AREA: " + reason + "\n"; };
+    // Validate a copy. A bad command cannot change part of the output.
+    OutputTarget next = mapOutputC() ? *mapOutputC() : OutputTarget{};
+    if (command == "RESET") {
+      if (!end()) return error("RESET takes no arguments");
+      resetArea();
+      return "OK AREA\n";
+    }
+    if (command == "MIRROR") {
+      std::string axis, value;
+      if (!(input >> axis >> value) || !end()) return error("MIRROR H|V ON|OFF");
+      axis = upper(axis); value = upper(value);
+      if ((axis != "H" && axis != "V") || (value != "ON" && value != "OFF")) return error("MIRROR H|V ON|OFF");
+      (axis == "H" ? next.outputFlipHorizontal : next.outputFlipVertical) = value == "ON";
+    } else if (command == "TURN" || command == "DELAY") {
+      int value = 0;
+      if (!(input >> value) || !end()) return error("expected one integer");
+      if (command == "TURN") {
+        if (value != 0 && value != 90 && value != 180 && value != 270) return error("TURN 0|90|180|270");
+        next.outputOrientationDegrees = value;
+      } else {
+        if (value < 0 || value > 5000) return error("DELAY 0-5000 ms");
+        next.outputDelayMs = value;
+      }
+    } else if (command == "MATTE") {
+      std::string aspect;
+      if (!(input >> aspect)) return error("MATTE needs an aspect or OFF");
+      bool found = false;
+      for (const char* value : areaMattes()) if (upper(value) == upper(aspect)) { next.matteAspect = value; found = true; }
+      if (!found) return error("MATTE OFF|16:9|4:3|2.39:1|1.85:1|1:1|9:16 [opacity 0-1]");
+      next.matteOpacity = 1;
+      if (!end()) {
+        double opacity = 0;
+        if (!(input >> opacity) || !end() || !std::isfinite(opacity) || opacity < 0 || opacity > 1) return error("opacity must be 0-1");
+        next.matteOpacity = opacity;
+      }
+    } else {
+      std::istringstream edges(arguments);
+      double left = 0, top = 0, right = 0, bottom = 0;
+      if (!(edges >> left >> top >> right >> bottom)) return error("expected L T R B in output pixels");
+      edges >> std::ws;
+      if (!edges.eof()) return error("expected exactly four edges");
+      const auto [width, height] = mapOutputSize();
+      if (!std::isfinite(left) || !std::isfinite(top) || !std::isfinite(right) || !std::isfinite(bottom) ||
+          left < 0 || top < 0 || right < 0 || bottom < 0 || left > kAoiMaxEdge * width || right > kAoiMaxEdge * width ||
+          top > kAoiMaxEdge * height || bottom > kAoiMaxEdge * height || left + right > width - 1 || top + bottom > height - 1)
+        return error("edges must leave at least one pixel and each crop must be at most 99.5 percent");
+      next.aoiLeft = static_cast<float>(left / width); next.aoiTop = static_cast<float>(top / height);
+      next.aoiRight = static_cast<float>(right / width); next.aoiBottom = static_cast<float>(bottom / height);
+    }
+    mapOutput() = std::move(next);
+    return "OK AREA\n";
+  }
+
+  void setAreaEdge(int edge, float value) {
+    const auto [width, height] = mapOutputSize();
+    const float extent = edge % 2 == 0 ? width : height;
+    const float limit = std::max(0.0f, std::min(kAoiMaxEdge, 1.0f - areaEdge((edge + 2) % 4) - 1.0f / std::max(1.0f, extent)));
+    areaEdge(edge) = std::clamp(value, 0.0f, limit);
+  }
+
+  void resetArea() {
+    OutputTarget& output = mapOutput();
+    output.aoiLeft = output.aoiTop = output.aoiRight = output.aoiBottom = 0;
+    output.outputFlipHorizontal = output.outputFlipVertical = false;
+    output.outputOrientationDegrees = 0;
+    output.matteAspect = "off";
+    output.matteOpacity = 1;
+    output.outputDelayMs = 0;
+    clearAreaDelay();
+  }
+
+  static const std::array<const char*, 7>& areaMattes() {
+    static const std::array<const char*, 7> values {"off", "16:9", "4:3", "2.39:1", "1.85:1", "1:1", "9:16"};
+    return values;
+  }
+
+  void drawAreaPage(float lx, float lw, float& y) {
+    const float u = unit_;
+    OutputTarget& output = mapOutput();
+    const auto [width, height] = mapOutputSize();
+    areaBox_ = {lx + 3 * u, y + 2 * u, lw - 6 * u, (lw - 6 * u) * height / std::max(1.0f, width)};
+    fillRect(renderer_, kBlack, areaBox_);
+    // Show the source here so each handle stays on the edge it crops.
+    if (programTex_) SDL_RenderTexture(renderer_, programTex_, nullptr, &areaBox_);
+    const SDL_FRect crop {areaBox_.x + output.aoiLeft * areaBox_.w, areaBox_.y + output.aoiTop * areaBox_.h,
+      std::max(0.0f, 1 - output.aoiLeft - output.aoiRight) * areaBox_.w,
+      std::max(0.0f, 1 - output.aoiTop - output.aoiBottom) * areaBox_.h};
+    const float stroke = 0.4f * u;
+    fillRect(renderer_, kLight, {crop.x, crop.y, crop.w, stroke});
+    fillRect(renderer_, kLight, {crop.x, crop.y + crop.h - stroke, crop.w, stroke});
+    fillRect(renderer_, kLight, {crop.x, crop.y, stroke, crop.h});
+    fillRect(renderer_, kLight, {crop.x + crop.w - stroke, crop.y, stroke, crop.h});
+    y = areaBox_.y + areaBox_.h + 3 * u;
+    static const char* labels[] = {"LEFT", "TOP", "RIGHT", "BOTTOM"};
+    for (int edge = 0; edge < 4; ++edge) {
+      const float extent = edge % 2 == 0 ? width : height;
+      NumSpec number;
+      number.label = labels[edge]; number.unit = "px"; number.step = 1;
+      number.max = std::floor(std::max(0.0f, std::min(kAoiMaxEdge * extent, extent * (1 - areaEdge((edge + 2) % 4)) - 1)));
+      number.percentOf = extent;
+      number.get = [this, edge, extent] { return static_cast<double>(areaEdge(edge) * extent); };
+      number.set = [this, edge, extent](double value) { setAreaEdge(edge, static_cast<float>(value) / std::max(1.0f, extent)); };
+      numberRow({lx, y, lw, 8 * u}, number);
+      y += 9 * u;
+    }
+    const float half = (lw - u) / 2;
+    button({lx, y, half, 6 * u}, output.outputFlipHorizontal ? "MIRROR H: ON" : "MIRROR H: OFF",
+      [this] { mapOutput().outputFlipHorizontal = !mapOutput().outputFlipHorizontal; }, true, output.outputFlipHorizontal);
+    button({lx + half + u, y, half, 6 * u}, output.outputFlipVertical ? "MIRROR V: ON" : "MIRROR V: OFF",
+      [this] { mapOutput().outputFlipVertical = !mapOutput().outputFlipVertical; }, true, output.outputFlipVertical);
+    y += 7 * u;
+    button({lx, y, lw, 6 * u}, "TURN: " + std::to_string(output.outputOrientationDegrees),
+      [this] { auto& target = mapOutput(); target.outputOrientationDegrees = (target.outputOrientationDegrees + 90) % 360; });
+    y += 7 * u;
+    button({lx, y, lw, 6 * u}, "MATTE: " + upper(output.matteAspect), [this] {
+      const auto& values = areaMattes();
+      auto& target = mapOutput();
+      std::size_t next = 0;
+      for (std::size_t i = 0; i < values.size(); ++i) if (target.matteAspect == values[i]) next = (i + 1) % values.size();
+      target.matteAspect = values[next]; target.matteOpacity = 1;
+    });
+    y += 7 * u;
+    NumSpec delay;
+    delay.label = "DELAY"; delay.unit = "ms"; delay.max = 5000; delay.step = 1;
+    delay.get = [this] { return static_cast<double>(mapOutput().outputDelayMs); };
+    delay.set = [this](double value) { mapOutput().outputDelayMs = static_cast<int>(value); };
+    numberRow({lx, y, lw, 8 * u}, delay);
+    y += 9 * u;
+    button({lx, y, lw, 6 * u}, "RESET", [this] { resetArea(); });
+    y += 7 * u;
+  }
+
+  bool areaDown(float x, float y) {
+    if (!menuOpen_ || calcOpen_ || menuTab_ != 11 || areaBox_.w <= 0 || areaBox_.h <= 0 || !inside(menuView_, x, y)) return false;
+    const auto& output = mapOutput();
+    const float left = areaBox_.x + output.aoiLeft * areaBox_.w;
+    const float right = std::max(left, areaBox_.x + (1 - output.aoiRight) * areaBox_.w);
+    const float top = areaBox_.y + output.aoiTop * areaBox_.h;
+    const float bottom = std::max(top, areaBox_.y + (1 - output.aoiBottom) * areaBox_.h);
+    const float reach = 3 * unit_;
+    const float distances[] = {
+      std::hypot(x - left, y - std::clamp(y, top, bottom)),
+      std::hypot(x - std::clamp(x, left, right), y - top),
+      std::hypot(x - right, y - std::clamp(y, top, bottom)),
+      std::hypot(x - std::clamp(x, left, right), y - bottom)};
+    const auto best = std::min_element(std::begin(distances), std::end(distances));
+    if (*best > reach) return false;
+    areaEdge_ = static_cast<int>(best - distances);
+    drag_ = Drag::AreaEdge;
+    return true;
+  }
+
   bool warpOn() const {
     const OutputTarget* o = mapOutputC();
     return o && o->warpEnabled &&
@@ -8311,7 +8607,7 @@ class Pocket {
   // `tex` (its whole picture) drawn into the quad `q` (TL, TR, BR, BL) through
   // the homography of the unit square onto it: a 16 x 16 mesh, so straight
   // lines stay straight and the picture keeps its perspective.
-  void drawPinned(SDL_Texture* tex, const std::array<SDL_FPoint, 4>& q) {
+  void drawPinned(SDL_Texture* tex, const std::array<SDL_FPoint, 4>& q, bool area = false) {
     // unit square -> quad (Heckbert)
     const double x0 = q[0].x, y0 = q[0].y, x1 = q[1].x, y1 = q[1].y, x2 = q[2].x, y2 = q[2].y, x3 = q[3].x, y3 = q[3].y;
     const double sx = x0 - x1 + x2 - x3, sy = y0 - y1 + y2 - y3;
@@ -8339,7 +8635,18 @@ class Pocket {
     for (int j = 0; j <= N; ++j) {
       for (int i = 0; i <= N; ++i) {
         const double u = static_cast<double>(i) / N, vv = static_cast<double>(j) / N;
-        v.push_back({at(u, vv), white, {static_cast<float>(u), static_cast<float>(vv)}});
+        float sampleU = static_cast<float>(u), sampleV = static_cast<float>(vv);
+        if (area && mapOutputC()) {
+          const auto& output = *mapOutputC();
+          if (output.outputOrientationDegrees == 90) { sampleU = static_cast<float>(vv); sampleV = 1 - static_cast<float>(u); }
+          else if (output.outputOrientationDegrees == 180) { sampleU = 1 - static_cast<float>(u); sampleV = 1 - static_cast<float>(vv); }
+          else if (output.outputOrientationDegrees == 270) { sampleU = 1 - static_cast<float>(vv); sampleV = static_cast<float>(u); }
+          if (output.outputFlipHorizontal) sampleU = 1 - sampleU;
+          if (output.outputFlipVertical) sampleV = 1 - sampleV;
+          sampleU = output.aoiLeft + sampleU * std::max(0.0f, 1 - output.aoiLeft - output.aoiRight);
+          sampleV = output.aoiTop + sampleV * std::max(0.0f, 1 - output.aoiTop - output.aoiBottom);
+        }
+        v.push_back({at(u, vv), white, {sampleU, sampleV}});
       }
     }
     for (int j = 0; j < N; ++j) {
@@ -8371,8 +8678,8 @@ class Pocket {
     fillRect(renderer_, kBlack, {mapBox_.x - 2 * u, mapBox_.y - 2 * u, mapBox_.w + 4 * u, mapBox_.h + 4 * u});
     mapScale_ = boxW / std::max(1.0f, ow);   // box pixels per output pixel
     const auto q = pinnedCorners(mapBox_, mapScale_);
-    if (programTex_ && !mapConvex()) SDL_RenderTexture(renderer_, programTex_, nullptr, &mapBox_);   // folded: flat, drag a corner back
-    if (programTex_ && mapConvex()) {
+    if (areaPicture() && !mapConvex()) SDL_RenderTexture(renderer_, areaPicture(), nullptr, &mapBox_);   // folded: flat, drag a corner back
+    if (areaPicture() && mapConvex()) {
       // inside the scrolling page's own clip, and that clip put back after:
       // this turned clipping off for the rest of the page (Codex review 11-26)
       SDL_Rect had {};
@@ -8383,7 +8690,7 @@ class Pocket {
       if (clipped && SDL_GetRectIntersection(&clip, &had, &inPage)) clip = inPage;
       else if (clipped) clip = {0, 0, 0, 0};
       SDL_SetRenderClipRect(renderer_, &clip);
-      drawPinned(programTex_, q);
+      drawPinned(areaPicture(), q);
       SDL_SetRenderClipRect(renderer_, clipped ? &had : nullptr);
     }
     static const char* kNames[4] = {"TL", "TR", "BR", "BL"};
@@ -8660,7 +8967,7 @@ class Pocket {
     if (on) buzz("go");
   }
 
-  enum class Drag { None, Scrub, TrimIn, TrimOut, Volume, Slider, MapCorner, XYPad };
+  enum class Drag { None, Scrub, TrimIn, TrimOut, Volume, Slider, MapCorner, XYPad, AreaEdge };
 
   void onDown(float x, float y) {
     downX_ = x;
@@ -8691,7 +8998,7 @@ class Pocket {
         return;
       }
     }
-    if (mapDown(x, y)) return;
+    if (mapDown(x, y) || areaDown(x, y)) return;
     if (calcOpen_ && calcXY_ && inside(xyPad_, x, y)) {   // the XY pad: X and Y follow the finger
       drag_ = Drag::XYPad;
       xyPadAt(x, y);
@@ -8791,6 +9098,14 @@ class Pocket {
   }
 
   void onMove(float x, float y) {
+    if (drag_ == Drag::AreaEdge) {
+      const float fraction = areaEdge_ == 0 ? (x - areaBox_.x) / areaBox_.w
+        : areaEdge_ == 1 ? (y - areaBox_.y) / areaBox_.h
+        : areaEdge_ == 2 ? (areaBox_.x + areaBox_.w - x) / areaBox_.w
+        : (areaBox_.y + areaBox_.h - y) / areaBox_.h;
+      setAreaEdge(areaEdge_, fraction);
+      return;
+    }
     if (menuPress_) {
       if (!menuDragged_ && std::fabs(y - downY_) > 2 * unit_) menuDragged_ = true;
       if (menuDragged_) menuScroll_ = std::clamp(menuScrollFrom_ - (y - downY_), 0.0f, menuScrollMax());
@@ -11025,6 +11340,15 @@ class Pocket {
   int programW_ = 1920, programH_ = 1080;
   float programHz_ = 60.0f;
   SDL_Texture* programTex_ = nullptr;
+  SDL_Texture* areaBase_ = nullptr;
+  SDL_Texture* areaTexture_ = nullptr;
+  SDL_Texture* areaPresented_ = nullptr;
+  struct AreaFrame { Uint64 at; SDL_Texture* texture; };
+  std::deque<AreaFrame> areaFrames_;
+  int areaWidth_ = 0, areaHeight_ = 0, areaDelayMs_ = 0;
+  bool areaDelayFailed_ = false;
+  SDL_FRect areaBox_ {};
+  int areaEdge_ = 0;
   struct Hit { SDL_FRect rect; std::function<void()> fn; };
   std::vector<Hit> hits_;
   Drag drag_ = Drag::None;

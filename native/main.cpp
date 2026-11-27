@@ -8769,6 +8769,7 @@ class App {
   static constexpr int kSettingsActionOutputLayoutSpan = 288;
   static constexpr int kSettingsActionOutputLayoutDuplicate = 289;
   static constexpr int kSettingsActionOutputOrientationCycle = 290;
+  static constexpr int kSettingsActionOutputFlipCycle = 297;   // Mirror: off, horizontal, vertical, both
   static constexpr int kSettingsActionOutputTestCardToggle = 291;
   static constexpr int kSettingsActionOutputTestCardAllToggle = 292;
   static constexpr int kSettingsActionOutputTestCardExport = 769;   // test card -> movie files

@@ -3273,7 +3273,7 @@
         dispRows.push_back(kRowH);                                  // add / remove output
         dispRows.push_back(kRowH);                                  // Shows
         if (outputTypeLabel == "stream") dispRows.push_back(kRowH); // Source
-        for (int i = 0; i < 10; ++i) dispRows.push_back(kRowH);     // display .. orientation, HDR x3
+        for (int i = 0; i < 11; ++i) dispRows.push_back(kRowH);     // display .. orientation, mirror, HDR x3
         int dispSectionH = sectionH(dispRows);
         SDL_Rect displaySection {cx, sy, subContentW, dispSectionH};
         SDL_Rect dBody = drawSectionFrame(displaySection, "DISPLAY & RASTER");
@@ -3461,6 +3461,11 @@
         std::string orientLabel = outputOrientation == 0 ? "0 deg (Normal)"
                                 : std::to_string(outputOrientation) + " deg";
         drawActionBtn(orientBtn, orientLabel, kSettingsActionOutputOrientationCycle);
+
+        SDL_Rect flipBtn = settingsRowIn(dLayout.takeFixed(kRowH), "Mirror");
+        const bool flipH = outputTarget.outputFlipHorizontal, flipV = outputTarget.outputFlipVertical;
+        drawActionBtn(flipBtn, flipH && flipV ? "Both" : flipH ? "Horizontal" : flipV ? "Vertical" : "Off",
+                      kSettingsActionOutputFlipCycle, flipH || flipV);
         sy += dispSectionH + kSectionGap;
 
         // ─── PROMPTER ────────────────────────────────────────────────
@@ -6291,6 +6296,8 @@
         setFocusedOutputLayoutMode("duplicate");
       } else if (sb.action == kSettingsActionOutputOrientationCycle) {
         cycleFocusedOutputOrientation(1);
+      } else if (sb.action == kSettingsActionOutputFlipCycle) {
+        cycleFocusedOutputFlips();
       } else if (sb.action == kSettingsActionOutputTestCardToggle) {
         toggleFocusedOutputTestCardEnabled();
       } else if (sb.action == kSettingsActionOutputTestCardAllToggle) {

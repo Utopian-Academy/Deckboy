@@ -9451,6 +9451,25 @@
           }
           return;
         }
+        if (outputArg == "FLIP") {   // VIDEO OUTPUT FLIP [OFF|H|V|BOTH|NEXT]: the picture mirrored (Settings > Mirror)
+          const OutputTarget& o = focusedOutput();
+          const int now = (o.outputFlipHorizontal ? 1 : 0) | (o.outputFlipVertical ? 2 : 0);
+          if (parts.size() <= 3) {
+            remoteCommandDetail_ = outputFlipLabel(now);
+            return;
+          }
+          const std::string to = toUpper(parts[3]);
+          const int flips = to == "OFF" || to == "NONE" ? 0 : to == "H" || to == "HORIZONTAL" ? 1
+                          : to == "V" || to == "VERTICAL" ? 2 : to == "BOTH" || to == "HV" ? 3
+                          : to == "NEXT" ? (now + 1) % 4 : -1;
+          if (flips < 0) {
+            failRemoteCommand("VIDEO OUTPUT FLIP OFF, H, V, BOTH or NEXT");
+            return;
+          }
+          setFocusedOutputFlips(flips);
+          remoteCommandDetail_ = outputFlipLabel(flips);
+          return;
+        }
         if (outputArg == "ORIENTATION" || outputArg == "ORIENT" || outputArg == "ROTATE" || outputArg == "ROT") {
           if (parts.size() <= 3) {
             triggerToast("orientation: " + outputOrientationLabel(focusedOutput().outputOrientationDegrees));
