@@ -199,8 +199,13 @@ bool probeHapFile(const std::string& path, HapProbeResult& out, std::string& err
 // and on a Mac where those cannot start (bundled for a newer macOS than the
 // machine) every icon on the desk came up blank while the text drew. False
 // when the file cannot be read; the caller then tries the old way.
+// fitW/fitH > 0: shrink to fit inside that box as it is converted (never
+// enlarged), so a 50 MP photo is never held at full size; maxBytes applies to
+// the result. Turned upright from its orientation note (a phone's portrait
+// photo is stored sideways), on every platform, and fitted the right way up.
 bool decodeImageRgba(const std::string& path, int& width, int& height,
-                     std::vector<std::uint8_t>& rgba, int maxBytes = 64 * 1024 * 1024);
+                     std::vector<std::uint8_t>& rgba, int maxBytes = 64 * 1024 * 1024,
+                     int fitW = 0, int fitH = 0);
 
 struct AudioOpenParams {
   std::string path;

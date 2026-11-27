@@ -1947,7 +1947,7 @@ bool downloadGpuFrameNV12(const DecodedFrame& frame, DecodedFrame& out) {
 }
 
 bool decodeImageRgba(const std::string& path, int& width, int& height,
-                     std::vector<std::uint8_t>& rgba, int maxBytes) {
+                     std::vector<std::uint8_t>& rgba, int maxBytes, int fitW, int fitH) {
   AVFormatContext* fmt = nullptr;
   if (avformat_open_input(&fmt, path.c_str(), nullptr, nullptr) < 0) {
     return false;
@@ -1981,30 +1981,9 @@ bool decodeImageRgba(const std::string& path, int& width, int& height,
       got = avcodec_receive_frame(ctx, frame) == 0;
     }
     if (!got || frame->width <= 0 || frame->height <= 0) break;
-    const long long bytes = static_cast<long long>(frame->width) * frame->height * 4;
-    if (bytes > maxBytes) break;
-    sws = sws_getContext(frame->width, frame->height, static_cast<AVPixelFormat>(frame->format),
-                         frame->width, frame->height, AV_PIX_FMT_RGBA, SWS_POINT,
-                         nullptr, nullptr, nullptr);
-    if (!sws) break;
-    // ROOM PAST THE END FOR THE SCALER. sws_scale writes in whole SIMD
-    // blocks, and on a width that is not a multiple of 16 it wrote 32 bytes
-    // beyond the last row (a 200x120 JPEG, measured 2026-11-25): a heap
-    // overrun that crashed the desk and Pocket the first time a Surf decoded
-    // a logo of that width. Padded here, trimmed after.
-    rgba.assign(static_cast<std::size_t>(bytes) + kScalerSlack, 0);
-    std::uint8_t* dst[4] = {rgba.data(), nullptr, nullptr, nullptr};
-    const int dstStride[4] = {frame->width * 4, 0, 0, 0};
-    const int rows = sws_scale(sws, frame->data, frame->linesize, 0, frame->height, dst, dstStride);
-    rgba.resize(static_cast<std::size_t>(bytes));
-    if (rows != frame->height) break;
-    width = frame->width;
-    height = frame->height;
-#if defined(__ANDROID__)
-    // A phone's portrait photo is stored sideways with an orientation note
-    // (EXIF, which the decoder hands over as a display matrix): turn it
-    // upright, as every gallery does. The desk's stills go through the
-    // ffmpeg program, which does the same.
+    // The orientation note first (EXIF, handed over as a display matrix): it
+    // decides which way the fit box lies, and the turn after the conversion.
+    int quarter = 0;   // clockwise quarter turns to stand it upright
     {
       const AVFrameSideData* sd = av_frame_get_side_data(frame, AV_FRAME_DATA_DISPLAYMATRIX);
       const AVPacketSideData* psd = sd ? nullptr : av_packet_side_data_get(
@@ -2017,7 +1996,43 @@ bool decodeImageRgba(const std::string& path, int& width, int& height,
         if (std::isfinite(rot)) {
           double cw = std::fmod(-rot, 360.0);
           if (cw < 0) cw += 360.0;
-          const int q = static_cast<int>(std::lround(cw / 90.0)) % 4;
+          quarter = static_cast<int>(std::lround(cw / 90.0)) % 4;
+        }
+      }
+    }
+    int outW = frame->width, outH = frame->height;
+    if (fitW > 0 && fitH > 0) {
+      const int boxW = (quarter % 2) ? fitH : fitW, boxH = (quarter % 2) ? fitW : fitH;   // in the stored picture's own way up
+      const double s = std::min(1.0, std::min(static_cast<double>(boxW) / frame->width, static_cast<double>(boxH) / frame->height));
+      outW = std::max(1, static_cast<int>(std::lround(frame->width * s)));
+      outH = std::max(1, static_cast<int>(std::lround(frame->height * s)));
+    }
+    const long long bytes = static_cast<long long>(outW) * outH * 4;
+    if (bytes > maxBytes) break;
+    // area averaging when it shrinks (a photo), the exact pixels when it does not
+    sws = sws_getContext(frame->width, frame->height, static_cast<AVPixelFormat>(frame->format),
+                         outW, outH, AV_PIX_FMT_RGBA, outW < frame->width ? SWS_AREA : SWS_POINT,
+                         nullptr, nullptr, nullptr);
+    if (!sws) break;
+    // ROOM PAST THE END FOR THE SCALER. sws_scale writes in whole SIMD
+    // blocks, and on a width that is not a multiple of 16 it wrote 32 bytes
+    // beyond the last row (a 200x120 JPEG, measured 2026-11-25): a heap
+    // overrun that crashed the desk and Pocket the first time a Surf decoded
+    // a logo of that width. Padded here, trimmed after.
+    rgba.assign(static_cast<std::size_t>(bytes) + kScalerSlack, 0);
+    std::uint8_t* dst[4] = {rgba.data(), nullptr, nullptr, nullptr};
+    const int dstStride[4] = {outW * 4, 0, 0, 0};
+    const int rows = sws_scale(sws, frame->data, frame->linesize, 0, frame->height, dst, dstStride);
+    rgba.resize(static_cast<std::size_t>(bytes));
+    if (rows != outH) break;
+    width = outW;
+    height = outH;
+    // A phone's portrait photo is stored sideways with an orientation note:
+    // turn it upright, as every gallery does (and the ffmpeg program does).
+    {
+      {
+        {
+          const int q = quarter;
           if (q != 0) {
             std::vector<std::uint8_t> turned(rgba.size());
             const int w = width, h = height;
@@ -2039,7 +2054,6 @@ bool decodeImageRgba(const std::string& path, int& width, int& height,
         }
       }
     }
-#endif
     ok = true;
   } while (false);
   if (sws) sws_freeContext(sws);

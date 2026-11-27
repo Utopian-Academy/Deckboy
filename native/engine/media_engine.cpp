@@ -7188,6 +7188,25 @@ std::string MediaEngine::mediaPathForCue(const Cue& cue) const {
 // 4K image when the output is 1280x720. Uses "neighbor" scaling (nearest-
 // neighbor) since still images are often pixel-art or diagrams.
 // ---------------------------------------------------------------------------
+#if DECKBOY_INPROC_DECODE
+// A picture decoded in this process (libav), for where there is no ffmpeg
+// program to run (Pocket on a phone has none) or it gave no picture: fitted
+// inside the output as it is converted -- a 50 MP photo never sits in memory
+// at full size -- and turned upright from its orientation note.
+static bool decodeStillInProcess(const std::string& path, int fitW, int fitH, DecodedFrame& frame) {
+  int w = 0, h = 0;
+  std::vector<std::uint8_t> rgba;
+  if (!deckboy::libav::decodeImageRgba(path, w, h, rgba, 256 * 1024 * 1024, fitW, fitH) || w <= 0 || h <= 0) {
+    return false;
+  }
+  frame.width = w;
+  frame.height = h;
+  frame.index = 0;
+  frame.pixels = std::move(rgba);
+  return true;
+}
+#endif
+
 void MediaEngine::loadStillFrame(const Cue& cue) {
   stopImageThread();
   std::string mediaPath = mediaPathForCue(cue);
@@ -7250,14 +7269,36 @@ void MediaEngine::loadStillFrame(const Cue& cue) {
   stillArgs.push_back("rgba");
   stillArgs.push_back("pipe:1");
 
+  const int fitW = capW, fitH = capH;   // (a structured binding cannot be captured)
+  // No ffmpeg program to run -- Pocket on a phone is built without one -- so
+  // the picture is decoded in this process. It used to just return: the cue
+  // stayed black and nothing even said it had failed (James 11-26: "It has to
+  // load images").
   if (!spawnPipeProcess(imageProcess_, stillArgs)) {
+#if DECKBOY_INPROC_DECODE
+    imageThread_ = std::thread([this, mediaPath, fitW, fitH]() {
+      deckboyReleaseSdlStateAtThreadExit();
+      DecodedFrame frame;
+      const bool decoded = decodeStillInProcess(mediaPath, fitW, fitH, frame);
+      if (imageCancelRequested_.load(std::memory_order_acquire)) return;
+      if (decoded) {
+        std::lock_guard<std::mutex> lk(imageMutex_);
+        pendingImageFrame_ = std::move(frame);
+        imageFramePending_.store(true);
+      } else {
+        imageDecodeFailed_.store(true, std::memory_order_release);
+      }
+    });
+#else
+    imageDecodeFailed_.store(true, std::memory_order_release);
+#endif
     return;
   }
 
   // Read the single decoded frame on a background thread
   const size_t frameBytes = static_cast<size_t>(w) * static_cast<size_t>(h) * 4u;
   int imageFd = imageProcess_.readFd;
-  imageThread_ = std::thread([this, w, h, frameBytes, imageFd]() {
+  imageThread_ = std::thread([this, w, h, frameBytes, imageFd, mediaPath, fitW, fitH]() {
     deckboyReleaseSdlStateAtThreadExit();
     DecodedFrame frame;
     frame.width = w;
@@ -7272,7 +7313,21 @@ void MediaEngine::loadStillFrame(const Cue& cue) {
       // The pipe closed before a full frame arrived and we did NOT ask for that
       // (a cue switch would have — stopImageThread sets imageCancelRequested_
       // before killing the process). So this is a real decode failure: ffmpeg
-      // could not produce the still. Latch it for the app to report.
+      // could not produce the still. One more try in this process (a format
+      // the program refused, a program that would not run), then latch it
+      // for the app to report.
+#if DECKBOY_INPROC_DECODE
+      DecodedFrame again;
+      if (decodeStillInProcess(mediaPath, fitW, fitH, again) &&
+          !imageCancelRequested_.load(std::memory_order_acquire)) {
+        std::lock_guard<std::mutex> lk(imageMutex_);
+        pendingImageFrame_ = std::move(again);
+        imageFramePending_.store(true);
+        return;
+      }
+#else
+      (void)mediaPath; (void)fitW; (void)fitH;
+#endif
       imageDecodeFailed_.store(true, std::memory_order_release);
     }
   });

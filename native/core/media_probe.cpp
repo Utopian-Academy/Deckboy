@@ -22,6 +22,7 @@
 
 #if DECKBOY_INPROC_DECODE
 extern "C" {
+#include <libavcodec/avcodec.h>
 #include <libavformat/avformat.h>
 #include <libavutil/display.h>
 #include <libavutil/pixdesc.h>
@@ -189,6 +190,43 @@ std::optional<InProcessProbe> probeInProcess(const fs::path& mediaPath) {
     const int64_t size = avio_size(fmt->pb);
     if (size > 0) out += "size=" + std::to_string(size) + "\n";
   }
+  // A PHOTO keeps its orientation in EXIF, which arrives on the decoded frame,
+  // never the stream: without this a phone's portrait photo came in at its
+  // stored (sideways) size and was drawn stretched (2026-11-26). Pictures
+  // only (the image demuxers): one frame decoded, its side data read.
+  const std::string demuxer = fmt->iformat && fmt->iformat->name ? fmt->iformat->name : "";
+  const bool picture = demuxer == "image2" || demuxer.find("_pipe") != std::string::npos;
+  if (probe.rotation == 0 && picture) {
+    const int vi = av_find_best_stream(fmt, AVMEDIA_TYPE_VIDEO, -1, -1, nullptr, 0);
+    const AVCodec* codec = vi >= 0 ? avcodec_find_decoder(fmt->streams[vi]->codecpar->codec_id) : nullptr;
+    AVCodecContext* ctx = codec ? avcodec_alloc_context3(codec) : nullptr;
+    AVPacket* packet = av_packet_alloc();
+    AVFrame* frame = av_frame_alloc();
+    if (ctx && packet && frame && avcodec_parameters_to_context(ctx, fmt->streams[vi]->codecpar) >= 0 &&
+        avcodec_open2(ctx, codec, nullptr) >= 0) {
+      bool got = false;
+      while (!got && av_read_frame(fmt, packet) >= 0) {
+        if (packet->stream_index == vi && avcodec_send_packet(ctx, packet) >= 0) {
+          got = avcodec_receive_frame(ctx, frame) == 0;
+        }
+        av_packet_unref(packet);
+      }
+      if (!got) {
+        avcodec_send_packet(ctx, nullptr);
+        got = avcodec_receive_frame(ctx, frame) == 0;
+      }
+      if (got) {
+        if (const AVFrameSideData* sd = av_frame_get_side_data(frame, AV_FRAME_DATA_DISPLAYMATRIX);
+            sd && sd->size >= 9 * sizeof(int32_t)) {
+          const double rot = av_display_rotation_get(reinterpret_cast<const int32_t*>(sd->data));
+          if (std::isfinite(rot)) probe.rotation = static_cast<int>(std::lround(rot));
+        }
+      }
+    }
+    av_frame_free(&frame);
+    av_packet_free(&packet);
+    avcodec_free_context(&ctx);
+  }
   avformat_close_input(&fmt);
   return probe;
 }
@@ -341,13 +379,41 @@ std::optional<Cue> probeCue(const fs::path& mediaPath) {
       "-of", "default=noprint_wrappers=1",
       mediaPath.string()
     });
+    bool rotationFound = false;
     if (sideData) {
       for (const auto& line : splitLines(*sideData)) {
         auto sep = line.find('=');
         if (sep != std::string::npos && line.substr(0, sep) == "rotation") {
+          rotationFound = true;
           int rot = std::abs(std::atoi(line.substr(sep + 1).c_str()));
           if (rot == 90 || rot == 270) {
             std::swap(cue.width, cue.height);
+          }
+        }
+      }
+    }
+    // A PHOTO keeps its orientation in EXIF, which ffmpeg reports on the
+    // decoded FRAME, never the stream: a phone's portrait photo (stored
+    // sideways, marked to turn) came in at its stored size, the ffmpeg
+    // program turned it upright, and the picture was squeezed into the
+    // sideways size -- stretched (2026-11-26). Pictures only: one frame.
+    if (!rotationFound && cue.kind == CueKind::Image) {
+      auto frameData = readAllText({
+        "ffprobe", "-v", "error", "-select_streams", "v:0",
+        "-read_intervals", "%+#1", "-show_frames",
+        "-show_entries", "frame_side_data=rotation",
+        "-of", "default=noprint_wrappers=1",
+        mediaPath.string()
+      });
+      if (frameData) {
+        for (const auto& line : splitLines(*frameData)) {
+          auto sep = line.find('=');
+          if (sep != std::string::npos && line.substr(0, sep) == "rotation") {
+            int rot = std::abs(std::atoi(line.substr(sep + 1).c_str()));
+            if (rot == 90 || rot == 270) {
+              std::swap(cue.width, cue.height);
+            }
+            break;
           }
         }
       }

@@ -1199,6 +1199,14 @@ class Pocket {
     tbarService();
     serviceDirection();
     serviceStills();
+    // A picture the engine could not read is SAID, never left as black: the
+    // phone's pictures all came up black once, with nothing said (11-26).
+    if (engine_ && engine_->consumeStillDecodeFailure()) {
+      const std::string name = active_ >= 0 && active_ < static_cast<int>(cues_.size())
+                                 ? cues_[static_cast<std::size_t>(active_)].name : std::string();
+      notice_ = deckboy::core::i18n::format("Could not read {1}", {name});
+      noticeUntil_ = SDL_GetTicks() + 4000;
+    }
     serviceMeter();
     // holding the left pill opens its choices (MENU > SKIN > LEFT BUTTON)
     if (pillDownAt_ && SDL_GetTicks() - pillDownAt_ > 600) {
@@ -2350,7 +2358,8 @@ class Pocket {
     heading("PHONE");
     {
       // one a row: side by side, the longer label was cut off (James 11-23: "squished")
-      button({lx, y, lw, 5 * u}, haptics_ ? "HAPTICS: ON" : "HAPTICS: OFF",   // James 11-26: "should just be Haptics"
+      // HAPTICS (James 11-26), once "buttons you can feel"
+      button({lx, y, lw, 5 * u}, haptics_ ? "HAPTICS: ON" : "HAPTICS: OFF",
              [this] { setHaptics(!haptics_); }, true, haptics_);
       y += 6 * u;
       button({lx, y, lw, 5 * u}, splashOn_ ? "SPLASH AT START: ON" : "SPLASH AT START: OFF",
