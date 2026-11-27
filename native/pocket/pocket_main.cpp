@@ -1424,8 +1424,11 @@ class Pocket {
       }
       applyLanguage(data, sans_, language_);
     }
-    // the faces' own print: Liberation Mono at 2 mm (pocket-skins text size 2.0)
-    printFont_ = TTF_OpenFont((data + "fonts/LiberationMono-Regular.ttf").c_str(), 2.0f * u);
+    // The left pill's word, printed to match the MENU the shell prints beside
+    // it. The shells set MENU at Blender text size 2.0, which comes out smaller
+    // than Liberation Mono at 2.0 units: on a phone MENU's capitals were 14.5 px
+    // to the word's 19.5 (James 11-27: "still too big"). 1.5 units matches them.
+    printFont_ = TTF_OpenFont((data + "fonts/LiberationMono-Regular.ttf").c_str(), kPrintSize * u);
     {
       using deckboy::render::shaping::registerFace;
       if (pixel_) registerFace(pixel_, data + "PressStart2P.ttf", 2.6f * u);
@@ -1433,7 +1436,7 @@ class Pocket {
       if (pixelTiny_) registerFace(pixelTiny_, data + "PressStart2P.ttf", 1.25f * u);
       if (sans_) registerFace(sans_, data + "fonts/LiberationSans-Regular.ttf", 3.0f * u);
       if (mono_) registerFace(mono_, data + "fonts/LiberationMono-Regular.ttf", 2.9f * u);
-      if (printFont_) registerFace(printFont_, data + "fonts/LiberationMono-Regular.ttf", 2.0f * u);
+      if (printFont_) registerFace(printFont_, data + "fonts/LiberationMono-Regular.ttf", kPrintSize * u);
     }
     if (!pixel_ || !mono_) SDL_Log("pocket: fonts missing under %s (%s)", data.c_str(), SDL_GetError());
   }
@@ -11509,6 +11512,7 @@ class Pocket {
   TTF_Font* sans_ = nullptr;
   TTF_Font* mono_ = nullptr;
   TTF_Font* printFont_ = nullptr;
+  static constexpr float kPrintSize = 1.5f;   // the left pill's word, in face units (matches the shells' MENU)
   bool shellBold_ = false;   // the shell prints its legends heavier (ShellInfo::bold)
 
   std::vector<Cue> cues_;
