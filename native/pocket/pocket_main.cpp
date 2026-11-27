@@ -8203,7 +8203,26 @@ class Pocket {
     const deckboy::face::Box area {static_cast<int>(pic.x), static_cast<int>(pic.y), static_cast<int>(pic.w), static_cast<int>(pic.h)};
     // a little smaller than the desk's share of the box (James 11-20)
     const int unitMax = std::max(18, std::min(area.w, area.h) / 8);
-    const deckboy::face::Frame f = deckboy::face::layout(area, now, mood, facePokes_, 12, unitMax);
+    // The line first: wrapped to the picture's width (James: "getting cut
+    // off"). Its rows sit three face-units below the face's centre, but no
+    // lower than the picture's bottom; three rows were pushed up under the
+    // mouth (James 11-27: "the mouth just gets a bit close to the text").
+    // Then, whenever the text stands higher than that, the face scrunches up
+    // into the room above it (James 11-27: "have the face scrunch up if text
+    // goes higher for whatever reason, so the mouth doesn't go under the
+    // text"): laid out in a shorter box, so smaller and higher, a tenth at a
+    // time until the gap holds.
+    const float u = unit_, lineH = 4.2f * u;
+    std::string full;
+    const std::string shown = faceLine(now, mood, full);
+    const std::vector<std::string> rows = wrapText(mono_, full, pic.w - 4 * u);
+    const float blockH = lineH * static_cast<float>(rows.size());
+    const float textCap = pic.y + pic.h - blockH - 0.5f * u;
+    deckboy::face::Frame f = deckboy::face::layout(area, now, mood, facePokes_, 12, unitMax);
+    for (deckboy::face::Box room = area; !f.gone && static_cast<float>(f.cy + f.unit * 3) > textCap && room.h > area.h / 3;) {
+      room.h = room.h * 9 / 10;
+      f = deckboy::face::layout(room, now, mood, facePokes_, 12, std::max(18, std::min(room.w, room.h) / 8));
+    }
     // warm amber phosphor, glowing against the green tube (James 11-20:
     // "a complementary glowing colour", not white)
     const Ink glow {255, 186, 96};
@@ -8248,16 +8267,11 @@ class Pocket {
     faceCx_ = static_cast<float>(f.cx);
     faceCy_ = static_cast<float>(f.cy);
     faceR_ = static_cast<float>(f.radius);
-    // the line, wrapped to the picture's width (James: "getting cut off")
-    const float u = unit_, lineH = 4.2f * u;
-    std::string full;
-    const std::string shown = faceLine(now, mood, full);
-    const std::vector<std::string> rows = wrapText(mono_, full, pic.w - 4 * u);
+    // the line (wrapped above, before the face was placed)
     const bool typing = !shown.empty() && shown != full && shown.size() <= full.size() + 1 &&
                         (shown.back() == '_' || shown.back() == ' ') && full.compare(0, shown.size() - 1, shown, 0, shown.size() - 1) == 0;
     const std::size_t typedLen = typing ? shown.size() - 1 : std::min(shown.size(), full.size());
-    const float blockH = lineH * static_cast<float>(rows.size());
-    float ty = std::min(pic.y + pic.h - blockH - 0.5f * u, static_cast<float>(f.cy + f.unit * 3));
+    float ty = std::min(textCap, static_cast<float>(f.cy + f.unit * 3));
     std::size_t at = 0;
     for (std::size_t i = 0; i < rows.size(); ++i) {
       const std::size_t start = full.find(rows[i], at);

@@ -175,7 +175,6 @@ inline constexpr const char* kPocketFaceLines[] = {
     "Why did the cue cross the road? Somebody pressed GO.",
     "I tried a dissolve once. Now I am in pieces.",
     "My favourite colour is SMPTE.",
-    "Knock knock. Who is there? Black. Black who? Exactly.",
     "I would tell you a loop joke. I would tell you a loop joke.",
     "What do you call a video with no frames? A radio.",
     "Two pixels walk into a bar. It is a colour bar.",
