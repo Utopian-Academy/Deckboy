@@ -68,13 +68,30 @@ def main():
         for line in ("FADE WHAT effect", "FADE EFFECT 1", "FADE KNOB amount", "FADE TO 0", "FADE OVER 1.0"):
             db.send(line)
         print("    " + db.send("FADE"))
+        # The amount is read against the TIME it was read at, not a fixed band:
+        # on a slow CI runner the "half-way" read came 0.86 s into the 1 s
+        # fade and saw 14%, which is the right value for then (0.99.431's tag
+        # build failed on it). Between the fire and the read the ramp can be
+        # anywhere from (read sent - fire answered) to (read answered - fire
+        # sent) seconds in, so the amount must lie in that span, give or take
+        # one frame and a few percent.
+        fire_sent = time.monotonic()
         print("    " + db.send("FADE FIRE"))
+        fire_done = time.monotonic()
         time.sleep(0.5)
         db.send("SELECT " + PLAYING)
+        read_sent = time.monotonic()
         mid = knob(db.send("FX GET 1"), "amount")
+        read_done = time.monotonic()
+        earliest = max(0.0, read_sent - fire_done - 0.05)
+        latest = min(1.0, read_done - fire_sent + 0.05)
+        high = 100.0 * (1.0 - earliest) + 5
+        low = 100.0 * (1.0 - latest) - 5
         time.sleep(1.0)
         end = knob(db.send("FX GET 1"), "amount")
-        note("an effect's amount ramps down through the middle", mid is not None and 15 <= mid <= 85, mid)
+        note("an effect's amount ramps down through the middle (%s%% with %.2f-%.2f s gone, so %.0f-%.0f%%)"
+             % (mid, earliest, latest, max(0, low), min(100, high)),
+             mid is not None and 0 < mid < 100 and low <= mid <= high, mid)
         note("and lands on 0", end == 0, end)
 
         db.send("SELECT " + fade)
