@@ -35,9 +35,13 @@ Free and open source, for Windows, macOS and Linux.
 **If Deckboy is useful to you, ⭐ star this repository** (top right): it is how the next
 operator finds it, and how you find it again.
 
-### What's new in 0.99.430
+### What's new in 0.99.431
 
-[Release notes and downloads](https://github.com/Utopian-Academy/Deckboy/releases/tag/v0.99.430)
+[Release notes and downloads](https://github.com/Utopian-Academy/Deckboy/releases/tag/v0.99.431)
+
+0.99.431 puts Surf in the desk's SOURCE menu (SOURCE > MADE BY DECKBOY). In 0.99.430 the desk could add it only
+with a remote command. The SOURCE menu also has more sections and less empty space. The rest is new in 0.99.430
+([release notes](https://github.com/Utopian-Academy/Deckboy/releases/tag/v0.99.430)):
 
 **Deckboy Pocket (new)**
 

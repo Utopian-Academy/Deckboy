@@ -1,6 +1,6 @@
 # CHANGES - Incremental Updates (March-October 2026)
 
-## Unreleased
+## 2026-11-27 - v0.99.431 (Surf in the SOURCE menu; the SOURCE menu balanced)
 
 ### Desk
 - Fixed an issue where Surf was not in the SOURCE menu, so the desk could add it only with the remote command `PATTERN ADD surf`. It is now in SOURCE > MADE BY DECKBOY.
