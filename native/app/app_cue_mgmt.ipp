@@ -3136,25 +3136,18 @@
       {0, 0, 0, 0},
       [this]() { addIllusionCue(); }
     });
+    // Surf was in no menu in 0.99.430: only a remote PATTERN ADD surf, Pocket
+    // or an older show could make one (James 11-27: "where is surf?").
+    contextItems_.push_back({
+      "  Surf (a sea to throw things into)",
+      {0, 0, 0, 0},
+      [this]() { addGeneratorCue("surf"); }
+    });
     contextItems_.push_back({
       "  Lumia (laser light and mirrors)",
       {0, 0, 0, 0},
       [this]() { addLumiaCue(); }
     });
-    // Shaders (ISF, a .fs file): one to load, then the ones Deckboy ships and
-    // the operator's own from the shader folder.
-    contextItems_.push_back({
-      "  Shader (.fs)...",
-      {0, 0, 0, 0},
-      [this]() { chooseShaderFile(); }
-    });
-    for (const auto& shader : listShaders()) {
-      contextItems_.push_back({
-        "  Shader: " + shader.name,
-        {0, 0, 0, 0},
-        [this, path = shader.path]() { addShaderCue(path); }
-      });
-    }
     // The Konami secret, once this save has unlocked it.
     if (project_.terrariumUnlocked) {
       contextItems_.push_back({
@@ -3184,6 +3177,12 @@
       {0, 0, 0, 0},
       [this]() { addGeneratorCue("code"); }
     });
+    // MADE BY DECKBOY was one section of 25 rows, and a menu's columns break
+    // only between sections, so it set every column's height: the others stood
+    // half empty, and with one more entry the last rows ran past the window
+    // (James 11-27: "lots of empty space in the source picker"). Shaders, text
+    // and timers, and the sound makers are sections of their own.
+    contextItems_.push_back({"TEXT AND TIMERS", {0, 0, 0, 0}, nullptr});
     contextItems_.push_back({
       "  Text (a title card or a crawl)",
       {0, 0, 0, 0},
@@ -3201,8 +3200,24 @@
       {0, 0, 0, 0},
       [this]() { addTimerCue(300); }
     });
+    contextItems_.push_back({"SHADERS", {0, 0, 0, 0}, nullptr});
+    // Shaders (ISF, a .fs file): one to load, then the ones Deckboy ships and
+    // the operator's own from the shader folder.
+    contextItems_.push_back({
+      "  Shader (.fs)...",
+      {0, 0, 0, 0},
+      [this]() { chooseShaderFile(); }
+    });
+    for (const auto& shader : listShaders()) {
+      contextItems_.push_back({
+        "  Shader: " + shader.name,
+        {0, 0, 0, 0},
+        [this, path = shader.path]() { addShaderCue(path); }
+      });
+    }
     // Both chips get their own entry. One menu item that then needs a second
     // control changed is the same discoverability problem one level down.
+    contextItems_.push_back({"SYNTHS AND VOICE", {0, 0, 0, 0}, nullptr});
     contextItems_.push_back({
       "  2A03 Synth (the NES sound chip)",
       {0, 0, 0, 0},

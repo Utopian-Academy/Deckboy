@@ -255,25 +255,52 @@
     std::vector<int> columnOf(static_cast<std::size_t>(count), 0), rowOf(static_cast<std::size_t>(count), 0);
     int columns = minColumns, rows = (count + minColumns - 1) / minColumns;
     bool packed = false;
+    // The widest label sets every column's width (below); here it says how
+    // many columns the window can take side by side.
+    int widestLabel = 0;
+    for (const auto& item : contextItems_) widestLabel = std::max(widestLabel, measuredTextWidth(fontSmall_, item.label));
+    const int narrowestCol = std::max(uiScaled(246), widestLabel + uiScaled(40));
+    const int columnsThatFit =
+        std::max(minColumns, (winW - uiScaled(8) - pad * 2 + uiScaled(4)) / (narrowestCol + uiScaled(4)));
     if (sectionStarts.size() > 1 && largest <= rowsPerColumn) {
-      for (int target = std::max(largest, (count + minColumns - 1) / minColumns); target <= rowsPerColumn && !packed;
-           ++target) {
+      // Pack whole sections, in order, at every column height that fits, and
+      // keep the one that leaves the fewest empty rows (columns x height -
+      // items); on a tie, fewer columns. The first height that fitted two
+      // columns used to win, so one long section made every column its
+      // height and the rest stood half empty (the SOURCE menu, 2026-11-27).
+      int bestTarget = -1, bestWaste = 0, bestColumns = 0;
+      for (int target = largest; target <= rowsPerColumn; ++target) {
         int col = 0, used = 0, tallest = 0;
         for (std::size_t k = 0; k < sectionStarts.size(); ++k) {
           const int end = k + 1 < sectionStarts.size() ? sectionStarts[k + 1] : count;
           const int size = end - sectionStarts[k];
           if (used > 0 && used + size > target) { ++col; used = 0; }
+          used += size;
+          tallest = std::max(tallest, used);
+        }
+        if (col + 1 > columnsThatFit) continue;
+        const int waste = (col + 1) * tallest - count;
+        if (bestTarget < 0 || waste < bestWaste || (waste == bestWaste && col + 1 < bestColumns)) {
+          bestTarget = target;
+          bestWaste = waste;
+          bestColumns = col + 1;
+        }
+      }
+      if (bestTarget >= 0) {
+        int col = 0, used = 0, tallest = 0;
+        for (std::size_t k = 0; k < sectionStarts.size(); ++k) {
+          const int end = k + 1 < sectionStarts.size() ? sectionStarts[k + 1] : count;
+          const int size = end - sectionStarts[k];
+          if (used > 0 && used + size > bestTarget) { ++col; used = 0; }
           for (int i = sectionStarts[k]; i < end; ++i) {
             columnOf[static_cast<std::size_t>(i)] = col;
             rowOf[static_cast<std::size_t>(i)] = used++;
           }
           tallest = std::max(tallest, used);
         }
-        if (col + 1 <= std::max(minColumns, 2) || target == rowsPerColumn) {
-          columns = col + 1;
-          rows = tallest;
-          packed = true;
-        }
+        columns = col + 1;
+        rows = tallest;
+        packed = true;
       }
     }
     if (!packed) {

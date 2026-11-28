@@ -1,5 +1,11 @@
 # CHANGES - Incremental Updates (March-October 2026)
 
+## Unreleased
+
+### Desk
+- Fixed an issue where Surf was not in the SOURCE menu, so the desk could add it only with the remote command `PATTERN ADD surf`. It is now in SOURCE > MADE BY DECKBOY.
+- Changed: the SOURCE menu has three more sections: SHADERS, TEXT AND TIMERS, and SYNTHS AND VOICE. Its columns are now balanced, so the menu has less empty space.
+
 ## 2026-11-27 - v0.99.430 (Deckboy Pocket for Android; backup desk and phone outputs; desk layouts; rendered skins; Surf, Illusion, Mega Ripple, Breath)
 
 ### Deckboy Pocket (new)
@@ -60,7 +66,7 @@
 - For theme authors: `style_` lines in `theme.txt` set the shape and finish (manual, chapter 21). `style_kit <folder>` selects a kit in `data/desk-kits`.
 
 ### Sources
-- New: **Surf** (SOURCE > PATTERN). A side view of the sea, made by a fluid simulation. Waves come in, rise over the shallows and break on the sand. Each Surf has its own beach. NEW BEACH makes a different one. Objects that you throw in move with the water and wash up: a duck, a beach ball, a rubber chicken, a toaster, a watermelon, a traffic cone, a bottle, a surfboard, a critter, a surprise, or one of your cues (a picture or logo with its transparency, a video's first frame, or a text cue's words). Throw objects in with the THROW IN buttons, by dragging a cue onto the monitor, or with a Target cue set to "Throw into Surf". Settings: WAVE HEIGHT, PERIOD, WIND, SKY (day, sunset, night) and THROWS IN, each with an LFO. On Pocket, hold the picture while it is on air to throw things in. Processor time at 1080p: about 6 ms. Remote: `SURF DROP <thing|cue number|cue name> [x%]`, `SURF CLEAR`, `SURF BEACH`, `SURF THINGS`.
+- New: **Surf** (SOURCE > MADE BY DECKBOY, from 0.99.431; in 0.99.430 only on Pocket and by `PATTERN ADD surf`). A side view of the sea, made by a fluid simulation. Waves come in, rise over the shallows and break on the sand. Each Surf has its own beach. NEW BEACH makes a different one. Objects that you throw in move with the water and wash up: a duck, a beach ball, a rubber chicken, a toaster, a watermelon, a traffic cone, a bottle, a surfboard, a critter, a surprise, or one of your cues (a picture or logo with its transparency, a video's first frame, or a text cue's words). Throw objects in with the THROW IN buttons, by dragging a cue onto the monitor, or with a Target cue set to "Throw into Surf". Settings: WAVE HEIGHT, PERIOD, WIND, SKY (day, sunset, night) and THROWS IN, each with an LFO. On Pocket, hold the picture while it is on air to throw things in. Processor time at 1080p: about 6 ms. Remote: `SURF DROP <thing|cue number|cue name> [x%]`, `SURF CLEAR`, `SURF BEACH`, `SURF THINGS`.
 - Surf has music. Set MUSIC to ON in the SURF section (on Pocket, on the SET page). The music loops and follows the sky: one recording for day and sunset, one for night, with a 2-second crossfade. It uses the cue's level, pan and fades. Remote: `SURF MUSIC ON|OFF`, `SURF SKY DAY|SUNSET|NIGHT`.
 - Warning: the new beach is haunted.
 - New: **Illusion** (SOURCE > MADE BY DECKBOY). Six optical illusions: **Drift** (rows of shapes that seem to turn), **Ouchi** (a disc of tiles that seems to float), **Cafe wall** (straight rows that look tilted), **Vanish** (dots that disappear while you look at the centre), **Grid** (dark dots that seem to flicker) and **Dancer** (a silhouette that seems to turn in either direction). Each number has an LFO. It runs on the graphics card at 60 fps at 4K (Direct3D 11 and 12; Metal and Vulkan not yet tested), or on the processor in about 12 ms for a 4K frame. Remote: `ILLUSION`.
