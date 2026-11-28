@@ -1,5 +1,10 @@
 # CHANGES - Incremental Updates (March-October 2026)
 
+## Unreleased
+
+### Integrations
+- Companion module 1.2.1: an action whose text field is empty (Say, Character, Effect choice, Shader file and input, Lumia value, Pad controls, Code, Sequence) writes a warning in Companion's log instead of doing nothing. A playlist, output or window number shows only when the chosen option uses it, and stops at the desk's own limit (16 playlists, 16 outputs, 24 multiview windows). The effect LFO action uses the same setting list as the other LFO actions, and the Lumia actions name each control as the desk does.
+
 ## 2026-11-27 - v0.99.431 (Surf in the SOURCE menu; the SOURCE menu balanced)
 
 ### Desk

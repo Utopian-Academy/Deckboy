@@ -14,6 +14,13 @@ const LUMIA_CONTROLS = [
 	'palette', 'mode', 'topbottom', 'listens', 'flow', 'water', 'ripple', 'jet', 'prism', 'split',
 	'focus', 'shimmer', 'mirrors', 'angle', 'spin', 'lens', 'glow', 'bright', 'trail',
 ]
+// Their labels as the desk's inspector writes them (Bitfocus review of 1.1.0, N2).
+const LUMIA_LABELS = {
+	palette: 'Lasers (palette)', mode: 'Mode', topbottom: 'Top / bottom', listens: 'Listens', flow: 'Flow',
+	water: 'Water', ripple: 'Ripple size', jet: 'Second jet', prism: 'Prism', split: 'Split', focus: 'Focus',
+	shimmer: 'Shimmer', mirrors: 'Mirrors', angle: 'Panel angle', spin: 'Spin', lens: 'Lens', glow: 'Glow',
+	bright: 'Brightness', trail: 'Trail',
+}
 // Two choices and two switches have no oscillator.
 const LUMIA_NO_LFO = ['palette', 'mode', 'topbottom', 'listens']
 // The Illusion controls ILLUSION takes by name; the pickers and FLIP have no oscillator.
@@ -92,6 +99,15 @@ export function buildActions(self) {
 		options: [deckOption],
 		callback: async ({ options }) => withDeck(options, command),
 	})
+
+	// A text field that must not be empty: its trimmed text, or '' with a warning
+	// in the log, so an empty field never silently does nothing (Bitfocus review
+	// of 1.1.0, item L1: the same pattern as Mask invert).
+	const required = (value, what) => {
+		const text = String(value ?? '').trim()
+		if (!text) self.log('warn', `${what} is empty — nothing sent`)
+		return text
+	}
 
 	// The oscillator settings every LFO verb shares (FX LFO, LUMIA LFO, SHADER LFO).
 	const lfoSettingOption = () => ({
@@ -231,8 +247,8 @@ export function buildActions(self) {
 				},
 			],
 			callback: async ({ options }) => {
-				const steps = String(options.steps ?? '').trim()
-				if (steps.length > 0) send(`SEQ ${steps}`)
+				const steps = required(options.steps, 'Sequence steps')
+				if (steps) send(`SEQ ${steps}`)
 			},
 		},
 		sequence_stop: { name: 'Stop running sequences', options: [], callback: () => send('SEQ STOP') },
@@ -558,7 +574,7 @@ export function buildActions(self) {
 				{ type: 'number', label: 'Amount', id: 'amount', default: 1, min: 0, max: 1, step: 0.01 },
 			],
 			callback: async ({ options }) => {
-				const effect = String(options.effect ?? '').trim()
+				const effect = required(options.effect, 'Effect')
 				const amount = number(options.amount, 'Amount')
 				if (effect.length > 0 && amount !== null) send(`FX ADD ${effect} ${amount}`)
 			},
@@ -659,8 +675,8 @@ export function buildActions(self) {
 			],
 			callback: async ({ options }) => {
 				const index = number(options.index, 'Effect number', { integer: true })
-				const value = String(options.value ?? '').trim()
-				if (index !== null && value.length > 0) send(`FX CHOICE ${index} ${choice(options.slot, 'A')} ${value}`)
+				const value = index === null ? '' : required(options.value, 'Choice')
+				if (index !== null && value) send(`FX CHOICE ${index} ${choice(options.slot, 'A')} ${value}`)
 			},
 		},
 		fx_lfo: {
@@ -684,24 +700,7 @@ export function buildActions(self) {
 						{ id: 'G', label: 'G (sixth parameter)' },
 					],
 				},
-				{
-					type: 'dropdown',
-					disableAutoExpression: true,
-					label: 'Setting',
-					id: 'what',
-					default: 'on',
-					choices: [
-						{ id: 'on', label: 'On' },
-						{ id: 'off', label: 'Off' },
-						{ id: 'shape', label: 'Shape' },
-						{ id: 'rate', label: 'Rate (Hz)' },
-						{ id: 'depth', label: 'Depth' },
-						{ id: 'phase', label: 'Phase' },
-						{ id: 'sync', label: 'Follow the tempo' },
-						{ id: 'beats', label: 'Cycle length in beats' },
-						{ id: 'listen', label: 'Listens to: auto, playlist or input (audio shapes)' },
-					],
-				},
+				lfoSettingOption(),
 				{
 					type: 'textinput',
 					label: 'Value (blank for on/off)',
@@ -839,8 +838,8 @@ export function buildActions(self) {
 				'One expression, or three separated by commas for red, green and blue. Refused if it does not compile.',
 			options: [{ type: 'textinput', label: 'Expression', id: 'expression', default: '', useVariables: true }],
 			callback: async ({ options }) => {
-				const expression = String(options.expression ?? '').trim()
-				if (expression.length > 0) send(`CODE SET ${expression}`)
+				const expression = required(options.expression, 'Expression')
+				if (expression) send(`CODE SET ${expression}`)
 			},
 		},
 
@@ -932,7 +931,7 @@ export function buildActions(self) {
 			name: 'Multiview: what a window shows',
 			description: 'The playlist or output number is used only when you choose Playlist or Output.',
 			options: [
-				{ type: 'number', label: 'Window', id: 'window', default: 1, min: 1, max: 64, asInteger: true },
+				{ type: 'number', label: 'Window', id: 'window', default: 1, min: 1, max: 24, asInteger: true },
 				{
 					type: 'dropdown',
 					label: 'Shows',
@@ -949,7 +948,16 @@ export function buildActions(self) {
 						{ id: 'empty', label: 'Empty' },
 					],
 				},
-				{ type: 'number', label: 'Playlist or output number', id: 'number', default: 1, min: 1, max: 64, asInteger: true },
+				{
+					type: 'number',
+					label: 'Playlist or output number',
+					id: 'number',
+					default: 1,
+					min: 1,
+					max: Math.max(MAX_DECKS, MAX_OUTPUTS),
+					asInteger: true,
+					isVisibleExpression: `$(options:source) == 'deck' || $(options:source) == 'output'`,
+				},
 			],
 			callback: ({ options }) => {
 				const windowNumber = number(options.window, 'Window', { integer: true })
@@ -1002,8 +1010,26 @@ export function buildActions(self) {
 						{ id: 'matte', label: 'The matte of an output' },
 					],
 				},
-				{ type: 'number', label: 'Output', id: 'output', default: 1, min: 1, max: MAX_OUTPUTS, asInteger: true },
-				{ type: 'number', label: 'Playlist', id: 'playlist', default: 1, min: 1, max: MAX_DECKS, asInteger: true },
+				{
+					type: 'number',
+					label: 'Output',
+					id: 'output',
+					default: 1,
+					min: 1,
+					max: MAX_OUTPUTS,
+					asInteger: true,
+					isVisibleExpression: `$(options:where) != 'cue'`,
+				},
+				{
+					type: 'number',
+					label: 'Playlist',
+					id: 'playlist',
+					default: 1,
+					min: 1,
+					max: MAX_DECKS,
+					asInteger: true,
+					isVisibleExpression: `$(options:where) == 'layer'`,
+				},
 			],
 			callback: ({ options }) => {
 				const mask = String(options.mask ?? '').trim() || 'NONE'
@@ -1244,8 +1270,8 @@ export function buildActions(self) {
 				'Makes a shader cue from an ISF file. Give the path on the Deckboy computer. Works only when Companion runs on that computer: Deckboy refuses a file path from another one.',
 			options: [{ type: 'textinput', label: 'Path to the .fs file', id: 'path', default: '', useVariables: true }],
 			callback: async ({ options }) => {
-				const path = String(options.path ?? '').trim()
-				if (path.length > 0) send(`SHADER LOAD ${path}`)
+				const path = required(options.path, 'Shader file')
+				if (path) send(`SHADER LOAD ${path}`)
 			},
 		},
 		shader_set: {
@@ -1257,9 +1283,9 @@ export function buildActions(self) {
 				{ type: 'textinput', label: 'Value', id: 'value', default: '0.5', useVariables: true },
 			],
 			callback: async ({ options }) => {
-				const input = String(options.input ?? '').trim()
-				const value = String(options.value ?? '').trim()
-				if (input.length > 0 && value.length > 0) send(`SHADER SET ${input} ${value}`)
+				const input = required(options.input, 'Shader input')
+				const value = input ? required(options.value, 'Value') : ''
+				if (input && value) send(`SHADER SET ${input} ${value}`)
 			},
 		},
 		shader_lfo: {
@@ -1271,9 +1297,9 @@ export function buildActions(self) {
 				{ type: 'textinput', label: 'Value (blank for on/off)', id: 'value', default: '', useVariables: true },
 			],
 			callback: async ({ options }) => {
-				const input = String(options.input ?? '').trim()
+				const input = required(options.input, 'Shader input')
 				const value = String(options.value ?? '').trim()
-				if (input.length > 0) send(`SHADER LFO ${input} ${choice(options.what, 'on')}${value ? ' ' + value : ''}`)
+				if (input) send(`SHADER LFO ${input} ${choice(options.what, 'on')}${value ? ' ' + value : ''}`)
 			},
 		},
 
@@ -1289,13 +1315,13 @@ export function buildActions(self) {
 					label: 'Control',
 					id: 'control',
 					default: 'flow',
-					choices: LUMIA_CONTROLS.map((id) => ({ id, label: id[0].toUpperCase() + id.slice(1) })),
+					choices: LUMIA_CONTROLS.map((id) => ({ id, label: LUMIA_LABELS[id] ?? id[0].toUpperCase() + id.slice(1) })),
 				},
 				{ type: 'textinput', label: 'Value', id: 'value', default: '50', useVariables: true },
 			],
 			callback: async ({ options }) => {
-				const value = String(options.value ?? '').trim()
-				if (value.length > 0) send(`LUMIA ${choice(options.control, 'flow')} ${value}`)
+				const value = required(options.value, 'Lumia value')
+				if (value) send(`LUMIA ${choice(options.control, 'flow')} ${value}`)
 			},
 		},
 		lumia_lfo: {
@@ -1310,7 +1336,7 @@ export function buildActions(self) {
 					default: 'flow',
 					choices: LUMIA_CONTROLS.filter((id) => !LUMIA_NO_LFO.includes(id)).map((id) => ({
 						id,
-						label: id[0].toUpperCase() + id.slice(1),
+						label: LUMIA_LABELS[id] ?? id[0].toUpperCase() + id.slice(1),
 					})),
 				},
 				lfoSettingOption(),
@@ -1373,8 +1399,8 @@ export function buildActions(self) {
 			description: 'The selected Voice cue says this text. With no Voice cue selected, Deckboy makes one.',
 			options: [{ type: 'textinput', label: 'Text', id: 'text', default: '', useVariables: true }],
 			callback: async ({ options }) => {
-				const text = String(options.text ?? '').trim()
-				if (text.length > 0) send(`VOICE SAY ${text}`)
+				const text = required(options.text, 'Words to say')
+				if (text) send(`VOICE SAY ${text}`)
 			},
 		},
 		voice_character: {
@@ -1384,8 +1410,8 @@ export function buildActions(self) {
 				{ type: 'textinput', label: 'Character name or CUSTOM', id: 'name', default: 'CUSTOM', useVariables: true },
 			],
 			callback: async ({ options }) => {
-				const name = String(options.name ?? '').trim()
-				if (name.length > 0) send(`VOICE CHARACTER ${name}`)
+				const name = required(options.name, 'Character')
+				if (name) send(`VOICE CHARACTER ${name}`)
 			},
 		},
 		voice_mode: {
@@ -1451,7 +1477,16 @@ export function buildActions(self) {
 						{ id: 'output', label: 'Output' },
 					],
 				},
-				{ type: 'number', label: 'Playlist or output number', id: 'number', default: 1, min: 1, max: 64, asInteger: true },
+				{
+					type: 'number',
+					label: 'Playlist or output number',
+					id: 'number',
+					default: 1,
+					min: 1,
+					max: Math.max(MAX_DECKS, MAX_OUTPUTS),
+					asInteger: true,
+					isVisibleExpression: `$(options:source) != 'input'`,
+				},
 			],
 			callback: ({ options }) => {
 				const source = choice(options.source, 'input')
@@ -1576,9 +1611,9 @@ export function buildActions(self) {
 			callback: async ({ options }) => {
 				const deck = number(options.deck, 'Deck', { integer: true })
 				const slot = number(options.slot, 'Slot', { integer: true })
-				const x = String(options.x ?? '').trim()
-				const y = String(options.y ?? '').trim()
-				if (deck !== null && slot !== null && x && y) send(`PAD ${deck} ASSIGN ${slot} ${x} ${y}`)
+				const x = deck !== null && slot !== null ? required(options.x, 'Pad X control') : ''
+				const y = x ? required(options.y, 'Pad Y control') : ''
+				if (x && y) send(`PAD ${deck} ASSIGN ${slot} ${x} ${y}`)
 			},
 		},
 		pad_slot: {
